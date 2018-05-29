@@ -103,3 +103,6 @@ ENV/
 
 # Pycharm
 .idea
+
+# Travis
+.travis.yml
