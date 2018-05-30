@@ -24,8 +24,8 @@ class MyClass3:
     """
 
     def __init__(self, a: float, b: float):
-        self.a = a
         self.b = b
+        self.a = a
 
     def addition(self) -> float:
         """
