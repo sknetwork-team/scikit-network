@@ -11,7 +11,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', ]
+requirements = ['Click>=6.0', 'numpy', 'networkx', ]
 
 setup_requirements = ['pytest-runner', ]
 
@@ -41,7 +41,7 @@ setup(
     long_description=readme + '\n\n' + history,
     include_package_data=True,
     keywords='sknetwork',
-    name='sknetwork',
+    name='scikit-network',
     # packages=find_packages(include=['sknetwork']),
     packages=find_packages(),
     setup_requires=setup_requirements,

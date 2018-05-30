@@ -6,25 +6,23 @@ scikit-network
 .. image:: https://img.shields.io/pypi/v/sknetwork.svg
         :target: https://pypi.python.org/pypi/sknetwork
 
-.. image:: https://img.shields.io/travis/sharpenb/sknetwork.svg
-        :target: https://travis-ci.org/sharpenb/sknetwork
+.. image:: https://travis-ci.org/sknetwork-organization/scikit-network.svg
+        :target: https://travis-ci.org/sknetwork-organization/scikit-network
 
-.. image:: https://readthedocs.org/projects/sknetwork/badge/?version=latest
-        :target: https://sknetwork.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/scikit-network/badge/?version=latest
+        :target: https://scikit-network.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-
-.. image:: https://pyup.io/repos/github/sharpenb/sknetwork/shield.svg
-     :target: https://pyup.io/repos/github/sharpenb/sknetwork/
-     :alt: Updates
-
+.. image:: https://pyup.io/repos/github/sknetwork-organization/scikit-network/shield.svg
+        :target: https://pyup.io/repos/github/sknetwork-organization/scikit-network/
+        :alt: Updates
 
 
 Graph algorithms
 
 
 * Free software: BSD license
-* Documentation: https://sknetwork.readthedocs.io.
+* Documentation: https://scikit-network.readthedocs.io.
 
 
 Features
