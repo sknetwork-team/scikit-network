@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/sknetwork-organization/scikit-network
+    $ git clone git://github.com/sknetwork-team/scikit-network
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/sknetwork-organization/scikit-network/tarball/master
+    $ curl  -OL https://github.com/sknetwork-team/scikit-network/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/sknetwork-organization/scikit-network
-.. _tarball: https://github.com/sknetwork-organization/scikit-network/tarball/master
+.. _Github repo: https://github.com/sknetwork-team/scikit-network
+.. _tarball: https://github.com/sknetwork-team/scikit-network/tarball/master
