@@ -3,8 +3,8 @@ scikit-network
 ==============
 
 
-.. image:: https://img.shields.io/pypi/v/sknetwork.svg
-        :target: https://pypi.python.org/pypi/sknetwork
+.. image:: https://img.shields.io/pypi/v/scikit-network.svg
+        :target: https://pypi.python.org/pypi/scikit-network
 
 .. image:: https://travis-ci.org/sknetwork-organization/scikit-network.svg
         :target: https://travis-ci.org/sknetwork-organization/scikit-network

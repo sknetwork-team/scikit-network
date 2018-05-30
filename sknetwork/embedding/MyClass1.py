@@ -14,7 +14,7 @@ This file is part of My Toy Package.
     You should have received a copy of the GNU General Public License
     along with My Toy Package.  If not, see <http://www.gnu.org/licenses/>.
 """
-from sknetwork.hierarchy.MyClass2 import MyClass2
+from sknetwork.hierarchical_clustering.MyClass2 import MyClass2
 
 
 class MyClass1:
