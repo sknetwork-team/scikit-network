@@ -8,7 +8,8 @@ Welcome to scikit-network's documentation!
    readme
    installation
    usage
-   reference
+   reference/index
+   reference2
    modules
    contributing
    authors

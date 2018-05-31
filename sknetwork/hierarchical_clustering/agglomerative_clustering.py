@@ -1,4 +1,4 @@
-# import numpy as np
+import numpy as np
 import networkx as nx
 
 
@@ -6,7 +6,7 @@ _AFFINITY = {'unitary', 'weighted'}
 _LINKAGE = {'single', 'average', 'complete', 'modular'}
 
 
-def linkage_clustering(graph, affinity='weighted', linkage='modular', f=lambda l: - (l), check=True):
+def linkage_clustering(graph, affinity='weighted', linkage='modular', f=lambda l: - np.log(l), check=True):
     """Compute a hierarchy of an undirected graph given a linkage. The graph can be weighted or unweighted
 
     Parameters
