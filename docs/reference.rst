@@ -16,3 +16,12 @@ Another Nice Section
 
 .. autoclass:: sknetwork.MyClass3
     :members:
+
+Hierarchical algorithms
+-----------------------
+
+.. automodule:: sknetwork.agglomerative_clustering
+.. autosummary::
+   :toctree: generated/
+
+    linkage_clustering
