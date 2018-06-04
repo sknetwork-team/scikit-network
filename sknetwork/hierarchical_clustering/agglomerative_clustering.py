@@ -64,11 +64,11 @@ def linkage_clustering(graph, affinity='weighted', linkage='modular', f=lambda l
 
     if affinity not in _AFFINITY:
         raise ValueError("Unknown affinity type %s."
-                         "Valid options are %s" % (affinity, _AFFINITY.keys()))
+                         "Valid options are %s" % (affinity, _AFFINITY))
 
     if linkage not in _LINKAGE:
         raise ValueError("Unknown linkage type %s."
-                         "Valid options are %s" % (linkage, _LINKAGE.keys()))
+                         "Valid options are %s" % (linkage, _LINKAGE))
 
     graph_copy = graph.copy()
 
@@ -341,7 +341,7 @@ def modular_linkage_hierarchy(graph, f):
             break
         while chain:
             a = chain.pop()
-            d_min = float("inf")
+            linkage_max = - float("inf")
             b = -1
             neighbors_a = list(graph.neighbors(a))
             for v in neighbors_a:

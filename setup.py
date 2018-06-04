@@ -15,7 +15,7 @@ requirements = ['Click>=6.0', 'numpy', 'networkx', ]
 
 setup_requirements = ['pytest-runner', ]
 
-test_requirements = ['pytest', ]
+test_requirements = ['pytest', 'nose', ]
 
 setup(
     author="Bertrand Charpentier",
