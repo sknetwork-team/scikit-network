@@ -43,7 +43,15 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.napoleon',
               'sphinx.ext.todo',
               'sphinx.ext.viewcode',
-              'texext',]
+              'sphinx_gallery.gen_gallery',]
+
+sphinx_gallery_conf = {
+    # path to your examples scripts
+    'examples_dirs': '../examples',
+    # path where to save gallery generated examples
+    'gallery_dirs': 'auto_examples',
+    'backreferences_dir': 'modules/generated',
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
