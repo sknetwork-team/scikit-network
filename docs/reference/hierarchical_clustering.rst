@@ -15,3 +15,12 @@ Agglomerative approach
 
 Divisive approach
 -----------------
+
+Metrics
+-------
+.. automodule:: sknetwork.hierarhcical_clustering.metrics
+.. autosummary::
+   :toctree: generated/
+
+   hierarchical_cost
+

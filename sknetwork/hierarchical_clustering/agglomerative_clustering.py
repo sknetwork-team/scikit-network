@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+# agglomerative_clustering.py - functions for computing hierarchy using agglomerative approach
+#
+# Copyright 2018 Scikit-network Developers.
+# Copyright 2018 Bertrand Charpentier <bertrand.charpentier@live.fr>
+#
+# This file is part of Scikit-network.
+#
+# NetworkX is distributed under a BSD license; see LICENSE.txt for more information.
 """
 Agglomerative clustering algorithms
 """

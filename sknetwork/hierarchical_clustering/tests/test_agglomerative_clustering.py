@@ -1,3 +1,13 @@
+# -*- coding: utf-8 -*-
+# test for agglomerative_clustering.py
+#
+# Copyright 2018 Scikit-network Developers.
+# Copyright 2018 Bertrand Charpentier <bertrand.charpentier@live.fr>
+#
+# This file is part of Scikit-network.
+#
+# NetworkX is distributed under a BSD license; see LICENSE.txt for more information.
+
 import unittest
 from sknetwork.hierarchical_clustering.agglomerative_clustering import *
 
