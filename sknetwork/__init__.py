@@ -4,10 +4,7 @@
 
 __author__ = """Bertrand Charpentier"""
 __email__ = 'bertrand.charpentier@live.fr'
-__version__ = '0.1.0'
-
-from .hierarchical_clustering.MyClass2 import MyClass2
-from .embedding.MyClass1 import MyClass1
+__version__ = '0.1.1'
 
 from .hierarchical_clustering.agglomerative_clustering import linkage_clustering
 from .hierarchical_clustering.metrics import hierarchical_cost
