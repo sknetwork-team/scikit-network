@@ -5,5 +5,6 @@ Reference
 
 .. toctree::
 
-    hierarchical_clustering
     embedding
+    flat_clustering
+    hierarchical_clustering
