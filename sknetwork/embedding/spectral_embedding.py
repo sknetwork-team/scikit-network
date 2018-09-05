@@ -4,7 +4,7 @@
 """
 Created on Thu Aug 2 2018
 
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <ndelara@enst.fr>, Thomas Bonald <thomas.bonald@telecom-paristech.fr>
 
 Spectral embedding by decomposition of the normalized graph Laplacian.
 """
@@ -36,7 +36,7 @@ class SpectralEmbedding:
 
         References
         ----------
-        -
+        - Weighted Spectral Embedding, T. Bonald
         """
     def __init__(self, n_components=2):
         self.n_components = n_components
