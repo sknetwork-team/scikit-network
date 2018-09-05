@@ -5,9 +5,11 @@ Embedding
 
 .. currentmodule:: sknetwork
 
-Spectral embedding
-------------------
 
-Metrics
--------
+Spectral embeddings
+------------------
+.. automodule:: sknetwork.embedding.forward_backward_embedding
+   :toctree: generated/
+
+   ForwardBackwardEmbedding
 
