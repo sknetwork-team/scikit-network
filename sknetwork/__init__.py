@@ -9,4 +9,5 @@ __version__ = '0.1.1'
 from .hierarchical_clustering.agglomerative_clustering import linkage_clustering
 from .hierarchical_clustering.metrics import hierarchical_cost
 from .embedding.forwardbackward_embedding import ForwardBackwardEmbedding
+from .embedding.spectral_embedding import SpectralEmbedding
 
