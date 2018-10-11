@@ -11,8 +11,6 @@ Agglomerative approach
 .. autosummary::
    :toctree: generated/
 
-   linkage_clustering
-
 .. autofunction:: sknetwork.linkage_clustering
 
 Divisive approach
@@ -24,5 +22,4 @@ Metrics
 .. autosummary::
    :toctree: generated/
 
-   hierarchical_cost
-
+.. autofunction:: sknetwork.hierarhcical_clustering.metrics.hierarchical_cost
