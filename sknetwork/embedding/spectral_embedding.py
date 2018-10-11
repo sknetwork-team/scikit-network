@@ -2,83 +2,120 @@
 # coding: utf-8
 
 """
-Created on Thu Aug 2 2018
+Created on Thu Sep 13 2018
 
-@author: Nathan de Lara <ndelara@enst.fr>, Thomas Bonald <thomas.bonald@telecom-paristech.fr>
+Authors:
+Thomas Bonald <thomas.bonald@telecom-paristech.fr>
+Nathan De Lara <nathan.delara@telecom-paristech.fr>
 
 Spectral embedding by decomposition of the normalized graph Laplacian.
 """
 
-import networkx as nx
 import numpy as np
-import scipy
-from scipy import sparse
+from scipy import sparse, errstate, sqrt, isinf
+from scipy.sparse import csgraph
 from scipy.sparse.linalg import eigsh
 
 
 class SpectralEmbedding:
-    """Spectral embeddings for non-linear dimensionality reduction.
-        .. math::
-            X = (\Lambda^{1/2})^{\dagger}V^TD^{-1/2}
-        where 'V\Lambda V^T' is the decomposition of the normalized graph Laplacian.
-        Parameters
-        -----------
-        n_components : integer, default: 2
-            The dimension of the projected subspace.
+    """Weighted spectral embedding of a graph
 
         Attributes
         ----------
-        embedding_ : array, shape = (n_samples, n_components)
-            Embedding matrix of the nodes.
+        embedding_ : array, shape = (n_nodes, embedding_dimension)
+            Embedding matrix of the nodes
 
-        eigenvalues_ : array, shape = (n_components)
+        eigenvalues_ : array, shape = (embedding_dimension)
             Smallest eigenvalues of the training matrix
 
         References
         ----------
-        - Weighted Spectral Embedding, T. Bonald
+        * Weighted Spectral Embedding, T. Bonald
+        * Laplacian Eigenmaps for Dimensionality Reduction and Data Representation, M. Belkin, P. Niyogi
         """
-    def __init__(self, n_components=2):
-        self.n_components = n_components
-        self.embedding_ = None
-        self.eigenvalues_ = None
 
-    def fit(self, graph, tol=1e-6):
-        """Fits the model from data in adjacency_matrix.
+    def __init__(self, embedding_dimension=100, node_weights='uniform', eigenvalue_normalization=True):
+        """
         Parameters
         ----------
-        graph: networkx graph, Scipy scr matrix or numpy ndarray.
-
-        tol: float, default: 1e-6
-            Tolerance for pseudo inverse computation of eigen values.
+        embedding_dimension : int, optional
+            Dimension of the embedding space (default=100)
+        eigenvalue_normalization : bool, optional
+            Whether to normalize the embedding by the pseudo-inverse square roots of laplacian eigenvalues
+            (default=True)
+        node_weights : {'uniform', 'degree', array of length n_nodes with positive entries}, optional
+            Weights used for the normalization for the laplacian, W^{-1/2} L W^{-1/2}
         """
-        if type(graph) == sparse.csr_matrix:
-            adj_matrix = graph
-        elif type(graph) == np.ndarray:
-            adj_matrix = sparse.csr_matrix(graph)
-        elif type(graph) == nx.classes.graph.Graph:
-            adj_matrix = nx.adjacency_matrix(graph)
-        elif type(graph) == nx.classes.digraph.DiGraph:
-            adj_matrix = nx.adjacency_matrix(graph.to_undirected())
+
+        self.embedding_dimension = embedding_dimension
+        self.embedding_ = None
+        self.eigenvalues_ = None
+        self.eigenvalue_normalization = eigenvalue_normalization
+        self.node_weights = node_weights
+
+    def fit(self, adjacency_matrix, node_weights=None):
+        """Fits the model from data in adjacency_matrix
+
+        Parameters
+        ----------
+        adjacency_matrix : Scipy csr matrix or numpy ndarray
+              Adjacency matrix of the graph
+        node_weights : {'uniform', 'degree', array of length n_nodes with positive entries}
+              Node weights
+        """
+
+        if type(adjacency_matrix) == sparse.csr_matrix:
+            adj_matrix = adjacency_matrix
+        elif sparse.isspmatrix(adjacency_matrix) or type(adjacency_matrix) == np.ndarray:
+            adj_matrix = sparse.csr_matrix(adjacency_matrix)
         else:
             raise TypeError(
-                "The argument should be a NetworkX graph, a NumPy array or a SciPy Compressed Sparse Row matrix.")
+                "The argument must be a NumPy array or a SciPy Sparse matrix.")
         n_nodes, m_nodes = adj_matrix.shape
         if n_nodes != m_nodes:
-            raise ValueError("The adjacency matrix is not square.")
+            raise ValueError("The adjacency matrix must be a square matrix.")
+        if csgraph.connected_components(adj_matrix, directed=False)[0] > 1:
+            raise ValueError("The graph must be connected.")
+        if (adj_matrix != adj_matrix.maximum(adj_matrix.T)).nnz != 0:
+            raise ValueError("The adjacency matrix is not symmetric.")
 
-        diags = adj_matrix.sum(axis=1).flatten()
-        degree_matrix = sparse.spdiags(diags, [0], n_nodes, n_nodes, format='csr')
+        # builds standard laplacian
+        degrees = adj_matrix.dot(np.ones(n_nodes))
+        degree_matrix = sparse.diags(degrees, format='csr')
         laplacian = degree_matrix - adj_matrix
-        with scipy.errstate(divide='ignore'):
-            diags_sqrt = 1.0 / scipy.sqrt(diags)
-        diags_sqrt[scipy.isinf(diags_sqrt)] = 0
-        dh = sparse.spdiags(diags_sqrt, [0], n_nodes, n_nodes, format='csr')
-        laplacian = dh.dot(laplacian.dot(dh))
 
-        w, v = eigsh(laplacian, self.n_components, which='SM')
+        # applies normalization by node weights
+        if node_weights is None:
+            node_weights = self.node_weights
+        if type(node_weights) == str:
+            if node_weights == 'uniform':
+                weight_matrix = sparse.identity(n_nodes)
+            elif node_weights == 'degree':
+                with errstate(divide='ignore'):
+                    degrees_inv_sqrt = 1.0 / sqrt(degrees)
+                degrees_inv_sqrt[isinf(degrees_inv_sqrt)] = 0
+                weight_matrix = sparse.diags(degrees_inv_sqrt, format='csr')
+            else:
+                raise ValueError('Unknown weighting policy. Try \'degree\' or \'uniform\'.')
+        else:
+            if len(self.node_weights) != n_nodes:
+                raise ValueError('node_weights must be an array of length n_nodes.')
+            elif min(self.node_weights) < 0:
+                raise ValueError('node_weights must be positive.')
+            else:
+                with errstate(divide='ignore'):
+                    weights_inv_sqrt = 1.0 / sqrt(self.node_weights)
+                weights_inv_sqrt[isinf(weights_inv_sqrt)] = 0
+                weight_matrix = sparse.diags(weights_inv_sqrt, format='csr')
+        laplacian = weight_matrix.dot(laplacian.dot(weight_matrix))
 
-        self.eigenvalues_ = w
-        self.embedding_ = np.array([1 / np.sqrt(x) if x > tol else 0 for x in w]) * v.dot(dh)
+        # spectral decomposition
+        eigenvalues, eigenvectors = eigsh(laplacian, min(self.embedding_dimension + 1, n_nodes - 1), which='SM')
+        self.eigenvalues_ = eigenvalues[1:]
+
+        self.embedding_ = np.array(weight_matrix.dot(eigenvectors[:, 1:]))
+        if self.eigenvalue_normalization:
+            eigenvalues_inv_sqrt = 1.0 / sqrt(eigenvalues[1:])
+            self.embedding_ = eigenvalues_inv_sqrt * self.embedding_
 
         return self
