@@ -22,9 +22,15 @@ class SpectralEmbedding:
 
         Attributes
         ----------
+        embedding_dimension : int, optional
+            Dimension of the embedding space (default=100)
+        eigenvalue_normalization : bool, optional
+            Whether to normalize the embedding by the pseudo-inverse square roots of laplacian eigenvalues
+            (default=True)
+        node_weights : {'uniform', 'degree', array of length n_nodes with positive entries}, optional
+            Weights used for the normalization for the laplacian, :math:'W^{-1/2} L W^{-1/2}'
         embedding_ : array, shape = (n_nodes, embedding_dimension)
             Embedding matrix of the nodes
-
         eigenvalues_ : array, shape = (embedding_dimension)
             Smallest eigenvalues of the training matrix
 
@@ -34,24 +40,12 @@ class SpectralEmbedding:
         * Laplacian Eigenmaps for Dimensionality Reduction and Data Representation, M. Belkin, P. Niyogi
         """
 
-    def __init__(self, embedding_dimension=100, node_weights='uniform', eigenvalue_normalization=True):
-        """
-        Parameters
-        ----------
-        embedding_dimension : int, optional
-            Dimension of the embedding space (default=100)
-        eigenvalue_normalization : bool, optional
-            Whether to normalize the embedding by the pseudo-inverse square roots of laplacian eigenvalues
-            (default=True)
-        node_weights : {'uniform', 'degree', array of length n_nodes with positive entries}, optional
-            Weights used for the normalization for the laplacian, W^{-1/2} L W^{-1/2}
-        """
-
+    def __init__(self, embedding_dimension: int=100, node_weights='uniform', eigenvalue_normalization: bool=True):
         self.embedding_dimension = embedding_dimension
+        self.node_weights = node_weights
+        self.eigenvalue_normalization = eigenvalue_normalization
         self.embedding_ = None
         self.eigenvalues_ = None
-        self.eigenvalue_normalization = eigenvalue_normalization
-        self.node_weights = node_weights
 
     def fit(self, adjacency_matrix, node_weights=None):
         """Fits the model from data in adjacency_matrix
