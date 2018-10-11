@@ -28,7 +28,7 @@ class SpectralEmbedding:
             Whether to normalize the embedding by the pseudo-inverse square roots of laplacian eigenvalues
             (default=True)
         node_weights : {'uniform', 'degree', array of length n_nodes with positive entries}, optional
-            Weights used for the normalization for the laplacian, :math:'W^{-1/2} L W^{-1/2}'
+            Weights used for the normalization for the laplacian, :math:`W^{-1/2} L W^{-1/2}`
         embedding_ : array, shape = (n_nodes, embedding_dimension)
             Embedding matrix of the nodes
         eigenvalues_ : array, shape = (embedding_dimension)
