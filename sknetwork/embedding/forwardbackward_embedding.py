@@ -8,10 +8,116 @@ Created on Thu May 31 17:16:22 2018
 Part of this code was adapted from the scikit-learn project.
 """
 
-import networkx as nx
 import numpy as np
 
 from scipy import sparse, errstate, sqrt, isinf, linalg
+
+
+class ForwardBackwardEmbedding:
+    """Forward and Backward embeddings for non-linear dimensionality reduction.
+
+    Parameters
+    -----------
+    n_components: int, optional
+        The dimension of the projected subspace (default=2).
+
+    Attributes
+    ----------
+    embedding_ : array, shape = (n_samples, n_components)
+        Forward embedding of the training matrix.
+
+    backward_embedding_ : array, shape = (n_samples, n_components)
+        Backward embedding of the training matrix.
+
+    singular_values_ : array, shape = (n_components)
+        Singular values of the training matrix
+
+    References
+    ----------
+    - Bonald, De Lara. "The Forward-Backward Embedding of Directed Graphs."
+    """
+
+    def __init__(self, n_components=2):
+        self.n_components = n_components
+        self.embedding_ = None
+        self.backward_embedding_ = None
+        self.singular_values_ = None
+
+    def fit(self, adjacency_matrix, tol=1e-6, n_iter='auto',
+            power_iteration_normalizer='auto', random_state=None):
+        """Fits the model from data in adjacency_matrix.
+
+        Parameters
+        ----------
+        adjacency_matrix: array-like, shape = (n, m)
+            Adjacency matrix, where n = m = |V| for a standard graph,
+            n = |V1|, m = |V2| for a bipartite graph.
+
+        tol: float, optional
+            Tolerance for pseudo-inverse of singular values (default=1e-6).
+
+        n_iter: int or 'auto' (default is 'auto')
+            Number of power iterations. It can be used to deal with very noisy
+            problems. When 'auto', it is set to 4, unless `n_components` is small
+            (< .1 * min(X.shape)) `n_iter` in which case is set to 7.
+            This improves precision with few components.
+
+        power_iteration_normalizer: 'auto' (default), 'QR', 'LU', 'none'
+            Whether the power iterations are normalized with step-by-step
+            QR factorization (the slowest but most accurate), 'none'
+            (the fastest but numerically unstable when `n_iter` is large, e.g.
+            typically 5 or larger), or 'LU' factorization (numerically stable
+            but can lose slightly in accuracy). The 'auto' mode applies no
+            normalization if `n_iter`<=2 and switches to LU otherwise.
+
+        random_state: int, RandomState instance or None, optional (default=None)
+            The seed of the pseudo random number generator to use when shuffling
+            the data.  If int, random_state is the seed used by the random number
+            generator; If RandomState instance, random_state is the random number
+            generator; If None, the random number generator is the RandomState
+            instance used by `np.random`.
+
+        Returns
+        -------
+        self
+
+        """
+        if type(adjacency_matrix) == sparse.csr_matrix:
+            adj_matrix = adjacency_matrix
+        elif type(adjacency_matrix) == np.ndarray:
+            adj_matrix = sparse.csr_matrix(adjacency_matrix)
+        else:
+            raise TypeError(
+                "The argument should be a NumPy array or a SciPy Compressed Sparse Row matrix.")
+        n_nodes, m_nodes = adj_matrix.shape
+
+        # out-degree vector
+        dou = adj_matrix.sum(axis=1).flatten()
+        # in-degree vector
+        din = adj_matrix.sum(axis=0).flatten()
+
+        with errstate(divide='ignore'):
+            dou_sqrt = 1.0 / sqrt(dou)
+            din_sqrt = 1.0 / sqrt(din)
+        dou_sqrt[isinf(dou_sqrt)] = 0
+        din_sqrt[isinf(din_sqrt)] = 0
+        # pseudo inverse square-root out-degree matrix
+        dhou = sparse.spdiags(dou_sqrt, [0], n_nodes, n_nodes, format='csr')
+        # pseudo inverse square-root in-degree matrix
+        dhin = sparse.spdiags(din_sqrt, [0], m_nodes, m_nodes, format='csr')
+
+        laplacian = dhou.dot(adj_matrix.dot(dhin))
+        u, sigma, vt = randomized_svd(laplacian, self.n_components, n_iter=n_iter,
+                                      power_iteration_normalizer=power_iteration_normalizer, random_state=random_state)
+
+        self.singular_values_ = sigma
+
+        gamma = 1 - sigma ** 2
+        gamma_sqrt = np.diag(np.piecewise(gamma, [gamma > tol, gamma <= tol], [lambda x: 1 / np.sqrt(x), 0]))
+        self.embedding_ = dhou.dot(u).dot(gamma_sqrt)
+        self.backward_embedding_ = dhin.dot(vt.T).dot(gamma_sqrt)
+
+        return self
 
 
 def safe_sparse_dot(a, b, dense_output=False):
@@ -278,129 +384,3 @@ def randomized_svd(M, n_components, n_oversamples=10, n_iter='auto', transpose='
         return U[:, :n_components], s[:n_components], V[:n_components, :]
 
 
-class ForwardBackwardEmbedding:
-    """Forward and Backward embeddings for non-linear dimensionality reduction.
-
-    Parameters
-    -----------
-    n_components : integer, default: 2
-        The dimension of the projected subspace.
-
-    Attributes
-    ----------
-    forward_ : array, shape = (n_samples, n_components)
-        Forward embedding of the training matrix.
-
-    backward_ : array, shape = (n_samples, n_components)
-        Backward embedding of the training matrix.
-
-    leftsvd_ : array, shape = (n_samples, n_components)
-        Dhillon left embedding of the training matrix.
-
-    rightsvd_ : array, shape = (n_samples, n_components)
-        Dhillon right embedding of the training matrix.
-
-    singular_values_ : array, shape = (n_components)
-        Singular values of the training matrix
-
-    References
-    ----------
-    - Dhillon, Inderjit S. "Co-clustering documents and words using bipartite spectral graph partitioning."
-      Proceedings of the seventh ACM SIGKDD international conference on Knowledge discovery and data mining. ACM, 2001.
-    """
-
-    def __init__(self, n_components=2):
-        self.n_components = n_components
-        self.forward_ = None
-        self.backward_ = None
-        self.leftsvd_ = None
-        self.rightsvd_ = None
-        self.singular_values_ = None
-
-    def fit(self, graph, bipartite=None, tol=1e-6, n_iter='auto', power_iteration_normalizer='auto', random_state=None):
-        """Fits the model from data in adjacency_matrix.
-        Parameters
-        ----------
-        graph : networkx graph object or an array-like, shape = (n, m)
-            Adjacency matrix, where n = m = |V| for a standard graph,
-            n = |V1|, m = |V2| for a bipartite graph.
-
-        bipartite : None or (row, col)
-            row, col : lists of index of nodes in V1 and V2.
-            Then, the algorithm will work on the rectangular bipartite
-            adjacency matrix defined by 'row' and 'col'.
-
-        tol : float
-            Tolerance for pseudo-inverse of singular values.
-
-        n_iter : int or 'auto' (default is 'auto')
-            Number of power iterations. It can be used to deal with very noisy
-            problems. When 'auto', it is set to 4, unless `n_components` is small
-            (< .1 * min(X.shape)) `n_iter` in which case is set to 7.
-            This improves precision with few components.
-
-        power_iteration_normalizer : 'auto' (default), 'QR', 'LU', 'none'
-            Whether the power iterations are normalized with step-by-step
-            QR factorization (the slowest but most accurate), 'none'
-            (the fastest but numerically unstable when `n_iter` is large, e.g.
-            typically 5 or larger), or 'LU' factorization (numerically stable
-            but can lose slightly in accuracy). The 'auto' mode applies no
-            normalization if `n_iter`<=2 and switches to LU otherwise.
-
-        random_state : int, RandomState instance or None, optional (default=None)
-            The seed of the pseudo random number generator to use when shuffling
-            the data.  If int, random_state is the seed used by the random number
-            generator; If RandomState instance, random_state is the random number
-            generator; If None, the random number generator is the RandomState
-            instance used by `np.random`.
-
-        Returns
-        -------
-
-        """
-        if type(graph) == sparse.csr_matrix:
-            adj_matrix = graph
-        elif type(graph) == np.ndarray:
-            adj_matrix = sparse.csr_matrix(graph)
-        elif type(graph) in [nx.classes.graph.Graph, nx.classes.digraph.DiGraph]:
-            if bipartite:
-                adj_matrix = nx.algorithms.bipartite.biadjacency_matrix(graph, bipartite[0], bipartite[1])
-            else:
-                adj_matrix = nx.adj_matrix(graph)
-        else:
-            raise TypeError(
-                "The argument should be a NetworkX graph, a NumPy array or a SciPy Compressed Sparse Row matrix.")
-        n_nodes, m_nodes = adj_matrix.shape
-
-        if not sparse.isspmatrix_csr(adj_matrix):
-            adj_matrix = sparse.csr_matrix(adj_matrix)
-
-        # out-degree vector
-        dou = adj_matrix.sum(axis=1).flatten()
-        # in-degree vector
-        din = adj_matrix.sum(axis=0).flatten()
-
-        with errstate(divide='ignore'):
-            dou_sqrt = 1.0 / sqrt(dou)
-            din_sqrt = 1.0 / sqrt(din)
-        dou_sqrt[isinf(dou_sqrt)] = 0
-        din_sqrt[isinf(din_sqrt)] = 0
-        # pseudo inverse square-root out-degree matrix
-        dhou = sparse.spdiags(dou_sqrt, [0], n_nodes, n_nodes, format='csr')
-        # pseudo inverse square-root in-degree matrix
-        dhin = sparse.spdiags(din_sqrt, [0], m_nodes, m_nodes, format='csr')
-
-        laplacian = dhou.dot(adj_matrix.dot(dhin))
-        u, sigma, vt = randomized_svd(laplacian, self.n_components, n_iter=n_iter,
-                                      power_iteration_normalizer=power_iteration_normalizer, random_state=random_state)
-
-        self.singular_values_ = sigma
-        self.leftsvd_ = dhou.dot(u)
-        self.rightsvd_ = dhin.dot(vt.T)
-
-        gamma = 1 - sigma ** 2
-        gamma_sqrt = np.diag(np.piecewise(gamma, [gamma > tol, gamma <= tol], [lambda x: 1 / np.sqrt(x), 0]))
-        self.forward_ = self.leftsvd_.dot(gamma_sqrt)
-        self.backward_ = self.rightsvd_.dot(gamma_sqrt)
-
-        return self

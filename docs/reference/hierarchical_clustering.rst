@@ -13,6 +13,8 @@ Agglomerative approach
 
    linkage_clustering
 
+.. autofunction:: sknetwork.linkage_clustering
+
 Divisive approach
 -----------------
 
