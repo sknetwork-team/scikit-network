@@ -52,12 +52,31 @@ class BFS_algo(DeleteCacheMixin):
 					self._discovered.add(k)
 			q.popleft()
 
-	#@cached_property
 	def tree(self,s):
+		"""
+		constructs the BFS tree from source s
+
+		"""
 		self.parent = {i:-1 for i in self._graph._graph_dict.keys()}
 		for (v,k) in self.iter_edge(s):
 			if k not in self._discovered:
 				self.parent[k] = int(v)
 		#return self.parent
 
+	
+	# TODO use cached_property?
+	#@cached_property
+	def find_path(self,a,b,init = True):
+		"""
+		find the shortest (unweighted) path from a to b
+		"""
+		if init == True:
+			self.tree(a)
 
+		if a == b:
+			print('path:', a, end='')
+		elif b == -1:
+			print("There is no path from %d to " %a, end='')
+		else:
+			self.find_path(a,int(self.parent[b]),init=False)
+			print(b, end='')

@@ -48,7 +48,7 @@ class Graph(object):
 	@property
 	def graph_dict(self):
 		"""
-		gets the graph dic and checks if the graph is undirected.
+		gets the graph dic and checks consistencies if the graph is directed or undirected.
 
 		"""
 		return self._graph_dict
