@@ -37,6 +37,14 @@ class Graph(object):
 		self.graph_dict = graph_dict
 		self.basics()
 
+	def clear(self):
+		self._directed = None
+		self.graph_dict = {}
+		self.n_vertices = None
+		self.n_edges = None
+		self.degrees = {}
+		self.basics()
+
 	@property
 	def graph_dict(self):
 		"""
@@ -77,25 +85,28 @@ class Graph(object):
 	def vertices(self):
 		return list(self._graph_dict.keys())
 
-	def add_vertex(self, v):
+	def add_vertex(self, v, verbose = False):
 		if v not in self.vertices():
 			self._graph_dict[v] = []
 			self.degrees[v] = 0
 			self.n_vertices += 1
+			if verbose:
+				print('Added vertex: %d.' %v)
+		elif verbose:
+			print('no vertex added, vertex %d already present.' %v)
 
-	def add_edge(self, x, y, direct = False):
+	def add_edge(self, x, y, direct = False, verbose = False):
 		"""
 		add an edge
 		"""
 		if direct == False:
 			if self._directed == True:
 				raise ValueError("Please add a directed edge, using direct=True")
-		else:
-			if self._directed == False:
-				raise ValueError("Please add an undirected edge, using direct=False")
+		elif self._directed == False:
+			raise ValueError("Please add an undirected edge, using direct=False")
 
-		self.add_vertex(x)
-		self.add_vertex(y)
+		self.add_vertex(x,verbose=verbose)
+		self.add_vertex(y,verbose=verbose)
 		self._graph_dict[x].append(y)
 		self.degrees[x] += 1
 		if direct == False:
