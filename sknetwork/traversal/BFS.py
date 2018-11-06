@@ -1,21 +1,28 @@
 from model.graph import Graph
 from utils.lazy_property import cached_property, DeleteCacheMixin
 from collections import deque
+from traversal.algo import Algo
 
 
-class BFS_algo(DeleteCacheMixin):
+class BFS_algo(Algo):
 	"""
 	TODO use DeleteCacheMixin?
 	"""
 
 	def __init__(self, graph):
+		super().__init__() 
 		self._graph = graph
+		#self.parent = {}
+		
+
+	def clear(self):
 		self.parent = {}
+		self._discovered = {}
 
-
-	def iter_edge(self, s):
+	def iter(self, s, process_vertex_early = False, process_edge = False, process_vertex_late = False):
 		"""
 		BFS algorithm from source s
+		inspired from http://www3.cs.stonybrook.edu/~skiena/algorist/book/
 
 		Example
 		-------
@@ -28,29 +35,40 @@ class BFS_algo(DeleteCacheMixin):
 	        }
 		>>>G = Graph(graph)
 		>>>BFS = BFS_algo(G)
-		>>>for i in BFS.iter_edge(1):
+		>>>for i in BFS.iter(1, process_vertex_early = True, process_edge = True):
 			print(i)
+		1
 		(1, 0)
 		(1, 2)
 		(1, 4)
+		0
 		(0, 4)
 		(0, 5)
+		2
 		(2, 3)
+		4
 		(4, 3)
+		5
+		3
 		"""
 		q = deque([s])
 		self._discovered = {s}
 		processed = set()
 		while q:
 			v = q[0]
+			if process_vertex_early:
+				yield v
 			processed.add(v)
 			for k in self._graph._graph_dict[v]:
 				if (k not in processed) or self._graph._directed:
-					yield v , k
+					if process_edge:
+						yield v , k
 				if (k not in self._discovered):
 					q.append(k)
 					self._discovered.add(k)
 			q.popleft()
+			if process_vertex_late:
+				yield v
 
 	def tree(self,s):
 		"""
@@ -58,7 +76,7 @@ class BFS_algo(DeleteCacheMixin):
 
 		"""
 		self.parent = {i:-1 for i in self._graph._graph_dict.keys()}
-		for (v,k) in self.iter_edge(s):
+		for (v,k) in self.iter(s,process_edge = True):
 			if k not in self._discovered:
 				self.parent[k] = int(v)
 		#return self.parent
@@ -66,17 +84,23 @@ class BFS_algo(DeleteCacheMixin):
 	
 	# TODO use cached_property?
 	#@cached_property
-	def find_path(self,a,b,init = True):
+	def find_path_BFS(self,a,b):
 		"""
 		find the shortest (unweighted) path from a to b
 		"""
-		if init == True:
-			self.tree(a)
+		self.tree(a)
+		self.find_path(a,b)
 
-		if a == b:
-			print('path:', a, end='')
-		elif b == -1:
-			print("There is no path from %d to " %a, end='')
-		else:
-			self.find_path(a,int(self.parent[b]),init=False)
-			print(b, end='')
+	def connected_components(self):
+		self.clear()
+		c = 0
+		seeds = []
+		for node in self._graph._graph_dict.keys():
+			if node not in self._discovered:
+				c += 1
+				seeds.append(node)
+				print('Component {}:'.format(c))
+				for v in self.iter(node,process_vertex_early=True):
+					print('{}|'.format(v), end='')
+				print()
+		return seeds

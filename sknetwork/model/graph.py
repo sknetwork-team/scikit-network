@@ -32,7 +32,7 @@ class Graph(object):
 
 	"""
 
-	def __init__(self,graph_dict={}, directed = False):
+	def __init__(self,graph_dict = {}, directed = False):
 		self._directed = directed
 		self.graph_dict = graph_dict
 		self.basics()
@@ -55,6 +55,9 @@ class Graph(object):
 	
 	@graph_dict.setter
 	def graph_dict(self, graph_input):
+		if not isinstance(graph_input, dict):
+			raise ValueError("First argument should be a dictionary")
+		
 		if not self._directed:
 			Pb = False
 			for u in graph_input.keys():
