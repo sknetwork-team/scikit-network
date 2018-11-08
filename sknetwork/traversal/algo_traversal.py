@@ -1,6 +1,4 @@
-from model.graph import Graph
-
-class Algo(object):
+class AlgoTraversal(object):
 
 	def __init__(self):
 		self.parent = {}

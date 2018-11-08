@@ -17,7 +17,7 @@ def load_from_mtx(path, directed = True, comments="%", delimiter=None):
     -------
     Download from http://nrvis.com/download/data/dimacs10/polblogs.zip
     and save in p = '/home/USER/scikit-network/data/polblogs.mtx'
-    >>> G = load_from_mtx(p)
+    >>> g = load_from_mtx(p)
     loading graph with 1490 nodes and 19025 edges.
     number of nodes: 1224 (expected 1490); number of edges: 19025 (expected 19025)
 
@@ -26,9 +26,9 @@ def load_from_mtx(path, directed = True, comments="%", delimiter=None):
     Useful repo : https://sparse.tamu.edu/SNAP
 
     """
-    G = Graph()
-    G.clear()
-    G._directed = directed
+    g = Graph()
+    g.clear()
+    g._directed = directed
     first_line = True
     with open(path, 'rt') as f:
         for line in f:
@@ -57,8 +57,8 @@ def load_from_mtx(path, directed = True, comments="%", delimiter=None):
             u=s.pop(0)
             v=s.pop(0)
             d=s
-            G.add_edge(int(u),int(v),direct=True)
+            g.add_edge(int(u),int(v),direct=True)
         
-    G.basics()
-    print("number of nodes: %d (expected %s); number of edges: %d (expected %s)" %(G.n_vertices,n,G.n_edges,e))
-    return G
+    g.basics()
+    print("number of nodes: %d (expected %s); number of edges: %d (expected %s)" %(g.n_vertices,n,g.n_edges,e))
+    return g

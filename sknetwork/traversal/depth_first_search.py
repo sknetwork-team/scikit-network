@@ -1,10 +1,9 @@
 from model.graph import Graph
-from utils.lazy_property import cached_property, DeleteCacheMixin
-from traversal.algo import Algo
+from traversal.algo_traversal import AlgoTraversal
 
-class DFS_algo(Algo):
+class DepthFirstSearchAlgo(AlgoTraversal):
 	"""
-	TODO use DeleteCacheMixin?
+
 	"""
 
 	def __init__(self, graph):
@@ -34,9 +33,9 @@ class DFS_algo(Algo):
 	          4 : [0,1,3],
 	          5 : [0]
 	        }
-		>>>G = Graph(graph)
-		>>>DFS = DFS_algo(G)
-		>>>for i in DFS.iter(1, process_vertex_early = True, process_edge = True):
+		>>>g = Graph(graph)
+		>>>dfs = DepthFirstSearchAlgo(g)
+		>>>for i in dfs.iter(1, process_vertex_early = True, process_edge = True):
 			print(i)
 		1
 		(1, 0)
@@ -62,11 +61,11 @@ class DFS_algo(Algo):
 			self.processed = set()
 
 		self.discovered.add(s)
-		self.time  += 1
+		self.time += 1
 		self.time_entry[s] = self.time
 		if process_vertex_early:
 			yield s
-		for k in self._graph._graph_dict[s]:
+		for k in self._graph.graph_dict[s]:
 			if k not in self.discovered:
 				self.parent[k] = s
 				if process_edge:
@@ -75,7 +74,7 @@ class DFS_algo(Algo):
 					process_vertex_early=process_vertex_early,
 					process_edge=process_edge,
 					process_vertex_late=process_vertex_late)
-			elif (k not in self.processed and self.parent[s]!=k) or self._graph._directed:
+			elif (k not in self.processed and self.parent[s]!=k) or self._graph.directed:
                 #corrected version see http://www3.cs.stonybrook.edu/~skiena/algorist/book/errata
 				if process_edge:
 					yield s,k
@@ -84,7 +83,6 @@ class DFS_algo(Algo):
 		self.time += 1
 		self.processed.add(s)
 		self.time_exit[s] = self.time
-
 
 	def process_edge_cycle(self,u,v):
 		if (v in self.discovered) and self.parent[u] != v:
