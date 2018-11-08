@@ -3,7 +3,7 @@ class AlgoTraversal(object):
 	def __init__(self):
 		self.parent = {}
 
-	def find_path(self,a,b):
+	def find_path(self, a, b):
 		"""
 		find the path from a to b in the tree
 		"""
@@ -12,7 +12,7 @@ class AlgoTraversal(object):
 
 		if a == b:
 			print('path:', a, end='')
-		elif b == -1:
+		elif b < 0:
 			print("There is no path from %d to " %a, end='')
 		else:
 			self.find_path(a,int(self.parent[b]))

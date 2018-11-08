@@ -14,7 +14,7 @@ class BreathFirstSearchAlgo(AlgoTraversal):
         self.parent = {}
         self._discovered = {}
 
-    def iter(self, s, process_vertex_early=False, process_edge=False, process_vertex_late=False):
+    def iterator(self, source, process_vertex_early=False, process_edge=False, process_vertex_late=False):
         """
 		BFS algorithm from source s
 		inspired from http://www3.cs.stonybrook.edu/~skiena/algorist/book/
@@ -30,7 +30,7 @@ class BreathFirstSearchAlgo(AlgoTraversal):
 	        }
 		>>>g = Graph(graph)
 		>>>bfs = BreathFirstSearchAlgo(g)
-		>>>for i in bfs.iter(1, process_vertex_early = True, process_edge = True):
+		>>>for i in bfs.iterator(1, process_vertex_early = True, process_edge = True):
 			print(i)
 		1
 		(1, 0)
@@ -46,35 +46,35 @@ class BreathFirstSearchAlgo(AlgoTraversal):
 		5
 		3
 		"""
-        q = deque([s])
-        self._discovered = {s}
+        fifo_queue = deque([source])
+        self._discovered = {source}
         processed = set()
-        while q:
-            vertex = q[0]
+        while fifo_queue:
+            vertex = fifo_queue[0]
             if process_vertex_early:
                 yield vertex
             processed.add(vertex)
-            for k in self._graph.graph_dict[vertex]:
-                if (k not in processed) or self._graph.directed:
+            for neighbor in self._graph.graph_dict[vertex]:
+                if (neighbor not in processed) or self._graph.directed:
                     if process_edge:
-                        yield vertex, k
-                if (k not in self._discovered):
-                    q.append(k)
-                    self._discovered.add(k)
-            q.popleft()
+                        yield vertex, neighbor
+                if (neighbor not in self._discovered):
+                    fifo_queue.append(neighbor)
+                    self._discovered.add(neighbor)
+            fifo_queue.popleft()
             if process_vertex_late:
                 yield vertex
 
-    def tree(self, s):
+    def tree(self, source):
         """
 		constructs the BFS tree from source s
 
 		"""
         self.parent = {i: -2 for i in self._graph.graph_dict.keys()}
-        self.parent[s] = -1
-        for (v, k) in self.iter(s, process_edge=True):
-            if k not in self._discovered:
-                self.parent[k] = int(v)
+        self.parent[source] = -1
+        for (vertex, neighbor) in self.iterator(source, process_edge=True):
+            if neighbor not in self._discovered:
+                self.parent[neighbor] = int(vertex)
 
     def find_path_BFS(self, a, b):
         """
@@ -90,14 +90,14 @@ class BreathFirstSearchAlgo(AlgoTraversal):
 		:return: number of components, one seed per component
 		"""
         self.clear()
-        c = 0
+        number_components = 0
         seeds = []
         for node in self._graph.graph_dict.keys():
             if node not in self._discovered:
-                c += 1
+                number_components += 1
                 seeds.append(node)
-                print('Component {}:'.format(c))
-                for v in self.iter(node, process_vertex_early=True):
-                    print('{}|'.format(v), end='')
+                print('Component {}:'.format(number_components))
+                for vertex in self.iterator(node, process_vertex_early=True):
+                    print('{}|'.format(vertex), end='')
                 print()
-        return c, seeds
+        return number_components, seeds

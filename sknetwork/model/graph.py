@@ -12,6 +12,10 @@ class Graph(object):
 		each node is an integer.
 	directed :  bool
 
+	TODO:
+	 - ensures that vertex are integer with no negative value (otherwise pb with parent convention : -1 if root and -2 if not explored).
+	 - deal with self-loops
+
 	Attributes
     ----------
 	_directed

@@ -17,7 +17,7 @@ class DepthFirstSearchAlgo(AlgoTraversal):
 		self.parent = {}
 		self.processed = set()
 
-	def iter(self, s, first = True,
+	def iterator(self, s, first = True,
 		process_vertex_early=False, process_edge = False,
 		process_vertex_late = False):
 		"""
@@ -35,7 +35,7 @@ class DepthFirstSearchAlgo(AlgoTraversal):
 	        }
 		>>>g = Graph(graph)
 		>>>dfs = DepthFirstSearchAlgo(g)
-		>>>for i in dfs.iter(1, process_vertex_early = True, process_edge = True):
+		>>>for i in dfs.iterator(1, process_vertex_early = True, process_edge = True):
 			print(i)
 		1
 		(1, 0)
@@ -69,8 +69,8 @@ class DepthFirstSearchAlgo(AlgoTraversal):
 			if k not in self.discovered:
 				self.parent[k] = s
 				if process_edge:
-					yield s ,k
-				yield from self.iter(k, first=False,
+					yield s,k
+				yield from self.iterator(k, first=False,
 					process_vertex_early=process_vertex_early,
 					process_edge=process_edge,
 					process_vertex_late=process_vertex_late)
@@ -92,5 +92,5 @@ class DepthFirstSearchAlgo(AlgoTraversal):
 			print('\n')
 
 	def finding_cycles(self,s):
-		for (u,v) in self.iter(s, process_edge = True):
+		for (u,v) in self.iterator(s, process_edge = True):
 			self.process_edge_cycle(u,v)
