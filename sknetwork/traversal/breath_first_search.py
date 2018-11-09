@@ -65,22 +65,29 @@ class BreathFirstSearchAlgo(AlgoTraversal):
             if process_vertex_late:
                 yield vertex
 
-    def tree(self, source):
+    def tree(self, source, target=set()):
         """
-		constructs the BFS tree from source s
+		constructs the BFS tree from source and stops as soon as all elements in target have been found
 
 		"""
+        early_stoping = False
+        if target:
+            early_stoping = True
         self.parent = {i: -2 for i in self._graph.graph_dict.keys()}
         self.parent[source] = -1
         for (vertex, neighbor) in self.iterator(source, process_edge=True):
             if neighbor not in self._discovered:
                 self.parent[neighbor] = int(vertex)
+                if early_stoping:
+                    target = target - set(neighbor)
+                    if target == set():
+                        break
 
     def find_path_BFS(self, a, b):
         """
 		find the shortest (unweighted) path from a to b
 		"""
-        self.tree(a)
+        self.tree(a, {b})
         self.find_path(a, b)
 
     def connected_components(self):
