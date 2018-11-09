@@ -68,6 +68,7 @@ class BreathFirstSearchAlgo(AlgoTraversal):
     def tree(self, source, target=set()):
         """
 		constructs the BFS tree from source and stops as soon as all elements in target have been found
+		if target == set() then the full BFS tree is computed
 
 		"""
         early_stoping = False
