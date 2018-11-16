@@ -9,10 +9,12 @@ class BreathFirstSearchAlgo(AlgoTraversal):
         super().__init__()
         self._graph = graph
         self._discovered = {}
+        self.component = {}
 
     def clear(self):
         self.parent = {}
         self._discovered = {}
+        self.components = {}
 
     def iterator(self, source, process_vertex_early=False, process_edge=False, process_vertex_late=False):
         """
@@ -93,14 +95,11 @@ class BreathFirstSearchAlgo(AlgoTraversal):
         :return:
         """
         self.tree(a, {b})
-        self.find_path(a, b)
+        return self.find_path(a, b)
 
-    def connected_components(self):
+    def connected_components(self, verbose = False):
         """
-		print the connected components
-		TODO put the label of the component to each vertex and remove print.
-		move to algo_traversal? can be used with dfs...ABC class
-		https://www.python-course.eu/python3_abstract_classes.php
+		populates the dictionary components vertex -> number of its component
 		:return: number of components, one seed per component
 		"""
         self.clear()
@@ -110,8 +109,12 @@ class BreathFirstSearchAlgo(AlgoTraversal):
             if node not in self._discovered:
                 number_components += 1
                 seeds.append(node)
-                print('Component {}:'.format(number_components))
+                self.component[node] = number_components
+                if verbose:
+                    print('Component {}:'.format(number_components))
                 for vertex in self.iterator(node, process_vertex_early=True):
-                    print('{}|'.format(vertex), end='')
-                print()
+                    self.component[vertex] = number_components
+                    if verbose:
+                        print('{}|'.format(vertex), end='')
+                        print()
         return number_components, seeds
