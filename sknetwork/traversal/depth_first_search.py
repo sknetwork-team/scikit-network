@@ -16,6 +16,7 @@ class DepthFirstSearchAlgo(AlgoTraversal):
 		self.discovered = set()
 		self.parent = {}
 		self.processed = set()
+		self.cycles = []
 
 	def iterator(self, s, first = True,
 		process_vertex_early=False, process_edge = False,
@@ -88,7 +89,7 @@ class DepthFirstSearchAlgo(AlgoTraversal):
 		if (v in self.discovered) and self.parent[u] != v:
 			#corrected version see http://www3.cs.stonybrook.edu/~skiena/algorist/book/errata
 			print('cycle form ', v, ' to ',u)
-			self.find_path(v,u)
+			self.cycles.append(self.find_path(v,u,printout= True))
 			print('\n')
 
 	def finding_cycles(self,s):
