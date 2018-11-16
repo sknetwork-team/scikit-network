@@ -1,6 +1,6 @@
-from model.graph import Graph
+from sknetwork.model.graph import Graph
 from collections import deque
-from traversal.algo_traversal import AlgoTraversal
+from sknetwork.traversal.algo_traversal import AlgoTraversal
 
 
 class BreathFirstSearchAlgo(AlgoTraversal):
@@ -71,30 +71,36 @@ class BreathFirstSearchAlgo(AlgoTraversal):
 		if target == set() then the full BFS tree is computed
 
 		"""
-        early_stoping = False
+        early_stopping = False
         if target:
-            early_stoping = True
+            early_stopping = True
+
         self.parent = {i: -2 for i in self._graph.graph_dict.keys()}
         self.parent[source] = -1
         for (vertex, neighbor) in self.iterator(source, process_edge=True):
             if neighbor not in self._discovered:
                 self.parent[neighbor] = int(vertex)
-                if early_stoping:
-                    target = target - set(neighbor)
+                if early_stopping:
+                    target = target.difference({neighbor})
                     if target == set():
                         break
 
     def find_path_BFS(self, a, b):
         """
-		find the shortest (unweighted) path from a to b
-		"""
+        find the shortest unweighted path between node a to node b
+        :param a:
+        :param b:
+        :return:
+        """
         self.tree(a, {b})
         self.find_path(a, b)
 
     def connected_components(self):
         """
 		print the connected components
-		TODO find a nicer output and remove print
+		TODO put the label of the component to each vertex and remove print.
+		move to algo_traversal? can be used with dfs...ABC class
+		https://www.python-course.eu/python3_abstract_classes.php
 		:return: number of components, one seed per component
 		"""
         self.clear()

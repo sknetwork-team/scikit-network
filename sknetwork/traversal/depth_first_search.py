@@ -1,5 +1,5 @@
-from model.graph import Graph
-from traversal.algo_traversal import AlgoTraversal
+from sknetwork.model.graph import Graph
+from sknetwork.traversal.algo_traversal import AlgoTraversal
 
 class DepthFirstSearchAlgo(AlgoTraversal):
 	"""
