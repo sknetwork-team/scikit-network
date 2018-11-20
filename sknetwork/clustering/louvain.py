@@ -331,11 +331,11 @@ class Louvain:
     -------
     >>> louvain = Louvain()
     >>> graph = sparse.identity(3, format='csr')
-    >>> louvain.fit(graph).labels_
-    array([0, 1, 2], dtype=int64)
+    >>> (louvain.fit(graph).labels_ == np.array([0, 1, 2])).all()
+    True
     >>> louvain_jit = Louvain(algorithm=GreedyModularityJiT())
-    >>> louvain_jit.fit(graph).labels_
-    array([0, 1, 2], dtype=int64)
+    >>> (louvain_jit.fit(graph).labels_ == np.array([0, 1, 2])).all()
+    True
     """
 
     def __init__(self, algorithm=GreedyModularity(), tol=0., max_agg_iter: int = -1, verbose=0):
