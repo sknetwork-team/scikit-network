@@ -27,17 +27,10 @@ class DepthFirstSearchAlgo(AlgoTraversal):
 
 		Example
 		-------
-		>>>graph = { 0 : [1,4,5],
-	          1 : [0,2,4],
-	          2 : [1,3],
-	          3 : [2,4],
-	          4 : [0,1,3],
-	          5 : [0]
-	        }
-		>>>g = Graph(graph)
-		>>>dfs = DepthFirstSearchAlgo(g)
-		>>>for i in dfs.iterator(1, process_vertex_early = True, process_edge = True):
-			print(i)
+		>>> graph = { 0 : [1,4,5], 1 : [0,2,4],2 : [1,3],3 : [2,4], 4 : [0,1,3],5 : [0]}
+		>>> g = Graph(graph)
+		>>> dfs = DepthFirstSearchAlgo(g)
+		>>> for i in dfs.iterator(1, process_vertex_early = True, process_edge = True): print(i)
 		1
 		(1, 0)
 		0
