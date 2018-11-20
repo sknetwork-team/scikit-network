@@ -7,7 +7,7 @@ Created on Nov 2, 2018
 """
 
 try:
-    from numba import jit, njit, prange
+    from numba import njit
 except ImportError:
     def njit(func):
         return func
@@ -72,23 +72,122 @@ class NormalizedGraph:
         return self
 
 
+class GreedyModularity:
+    """
+    A greedy modularity optimizer.
+
+    Attributes
+    ----------
+    score_: total increase of modularity after fitting
+    labels_: partition of the nodes. labels[node] = cluster_index
+    """
+
+    def __init__(self, resolution=1., tol=0., shuffle_nodes=False):
+        """
+
+        Parameters
+        ----------
+        resolution: modularity resolution
+        tol: minimum modularity increase to enter a new optimization pass
+        shuffle_nodes: whether to shuffle the nodes before beginning an optimization pass
+        """
+        self.resolution = resolution
+        self.tol = tol
+        self.shuffle_nodes = shuffle_nodes
+        self.score_ = None
+        self.labels_ = None
+
+    def fit(self, graph: NormalizedGraph):
+        """
+        Iterates over the nodes of the graph and moves them to the cluster of highest increase among their neighbors.
+        Parameters
+        ----------
+        graph: the graph to cluster
+
+        Returns
+        -------
+        self
+
+        """
+        increase = True
+        total_increase = 0.
+
+        labels: np.ndarray = np.arange(graph.n_nodes)
+        clusters_proba: np.ndarray = graph.node_weights.copy()
+        self_loops: np.ndarray = graph.norm_adj.diagonal()
+
+        while increase:
+            increase = False
+            pass_increase = 0.
+
+            if self.shuffle_nodes:
+                nodes = np.random.permutation(np.arange(graph.n_nodes))
+            else:
+                nodes = range(graph.n_nodes)
+
+            for node in nodes:
+                node_cluster: int = labels[node]
+                node_weights: np.ndarray = graph.norm_adj.data[
+                                           graph.norm_adj.indptr[node]:graph.norm_adj.indptr[node + 1]]
+                neighbors: np.ndarray = graph.norm_adj.indices[
+                                        graph.norm_adj.indptr[node]:graph.norm_adj.indptr[node + 1]]
+                neighbors_clusters: np.ndarray = labels[neighbors]
+                unique_clusters: list = list(set(neighbors_clusters.tolist()) - {node_cluster})
+                n_clusters: int = len(unique_clusters)
+
+                if n_clusters > 0:
+                    node_proba: float = graph.node_weights[node]
+                    node_ratio: float = self.resolution * node_proba
+
+                    # node_weights of connections to all other nodes in original cluster
+                    out_delta: float = (self_loops[node] - node_weights.dot(neighbors_clusters == node_cluster))
+                    # proba to choose (node, other_neighbor) among original cluster
+                    out_delta += node_ratio * (clusters_proba[node_cluster] - node_proba)
+
+                    local_delta: np.ndarray = np.full(n_clusters, out_delta)
+
+                    for index_cluster, cluster in enumerate(unique_clusters):
+                        # node_weights of connections to all other nodes in candidate cluster
+                        in_delta: float = node_weights.dot(neighbors_clusters == cluster)
+                        # proba to choose (node, other_neighbor) among new cluster
+                        in_delta -= node_ratio * clusters_proba[cluster]
+
+                        local_delta[index_cluster] += in_delta
+
+                    best_delta: float = 2 * max(local_delta)
+                    if best_delta > 0:
+                        pass_increase += best_delta
+                        best_cluster = unique_clusters[local_delta.argmax()]
+
+                        clusters_proba[node_cluster] -= node_proba
+                        clusters_proba[best_cluster] += node_proba
+                        labels[node] = best_cluster
+
+            total_increase += pass_increase
+            if pass_increase > self.tol:
+                increase = True
+
+        self.score_ = total_increase
+        _, self.labels_ = np.unique(labels, return_inverse=True)
+
+        return self
+
+
 @njit
-def fit_core(shuffle_nodes, n_nodes, labels, edge_weights,
-             adjacency, node_weights, resolution, self_loops, clusters_proba, tol):
+def fit_core(shuffle_nodes, n_nodes, node_weights, resolution, self_loops, tol, indptr, indices, weights):
     """
 
     Parameters
     ----------
     shuffle_nodes: if True, a random permutation of the node is done. The natural order is used otherwise
     n_nodes: number of nodes in the graph
-    labels: the initial labels
-    edge_weights: the edge weights in the graph
-    adjacency: the adjacency matrix without weights
     node_weights: the node weights in the graph
     resolution: the resolution for the Louvain modularity
     self_loops: the weights of the self loops for each node
-    clusters_proba: the neighbors_weights of each cluster
     tol: the minimum desired increase for each maximization pass
+    indptr: the indptr array from the Scipy CSR adjacency matrix
+    indices: the indices array from the Scipy CSR adjacency matrix
+    weights: the data array from the Scipy CSR adjacency matrix
 
     Returns
     -------
@@ -98,53 +197,59 @@ def fit_core(shuffle_nodes, n_nodes, labels, edge_weights,
     """
     increase = True
     total_increase = 0
+
+    labels: np.ndarray = np.arange(n_nodes)
+    clusters_proba: np.ndarray = node_weights.copy()
+
+    local_cluster_weights = np.full(n_nodes, 0.0)
+    nodes = np.arange(n_nodes)
     while increase:
         increase = False
         pass_increase = 0.
 
         if shuffle_nodes:
             nodes = np.random.permutation(np.arange(n_nodes))
-        else:
-            nodes = np.arange(n_nodes)
 
         for node in nodes:
-            node_cluster: int = labels[node]
-            neighbors_weights: np.ndarray = edge_weights[node]
-            neighbors: np.ndarray = adjacency[node]
-            neighbors_clusters: np.ndarray = labels[neighbors]
-            unique_clusters: np.ndarray = np.unique(neighbors_clusters)
-            unique_clusters = unique_clusters[unique_clusters != node_cluster]
-            n_clusters: int = len(unique_clusters)
+            node_cluster = labels[node]
 
-            if n_clusters > 0:
-                node_proba: float = node_weights[node]
-                node_ratio: float = resolution * node_proba
+            for k in range(indptr[node], indptr[node + 1]):
+                local_cluster_weights[labels[indices[k]]] += weights[k]
+
+            unique_clusters = set(labels[indices[indptr[node]:indptr[node + 1]]])
+            unique_clusters.discard(node_cluster)
+
+            if len(unique_clusters):
+                node_proba = node_weights[node]
+                node_ratio = resolution * node_proba
 
                 # neighbors_weights of connections to all other nodes in original cluster
-                out_delta: float = (self_loops[node]
-                                    - neighbors_weights.dot((neighbors_clusters == node_cluster).astype(np.float64)))
+                out_delta = self_loops[node] - local_cluster_weights[node_cluster]
+
                 # proba to choose (node, other_neighbor) among original cluster
                 out_delta += node_ratio * (clusters_proba[node_cluster] - node_proba)
 
-                local_delta: np.ndarray = np.full(n_clusters, out_delta)
+                best_delta = 0.0
+                best_cluster = node_cluster
 
-                for cluster_index in range(n_clusters):
-                    cluster = unique_clusters[cluster_index]
+                for cluster in unique_clusters:
                     # neighbors_weights of connections to all other nodes in candidate cluster
-                    in_delta: float = neighbors_weights.dot((neighbors_clusters == cluster).astype(np.float64))
+                    in_delta = local_cluster_weights[
+                        cluster]  # np.sum(neighbors_weights[neighbors_clusters == cluster])
+                    local_cluster_weights[cluster] = 0.0
                     # proba to choose (node, other_neighbor) among new cluster
                     in_delta -= node_ratio * clusters_proba[cluster]
+                    local_delta = 2 * (out_delta + in_delta)
+                    if local_delta > best_delta:
+                        best_delta = local_delta
+                        best_cluster = cluster
 
-                    local_delta[cluster_index] += in_delta
-
-                best_delta: float = 2 * local_delta.max()
                 if best_delta > 0:
                     pass_increase += best_delta
-                    best_cluster = unique_clusters[local_delta.argmax()]
-
                     clusters_proba[node_cluster] -= node_proba
                     clusters_proba[best_cluster] += node_proba
                     labels[node] = best_cluster
+            local_cluster_weights[node_cluster] = 0.0
 
         total_increase += pass_increase
         if pass_increase > tol:
@@ -191,134 +296,20 @@ class GreedyModularityJiT:
         self
 
         """
-        labels: np.ndarray = np.arange(graph.n_nodes)
-        clusters_proba: np.ndarray = graph.node_weights.copy()
         self_loops: np.ndarray = graph.norm_adj.diagonal()
-
-        adjacency, neighbors_weights = graph.n_nodes * [None], graph.n_nodes * [None]
-        for node in range(graph.n_nodes):
-            node_row = graph.norm_adj[node]
-            adjacency[node]: np.ndarray = node_row.indices
-            neighbors_weights[node]: np.ndarray = node_row.data
 
         res_labels, total_increase = fit_core(self.shuffle_nodes,
                                               graph.n_nodes,
-                                              labels,
-                                              neighbors_weights,
-                                              adjacency,
                                               graph.node_weights,
                                               self.resolution,
                                               self_loops,
-                                              clusters_proba,
-                                              self.tol)
+                                              self.tol,
+                                              graph.norm_adj.indptr,
+                                              graph.norm_adj.indices,
+                                              graph.norm_adj.data)
 
         self.score_ = total_increase
-        self.labels_ = res_labels
-
-        return self
-
-
-class GreedyModularity:
-    """
-    A greedy modularity optimizer.
-
-    Attributes
-    ----------
-    score_: total increase of modularity after fitting
-    labels_: partition of the nodes. labels[node] = cluster_index
-    """
-
-    def __init__(self, resolution=1., tol=0., shuffle_nodes=False):
-        """
-
-        Parameters
-        ----------
-        resolution: modularity resolution
-        tol: minimum modularity increase to enter a new optimization pass
-        shuffle_nodes: whether to shuffle the nodes before beginning an optimization pass
-        """
-        self.resolution = resolution
-        self.tol = tol
-        self.shuffle_nodes = shuffle_nodes
-        self.score_ = None
-        self.labels_ = None
-
-    def fit(self, graph: NormalizedGraph):
-        """
-        Iterates over the nodes of the graph and moves them to the cluster of highest increase among their neighbors.
-        Parameters
-        ----------
-        graph: the graph to cluster
-
-        Returns
-        -------
-        self
-
-        """
-        increase = True
-        total_increase = 0.
-
-        labels: np.ndarray = np.arange(graph.n_nodes)
-        clusters_proba: np.ndarray = graph.node_weights.copy()
-        self_loops: np.ndarray = graph.norm_adj.diagonal()
-
-        adjacency, neighbors_weights = graph.n_nodes * [None], graph.n_nodes * [None]
-        for node in range(graph.n_nodes):
-            node_row = graph.norm_adj[node]
-            adjacency[node]: np.ndarray = node_row.indices
-            neighbors_weights[node]: np.ndarray = node_row.data
-
-        while increase:
-            increase = False
-            pass_increase = 0.
-
-            if self.shuffle_nodes:
-                nodes = np.random.permutation(np.arange(graph.n_nodes))
-            else:
-                nodes = range(graph.n_nodes)
-
-            for node in nodes:
-                node_cluster: int = labels[node]
-                node_weights: np.ndarray = neighbors_weights[node]
-                neighbors: np.ndarray = adjacency[node]
-                neighbors_clusters: np.ndarray = labels[neighbors]
-                unique_clusters: list = list(set(neighbors_clusters.tolist()) - {node_cluster})
-                n_clusters: int = len(unique_clusters)
-
-                if n_clusters > 0:
-                    node_proba: float = graph.node_weights[node]
-                    node_ratio: float = self.resolution * node_proba
-
-                    # node_weights of connections to all other nodes in original cluster
-                    out_delta: float = (self_loops[node] - node_weights.dot(neighbors_clusters == node_cluster))
-                    # proba to choose (node, other_neighbor) among original cluster
-                    out_delta += node_ratio * (clusters_proba[node_cluster] - node_proba)
-
-                    local_delta: np.ndarray = np.full(n_clusters, out_delta)
-
-                    for index_cluster, cluster in enumerate(unique_clusters):
-                        # node_weights of connections to all other nodes in candidate cluster
-                        in_delta: float = node_weights.dot(neighbors_clusters == cluster)
-                        # proba to choose (node, other_neighbor) among new cluster
-                        in_delta -= node_ratio * clusters_proba[cluster]
-
-                        local_delta[index_cluster] += in_delta
-
-                    best_delta: float = 2 * max(local_delta)
-                    if best_delta > 0:
-                        pass_increase += best_delta
-                        best_cluster = unique_clusters[local_delta.argmax()]
-
-                        clusters_proba[node_cluster] -= node_proba
-                        clusters_proba[best_cluster] += node_proba
-                        labels[node] = best_cluster
-
-            total_increase += pass_increase
-            if pass_increase > self.tol:
-                increase = True
-
-        self.score_ = total_increase
-        self.labels_ = labels
+        _, self.labels_ = np.unique(res_labels, return_inverse=True)
 
         return self
 
@@ -338,30 +329,29 @@ class Louvain:
 
     Example
     -------
-    >>>louvain = Louvain()
-    >>>graph = sparse.identity(3, format='csr')
-    >>>louvain.fit(graph).labels_
-        array([0, 1, 2])
-    >>>louvain_jit = Louvain(algorithm=GreedyModularityJiT())
-    >>>louvain_jit.fit(graph).labels_
-        array([0, 1, 2])
+    >>> louvain = Louvain()
+    >>> graph = sparse.identity(3, format='csr')
+    >>> louvain.fit(graph).labels_
+    array([0, 1, 2], dtype=int64)
+    >>> louvain_jit = Louvain(algorithm=GreedyModularityJiT())
+    >>> louvain_jit.fit(graph).labels_
+    array([0, 1, 2], dtype=int64)
     """
 
-    def __init__(self, algorithm=GreedyModularity(), tol=0., max_agg_iter: int = 0, verbose=0):
+    def __init__(self, algorithm=GreedyModularity(), tol=0., max_agg_iter: int = -1, verbose=0):
         """
 
         Parameters
         ----------
         algorithm: the fixed level optimization algorithm, requires a fit method and score_ and labels_ attributes.
         tol: the minimum modularity increase to keep aggregating.
-        max_agg_iter: the maximum number of aggregations to perform
+        max_agg_iter: the maximum number of aggregations to perform, a negative value is interpreted as no limit
         verbose: enables verbosity
         """
         self.algorithm = algorithm
         self.tol = tol
-        if max_agg_iter < 0 or type(max_agg_iter) != int:
-            raise ValueError(
-                "The maximum number of aggregations should be a positive integer. By default (0), no limit is set.")
+        if type(max_agg_iter) != int:
+            raise TypeError('The maximum number of iterations should be a integer')
         self.max_agg_iter = max_agg_iter
         self.verbose = verbose
         self.labels_ = None
@@ -402,7 +392,6 @@ class Louvain:
                 col = self.algorithm.labels_
                 data = np.ones(graph.n_nodes)
                 agg_membership = sparse.csr_matrix((data, (row, col)))
-                agg_membership = agg_membership[:, sorted(set(agg_membership.nonzero()[1]))]
                 membership = membership.dot(agg_membership)
                 graph.aggregate(agg_membership)
 
@@ -410,12 +399,10 @@ class Louvain:
                     break
             if self.verbose:
                 print("Iteration", iteration_count, "completed with", graph.n_nodes, "clusters")
-            if self.max_agg_iter != 0:
-                if iteration_count == self.max_agg_iter:
-                    break
+            if iteration_count == self.max_agg_iter:
+                break
 
         self.iteration_count_ = iteration_count
         self.labels_ = np.squeeze(np.asarray(membership.argmax(axis=1)))
-        index_mapping: dict = {cluster: index for index, cluster in enumerate(set(self.labels_.tolist()))}
-        self.labels_ = np.array([index_mapping[cluster] for cluster in self.labels_])
+        _, self.labels_ = np.unique(self.labels_, return_inverse=True)
         return self
