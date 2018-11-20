@@ -82,7 +82,7 @@ class DepthFirstSearchAlgo(AlgoTraversal):
 		if (v in self.discovered) and self.parent[u] != v:
 			#corrected version see http://www3.cs.stonybrook.edu/~skiena/algorist/book/errata
 			print('cycle form ', v, ' to ',u)
-			self.cycles.append(self.find_path(v,u,printout= True))
+			self.cycles.append(self.find_path(v,u,verbose= True))
 			print('\n')
 
 	def finding_cycles(self,s):
