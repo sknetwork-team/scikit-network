@@ -17,6 +17,7 @@ def load_from_mtx(path, directed = True, comments="%", delimiter=None):
     -------
     Download from http://nrvis.com/download/data/dimacs10/polblogs.zip
     and save in p = '/home/USER/scikit-network/data/polblogs.mtx'
+    >>> p = './data/polblogs.mtx'
     >>> g = load_from_mtx(p)
     loading graph with 1490 nodes and 19025 edges.
     number of nodes: 1224 (expected 1490); number of edges: 19025 (expected 19025)
