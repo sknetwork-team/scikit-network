@@ -7,7 +7,9 @@
 # This file is part of Scikit-network.
 
 import unittest
-from sknetwork.clustering.louvain import *
+from sknetwork import Louvain
+from scipy.sparse import identity
+from numpy import ones
 
 
 class TestLouvainClustering(unittest.TestCase):
@@ -17,14 +19,16 @@ class TestLouvainClustering(unittest.TestCase):
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):
-            self.louvain_basic.fit(np.ones((1, 1)))
+            self.louvain_basic.fit(ones((1, 1)))
 
         with self.assertRaises(TypeError):
-            self.louvain_basic.fit(sparse.identity(2, format='csr'), node_weights=1)
+            self.louvain_basic.fit(identity(2, format='csr'), node_weights=1)
 
     def test_unknown_options(self):
         with self.assertRaises(ValueError):
-            self.louvain_basic.fit(sparse.identity(2, format='csr'), node_weights='unknown')
+            self.louvain_basic.fit(identity(2, format='csr'), node_weights='unknown')
 
     def test_single_node_graph(self):
-        self.assertEqual(self.louvain_basic.fit(sparse.identity(1, format='csr')).labels_, [0])
+        self.assertEqual(self.louvain_basic.fit(identity(1, format='csr')).labels_, [0])
+
+
