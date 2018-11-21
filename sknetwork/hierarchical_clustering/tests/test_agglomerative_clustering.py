@@ -9,7 +9,9 @@
 # NetworkX is distributed under a BSD license; see LICENSE.txt for more information.
 
 import unittest
-from sknetwork.hierarchical_clustering.agglomerative_clustering import *
+import networkx as nx
+import numpy as np
+from sknetwork.hierarchical_clustering.agglomerative_clustering import linkage_clustering
 
 
 class TestAgglomerativeClustering(unittest.TestCase):

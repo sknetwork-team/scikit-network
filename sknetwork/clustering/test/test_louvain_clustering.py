@@ -7,7 +7,7 @@
 # This file is part of Scikit-network.
 
 import unittest
-from sknetwork import Louvain
+from sknetwork.clustering.louvain import Louvain
 from scipy.sparse import identity
 from numpy import ones
 

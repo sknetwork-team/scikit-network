@@ -9,8 +9,9 @@
 # NetworkX is distributed under a BSD license; see LICENSE.txt for more information.
 
 import unittest
-from sknetwork.hierarchical_clustering.agglomerative_clustering import *
-from sknetwork.hierarchical_clustering.metrics import *
+import networkx as nx
+from sknetwork.hierarchical_clustering.agglomerative_clustering import linkage_clustering
+from sknetwork.hierarchical_clustering.metrics import hierarchical_cost
 
 
 class TestMetrics(unittest.TestCase):
@@ -51,8 +52,5 @@ class TestMetrics(unittest.TestCase):
 
         self.assertEqual(s_wu_u, s_wu_w)
 
-        s_u_u = hierarchical_cost(self.unweighted_graph, self.d_u, affinity='unitary', linkage='classic')
         with self.assertRaises(KeyError):
             hierarchical_cost(self.unweighted_graph, self.d_u, affinity='weighted', linkage='classic')
-
-
