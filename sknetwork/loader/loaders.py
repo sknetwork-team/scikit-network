@@ -10,6 +10,7 @@ from six.moves import urllib
 urls = {'polblogs.mtx': 'http://nrvis.com/download/data/dimacs10/polblogs.zip',
         'ca-CondMat.mtx': 'https://sparse.tamu.edu/MM/SNAP/ca-CondMat.tar.gz'}
 
+
 class Dataset():
     def __init__(self, file_name, directed = True, download = True, root='./data/'):
         self.graph = Graph()
@@ -28,11 +29,9 @@ class Dataset():
             self.download(file_name)
 
         if file_name[-3:] == 'mtx':
-            #print(file_path)
             self.load_from_mtx(self.file_path)
 
     def make_dir(self):
-        #root = os.path.expanduser(root)
         if not os.path.exists(self.root):
             os.makedirs(self.root)
 
@@ -51,7 +50,6 @@ class Dataset():
                 try:
                     tar = tarfile.open(self.file_path[:-3] + 'tar.gz', "r:gz")
                     for member in tar.getmembers():
-                        #print(member.name)
                         l = len(file_name)
                         if member.name[-l:] == file_name:
                             tar.extract(member, path=self.root)
@@ -80,10 +78,6 @@ class Dataset():
         loading graph with 1490 nodes and 19025 edges.
         number of nodes: 1224 (expected 1490); number of edges: 19025 (expected 19025)
 
-        >>> ca = Dataset('ca-CondMat.mtx')
-        loading graph with 23133 nodes and 93497 edges.
-        number of nodes: 23133 (expected 23133); number of edges: 93497 (expected 93497)
-
         Note
         ----
         Useful repo : https://sparse.tamu.edu/SNAP
@@ -98,7 +92,6 @@ class Dataset():
                     line = line[:p]
                 if not len(line):
                     continue
-                # split line, should have 2 or more
                 s=line.strip().split(delimiter)
                 if len(s)<2:
                     continue
@@ -117,7 +110,6 @@ class Dataset():
                     continue
                 u=s.pop(0)
                 v=s.pop(0)
-                d=s
                 self.graph.add_edge(int(u), int(v), direct=True)
 
         self.graph.basics()
