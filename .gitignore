@@ -107,3 +107,5 @@ ENV/
 # Travis
 .travis.yml
 
+# datasets folder
+data/
