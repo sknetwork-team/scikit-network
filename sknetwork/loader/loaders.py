@@ -1,4 +1,4 @@
-from model.graph import Graph
+from sknetwork.model.graph import Graph
 
 def load_from_mtx(path, directed = True, comments="%", delimiter=None):
     """
