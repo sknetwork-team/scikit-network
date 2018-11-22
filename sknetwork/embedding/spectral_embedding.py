@@ -13,7 +13,7 @@ Spectral embedding by decomposition of the normalized graph Laplacian.
 
 import numpy as np
 
-from randomized_matrix_factorization import randomized_eig
+from sknetwork.embedding.randomized_matrix_factorization import randomized_eig
 from scipy import sparse, errstate, sqrt, isinf
 from scipy.sparse import csgraph
 from scipy.sparse.linalg import eigsh

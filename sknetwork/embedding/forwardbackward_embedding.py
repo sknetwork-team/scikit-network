@@ -8,7 +8,7 @@ Created on Thu May 31 17:16:22 2018
 
 import numpy as np
 
-from randomized_matrix_factorization import randomized_svd
+from sknetwork.embedding.randomized_matrix_factorization import randomized_svd
 from scipy import sparse, errstate, sqrt, isinf, linalg
 
 
