@@ -39,7 +39,7 @@ def modularity(adjacency_matrix, partition, resolution=1.0) -> float:
             "The argument must be a NumPy array or a SciPy Sparse matrix.")
 
     n_nodes = adj_matrix.shape[0]
-    norm_adj = adj_matrix / adj_matrix.sum()
+    norm_adj = adj_matrix / (adj_matrix.dot(np.ones(n_nodes))).sum()
     probs = norm_adj.dot(np.ones(n_nodes))
 
     if type(partition) == dict:
@@ -54,7 +54,7 @@ def modularity(adjacency_matrix, partition, resolution=1.0) -> float:
     data = np.ones(n_nodes)
     membership = sparse.csr_matrix((data, (row, col)))
 
-    pos = (membership.multiply(norm_adj.dot(membership))).sum()
+    pos = ((membership.multiply(norm_adj.dot(membership))).dot(np.ones(membership.shape[1]))).sum()
     neg = np.linalg.norm(membership.T.dot(probs)) ** 2
     return float(pos - resolution * neg)
 
@@ -88,8 +88,8 @@ def cocitation_modularity(adjacency_matrix, partition, resolution=1.0) -> float:
             "The argument must be a NumPy array or a SciPy Sparse matrix.")
 
     n_nodes = adj_matrix.shape[0]
-    out_degree = np.array(adj_matrix.sum(axis=1).flatten())
-    in_degree = adj_matrix.sum(axis=0).flatten()
+    out_degree = adj_matrix.dot(np.ones(adj_matrix.shape[0]))
+    in_degree = adj_matrix.T.dot(np.ones(adj_matrix.shape[1]))
     total_weight = out_degree.sum()
 
     with errstate(divide='ignore'):
@@ -170,7 +170,7 @@ def cocitation_performance(adjacency_matrix: sparse.csr_matrix, labels: np.ndarr
     cluster_indicator = {cluster: (labels == cluster) for cluster in clusters}
     cluster_sizes = {cluster: cluster_indicator[cluster].sum() for cluster in clusters}
 
-    din = bool_adj.sum(axis=0).flatten()
+    din = bool_adj.T.dot(np.ones(m_nodes))
     with errstate(divide='ignore'):
         din_sqrt = 1.0 / sqrt(din)
     din_sqrt[isinf(din_sqrt)] = 0

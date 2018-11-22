@@ -36,7 +36,7 @@ class NormalizedGraph:
         node_weights: node node_weights distribution to be used in the second term of the modularity
         """
         self.n_nodes = adj_matrix.shape[0]
-        self.norm_adj = adj_matrix / adj_matrix.sum()
+        self.norm_adj = adj_matrix / (adj_matrix.dot(np.ones(self.n_nodes))).sum()
         if type(node_weights) == np.ndarray:
             if len(node_weights) != self.n_nodes:
                 raise ValueError('The number of node weights should match the number of nodes.')
@@ -403,6 +403,6 @@ class Louvain:
                 break
 
         self.iteration_count_ = iteration_count
-        self.labels_ = np.squeeze(np.asarray(membership.argmax(axis=1)))
+        self.labels_ = membership.indices
         _, self.labels_ = np.unique(self.labels_, return_inverse=True)
         return self

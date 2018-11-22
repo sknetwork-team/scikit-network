@@ -9,7 +9,6 @@
 import unittest
 from sknetwork.clustering.louvain import Louvain
 from scipy.sparse import identity
-from numpy import ones
 
 
 class TestLouvainClustering(unittest.TestCase):
@@ -19,7 +18,7 @@ class TestLouvainClustering(unittest.TestCase):
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):
-            self.louvain_basic.fit(ones((1, 1)))
+            self.louvain_basic.fit(identity(1))
 
         with self.assertRaises(TypeError):
             self.louvain_basic.fit(identity(2, format='csr'), node_weights=1)
@@ -30,5 +29,3 @@ class TestLouvainClustering(unittest.TestCase):
 
     def test_single_node_graph(self):
         self.assertEqual(self.louvain_basic.fit(identity(1, format='csr')).labels_, [0])
-
-
