@@ -7,9 +7,9 @@
 # This file is part of Scikit-network.
 
 import unittest
-from sknetwork.clustering.metrics import modularity, cocitation_modularity, performance, cocitation_performance
-from scipy import sparse
 import numpy as np
+from scipy import sparse
+from sknetwork.clustering.metrics import modularity, cocitation_modularity, performance, cocitation_performance
 
 
 class TestClusteringMetrics(unittest.TestCase):

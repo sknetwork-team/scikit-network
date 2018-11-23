@@ -39,7 +39,7 @@ def modularity(adjacency_matrix, partition, resolution=1.0) -> float:
             "The argument must be a NumPy array or a SciPy Sparse matrix.")
 
     n_nodes = adj_matrix.shape[0]
-    norm_adj = adj_matrix / (adj_matrix.dot(np.ones(n_nodes))).sum()
+    norm_adj = adj_matrix / adj_matrix.data.sum()
     probs = norm_adj.dot(np.ones(n_nodes))
 
     if type(partition) == dict:

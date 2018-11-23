@@ -45,7 +45,7 @@ def cosine_modularity(adjacency_matrix, embedding: np.ndarray, return_all: bool=
     if (adj_matrix != adj_matrix.maximum(adj_matrix.T)).nnz != 0:
         raise ValueError("The adjacency matrix is not symmetric.")
 
-    total_weight: float = adjacency_matrix.sum()
+    total_weight: float = adjacency_matrix.data.sum()
     normalized_embedding = embedding / embedding.sum(axis=1)[:, np.newaxis]
 
     neighbors_mean = (np.multiply(normalized_embedding, adjacency_matrix.dot(normalized_embedding))).sum()

@@ -36,7 +36,7 @@ class NormalizedGraph:
         node_weights: node node_weights distribution to be used in the second term of the modularity
         """
         self.n_nodes = adj_matrix.shape[0]
-        self.norm_adj = adj_matrix / (adj_matrix.dot(np.ones(self.n_nodes))).sum()
+        self.norm_adj = adj_matrix / adj_matrix.data.sum()
         if type(node_weights) == np.ndarray:
             if len(node_weights) != self.n_nodes:
                 raise ValueError('The number of node weights should match the number of nodes.')
