@@ -18,13 +18,13 @@ from scipy import sparse
 
 class NormalizedGraph:
     """
-    A class of graphs suitable for the Louvain algorithm.
+    A class of graph specialized for Louvain algorithm.
 
     Attributes
     ----------
     n_nodes: the number of nodes in the graph
-    norm_adj: normalized adjacency matrix (summing to 1)
-    node_weights: vector of node weights
+    norm_adj: normalized adjacency matrix such that the coefficients sum to 1
+    node_weights: vector of normalized node degrees
     """
 
     def __init__(self, adj_matrix, node_weights='degree'):
@@ -32,7 +32,7 @@ class NormalizedGraph:
 
         Parameters
         ----------
-        adj_matrix: adjacency matrix of the graph as SciPy sparse matrix
+        adj_matrix: adjacency matrix of the graph in a SciPy sparse matrix
         node_weights: node weights to be used in the second term of the modularity
         """
         self.n_nodes = adj_matrix.shape[0]
