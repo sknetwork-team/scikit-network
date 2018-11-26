@@ -3,33 +3,33 @@ import numpy as np
 
 class Graph(object):
     """
-	Generic class for graphs.
+Generic class for graphs.
 
-	Parameters
-	----------
-	graph_dict : dictionary 
-		node -> list of neighbors
-		each node is an integer.
-	directed :  bool
+Parameters
+----------
+graph_dict : dictionary
+    node -> list of neighbors
+    each node is an integer.
+directed :  bool
 
-	TODO:
-	 - ensures that vertex are integer with no negative value (otherwise pb with parent convention : -1 if root and -2 if not explored).
-	 - deal with self-loops
+TODO:
+ - ensures that vertex are integer with no negative value (otherwise pb with parent convention : -1 if root and -2 if not explored).
+ - deal with self-loops
 
-	Attributes
-    ----------
-	_directed
-	_graph_dict
-	n_vertices
-	degrees
+Attributes
+----------
+_directed
+_graph_dict
+n_vertices
+degrees
 
 
-	Example
-	-------
-	>>> graph = { 0 : [1,4,5], 1 : [0,2,4], 2 : [1,3], 3 : [2,4], 4 : [0,1,3], 5 : [0]}
-    >>> G = Graph(graph)
+Example
+-------
+>>> graph = { 0 : [1,4,5], 1 : [0,2,4], 2 : [1,3], 3 : [2,4], 4 : [0,1,3], 5 : [0]}
+>>> G = Graph(graph)
 
-	"""
+"""
 
     def __init__(self, graph_dict={}, directed=False):
         self.directed = directed
@@ -62,7 +62,7 @@ class Graph(object):
 		:type graph_input: dict
 		"""
         if not isinstance(graph_input, dict):
-            raise ValueError("First argument should be a dictionary")
+            raise ValueError("First argument must be a dictionary")
 
         if not self.directed:
             Pb = False

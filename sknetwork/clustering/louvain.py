@@ -357,7 +357,7 @@ class Louvain:
         self.algorithm = algorithm
         self.tol = tol
         if type(max_agg_iter) != int:
-            raise TypeError('The maximum number of iterations should be a integer')
+            raise TypeError('The maximum number of iterations must be a integer')
         self.max_agg_iter = max_agg_iter
         self.verbose = verbose
         self.labels_ = None
@@ -376,12 +376,12 @@ class Louvain:
         self
         """
         if type(adj_matrix) != sparse.csr_matrix:
-            raise TypeError('The adjacency matrix should be in a scipy compressed sparse row (csr) format.')
+            raise TypeError('The adjacency matrix must be in a scipy compressed sparse row (csr) format.')
         # check that the graph is not directed
         if adj_matrix.shape[0] != adj_matrix.shape[1]:
-            raise ValueError('The adjacency matrix should be square.')
+            raise ValueError('The adjacency matrix must be square.')
         if (adj_matrix != adj_matrix.T).nnz != 0:
-            raise ValueError('The graph should not be directed. Please fit a symmetric adjacency matrix.')
+            raise ValueError('The graph must not be directed. Please fit a symmetric adjacency matrix.')
         graph = NormalizedGraph(adj_matrix, node_weights)
         membership = sparse.identity(graph.n_nodes, format='csr')
         increase = True

@@ -47,7 +47,7 @@ def modularity(adjacency_matrix, partition, resolution=1.0) -> float:
     elif type(partition) == np.ndarray:
         labels = partition.copy()
     else:
-        raise TypeError('The partition should be a dictionary or a NumPy array.')
+        raise TypeError('The partition must be a dictionary or a NumPy array.')
 
     row = np.arange(n_nodes)
     col = labels
@@ -103,7 +103,7 @@ def cocitation_modularity(adjacency_matrix, partition, resolution=1.0) -> float:
     elif type(partition) == np.ndarray:
         labels = partition.copy()
     else:
-        raise TypeError('The partition should be a dictionary or a NumPy array.')
+        raise TypeError('The partition must be a dictionary or a NumPy array.')
 
     clusters_indices = set(labels.tolist())
     mod = 0.

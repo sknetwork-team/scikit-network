@@ -29,7 +29,7 @@ def normalized_adjacency(adjacency_matrix):
         adj_matrix = sparse.csr_matrix(adjacency_matrix)
     else:
         raise TypeError(
-            "The argument should be a NumPy array or a SciPy Compressed Sparse Row matrix.")
+            "The argument must be a NumPy array or a SciPy Compressed Sparse Row matrix.")
     n_nodes, m_nodes = adj_matrix.shape
 
     # out-degree vector
@@ -121,7 +121,7 @@ class ForwardBackwardEmbedding:
             adj_matrix = sparse.csr_matrix(adjacency_matrix)
         else:
             raise TypeError(
-                "The argument should be a NumPy array or a SciPy Compressed Sparse Row matrix.")
+                "The argument must be a NumPy array or a SciPy Compressed Sparse Row matrix.")
         n_nodes, m_nodes = adj_matrix.shape
 
         # out-degree vector

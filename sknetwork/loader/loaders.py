@@ -11,8 +11,8 @@ urls = {'polblogs.mtx': 'http://nrvis.com/download/data/dimacs10/polblogs.zip',
         'ca-CondMat.mtx': 'https://sparse.tamu.edu/MM/SNAP/ca-CondMat.tar.gz'}
 
 
-class Dataset():
-    def __init__(self, file_name, directed = True, download = True, root='./data/'):
+class Dataset:
+    def __init__(self, file_name, directed=True, download=True, root='./data/'):
         self.graph = Graph()
         self.graph.clear()
         self.graph._directed = directed
@@ -50,10 +50,10 @@ class Dataset():
                 try:
                     tar = tarfile.open(self.file_path[:-3] + 'tar.gz', "r:gz")
                     for member in tar.getmembers():
-                        l = len(file_name)
-                        if member.name[-l:] == file_name:
+                        file_length = len(file_name)
+                        if member.name[-file_length:] == file_name:
                             tar.extract(member, path=self.root)
-                            self.file_path = os.path.join(self.root,member.name)
+                            self.file_path = os.path.join(self.root, member.name)
                 except ValueError:
                     print('Pb with the tar.gz file')
             else:
@@ -87,13 +87,13 @@ class Dataset():
         first_line = True
         with open(path, 'rt') as f:
             for line in f:
-                p=line.find(comments)
-                if p>=0:
+                p = line.find(comments)
+                if p >= 0:
                     line = line[:p]
                 if not len(line):
                     continue
-                s=line.strip().split(delimiter)
-                if len(s)<2:
+                s = line.strip().split(delimiter)
+                if len(s) < 2:
                     continue
                 if first_line:
                     try:
@@ -103,15 +103,15 @@ class Dataset():
                         if n != m:
                             print("check the number of nodes")
                         else:
-                            print("loading graph with %s nodes and %s edges." %(n,e))
+                            print("loading graph with %s nodes and %s edges." % (n, e))
                             first_line = False
                     except:
-                        raise ValueError("First line should contain num_nodes num_nodes num_edges.")
+                        raise ValueError("First line must contain num_nodes num_nodes num_edges.")
                     continue
-                u=s.pop(0)
-                v=s.pop(0)
+                u = s.pop(0)
+                v = s.pop(0)
                 self.graph.add_edge(int(u), int(v), direct=True)
 
         self.graph.basics()
-        print("number of nodes: %d (expected %s); number of edges: %d (expected %s)" % (self.graph.n_vertices, n, self.graph.n_edges, e))
-
+        print("number of nodes: %d (expected %s); number of edges: %d (expected %s)"
+              % (self.graph.n_vertices, n, self.graph.n_edges, e))

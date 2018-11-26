@@ -18,29 +18,29 @@ class BreathFirstSearchAlgo(AlgoTraversal):
 
     def iterator(self, source, process_vertex_early=False, process_edge=False, process_vertex_late=False):
         """
-		BFS algorithm from source s
-		inspired from http://www3.cs.stonybrook.edu/~skiena/algorist/book/
+    BFS algorithm from source s
+    inspired from http://www3.cs.stonybrook.edu/~skiena/algorist/book/
 
-		Example
-		-------
-		>>> graph = { 0 : [1,4,5], 1 : [0,2,4], 2 : [1,3], 3 : [2,4], 4 : [0,1,3], 5 : [0]}
-		>>> g = Graph(graph)
-		>>> bfs = BreathFirstSearchAlgo(g)
-		>>> for i in bfs.iterator(1, process_vertex_early = True, process_edge = True): print(i)
-		1
-		(1, 0)
-		(1, 2)
-		(1, 4)
-		0
-		(0, 4)
-		(0, 5)
-		2
-		(2, 3)
-		4
-		(4, 3)
-		5
-		3
-		"""
+    Example
+    -------
+    >>> graph = { 0 : [1,4,5], 1 : [0,2,4], 2 : [1,3], 3 : [2,4], 4 : [0,1,3], 5 : [0]}
+    >>> g = Graph(graph)
+    >>> bfs = BreathFirstSearchAlgo(g)
+    >>> for i in bfs.iterator(1, process_vertex_early = True, process_edge = True): print(i)
+    1
+    (1, 0)
+    (1, 2)
+    (1, 4)
+    0
+    (0, 4)
+    (0, 5)
+    2
+    (2, 3)
+    4
+    (4, 3)
+    5
+    3
+    """
         fifo_queue = deque([source])
         self._discovered = {source}
         processed = set()
@@ -62,10 +62,10 @@ class BreathFirstSearchAlgo(AlgoTraversal):
 
     def tree(self, source, target=set()):
         """
-		constructs the BFS tree from source and stops as soon as all elements in target have been found
-		if target == set() then the full BFS tree is computed
+    constructs the BFS tree from source and stops as soon as all elements in target have been found
+    if target == set() then the full BFS tree is computed
 
-		"""
+    """
         early_stopping = False
         if target:
             early_stopping = True
@@ -92,9 +92,9 @@ class BreathFirstSearchAlgo(AlgoTraversal):
 
     def connected_components(self, verbose = False):
         """
-		populates the dictionary components vertex -> number of its component
-		:return: number of components, one seed per component
-		"""
+    populates the dictionary components vertex -> number of its component
+    :return: number of components, one seed per component
+    """
         self.clear()
         number_components = 0
         seeds = []

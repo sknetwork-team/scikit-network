@@ -24,7 +24,7 @@ def cosine_modularity(adjacency_matrix, embedding: np.ndarray, return_all: bool=
     adjacency_matrix: sparse.csr_matrix or np.ndarray
     the adjacency matrix of the graph
     embedding: np.ndarray
-    the embedding to evaluate, embedding[i] should represent the embedding of node i
+    the embedding to evaluate, embedding[i] must represent the embedding of node i
     return_all: whether to return both means besides their difference, or only the difference
 
     Returns
