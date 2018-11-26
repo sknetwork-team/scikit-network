@@ -336,6 +336,12 @@ class Louvain:
     >>> louvain_jit = Louvain(algorithm=GreedyModularityJiT())
     >>> (louvain_jit.fit(graph).labels_ == np.array([0, 1, 2])).all()
     True
+
+    References
+    ----------
+    Blondel, V. D., Guillaume, J. L., Lambiotte, R., & Lefebvre, E. (2008).
+    Fast unfolding of communities in large networks.
+    Journal of statistical mechanics: theory and experiment, 2008
     """
 
     def __init__(self, algorithm=GreedyModularity(), tol=0., max_agg_iter: int = -1, verbose=0):
