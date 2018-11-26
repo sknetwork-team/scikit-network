@@ -10,8 +10,8 @@
 
 import unittest
 import networkx as nx
-from sknetwork.hierarchical_clustering.agglomerative_clustering import linkage_clustering
-from sknetwork.hierarchical_clustering.metrics import hierarchical_cost
+from sknetwork.hierarchy.agglomerative_clustering import linkage_clustering
+from sknetwork.hierarchy.metrics import hierarchical_cost
 
 
 class TestMetrics(unittest.TestCase):

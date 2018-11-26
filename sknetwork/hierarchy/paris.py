@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Nov 2, 2018
-@author: Nathan de Lara <ndelara@enst.fr>
-@author: Quentin Lutz <qlutz@enst.fr>
+Created on Nov 25, 2018
+@author: Thomas Bonald <tbonald@enst.fr>
+@author: Bertrand Charpentier <bertrand.charpentier@live.fr>
 """
 
 try:
@@ -18,13 +18,13 @@ from scipy import sparse
 
 class NormalizedGraph:
     """
-    A class of graph specialized for Louvain algorithm.
+    A class of graphs suitable for aggregation.
 
     Attributes
     ----------
     n_nodes: the number of nodes in the graph
-    norm_adj: normalized adjacency matrix such that the coefficients sum to 1
-    node_weights: vector of normalized node degrees
+    norm_adj: normalized adjacency matrix (summing to 1)
+    node_weights: vector of node weights
     """
 
     def __init__(self, adj_matrix, node_weights='degree'):
@@ -32,8 +32,8 @@ class NormalizedGraph:
 
         Parameters
         ----------
-        adj_matrix: adjacency matrix of the graph in a SciPy sparse matrix
-        node_weights: node weights to be used in the second term of the modularity
+        adj_matrix: adjacency matrix of the graph as SciPy sparse matrix
+        node_weights: node weights to be used in the aggregation
         """
         self.n_nodes = adj_matrix.shape[0]
         self.norm_adj = adj_matrix / adj_matrix.data.sum()

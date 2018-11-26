@@ -109,3 +109,5 @@ ENV/
 
 # datasets folder
 data/
+
+\.DS_Store

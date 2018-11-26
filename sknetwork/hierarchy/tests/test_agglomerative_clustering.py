@@ -11,7 +11,7 @@
 import unittest
 import networkx as nx
 import numpy as np
-from sknetwork.hierarchical_clustering.agglomerative_clustering import linkage_clustering
+from sknetwork.hierarchy.agglomerative_clustering import linkage_clustering
 
 
 class TestAgglomerativeClustering(unittest.TestCase):
