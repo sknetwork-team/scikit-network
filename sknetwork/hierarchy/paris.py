@@ -18,15 +18,20 @@ from scipy import sparse
 
 class SimilarityGraph:
     """
-    A class of graphs suitable for aggregation.
+    A class of similarity graph suitable for aggregation.
 
     Attributes
     ----------
-    current_node: current node index
-    sim_matrix: similarity matrix
-    active_nodes: set of active nodes
-    node_sizes: vector of node sizes
-    node_weights: vector of node weights
+    current_node: int
+        current node index
+    neighbor_sim: array of lists of tuples
+        list of (neighbor, similarity) for each node
+    active_nodes: set
+        set of active nodes
+    node_sizes: 1d array of int
+        vector of node sizes
+    node_weights: 1d array of float
+        vector of node weights
     """
 
     def __init__(self, adj_matrix, node_weights='degree'):
@@ -34,8 +39,9 @@ class SimilarityGraph:
 
         Parameters
         ----------
-        adj_matrix: adjacency matrix of the graph as SciPy sparse matrix
-        node_weights: node weights to be used in the aggregation
+        adj_matrix: scipy csr matrix
+            adjacency matrix of the graph
+        node_weights: np node weights to be used in the aggregation
         """
         n_nodes = adj_matrix.shape[0]
         if type(node_weights) == np.ndarray:
@@ -57,15 +63,19 @@ class SimilarityGraph:
                 'Node weights must be a known distribution ("degree" or "uniform" string) or a custom NumPy array.')
 
         self.current_node = n_nodes
-        self.active_nodes = set(range(n_nodes))
+        # arrays have size 2 * n_nodes - 1 for the future nodes
+        self.neighbor_sim = np.empty((2 * n_nodes - 1,), dtype=object)
         inv_weights_diag = sparse.spdiags(1 / node_weights_vec, [0], n_nodes, n_nodes, format='csr')
         sim_matrix = inv_weights_diag.dot(adj_matrix.dot(inv_weights_diag))
-        # extension of the adjacency matrix to include future nodes (resulting from successive merges)
-        zero_block = sparse.csr_matrix((n_nodes - 1, n_nodes - 1))
-        self.sim_matrix = sparse.csr_matrix(sparse.bmat([(sim_matrix, None), (None, zero_block)]))
-        self.node_sizes = np.zeros(2 * n_nodes - 1)
-        self.node_sizes[:n_nodes] = np.ones(n_nodes)
-        self.node_weights = np.zeros(2 * n_nodes - 1)
+        for node in range(n_nodes):
+            start = sim_matrix.indptr[node]
+            end = sim_matrix.indptr[node + 1]
+            self.neighbor_sim[node] = [(sim_matrix.indices[i], sim_matrix.data[i]) for i in range(start, end) if
+                                       sim_matrix.indices[i] != node]
+        self.active_nodes = set(range(n_nodes))
+        self.node_sizes = np.zeros(2 * n_nodes - 1, dtype=int)
+        self.node_sizes[:n_nodes] = np.ones(n_nodes, dtype=int)
+        self.node_weights = np.zeros(2 * n_nodes - 1, dtype=float)
         self.node_weights[:n_nodes] = node_weights_vec
 
     def merge(self, nodes):
@@ -73,24 +83,53 @@ class SimilarityGraph:
         Merges two nodes.
         Parameters
         ----------
-        nodes: t-uple
+        nodes: tuple
 
         Returns
         -------
         the aggregated graph
         """
-        # update the similarity matrix (weighted sum)
-        to_add_vec = (self.node_weights[nodes[0]] * self.sim_matrix[nodes[0]] + self.node_weights[nodes[1]] *
-                      self.sim_matrix[nodes[1]]) / self.node_weights[[nodes]].sum()
-        to_add_mat = sparse.lil_matrix(self.sim_matrix.shape)
-        to_add_mat[self.current_node] = to_add_vec
-        to_add_mat[:, self.current_node] = to_add_vec.T
-        self.sim_matrix += sparse.csr_matrix(to_add_mat)
-        # update set of active nodes
+        first_node = nodes[0]
+        second_node = nodes[1]
+        first_list = self.neighbor_sim[first_node]
+        second_list = self.neighbor_sim[second_node]
+        new_list = []
+        while first_list and second_list:
+            if first_list[-1][0] > second_list[-1][0]:
+                node, sim = first_list.pop()
+                if node != second_node:
+                    new_list.append((node, sim))
+                    self.neighbor_sim[node].append((self.current_node, sim))
+            elif first_list[-1][0] < second_list[-1][0]:
+                node, sim = second_list.pop()
+                if node != first_node:
+                    new_list.append((node, sim))
+                    self.neighbor_sim[node].append((self.current_node, sim))
+            else:
+                node, first_sim = first_list.pop()
+                _, second_sim = second_list.pop()
+                # weighted sum of similarities
+                first_weight = self.node_weights[first_node]
+                second_weight = self.node_weights[second_node]
+                sim = (first_sim * first_weight + second_sim * second_weight) / (first_weight + second_weight)
+                new_list.append((node, sim))
+                self.neighbor_sim[node].append((self.current_node, sim))
+        while first_list:
+            node, sim = first_list.pop()
+            if node != second_node:
+                new_list.append((node, sim))
+                self.neighbor_sim[node].append((self.current_node, sim))
+        while second_list:
+            node, sim = second_list.pop()
+            if node != first_node:
+                new_list.append((node, sim))
+                self.neighbor_sim[node].append((self.current_node, sim))
+        new_list.reverse()
+        self.neighbor_sim[self.current_node] = new_list
         self.active_nodes -= set(nodes)
         self.active_nodes.add(self.current_node)
-        # update node sizes & node weights
         self.node_sizes[self.current_node] = self.node_sizes[[nodes]].sum()
+        self.node_sizes[[nodes]] = (0, 0)
         self.node_weights[self.current_node] = self.node_weights[[nodes]].sum()
         self.current_node += 1
         return self
@@ -99,7 +138,7 @@ class SimilarityGraph:
 def reorder_dendrogram(dendrogram: np.ndarray):
     n_nodes = np.shape(dendrogram)[0] + 1
     order = np.zeros((2, n_nodes - 1), float)
-    order[0] = range(n_nodes - 1)
+    order[0] = np.array(range(n_nodes - 1))
     order[1] = np.array(dendrogram)[:, 2]
     index = np.lexsort(order)
     node_index = {i: i for i in range(n_nodes)}
@@ -151,47 +190,58 @@ class Paris:
         if (adj_matrix != adj_matrix.T).nnz != 0:
             raise ValueError('The graph cannot be directed. Please fit a symmetric adjacency matrix.')
 
-        graph = SimilarityGraph(adj_matrix, node_weights)
+        sim_graph = SimilarityGraph(adj_matrix, node_weights)
 
         connected_components = []
         dendrogram = []
 
-        while len(graph.active_nodes) > 0:
-            for node in graph.active_nodes:
+        while len(sim_graph.active_nodes) > 0:
+            for node in sim_graph.active_nodes:
                 break
             chain = [node]
             while chain:
                 node = chain.pop()
-                index = np.where(np.in1d(graph.sim_matrix[node].indices, list(graph.active_nodes - {node})))[0]
-                neighbors = graph.sim_matrix[node].indices[index]
-                similarity = graph.sim_matrix[node].data[index]
-                if len(similarity) > 0:
-                    nearest_neighbor_index = np.argmax(similarity)
-                    nearest_neighbor = neighbors[nearest_neighbor_index]
+                # filter active nodes
+                sim_graph.neighbor_sim[node] = [element for element in sim_graph.neighbor_sim[node] if
+                                                (sim_graph.node_sizes[element[0]] > 0)]
+                if sim_graph.neighbor_sim[node]:
+                    max_sim = -float("inf")
+                    for neighbor, sim in sim_graph.neighbor_sim[node]:
+                        if sim > max_sim:
+                            nearest_neighbor = neighbor
+                            max_sim = sim
+                    # print(node,nearest_neighbor)
+                    # print(sim_graph.neighbor_sim[node])
+                    # print(sim_graph.neighbor_sim[nearest_neighbor])
+                    # print(sim_graph.active_nodes)
                     if chain:
-                        nearest_neighbor_reverse = chain.pop()
-                        if nearest_neighbor_reverse == nearest_neighbor:
-                            dendrogram.append([node, nearest_neighbor, 1. / similarity[nearest_neighbor_index],
-                                               graph.node_sizes[node] + graph.node_sizes[nearest_neighbor]])
-                            graph.merge((node, nearest_neighbor))
+                        nearest_neighbor_last = chain.pop()
+                        if nearest_neighbor_last == nearest_neighbor:
+                            dendrogram.append([node, nearest_neighbor, 1. / max_sim,
+                                               sim_graph.node_sizes[node] + sim_graph.node_sizes[nearest_neighbor]])
+                            sim_graph.merge((node, nearest_neighbor))
                         else:
-                            chain.append(nearest_neighbor_reverse)
+                            chain.append(nearest_neighbor_last)
                             chain.append(node)
                             chain.append(nearest_neighbor)
                     else:
                         chain.append(node)
                         chain.append(nearest_neighbor)
                 else:
-                    connected_components.append((node, graph.node_sizes[node]))
-                    graph.active_nodes -= {node}
+                    connected_components.append((node, sim_graph.node_sizes[node]))
+                    sim_graph.active_nodes -= {node}
+                    sim_graph.node_sizes[node] = 0
 
         node, node_size = connected_components.pop()
         for next_node, next_node_size in connected_components:
             node_size += next_node_size
             dendrogram.append([node, next_node, float("inf"), node_size])
-            node = graph.current_node
-            graph.current_node += 1
+            node = sim_graph.current_node
+            sim_graph.current_node += 1
 
         self.dendrogram_ = reorder_dendrogram(np.array(dendrogram))
 
         return self
+
+
+
