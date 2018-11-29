@@ -41,7 +41,8 @@ class SimilarityGraph:
         ----------
         adj_matrix: scipy csr matrix
             adjacency matrix of the graph
-        node_weights: np node weights to be used in the aggregation
+        node_weights: {'degree', 'uniform'} or np array
+            node weights to be used in the linkage
         """
         n_nodes = adj_matrix.shape[0]
         if type(node_weights) == np.ndarray:
@@ -84,6 +85,7 @@ class SimilarityGraph:
         Parameters
         ----------
         nodes: tuple
+            the two nodes to cluster
 
         Returns
         -------
@@ -153,7 +155,8 @@ class Paris:
 
     Attributes
     ----------
-    dendrogram_: dendrogram of the nodes as numpy array of shape number of nodes x 4
+    dendrogram_: numpy array of shape (n_nodes - 1) x 4
+        dendrogram of the nodes
 
     See Also
     --------
@@ -175,8 +178,10 @@ class Paris:
 
         Parameters
         ----------
-        adj_matrix: adjacency matrix of the graph to cluster
-        node_weights: node weights to be used in the linkage
+        adj_matrix: scipy csr matrix
+            adjacency matrix of the graph to cluster
+        node_weights: either in {'degree','uniform'} or np array
+            vector of node weights used in the linkage
 
         Returns
         -------
@@ -210,10 +215,6 @@ class Paris:
                         if sim > max_sim:
                             nearest_neighbor = neighbor
                             max_sim = sim
-                    # print(node,nearest_neighbor)
-                    # print(sim_graph.neighbor_sim[node])
-                    # print(sim_graph.neighbor_sim[nearest_neighbor])
-                    # print(sim_graph.active_nodes)
                     if chain:
                         nearest_neighbor_last = chain.pop()
                         if nearest_neighbor_last == nearest_neighbor:
