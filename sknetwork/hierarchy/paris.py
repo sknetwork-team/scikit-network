@@ -102,15 +102,9 @@ def reorder_dendrogram(dendrogram: np.ndarray):
     order[0] = range(n_nodes - 1)
     order[1] = np.array(dendrogram)[:, 2]
     index = np.lexsort(order)
-<<<<<<< Updated upstream
     node_index = {i: i for i in range(n_nodes)}
     node_index.update({n_nodes + index[t]: n_nodes + t for t in range(n_nodes - 1)})
     return np.array([[node_index[int(dendrogram[t][0])], node_index[int(dendrogram[t][1])],
-=======
-    nindex = {i: i for i in range(n_nodes)}
-    nindex.update({n_nodes + index[t]: n_nodes + t for t in range(n_nodes - 1)})
-    return np.array([[nindex[int(dendrogram[t][0])], nindex[int(dendrogram[t][1])],
->>>>>>> Stashed changes
                       dendrogram[t][2], dendrogram[t][3]] for t in range(n_nodes - 1)])[index, :]
 
 
@@ -201,9 +195,3 @@ class Paris:
         self.dendrogram_ = reorder_dendrogram(np.array(dendrogram))
 
         return self
-<<<<<<< Updated upstream
-=======
-
-
-
->>>>>>> Stashed changes
