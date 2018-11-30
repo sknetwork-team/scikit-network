@@ -1,10 +1,13 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Nov 25, 2018
-@author: Thomas Bonald <tbonald@enst.fr>
-@author: Bertrand Charpentier <bertrand.charpentier@live.fr>
-"""
+# paris.py - agglomerative clustering algorithm
+#
+# Copyright 2018 Scikit-network Developers.
+# Copyright 2018 Thomas Bonald <bonald@enst.fr>
+# Copyright 2018 Bertrand Charpentier <bertrand.charpentier@live.fr>
+#
+# This file is part of Scikit-network.
+#
+# NetworkX is distributed under a BSD license; see LICENSE.txt for more information.
 
 try:
     # noinspection PyPackageRequirements
