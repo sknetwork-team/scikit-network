@@ -22,7 +22,8 @@ class NormalizedGraph:
 
     Attributes
     ----------
-    n_nodes: the number of nodes in the graph
+    n_nodes: int
+        the number of nodes in the graph
     norm_adj: normalized adjacency matrix (summing to 1)
     node_weights: vector of node weights
     """

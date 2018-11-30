@@ -7,6 +7,7 @@ Created on Nov 25, 2018
 """
 
 try:
+    # noinspection PyPackageRequirements
     from numba import njit
 except ImportError:
     def njit(func):
@@ -24,14 +25,13 @@ class SimilarityGraph:
     ----------
     current_node: int
         current node index
-    neighbor_sim: array of lists of tuples
+    neighbor_sim: np.ndarray of lists of tuples
         list of (neighbor, similarity) for each node
     active_nodes: set
         set of active nodes
-    node_sizes: 1d array of int
+    node_sizes: np.ndarray(dtype=int)
         vector of node sizes
-    node_weights: 1d array of float
-        vector of node weights
+
     """
 
     def __init__(self, adj_matrix, node_weights='degree'):
@@ -39,15 +39,16 @@ class SimilarityGraph:
 
         Parameters
         ----------
-        adj_matrix: scipy csr matrix
+        adj_matrix: scipy.csr_matrix
             adjacency matrix of the graph
-        node_weights: np node weights to be used in the aggregation
-        """
+        node_weights: Union[str,np.ndarray(dtype=float)]
+            vector of node weights
+    """
         n_nodes = adj_matrix.shape[0]
         if type(node_weights) == np.ndarray:
             if len(node_weights) != n_nodes:
                 raise ValueError('The number of node weights must match the number of nodes.')
-            if any(node_weights <= np.zeros(n_nodes)):
+            if np.any(node_weights <= 0):
                 raise ValueError('All node weights must be positive.')
             else:
                 node_weights_vec = node_weights
@@ -206,6 +207,7 @@ class Paris:
         dendrogram = []
 
         while len(sim_graph.active_nodes) > 0:
+            node = None
             for node in sim_graph.active_nodes:
                 break
             chain = [node]
