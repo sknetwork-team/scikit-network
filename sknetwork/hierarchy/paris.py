@@ -41,8 +41,7 @@ class SimilarityGraph:
         ----------
         adj_matrix: scipy csr matrix
             adjacency matrix of the graph
-        node_weights: {'degree', 'uniform'} or np array
-            node weights to be used in the linkage
+        node_weights: np node weights to be used in the aggregation
         """
         n_nodes = adj_matrix.shape[0]
         if type(node_weights) == np.ndarray:
@@ -64,7 +63,7 @@ class SimilarityGraph:
                 'Node weights must be a known distribution ("degree" or "uniform" string) or a custom NumPy array.')
 
         self.current_node = n_nodes
-        # arrays have size 2 * n_nodes - 1 for the future nodes
+        # arrays have size 2 * n_nodes - 1 for the future nodes (resulting from merges)
         self.neighbor_sim = np.empty((2 * n_nodes - 1,), dtype=object)
         inv_weights_diag = sparse.spdiags(1 / node_weights_vec, [0], n_nodes, n_nodes, format='csr')
         sim_matrix = inv_weights_diag.dot(adj_matrix.dot(inv_weights_diag))
@@ -82,17 +81,20 @@ class SimilarityGraph:
     def merge(self, nodes):
         """
         Merges two nodes.
+
         Parameters
         ----------
         nodes: tuple
-            the two nodes to cluster
-
+            The two nodes
         Returns
         -------
-        the aggregated graph
+        The aggregated graph
         """
         first_node = nodes[0]
         second_node = nodes[1]
+        first_weight = self.node_weights[first_node]
+        second_weight = self.node_weights[second_node]
+        new_weight = first_weight + second_weight
         first_list = self.neighbor_sim[first_node]
         second_list = self.neighbor_sim[second_node]
         new_list = []
@@ -100,33 +102,34 @@ class SimilarityGraph:
             if first_list[-1][0] > second_list[-1][0]:
                 node, sim = first_list.pop()
                 if node != second_node:
-                    new_list.append((node, sim))
-                    self.neighbor_sim[node].append((self.current_node, sim))
+                    new_sim = sim * first_weight / new_weight
+                    new_list.append((node, new_sim))
+                    self.neighbor_sim[node].append((self.current_node, new_sim))
             elif first_list[-1][0] < second_list[-1][0]:
                 node, sim = second_list.pop()
                 if node != first_node:
-                    new_list.append((node, sim))
-                    self.neighbor_sim[node].append((self.current_node, sim))
+                    new_sim = sim * second_weight / new_weight
+                    new_list.append((node, new_sim))
+                    self.neighbor_sim[node].append((self.current_node, new_sim))
             else:
                 node, first_sim = first_list.pop()
                 _, second_sim = second_list.pop()
                 # weighted sum of similarities
-                first_weight = self.node_weights[first_node]
-                second_weight = self.node_weights[second_node]
-                sim = (first_sim * first_weight + second_sim * second_weight) / (first_weight + second_weight)
-                new_list.append((node, sim))
-                self.neighbor_sim[node].append((self.current_node, sim))
+                new_sim = (first_sim * first_weight + second_sim * second_weight) / new_weight
+                new_list.append((node, new_sim))
+                self.neighbor_sim[node].append((self.current_node, new_sim))
         while first_list:
             node, sim = first_list.pop()
             if node != second_node:
-                new_list.append((node, sim))
-                self.neighbor_sim[node].append((self.current_node, sim))
+                new_sim = sim * first_weight / new_weight
+                new_list.append((node, new_sim))
+                self.neighbor_sim[node].append((self.current_node, new_sim))
         while second_list:
             node, sim = second_list.pop()
             if node != first_node:
-                new_list.append((node, sim))
-                self.neighbor_sim[node].append((self.current_node, sim))
-        new_list.reverse()
+                new_sim = sim * second_weight / new_weight
+                new_list.append((node, new_sim))
+                self.neighbor_sim[node].append((self.current_node, new_sim))
         self.neighbor_sim[self.current_node] = new_list
         self.active_nodes -= set(nodes)
         self.active_nodes.add(self.current_node)
@@ -172,7 +175,7 @@ class Paris:
     def __init__(self):
         self.dendrogram_ = None
 
-    def fit(self, adj_matrix: sparse.csr_matrix, node_weights="degree"):
+    def fit(self, adj_matrix: sparse.csr_matrix, node_weights="degree", reorder=False):
         """
         Agglomerative clustering using the nearest neighbor chain
 
@@ -180,8 +183,10 @@ class Paris:
         ----------
         adj_matrix: scipy csr matrix
             adjacency matrix of the graph to cluster
-        node_weights: either in {'degree','uniform'} or np array
-            vector of node weights used in the linkage
+        node_weights: np 1d array
+            node weights to be used in the linkage
+        reorder: boolean
+            reorder the dendrogram in increasing order of heights
 
         Returns
         -------
@@ -215,6 +220,8 @@ class Paris:
                         if sim > max_sim:
                             nearest_neighbor = neighbor
                             max_sim = sim
+                        elif sim == max_sim:
+                            nearest_neighbor = min(neighbor, nearest_neighbor)
                     if chain:
                         nearest_neighbor_last = chain.pop()
                         if nearest_neighbor_last == nearest_neighbor:
@@ -240,9 +247,10 @@ class Paris:
             node = sim_graph.current_node
             sim_graph.current_node += 1
 
-        self.dendrogram_ = reorder_dendrogram(np.array(dendrogram))
+        dendrogram = np.array(dendrogram)
+        if reorder:
+            dendrogram = reorder_dendrogram(dendrogram)
+
+        self.dendrogram_ = dendrogram
 
         return self
-
-
-
