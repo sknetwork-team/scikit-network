@@ -63,6 +63,7 @@ class SimilarityGraph:
             else:
                 raise ValueError('Unknown distribution type.')
         else:
+
             raise TypeError(
                 'Node weights must be a known distribution ("degree" or "uniform" string) or a custom NumPy array.')
 
@@ -147,11 +148,12 @@ class SimilarityGraph:
 def reorder_dendrogram(dendrogram: np.ndarray):
     n_nodes = np.shape(dendrogram)[0] + 1
     order = np.zeros((2, n_nodes - 1), float)
-    order[0] = np.array(range(n_nodes - 1))
+    order[0] = np.arange(n_nodes - 1)
     order[1] = np.array(dendrogram)[:, 2]
     index = np.lexsort(order)
-    node_index = {i: i for i in range(n_nodes)}
-    node_index.update({n_nodes + index[t]: n_nodes + t for t in range(n_nodes - 1)})
+    node_index = np.arange(2 * n_nodes - 1)
+    for t in range(n_nodes - 1):
+        node_index[n_nodes + index[t]] = n_nodes + t
     return np.array([[node_index[int(dendrogram[t][0])], node_index[int(dendrogram[t][1])],
                       dendrogram[t][2], dendrogram[t][3]] for t in range(n_nodes - 1)])[index, :]
 
@@ -185,9 +187,9 @@ class Paris:
 
         Parameters
         ----------
-        adj_matrix: scipy csr matrix
+        adj_matrix: scipy.csr_matrix
             adjacency matrix of the graph to cluster
-        node_weights: np 1d array
+        node_weights: np.ndarray(dtype=float)
             node weights to be used in the linkage
         reorder: boolean
             reorder the dendrogram in increasing order of heights
