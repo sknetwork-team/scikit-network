@@ -1,4 +1,3 @@
-from sknetwork.model.graph import Graph
 
 import os
 import os.path
@@ -6,16 +5,14 @@ import zipfile
 import tarfile
 
 from six.moves import urllib
+from scipy.sparse import csr_matrix
 
-urls = {'polblogs.mtx': 'http://nrvis.com/download/data/dimacs10/polblogs.zip',
-        'ca-CondMat.mtx': 'https://sparse.tamu.edu/MM/SNAP/ca-CondMat.tar.gz'}
+urls = {}
 
 
 class Dataset:
+
     def __init__(self, file_name, directed=True, download=True, root='./data/'):
-        self.graph = Graph()
-        self.graph.clear()
-        self.graph._directed = directed
         self.root = root
 
         if file_name not in urls.keys():
@@ -44,7 +41,7 @@ class Dataset:
                     zip_ref.extract(file_name, self.root)
                     zip_ref.close()
                 except ValueError:
-                    print('Pb with the zip file')
+                    print('Problem with the zip file')
             elif urls[file_name][-6:] == 'tar.gz':
                 urllib.request.urlretrieve(urls[file_name], self.file_path[:-3] + 'tar.gz')
                 try:
@@ -55,7 +52,7 @@ class Dataset:
                             tar.extract(member, path=self.root)
                             self.file_path = os.path.join(self.root, member.name)
                 except ValueError:
-                    print('Pb with the tar.gz file')
+                    print('Problem with the tar.gz file')
             else:
                 print('Not implemented')
 
@@ -84,6 +81,9 @@ class Dataset:
 
         """
 
+        rows = []
+        cols = []
+        vals = []
         first_line = True
         with open(path, 'rt') as f:
             for line in f:
@@ -110,8 +110,8 @@ class Dataset:
                     continue
                 u = s.pop(0)
                 v = s.pop(0)
-                self.graph.add_edge(int(u), int(v), direct=True)
+                rows.append(int(u))
+                cols.append(int(v))
+                vals.append(1)
 
-        self.graph.basics()
-        print("number of nodes: %d (expected %s); number of edges: %d (expected %s)"
-              % (self.graph.n_vertices, n, self.graph.n_edges, e))
+        return csr_matrix((vals, (rows, cols)))
