@@ -69,12 +69,6 @@ class Dataset:
         -------
         a graph
 
-        Example
-        -------
-        >>> polblogs = Dataset('polblogs.mtx')
-        loading graph with 1490 nodes and 19025 edges.
-        number of nodes: 1224 (expected 1490); number of edges: 19025 (expected 19025)
-
         Note
         ----
         Useful repo : https://sparse.tamu.edu/SNAP
