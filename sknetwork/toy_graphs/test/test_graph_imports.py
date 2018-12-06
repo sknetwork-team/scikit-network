@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# test for metrics.py
+# test for graph_data.py
 #
 # Copyright 2018 Scikit-network Developers.
 # Copyright 2018 Nathan de Lara <ndelara@enst.fr>
@@ -11,6 +11,9 @@ from toy_graphs.graph_data import GraphConstants
 
 
 class TestGraphImport(unittest.TestCase):
+
+    def setUp(self):
+        pass
 
     def test_available(self):
         graph = GraphConstants.karate_club
