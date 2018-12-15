@@ -42,14 +42,14 @@ class SpectralEmbedding:
         * Laplacian Eigenmaps for Dimensionality Reduction and Data Representation, M. Belkin, P. Niyogi
         """
 
-    def __init__(self, embedding_dimension: int=2, node_weights='degree', eigenvalue_normalization: bool=True):
+    def __init__(self, embedding_dimension: int = 2, node_weights='degree', eigenvalue_normalization: bool = True):
         self.embedding_dimension = embedding_dimension
         self.node_weights = node_weights
         self.eigenvalue_normalization = eigenvalue_normalization
         self.embedding_ = None
         self.eigenvalues_ = None
 
-    def fit(self, adjacency_matrix, node_weights=None, randomized_decomposition: bool=True):
+    def fit(self, adjacency_matrix, node_weights=None, randomized_decomposition: bool = True):
         """Fits the model from data in adjacency_matrix
 
         Parameters

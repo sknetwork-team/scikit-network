@@ -7,7 +7,7 @@
 # This file is part of Scikit-network.
 
 import unittest
-from sknetwork.embedding.forward_backward import ForwardBackwardEmbedding
+from sknetwork.embedding.svd import ForwardBackwardEmbedding
 from sknetwork.embedding.spectral import SpectralEmbedding
 from scipy import sparse
 import numpy as np

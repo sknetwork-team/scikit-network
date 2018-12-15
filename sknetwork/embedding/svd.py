@@ -78,7 +78,7 @@ class ForwardBackwardEmbedding:
         self.backward_embedding_ = None
         self.singular_values_ = None
 
-    def fit(self, adjacency_matrix, randomized_decomposition: bool=True, tol=1e-6, n_iter='auto',
+    def fit(self, adjacency_matrix, randomized_decomposition: bool = True, tol=1e-6, n_iter='auto',
             power_iteration_normalizer='auto', random_state=None):
         """Fits the model from data in adjacency_matrix.
 

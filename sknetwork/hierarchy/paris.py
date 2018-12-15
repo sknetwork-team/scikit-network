@@ -223,6 +223,7 @@ class Paris:
                                                 (sim_graph.node_sizes[element[0]] > 0)]
                 if sim_graph.neighbor_sim[node]:
                     max_sim = -float("inf")
+                    nearest_neighbor = None
                     for neighbor, sim in sim_graph.neighbor_sim[node]:
                         if sim > max_sim:
                             nearest_neighbor = neighbor
