@@ -106,3 +106,6 @@ ENV/
 
 # Travis
 .travis.yml
+
+# Pypi
+/dist
