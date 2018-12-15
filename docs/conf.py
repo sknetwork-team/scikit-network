@@ -35,14 +35,13 @@ import sknetwork
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.viewcode',
               'sphinx.ext.autosummary',
-              'sphinx.ext.autodoc',
               'sphinx.ext.coverage',
               'sphinx.ext.doctest',
               'sphinx.ext.intersphinx',
               'sphinx.ext.mathjax',
               'sphinx.ext.napoleon',
               'sphinx.ext.todo',
-              'sphinx.ext.viewcode',]
+              'sphinx.ext.viewcode']
 
 
 # Add any paths that contain templates here, relative to this directory.

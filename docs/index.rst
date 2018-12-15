@@ -1,5 +1,5 @@
 Welcome to scikit-network's documentation!
-======================================
+==========================================
 
 .. toctree::
    :maxdepth: 2

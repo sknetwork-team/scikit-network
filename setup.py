@@ -11,11 +11,11 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', 'numpy', 'networkx', ]
+requirements = ['Click>=6.0', 'numpy', 'networkx', 'scipy']
 
 setup_requirements = ['pytest-runner', ]
 
-test_requirements = ['pytest', 'nose', ]
+test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
 setup(
     author="Bertrand Charpentier",
@@ -25,9 +25,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
     description="Graph algorithms",

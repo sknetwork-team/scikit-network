@@ -29,7 +29,7 @@ def hierarchical_cost(graph, dendrogram, affinity='weighted', linkage='classic',
         An undirected graph.
     dendrogram : numpy array
         A dendrogram
-    affinity, optional : string (default: 'weighted')
+    affinity : string (default: 'weighted')
         The affinity  can be either 'weighted' or 'unitary'.
         Value 'weighted' takes the attribute 'weight' on the edges.
         Value 'unitary' consider that the edges have a weight equal to 1
@@ -98,6 +98,8 @@ def hierarchical_cost(graph, dendrogram, affinity='weighted', linkage='classic',
 
     if linkage == 'classic':
         cost = classic_linkage_hierarchical_cost(graph_copy, dendrogram, g)
+    else:
+        cost = 0.
 
     return cost
 
