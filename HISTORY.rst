@@ -2,7 +2,11 @@
 History
 =======
 
-0.1.0 (2018-05-29)
+0.2.0 (2018-12-19)
 ------------------
 
-* First release on PyPI.
+* Second release on PyPI.
+* Added Hierarchical clustering
+* Added Louvain clustering
+* Added Forward-backward embedding
+* Added basic loaders and toy graphs
