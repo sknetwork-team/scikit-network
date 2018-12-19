@@ -107,3 +107,11 @@ ENV/
 # Travis
 .travis.yml
 
+# Pypi
+/dist
+=======
+# datasets folder
+data/
+
+\.DS_Store
+
