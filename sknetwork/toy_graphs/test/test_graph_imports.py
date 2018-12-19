@@ -7,7 +7,7 @@
 # This file is part of Scikit-network.
 
 import unittest
-from toy_graphs.graph_data import GraphConstants
+from sknetwork.toy_graphs.graph_data import GraphConstants
 
 
 class TestGraphImport(unittest.TestCase):
