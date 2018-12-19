@@ -12,6 +12,8 @@ Spectral embedding by decomposition of the normalized graph Laplacian.
 """
 
 import numpy as np
+
+from sknetwork.embedding.randomized_matrix_factorization import randomized_eig
 from scipy import sparse, errstate, sqrt, isinf
 from scipy.sparse import csgraph
 from scipy.sparse.linalg import eigsh
@@ -40,20 +42,22 @@ class SpectralEmbedding:
         * Laplacian Eigenmaps for Dimensionality Reduction and Data Representation, M. Belkin, P. Niyogi
         """
 
-    def __init__(self, embedding_dimension: int=100, node_weights='uniform', eigenvalue_normalization: bool=True):
+    def __init__(self, embedding_dimension: int = 2, node_weights='degree', eigenvalue_normalization: bool = True):
         self.embedding_dimension = embedding_dimension
         self.node_weights = node_weights
         self.eigenvalue_normalization = eigenvalue_normalization
         self.embedding_ = None
         self.eigenvalues_ = None
 
-    def fit(self, adjacency_matrix, node_weights=None):
+    def fit(self, adjacency_matrix, node_weights=None, randomized_decomposition: bool = True):
         """Fits the model from data in adjacency_matrix
 
         Parameters
         ----------
         adjacency_matrix : Scipy csr matrix or numpy ndarray
               Adjacency matrix of the graph
+        randomized_decomposition: whether to use a randomized (and faster) decomposition method or
+            the standard scipy one.
         node_weights : {'uniform', 'degree', array of length n_nodes with positive entries}
               Node weights
         """
@@ -101,10 +105,16 @@ class SpectralEmbedding:
                     weights_inv_sqrt = 1.0 / sqrt(self.node_weights)
                 weights_inv_sqrt[isinf(weights_inv_sqrt)] = 0
                 weight_matrix = sparse.diags(weights_inv_sqrt, format='csr')
+
         laplacian = weight_matrix.dot(laplacian.dot(weight_matrix))
 
         # spectral decomposition
-        eigenvalues, eigenvectors = eigsh(laplacian, min(self.embedding_dimension + 1, n_nodes - 1), which='SM')
+        n_components = min(self.embedding_dimension + 1, n_nodes - 1)
+        if randomized_decomposition:
+            eigenvalues, eigenvectors = randomized_eig(laplacian, n_components, which='SM')
+        else:
+            eigenvalues, eigenvectors = eigsh(laplacian, n_components, which='SM')
+
         self.eigenvalues_ = eigenvalues[1:]
 
         self.embedding_ = np.array(weight_matrix.dot(eigenvectors[:, 1:]))
