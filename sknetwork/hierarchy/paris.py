@@ -18,15 +18,18 @@ class SimilarityGraph:
 
     Attributes
     ----------
-    current_node: int
+    current_node : int
         current node index
-    neighbor_sim: np.ndarray of lists of tuples
+    neighbor_sim : np.ndarray of lists of tuples
         list of (neighbor, similarity) for each node
-    active_nodes: set
+    active_nodes : set
         set of active nodes
-    node_sizes: np.ndarray(dtype=int)
+    node_sizes : np.ndarray(dtype=int)
         vector of node sizes
 
+    Notes
+    -----
+    The similarity between nodes u,v is edge_weight(u,v) / node_weight(u) / node_weight(v)
     """
 
     def __init__(self, adj_matrix, node_weights='degree'):
@@ -34,10 +37,10 @@ class SimilarityGraph:
 
         Parameters
         ----------
-        adj_matrix: scipy.csr_matrix
-            adjacency matrix of the graph
-        node_weights: Union[str,np.ndarray(dtype=float)]
-            vector of node weights
+        adj_matrix : scipy.csr_matrix
+            Adjacency matrix of the graph.
+        node_weights : Union[str,np.ndarray(dtype=float)]
+            Vector of node weights. Default = 'degree', weight of each node in the graph.
     """
         n_nodes = adj_matrix.shape[0]
         if type(node_weights) == np.ndarray:
@@ -81,11 +84,11 @@ class SimilarityGraph:
 
         Parameters
         ----------
-        nodes: tuple
+        nodes : tuple
             The two nodes to merge
         Returns
         -------
-        The aggregated graph
+        The aggregated graph.
         """
         first_node = nodes[0]
         second_node = nodes[1]
@@ -156,7 +159,7 @@ class Paris:
 
     Attributes
     ----------
-    dendrogram_: numpy array of shape (n_nodes - 1) x 4
+    dendrogram_ : numpy array of shape (n_nodes - 1, 4)
         dendrogram of the nodes
 
     See Also
@@ -173,17 +176,17 @@ class Paris:
     def __init__(self):
         self.dendrogram_ = None
 
-    def fit(self, adj_matrix: sparse.csr_matrix, node_weights="degree", reorder=False):
+    def fit(self, adj_matrix: sparse.csr_matrix, node_weights='degree', reorder=True):
         """
         Agglomerative clustering using the nearest neighbor chain
 
         Parameters
         ----------
-        adj_matrix: scipy.csr_matrix
+        adj_matrix : scipy.csr_matrix
             adjacency matrix of the graph to cluster
-        node_weights: np.ndarray(dtype=float)
+        node_weights : Union[str,np.ndarray(dtype=float)]
             node weights to be used in the linkage
-        reorder: boolean
+        reorder : boolean
             reorder the dendrogram in increasing order of heights
 
         Returns
@@ -195,6 +198,8 @@ class Paris:
         # check that the graph is not directed
         if adj_matrix.shape[0] != adj_matrix.shape[1]:
             raise ValueError('The adjacency matrix must be square.')
+        if adj_matrix.shape[0] <= 1:
+            raise ValueError('The graph must contain at least two nodes.')
         if (adj_matrix != adj_matrix.T).nnz != 0:
             raise ValueError('The graph cannot be directed. Please fit a symmetric adjacency matrix.')
 

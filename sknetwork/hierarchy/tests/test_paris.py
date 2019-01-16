@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# test for louvain.py
+# test for paris.py
 #
 # Copyright 2018 Scikit-network Developers.
 # Copyright 2018 Thomas Bonald <tbonald@enst.fr>
@@ -8,6 +8,7 @@
 
 import unittest
 from sknetwork.hierarchy.paris import Paris
+from sknetwork.toy_graphs.graph_data import GraphConstants
 from scipy.sparse import identity
 
 
@@ -15,6 +16,7 @@ class TestParis(unittest.TestCase):
 
     def setUp(self):
         self.paris = Paris()
+        self.karate_club = GraphConstants.karate_club_graph()
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):
@@ -27,5 +29,5 @@ class TestParis(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.paris.fit(identity(2, format='csr'), node_weights='unknown')
 
-    def test_single_node_graph(self):
-        self.assertEqual(self.paris.fit(identity(1, format='csr')).dendrogram_.shape[0], 0)
+    def test_karate_club_graph(self):
+        self.assertEqual(self.paris.fit(self.karate_club).dendrogram_.shape[0], 33)
