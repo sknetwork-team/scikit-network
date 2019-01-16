@@ -6,15 +6,7 @@
 # Copyright 2018 Bertrand Charpentier <bertrand.charpentier@live.fr>
 #
 # This file is part of Scikit-network.
-#
-# NetworkX is distributed under a BSD license; see LICENSE.txt for more information.
 
-try:
-    # noinspection PyPackageRequirements
-    from numba import njit
-except ImportError:
-    def njit(func):
-        return func
 
 import numpy as np
 from scipy import sparse
@@ -90,7 +82,7 @@ class SimilarityGraph:
         Parameters
         ----------
         nodes: tuple
-            The two nodes
+            The two nodes to merge
         Returns
         -------
         The aggregated graph
