@@ -20,12 +20,21 @@ class TestClusteringMetrics(unittest.TestCase):
                                                  [1, 0, 0, 0],
                                                  [1, 0, 0, 1],
                                                  [1, 0, 1, 0]]))
+        self.bipartite = sparse.csr_matrix(np.array([[1, 0, 1],
+                                                     [1, 0, 0],
+                                                     [1, 1, 1],
+                                                     [0, 1, 1]]))
 
     def test_forwardbackward(self):
         fb = ForwardBackwardEmbedding(2)
         fb.fit(self.graph)
         self.assertTrue(fb.embedding_.shape == (4, 2))
         self.assertTrue(fb.backward_embedding_.shape == (4, 2))
+        self.assertTrue(type(fb.singular_values_) == np.ndarray and len(fb.singular_values_) == 2)
+
+        fb.fit(self.bipartite)
+        self.assertTrue(fb.embedding_.shape == (4, 2))
+        self.assertTrue(fb.backward_embedding_.shape == (3, 2))
         self.assertTrue(type(fb.singular_values_) == np.ndarray and len(fb.singular_values_) == 2)
 
     def test_spectral(self):

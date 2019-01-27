@@ -5,7 +5,7 @@ Created on Oct 12 2018
 
 @author: Nathan de Lara <ndelara@enst.fr>
 
-Part of this code was adapted from the scikit-learn project.
+Part of this code was adapted from the scikit-learn project: https://scikit-learn.org/stable/.
 """
 
 import numpy as np
@@ -239,6 +239,7 @@ def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='a
         * Finding structure with randomness: Stochastic algorithms for constructing
           approximate matrix decompositions
           Halko, et al., 2009 http://arxiv.org/abs/arXiv:0909.4061
+          (algorithm 5.1)
         * A randomized algorithm for the decomposition of matrices
           Per-Gunnar Martinsson, Vladimir Rokhlin and Mark Tygert
         * An implementation of a randomized algorithm for principal component
@@ -294,7 +295,7 @@ def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='a
 
 
 def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 10, n_iter='auto',
-                   power_iteration_normalizer='auto', random_state=0):
+                   power_iteration_normalizer='auto', random_state=0, one_pass: bool = False):
     """Computes a randomized eigenvalue decomposition.
     Parameters
     ----------
@@ -330,10 +331,16 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
             generator; If RandomState instance, random_state is the random number
             generator; If None, the random number generator is the RandomState
             instance used by `np.random`.
+    one_pass: whether to use algorithm 5.6 instead of 5.3. 5.6 requires less access to the original matrix, while
+            5.3 is more accurate.
 
     Returns
     -------
-
+    References
+    ----------
+    Finding structure with randomness: Stochastic algorithms for constructing
+    approximate matrix decompositions
+    Halko, et al., 2009 http://arxiv.org/abs/arXiv:0909.4061
     """
 
     random_state = check_random_state(random_state)
@@ -356,7 +363,10 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
 
     range_matrix, random_matrix, random_proj = randomized_range_finder(matrix, n_random, n_iter,
                                                                        power_iteration_normalizer, random_state, True)
-    approx_matrix = np.linalg.lstsq(random_matrix.T.dot(range_matrix), random_proj.T.dot(range_matrix), None)[0].T
+    if one_pass:
+        approx_matrix = np.linalg.lstsq(random_matrix.T.dot(range_matrix), random_proj.T.dot(range_matrix), None)[0].T
+    else:
+        approx_matrix = (matrix.dot(range_matrix)).T.dot(range_matrix)
 
     eigenvalues, eigenvectors = np.linalg.eig(approx_matrix)
 

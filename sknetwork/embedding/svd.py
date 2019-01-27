@@ -125,9 +125,9 @@ class ForwardBackwardEmbedding:
         n_nodes, m_nodes = adj_matrix.shape
 
         # out-degree vector
-        dou = adj_matrix.dot(np.ones(n_nodes))
+        dou = adj_matrix.dot(np.ones(m_nodes))
         # in-degree vector
-        din = adj_matrix.T.dot(np.ones(m_nodes))
+        din = adj_matrix.T.dot(np.ones(n_nodes))
 
         with errstate(divide='ignore'):
             dou_sqrt = 1.0 / sqrt(dou)
