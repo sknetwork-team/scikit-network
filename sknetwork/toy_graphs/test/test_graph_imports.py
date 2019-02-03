@@ -2,7 +2,7 @@
 # test for graph_data.py
 #
 # Copyright 2018 Scikit-network Developers.
-# Copyright 2018 Quentin Lutz <qlutz@enst.fr>
+# Copyright 2018 Quentin Lutz <qlutz@enst.fr>, Nathan de Lara <ndelara@enst.fr>
 #
 # This file is part of Scikit-network.
 
@@ -18,3 +18,6 @@ class TestGraphImport(unittest.TestCase):
     def test_available(self):
         graph = GraphConstants.karate_club_graph()
         self.assertEqual(graph.shape[0], 34)
+
+        graph = GraphConstants.star_wars_villains_graph()
+        self.assertEqual(graph.shape, (4, 3))

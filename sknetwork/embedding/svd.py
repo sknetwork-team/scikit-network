@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#
+# Copyright 2018 Scikit-network Developers.
+#
+# This file is part of Scikit-network.
 """
 Created on Thu May 31 17:16:22 2018
 

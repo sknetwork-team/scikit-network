@@ -1,5 +1,10 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# test for graph_data.py
+#
+# Copyright 2018 Scikit-network Developers.
+# Copyright 2018 Nathan de Lara <ndelara@enst.fr>
+#
+# This file is part of Scikit-network.
 """
 Created on Nov 29, 2018
 @author: Quentin Lutz <qlutz@enst.fr>
@@ -41,3 +46,24 @@ class GraphConstants:
              33, 33, 33, 33, 33, 33, 33, 33, 33, 33])
         karate_club = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)))
         return karate_club
+
+    @staticmethod
+    def star_wars_villains_graph(return_labels=False):
+        """
+        Bipartite graph connecting some Star Wars villains to the movies in which they appear.
+        7 nodes (4 villains, 3 movies), 8 edges
+
+        Returns
+        -------
+        The biadjacency matrix in SciPy CSR format.
+        """
+        row = np.array([0, 0, 1, 2, 2, 2, 3, 3])
+        col = np.array([0, 2, 0, 0, 1, 2, 1, 2])
+        star_wars_villains = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)))
+
+        if return_labels:
+            row_labels = {0: 'Jabba', 1: 'Greedo', 2: 'Vador', 3: 'Boba'}
+            col_labels = {0: 'A_New_Hope', 1: 'The_Empire_Strikes_Back', 2: 'Return_Of_The_Jedi'}
+            return star_wars_villains, row_labels, col_labels
+        else:
+            return star_wars_villains

@@ -1,8 +1,11 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#
+# Copyright 2018 Scikit-network Developers.
+#
+# This file is part of Scikit-network.
 """
 Created on Dec 5, 2018
-@author: Quentin Lutz <qlutz@enst.fr>
+@author: Quentin Lutz <qlutz@enst.fr>, Nathan de Lara <ndelara@enst.fr>
 """
 
 from scipy import sparse
@@ -14,8 +17,9 @@ class Parser:
     A collection of parsers to import datasets into a SciPy format
 
     """
+
     @staticmethod
-    def parse_tsv(path, directed=False, weighted=False, labeled=False, offset=1):
+    def parse_tsv(path, directed=False, bipartite=False, weighted=False, labeled=False, offset=1):
         """
         A parser for Tabulation-Separated Values (TSV) datasets.
 
@@ -23,6 +27,7 @@ class Parser:
         ----------
         path : str, the path to the dataset in TSV format
         directed : bool, ensures the adjacency matrix is symmetric
+        bipartite : bool, if True, returns the biadjacency matrix of shape (n1, n2)
         weighted : bool, retrieves the weights in the third field of the file, raises an error if no such field exists
         labeled : bool, retrieves the names given to the nodes and renumbers them. Returns an additional array
         offset : int, renumbers the nodes (useful if the nodes are indexed from a given value other than 0)
@@ -43,6 +48,7 @@ class Parser:
             row = new_nodes[:n_edges]
             col = new_nodes[n_edges:]
         else:
+            labels = None
             row = parsed_file[0].astype(int) - offset * np.ones(n_edges, dtype=int)
             col = parsed_file[1].astype(int) - offset * np.ones(n_edges, dtype=int)
         if weighted:
@@ -51,12 +57,21 @@ class Parser:
             else:
                 data = parsed_file[2].astype(float)
         else:
-            data = np.ones(n_edges, dtype=int)
-        adj_matrix = sparse.csr_matrix((data, (row, col)))
-        n_nodes = max(adj_matrix.shape)
-        adj_matrix.resize((n_nodes, n_nodes))
-        if not directed:
-            adj_matrix += adj_matrix.transpose()
+            data = np.ones(n_edges, dtype=bool)
+
+        n_nodes = max(max(row), max(col)) + 1
+        if n_nodes < 2 * 10e9:
+            dtype = np.int32
+        else:
+            dtype = np.int64
+
+        if bipartite:
+            adj_matrix = sparse.csr_matrix((data, (row, col)), dtype=dtype)
+        else:
+            adj_matrix = sparse.csr_matrix((data, (row, col)), shape=(n_nodes, n_nodes), dtype=dtype)
+            if not directed:
+                adj_matrix += adj_matrix.transpose()
         if labeled:
             return adj_matrix, labels
-        return adj_matrix
+        else:
+            return adj_matrix

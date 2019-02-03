@@ -9,7 +9,7 @@
 import unittest
 import numpy as np
 from scipy import sparse
-from sknetwork.embedding.metrics import cosine_modularity
+from sknetwork.embedding.metrics import dot_modularity
 
 
 class TestClusteringMetrics(unittest.TestCase):
@@ -22,4 +22,4 @@ class TestClusteringMetrics(unittest.TestCase):
         self.embedding = np.ones((4, 2))
 
     def test_cosine_modularity(self):
-        self.assertAlmostEqual(cosine_modularity(self.graph, self.embedding), 0.)
+        self.assertAlmostEqual(dot_modularity(self.graph, self.embedding), 0.)
