@@ -50,7 +50,7 @@ def dot_modularity(adjacency_matrix, embedding: np.ndarray, return_all: bool=Fal
         raise ValueError("The adjacency matrix is not symmetric.")
 
     total_weight: float = adjacency_matrix.data.sum()
-    normalization = np.linalg.norm(embedding) ** 2 / embedding.shape[0] ** 2
+    normalization = np.linalg.norm(embedding) ** 2 / embedding.shape[0]
 
     fit = (np.multiply(embedding, adjacency_matrix.dot(embedding))).sum() / (total_weight * normalization)
     diversity = np.linalg.norm(np.mean(embedding, axis=0)) ** 2 / normalization

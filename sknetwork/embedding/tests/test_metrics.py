@@ -21,5 +21,9 @@ class TestClusteringMetrics(unittest.TestCase):
                                                  [1, 0, 1, 0]]))
         self.embedding = np.ones((4, 2))
 
-    def test_cosine_modularity(self):
+    def test_dot_modularity(self):
         self.assertAlmostEqual(dot_modularity(self.graph, self.embedding), 0.)
+        fit, diversity = dot_modularity(self.graph, self.embedding, return_all=True)
+        self.assertAlmostEqual(fit, 1.)
+        self.assertAlmostEqual(diversity, 1.)
+
