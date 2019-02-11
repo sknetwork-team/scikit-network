@@ -133,9 +133,9 @@ class SimilarityGraph:
         self.neighbor_sim[self.current_node] = new_list
         self.active_nodes -= set(nodes)
         self.active_nodes.add(self.current_node)
-        self.node_sizes[self.current_node] = self.node_sizes[[nodes]].sum()
-        self.node_sizes[[nodes]] = (0, 0)
-        self.node_weights[self.current_node] = self.node_weights[[nodes]].sum()
+        self.node_sizes[self.current_node] = self.node_sizes[tuple([nodes])].sum()
+        self.node_sizes[tuple([nodes])] = (0, 0)
+        self.node_weights[self.current_node] = self.node_weights[tuple([nodes])].sum()
         self.current_node += 1
         return self
 

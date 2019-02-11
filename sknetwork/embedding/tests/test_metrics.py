@@ -1,10 +1,6 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# test for metrics.py
-#
-# Copyright 2018 Scikit-network Developers.
-# Copyright 2018 Nathan de Lara <ndelara@enst.fr>
-#
-# This file is part of Scikit-network.
+"""tests for embeddings metrics"""
 
 import unittest
 import numpy as np

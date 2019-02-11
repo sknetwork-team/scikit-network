@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# Copyright 2018 Scikit-network Developers.
-#
-# This file is part of Scikit-network.
 """
 Created on Thu May 31 17:16:22 2018
 
@@ -13,49 +9,11 @@ Created on Thu May 31 17:16:22 2018
 import numpy as np
 
 from sknetwork.embedding.randomized_matrix_factorization import randomized_svd
-from scipy import sparse, errstate, sqrt, isinf, linalg
+from scipy import sparse, linalg
 
 
-def normalized_adjacency(adjacency_matrix):
-    """Normalized adjacency matrix :math:`(D_{in}^{+})^{1/2} A (D_{out}^{+})^{1/2}`.
-        Parameters
-        ----------
-        adjacency_matrix: sparse.csr_matrix or np.ndarray
-
-        Returns
-        -------
-        The normalized adjacency matrix.
-    """
-
-    if type(adjacency_matrix) == sparse.csr_matrix:
-        adj_matrix = adjacency_matrix
-    elif type(adjacency_matrix) == np.ndarray:
-        adj_matrix = sparse.csr_matrix(adjacency_matrix)
-    else:
-        raise TypeError(
-            "The argument must be a NumPy array or a SciPy Compressed Sparse Row matrix.")
-    n_nodes, m_nodes = adj_matrix.shape
-
-    # out-degree vector
-    dou = adj_matrix.dot(np.ones(n_nodes))
-    # in-degree vector
-    din = adj_matrix.T.dot(np.ones(m_nodes))
-
-    with errstate(divide='ignore'):
-        dou_sqrt = 1.0 / sqrt(dou)
-        din_sqrt = 1.0 / sqrt(din)
-    dou_sqrt[isinf(dou_sqrt)] = 0
-    din_sqrt[isinf(din_sqrt)] = 0
-    # pseudo inverse square-root out-degree matrix
-    dhou = sparse.spdiags(dou_sqrt, [0], n_nodes, n_nodes, format='csr')
-    # pseudo inverse square-root in-degree matrix
-    dhin = sparse.spdiags(din_sqrt, [0], m_nodes, m_nodes, format='csr')
-
-    return dhou.dot(adj_matrix.dot(dhin))
-
-
-class ForwardBackwardEmbedding:
-    """Forward and Backward embeddings for non-linear dimensionality reduction.
+class GSVDEmbedding:
+    """Generalized Singular Value Decomposition for non-linear dimensionality reduction.
 
     Parameters
     -----------
@@ -65,24 +23,24 @@ class ForwardBackwardEmbedding:
     Attributes
     ----------
     embedding_ : array, shape = (n_samples, embedding_dimension)
-        Forward embedding of the training matrix.
-    backward_embedding_ : array, shape = (n_samples, embedding_dimension)
-        Backward embedding of the training matrix.
+        Embedding of the samples (rows of the training matrix)
+    features_ : array, shape = (n_features, embedding_dimension)
+        Embedding of the features (columns of the training matrix)
     singular_values_ : array, shape = (embedding_dimension)
         Singular values of the training matrix
 
     References
     ----------
-    - Bonald, De Lara. "The Forward-Backward Embedding of Directed Graphs."
+    - Bonald, De Lara. "Interpretable Graph Embedding using Generalized SVD."
     """
 
     def __init__(self, embedding_dimension=2):
         self.embedding_dimension = embedding_dimension
         self.embedding_ = None
-        self.backward_embedding_ = None
+        self.features_ = None
         self.singular_values_ = None
 
-    def fit(self, adjacency_matrix, randomized_decomposition: bool = True, tol=1e-6, n_iter='auto',
+    def fit(self, adjacency_matrix, randomized_decomposition: bool = True, n_iter='auto',
             power_iteration_normalizer='auto', random_state=None):
         """Fits the model from data in adjacency_matrix.
 
@@ -93,8 +51,6 @@ class ForwardBackwardEmbedding:
             n = |V1|, m = |V2| for a bipartite graph.
         randomized_decomposition: whether to use a randomized (and faster) svd method or
             the standard scipy one.
-        tol: float, optional
-            Tolerance for pseudo-inverse of singular values (default=1e-6).
         n_iter: int or 'auto' (default is 'auto')
             Number of power iterations. It can be used to deal with very noisy
             problems. When 'auto', it is set to 4, unless `embedding_dimension` is small
@@ -127,21 +83,19 @@ class ForwardBackwardEmbedding:
             raise TypeError(
                 "The argument must be a NumPy array or a SciPy Compressed Sparse Row matrix.")
         n_nodes, m_nodes = adj_matrix.shape
-
         # out-degree vector
         dou = adj_matrix.dot(np.ones(m_nodes))
         # in-degree vector
         din = adj_matrix.T.dot(np.ones(n_nodes))
 
-        with errstate(divide='ignore'):
-            dou_sqrt = 1.0 / sqrt(dou)
-            din_sqrt = 1.0 / sqrt(din)
-        dou_sqrt[isinf(dou_sqrt)] = 0
-        din_sqrt[isinf(din_sqrt)] = 0
+        pdou, pdin = np.zeros(n_nodes), np.zeros(m_nodes)
+        pdou[dou.nonzero()] = 1 / dou[dou.nonzero()]
+        pdin[din.nonzero()] = 1 / din[din.nonzero()]
+
         # pseudo inverse square-root out-degree matrix
-        dhou = sparse.spdiags(dou_sqrt, [0], n_nodes, n_nodes, format='csr')
+        dhou = sparse.diags(np.sqrt(pdou), shape=(n_nodes, n_nodes), format='csr')
         # pseudo inverse square-root in-degree matrix
-        dhin = sparse.spdiags(din_sqrt, [0], m_nodes, m_nodes, format='csr')
+        dhin = sparse.diags(np.sqrt(pdin), shape=(m_nodes, m_nodes), format='csr')
 
         laplacian = dhou.dot(adj_matrix.dot(dhin))
 
@@ -154,10 +108,7 @@ class ForwardBackwardEmbedding:
             u, sigma, vt = linalg.svds(laplacian, self.embedding_dimension)
 
         self.singular_values_ = sigma
-
-        gamma = 1 - sigma ** 2
-        gamma_sqrt = np.diag(np.piecewise(gamma, [gamma > tol, gamma <= tol], [lambda x: 1 / np.sqrt(x), 0]))
-        self.embedding_ = dhou.dot(u).dot(gamma_sqrt)
-        self.backward_embedding_ = dhin.dot(vt.T).dot(gamma_sqrt)
+        self.embedding_ = dhou.dot(u) * sigma
+        self.features_ = dhin.dot(vt.T)
 
         return self
