@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 # coding: utf-8
-#
-# Copyright 2018 Scikit-network Developers.
-#
-# This file is part of Scikit-network.
 """
 Created on Thu Sep 13 2018
 
@@ -17,7 +13,7 @@ Spectral embedding by decomposition of the normalized graph Laplacian.
 import numpy as np
 
 from sknetwork.embedding.randomized_matrix_factorization import randomized_eig
-from scipy import sparse, errstate, sqrt, isinf
+from scipy import sparse
 from scipy.sparse import csgraph
 from scipy.sparse.linalg import eigsh
 
@@ -90,12 +86,9 @@ class SpectralEmbedding:
             node_weights = self.node_weights
         if type(node_weights) == str:
             if node_weights == 'uniform':
-                weight_matrix = sparse.identity(n_nodes)
+                weights = np.ones(n_nodes)
             elif node_weights == 'degree':
-                with errstate(divide='ignore'):
-                    degrees_inv_sqrt = 1.0 / sqrt(degrees)
-                degrees_inv_sqrt[isinf(degrees_inv_sqrt)] = 0
-                weight_matrix = sparse.diags(degrees_inv_sqrt, format='csr')
+                weights = degrees
             else:
                 raise ValueError('Unknown weighting policy. Try \'degree\' or \'uniform\'.')
         else:
@@ -104,10 +97,11 @@ class SpectralEmbedding:
             elif min(self.node_weights) < 0:
                 raise ValueError('node_weights must be positive.')
             else:
-                with errstate(divide='ignore'):
-                    weights_inv_sqrt = 1.0 / sqrt(self.node_weights)
-                weights_inv_sqrt[isinf(weights_inv_sqrt)] = 0
-                weight_matrix = sparse.diags(weights_inv_sqrt, format='csr')
+                weights = self.node_weights
+
+        weights_inv_sqrt = np.zeros(n_nodes)
+        weights_inv_sqrt[weights.nonzero()] = 1.0 / np.sqrt(weights[weights.nonzero()])
+        weight_matrix = sparse.diags(weights_inv_sqrt, format='csr')
 
         laplacian = weight_matrix.dot(laplacian.dot(weight_matrix))
 
@@ -122,7 +116,7 @@ class SpectralEmbedding:
 
         self.embedding_ = np.array(weight_matrix.dot(eigenvectors[:, 1:]))
         if self.eigenvalue_normalization:
-            eigenvalues_inv_sqrt = 1.0 / sqrt(eigenvalues[1:])
+            eigenvalues_inv_sqrt = 1.0 / np.sqrt(eigenvalues[1:])
             self.embedding_ = eigenvalues_inv_sqrt * self.embedding_
 
         return self

@@ -87,6 +87,7 @@ class GSVDEmbedding:
         dou = adj_matrix.dot(np.ones(m_nodes))
         # in-degree vector
         din = adj_matrix.T.dot(np.ones(n_nodes))
+        total_weight = np.sum(dou)
 
         pdou, pdin = np.zeros(n_nodes), np.zeros(m_nodes)
         pdou[dou.nonzero()] = 1 / dou[dou.nonzero()]
@@ -108,7 +109,7 @@ class GSVDEmbedding:
             u, sigma, vt = linalg.svds(laplacian, self.embedding_dimension)
 
         self.singular_values_ = sigma
-        self.embedding_ = dhou.dot(u) * sigma
-        self.features_ = dhin.dot(vt.T)
+        self.embedding_ = np.sqrt(total_weight) * dhou.dot(u) * sigma
+        self.features_ = np.sqrt(total_weight) * dhin.dot(vt.T)
 
         return self
