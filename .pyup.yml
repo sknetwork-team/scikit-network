@@ -12,7 +12,7 @@ pin: True
 
 # set the default branch
 # default: empty, the default branch on GitHub
-#branch: develop
+branch: develop
 
 # update schedule
 # default: empty
