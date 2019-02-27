@@ -24,7 +24,7 @@ class SpectralEmbedding:
         Attributes
         ----------
         embedding_dimension : int, optional
-            Dimension of the embedding space (default=100)
+            Dimension of the embedding space
         eigenvalue_normalization : bool, optional
             Whether to normalize the embedding by the pseudo-inverse square roots of laplacian eigenvalues
             (default=True)
@@ -99,10 +99,8 @@ class SpectralEmbedding:
             else:
                 weights = self.node_weights
 
-        weights_inv_sqrt = np.zeros(n_nodes)
-        weights_inv_sqrt[weights.nonzero()] = 1.0 / np.sqrt(weights[weights.nonzero()])
-        weight_matrix = sparse.diags(weights_inv_sqrt, format='csr')
-
+        weight_matrix = sparse.diags(np.sqrt(weights), format='csr')
+        weight_matrix.data = 1 / weight_matrix.data
         laplacian = weight_matrix.dot(laplacian.dot(weight_matrix))
 
         # spectral decomposition

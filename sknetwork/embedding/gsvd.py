@@ -83,20 +83,18 @@ class GSVDEmbedding:
             raise TypeError(
                 "The argument must be a NumPy array or a SciPy Compressed Sparse Row matrix.")
         n_nodes, m_nodes = adj_matrix.shape
+        total_weight = adj_matrix.data.sum()
         # out-degree vector
         dou = adj_matrix.dot(np.ones(m_nodes))
         # in-degree vector
         din = adj_matrix.T.dot(np.ones(n_nodes))
-        total_weight = np.sum(dou)
-
-        pdou, pdin = np.zeros(n_nodes), np.zeros(m_nodes)
-        pdou[dou.nonzero()] = 1 / dou[dou.nonzero()]
-        pdin[din.nonzero()] = 1 / din[din.nonzero()]
 
         # pseudo inverse square-root out-degree matrix
-        dhou = sparse.diags(np.sqrt(pdou), shape=(n_nodes, n_nodes), format='csr')
+        dhou = sparse.diags(np.sqrt(dou), shape=(n_nodes, n_nodes), format='csr')
+        dhou.data = 1 / dhou.data
         # pseudo inverse square-root in-degree matrix
-        dhin = sparse.diags(np.sqrt(pdin), shape=(m_nodes, m_nodes), format='csr')
+        dhin = sparse.diags(np.sqrt(din), shape=(m_nodes, m_nodes), format='csr')
+        dhin.data = 1 / dhin.data
 
         laplacian = dhou.dot(adj_matrix.dot(dhin))
 
@@ -111,5 +109,8 @@ class GSVDEmbedding:
         self.singular_values_ = sigma
         self.embedding_ = np.sqrt(total_weight) * dhou.dot(u) * sigma
         self.features_ = np.sqrt(total_weight) * dhin.dot(vt.T)
+        # shift the center of mass
+        self.embedding_ -= np.ones((n_nodes, 1)).dot(self.embedding_.T.dot(dou)[:, np.newaxis].T) / total_weight
+        self.features_ -= np.ones((m_nodes, 1)).dot(self.features_.T.dot(din)[:, np.newaxis].T) / total_weight
 
         return self

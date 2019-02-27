@@ -1,12 +1,5 @@
-# -*- coding: utf-8 -*-
-# metrics.py - functions for computing metrics on hierarchy
-#
-# Copyright 2018 Scikit-network Developers.
-# Copyright 2018 Bertrand Charpentier <bertrand.charpentier@live.fr>
-#
-# This file is part of Scikit-network.
-#
-
+#!/usr/bin/env python3
+# coding: utf-8
 """
 Metrics for hierarchy
 """
@@ -15,14 +8,15 @@ import numpy as np
 from scipy import sparse
 from sknetwork.hierarchy.paris import SimilarityGraph
 
-def relative_entropy(adj_matrix, dendrogram, node_weights = 'degree'):
+
+def relative_entropy(adj_matrix: sparse.csr_matrix, dendrogram: np.ndarray, node_weights='degree'):
     """Relative entropy of a hierarchy (quality metric)
 
      Parameters
      ----------
-     adj_matrix : scipy.csr_matrix
+     adj_matrix :
         Adjacency matrix of the graph.
-     dendrogram : numpy.ndarray of shape (n_nodes,4)
+     dendrogram : array of shape (n_nodes,4)
         Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
      node_weights : Union[str,np.ndarray(dtype=float)]
         Vector of node weights. Default = 'degree', weight of each node in the graph.
@@ -59,4 +53,3 @@ def relative_entropy(adj_matrix, dendrogram, node_weights = 'degree'):
                 quality += sim * first_weight * second_weight * np.log(sim)
         sim_graph.merge((first_node, second_node))
     return quality
-

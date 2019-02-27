@@ -5,7 +5,7 @@
 import unittest
 import numpy as np
 from scipy import sparse
-from sknetwork.embedding.metrics import dot_modularity
+from sknetwork.embedding.metrics import dot_modularity, hscore
 
 
 class TestClusteringMetrics(unittest.TestCase):
@@ -23,3 +23,8 @@ class TestClusteringMetrics(unittest.TestCase):
         self.assertAlmostEqual(fit, 1.)
         self.assertAlmostEqual(diversity, 1.)
 
+    def test_hscore(self):
+        self.assertAlmostEqual(hscore(self.graph, self.embedding), 0.)
+        fit, diversity = hscore(self.graph, self.embedding, return_all=True)
+        self.assertAlmostEqual(fit, 1.)
+        self.assertAlmostEqual(diversity, 0.)
