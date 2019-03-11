@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright 2018 Scikit-network Developers.
-#
-# This file is part of Scikit-network.
 """
 Created on Nov 2, 2018
 @author: Nathan de Lara <ndelara@enst.fr>
@@ -158,10 +155,11 @@ class GreedyModularity:
 
                         local_delta[index_cluster] += in_delta
 
-                    best_delta: float = 2 * max(local_delta)
+                    best_ix = local_delta.argmax()
+                    best_delta: float = 2 * local_delta[best_ix]
                     if best_delta > 0:
                         pass_increase += best_delta
-                        best_cluster = unique_clusters[local_delta.argmax()]
+                        best_cluster = unique_clusters[best_ix]
 
                         clusters_proba[node_cluster] -= node_proba
                         clusters_proba[best_cluster] += node_proba
@@ -330,6 +328,7 @@ class Louvain:
     ----------
     labels_: partition of the nodes. labels[node] = cluster_index
     iteration_count_: number of aggregations performed during the last run of the "fit" method
+    aggregated_graph_: adjacency matrix of the aggregated graph after merging final clusters into super nodes.
 
     Example
     -------
@@ -366,6 +365,7 @@ class Louvain:
         self.verbose = verbose
         self.labels_ = None
         self.iteration_count_ = None
+        self.aggregated_graph_ = None
 
     def fit(self, adj_matrix: sparse.csr_matrix, node_weights="degree"):
         """
@@ -415,4 +415,5 @@ class Louvain:
         self.iteration_count_ = iteration_count
         self.labels_ = membership.indices
         _, self.labels_ = np.unique(self.labels_, return_inverse=True)
+        self.aggregated_graph_ = graph.norm_adj * adj_matrix.data.sum()
         return self

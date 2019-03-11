@@ -1,10 +1,7 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# test for louvain.py
-#
-# Copyright 2018 Scikit-network Developers.
-# Copyright 2018 Quentin Lutz <qlutz@enst.fr>
-#
-# This file is part of Scikit-network.
+"""test for louvain.py"""
+
 
 import unittest
 from sknetwork.clustering.louvain import Louvain
