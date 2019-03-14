@@ -11,7 +11,6 @@ from sknetwork.hierarchy.paris import SimilarityGraph
 
 def relative_entropy(adj_matrix: sparse.csr_matrix, dendrogram: np.ndarray, node_weights='degree'):
     """Relative entropy of a hierarchy (quality metric)
-
      Parameters
      ----------
      adj_matrix :
