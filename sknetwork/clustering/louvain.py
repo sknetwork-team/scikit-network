@@ -28,16 +28,16 @@ class NormalizedGraph:
     node_weights: vector of node weights
     """
 
-    def __init__(self, adj_matrix, node_weights='degree'):
+    def __init__(self, adjacency_matrix, node_weights='degree'):
         """
 
         Parameters
         ----------
-        adj_matrix: adjacency matrix of the graph as SciPy sparse matrix
+        adjacency_matrix: adjacency matrix of the graph as SciPy sparse matrix
         node_weights: node weights to be used in the second term of the modularity
         """
-        self.n_nodes = adj_matrix.shape[0]
-        self.norm_adj = adj_matrix / adj_matrix.data.sum()
+        self.n_nodes = adjacency_matrix.shape[0]
+        self.norm_adj = adjacency_matrix / adjacency_matrix.data.sum()
         if type(node_weights) == np.ndarray:
             if len(node_weights) != self.n_nodes:
                 raise ValueError('The number of node weights must match the number of nodes.')
@@ -61,7 +61,7 @@ class NormalizedGraph:
         Aggregates nodes belonging to the same clusters.
         Parameters
         ----------
-        membership: scipy sparse matrix of shape n_nodes x n_clusters
+        membership: matrix of shape n_nodes x n_clusters
 
         Returns
         -------
@@ -83,7 +83,7 @@ class GreedyModularity:
     labels_: partition of the nodes. labels[node] = cluster_index
     """
 
-    def __init__(self, resolution=1., tol=0., shuffle_nodes=False):
+    def __init__(self, resolution: float=1., tol: float=0., shuffle_nodes: bool=False):
         """
 
         Parameters
@@ -141,7 +141,7 @@ class GreedyModularity:
                     node_ratio: float = self.resolution * node_proba
 
                     # node_weights of connections to all other nodes in original cluster
-                    out_delta: float = (self_loops[node] - node_weights.dot(neighbors_clusters == node_cluster))
+                    out_delta: float = self_loops[node] - node_weights[neighbors_clusters == node_cluster].sum()
                     # proba to choose (node, other_neighbor) among original cluster
                     out_delta += node_ratio * (clusters_proba[node_cluster] - node_proba)
 
@@ -149,7 +149,7 @@ class GreedyModularity:
 
                     for index_cluster, cluster in enumerate(unique_clusters):
                         # node_weights of connections to all other nodes in candidate cluster
-                        in_delta: float = node_weights.dot(neighbors_clusters == cluster)
+                        in_delta: float = node_weights[neighbors_clusters == cluster].sum()
                         # proba to choose (node, other_neighbor) among new cluster
                         in_delta -= node_ratio * clusters_proba[cluster]
 
@@ -236,8 +236,7 @@ def fit_core(shuffle_nodes, n_nodes, node_weights, resolution, self_loops, tol, 
 
                 for cluster in unique_clusters:
                     # neighbors_weights of connections to all other nodes in candidate cluster
-                    in_delta = local_cluster_weights[
-                        cluster]  # np.sum(neighbors_weights[neighbors_clusters == cluster])
+                    in_delta = local_cluster_weights[cluster]
                     local_cluster_weights[cluster] = 0.0
                     # proba to choose (node, other_neighbor) among new cluster
                     in_delta -= node_ratio * clusters_proba[cluster]
@@ -271,7 +270,7 @@ class GreedyModularityJiT:
     labels_: partition of the nodes. labels[node] = cluster_index
     """
 
-    def __init__(self, resolution=1., tol=0., shuffle_nodes=False):
+    def __init__(self, resolution: float=1., tol: float=0., shuffle_nodes: bool=False):
         """
 
         Parameters
@@ -347,7 +346,7 @@ class Louvain:
     Journal of statistical mechanics: theory and experiment, 2008
     """
 
-    def __init__(self, algorithm=GreedyModularity(), tol=0., max_agg_iter: int = -1, verbose=0):
+    def __init__(self, algorithm=GreedyModularity(), tol=0., max_agg_iter: int = -1, verbose=False):
         """
 
         Parameters

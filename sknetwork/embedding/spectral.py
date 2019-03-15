@@ -6,8 +6,6 @@ Created on Thu Sep 13 2018
 Authors:
 Thomas Bonald <thomas.bonald@telecom-paristech.fr>
 Nathan De Lara <nathan.delara@telecom-paristech.fr>
-
-Spectral embedding by decomposition of the normalized graph Laplacian.
 """
 
 import numpy as np
@@ -25,9 +23,6 @@ class SpectralEmbedding:
         ----------
         embedding_dimension : int, optional
             Dimension of the embedding space
-        eigenvalue_normalization : bool, optional
-            Whether to normalize the embedding by the pseudo-inverse square roots of laplacian eigenvalues
-            (default=True)
         node_weights : {'uniform', 'degree', array of length n_nodes with positive entries}, optional
             Weights used for the normalization for the laplacian, :math:`W^{-1/2} L W^{-1/2}`
         embedding_ : array, shape = (n_nodes, embedding_dimension)
@@ -41,10 +36,9 @@ class SpectralEmbedding:
         * Laplacian Eigenmaps for Dimensionality Reduction and Data Representation, M. Belkin, P. Niyogi
         """
 
-    def __init__(self, embedding_dimension: int = 2, node_weights='degree', eigenvalue_normalization: bool = True):
+    def __init__(self, embedding_dimension: int = 2, node_weights='degree'):
         self.embedding_dimension = embedding_dimension
         self.node_weights = node_weights
-        self.eigenvalue_normalization = eigenvalue_normalization
         self.embedding_ = None
         self.eigenvalues_ = None
 
@@ -111,10 +105,5 @@ class SpectralEmbedding:
             eigenvalues, eigenvectors = eigsh(laplacian, n_components, which='SM')
 
         self.eigenvalues_ = eigenvalues[1:]
-
         self.embedding_ = np.array(weight_matrix.dot(eigenvectors[:, 1:]))
-        if self.eigenvalue_normalization:
-            eigenvalues_inv_sqrt = 1.0 / np.sqrt(eigenvalues[1:])
-            self.embedding_ = eigenvalues_inv_sqrt * self.embedding_
-
         return self

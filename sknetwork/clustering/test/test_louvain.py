@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""test for louvain.py"""
+"""tests for louvain.py"""
 
 
 import unittest
 from sknetwork.clustering.louvain import Louvain
+from sknetwork.toy_graphs.graph_data import karate_club_graph
 from scipy.sparse import identity
 
 
@@ -26,3 +27,6 @@ class TestLouvainClustering(unittest.TestCase):
 
     def test_single_node_graph(self):
         self.assertEqual(self.louvain_basic.fit(identity(1, format='csr')).labels_, [0])
+
+    def test_karate_graph(self):
+        self.assertEqual(self.louvain_basic.fit(karate_club_graph()).labels_.shape, (34,))

@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu May 31 17:16:22 2018
-
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 

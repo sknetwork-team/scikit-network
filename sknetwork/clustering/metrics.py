@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#
-# Copyright 2018 Scikit-network Developers.
-#
-# This file is part of Scikit-network.
 """
 Created on Thu July 10 2018
 @author: Nathan de Lara <ndelara@enst.fr>
@@ -12,10 +8,10 @@ Created on Thu July 10 2018
 import numpy as np
 
 from itertools import combinations
-from scipy import errstate, sqrt, isinf, sparse
+from scipy import sparse
 
 
-def modularity(adjacency_matrix, partition, resolution=1.0) -> float:
+def modularity(adjacency_matrix, partition, resolution: float=1.0) -> float:
     """
     Compute the modularity of a node partition.
     Parameters
@@ -58,12 +54,12 @@ def modularity(adjacency_matrix, partition, resolution=1.0) -> float:
     data = np.ones(n_nodes)
     membership = sparse.csr_matrix((data, (row, col)))
 
-    pos = ((membership.multiply(norm_adj.dot(membership))).dot(np.ones(membership.shape[1]))).sum()
-    neg = np.linalg.norm(membership.T.dot(probs)) ** 2
-    return float(pos - resolution * neg)
+    fit = ((membership.multiply(norm_adj.dot(membership))).dot(np.ones(membership.shape[1]))).sum()
+    diversity = np.linalg.norm(membership.T.dot(probs)) ** 2
+    return float(fit - resolution * diversity)
 
 
-def cocitation_modularity(adjacency_matrix, partition, resolution=1.0) -> float:
+def cocitation_modularity(adjacency_matrix, partition, resolution: float=1.0) -> float:
     """
     Compute the modularity of a node partition on the normalized cocitation graph
     associated to a network without explicit computation of the cocitation graph.
@@ -74,7 +70,7 @@ def cocitation_modularity(adjacency_matrix, partition, resolution=1.0) -> float:
        The keys of the dictionary correspond to the nodes and the values to the communities.
     adjacency_matrix: scipy.csr_matrix or np.ndarray
         The adjacency matrix of the graph (sparse or dense).
-    resolution: double, optional
+    resolution: optional
         The resolution parameter in the modularity function (default=1.).
 
     Returns
@@ -91,32 +87,30 @@ def cocitation_modularity(adjacency_matrix, partition, resolution=1.0) -> float:
         raise TypeError(
             "The argument must be a NumPy array or a SciPy Sparse matrix.")
 
-    n_nodes = adj_matrix.shape[0]
-    out_degree = adj_matrix.dot(np.ones(adj_matrix.shape[0]))
-    in_degree = adj_matrix.T.dot(np.ones(adj_matrix.shape[1]))
-    total_weight = out_degree.sum()
+    n_samples, n_features = adj_matrix.shape
+    total_weight = adj_matrix.data.sum()
+    pou = adj_matrix.dot(np.ones(n_samples)) / total_weight
+    din = adj_matrix.T.dot(np.ones(n_features))
 
-    with errstate(divide='ignore'):
-        in_degree_sqrt = 1.0 / sqrt(in_degree)
-    in_degree_sqrt[isinf(in_degree_sqrt)] = 0
-    in_degree_sqrt = sparse.spdiags(in_degree_sqrt, [0], adj_matrix.shape[1], adj_matrix.shape[1], format='csr')
-    normalized_adjacency = (adj_matrix.dot(in_degree_sqrt)).T
+    # pseudo inverse square-root in-degree matrix
+    dhin = sparse.diags(np.sqrt(din), shape=(n_features, n_features), format='csr')
+    dhin.data = 1 / dhin.data
+
+    normalized_adjacency = (adj_matrix.dot(dhin)).T.tocsr()
 
     if type(partition) == dict:
-        labels = np.array([partition[i] for i in range(n_nodes)])
+        labels = np.array([partition[i] for i in range(n_samples)])
     elif type(partition) == np.ndarray:
         labels = partition.copy()
     else:
         raise TypeError('The partition must be a dictionary or a NumPy array.')
 
-    clusters_indices = set(labels.tolist())
-    mod = 0.
-    for cluster in clusters_indices:
-        indicator_vector = (labels == cluster)
-        mod += np.linalg.norm(normalized_adjacency.dot(indicator_vector)) ** 2
-        mod -= (resolution / total_weight) * (np.dot(out_degree, indicator_vector)) ** 2
+    membership = sparse.csc_matrix((np.ones(n_samples), (np.arange(n_samples), labels)),
+                                   shape=(n_samples, labels.max() + 1))
+    fit = ((normalized_adjacency.dot(membership)).data ** 2).sum() / total_weight
+    diversity = np.linalg.norm(membership.T.dot(pou)) ** 2
 
-    return float(mod / total_weight)
+    return float(fit - resolution * diversity)
 
 
 def performance(adjacency_matrix: sparse.csr_matrix, labels: np.ndarray) -> float:
@@ -165,8 +159,8 @@ def cocitation_performance(adjacency_matrix: sparse.csr_matrix, labels: np.ndarr
     -------
     The performance metric.
     """
-    n_nodes, m_nodes = adjacency_matrix.shape
-    if n_nodes != m_nodes:
+    n_samples, n_features = adjacency_matrix.shape
+    if n_samples != n_features:
         raise ValueError('The adjacency matrix is not square.')
     bool_adj = abs(adjacency_matrix.sign())
 
@@ -174,12 +168,10 @@ def cocitation_performance(adjacency_matrix: sparse.csr_matrix, labels: np.ndarr
     cluster_indicator = {cluster: (labels == cluster) for cluster in clusters}
     cluster_sizes = {cluster: cluster_indicator[cluster].sum() for cluster in clusters}
 
-    din = bool_adj.T.dot(np.ones(m_nodes))
-    with errstate(divide='ignore'):
-        din_sqrt = 1.0 / sqrt(din)
-    din_sqrt[isinf(din_sqrt)] = 0
+    din = bool_adj.T.dot(np.ones(n_features))
     # pseudo inverse square-root in-degree matrix
-    dhin = sparse.spdiags(din_sqrt, [0], m_nodes, m_nodes, format='csr')
+    dhin = sparse.diags(np.sqrt(din), shape=(n_features, n_features), format='csr')
+    dhin.data = 1 / dhin.data
 
     norm_backward_adj = (dhin.dot(bool_adj.T)).tocsr()
 
@@ -192,4 +184,4 @@ def cocitation_performance(adjacency_matrix: sparse.csr_matrix, labels: np.ndarr
         perf -= 2 * cluster_indicator[cluster_i].dot(
             bool_adj.dot(norm_backward_adj.dot(cluster_indicator[cluster_j])))
 
-    return perf / n_nodes**2
+    return perf / n_samples**2

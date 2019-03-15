@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Oct 12 2018
-
 @author: Nathan de Lara <ndelara@enst.fr>
-
 Part of this code was adapted from the scikit-learn project: https://scikit-learn.org/stable/.
 """
 
