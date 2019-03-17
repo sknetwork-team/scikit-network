@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# test for metrics.py
-
-"""tests for hierarchy metrics"""
+"""
+Created on March 2019
+@author: Thomas Bonald <bonald@enst.fr>
+"""
 
 import unittest
 from sknetwork.hierarchy.paris import Paris

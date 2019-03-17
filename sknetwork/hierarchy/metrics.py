@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-# coding: utf-8
+# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
-Metrics for hierarchy
+Created on March 2019
+@author: Thomas Bonald <bonald@enst.fr>
 """
 
 import numpy as np

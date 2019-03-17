@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# test for paris.py
-
-"""test for Paris algorithm"""
+"""
+Created on March 2019
+@author: Thomas Bonald <bonald@enst.fr>
+"""
 
 import unittest
 from sknetwork.hierarchy.paris import Paris

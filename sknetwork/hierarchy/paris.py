@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 """
 Created on March 2019
-
-@author: Thomas Bonald <bonald@enst.fr>, Bertrand Charpentier <bertrand.charpentier@live.fr>
+@author: Thomas Bonald <bonald@enst.fr>
+@author: Bertrand Charpentier <bertrand.charpentier@live.fr>
 """
 
 
