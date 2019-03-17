@@ -52,14 +52,17 @@ def dot_modularity(adjacency_matrix, embedding: np.ndarray, features=None, resol
         raise TypeError(
             "The argument must be a NumPy array or a SciPy Sparse matrix.")
     n_nodes, m_nodes = adj_matrix.shape
+    total_weight: float = adjacency_matrix.data.sum()
+
     if features is None:
         if n_nodes != m_nodes:
             raise ValueError('feature cannot be None for non-square adjacency matrices.')
         else:
+            normalization = np.linalg.norm(embedding) ** 2 / np.sqrt(n_nodes * m_nodes)
             features = embedding
+    else:
+        normalization = np.linalg.norm(embedding.dot(features.T)) / np.sqrt(n_nodes * m_nodes)
 
-    total_weight: float = adjacency_matrix.data.sum()
-    normalization = np.linalg.norm(embedding.dot(features.T)) / np.sqrt(n_nodes * m_nodes)
     if weights == 'degree':
         wou = adj_matrix.dot(np.ones(m_nodes)) / total_weight
         win = adj_matrix.T.dot(np.ones(n_nodes)) / total_weight
