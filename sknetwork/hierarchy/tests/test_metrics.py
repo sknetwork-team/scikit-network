@@ -19,10 +19,10 @@ class TestMetrics(unittest.TestCase):
         adj_matrix = self.karate_club
         dendrogram = self.paris.fit(adj_matrix).dendrogram_
         tsd = tree_sampling_divergence(adj_matrix, dendrogram, normalized=True)
-        self.assertLessEqual(tsd, 1)
-        self.assertGreaterEqual(tsd, 0)
+        self.assertLessEqual(tsd, .7)
+        self.assertGreaterEqual(tsd, .6)
         dc = dasgupta_cost(adj_matrix, dendrogram, normalized=True)
-        self.assertLessEqual(dc, 1)
-        self.assertGreaterEqual(dc, 0)
+        self.assertLessEqual(dc, .4)
+        self.assertGreaterEqual(dc, .3)
 
 
