@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # test for paris.py
-"""test for PARIS algorithm"""
+
+"""test for Paris algorithm"""
 
 import unittest
 from sknetwork.hierarchy.paris import Paris
