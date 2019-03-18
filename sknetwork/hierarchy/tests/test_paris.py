@@ -9,14 +9,15 @@ import unittest
 import numpy as np
 from scipy.sparse import identity
 from sknetwork.hierarchy.paris import Paris
-from sknetwork.toy_graphs.graph_data import karate_club_graph
+from sknetwork.toy_graphs.graph_data import house_graph, karate_club_graph
 
 
 class TestParis(unittest.TestCase):
 
     def setUp(self):
         self.paris = Paris()
-        self.karate_club = karate_club_graph()
+        self.house_graph = house_graph()
+        self.karate_club_graph = karate_club_graph()
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):
@@ -29,8 +30,14 @@ class TestParis(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.paris.fit(identity(2, format='csr'), node_weights='unknown')
 
+    def test_house_graph(self):
+        self.paris.fit(self.house_graph)
+        self.assertEqual(self.paris.dendrogram_.shape[0], 4)
+        self.paris.predict(sorted_clusters=True)
+        self.assertTrue(np.array_equal(self.paris.labels_, np.array([0, 0, 1, 1, 0])))
+
     def test_karate_club_graph(self):
-        self.paris.fit(self.karate_club)
+        self.paris.fit(self.karate_club_graph)
         self.assertEqual(self.paris.dendrogram_.shape[0], 33)
         self.paris.predict()
         self.assertEqual(np.max(self.paris.labels_), 1)
