@@ -33,11 +33,11 @@ class TestParis(unittest.TestCase):
     def test_house_graph(self):
         self.paris.fit(self.house_graph)
         self.assertEqual(self.paris.dendrogram_.shape[0], 4)
-        self.paris.predict(sorted_clusters=True)
-        self.assertTrue(np.array_equal(self.paris.labels_, np.array([0, 0, 1, 1, 0])))
+        labels = self.paris.predict(sorted_clusters=True)
+        self.assertTrue(np.array_equal(labels, np.array([0, 0, 1, 1, 0])))
 
     def test_karate_club_graph(self):
         self.paris.fit(self.karate_club_graph)
         self.assertEqual(self.paris.dendrogram_.shape[0], 33)
-        self.paris.predict()
-        self.assertEqual(np.max(self.paris.labels_), 1)
+        labels = self.paris.predict()
+        self.assertEqual(np.max(labels), 1)

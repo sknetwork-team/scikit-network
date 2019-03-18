@@ -119,8 +119,6 @@ class Paris:
     ----------
     dendrogram_ : numpy array of shape (n_nodes - 1, 4)
         Dendrogram.
-    labels_ : numpy array of shape (n_nodes,)
-        Label of each node.
 
     Examples
     --------
@@ -134,7 +132,7 @@ class Paris:
     >>> adj_matrix = adj_matrix + adj_matrix.T
 
     >>> paris = Paris()
-    >>> paris.fit(adj_matrix).predict().labels_
+    >>> paris.fit(adj_matrix).predict()
     array([1, 1, 0, 0, 1])
 
     Notes
@@ -268,7 +266,7 @@ class Paris:
 
         return self
 
-    def predict(self, n_clusters: int = 2, sorted_clusters: bool = False):
+    def predict(self, n_clusters: int = 2, sorted_clusters: bool = False) -> np.ndarray:
         """
         Extract the clustering with given number of clusters from the dendrogram.
 
@@ -280,7 +278,8 @@ class Paris:
             If True, sort labels in decreasing order of cluster size.
         Returns
         -------
-        self
+        labels :
+            Cluster index of each node.
         """
         if self.dendrogram_ is None:
             raise ValueError("First fit data using the fit method.")
@@ -288,7 +287,7 @@ class Paris:
         if n_clusters < 1 or n_clusters > n_nodes:
             raise ValueError("The number of clusters must be between 1 and the number of nodes.")
 
-        self.labels_ = np.zeros(n_nodes, dtype=int)
+        labels = np.zeros(n_nodes, dtype=int)
         clusters = {node: [node] for node in range(n_nodes)}
         for t in range(n_nodes - n_clusters):
             clusters[n_nodes + t] = clusters.pop(int(self.dendrogram_[t][0])) + \
@@ -297,5 +296,5 @@ class Paris:
         if sorted_clusters:
             clusters = sorted(clusters, key=len, reverse=True)
         for label, cluster in enumerate(clusters):
-            self.labels_[cluster] = label
-        return self
+            labels[cluster] = label
+        return labels
