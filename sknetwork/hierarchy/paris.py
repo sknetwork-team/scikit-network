@@ -281,6 +281,7 @@ class Paris:
         clusters = list(clusters.values())
         if sorted_clusters:
             clusters = sorted(clusters, key=len, reverse=True)
-        for label, cluster in enumerate(clusters):
+        for label in range(len(clusters)):
+            cluster: list = clusters[label]
             self.labels_[np.array(cluster)] = label
         return self
