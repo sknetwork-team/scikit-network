@@ -9,9 +9,11 @@ import numpy as np
 
 from itertools import combinations
 from scipy import sparse
+from typing import Union
 
 
-def modularity(adjacency_matrix, partition, resolution: float=1.0) -> float:
+def modularity(adjacency_matrix: Union[sparse.csr_matrix, np.ndarray], partition: Union[dict, np.ndarray],
+               resolution: float = 1) -> float:
     """
     Compute the modularity of a node partition.
     Parameters
@@ -57,6 +59,46 @@ def modularity(adjacency_matrix, partition, resolution: float=1.0) -> float:
     fit = ((membership.multiply(norm_adj.dot(membership))).dot(np.ones(membership.shape[1]))).sum()
     diversity = np.linalg.norm(membership.T.dot(probs)) ** 2
     return float(fit - resolution * diversity)
+
+
+def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feature_labels: np.ndarray,
+                 resolution: float = 1.) -> float:
+    """
+    Modularity for bipartite graphs.
+    Parameters
+    ----------
+    biadjacency:
+        matrix of shape n1 x n2
+    sample_labels:
+        partition of the samples, sample_labels[node] = cluster_index
+    feature_labels:
+        partition of the features, feature_labels[node] = cluster_index
+    resolution:
+        scaling for the second term of the bimodularity
+
+    Returns
+    -------
+
+    """
+    n_samples, n_features = biadjacency.shape
+    one_samples, one_features = np.ones(n_samples), np.ones(n_features)
+    total_weight: float = biadjacency.data.sum()
+    sample_weights = biadjacency.dot(one_features) / total_weight
+    features_weights = biadjacency.T.dot(one_samples) / total_weight
+
+    _, sample_labels = np.unique(sample_labels, return_inverse=True)
+    _, feature_labels = np.unique(feature_labels, return_inverse=True)
+    n_clusters = max(len(set(sample_labels)), len(set(feature_labels)))
+
+    sample_membership = sparse.csr_matrix((one_samples, (np.arange(n_samples), sample_labels)),
+                                          shape=(n_samples, n_clusters))
+    feature_membership = sparse.csc_matrix((one_features, (np.arange(n_features), feature_labels)),
+                                           shape=(n_features, n_clusters))
+
+    fit: float = sample_membership.multiply(biadjacency.dot(feature_membership)).sum() / total_weight
+    div: float = (sample_membership.T.dot(sample_weights)).dot(feature_membership.T.dot(features_weights))
+
+    return fit - resolution * div
 
 
 def cocitation_modularity(adjacency_matrix, partition, resolution: float=1.0) -> float:
