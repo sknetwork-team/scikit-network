@@ -64,7 +64,7 @@ class NormalizedGraph:
         return self
 
 
-class Algorithm:
+class Optimizer:
     """
     A generic optimization algorithm.
 
@@ -95,7 +95,7 @@ class Algorithm:
         return self
 
 
-class GreedyModularity(Algorithm):
+class GreedyModularity(Optimizer):
     """
     A greedy modularity optimizer.
     """
@@ -112,7 +112,7 @@ class GreedyModularity(Algorithm):
         shuffle_nodes:
             If true, shuffle the nodes before starting a new optimization pass.
         """
-        Algorithm.__init__(self)
+        Optimizer.__init__(self)
         self.resolution = resolution
         self.tol = tol
         self.shuffle_nodes = shuffle_nodes
@@ -161,18 +161,16 @@ class GreedyModularity(Algorithm):
                     node_prob: float = node_probs[node]
                     node_prob_res: float = self.resolution * node_prob
 
-                    index = np.where(neighbor_clusters == node_cluster)[0]
                     # total weight of edges to neighbors in the same cluster
-                    out_delta: float = neighbor_weights[index].sum() - self_loops[node]
+                    out_delta: float = neighbor_weights[neighbor_clusters == node_cluster].sum() - self_loops[node]
                     # minus the probability to choose a neighbor in the same cluster (with resolution factor)
                     out_delta -= node_prob_res * (cluster_probs[node_cluster] - node_prob)
 
                     local_delta: np.ndarray = np.full(n_clusters, -out_delta)
 
                     for index_cluster, cluster in enumerate(unique_clusters):
-                        index = np.where(neighbor_clusters == cluster)[0]
                         # total weight of edges to neighbors in the candidate cluster
-                        in_delta: float = neighbor_weights[index].sum()
+                        in_delta: float = neighbor_weights[neighbor_clusters == cluster].sum()
                         # minus the probability to choose a neighbor in the candidate cluster (with resolution factor)
                         in_delta -= node_prob_res * cluster_probs[cluster]
 
@@ -290,7 +288,7 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
     return labels, total_increase
 
 
-class GreedyModularityNumba(Algorithm):
+class GreedyModularityNumba(Optimizer):
     """
     A greedy modularity optimizer using Numba for enhanced performance.
 
@@ -318,7 +316,7 @@ class GreedyModularityNumba(Algorithm):
         shuffle_nodes:
             If True, shuffle the nodes before each optimization pass.
         """
-        Algorithm.__init__(self)
+        Optimizer.__init__(self)
         self.resolution = resolution
         self.tol = tol
         self.shuffle_nodes = shuffle_nodes
@@ -364,7 +362,7 @@ class Louvain:
     Journal of statistical mechanics: theory and experiment, 2008
     """
 
-    def __init__(self, algorithm: Union[str, Algorithm] = default, resolution: float = 1, tol: float = 1e-3,
+    def __init__(self, algorithm: Union[str, Optimizer] = default, resolution: float = 1, tol: float = 1e-3,
                  shuffle_nodes: bool = False, agg_tol: float = 1e-3, max_agg_iter: int = -1, verbose: bool = False):
         """
 
@@ -395,7 +393,7 @@ class Louvain:
                 self.algorithm = GreedyModularity(resolution, tol, shuffle_nodes)
             else:
                 raise ValueError('Unknown algorithm name.')
-        elif isinstance(algorithm, Algorithm):
+        elif isinstance(algorithm, Optimizer):
             self.algorithm = algorithm
         else:
             raise TypeError('Algorithm must be a string ("numba" or "python") or a valid algorithm.')
