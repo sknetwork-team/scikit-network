@@ -28,27 +28,27 @@ class AggregateGraph:
         Dictionary of cluster weights.
     """
 
-    def __init__(self, adj_matrix: sparse.csr_matrix, node_weights: np.ndarray):
+    def __init__(self, adjacency: sparse.csr_matrix, node_weights: np.ndarray):
         """
 
         Parameters
         ----------
-        adj_matrix :
+        adjacency :
             Adjacency matrix of the graph.
         node_weights :
             Vector of node weights.
     """
-        n_nodes = adj_matrix.shape[0]
-        adj_sum = adj_matrix.data.sum()
+        n_nodes = adjacency.shape[0]
+        adj_sum = adjacency.data.sum()
 
         self.next_cluster = n_nodes
         self.graph = {}
         for node in range(n_nodes):
             # normalize so that the total weight is equal to 1
             # remove self-loops
-            self.graph[node] = {adj_matrix.indices[i]: adj_matrix.data[i] / adj_sum for i in
-                                range(adj_matrix.indptr[node], adj_matrix.indptr[node + 1])
-                                if adj_matrix.indices[i] != node}
+            self.graph[node] = {adjacency.indices[i]: adjacency.data[i] / adj_sum for i in
+                                range(adjacency.indptr[node], adjacency.indptr[node + 1])
+                                if adjacency.indices[i] != node}
         self.cluster_sizes = {node: 1 for node in range(n_nodes)}
         self.cluster_weights = {node: node_weights[node] for node in range(n_nodes)}
 

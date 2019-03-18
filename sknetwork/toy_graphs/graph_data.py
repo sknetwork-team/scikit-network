@@ -18,13 +18,13 @@ def house_graph():
 
     Returns
     -------
-    adj_matrix: sparse.csr_matrix
+    adjacency: sparse.csr_matrix
         Adjacency matrix of the graph.
     """
     row = np.array([0, 0, 1, 1, 2, 3])
     col = np.array([1, 4, 2, 4, 3, 4])
-    adj_matrix = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(5, 5))
-    return adj_matrix + adj_matrix.T
+    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(5, 5))
+    return adjacency + adjacency.T
 
 
 def karate_club_graph():
@@ -35,7 +35,7 @@ def karate_club_graph():
 
     Returns
     -------
-    adj_matrix: sparse.csr_matrix
+    adjacency: sparse.csr_matrix
         Adjacency matrix of the graph.
     """
     row = np.array(
@@ -50,8 +50,8 @@ def karate_club_graph():
          13, 6, 10, 6, 10, 16, 16, 30, 32, 33, 33, 33, 32, 33, 32, 33, 32,
          33, 33, 32, 33, 32, 33, 25, 27, 29, 32, 33, 25, 27, 31, 31, 29, 33,
          33, 31, 33, 32, 33, 32, 33, 32, 33, 33])
-    adj_matrix = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(34, 34))
-    return adj_matrix + adj_matrix.T
+    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(34, 34))
+    return adjacency + adjacency.T
 
 
 def star_wars_villains_graph(return_labels=False):
@@ -61,16 +61,16 @@ def star_wars_villains_graph(return_labels=False):
 
     Returns
     -------
-    biadj_matrix: sparse.csr_matrix
+    biadjacency: sparse.csr_matrix
         Bi-adjacency matrix of the graph.
     """
     row = np.array([0, 0, 1, 2, 2, 2, 3, 3])
     col = np.array([0, 2, 0, 0, 1, 2, 1, 2])
-    biadj_matrix = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)))
+    biadjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)))
 
     if return_labels:
         row_labels = {0: 'Jabba', 1: 'Greedo', 2: 'Vador', 3: 'Boba'}
         col_labels = {0: 'A_New_Hope', 1: 'The_Empire_Strikes_Back', 2: 'Return_Of_The_Jedi'}
-        return biadj_matrix, row_labels, col_labels
+        return biadjacency, row_labels, col_labels
     else:
-        return biadj_matrix
+        return biadjacency

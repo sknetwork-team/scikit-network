@@ -11,12 +11,12 @@ from sknetwork.hierarchy import AggregateGraph
 from typing import Union
 
 
-def dasgupta_cost(adj_matrix: sparse.csr_matrix, dendrogram: np.ndarray,
+def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
                   node_weights: Union[str, np.ndarray] = 'uniform', normalized: bool = True):
     """Dasgupta's cost of a hierarchy (cost metric)
      Parameters
      ----------
-     adj_matrix :
+     adjacency :
         Adjacency matrix of the graph.
      dendrogram :
         Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
@@ -38,15 +38,15 @@ def dasgupta_cost(adj_matrix: sparse.csr_matrix, dendrogram: np.ndarray,
 
     """
 
-    if type(adj_matrix) != sparse.csr_matrix:
+    if type(adjacency) != sparse.csr_matrix:
         raise TypeError('The adjacency matrix must be in a scipy compressed sparse row (csr) format.')
     # check that the graph is not directed
-    if adj_matrix.shape[0] != adj_matrix.shape[1]:
+    if adjacency.shape[0] != adjacency.shape[1]:
         raise ValueError('The adjacency matrix must be square.')
-    if (adj_matrix != adj_matrix.T).nnz != 0:
+    if (adjacency != adjacency.T).nnz != 0:
         raise ValueError('The graph cannot be directed. Please fit a symmetric adjacency matrix.')
 
-    n_nodes = adj_matrix.shape[0]
+    n_nodes = adjacency.shape[0]
 
     if type(node_weights) == np.ndarray:
         if len(node_weights) != n_nodes:
@@ -55,7 +55,7 @@ def dasgupta_cost(adj_matrix: sparse.csr_matrix, dendrogram: np.ndarray,
             node_weights_vec = node_weights
     elif type(node_weights) == str:
         if node_weights == 'degree':
-            node_weights_vec = adj_matrix.dot(np.ones(n_nodes))
+            node_weights_vec = adjacency.dot(np.ones(n_nodes))
         elif node_weights == 'uniform':
             node_weights_vec = np.ones(n_nodes)
         else:
@@ -69,7 +69,7 @@ def dasgupta_cost(adj_matrix: sparse.csr_matrix, dendrogram: np.ndarray,
     else:
         node_weights_vec = node_weights_vec / np.sum(node_weights_vec)
 
-    aggregate_graph = AggregateGraph(adj_matrix, node_weights_vec)
+    aggregate_graph = AggregateGraph(adjacency, node_weights_vec)
 
     height = np.zeros(n_nodes - 1)
     edge_sampling = np.zeros(n_nodes - 1)
@@ -171,7 +171,8 @@ def tree_sampling_divergence(adj_matrix: sparse.csr_matrix, dendrogram: np.ndarr
         height[t] = dendrogram[t][2]
         aggregate_graph.merge(node1, node2)
 
-    quality = np.sum(edge_sampling * np.log(edge_sampling / node_sampling))
+    index = np.where(edge_sampling)[0]
+    quality = np.sum(edge_sampling[index] * np.log(edge_sampling[index] / node_sampling[index]))
     if normalized:
         inv_node_weights = sparse.diags(1 / node_weights_vec, shape=(n_nodes, n_nodes), format='csr')
         sampling_ratio = inv_node_weights.dot(adj_matrix.dot(inv_node_weights)) / adj_matrix.data.sum()
