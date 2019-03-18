@@ -122,6 +122,21 @@ class Paris:
     labels_ : numpy array of shape (n_nodes,)
         Label of each node.
 
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from scipy import sparse
+
+    >>> # House graph
+    >>> row = np.array([0, 0, 1, 1, 2, 3])
+    >>> col = np.array([1, 4, 2, 4, 3, 4])
+    >>> adj_matrix = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(5, 5))
+    >>> adj_matrix = adj_matrix + adj_matrix.T
+
+    >>> paris = Paris()
+    >>> paris.fit(adj_matrix).predict().labels_
+    array([1, 1, 0, 0, 1])
+
     Notes
     -----
     Each row of the dendrogram = i, j, height, size of cluster i + j.
@@ -281,7 +296,6 @@ class Paris:
         clusters = list(clusters.values())
         if sorted_clusters:
             clusters = sorted(clusters, key=len, reverse=True)
-        for label in range(len(clusters)):
-            cluster: list = clusters[label]
-            self.labels_[np.array(cluster)] = label
+        for label, cluster in enumerate(clusters):
+            self.labels_[cluster] = label
         return self

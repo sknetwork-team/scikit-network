@@ -6,9 +6,8 @@ Created on March 2019
 """
 
 import unittest
-from sknetwork.hierarchy.paris import Paris
-from sknetwork.toy_graphs.graph_data import karate_club_graph
-from sknetwork.hierarchy.metrics import tree_sampling_divergence, dasgupta_cost
+from sknetwork.hierarchy import Paris, tree_sampling_divergence, dasgupta_cost
+from sknetwork.toy_graphs import karate_club_graph
 
 
 class TestMetrics(unittest.TestCase):

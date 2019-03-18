@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
 """
 Created on March 2019
 @author: Thomas Bonald <bonald@enst.fr>
@@ -8,7 +7,7 @@ Created on March 2019
 
 import numpy as np
 from scipy import sparse
-from sknetwork.hierarchy.paris import AggregateGraph
+from sknetwork.hierarchy import AggregateGraph
 from typing import Union
 
 

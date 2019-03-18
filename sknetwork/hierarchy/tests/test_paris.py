@@ -8,8 +8,8 @@ Created on March 2019
 import unittest
 import numpy as np
 from scipy.sparse import identity
-from sknetwork.hierarchy.paris import Paris
-from sknetwork.toy_graphs.graph_data import house_graph, karate_club_graph
+from sknetwork.hierarchy import Paris
+from sknetwork.toy_graphs import house_graph, karate_club_graph
 
 
 class TestParis(unittest.TestCase):
