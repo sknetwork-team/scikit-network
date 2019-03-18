@@ -351,7 +351,7 @@ class Louvain:
     >>> graph = sparse.identity(3, format='csr')
     >>> (louvain.fit(graph).labels_ == np.array([0, 1, 2])).all()
     True
-    >>> louvain_numba= Louvain(algorithm=GreedyModularityNumba())
+    >>> louvain_numba = Louvain(algorithm=GreedyModularityNumba())
     >>> (louvain_numba.fit(graph).labels_ == np.array([0, 1, 2])).all()
     True
 
