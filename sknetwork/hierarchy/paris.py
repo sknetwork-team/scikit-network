@@ -26,7 +26,6 @@ class AggregateGraph:
         Dictionary of cluster sizes.
     cluster_weights : dict
         Dictionary of cluster weights.
-
     """
 
     def __init__(self, adj_matrix: sparse.csr_matrix, node_weights: np.ndarray):
@@ -88,6 +87,18 @@ class AggregateGraph:
 
 
 def reorder_dendrogram(dendrogram: np.ndarray):
+    """
+    Get the dendrogram in increasing order of height.
+
+    Parameters
+    ----------
+    dendrogram:
+        Original dendrogram.
+    Returns
+    -------
+    dendrogram:
+        Reordered dendrogram.
+    """
     n_nodes = np.shape(dendrogram)[0] + 1
     order = np.zeros((2, n_nodes - 1), float)
     order[0] = np.arange(n_nodes - 1)
@@ -107,11 +118,15 @@ class Paris:
     Attributes
     ----------
     dendrogram_ : numpy array of shape (n_nodes - 1, 4)
-        dendrogram of the nodes
+        Dendrogram.
+    labels_ : numpy array of shape (n_nodes,)
+        Label of each node.
 
     Notes
     -----
-    The similarity between clusters i,j is w_ij / (w_i * w_j) where
+    Each row of the dendrogram = i, j, height, size of cluster i + j.
+
+    The similarity between clusters i,j is w_ij / (w_i * w_j) where:
         w_ij = weight of edge i,j, if any, and 0 otherwise
         w_i = weight of cluster i
         w_j = weight of cluster j
@@ -124,11 +139,13 @@ class Paris:
     ----------
     T. Bonald, B. Charpentier, A. Galland, A. Hollocou (2018).
     Hierarchical Graph Clustering using Node Pair Sampling.
-    KDD Workshop, 2018.
+    Workshop on Mining and Learning with Graphs.
+    https://arxiv.org/abs/1806.01664
     """
 
     def __init__(self):
         self.dendrogram_ = None
+        self.labels_ = None
 
     def fit(self, adj_matrix: sparse.csr_matrix, node_weights: Union[str, np.ndarray] = 'degree', reorder: bool = True):
         """
@@ -137,11 +154,11 @@ class Paris:
         Parameters
         ----------
         adj_matrix :
-            adjacency matrix of the graph to cluster
+            Adjacency matrix of the graph to cluster.
         node_weights :
-            node weights to be used in the linkage
+            Node weights used in the linkage.
         reorder :
-            reorder the dendrogram in increasing order of heights
+            If True, reorder the dendrogram in increasing order of heights.
 
         Returns
         -------
@@ -234,4 +251,36 @@ class Paris:
 
         self.dendrogram_ = dendrogram
 
+        return self
+
+    def predict(self, n_clusters: int = 2, sorted_clusters: bool = False):
+        """
+        Extract the clustering with given number of clusters from the dendrogram.
+
+        Parameters
+        ----------
+        n_clusters :
+            Number of clusters.
+        sorted_clusters :
+            If True, sort labels in decreasing order of cluster size.
+        Returns
+        -------
+        self
+        """
+        if self.dendrogram_ is None:
+            raise ValueError("First fit data using the fit method.")
+        n_nodes = np.shape(self.dendrogram_)[0] + 1
+        if n_clusters < 1 or n_clusters > n_nodes:
+            raise ValueError("The number of clusters must be between 1 and the number of nodes.")
+
+        self.labels_ = np.zeros(n_nodes, dtype=int)
+        clusters = {node: [node] for node in range(n_nodes)}
+        for t in range(n_nodes - n_clusters):
+            clusters[n_nodes + t] = clusters.pop(int(self.dendrogram_[t][0])) + \
+                                    clusters.pop(int(self.dendrogram_[t][1]))
+        clusters = list(clusters.values())
+        if sorted_clusters:
+            clusters = sorted(clusters, key=len, reverse=True)
+        for label, cluster in enumerate(clusters):
+            self.labels_[np.array(cluster)] = label
         return self

@@ -6,9 +6,10 @@ Created on March 2019
 """
 
 import unittest
+import numpy as np
+from scipy.sparse import identity
 from sknetwork.hierarchy.paris import Paris
 from sknetwork.toy_graphs.graph_data import karate_club_graph
-from scipy.sparse import identity
 
 
 class TestParis(unittest.TestCase):
@@ -29,4 +30,7 @@ class TestParis(unittest.TestCase):
             self.paris.fit(identity(2, format='csr'), node_weights='unknown')
 
     def test_karate_club_graph(self):
-        self.assertEqual(self.paris.fit(self.karate_club).dendrogram_.shape[0], 33)
+        self.paris.fit(self.karate_club)
+        self.assertEqual(self.paris.dendrogram_.shape[0], 33)
+        self.paris.predict()
+        self.assertEqual(np.max(self.paris.labels_), 1)
