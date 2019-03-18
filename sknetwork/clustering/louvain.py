@@ -83,7 +83,7 @@ class GreedyModularity:
     labels_: partition of the nodes. labels[node] = cluster_index
     """
 
-    def __init__(self, resolution: float=1., tol: float=0., shuffle_nodes: bool=False):
+    def __init__(self, resolution: float = 1, tol: float = 0, shuffle_nodes: bool = False):
         """
 
         Parameters
@@ -270,7 +270,7 @@ class GreedyModularityJiT:
     labels_: partition of the nodes. labels[node] = cluster_index
     """
 
-    def __init__(self, resolution: float=1., tol: float=0., shuffle_nodes: bool=False):
+    def __init__(self, resolution: float = 1, tol: float = 0, shuffle_nodes: bool = False):
         """
 
         Parameters
