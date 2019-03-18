@@ -5,7 +5,7 @@
 
 import unittest
 from sknetwork.clustering import Louvain
-from sknetwork.toy_graphs import karate_club_graph
+from sknetwork.toy_graphs import *
 from scipy.sparse import identity
 
 
@@ -13,6 +13,8 @@ class TestLouvainClustering(unittest.TestCase):
 
     def setUp(self):
         self.louvain = Louvain()
+        self.louvain_high_resolution = Louvain(resolution=2)
+        self.karate_club_graph = karate_club_graph()
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):
@@ -28,5 +30,6 @@ class TestLouvainClustering(unittest.TestCase):
     def test_single_node_graph(self):
         self.assertEqual(self.louvain.fit(identity(1, format='csr')).labels_, [0])
 
-    def test_karate_graph(self):
-        self.assertEqual(self.louvain.fit(karate_club_graph()).labels_.shape, (34,))
+    def test_karate_club_graph(self):
+        self.assertEqual(self.louvain.fit(self.karate_club_graph).labels_.shape, (34,))
+        self.assertEqual(self.louvain_high_resolution.fit(self.karate_club_graph).labels_.shape, (34,))

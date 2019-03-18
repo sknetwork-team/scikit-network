@@ -9,9 +9,11 @@ Created on Nov 2, 2018
 
 try:
     from numba import njit
+    default = 'numba'
 except ImportError:
     def njit(func):
         return func
+    default = 'python'
 
 import numpy as np
 from scipy import sparse
@@ -62,19 +64,43 @@ class NormalizedGraph:
         return self
 
 
-class GreedyModularity:
+class Algorithm:
     """
-    A greedy modularity optimizer.
+    A generic optimization algorithm.
 
     Attributes
     ----------
     score_: float
-        Total increase of modularity after fit.
+        Total increase of the objective function.
     labels_: np.ndarray
         Cluster index of each node.
     """
+    def __init__(self):
+        self.score_ = None
+        self.labels_ = None
 
-    def __init__(self, resolution: float = 1, tol: float = 0, shuffle_nodes: bool = False):
+    def fit(self, graph: NormalizedGraph):
+        """
+         Fit the clusters to the objective function.
+         Parameters
+         ----------
+         graph:
+             Graph to cluster.
+
+         Returns
+         -------
+         self
+
+         """
+        return self
+
+
+class GreedyModularity(Algorithm):
+    """
+    A greedy modularity optimizer.
+    """
+
+    def __init__(self, resolution: float = 1, tol: float = 1e-3, shuffle_nodes: bool = False):
         """
 
         Parameters
@@ -86,25 +112,24 @@ class GreedyModularity:
         shuffle_nodes:
             If true, shuffle the nodes before starting a new optimization pass.
         """
+        Algorithm.__init__(self)
         self.resolution = resolution
         self.tol = tol
         self.shuffle_nodes = shuffle_nodes
-        self.score_ = None
-        self.labels_ = None
 
     def fit(self, graph: NormalizedGraph):
         """
-        Iterates over the nodes of the graph and moves them to the cluster of highest increase among their neighbors.
-        Parameters
-        ----------
-        graph:
-            Graph to cluster.
+         Iterate over the nodes to increase modularity.
+         Parameters
+         ----------
+         graph:
+             Graph to cluster.
 
-        Returns
-        -------
-        self
+         Returns
+         -------
+         self
 
-        """
+         """
         increase = True
         total_increase = 0.
 
@@ -135,18 +160,20 @@ class GreedyModularity:
                     node_prob: float = node_probs[node]
                     node_prob_res: float = self.resolution * node_prob
 
+                    index = np.where(neighbor_clusters == node_cluster)[0]
                     # total weight of edges to neighbors in the same cluster
-                    out_delta: float = neighbor_weights[neighbor_clusters == node_cluster].sum() - self_loops[node]
+                    out_delta: float = neighbor_weights[index].sum() - self_loops[node]
                     # minus the probability to choose a neighbor in the same cluster (with resolution factor)
-                    out_delta -= node_prob_res * (node_probs[node_cluster] - node_prob)
+                    out_delta -= node_prob_res * (node_probs[index].sum() - node_prob)
 
                     local_delta: np.ndarray = np.full(n_clusters, -out_delta)
 
                     for index_cluster, cluster in enumerate(unique_clusters):
+                        index = np.where(neighbor_clusters == cluster)[0]
                         # total weight of edges to neighbors in the candidate cluster
-                        in_delta: float = neighbor_weights[neighbor_clusters == cluster].sum()
+                        in_delta: float = neighbor_weights[index].sum()
                         # minus the probability to choose a neighbor in the candidate cluster (with resolution factor)
-                        in_delta -= node_prob_res * node_probs[cluster]
+                        in_delta -= node_prob_res * node_probs[index].sum()
 
                         local_delta[index_cluster] += in_delta
 
@@ -209,7 +236,7 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
     labels: np.ndarray = np.arange(n_nodes)
     cluster_probs: np.ndarray = node_probs.copy()
 
-    neighbor_weights = np.zeros(n_nodes, dtype=float)
+    neighbor_cluster_weights = np.zeros(n_nodes, dtype=float)
     nodes = np.arange(n_nodes)
     while increase:
         increase = False
@@ -222,7 +249,7 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
             node_cluster = labels[node]
 
             for i in range(indptr[node], indptr[node + 1]):
-                neighbor_weights[labels[indices[i]]] += data[i]
+                neighbor_cluster_weights[labels[indices[i]]] += data[i]
 
             unique_clusters = set(labels[indices[indptr[node]:indptr[node + 1]]])
             unique_clusters.discard(node_cluster)
@@ -232,7 +259,7 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
                 node_prob_res = resolution * node_prob
 
                 # total weight of edges to neighbors in the same cluster
-                out_delta: float = neighbor_weights[node_cluster] - self_loops[node]
+                out_delta: float = neighbor_cluster_weights[node_cluster] - self_loops[node]
                 # minus the probability to choose a neighbor in the same cluster (with resolution factor)
                 out_delta -= node_prob_res * (node_probs[node_cluster] - node_prob)
 
@@ -241,8 +268,8 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
 
                 for cluster in unique_clusters:
                     # total weight of edges to neighbors in the candidate cluster
-                    in_delta: float = neighbor_weights[cluster]
-                    neighbor_weights[cluster] = 0
+                    in_delta: float = neighbor_cluster_weights[cluster]
+                    neighbor_cluster_weights[cluster] = 0
                     # minus the probability to choose a neighbor in the candidate cluster (with resolution factor)
                     in_delta -= node_prob_res * node_probs[cluster]
 
@@ -256,7 +283,7 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
                     cluster_probs[node_cluster] -= node_prob
                     cluster_probs[best_cluster] += node_prob
                     labels[node] = best_cluster
-            neighbor_weights[node_cluster] = 0.0
+            neighbor_cluster_weights[node_cluster] = 0.0
 
         total_increase += pass_increase
         if pass_increase > tol:
@@ -264,21 +291,23 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
     return labels, total_increase
 
 
-class GreedyModularityJiT:
+class GreedyModularityNumba(Algorithm):
     """
     A greedy modularity optimizer using Numba for enhanced performance.
 
     Attributes
     ----------
-    score_: total increase of modularity after fitting
-    labels_: partition of the nodes. labels[node] = cluster_index
+    labels_:
+        Cluster index of each node
+    score_:
+        Score of the clustering (total increase in modularity)
 
     Notes
     -----
     Tested with Numba v0.40.1.
     """
 
-    def __init__(self, resolution: float = 1, tol: float = 0, shuffle_nodes: bool = False):
+    def __init__(self, resolution: float = 1, tol: float = 1e-3, shuffle_nodes: bool = False):
         """
 
         Parameters
@@ -290,25 +319,12 @@ class GreedyModularityJiT:
         shuffle_nodes:
             If True, shuffle the nodes before each optimization pass.
         """
+        Algorithm.__init__(self)
         self.resolution = resolution
         self.tol = tol
         self.shuffle_nodes = shuffle_nodes
-        self.score_ = None
-        self.labels_ = None
 
     def fit(self, graph: NormalizedGraph):
-        """
-        Iterates over the nodes of the graph and moves them to the cluster of highest increase among their neighbors.
-        Parameters
-        ----------
-        graph:
-            Graph to cluster.
-
-        Returns
-        -------
-        self
-
-        """
         labels, total_increase = fit_core(self.resolution, self.tol, self.shuffle_nodes, graph.n_nodes,
                                           graph.node_probs, graph.norm_adjacency.diagonal(), graph.norm_adjacency.data,
                                           graph.norm_adjacency.indices, graph.norm_adjacency.indptr)
@@ -338,7 +354,7 @@ class Louvain:
     >>> graph = sparse.identity(3, format='csr')
     >>> (louvain.fit(graph).labels_ == np.array([0, 1, 2])).all()
     True
-    >>> louvain_jit = Louvain(algorithm=GreedyModularityJiT())
+    >>> louvain_jit = Louvain(algorithm=GreedyModularityNumba())
     >>> (louvain_jit.fit(graph).labels_ == np.array([0, 1, 2])).all()
     True
 
@@ -349,8 +365,8 @@ class Louvain:
     Journal of statistical mechanics: theory and experiment, 2008
     """
 
-    def __init__(self, algorithm: object = GreedyModularity(), tol: float = 0, max_agg_iter: int = -1,
-                 verbose: bool = False):
+    def __init__(self, algorithm: Union[str, Algorithm] = default, resolution: float = 1, tol: float = 1e-3,
+                 shuffle_nodes: bool = False, agg_tol: float = 1e-3, max_agg_iter: int = -1, verbose: bool = False):
         """
 
         Parameters
@@ -359,18 +375,35 @@ class Louvain:
             The optimization algorithm.
             Requires a fit method.
             Requires score_  and labels_ attributes.
+        resolution:
+            Resolution parameter.
         tol:
-            Minimum increase in modularity to enter a new optimization pass.
+            Minimum increase in the objective function to enter a new optimization pass.
+        shuffle_nodes:
+            If True, shuffle the nodes before each optimization pass.
+        agg_tol:
+            Minimum increase in the objective function to enter a new aggregation pass.
         max_agg_iter:
             Maximum number of aggregations.
             A negative value is interpreted as no limit.
         verbose:
             Verbose mode.
         """
-        self.algorithm = algorithm
-        self.tol = tol
+        if type(algorithm) == str:
+            if algorithm == "numba":
+                self.algorithm = GreedyModularityNumba(resolution, tol, shuffle_nodes)
+            elif algorithm == "python":
+                self.algorithm = GreedyModularity(resolution, tol, shuffle_nodes)
+            else:
+                raise ValueError('Unknown algorithm name.')
+        elif isinstance(algorithm, Algorithm):
+            self.algorithm = algorithm
+        else:
+            raise TypeError('Algorithm must be a string ("numba" or "python") or a valid algorithm.')
+
         if type(max_agg_iter) != int:
             raise TypeError('The maximum number of iterations must be an integer.')
+        self.agg_tol = agg_tol
         self.max_agg_iter = max_agg_iter
         self.verbose = verbose
         self.labels_ = None
@@ -431,7 +464,7 @@ class Louvain:
         while increase:
             iteration_count += 1
             self.algorithm.fit(graph)
-            if self.algorithm.score_ <= self.tol:
+            if self.algorithm.score_ <= self.agg_tol:
                 increase = False
             else:
                 row = np.arange(graph.n_nodes)
