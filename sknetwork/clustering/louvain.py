@@ -129,8 +129,9 @@ class GreedyModularity:
                                         graph.norm_adjacency.indptr[node]:graph.norm_adjacency.indptr[node + 1]]
                 neighbor_clusters: np.ndarray = labels[neighbors]
                 unique_clusters: list = list(set(neighbor_clusters.tolist()) - {node_cluster})
+                n_clusters = len(unique_clusters)
 
-                if len(unique_clusters):
+                if n_clusters:
                     node_prob: float = node_probs[node]
                     node_prob_res: float = self.resolution * node_prob
 
