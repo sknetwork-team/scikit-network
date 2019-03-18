@@ -1,5 +1,5 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# test for graph_data.py
 """
 Created on Nov 29, 2018
 @author: Quentin Lutz <qlutz@enst.fr>
