@@ -20,10 +20,8 @@ class TestMetrics(unittest.TestCase):
         adjacency = self.karate_club_graph
         dendrogram = self.paris.fit(adjacency).dendrogram_
         tsd = tree_sampling_divergence(adjacency, dendrogram, normalized=True)
-        self.assertLessEqual(tsd, .7)
-        self.assertGreaterEqual(tsd, .6)
+        self.assertAlmostEqual(tsd, .65, 2)
         dc = dasgupta_cost(adjacency, dendrogram, normalized=True)
-        self.assertLessEqual(dc, .4)
-        self.assertGreaterEqual(dc, .3)
+        self.assertAlmostEqual(dc, .33, 2)
 
 

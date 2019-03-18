@@ -24,19 +24,18 @@ class AggregateGraph:
         Index of the next cluster (resulting from aggregation).
     cluster_sizes : dict
         Dictionary of cluster sizes.
-    cluster_weights : dict
-        Dictionary of cluster weights.
+    cluster_probs : dict
+        Dictionary of cluster probabilities.
     """
 
-    def __init__(self, adjacency: sparse.csr_matrix, node_weights: np.ndarray):
+    def __init__(self, adjacency: sparse.csr_matrix, node_probs: np.ndarray):
         """
-
         Parameters
         ----------
         adjacency :
             Adjacency matrix of the graph.
-        node_weights :
-            Vector of node weights.
+        node_probs :
+            Distribution of node weights.
     """
         n_nodes = adjacency.shape[0]
         adj_sum = adjacency.data.sum()
@@ -50,7 +49,7 @@ class AggregateGraph:
                                 range(adjacency.indptr[node], adjacency.indptr[node + 1])
                                 if adjacency.indices[i] != node}
         self.cluster_sizes = {node: 1 for node in range(n_nodes)}
-        self.cluster_weights = {node: node_weights[node] for node in range(n_nodes)}
+        self.cluster_probs = {node: node_probs[node] for node in range(n_nodes)}
 
     def merge(self, node1: int, node2: int) -> object:
         """
@@ -81,7 +80,7 @@ class AggregateGraph:
         del self.graph[node1]
         del self.graph[node2]
         self.cluster_sizes[new_node] = self.cluster_sizes.pop(node1) + self.cluster_sizes.pop(node2)
-        self.cluster_weights[new_node] = self.cluster_weights.pop(node1) + self.cluster_weights.pop(node2)
+        self.cluster_probs[new_node] = self.cluster_probs.pop(node1) + self.cluster_probs.pop(node2)
         self.next_cluster += 1
         return self
 
@@ -128,11 +127,11 @@ class Paris:
     >>> # House graph
     >>> row = np.array([0, 0, 1, 1, 2, 3])
     >>> col = np.array([1, 4, 2, 4, 3, 4])
-    >>> adj_matrix = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(5, 5))
-    >>> adj_matrix = adj_matrix + adj_matrix.T
+    >>> adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(5, 5))
+    >>> adjacency = adjacency + adjacency.T
 
     >>> paris = Paris()
-    >>> paris.fit(adj_matrix).predict()
+    >>> paris.fit(adjacency).predict()
     array([1, 1, 0, 0, 1])
 
     Notes
@@ -158,15 +157,14 @@ class Paris:
 
     def __init__(self):
         self.dendrogram_ = None
-        self.labels_ = None
 
-    def fit(self, adj_matrix: sparse.csr_matrix, node_weights: Union[str, np.ndarray] = 'degree', reorder: bool = True):
+    def fit(self, adjacency: sparse.csr_matrix, node_weights: Union[str, np.ndarray] = 'degree', reorder: bool = True):
         """
-        Agglomerative clustering using the nearest neighbor chain
+        Agglomerative clustering using the nearest neighbor chain.
 
         Parameters
         ----------
-        adj_matrix :
+        adjacency :
             Adjacency matrix of the graph to cluster.
         node_weights :
             Node weights used in the linkage.
@@ -177,40 +175,39 @@ class Paris:
         -------
         self
         """
-        if type(adj_matrix) != sparse.csr_matrix:
+        if type(adjacency) != sparse.csr_matrix:
             raise TypeError('The adjacency matrix must be in a scipy compressed sparse row (csr) format.')
-        # check that the graph is not directed
-        if adj_matrix.shape[0] != adj_matrix.shape[1]:
+        if adjacency.shape[0] != adjacency.shape[1]:
             raise ValueError('The adjacency matrix must be square.')
-        if adj_matrix.shape[0] <= 1:
+        if adjacency.shape[0] <= 1:
             raise ValueError('The graph must contain at least two nodes.')
-        if (adj_matrix != adj_matrix.T).nnz != 0:
+        if (adjacency != adjacency.T).nnz != 0:
             raise ValueError('The graph cannot be directed. Please fit a symmetric adjacency matrix.')
 
-        n_nodes = adj_matrix.shape[0]
+        n_nodes = adjacency.shape[0]
 
         if type(node_weights) == np.ndarray:
             if len(node_weights) != n_nodes:
                 raise ValueError('The number of node weights must match the number of nodes.')
             else:
-                node_weights_vec = node_weights
+                node_probs = node_weights
         elif type(node_weights) == str:
             if node_weights == 'degree':
-                node_weights_vec = adj_matrix.dot(np.ones(n_nodes))
+                node_probs = adjacency.dot(np.ones(n_nodes))
             elif node_weights == 'uniform':
-                node_weights_vec = np.ones(n_nodes)
+                node_probs = np.ones(n_nodes)
             else:
                 raise ValueError('Unknown distribution of node weights.')
         else:
             raise TypeError(
                 'Node weights must be a known distribution ("degree" or "uniform" string) or a custom NumPy array.')
 
-        if np.any(node_weights_vec <= 0):
+        if np.any(node_probs <= 0):
             raise ValueError('All node weights must be positive.')
         else:
-            node_weights_vec = node_weights_vec / np.sum(node_weights_vec)
+            node_probs = node_probs / np.sum(node_probs)
 
-        aggregate_graph = AggregateGraph(adj_matrix, node_weights_vec)
+        aggregate_graph = AggregateGraph(adjacency, node_probs)
 
         connected_components = []
         dendrogram = []
@@ -226,8 +223,8 @@ class Paris:
                     max_sim = -float("inf")
                     nearest_neighbor = None
                     for neighbor in aggregate_graph.graph[node]:
-                        sim = aggregate_graph.graph[node][neighbor] / aggregate_graph.cluster_weights[node] / \
-                              aggregate_graph.cluster_weights[neighbor]
+                        sim = aggregate_graph.graph[node][neighbor] / aggregate_graph.cluster_probs[node] / \
+                              aggregate_graph.cluster_probs[neighbor]
                         if sim > max_sim:
                             nearest_neighbor = neighbor
                             max_sim = sim

@@ -4,29 +4,29 @@
 
 
 import unittest
-from sknetwork.clustering.louvain import Louvain
-from sknetwork.toy_graphs.graph_data import karate_club_graph
+from sknetwork.clustering import Louvain
+from sknetwork.toy_graphs import karate_club_graph
 from scipy.sparse import identity
 
 
 class TestLouvainClustering(unittest.TestCase):
 
     def setUp(self):
-        self.louvain_basic = Louvain()
+        self.louvain = Louvain()
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):
-            self.louvain_basic.fit(identity(1))
+            self.louvain.fit(identity(1))
 
         with self.assertRaises(TypeError):
-            self.louvain_basic.fit(identity(2, format='csr'), node_weights=1)
+            self.louvain.fit(identity(2, format='csr'), node_weights=1)
 
     def test_unknown_options(self):
         with self.assertRaises(ValueError):
-            self.louvain_basic.fit(identity(2, format='csr'), node_weights='unknown')
+            self.louvain.fit(identity(2, format='csr'), node_weights='unknown')
 
     def test_single_node_graph(self):
-        self.assertEqual(self.louvain_basic.fit(identity(1, format='csr')).labels_, [0])
+        self.assertEqual(self.louvain.fit(identity(1, format='csr')).labels_, [0])
 
     def test_karate_graph(self):
-        self.assertEqual(self.louvain_basic.fit(karate_club_graph()).labels_.shape, (34,))
+        self.assertEqual(self.louvain.fit(karate_club_graph()).labels_.shape, (34,))

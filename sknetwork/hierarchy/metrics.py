@@ -85,7 +85,7 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
             edge_sampling[node2 - n_nodes] = 0
         height[t] = dendrogram[t][2]
         edge_sampling[t] += 2 * aggregate_graph.graph[node1][node2]
-        cluster_weight[t] = aggregate_graph.cluster_weights[node1] + aggregate_graph.cluster_weights[node2]
+        cluster_weight[t] = aggregate_graph.cluster_probs[node1] + aggregate_graph.cluster_probs[node2]
         aggregate_graph.merge(node1, node2)
 
     cost = np.sum(edge_sampling * cluster_weight)
@@ -167,7 +167,7 @@ def tree_sampling_divergence(adj_matrix: sparse.csr_matrix, dendrogram: np.ndarr
             edge_sampling[node2 - n_nodes] = 0
             node_sampling[t] = node_sampling[node2 - n_nodes]
         edge_sampling[t] += 2 * aggregate_graph.graph[node1][node2]
-        node_sampling[t] += aggregate_graph.cluster_weights[node1] * aggregate_graph.cluster_weights[node2]
+        node_sampling[t] += aggregate_graph.cluster_probs[node1] * aggregate_graph.cluster_probs[node2]
         height[t] = dendrogram[t][2]
         aggregate_graph.merge(node1, node2)
 

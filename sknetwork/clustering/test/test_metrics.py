@@ -3,9 +3,7 @@
 """"tests for clustering metrics"""
 
 import unittest
-import numpy as np
-from scipy import sparse
-from sknetwork.clustering.metrics import modularity, cocitation_modularity, performance, cocitation_performance
+from sknetwork.clustering import *
 
 
 class TestClusteringMetrics(unittest.TestCase):
