@@ -131,15 +131,16 @@ class GreedyModularity(Algorithm):
 
          """
         increase = True
-        total_increase = 0.
+        total_increase: float = 0
 
         labels: np.ndarray = np.arange(graph.n_nodes)
         node_probs: np.ndarray = graph.node_probs
+        cluster_probs = node_probs.copy()
         self_loops: np.ndarray = graph.norm_adjacency.diagonal()
 
         while increase:
             increase = False
-            pass_increase = 0.
+            pass_increase: float = 0
 
             if self.shuffle_nodes:
                 nodes = np.random.permutation(np.arange(graph.n_nodes))
@@ -164,7 +165,7 @@ class GreedyModularity(Algorithm):
                     # total weight of edges to neighbors in the same cluster
                     out_delta: float = neighbor_weights[index].sum() - self_loops[node]
                     # minus the probability to choose a neighbor in the same cluster (with resolution factor)
-                    out_delta -= node_prob_res * (node_probs[index].sum() - node_prob)
+                    out_delta -= node_prob_res * (cluster_probs[node_cluster] - node_prob)
 
                     local_delta: np.ndarray = np.full(n_clusters, -out_delta)
 
@@ -173,18 +174,18 @@ class GreedyModularity(Algorithm):
                         # total weight of edges to neighbors in the candidate cluster
                         in_delta: float = neighbor_weights[index].sum()
                         # minus the probability to choose a neighbor in the candidate cluster (with resolution factor)
-                        in_delta -= node_prob_res * node_probs[index].sum()
+                        in_delta -= node_prob_res * cluster_probs[cluster]
 
                         local_delta[index_cluster] += in_delta
 
-                    best_ix = local_delta.argmax()
+                    best_ix: int = local_delta.argmax()
                     best_delta: float = 2 * local_delta[best_ix]
                     if best_delta > 0:
                         pass_increase += best_delta
                         best_cluster = unique_clusters[best_ix]
 
-                        node_probs[node_cluster] -= node_prob
-                        node_probs[best_cluster] += node_prob
+                        cluster_probs[node_cluster] -= node_prob
+                        cluster_probs[best_cluster] += node_prob
                         labels[node] = best_cluster
 
             total_increase += pass_increase
@@ -236,7 +237,6 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
     labels: np.ndarray = np.arange(n_nodes)
     cluster_probs: np.ndarray = node_probs.copy()
 
-    neighbor_cluster_weights = np.zeros(n_nodes, dtype=float)
     nodes = np.arange(n_nodes)
     while increase:
         increase = False
@@ -248,6 +248,7 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
         for node in nodes:
             node_cluster = labels[node]
 
+            neighbor_cluster_weights = np.zeros(n_nodes)
             for i in range(indptr[node], indptr[node + 1]):
                 neighbor_cluster_weights[labels[indices[i]]] += data[i]
 
@@ -261,7 +262,7 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
                 # total weight of edges to neighbors in the same cluster
                 out_delta: float = neighbor_cluster_weights[node_cluster] - self_loops[node]
                 # minus the probability to choose a neighbor in the same cluster (with resolution factor)
-                out_delta -= node_prob_res * (node_probs[node_cluster] - node_prob)
+                out_delta -= node_prob_res * (cluster_probs[node_cluster] - node_prob)
 
                 best_delta: float = 0
                 best_cluster = node_cluster
@@ -269,9 +270,8 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
                 for cluster in unique_clusters:
                     # total weight of edges to neighbors in the candidate cluster
                     in_delta: float = neighbor_cluster_weights[cluster]
-                    neighbor_cluster_weights[cluster] = 0
                     # minus the probability to choose a neighbor in the candidate cluster (with resolution factor)
-                    in_delta -= node_prob_res * node_probs[cluster]
+                    in_delta -= node_prob_res * cluster_probs[cluster]
 
                     local_delta = 2 * (in_delta - out_delta)
                     if local_delta > best_delta:
@@ -283,7 +283,6 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
                     cluster_probs[node_cluster] -= node_prob
                     cluster_probs[best_cluster] += node_prob
                     labels[node] = best_cluster
-            neighbor_cluster_weights[node_cluster] = 0.0
 
         total_increase += pass_increase
         if pass_increase > tol:
