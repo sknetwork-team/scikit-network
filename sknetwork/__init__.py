@@ -3,7 +3,7 @@
 """Top-level package for scikit-network"""
 
 __author__ = """Thomas Bonald"""
-__email__ = "bonald@ent.fr"
+__email__ = "bonald@enst.fr"
 __version__ = '0.1.1'
 
 from sknetwork.toy_graphs import *
