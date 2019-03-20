@@ -12,8 +12,9 @@ from typing import Union
 
 
 def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
-                  node_weights: Union[str, np.ndarray] = 'uniform', normalized: bool = True):
+                  node_weights: Union[str, np.ndarray] = 'uniform', normalized: bool = True) -> float:
     """Dasgupta's cost of a hierarchy (cost metric)
+
      Parameters
      ----------
      adjacency :
@@ -31,8 +32,8 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
          Dasgupta's cost of the hierarchy.
          Normalized by the number of nodes to get a value between 0 and 1.
 
-     Reference
-     ---------
+     References
+     ----------
      S. Dasgupta. A cost function for similarity-based hierarchical clustering.
      In Proceedings of ACM symposium on Theory of Computing, 2016.
 
@@ -88,15 +89,16 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
         cluster_weight[t] = aggregate_graph.cluster_probs[node1] + aggregate_graph.cluster_probs[node2]
         aggregate_graph.merge(node1, node2)
 
-    cost = np.sum(edge_sampling * cluster_weight)
+    cost: float = (edge_sampling * cluster_weight).sum()
     if not normalized:
-        cost *= np.sum(node_weights_vec)
+        cost *= node_weights_vec.sum()
     return cost
 
 
 def tree_sampling_divergence(adj_matrix: sparse.csr_matrix, dendrogram: np.ndarray,
-                             node_weights: Union[str, np.ndarray] = 'degree', normalized: bool = True):
+                             node_weights: Union[str, np.ndarray] = 'degree', normalized: bool = True) -> float:
     """Tree sampling divergence of a hierarchy (quality metric)
+
      Parameters
      ----------
      adj_matrix :
@@ -114,9 +116,10 @@ def tree_sampling_divergence(adj_matrix: sparse.csr_matrix, dendrogram: np.ndarr
          The tree sampling divergence of the hierarchy (quality metric).
          Normalized by the mutual information to get a value between 0 and 1.
 
-     Reference
-     ---------
+     References
+     ----------
      T. Bonald, B. Charpentier (2018), Learning Graph Representations by Dendrograms, https://arxiv.org/abs/1807.05087
+
     """
 
     if type(adj_matrix) != sparse.csr_matrix:
@@ -172,7 +175,7 @@ def tree_sampling_divergence(adj_matrix: sparse.csr_matrix, dendrogram: np.ndarr
         aggregate_graph.merge(node1, node2)
 
     index = np.where(edge_sampling)[0]
-    quality = np.sum(edge_sampling[index] * np.log(edge_sampling[index] / node_sampling[index]))
+    quality: float = np.sum(edge_sampling[index] * np.log(edge_sampling[index] / node_sampling[index]))
     if normalized:
         inv_node_weights = sparse.diags(1 / node_weights_vec, shape=(n_nodes, n_nodes), format='csr')
         sampling_ratio = inv_node_weights.dot(adj_matrix.dot(inv_node_weights)) / adj_matrix.data.sum()

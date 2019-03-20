@@ -5,20 +5,37 @@ Clustering
 
 .. currentmodule:: sknetwork
 
-Louvain
--------
-.. automodule:: sknetwork.clustering.louvain
-   :toctree: generated/
+Louvain Methods
+---------------
+.. automodule:: sknetwork.clustering
 
-.. autoclass:: Louvain
+.. autoclass:: sknetwork.clustering.louvain.Louvain
     :members:
 
-.. autoclass:: GreedyModularity
+.. autoclass:: sknetwork.clustering.louvain.GreedyModularity
     :members:
 
-.. autoclass:: GreedyModularityJiT
+.. autoclass:: sknetwork.clustering.louvain.GreedyModularityNumba
     :members:
+
+.. autoclass:: sknetwork.clustering.bilouvain.BiLouvain
+    :members:
+
+.. autoclass:: sknetwork.clustering.bilouvain.GreedyBipartite
+    :members:
+
+.. autoclass:: sknetwork.clustering.bilouvain.GreedyBipartiteNumba
+    :members:
+
 
 Metrics
 -------
+.. autofunction:: sknetwork.clustering.metrics.modularity
 
+.. autofunction:: sknetwork.clustering.metrics.bimodularity
+
+.. autofunction:: sknetwork.clustering.metrics.cocitation_modularity
+
+.. autofunction:: sknetwork.clustering.metrics.performance
+
+.. autofunction:: sknetwork.clustering.metrics.cocitation_performance

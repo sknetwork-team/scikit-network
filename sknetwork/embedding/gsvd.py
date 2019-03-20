@@ -9,6 +9,7 @@ import numpy as np
 
 from sknetwork.embedding.randomized_matrix_factorization import randomized_svd
 from scipy import sparse, linalg
+from typing import Union
 
 
 class GSVDEmbedding:
@@ -39,54 +40,41 @@ class GSVDEmbedding:
         self.features_ = None
         self.singular_values_ = None
 
-    def fit(self, adjacency_matrix, randomized_decomposition: bool = True, n_iter='auto',
-            power_iteration_normalizer='auto', random_state=None):
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], randomized_decomposition: bool = True,
+            n_iter='auto', power_iteration_normalizer: Union[str, None] = 'auto', random_state=None) -> 'GSVDEmbedding':
         """Fits the model from data in adjacency_matrix.
 
         Parameters
         ----------
-        adjacency_matrix: array-like, shape = (n, m)
-            Adjacency matrix, where n = m = |V| for a standard graph,
-            n = |V1|, m = |V2| for a bipartite graph.
-        randomized_decomposition: whether to use a randomized (and faster) svd method or
-            the standard scipy one.
-        n_iter: int or 'auto' (default is 'auto')
-            Number of power iterations. It can be used to deal with very noisy
-            problems. When 'auto', it is set to 4, unless `embedding_dimension` is small
-            (< .1 * min(X.shape)) `n_iter` in which case is set to 7.
-            This improves precision with few components.
-        power_iteration_normalizer: 'auto' (default), 'QR', 'LU', 'none'
-            Whether the power iterations are normalized with step-by-step
-            QR factorization (the slowest but most accurate), 'none'
-            (the fastest but numerically unstable when `n_iter` is large, e.g.
-            typically 5 or larger), or 'LU' factorization (numerically stable
-            but can lose slightly in accuracy). The 'auto' mode applies no
-            normalization if `n_iter`<=2 and switches to LU otherwise.
-        random_state: int, RandomState instance or None, optional (default=None)
-            The seed of the pseudo random number generator to use when shuffling
-            the data.  If int, random_state is the seed used by the random number
-            generator; If RandomState instance, random_state is the random number
-            generator; If None, the random number generator is the RandomState
-            instance used by `np.random`.
+        adjacency: array-like, shape = (n, m)
+            Adjacency matrix, where n = m = \|V\| for a standard graph,
+            n = \|V1\|, m = \|V2\| for a bipartite graph.
+        randomized_decomposition:
+            whether to use a randomized (and faster) svd method or the standard scipy one.
+        n_iter: int or ``'auto'`` (default is ``'auto'``)
+            See :meth:`sknetwork.embedding.randomized_matrix_factorization.randomized_range_finder`
+        power_iteration_normalizer: ``'auto'`` (default), ``'QR'``, ``'LU'``, ``None``
+            See :meth:`sknetwork.embedding.randomized_matrix_factorization.randomized_range_finder`
+        random_state: int, RandomState instance or ``None``, optional (default= ``None``)
+            See :meth:`sknetwork.embedding.randomized_matrix_factorization.randomized_range_finder`
 
         Returns
         -------
-        self
-
+        self: :class:`GSVDEmbedding`
         """
-        if type(adjacency_matrix) == sparse.csr_matrix:
-            adj_matrix = adjacency_matrix
-        elif type(adjacency_matrix) == np.ndarray:
-            adj_matrix = sparse.csr_matrix(adjacency_matrix)
+        if type(adjacency) == sparse.csr_matrix:
+            adjacency = adjacency
+        elif type(adjacency) == np.ndarray:
+            adjacency = sparse.csr_matrix(adjacency)
         else:
             raise TypeError(
                 "The argument must be a NumPy array or a SciPy Compressed Sparse Row matrix.")
-        n_nodes, m_nodes = adj_matrix.shape
-        total_weight = adj_matrix.data.sum()
+        n_nodes, m_nodes = adjacency.shape
+        total_weight = adjacency.data.sum()
         # out-degree vector
-        dou = adj_matrix.dot(np.ones(m_nodes))
+        dou = adjacency.dot(np.ones(m_nodes))
         # in-degree vector
-        din = adj_matrix.T.dot(np.ones(n_nodes))
+        din = adjacency.T.dot(np.ones(n_nodes))
 
         # pseudo inverse square-root out-degree matrix
         dhou = sparse.diags(np.sqrt(dou), shape=(n_nodes, n_nodes), format='csr')
@@ -95,7 +83,7 @@ class GSVDEmbedding:
         dhin = sparse.diags(np.sqrt(din), shape=(m_nodes, m_nodes), format='csr')
         dhin.data = 1 / dhin.data
 
-        laplacian = dhou.dot(adj_matrix.dot(dhin))
+        laplacian = dhou.dot(adjacency.dot(dhin))
 
         if randomized_decomposition:
             u, sigma, vt = randomized_svd(laplacian, self.embedding_dimension,
