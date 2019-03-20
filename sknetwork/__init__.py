@@ -6,6 +6,7 @@ __author__ = """Thomas Bonald"""
 __email__ = "bonald@enst.fr"
 __version__ = '0.1.1'
 
+from scipy.sparse.csgraph import *
 from sknetwork.toy_graphs import *
 from sknetwork.loader import *
 from sknetwork.clustering import *

@@ -30,6 +30,7 @@ class AggregateGraph:
 
     def __init__(self, adjacency: sparse.csr_matrix, node_probs: np.ndarray):
         """
+
         Parameters
         ----------
         adjacency :
@@ -38,30 +39,31 @@ class AggregateGraph:
             Distribution of node weights.
     """
         n_nodes = adjacency.shape[0]
-        adj_sum = adjacency.data.sum()
+        total_weight = adjacency.data.sum()
 
         self.next_cluster = n_nodes
         self.graph = {}
         for node in range(n_nodes):
             # normalize so that the total weight is equal to 1
             # remove self-loops
-            self.graph[node] = {adjacency.indices[i]: adjacency.data[i] / adj_sum for i in
+            self.graph[node] = {adjacency.indices[i]: adjacency.data[i] / total_weight for i in
                                 range(adjacency.indptr[node], adjacency.indptr[node + 1])
                                 if adjacency.indices[i] != node}
         self.cluster_sizes = {node: 1 for node in range(n_nodes)}
         self.cluster_probs = {node: node_probs[node] for node in range(n_nodes)}
 
-    def merge(self, node1: int, node2: int) -> object:
-        """
-        Merges two nodes.
+    def merge(self, node1: int, node2: int) -> 'AggregateGraph':
+        """Merges two nodes.
 
         Parameters
         ----------
         node1, node2 :
             The two nodes to merge.
+
         Returns
         -------
-        The aggregated graph (without self-loop).
+        self: :class:`AggregateGraph`
+            The aggregated graph (without self-loop).
         """
         new_node = self.next_cluster
         self.graph[new_node] = {}
@@ -85,7 +87,7 @@ class AggregateGraph:
         return self
 
 
-def reorder_dendrogram(dendrogram: np.ndarray):
+def reorder_dendrogram(dendrogram: np.ndarray) -> np.ndarray:
     """
     Get the dendrogram in increasing order of height.
 
@@ -93,6 +95,7 @@ def reorder_dendrogram(dendrogram: np.ndarray):
     ----------
     dendrogram:
         Original dendrogram.
+
     Returns
     -------
     dendrogram:
@@ -111,8 +114,7 @@ def reorder_dendrogram(dendrogram: np.ndarray):
 
 
 class Paris:
-    """
-    Agglomerative algorithm.
+    """Agglomerative algorithm.
 
     Attributes
     ----------
@@ -137,11 +139,10 @@ class Paris:
     Notes
     -----
     Each row of the dendrogram = i, j, height, size of cluster i + j.
-
-    The similarity between clusters i,j is w_ij / (w_i * w_j) where:
-        w_ij = weight of edge i,j, if any, and 0 otherwise
-        w_i = weight of cluster i
-        w_j = weight of cluster j
+    The similarity between clusters i,j is :math:`\dfrac{w_{ij}}{w_i w_j}` where
+    :math:`w_{ij}` is the weight of edge i,j, if any, and 0 otherwise,
+    :math:`w_{i}` is the weight of cluster i
+    :math:`w_{j}` is the weight of cluster j
 
     See Also
     --------
@@ -153,6 +154,7 @@ class Paris:
     Hierarchical Graph Clustering using Node Pair Sampling.
     Workshop on Mining and Learning with Graphs.
     https://arxiv.org/abs/1806.01664
+
     """
 
     def __init__(self):
@@ -173,7 +175,7 @@ class Paris:
 
         Returns
         -------
-        self
+        self: :class:`Paris`
         """
         if type(adjacency) != sparse.csr_matrix:
             raise TypeError('The adjacency matrix must be in a scipy compressed sparse row (csr) format.')
@@ -273,6 +275,7 @@ class Paris:
             Number of clusters.
         sorted_clusters :
             If True, sort labels in decreasing order of cluster size.
+
         Returns
         -------
         labels :

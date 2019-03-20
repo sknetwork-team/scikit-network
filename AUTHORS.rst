@@ -9,8 +9,3 @@ Development Lead
 * Bertrand Charpentier <bertrand.charpentier@live.fr>
 * Nathan De Lara <nathan.delara@telecom-paristech.fr>
 * Quentin Lutz <quentin.lutz@telecom-paristech.fr>
-
-Contributors
-------------
-
-* Alexandre Hollocou <alexandre@hollocou.fr>

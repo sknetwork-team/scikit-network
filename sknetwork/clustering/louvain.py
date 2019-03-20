@@ -48,12 +48,13 @@ class NormalizedGraph:
         self.node_probs = node_probs.copy()
 
     def aggregate(self, membership: sparse.csr_matrix):
-        """
-        Aggregates nodes belonging to the same cluster.
+        """Aggregates nodes belonging to the same cluster.
+
         Parameters
         ----------
         membership:
             Entry i,j equals to 1 if node i belongs to cluster j (0 otherwise).
+
         Returns
         -------
         The aggregated graph
@@ -65,8 +66,7 @@ class NormalizedGraph:
 
 
 class Optimizer:
-    """
-    A generic optimization algorithm.
+    """A generic optimization algorithm.
 
     Attributes
     ----------
@@ -80,8 +80,8 @@ class Optimizer:
         self.labels_ = None
 
     def fit(self, graph: NormalizedGraph):
-        """
-         Fit the clusters to the objective function.
+        """Fit the clusters to the objective function.
+
          Parameters
          ----------
          graph:
@@ -89,7 +89,7 @@ class Optimizer:
 
          Returns
          -------
-         self
+         self: :class:̀Optimizer`
 
          """
         return self
@@ -118,8 +118,8 @@ class GreedyModularity(Optimizer):
         self.shuffle_nodes = shuffle_nodes
 
     def fit(self, graph: NormalizedGraph):
-        """
-         Iterate over the nodes to increase modularity.
+        """Iterate over the nodes to increase modularity.
+
          Parameters
          ----------
          graph:
@@ -127,8 +127,7 @@ class GreedyModularity(Optimizer):
 
          Returns
          -------
-         self
-
+         self: :class:`Optimizer`
          """
         increase = True
         total_increase: float = 0
@@ -289,8 +288,7 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
 
 
 class GreedyModularityNumba(Optimizer):
-    """
-    A greedy modularity optimizer using Numba for enhanced performance.
+    """A greedy modularity optimizer using Numba for enhanced performance.
 
     Attributes
     ----------
@@ -322,6 +320,17 @@ class GreedyModularityNumba(Optimizer):
         self.shuffle_nodes = shuffle_nodes
 
     def fit(self, graph: NormalizedGraph):
+        """Iterate over the nodes to increase modularity.
+
+         Parameters
+         ----------
+         graph:
+             Graph to cluster.
+
+         Returns
+         -------
+         self: :class:`Optimizer`
+         """
         labels, total_increase = fit_core(self.resolution, self.tol, self.shuffle_nodes, graph.n_nodes,
                                           graph.node_probs, graph.norm_adjacency.diagonal(), graph.norm_adjacency.data,
                                           graph.norm_adjacency.indices, graph.norm_adjacency.indptr)
@@ -333,8 +342,7 @@ class GreedyModularityNumba(Optimizer):
 
 
 class Louvain:
-    """
-    Louvain algorithm for graph clustering in Python (default) and Numba.
+    """Louvain algorithm for graph clustering in Python (default) and Numba.
 
     Attributes
     ----------
@@ -408,8 +416,7 @@ class Louvain:
         self.aggregate_graph_ = None
 
     def fit(self, adjacency: sparse.csr_matrix, node_weights: Union[str, np.ndarray] = 'degree'):
-        """
-        Agglomerative clustering using the nearest neighbor chain.
+        """Clustering using chosen Optimizer.
 
         Parameters
         ----------
@@ -420,7 +427,7 @@ class Louvain:
 
         Returns
         -------
-        self
+        self: :class:`Louvain`
         """
         if type(adjacency) != sparse.csr_matrix:
             raise TypeError('The adjacency matrix must be in a scipy compressed sparse row (csr) format.')

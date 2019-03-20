@@ -52,6 +52,7 @@ class BipartiteGraph:
     def aggregate(self, sample_membership: sparse.csr_matrix, feature_membership: sparse.csr_matrix):
         """
         Aggregates nodes belonging to the same clusters while keeping the bipartite structure.
+
         Parameters
         ----------
         sample_membership:
@@ -63,7 +64,7 @@ class BipartiteGraph:
 
         Returns
         -------
-        self
+        self: :class:`BipartiteGraph`
         """
         self.norm_adjacency = sample_membership.T.dot(self.norm_adjacency.dot(feature_membership)).tocsr()
         self.sample_weights = np.array(sample_membership.T.dot(self.sample_weights).T)
@@ -91,8 +92,8 @@ class BiOptimizer:
         self.feature_labels_ = None
 
     def fit(self, graph: BipartiteGraph):
-        """
-         Fit the clusters to the objective function.
+        """Fit the clusters to the objective function.
+
          Parameters
          ----------
          graph:
@@ -100,7 +101,7 @@ class BiOptimizer:
 
          Returns
          -------
-         self
+         self: :class:`BiOptimizer`
 
          """
         return self
@@ -124,16 +125,16 @@ class GreedyBipartite(BiOptimizer):
         self.tol = tol
 
     def fit(self, graph: BipartiteGraph):
-        """
-        Iterates over the nodes of the graph and moves them to the cluster of highest
-        increase among their neighbors.
+        """Iterates over the nodes of the graph and moves them to the cluster of highest increase among their neighbors.
+
         Parameters
         ----------
-        graph: the graph to cluster
+        graph:
+            the graph to cluster
 
         Returns
         -------
-        self
+        self: :class:`BiOptimizer`
         """
         increase: bool = True
         total_increase: float = 0.
@@ -278,7 +279,6 @@ def fit_core(sample_args, feature_args, resolution, tol):
                         source_clusters_proba[node_cluster] -= node_proba
                         source_clusters_proba[best_cluster] += node_proba
                         source_labels[node] = best_cluster
-                        # print('moving sample ', node, 'to cluster ', best_cluster)
 
         total_increase += pass_increase
         if pass_increase > tol:
@@ -291,14 +291,16 @@ class GreedyBipartiteNumba(BiOptimizer):
     """
     A greedy modularity optimizer using Numba for enhanced performance.
 
-    Tested with Numba v0.42.0.
-
     Attributes
     ----------
     resolution:
         bimodularity resolution
     tol:
         minimum bimodularity increase to enter a new optimization pass
+
+    Notes
+    -----
+    Tested with Numba v0.42.0.
     """
 
     def __init__(self, resolution: float = 1., tol: float = 1e-3):
@@ -307,16 +309,16 @@ class GreedyBipartiteNumba(BiOptimizer):
         self.tol = tol
 
     def fit(self, graph: BipartiteGraph):
-        """
-        Iterates over the nodes of the graph and moves them to the cluster of highest
-        increase among their neighbors.
+        """Iterates over the nodes of the graph and moves them to the cluster of highest increase among their neighbors.
+
         Parameters
         ----------
-        graph: the graph to cluster
+        graph:
+            the graph to cluster
 
         Returns
         -------
-        self
+        self: :class:`BiOptimizer`
 
         """
         transposed_adjacency = graph.norm_adjacency.T.tocsr()
@@ -349,6 +351,10 @@ class BiLouvain:
         Total number of aggregations performed.
     aggregate_graph_: sparse.csr_matrix
         Aggregated graph at the end of the algorithm.
+    score_: float
+        objective function value after fit
+    n_clusters_: int
+        number of clusters after fit
     """
 
     def __init__(self, algorithm: Union[str, BiOptimizer] = default, resolution: float = 1, tol: float = 1e-3,
@@ -397,15 +403,16 @@ class BiLouvain:
         self.n_clusters_ = None
 
     def fit(self, biadjacency: sparse.csr_matrix):
-        """
-        Alternates local optimization and aggregation until convergence.
+        """Alternates local optimization and aggregation until convergence.
+
         Parameters
         ----------
-        biadjacency: adjacency matrix of the graph to cluster, treated as a biadjacency matrix
+        biadjacency:
+            adjacency matrix of the graph to cluster, treated as a biadjacency matrix
 
         Returns
         -------
-        self
+        self: :class:`BiLouvain`
         """
         if type(biadjacency) != sparse.csr_matrix:
             raise TypeError('The adjacency matrix must be in a scipy compressed sparse row (csr) format.')

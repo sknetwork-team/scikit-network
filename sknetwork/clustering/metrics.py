@@ -12,30 +12,32 @@ from scipy import sparse
 from typing import Union
 
 
-def modularity(adjacency_matrix: Union[sparse.csr_matrix, np.ndarray], partition: Union[dict, np.ndarray],
+def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], partition: Union[dict, np.ndarray],
                resolution: float = 1) -> float:
     """
     Compute the modularity of a node partition.
+
+    :math:`Q = \sum_{ij}(\dfrac{A_{ij}}{w} - \gamma \dfrac{d_id_j}{w^2})\delta_{ij}`
+
     Parameters
     ----------
     partition: dict or np.ndarray
-       The partition of the nodes.
-       The keys of the dictionary correspond to the nodes and the values to the communities.
-    adjacency_matrix: scipy.csr_matrix or np.ndarray
+       The partition of the nodes. The keys of the dictionary correspond to the nodes and the values to the communities.
+    adjacency: scipy.csr_matrix or np.ndarray
         The adjacency matrix of the graph (sparse or dense).
-    resolution: double, optional
-        The resolution parameter in the modularity function (default=1.).
+    resolution: float, optional (default=1.)
+        The resolution parameter in the modularity function.
 
     Returns
     -------
-    modularity : float
+    : float
        The modularity.
     """
 
-    if type(adjacency_matrix) == sparse.csr_matrix:
-        adj_matrix = adjacency_matrix
-    elif sparse.isspmatrix(adjacency_matrix) or type(adjacency_matrix) == np.ndarray:
-        adj_matrix = sparse.csr_matrix(adjacency_matrix)
+    if type(adjacency) == sparse.csr_matrix:
+        adj_matrix = adjacency
+    elif sparse.isspmatrix(adjacency) or type(adjacency) == np.ndarray:
+        adj_matrix = sparse.csr_matrix(adjacency)
     else:
         raise TypeError(
             "The argument must be a NumPy array or a SciPy Sparse matrix.")
@@ -62,9 +64,12 @@ def modularity(adjacency_matrix: Union[sparse.csr_matrix, np.ndarray], partition
 
 
 def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feature_labels: np.ndarray,
-                 resolution: float = 1.) -> float:
+                 resolution: float = 1) -> float:
     """
     Modularity for bipartite graphs.
+
+    :math:`Q = \sum_{ij}(\dfrac{B_{ij}}{w} - \gamma \dfrac{d_if_j}{w^2})\delta_{ij}`
+
     Parameters
     ----------
     biadjacency:
@@ -78,7 +83,8 @@ def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feat
 
     Returns
     -------
-
+    : float
+        The bimodularity
     """
     n_samples, n_features = biadjacency.shape
     one_samples, one_features = np.ones(n_samples), np.ones(n_features)
@@ -95,36 +101,38 @@ def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feat
     feature_membership = sparse.csc_matrix((one_features, (np.arange(n_features), feature_labels)),
                                            shape=(n_features, n_clusters))
 
-    fit: float = sample_membership.multiply(biadjacency.dot(feature_membership)).sum() / total_weight
+    fit: float = sample_membership.multiply(biadjacency.dot(feature_membership)).data.sum() / total_weight
     div: float = (sample_membership.T.dot(sample_weights)).dot(feature_membership.T.dot(features_weights))
 
     return fit - resolution * div
 
 
-def cocitation_modularity(adjacency_matrix, partition, resolution: float=1.0) -> float:
+def cocitation_modularity(adjacency, partition, resolution: float=1) -> float:
     """
     Compute the modularity of a node partition on the normalized cocitation graph
     associated to a network without explicit computation of the cocitation graph.
+
+    :math:`Q = \sum_{ij}(\dfrac{(AF^{-1}A^T)_{ij}}{w} - \gamma \dfrac{d_id_j}{w^2})\delta_{ij}`
+
     Parameters
     ----------
     partition: dict or np.ndarray
-       The partition of the nodes.
-       The keys of the dictionary correspond to the nodes and the values to the communities.
-    adjacency_matrix: scipy.csr_matrix or np.ndarray
+       The partition of the nodes. The keys of the dictionary correspond to the nodes and the values to the communities.
+    adjacency: scipy.csr_matrix or np.ndarray
         The adjacency matrix of the graph (sparse or dense).
-    resolution: optional
-        The resolution parameter in the modularity function (default=1.).
+    resolution: float (default=1.)
+        The resolution parameter in the modularity function.
 
     Returns
     -------
-    modularity : float
-       The modularity.
+    : float
+       The modularity on the normalized cocitation graph.
     """
 
-    if type(adjacency_matrix) == sparse.csr_matrix:
-        adj_matrix = adjacency_matrix
-    elif sparse.isspmatrix(adjacency_matrix) or type(adjacency_matrix) == np.ndarray:
-        adj_matrix = sparse.csr_matrix(adjacency_matrix)
+    if type(adjacency) == sparse.csr_matrix:
+        adj_matrix = adjacency
+    elif sparse.isspmatrix(adjacency) or type(adjacency) == np.ndarray:
+        adj_matrix = sparse.csr_matrix(adjacency)
     else:
         raise TypeError(
             "The argument must be a NumPy array or a SciPy Sparse matrix.")
@@ -155,23 +163,26 @@ def cocitation_modularity(adjacency_matrix, partition, resolution: float=1.0) ->
     return float(fit - resolution * diversity)
 
 
-def performance(adjacency_matrix: sparse.csr_matrix, labels: np.ndarray) -> float:
-    """
-    The performance is the ratio of the total number of intra-cluster edges plus the total number of inter-cluster
+def performance(adjacency: sparse.csr_matrix, labels: np.ndarray) -> float:
+    """The performance is the ratio of the total number of intra-cluster edges plus the total number of inter-cluster
     non-edges with the number of potential edges in the graph.
+
     Parameters
     ----------
-    adjacency_matrix: the adjacency matrix of the graph
-    labels: the cluster indices, labels[node] = index of the cluster of node.
+    adjacency:
+        the adjacency matrix of the graph
+    labels:
+        the cluster indices, labels[node] = index of the cluster of node.
 
     Returns
     -------
-    the performance metric
+    : float
+        the performance metric
     """
-    n_nodes, m_nodes = adjacency_matrix.shape
+    n_nodes, m_nodes = adjacency.shape
     if n_nodes != m_nodes:
         raise ValueError('The adjacency matrix is not square.')
-    bool_adj = abs(adjacency_matrix.sign())
+    bool_adj = abs(adjacency.sign())
 
     clusters = set(labels.tolist())
     cluster_indicator = {cluster: (labels == cluster) for cluster in clusters}
@@ -188,23 +199,26 @@ def performance(adjacency_matrix: sparse.csr_matrix, labels: np.ndarray) -> floa
     return perf / n_nodes**2
 
 
-def cocitation_performance(adjacency_matrix: sparse.csr_matrix, labels: np.ndarray) -> float:
-    """
-    The performance of the clustering on the normalized cocitation graph associated to the provided adjacency
+def cocitation_performance(adjacency: sparse.csr_matrix, labels: np.ndarray) -> float:
+    """The performance of the clustering on the normalized cocitation graph associated to the provided adjacency
     matrix without explicit computation of the graph.
+
     Parameters
     ----------
-    adjacency_matrix: the adjacency matrix of the graph
-    labels: the cluster indices, labels[node] = index of the cluster of node.
+    adjacency:
+        the adjacency matrix of the graph
+    labels:
+        the cluster indices, labels[node] = index of the cluster of node.
 
     Returns
     -------
-    The performance metric.
+    : float
+        The performance metric on the normalized cocitation graph.
     """
-    n_samples, n_features = adjacency_matrix.shape
+    n_samples, n_features = adjacency.shape
     if n_samples != n_features:
         raise ValueError('The adjacency matrix is not square.')
-    bool_adj = abs(adjacency_matrix.sign())
+    bool_adj = abs(adjacency.sign())
 
     clusters = set(labels.tolist())
     cluster_indicator = {cluster: (labels == cluster) for cluster in clusters}

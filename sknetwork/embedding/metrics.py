@@ -19,30 +19,32 @@ def dot_modularity(adjacency_matrix, embedding: np.ndarray, features=None, resol
                    return_all: bool=False):
     """
     Difference of the weighted average dot product between embeddings of pairs of neighbors in the graph
-    (fit term) and pairs of nodes in the graph (diversity term). This metric is normalized to lie between -1 and 1.
+    (fit term) and pairs of nodes in the graph (diversity term).
+
+    :math:`Q = \sum_{ij}(\dfrac{A_{ij}}{w} - \gamma \dfrac{d_id_j}{w^2})x_i^Tx_j`
+
+    This metric is normalized to lie between -1 and 1.
     If the embeddings are normalized, this reduces to the cosine modularity.
+
     Parameters
     ----------
     adjacency_matrix: sparse.csr_matrix or np.ndarray
-    the adjacency matrix of the graph
-
+        the adjacency matrix of the graph
     embedding: np.ndarray
-    the embedding to evaluate, embedding[i] must represent the embedding of node i
-
+        the embedding to evaluate, embedding[i] must represent the embedding of node i
     features: None or np.ndarray
-    For bipartite graphs, features should be the embedding of the second part
-
+        For bipartite graphs, features should be the embedding of the second part
     resolution: float
-    scaling for first-order approximation
+        scaling for first-order approximation
+    weights: ``'degree'`` or ``'uniform'``
+        prior distribution on the nodes
 
-    weights: degree or uniform
-    prior distribution on the nodes
-
-    return_all: whether to return (fit, diversity) or fit - diversity
+    return_all: bool (default = ``False``)
+        whether to return (fit, diversity) or fit - diversity
 
     Returns
     -------
-    a float or a tuple of floats.
+    dot_modularity: a float or a tuple of floats.
     """
     if type(adjacency_matrix) == sparse.csr_matrix:
         adj_matrix = adjacency_matrix
@@ -87,17 +89,18 @@ def hscore(adjacency_matrix, embedding: np.ndarray, order='second', return_all: 
     Parameters
     ----------
     adjacency_matrix: sparse.csr_matrix or np.ndarray
-    the adjacency matrix of the graph
+        the adjacency matrix of the graph
     embedding: np.ndarray
-    the embedding to evaluate, embedding[i] must represent the embedding of node i
+        the embedding to evaluate, embedding[i] must represent the embedding of node i
     order: \'first\' or \'second\'.
-    The order of the node similarity metric to use. First-order corresponds to edges weights while second-order
-    corresponds to the weights of the edges in the normalized cocitation graph.
-    return_all: whether to return (fit, diversity) or hmean(fit, diversity)
+        The order of the node similarity metric to use. First-order corresponds to edges weights while second-order
+        corresponds to the weights of the edges in the normalized cocitation graph.
+    return_all: bool (default = ``False``)
+        whether to return (fit, diversity) or hmean(fit, diversity)
 
     Returns
     -------
-    a float or a tuple of floats.
+    hscore: a float or a tuple of floats.
 
     """
     if type(adjacency_matrix) == sparse.csr_matrix:

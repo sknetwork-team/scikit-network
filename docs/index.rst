@@ -9,8 +9,6 @@ Welcome to scikit-network's documentation!
    installation
    usage
    reference/index
-   reference2
-   modules
    contributing
    authors
    history
