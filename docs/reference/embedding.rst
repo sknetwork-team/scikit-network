@@ -10,26 +10,26 @@ Spectral
 --------
 .. automodule:: sknetwork.embedding
 
-.. autoclass:: sknetwork.embedding.spectral.SpectralEmbedding
+.. autoclass:: sknetwork.embedding.SpectralEmbedding
     :members:
 
 SVD
 ---
 
-.. autoclass:: sknetwork.embedding.gsvd.GSVDEmbedding
+.. autoclass:: sknetwork.embedding.GSVDEmbedding
     :members:
 
 Metrics
 -------
-.. autofunction:: sknetwork.embedding.metrics.dot_modularity
+.. autofunction:: sknetwork.embedding.dot_modularity
 
-.. autofunction:: sknetwork.embedding.metrics.hscore
+.. autofunction:: sknetwork.embedding.hscore
 
 
 Randomized methods
 ------------------
-.. autofunction:: sknetwork.embedding.randomized_matrix_factorization.randomized_range_finder
+.. autofunction:: sknetwork.embedding.randomized_range_finder
 
-.. autofunction:: sknetwork.embedding.randomized_matrix_factorization.randomized_svd
+.. autofunction:: sknetwork.embedding.randomized_svd
 
-.. autofunction:: sknetwork.embedding.randomized_matrix_factorization.randomized_eig
+.. autofunction:: sknetwork.embedding.randomized_eig

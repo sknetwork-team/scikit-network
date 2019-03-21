@@ -9,36 +9,36 @@ Louvain
 -------
 .. automodule:: sknetwork.clustering
 
-.. autoclass:: sknetwork.clustering.louvain.Louvain
+.. autoclass:: sknetwork.clustering.Louvain
     :members:
 
-.. autoclass:: sknetwork.clustering.louvain.GreedyModularity
+.. autoclass:: sknetwork.clustering.GreedyModularity
     :members:
 
-.. autoclass:: sknetwork.clustering.louvain.GreedyModularityNumba
+.. autoclass:: sknetwork.clustering.GreedyModularityNumba
     :members:
 
 Louvain for bipartite graphs
 ----------------------------
 
-.. autoclass:: sknetwork.clustering.bilouvain.BiLouvain
+.. autoclass:: sknetwork.clustering.BiLouvain
     :members:
 
-.. autoclass:: sknetwork.clustering.bilouvain.GreedyBipartite
+.. autoclass:: sknetwork.clustering.GreedyBipartite
     :members:
 
-.. autoclass:: sknetwork.clustering.bilouvain.GreedyBipartiteNumba
+.. autoclass:: sknetwork.clustering.GreedyBipartiteNumba
     :members:
 
 
 Metrics
 -------
-.. autofunction:: sknetwork.clustering.metrics.modularity
+.. autofunction:: sknetwork.clustering.modularity
 
-.. autofunction:: sknetwork.clustering.metrics.bimodularity
+.. autofunction:: sknetwork.clustering.bimodularity
 
-.. autofunction:: sknetwork.clustering.metrics.cocitation_modularity
+.. autofunction:: sknetwork.clustering.cocitation_modularity
 
-.. autofunction:: sknetwork.clustering.metrics.performance
+.. autofunction:: sknetwork.clustering.performance
 
-.. autofunction:: sknetwork.clustering.metrics.cocitation_performance
+.. autofunction:: sknetwork.clustering.cocitation_performance

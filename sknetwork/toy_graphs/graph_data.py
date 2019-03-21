@@ -14,6 +14,7 @@ from scipy import sparse
 def house_graph():
     """
     House graph
+
     5 nodes, 6 edges
 
     Returns
@@ -30,7 +31,9 @@ def house_graph():
 def karate_club_graph():
     """
     Zachary's Karate Club Graph
+
     Data file from: http://vlado.fmf.uni-lj.si/pub/networks/data/Ucinet/UciData.htm
+
     34 nodes, 78 edges
 
     Returns
@@ -56,7 +59,7 @@ def karate_club_graph():
 
 def star_wars_villains_graph(return_labels=False):
     """
-    Bipartite graph connecting some Star Wars villains to the movies in which they appear.
+    Bipartite graph connecting some Star Wars villains to the movies in which they appear.\n
     7 nodes (4 villains, 3 movies), 8 edges
 
     Parameters

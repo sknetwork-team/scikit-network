@@ -47,7 +47,7 @@ class SpectralEmbedding:
         self.eigenvalues_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], node_weights=None,
-            randomized_decomposition: bool = True):
+            randomized_decomposition: bool = True) -> 'SpectralEmbedding':
         """Fits the model from data in adjacency_matrix
 
         Parameters

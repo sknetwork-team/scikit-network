@@ -5,5 +5,5 @@ Loader
 
 .. currentmodule:: sknetwork
 
-.. autoclass:: sknetwork.loader.parser.Parser
+.. autoclass:: sknetwork.loader.Parser
     :members:
