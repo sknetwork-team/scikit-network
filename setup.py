@@ -11,15 +11,15 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', 'numpy', 'networkx', 'scipy']
+requirements = ['Click>=6.0', 'numpy', 'scipy']
 
 setup_requirements = ['pytest-runner', ]
 
 test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
 setup(
-    author="Bertrand Charpentier",
-    author_email='bertrand.charpentier@live.fr',
+    author="Scikit-network team",
+    author_email='bonald@enst.fr',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
@@ -44,7 +44,7 @@ setup(
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/sknetwork-team/sknetwork',
-    version='0.1.1',
+    url='https://github.com/sknetwork-team/scikit-network',
+    version='0.2.0',
     zip_safe=False,
 )
