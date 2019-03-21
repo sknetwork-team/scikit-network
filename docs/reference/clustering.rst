@@ -5,8 +5,8 @@ Clustering
 
 .. currentmodule:: sknetwork
 
-Louvain Methods
----------------
+Louvain
+-------
 .. automodule:: sknetwork.clustering
 
 .. autoclass:: sknetwork.clustering.louvain.Louvain
@@ -17,6 +17,9 @@ Louvain Methods
 
 .. autoclass:: sknetwork.clustering.louvain.GreedyModularityNumba
     :members:
+
+Louvain for bipartite graphs
+----------------------------
 
 .. autoclass:: sknetwork.clustering.bilouvain.BiLouvain
     :members:

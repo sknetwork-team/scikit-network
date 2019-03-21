@@ -98,7 +98,7 @@ def reorder_dendrogram(dendrogram: np.ndarray) -> np.ndarray:
 
     Returns
     -------
-    dendrogram:
+    dendrogram: np.ndarray
         Reordered dendrogram.
     """
     n_nodes = np.shape(dendrogram)[0] + 1
@@ -278,7 +278,7 @@ class Paris:
 
         Returns
         -------
-        labels :
+        labels : np.ndarray
             Cluster index of each node.
         """
         if self.dendrogram_ is None:

@@ -6,14 +6,17 @@ Embedding
 .. currentmodule:: sknetwork
 
 
-Spectral embeddings
--------------------
+Spectral
+--------
 .. automodule:: sknetwork.embedding
 
-.. autoclass:: sknetwork.embedding.gsvd.GSVDEmbedding
+.. autoclass:: sknetwork.embedding.spectral.SpectralEmbedding
     :members:
 
-.. autoclass:: sknetwork.embedding.spectral.SpectralEmbedding
+SVD
+---
+
+.. autoclass:: sknetwork.embedding.gsvd.GSVDEmbedding
     :members:
 
 Metrics
@@ -23,7 +26,7 @@ Metrics
 .. autofunction:: sknetwork.embedding.metrics.hscore
 
 
-Randomized Methods
+Randomized methods
 ------------------
 .. autofunction:: sknetwork.embedding.randomized_matrix_factorization.randomized_range_finder
 

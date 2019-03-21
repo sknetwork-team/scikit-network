@@ -1,19 +1,22 @@
 .. _hierarchical_clustering:
 
-Hierarchical Clustering
+Hierarchical clustering
 ***********************
 
 .. currentmodule:: sknetwork
 
-Agglomerative approach
-----------------------
+Paris
+-----
 .. automodule:: sknetwork.hierarchy
 .. autosummary::
    :toctree: generated/
 
 .. autoclass:: sknetwork.hierarchy.paris.Paris
+    :members:
+
 
 Metrics
 -------
 .. autofunction:: sknetwork.hierarchy.metrics.dasgupta_cost
+
 .. autofunction:: sknetwork.hierarchy.metrics.tree_sampling_divergence

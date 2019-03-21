@@ -17,21 +17,21 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], partition: Union
     """
     Compute the modularity of a node partition.
 
-    :math:`Q = \sum_{ij}(\dfrac{A_{ij}}{w} - \gamma \dfrac{d_id_j}{w^2})\delta_{ij}`
+    :math:"Q = \sum_{ij}(\dfrac{A_{ij}}{w} - \gamma \dfrac{d_id_j}{w^2})\delta_{ij}"
 
     Parameters
     ----------
-    partition: dict or np.ndarray
+    partition : dict or np.ndarray
        The partition of the nodes. The keys of the dictionary correspond to the nodes and the values to the communities.
-    adjacency: scipy.csr_matrix or np.ndarray
+    adjacency : scipy.csr_matrix or np.ndarray
         The adjacency matrix of the graph (sparse or dense).
-    resolution: float, optional (default=1.)
+    resolution : float, optional (default=1.)
         The resolution parameter in the modularity function.
 
     Returns
     -------
-    : float
-       The modularity.
+    modularity : float
+        The modularity.
     """
 
     if type(adjacency) == sparse.csr_matrix:
@@ -83,7 +83,7 @@ def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feat
 
     Returns
     -------
-    : float
+    bimodularity: float
         The bimodularity
     """
     n_samples, n_features = biadjacency.shape
@@ -107,7 +107,7 @@ def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feat
     return fit - resolution * div
 
 
-def cocitation_modularity(adjacency, partition, resolution: float=1) -> float:
+def cocitation_modularity(adjacency, partition, resolution: float = 1) -> float:
     """
     Compute the modularity of a node partition on the normalized cocitation graph
     associated to a network without explicit computation of the cocitation graph.
@@ -125,7 +125,7 @@ def cocitation_modularity(adjacency, partition, resolution: float=1) -> float:
 
     Returns
     -------
-    : float
+    modularity: float
        The modularity on the normalized cocitation graph.
     """
 
