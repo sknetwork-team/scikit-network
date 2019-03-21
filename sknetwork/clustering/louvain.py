@@ -344,6 +344,26 @@ class GreedyModularityNumba(Optimizer):
 class Louvain:
     """Louvain algorithm for graph clustering in Python (default) and Numba.
 
+    Parameters
+    ----------
+    algorithm:
+        The optimization algorithm.
+        Requires a fit method.
+        Requires score_  and labels_ attributes.
+    resolution:
+        Resolution parameter.
+    tol:
+        Minimum increase in the objective function to enter a new optimization pass.
+    shuffle_nodes:
+        If True, shuffle the nodes before each optimization pass.
+    agg_tol:
+        Minimum increase in the objective function to enter a new aggregation pass.
+    max_agg_iter:
+        Maximum number of aggregations.
+        A negative value is interpreted as no limit.
+    verbose:
+        Verbose mode.
+
     Attributes
     ----------
     labels_: np.ndarray
@@ -372,28 +392,7 @@ class Louvain:
 
     def __init__(self, algorithm: Union[str, Optimizer] = default, resolution: float = 1, tol: float = 1e-3,
                  shuffle_nodes: bool = False, agg_tol: float = 1e-3, max_agg_iter: int = -1, verbose: bool = False):
-        """
 
-        Parameters
-        ----------
-        algorithm:
-            The optimization algorithm.
-            Requires a fit method.
-            Requires score_  and labels_ attributes.
-        resolution:
-            Resolution parameter.
-        tol:
-            Minimum increase in the objective function to enter a new optimization pass.
-        shuffle_nodes:
-            If True, shuffle the nodes before each optimization pass.
-        agg_tol:
-            Minimum increase in the objective function to enter a new aggregation pass.
-        max_agg_iter:
-            Maximum number of aggregations.
-            A negative value is interpreted as no limit.
-        verbose:
-            Verbose mode.
-        """
         if type(algorithm) == str:
             if algorithm == "numba":
                 self.algorithm = GreedyModularityNumba(resolution, tol, shuffle_nodes)
