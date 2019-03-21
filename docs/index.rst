@@ -1,3 +1,8 @@
+.. figure:: ../sknetwork/../logo_sknetwork.png
+    :align: right
+    :width: 200px
+    :alt: logo sknetwork
+
 Welcome to scikit-network's documentation!
 ==========================================
 

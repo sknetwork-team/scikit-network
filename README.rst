@@ -1,3 +1,8 @@
+.. figure:: ../logo_sknetwork.png
+    :align: right
+    :width: 100px
+    :alt: logo sknetwork
+
 ==============
 scikit-network
 ==============
