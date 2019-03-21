@@ -16,5 +16,4 @@ Agglomerative approach
 Metrics
 -------
 .. autofunction:: sknetwork.hierarchy.metrics.dasgupta_cost
-
 .. autofunction:: sknetwork.hierarchy.metrics.tree_sampling_divergence
