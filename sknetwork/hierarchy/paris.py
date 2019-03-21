@@ -139,7 +139,7 @@ class Paris:
     Notes
     -----
     Each row of the dendrogram = i, j, height, size of cluster i + j.
-    The similarity between clusters i,j is :math:`\dfrac{w_{ij}}{w_i w_j}` where
+    The similarity between clusters i,j is :math:`\\dfrac{w_{ij}}{w_i w_j}` where
     :math:`w_{ij}` is the weight of edge i,j, if any, and 0 otherwise,
     :math:`w_{i}` is the weight of cluster i
     :math:`w_{j}` is the weight of cluster j

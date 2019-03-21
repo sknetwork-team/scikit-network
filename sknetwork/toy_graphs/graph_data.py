@@ -59,10 +59,15 @@ def star_wars_villains_graph(return_labels=False):
     Bipartite graph connecting some Star Wars villains to the movies in which they appear.
     7 nodes (4 villains, 3 movies), 8 edges
 
+    Parameters
+    ----------
+    return_labels: bool
+        whether to return the labels of the nodes as dictionaries.
+
     Returns
     -------
     biadjacency: sparse.csr_matrix
-        Bi-adjacency matrix of the graph.
+        Biadjacency matrix of the graph.
     """
     row = np.array([0, 0, 1, 2, 2, 2, 3, 3])
     col = np.array([0, 2, 0, 0, 1, 2, 1, 2])

@@ -17,7 +17,7 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], partition: Union
     """
     Compute the modularity of a node partition.
 
-    :math:"Q = \sum_{ij}(\dfrac{A_{ij}}{w} - \gamma \dfrac{d_id_j}{w^2})\delta_{ij}"
+    :math:`Q = \\sum_{ij}(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})\\delta_{ij}`
 
     Parameters
     ----------
@@ -68,7 +68,7 @@ def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feat
     """
     Modularity for bipartite graphs.
 
-    :math:`Q = \sum_{ij}(\dfrac{B_{ij}}{w} - \gamma \dfrac{d_if_j}{w^2})\delta_{ij}`
+    :math:`Q = \\sum_{ij}(\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{d_if_j}{w^2})\\delta_{ij}`
 
     Parameters
     ----------
@@ -112,7 +112,7 @@ def cocitation_modularity(adjacency, partition, resolution: float = 1) -> float:
     Compute the modularity of a node partition on the normalized cocitation graph
     associated to a network without explicit computation of the cocitation graph.
 
-    :math:`Q = \sum_{ij}(\dfrac{(AF^{-1}A^T)_{ij}}{w} - \gamma \dfrac{d_id_j}{w^2})\delta_{ij}`
+    :math:`Q = \\sum_{ij}(\\dfrac{(AF^{-1}A^T)_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})\\delta_{ij}`
 
     Parameters
     ----------

@@ -21,7 +21,7 @@ def dot_modularity(adjacency_matrix, embedding: np.ndarray, features=None, resol
     Difference of the weighted average dot product between embeddings of pairs of neighbors in the graph
     (fit term) and pairs of nodes in the graph (diversity term).
 
-    :math:r`Q = \sum_{ij}(\dfrac{A_{ij}}{w} - \gamma \dfrac{d_id_j}{w^2})x_i^Tx_j`
+    :math:r`Q = \\sum_{ij}(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})x_i^Tx_j`
 
     This metric is normalized to lie between -1 and 1.
     If the embeddings are normalized, this reduces to the cosine modularity.

@@ -5,8 +5,9 @@ Created on Dec 5, 2018
 @author: Quentin Lutz <qlutz@enst.fr>, Nathan de Lara <ndelara@enst.fr>
 """
 
-from scipy import sparse
 import numpy as np
+from scipy import sparse
+from typing import Union
 
 
 class Parser:
@@ -16,23 +17,32 @@ class Parser:
     """
 
     @staticmethod
-    def parse_tsv(path, directed=False, bipartite=False, weighted=False, labeled=False, offset=1):
+    def parse_tsv(path, directed: bool = False, bipartite: bool = False, weighted: bool = False, labeled: bool = False,
+                  offset: int = 1) -> Union[sparse.csr_matrix, tuple]:
         """
         A parser for Tabulation-Separated Values (TSV) datasets.
 
         Parameters
         ----------
-        path : str, the path to the dataset in TSV format
-        directed : bool, ensures the adjacency matrix is symmetric
-        bipartite : bool, if True, returns the biadjacency matrix of shape (n1, n2)
-        weighted : bool, retrieves the weights in the third field of the file, raises an error if no such field exists
-        labeled : bool, retrieves the names given to the nodes and renumbers them. Returns an additional array
-        offset : int, renumbers the nodes (useful if the nodes are indexed from a given value other than 0)
+        path : str
+            the path to the dataset in TSV format
+        directed : bool
+            ensures the adjacency matrix is symmetric
+        bipartite : bool
+            if True, returns the biadjacency matrix of shape (n1, n2)
+        weighted : bool
+            retrieves the weights in the third field of the file, raises an error if no such field exists
+        labeled : bool
+            retrieves the names given to the nodes and renumbers them. Returns an additional array
+        offset : int
+            renumbers the nodes (useful if the nodes are indexed from a given value other than 0)
 
         Returns
         -------
-        adj_matrix : csr_matrix, the adjacency_matrix of the graph
-        labels : numpy.array, optional, an array such that labels[k] is the label given to the k-th node
+        adj_matrix : csr_matrix
+            the adjacency_matrix of the graph
+        labels : numpy.array
+            optional, an array such that labels[k] is the label given to the k-th node
 
         """
         parsed_file = np.loadtxt(path, dtype=str, unpack=True, comments='%')

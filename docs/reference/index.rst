@@ -8,3 +8,5 @@ Reference
     embedding
     clustering
     hierarchy
+    loader
+    toy_graphs

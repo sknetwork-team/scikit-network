@@ -47,8 +47,8 @@ class GSVDEmbedding:
         Parameters
         ----------
         adjacency: array-like, shape = (n, m)
-            Adjacency matrix, where n = m = \|V\| for a standard graph,
-            n = \|V1\|, m = \|V2\| for a bipartite graph.
+            Adjacency matrix, where n = m is the number of nodes for a standard directed or undirected graph,
+            n is the cardinal of V1 and m is the cardinal of V2 for a bipartite graph.
         randomized_decomposition:
             whether to use a randomized (and faster) svd method or the standard scipy one.
         n_iter: int or ``'auto'`` (default is ``'auto'``)
