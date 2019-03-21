@@ -1,4 +1,4 @@
-.. figure:: ../logo_sknetwork.png
+.. figure:: ./logo_sknetwork.png
     :align: right
     :width: 100px
     :alt: logo sknetwork
