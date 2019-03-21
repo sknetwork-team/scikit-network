@@ -4,7 +4,7 @@
 
 __author__ = """scikit-network team"""
 __email__ = "bonald@enst.fr"
-__version__ = '0.1.2'
+__version__ = '0.2.0'
 
 from scipy.sparse.csgraph import *
 from sknetwork.toy_graphs import *
