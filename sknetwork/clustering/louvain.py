@@ -349,7 +349,7 @@ class Louvain:
     algorithm:
         The optimization algorithm.
         Requires a fit method.
-        Requires score_  and labels_ attributes.
+        Requires score\_  and labels\_ attributes.
     resolution:
         Resolution parameter.
     tol:
