@@ -1,3 +1,8 @@
+.. figure:: ../sknetwork/../logo_sknetwork.png
+    :align: right
+    :width: 200px
+    :alt: logo sknetwork
+
 Welcome to scikit-network's documentation!
 ==========================================
 
@@ -9,8 +14,6 @@ Welcome to scikit-network's documentation!
    installation
    usage
    reference/index
-   reference2
-   modules
    contributing
    authors
    history

@@ -1,13 +1,9 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# test for metrics.py
-#
-# Copyright 2018 Scikit-network Developers.
-# Copyright 2018 Nathan de Lara <ndelara@enst.fr>
-#
-# This file is part of Scikit-network.
+"""tests for embeddings"""
 
 import unittest
-from sknetwork.embedding.svd import ForwardBackwardEmbedding
+from sknetwork.embedding.gsvd import GSVDEmbedding
 from sknetwork.embedding.spectral import SpectralEmbedding
 from scipy import sparse
 import numpy as np
@@ -20,13 +16,22 @@ class TestClusteringMetrics(unittest.TestCase):
                                                  [1, 0, 0, 0],
                                                  [1, 0, 0, 1],
                                                  [1, 0, 1, 0]]))
+        self.bipartite = sparse.csr_matrix(np.array([[1, 0, 1],
+                                                     [1, 0, 0],
+                                                     [1, 1, 1],
+                                                     [0, 1, 1]]))
 
-    def test_forwardbackward(self):
-        fb = ForwardBackwardEmbedding(2)
-        fb.fit(self.graph)
-        self.assertTrue(fb.embedding_.shape == (4, 2))
-        self.assertTrue(fb.backward_embedding_.shape == (4, 2))
-        self.assertTrue(type(fb.singular_values_) == np.ndarray and len(fb.singular_values_) == 2)
+    def test_gsvd(self):
+        gsvd = GSVDEmbedding(2)
+        gsvd.fit(self.graph)
+        self.assertTrue(gsvd.embedding_.shape == (4, 2))
+        self.assertTrue(gsvd.features_.shape == (4, 2))
+        self.assertTrue(type(gsvd.singular_values_) == np.ndarray and len(gsvd.singular_values_) == 2)
+
+        gsvd.fit(self.bipartite)
+        self.assertTrue(gsvd.embedding_.shape == (4, 2))
+        self.assertTrue(gsvd.features_.shape == (3, 2))
+        self.assertTrue(type(gsvd.singular_values_) == np.ndarray and len(gsvd.singular_values_) == 2)
 
     def test_spectral(self):
         sp = SpectralEmbedding(2)

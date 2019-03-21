@@ -2,30 +2,30 @@
 # -*- coding: utf-8 -*-
 """
 Created on Oct 12 2018
-
 @author: Nathan de Lara <ndelara@enst.fr>
-
-Part of this code was adapted from the scikit-learn project.
+Part of this code was adapted from the scikit-learn project: https://scikit-learn.org/stable/.
 """
 
 import numpy as np
 from numpy.random import mtrand
 from scipy import sparse, linalg
 from scipy.sparse import linalg as splinalg
+from typing import Union
 
 
 def safe_sparse_dot(a, b, dense_output=False):
     """
-    Dot product that handle the sparse matrix case correctly
-    Uses BLAS GEMM as replacement for numpy.dot where possible
+    Dot product that handle the sparse matrix case correctly. Uses BLAS GEMM as replacement for numpy.dot where possible
     to avoid unnecessary copies.
+
     Parameters
     ----------
-    a : array or sparse matrix
-    b : array or sparse matrix
-    dense_output : boolean, default False
-        When False, either ``a`` or ``b`` being sparse will yield sparse
-        output. When True, output will always be an array.
+    a: array or sparse matrix
+    b: array or sparse matrix
+    dense_output: bool (default= ``False``)
+        When False, either ``a`` or ``b`` being sparse will yield sparse output.
+        When True, output will always be an array.
+
     Returns
     -------
     dot_product : array or sparse matrix
@@ -42,6 +42,7 @@ def safe_sparse_dot(a, b, dense_output=False):
 
 def check_random_state(seed):
     """Turn seed into a np.random.RandomState instance
+
     Parameters
     ----------
     seed : None | int | instance of RandomState
@@ -51,6 +52,7 @@ def check_random_state(seed):
         Otherwise raise ValueError.
     """
     if seed is None or seed is np.random:
+        # noinspection PyProtectedMember
         return mtrand._rand
     if isinstance(seed, np.integer) or isinstance(seed, int):
         return np.random.RandomState(seed)
@@ -63,44 +65,46 @@ def check_random_state(seed):
 def randomized_range_finder(matrix, size, n_iter, power_iteration_normalizer='auto', random_state=None,
                             return_all: bool = False) -> [np.ndarray, tuple]:
     """Computes an orthonormal matrix whose range approximates the range of A.
+
     Parameters
     ----------
     matrix : two dimensional array
         The input data matrix
     size : integer
         Size of the return array
-    n_iter : integer
-        Number of power iterations used to stabilize the result
-    power_iteration_normalizer : 'auto' (default), 'QR', 'LU', 'none'
-        Whether the power iterations are normalized with step-by-step
-        QR factorization (the slowest but most accurate), 'none'
-        (the fastest but numerically unstable when `n_iter` is large, e.g.
-        typically 5 or larger), or 'LU' factorization (numerically stable
-        but can lose slightly in accuracy). The 'auto' mode applies no
-        normalization if `n_iter`<=2 and switches to LU otherwise.
-        .. versionadded:: 0.18
-    random_state : int, RandomState instance or None, optional (default=None)
+    n_iter : int
+        Number of power iterations. It can be used to deal with very noisy
+        problems. When 'auto', it is set to 4, unless ``size`` is small
+        (< .1 * min(matrix.shape)) in which case ``n_iter`` is set to 7.
+        This improves precision with few components.
+    power_iteration_normalizer: ``'auto'`` (default), ``'QR'``, ``'LU'``, ``None``
+            Whether the power iterations are normalized with step-by-step
+            QR factorization (the slowest but most accurate), ``None``
+            (the fastest but numerically unstable when ``n_iter`` is large, e.g.
+            typically 5 or larger), or ``'LU'`` factorization (numerically stable
+            but can lose slightly in accuracy). The ``'auto'`` mode applies no
+            normalization if ``n_iter`` <= 2 and switches to ``'LU'`` otherwise.
+    random_state: int, RandomState instance or ``None``, optional (default= ``None``)
         The seed of the pseudo random number generator to use when shuffling
         the data.  If int, random_state is the seed used by the random number
         generator; If RandomState instance, random_state is the random number
-        generator; If None, the random number generator is the RandomState
+        generator; If ``None``, the random number generator is the RandomState
         instance used by `np.random`.
     return_all : if True, returns (range_matrix, random_matrix, random_proj)
                 else returns range_matrix.
+
     Returns
     -------
     range_matrix : 2D array
         matrix (size x size) projection matrix, the range of which
         approximates well the range of the input matrix.
+
     Notes
     -----
     Follows Algorithm 4.3 of
-    Finding structure with randomness: Stochastic algorithms for constructing
-    approximate matrix decompositions
+
+    Finding structure with randomness: Stochastic algorithms for constructing approximate matrix decompositions
     Halko, et al., 2009 (arXiv:909) http://arxiv.org/pdf/0909.4061
-    An implementation of a randomized algorithm for principal component
-    analysis
-    A. Szlam et al. 2014
     """
     random_state = check_random_state(random_state)
 
@@ -149,19 +153,19 @@ def svd_flip(u, v, u_based_decision=True):
     """Sign correction to ensure deterministic output from SVD.
     Adjusts the columns of u and the rows of v such that the loadings in the
     columns in u that are largest in absolute value are always positive.
+
     Parameters
     ----------
-    u, v : ndarray
-        u and v are the output of `linalg.svd` or
-        `sklearn.utils.extmath.randomized_svd`, with matching inner dimensions
-        so one can compute `np.dot(u * s, v)`.
-    u_based_decision : boolean, (default=True)
+    u, v: np.ndarray
+        u and v are the output of the svd, with matching inner dimensions so one can compute `np.dot(u * s, v)`.
+    u_based_decision : bool, (default=True)
         If True, use the columns of u as the basis for sign flipping.
-        Otherwise, use the rows of v. The choice of which variable to base the
-        decision on is generally algorithm dependent.
+        Otherwise, use the rows of v.
+        The choice of which variable to base the decision on is generally algorithm dependent.
+
     Returns
     -------
-    u_adjusted, v_adjusted : arrays with the same dimensions as the input.
+    u_adjusted, v_adjusted: arrays with the same dimensions as the input.
     """
     if u_based_decision:
         # columns of u, rows of v
@@ -180,65 +184,53 @@ def svd_flip(u, v, u_based_decision=True):
 
 
 def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='auto', transpose='auto',
-                   power_iteration_normalizer='auto', flip_sign: bool = True, random_state=0):
+                   power_iteration_normalizer: Union[str, None] = 'auto', flip_sign: bool = True, random_state=0):
     """Computes a truncated randomized SVD
+
         Parameters
         ----------
         matrix : ndarray or sparse matrix
             Matrix to decompose
         n_components : int
             Number of singular values and vectors to extract.
-        n_oversamples : int (default is 10)
+        n_oversamples : int (default=10)
             Additional number of random vectors to sample the range of M so as
             to ensure proper conditioning. The total number of random vectors
             used to find the range of M is embedding_dimension + n_oversamples. Smaller
             number can improve speed but can negatively impact the quality of
             approximation of singular vectors and singular values.
         n_iter : int or 'auto' (default is 'auto')
-            Number of power iterations. It can be used to deal with very noisy
-            problems. When 'auto', it is set to 4, unless `embedding_dimension` is small
-            (< .1 * min(X.shape)) `n_iter` in which case is set to 7.
-            This improves precision with few components.
-            .. versionchanged:: 0.18
-        power_iteration_normalizer : 'auto' (default), 'QR', 'LU', 'none'
-            Whether the power iterations are normalized with step-by-step
-            QR factorization (the slowest but most accurate), 'none'
-            (the fastest but numerically unstable when `n_iter` is large, e.g.
-            typically 5 or larger), or 'LU' factorization (numerically stable
-            but can lose slightly in accuracy). The 'auto' mode applies no
-            normalization if `n_iter`<=2 and switches to LU otherwise.
-            .. versionadded:: 0.18
+            See :meth:`randomized_range_finder`
+        power_iteration_normalizer : ``'auto'`` (default), ``'QR'``, ``'LU'``, ``None``
+            See :meth:`randomized_range_finder`
         transpose : True, False or 'auto' (default)
-            Whether the algorithm should be applied to M.T instead of M. The
+            Whether the algorithm should be applied to ``matrix.T`` instead of ``matrix``. The
             result should approximately be the same. The 'auto' mode will
-            trigger the transposition if M.shape[1] > M.shape[0] since this
-            implementation of randomized SVD tend to be a little faster in that
-            case.
-            .. versionchanged:: 0.18
-        flip_sign : boolean, (True by default)
+            trigger the transposition if ``matrix.shape[1] > matrix.shape[0]`` since this
+            implementation of randomized SVD tends to be a little faster in that case.
+        flip_sign : boolean, (default=True)
             The output of a singular value decomposition is only unique up to a
             permutation of the signs of the singular vectors. If `flip_sign` is
             set to `True`, the sign ambiguity is resolved by making the largest
             loadings for each component in the left singular vectors positive.
         random_state : int, RandomState instance or None, optional (default=None)
-            The seed of the pseudo random number generator to use when shuffling
-            the data.  If int, random_state is the seed used by the random number
-            generator; If RandomState instance, random_state is the random number
-            generator; If None, the random number generator is the RandomState
-            instance used by `np.random`.
+            See :meth:`randomized_range_finder`
+
         Notes
         -----
         This algorithm finds a (usually very good) approximate truncated
         singular value decomposition using randomization to speed up the
         computations. It is particularly fast on large matrices on which
         you wish to extract only a small number of components. In order to
-        obtain further speed up, `n_iter` can be set <=2 (at the cost of
+        obtain further speed up, ``n_iter`` can be set <=2 (at the cost of
         loss of precision).
+
         References
         ----------
         * Finding structure with randomness: Stochastic algorithms for constructing
           approximate matrix decompositions
           Halko, et al., 2009 http://arxiv.org/abs/arXiv:0909.4061
+          (algorithm 5.1)
         * A randomized algorithm for the decomposition of matrices
           Per-Gunnar Martinsson, Vladimir Rokhlin and Mark Tygert
         * An implementation of a randomized algorithm for principal component
@@ -294,46 +286,40 @@ def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='a
 
 
 def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 10, n_iter='auto',
-                   power_iteration_normalizer='auto', random_state=0):
+                   power_iteration_normalizer: Union[str, None] = 'auto', random_state=0, one_pass: bool = False):
     """Computes a randomized eigenvalue decomposition.
+
     Parameters
     ----------
     matrix: ndarray or sparse matrix
-            Matrix to decompose
+        Matrix to decompose
     n_components: int
-            Number of singular values and vectors to extract.
-    which: which eigenvalues to compute. 'SM' for Smallest Magnitude,
-            any other entry will result in Smallest Magnitude.
-    n_oversamples : int (default is 10)
-            Additional number of random vectors to sample the range of M so as
-            to ensure proper conditioning. The total number of random vectors
-            used to find the range of M is embedding_dimension + n_oversamples. Smaller
-            number can improve speed but can negatively impact the quality of
-            approximation of singular vectors and singular values.
+        Number of singular values and vectors to extract.
+    which: str
+        which eigenvalues to compute. ``'LM'`` for Largest Magnitude and ``'SM'`` for Smallest Magnitude.
+        Any other entry will result in Largest Magnitude.
+    n_oversamples : int (default=10)
+        Additional number of random vectors to sample the range of ``matrix`` so as
+        to ensure proper conditioning. The total number of random vectors
+        used to find the range of ``matrix`` is ``n_components + n_oversamples``. Smaller number can improve speed
+        but can negatively impact the quality of approximation of singular vectors and singular values.
     n_iter: int or 'auto' (default is 'auto')
-            Number of power iterations. It can be used to deal with very noisy
-            problems. When 'auto', it is set to 4, unless `embedding_dimension` is small
-            (< .1 * min(X.shape)) `n_iter` in which case is set to 7.
-            This improves precision with few components.
-            .. versionchanged:: 0.18
-    power_iteration_normalizer: 'auto' (default), 'QR', 'LU', 'none'
-            Whether the power iterations are normalized with step-by-step
-            QR factorization (the slowest but most accurate), 'none'
-            (the fastest but numerically unstable when `n_iter` is large, e.g.
-            typically 5 or larger), or 'LU' factorization (numerically stable
-            but can lose slightly in accuracy). The 'auto' mode applies no
-            normalization if `n_iter`<=2 and switches to LU otherwise.
-            .. versionadded:: 0.18
+        See :meth:`randomized_range_finder`
+    power_iteration_normalizer: ``'auto'`` (default), ``'QR'``, ``'LU'``, ``None``
+        See :meth:`randomized_range_finder`
     random_state: int, RandomState instance or None, optional (default=None)
-            The seed of the pseudo random number generator to use when shuffling
-            the data.  If int, random_state is the seed used by the random number
-            generator; If RandomState instance, random_state is the random number
-            generator; If None, the random number generator is the RandomState
-            instance used by `np.random`.
+        See :meth:`randomized_range_finder`
+    one_pass: bool (default=False)
+        whether to use algorithm 5.6 instead of 5.3. 5.6 requires less access to the original matrix,
+        while 5.3 is more accurate.
 
     Returns
     -------
-
+    References
+    ----------
+    Finding structure with randomness: Stochastic algorithms for constructing
+    approximate matrix decompositions
+    Halko, et al., 2009 http://arxiv.org/abs/arXiv:0909.4061
     """
 
     random_state = check_random_state(random_state)
@@ -356,7 +342,10 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
 
     range_matrix, random_matrix, random_proj = randomized_range_finder(matrix, n_random, n_iter,
                                                                        power_iteration_normalizer, random_state, True)
-    approx_matrix = np.linalg.lstsq(random_matrix.T.dot(range_matrix), random_proj.T.dot(range_matrix), None)[0].T
+    if one_pass:
+        approx_matrix = np.linalg.lstsq(random_matrix.T.dot(range_matrix), random_proj.T.dot(range_matrix), None)[0].T
+    else:
+        approx_matrix = (matrix.dot(range_matrix)).T.dot(range_matrix)
 
     eigenvalues, eigenvectors = np.linalg.eig(approx_matrix)
 

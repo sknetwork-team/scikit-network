@@ -1,3 +1,8 @@
+.. figure:: ../logo_sknetwork.png
+    :align: right
+    :width: 100px
+    :alt: logo sknetwork
+
 ==============
 scikit-network
 ==============
@@ -25,11 +30,25 @@ Graph algorithms
 * Documentation: https://scikit-network.readthedocs.io.
 
 
-Features
---------
+How to use scikit-network?
+--------------------------
 
-* Embedding
-* Clustering
-* Hierarchy
+Graphs have a unified format, namely ``scipy.sparse.csr_matrix``.
+
+
+About the documentation
+-----------------------
+
+We use the following notations in the documentation:
+
+* :math:`A` denotes the adjacency matrix for undirected and directed graphs.
+
+* :math:`B` denotes the biadjacency matrix for bipartite graphs (possibly non-square).
+
+* :math:`d = A1` or :math:`B1` is the out-degree vector and :math:`D = \text{diag}(d)` the associated diagonal matrix.
+
+* :math:`f = A^T1` or :math:`B^T1` is the in-degree vector and :math:`F = \text{diag}(f)` the associated diagonal matrix.
+
+* :math:`w = 1^TA1` or :math:`1 ^TB1` is the total weight of the graph.
 
 
