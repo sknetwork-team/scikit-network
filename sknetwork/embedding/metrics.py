@@ -21,7 +21,7 @@ def dot_modularity(adjacency_matrix, embedding: np.ndarray, features=None, resol
     Difference of the weighted average dot product between embeddings of pairs of neighbors in the graph
     (fit term) and pairs of nodes in the graph (diversity term).
 
-    :math:r`Q = \\sum_{ij}(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})x_i^Tx_j`
+    :math:`Q = \\sum_{ij}(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})x_i^Tx_j`
 
     This metric is normalized to lie between -1 and 1.
     If the embeddings are normalized, this reduces to the cosine modularity.
@@ -39,7 +39,7 @@ def dot_modularity(adjacency_matrix, embedding: np.ndarray, features=None, resol
     weights: ``'degree'`` or ``'uniform'``
         prior distribution on the nodes
 
-    return_all: bool (default = ``False``)
+    return_all: bool, default = ``False``
         whether to return (fit, diversity) or fit - diversity
 
     Returns
@@ -95,7 +95,7 @@ def hscore(adjacency_matrix, embedding: np.ndarray, order='second', return_all: 
     order: \'first\' or \'second\'.
         The order of the node similarity metric to use. First-order corresponds to edges weights while second-order
         corresponds to the weights of the edges in the normalized cocitation graph.
-    return_all: bool (default = ``False``)
+    return_all: bool, default = ``False``
         whether to return (fit, diversity) or hmean(fit, diversity)
 
     Returns

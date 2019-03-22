@@ -24,6 +24,13 @@ class NormalizedGraph:
     """
     A class of graphs suitable for the Louvain algorithm. Each node represents a cluster.
 
+    Parameters
+    ----------
+    adjacency :
+        Adjacency matrix of the graph.
+    node_probs :
+        Distribution of node weights (sums to 1), used in the second term of modularity.
+
     Attributes
     ----------
     n_nodes: int
@@ -35,14 +42,6 @@ class NormalizedGraph:
     """
 
     def __init__(self, adjacency: sparse.csr_matrix, node_probs: np.ndarray):
-        """
-        Parameters
-        ----------
-        adjacency :
-            Adjacency matrix of the graph.
-        node_probs :
-            Distribution of node weights (sums to 1), used in the second term of modularity.
-        """
         self.n_nodes = adjacency.shape[0]
         self.norm_adjacency = adjacency / adjacency.data.sum()
         self.node_probs = node_probs.copy()
@@ -98,20 +97,18 @@ class Optimizer:
 class GreedyModularity(Optimizer):
     """
     A greedy modularity optimizer.
+
+    Parameters
+    ----------
+    resolution:
+         Resolution parameter (positive)
+    tol:
+        Minimum increase in modularity to enter a new optimization pass.
+    shuffle_nodes:
+        If true, shuffle the nodes before starting a new optimization pass.
     """
 
     def __init__(self, resolution: float = 1, tol: float = 1e-3, shuffle_nodes: bool = False):
-        """
-
-        Parameters
-        ----------
-        resolution:
-             Resolution parameter (positive)
-        tol:
-            Minimum increase in modularity to enter a new optimization pass.
-        shuffle_nodes:
-            If true, shuffle the nodes before starting a new optimization pass.
-        """
         Optimizer.__init__(self)
         self.resolution = resolution
         self.tol = tol
@@ -290,6 +287,15 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
 class GreedyModularityNumba(Optimizer):
     """A greedy modularity optimizer using Numba for enhanced performance.
 
+    Parameters
+    ----------
+    resolution:
+        Modularity resolution.
+    tol:
+        Minimum increase in modularity to enter a new optimization pass.
+    shuffle_nodes:
+        If True, shuffle the nodes before each optimization pass.
+
     Attributes
     ----------
     labels_:
@@ -303,17 +309,6 @@ class GreedyModularityNumba(Optimizer):
     """
 
     def __init__(self, resolution: float = 1, tol: float = 1e-3, shuffle_nodes: bool = False):
-        """
-
-        Parameters
-        ----------
-        resolution:
-            Modularity resolution.
-        tol:
-            Minimum increase in modularity to enter a new optimization pass.
-        shuffle_nodes:
-            If True, shuffle the nodes before each optimization pass.
-        """
         Optimizer.__init__(self)
         self.resolution = resolution
         self.tol = tol
@@ -349,7 +344,7 @@ class Louvain:
     algorithm:
         The optimization algorithm.
         Requires a fit method.
-        Requires score_  and labels_ attributes.
+        Requires `score\\_`  and `labels\\_` attributes.
     resolution:
         Resolution parameter.
     tol:
@@ -388,6 +383,7 @@ class Louvain:
     Blondel, V. D., Guillaume, J. L., Lambiotte, R., & Lefebvre, E. (2008).
     Fast unfolding of communities in large networks.
     Journal of statistical mechanics: theory and experiment, 2008
+    https://arxiv.org/abs/0803.0476
     """
 
     def __init__(self, algorithm: Union[str, Optimizer] = default, resolution: float = 1, tol: float = 1e-3,
