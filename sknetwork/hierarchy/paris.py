@@ -16,6 +16,13 @@ class AggregateGraph:
     """
     A class of graph suitable for aggregation. Each node represents a cluster.
 
+    Parameters
+    ----------
+    adjacency :
+        Adjacency matrix of the graph.
+    node_probs :
+        Distribution of node weights.
+
     Attributes
     ----------
     graph : dict[dict]
@@ -29,15 +36,6 @@ class AggregateGraph:
     """
 
     def __init__(self, adjacency: sparse.csr_matrix, node_probs: np.ndarray):
-        """
-
-        Parameters
-        ----------
-        adjacency :
-            Adjacency matrix of the graph.
-        node_probs :
-            Distribution of node weights.
-    """
         n_nodes = adjacency.shape[0]
         total_weight = adjacency.data.sum()
 

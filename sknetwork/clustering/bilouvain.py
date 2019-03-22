@@ -23,6 +23,11 @@ class BipartiteGraph:
     """
     A class of graphs suitable for the BiLouvain algorithm.
 
+    Parameters
+    ----------
+    biadjacency:
+        biadjacency matrix of the graph.
+
     Attributes
     ----------
     n_samples: int,
@@ -37,12 +42,6 @@ class BipartiteGraph:
     """
 
     def __init__(self, biadjacency: sparse.csr_matrix):
-        """
-
-        Parameters
-        ----------
-        biadjacency: biadjacency matrix of the graph as SciPy sparse matrix
-        """
         self.n_samples: int = biadjacency.shape[0]
         self.n_features: int = biadjacency.shape[1]
         self.norm_adjacency: sparse.csr_matrix = biadjacency / biadjacency.data.sum()
@@ -341,6 +340,24 @@ class BiLouvain:
     """
     BiLouvain algorithm for graph clustering in Python (default) and Numba.
 
+    Parameters
+    ----------
+    algorithm:
+        The optimization algorithm.
+        Requires a fit method.
+        Requires `score\\_`, `sample_labels\\_`,  and `labels\\_` attributes.
+    resolution:
+        Resolution parameter.
+    tol:
+        Minimum increase in the objective function to enter a new optimization pass.
+    agg_tol:
+        Minimum increase in the objective function to enter a new aggregation pass.
+    max_agg_iter:
+        Maximum number of aggregations.
+        A negative value is interpreted as no limit.
+    verbose:
+        Verbose mode.
+
     Attributes
     ----------
     sample_labels_: np.ndarray
@@ -359,25 +376,6 @@ class BiLouvain:
 
     def __init__(self, algorithm: Union[str, BiOptimizer] = default, resolution: float = 1, tol: float = 1e-3,
                  agg_tol: float = 1e-3, max_agg_iter: int = -1, verbose: bool = False):
-        """
-        Parameters
-        ----------
-        algorithm:
-            The optimization algorithm.
-            Requires a fit method.
-            Requires score_, sample_labels_,  and labels_ attributes.
-        resolution:
-            Resolution parameter.
-        tol:
-            Minimum increase in the objective function to enter a new optimization pass.
-        agg_tol:
-            Minimum increase in the objective function to enter a new aggregation pass.
-        max_agg_iter:
-            Maximum number of aggregations.
-            A negative value is interpreted as no limit.
-        verbose:
-            Verbose mode.
-        """
         if type(algorithm) == str:
             if algorithm == "numba":
                 self.algorithm = GreedyBipartiteNumba(resolution, tol)

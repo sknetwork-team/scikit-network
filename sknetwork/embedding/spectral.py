@@ -37,6 +37,7 @@ class SpectralEmbedding:
         References
         ----------
         * Weighted Spectral Embedding, T. Bonald
+          https://arxiv.org/abs/1809.11115
         * Laplacian Eigenmaps for Dimensionality Reduction and Data Representation, M. Belkin, P. Niyogi
         """
 
