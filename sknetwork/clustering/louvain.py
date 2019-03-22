@@ -9,11 +9,9 @@ Created on Nov 2, 2018
 
 try:
     from numba import njit
-    default = 'numba'
 except ImportError:
     def njit(func):
         return func
-    default = 'python'
 
 import numpy as np
 from scipy import sparse
@@ -91,104 +89,6 @@ class Optimizer:
          self: :class:̀Optimizer`
 
          """
-        return self
-
-
-class GreedyModularity(Optimizer):
-    """
-    A greedy modularity optimizer.
-
-    Parameters
-    ----------
-    resolution:
-         Resolution parameter (positive)
-    tol:
-        Minimum increase in modularity to enter a new optimization pass.
-    shuffle_nodes:
-        If true, shuffle the nodes before starting a new optimization pass.
-    """
-
-    def __init__(self, resolution: float = 1, tol: float = 1e-3, shuffle_nodes: bool = False):
-        Optimizer.__init__(self)
-        self.resolution = resolution
-        self.tol = tol
-        self.shuffle_nodes = shuffle_nodes
-
-    def fit(self, graph: NormalizedGraph):
-        """Iterate over the nodes to increase modularity.
-
-         Parameters
-         ----------
-         graph:
-             Graph to cluster.
-
-         Returns
-         -------
-         self: :class:`Optimizer`
-         """
-        increase = True
-        total_increase: float = 0
-
-        labels: np.ndarray = np.arange(graph.n_nodes)
-        node_probs: np.ndarray = graph.node_probs
-        cluster_probs = node_probs.copy()
-        self_loops: np.ndarray = graph.norm_adjacency.diagonal()
-
-        while increase:
-            increase = False
-            pass_increase: float = 0
-
-            if self.shuffle_nodes:
-                nodes = np.random.permutation(np.arange(graph.n_nodes))
-            else:
-                nodes = range(graph.n_nodes)
-
-            for node in nodes:
-                node_cluster: int = labels[node]
-                neighbor_weights: np.ndarray = graph.norm_adjacency.data[
-                                           graph.norm_adjacency.indptr[node]:graph.norm_adjacency.indptr[node + 1]]
-                neighbors: np.ndarray = graph.norm_adjacency.indices[
-                                        graph.norm_adjacency.indptr[node]:graph.norm_adjacency.indptr[node + 1]]
-                neighbor_clusters: np.ndarray = labels[neighbors]
-                unique_clusters: list = list(set(neighbor_clusters.tolist()) - {node_cluster})
-                n_clusters = len(unique_clusters)
-
-                if n_clusters:
-                    node_prob: float = node_probs[node]
-                    node_prob_res: float = self.resolution * node_prob
-
-                    # total weight of edges to neighbors in the same cluster
-                    out_delta: float = neighbor_weights[neighbor_clusters == node_cluster].sum() - self_loops[node]
-                    # minus the probability to choose a neighbor in the same cluster (with resolution factor)
-                    out_delta -= node_prob_res * (cluster_probs[node_cluster] - node_prob)
-
-                    local_delta: np.ndarray = np.full(n_clusters, -out_delta)
-
-                    for index_cluster, cluster in enumerate(unique_clusters):
-                        # total weight of edges to neighbors in the candidate cluster
-                        in_delta: float = neighbor_weights[neighbor_clusters == cluster].sum()
-                        # minus the probability to choose a neighbor in the candidate cluster (with resolution factor)
-                        in_delta -= node_prob_res * cluster_probs[cluster]
-
-                        local_delta[index_cluster] += in_delta
-
-                    best_ix: int = local_delta.argmax()
-                    best_delta: float = 2 * local_delta[best_ix]
-                    if best_delta > 0:
-                        pass_increase += best_delta
-                        best_cluster = unique_clusters[best_ix]
-
-                        cluster_probs[node_cluster] -= node_prob
-                        cluster_probs[best_cluster] += node_prob
-                        labels[node] = best_cluster
-
-            total_increase += pass_increase
-            if pass_increase > self.tol:
-                increase = True
-
-        self.score_ = total_increase
-        _, self.labels_ = np.unique(labels, return_inverse=True)
-
         return self
 
 
@@ -284,35 +184,47 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, n
     return labels, total_increase
 
 
-class GreedyModularityNumba(Optimizer):
-    """A greedy modularity optimizer using Numba for enhanced performance.
+class GreedyModularity(Optimizer):
+    """
+    A greedy modularity optimizer.
 
     Parameters
     ----------
     resolution:
-        Modularity resolution.
+         Resolution parameter (positive)
     tol:
         Minimum increase in modularity to enter a new optimization pass.
     shuffle_nodes:
-        If True, shuffle the nodes before each optimization pass.
-
-    Attributes
-    ----------
-    labels_:
-        Cluster index of each node
-    score_:
-        Score of the clustering (total increase in modularity)
-
-    Notes
-    -----
-    Tested with Numba v0.40.1.
+        If true, shuffle the nodes before starting a new optimization pass.
+    engine: str
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, it will test if numba is available.
     """
 
-    def __init__(self, resolution: float = 1, tol: float = 1e-3, shuffle_nodes: bool = False):
+    def __init__(self, resolution: float = 1, tol: float = 1e-3, shuffle_nodes: bool = False, engine: str = 'default'):
         Optimizer.__init__(self)
         self.resolution = resolution
         self.tol = tol
         self.shuffle_nodes = shuffle_nodes
+        try:
+            from numba import njit, prange
+            is_numba_available = True
+        except ImportError:
+            is_numba_available = False
+
+        if engine == 'default':
+            if is_numba_available:
+                self.engine = 'numba'
+            else:
+                self.engine = 'python'
+        elif engine == 'numba':
+            if is_numba_available:
+                self.engine = 'numba'
+            else:
+                raise ValueError('Numba is not available')
+        elif engine == 'python':
+            self.engine = 'python'
+        else:
+            raise ValueError('Engine must be default, python or numba.')
 
     def fit(self, graph: NormalizedGraph):
         """Iterate over the nodes to increase modularity.
@@ -326,14 +238,86 @@ class GreedyModularityNumba(Optimizer):
          -------
          self: :class:`Optimizer`
          """
-        labels, total_increase = fit_core(self.resolution, self.tol, self.shuffle_nodes, graph.n_nodes,
-                                          graph.node_probs, graph.norm_adjacency.diagonal(), graph.norm_adjacency.data,
-                                          graph.norm_adjacency.indices, graph.norm_adjacency.indptr)
+        if self.engine == 'python':
+            increase = True
+            total_increase: float = 0
 
-        self.score_ = total_increase
-        _, self.labels_ = np.unique(labels, return_inverse=True)
+            labels: np.ndarray = np.arange(graph.n_nodes)
+            node_probs: np.ndarray = graph.node_probs
+            cluster_probs = node_probs.copy()
+            self_loops: np.ndarray = graph.norm_adjacency.diagonal()
 
-        return self
+            while increase:
+                increase = False
+                pass_increase: float = 0
+
+                if self.shuffle_nodes:
+                    nodes = np.random.permutation(np.arange(graph.n_nodes))
+                else:
+                    nodes = range(graph.n_nodes)
+
+                for node in nodes:
+                    node_cluster: int = labels[node]
+                    neighbor_weights: np.ndarray = graph.norm_adjacency.data[
+                                               graph.norm_adjacency.indptr[node]:graph.norm_adjacency.indptr[node + 1]]
+                    neighbors: np.ndarray = graph.norm_adjacency.indices[
+                                            graph.norm_adjacency.indptr[node]:graph.norm_adjacency.indptr[node + 1]]
+                    neighbor_clusters: np.ndarray = labels[neighbors]
+                    unique_clusters: list = list(set(neighbor_clusters.tolist()) - {node_cluster})
+                    n_clusters = len(unique_clusters)
+
+                    if n_clusters:
+                        node_prob: float = node_probs[node]
+                        node_prob_res: float = self.resolution * node_prob
+
+                        # total weight of edges to neighbors in the same cluster
+                        out_delta: float = neighbor_weights[neighbor_clusters == node_cluster].sum() - self_loops[node]
+                        # minus the probability to choose a neighbor in the same cluster (with resolution factor)
+                        out_delta -= node_prob_res * (cluster_probs[node_cluster] - node_prob)
+
+                        local_delta: np.ndarray = np.full(n_clusters, -out_delta)
+
+                        for index_cluster, cluster in enumerate(unique_clusters):
+                            # total weight of edges to neighbors in the candidate cluster
+                            in_delta: float = neighbor_weights[neighbor_clusters == cluster].sum()
+                            # minus the probability to choose a neighbor in the candidate cluster
+                            # (with resolution factor)
+                            in_delta -= node_prob_res * cluster_probs[cluster]
+
+                            local_delta[index_cluster] += in_delta
+
+                        best_ix: int = local_delta.argmax()
+                        best_delta: float = 2 * local_delta[best_ix]
+                        if best_delta > 0:
+                            pass_increase += best_delta
+                            best_cluster = unique_clusters[best_ix]
+
+                            cluster_probs[node_cluster] -= node_prob
+                            cluster_probs[best_cluster] += node_prob
+                            labels[node] = best_cluster
+
+                total_increase += pass_increase
+                if pass_increase > self.tol:
+                    increase = True
+
+            self.score_ = total_increase
+            _, self.labels_ = np.unique(labels, return_inverse=True)
+
+            return self
+
+        elif self.engine == 'numba':
+            labels, total_increase = fit_core(self.resolution, self.tol, self.shuffle_nodes, graph.n_nodes,
+                                              graph.node_probs, graph.norm_adjacency.diagonal(),
+                                              graph.norm_adjacency.data,
+                                              graph.norm_adjacency.indices, graph.norm_adjacency.indptr)
+
+            self.score_ = total_increase
+            _, self.labels_ = np.unique(labels, return_inverse=True)
+
+            return self
+
+        else:
+            raise ValueError('Unknown engine.')
 
 
 class Louvain:
@@ -345,6 +329,8 @@ class Louvain:
         The optimization algorithm.
         Requires a fit method.
         Requires `score\\_`  and `labels\\_` attributes.
+
+        If ``'default'``, , it will use a greedy bimodularity optimization algorithm: :class:`GreedyModularity`.
     resolution:
         Resolution parameter.
     tol:
@@ -374,7 +360,7 @@ class Louvain:
     >>> graph = sparse.identity(3, format='csr')
     >>> (louvain.fit(graph).labels_ == np.array([0, 1, 2])).all()
     True
-    >>> louvain_numba = Louvain(algorithm=GreedyModularityNumba())
+    >>> louvain_numba = Louvain(algorithm=GreedyModularity(engine='numba'))
     >>> (louvain_numba.fit(graph).labels_ == np.array([0, 1, 2])).all()
     True
 
@@ -386,20 +372,15 @@ class Louvain:
     https://arxiv.org/abs/0803.0476
     """
 
-    def __init__(self, algorithm: Union[str, Optimizer] = default, resolution: float = 1, tol: float = 1e-3,
+    def __init__(self, algorithm: Union[str, Optimizer] = 'default', resolution: float = 1, tol: float = 1e-3,
                  shuffle_nodes: bool = False, agg_tol: float = 1e-3, max_agg_iter: int = -1, verbose: bool = False):
 
-        if type(algorithm) == str:
-            if algorithm == "numba":
-                self.algorithm = GreedyModularityNumba(resolution, tol, shuffle_nodes)
-            elif algorithm == "python":
-                self.algorithm = GreedyModularity(resolution, tol, shuffle_nodes)
-            else:
-                raise ValueError('Unknown algorithm name.')
+        if algorithm == 'default':
+                self.algorithm = GreedyModularity(resolution, tol, shuffle_nodes, engine='default')
         elif isinstance(algorithm, Optimizer):
             self.algorithm = algorithm
         else:
-            raise TypeError('Algorithm must be a string ("numba" or "python") or a valid algorithm.')
+            raise TypeError('Algorithm must be \'default\' or a valid algorithm.')
 
         if type(max_agg_iter) != int:
             raise TypeError('The maximum number of iterations must be an integer.')

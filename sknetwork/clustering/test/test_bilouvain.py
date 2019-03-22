@@ -12,11 +12,14 @@ class TestBiLouvainClustering(unittest.TestCase):
 
     def setUp(self):
         self.bilouvain = BiLouvain()
-        self.bilouvain_high_resolution = BiLouvain(resolution=2)
+        self.bilouvain_high_resolution = BiLouvain(GreedyBipartite(engine='numba', resolution=2))
+        self.bilouvain_numba = BiLouvain(GreedyBipartite(engine='numba'))
         self.star_wars_graph = star_wars_villains_graph()
 
     def test_star_wars_graph(self):
         labels = self.bilouvain.fit(self.star_wars_graph).sample_labels_
         self.assertEqual(labels.shape, (4,))
         labels = self.bilouvain_high_resolution.fit(self.star_wars_graph).sample_labels_
+        self.assertEqual(labels.shape, (4,))
+        labels = self.bilouvain_numba.fit(self.star_wars_graph).sample_labels_
         self.assertEqual(labels.shape, (4,))

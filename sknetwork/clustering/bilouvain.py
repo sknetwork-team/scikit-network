@@ -5,18 +5,16 @@ Created on Mar 3, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
+import numpy as np
+from scipy import sparse
+from typing import Union
+
 try:
     from numba import njit, prange
-    default = 'numba'
 except ImportError:
     def njit(func):
         return func
     prange = range
-    default = 'python'
-
-import numpy as np
-from scipy import sparse
-from typing import Union
 
 
 class BipartiteGraph:
@@ -106,114 +104,6 @@ class BiOptimizer:
         return self
 
 
-class GreedyBipartite(BiOptimizer):
-    """
-    A greedy bipartite modularity optimizer.
-
-    Attributes
-    ----------
-    resolution:
-        modularity resolution
-    tol:
-        minimum bimodularity increase to enter a new optimization pass
-    """
-
-    def __init__(self, resolution: float = 1, tol: float = 1e-3):
-        BiOptimizer.__init__(self)
-        self.resolution = resolution
-        self.tol = tol
-
-    def fit(self, graph: BipartiteGraph):
-        """Iterates over the nodes of the graph and moves them to the cluster of highest increase among their neighbors.
-
-        Parameters
-        ----------
-        graph:
-            the graph to cluster
-
-        Returns
-        -------
-        self: :class:`BiOptimizer`
-        """
-        increase: bool = True
-        total_increase: float = 0.
-
-        sample_labels: np.ndarray = np.arange(graph.n_samples)
-        feature_labels: np.ndarray = graph.n_samples + np.arange(graph.n_features)
-        sample_clusters_proba: np.ndarray = np.hstack((graph.sample_weights.copy(), np.zeros(graph.n_features)))
-        feature_clusters_proba: np.ndarray = np.hstack((np.zeros(graph.n_samples), graph.feature_weights.copy()))
-
-        sample_indptr: np.ndarray = graph.norm_adjacency.indptr
-        sample_indices: np.ndarray = graph.norm_adjacency.indices
-        sample_data: np.ndarray = graph.norm_adjacency.data
-
-        transposed_adjacency = graph.norm_adjacency.T.tocsr()
-        feature_indptr: np.ndarray = transposed_adjacency.indptr
-        feature_indices: np.ndarray = transposed_adjacency.indices
-        feature_data: np.ndarray = transposed_adjacency.data
-        del transposed_adjacency
-
-        while increase:
-            increase = False
-            pass_increase: float = 0.
-
-            sample_args = (graph.n_samples, graph.sample_weights, sample_labels, sample_clusters_proba,
-                           sample_indptr, sample_indices, sample_data)
-            feature_args = (graph.n_features, graph.feature_weights, feature_labels, feature_clusters_proba,
-                            feature_indptr, feature_indices, feature_data)
-
-            for source, target in [(sample_args, feature_args), (feature_args, sample_args)]:
-                n_nodes, source_weights, source_labels, source_cluster_proba, indptr, indices, data = source
-                target_labels, target_cluster_proba = target[2], target[3]
-
-                for node in range(n_nodes):
-                    node_cluster: int = source_labels[node]
-                    target_weights: np.ndarray = data[indptr[node]:indptr[node + 1]]
-                    neighbors: np.ndarray = indices[indptr[node]:indptr[node + 1]]
-                    neighbors_clusters: np.ndarray = target_labels[neighbors]
-                    unique_clusters: list = list(set(neighbors_clusters.tolist()) - {node_cluster})
-                    n_clusters: int = len(unique_clusters)
-
-                    if n_clusters > 0:
-                        node_proba: float = source_weights[node]
-                        node_ratio: float = self.resolution * node_proba
-
-                        # total weight of edges to neighbors in the same cluster
-                        out_delta: float = target_weights[neighbors_clusters == node_cluster].sum()
-                        # minus the probability to choose a neighbor in the same cluster (with resolution factor)
-                        out_delta -= node_ratio * target_cluster_proba[node_cluster]
-
-                        local_delta: np.ndarray = np.full(n_clusters, -out_delta)
-
-                        for index_cluster, cluster in enumerate(unique_clusters):
-                            # total weight of edges to neighbors in the candidate cluster
-                            in_delta: float = target_weights[neighbors_clusters == cluster].sum()
-                            # minus the probability to choose a neighbor in the candidate cluster
-                            in_delta -= node_ratio * target_cluster_proba[cluster]
-
-                            local_delta[index_cluster] += in_delta
-
-                        delta_argmax: int = local_delta.argmax()
-                        best_delta: float = local_delta[delta_argmax]
-                        if best_delta > 0:
-                            pass_increase += best_delta
-                            best_cluster = unique_clusters[delta_argmax]
-
-                            source_cluster_proba[node_cluster] -= node_proba
-                            source_cluster_proba[best_cluster] += node_proba
-                            source_labels[node] = best_cluster
-
-            total_increase += pass_increase
-            if pass_increase > self.tol:
-                increase = True
-
-        self.score_ = total_increase
-        _, self.sample_labels_ = np.unique(sample_labels, return_inverse=True)
-        _, self.feature_labels_ = np.unique(feature_labels, return_inverse=True)
-
-        return self
-
-
 @njit
 def fit_core(sample_args, feature_args, resolution, tol):
     n_samples, n_features = sample_args[0], feature_args[0]
@@ -286,26 +176,45 @@ def fit_core(sample_args, feature_args, resolution, tol):
     return sample_labels, feature_labels, total_increase
 
 
-class GreedyBipartiteNumba(BiOptimizer):
+class GreedyBipartite(BiOptimizer):
     """
-    A greedy modularity optimizer using Numba for enhanced performance.
+    A greedy bipartite modularity optimizer.
 
     Attributes
     ----------
     resolution:
-        bimodularity resolution
+        modularity resolution
     tol:
         minimum bimodularity increase to enter a new optimization pass
+    engine: str
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, it will test if numba is available.
 
-    Notes
-    -----
-    Tested with Numba v0.42.0.
     """
 
-    def __init__(self, resolution: float = 1., tol: float = 1e-3):
+    def __init__(self, resolution: float = 1, tol: float = 1e-3, engine: str = 'default'):
         BiOptimizer.__init__(self)
         self.resolution = resolution
         self.tol = tol
+        try:
+            from numba import njit, prange
+            is_numba_available = True
+        except ImportError:
+            is_numba_available = False
+
+        if engine == 'default':
+            if is_numba_available:
+                self.engine = 'numba'
+            else:
+                self.engine = 'python'
+        elif engine == 'numba':
+            if is_numba_available:
+                self.engine = 'numba'
+            else:
+                raise ValueError('Numba is not available')
+        elif engine == 'python':
+            self.engine = 'python'
+        else:
+            raise ValueError('Engine must be default, python or numba.')
 
     def fit(self, graph: BipartiteGraph):
         """Iterates over the nodes of the graph and moves them to the cluster of highest increase among their neighbors.
@@ -318,22 +227,104 @@ class GreedyBipartiteNumba(BiOptimizer):
         Returns
         -------
         self: :class:`BiOptimizer`
-
         """
-        transposed_adjacency = graph.norm_adjacency.T.tocsr()
-        sample_args = (graph.n_samples, graph.sample_weights,
-                       graph.norm_adjacency.indptr, graph.norm_adjacency.indices, graph.norm_adjacency.data)
-        feature_args = (graph.n_features, graph.feature_weights,
-                        transposed_adjacency.indptr, transposed_adjacency.indices, transposed_adjacency.data)
+        if self.engine == 'python':
+            increase: bool = True
+            total_increase: float = 0.
 
-        sample_labels, feature_labels, total_increase = fit_core(sample_args, feature_args,
-                                                                 self.resolution, self.tol)
+            sample_labels: np.ndarray = np.arange(graph.n_samples)
+            feature_labels: np.ndarray = graph.n_samples + np.arange(graph.n_features)
+            sample_clusters_proba: np.ndarray = np.hstack((graph.sample_weights.copy(), np.zeros(graph.n_features)))
+            feature_clusters_proba: np.ndarray = np.hstack((np.zeros(graph.n_samples), graph.feature_weights.copy()))
 
-        self.score_ = total_increase
-        _, self.sample_labels_ = np.unique(sample_labels, return_inverse=True)
-        _, self.feature_labels_ = np.unique(feature_labels, return_inverse=True)
+            sample_indptr: np.ndarray = graph.norm_adjacency.indptr
+            sample_indices: np.ndarray = graph.norm_adjacency.indices
+            sample_data: np.ndarray = graph.norm_adjacency.data
 
-        return self
+            transposed_adjacency = graph.norm_adjacency.T.tocsr()
+            feature_indptr: np.ndarray = transposed_adjacency.indptr
+            feature_indices: np.ndarray = transposed_adjacency.indices
+            feature_data: np.ndarray = transposed_adjacency.data
+            del transposed_adjacency
+
+            while increase:
+                increase = False
+                pass_increase: float = 0.
+
+                sample_args = (graph.n_samples, graph.sample_weights, sample_labels, sample_clusters_proba,
+                               sample_indptr, sample_indices, sample_data)
+                feature_args = (graph.n_features, graph.feature_weights, feature_labels, feature_clusters_proba,
+                                feature_indptr, feature_indices, feature_data)
+
+                for source, target in [(sample_args, feature_args), (feature_args, sample_args)]:
+                    n_nodes, source_weights, source_labels, source_cluster_proba, indptr, indices, data = source
+                    target_labels, target_cluster_proba = target[2], target[3]
+
+                    for node in range(n_nodes):
+                        node_cluster: int = source_labels[node]
+                        target_weights: np.ndarray = data[indptr[node]:indptr[node + 1]]
+                        neighbors: np.ndarray = indices[indptr[node]:indptr[node + 1]]
+                        neighbors_clusters: np.ndarray = target_labels[neighbors]
+                        unique_clusters: list = list(set(neighbors_clusters.tolist()) - {node_cluster})
+                        n_clusters: int = len(unique_clusters)
+
+                        if n_clusters > 0:
+                            node_proba: float = source_weights[node]
+                            node_ratio: float = self.resolution * node_proba
+
+                            # total weight of edges to neighbors in the same cluster
+                            out_delta: float = target_weights[neighbors_clusters == node_cluster].sum()
+                            # minus the probability to choose a neighbor in the same cluster (with resolution factor)
+                            out_delta -= node_ratio * target_cluster_proba[node_cluster]
+
+                            local_delta: np.ndarray = np.full(n_clusters, -out_delta)
+
+                            for index_cluster, cluster in enumerate(unique_clusters):
+                                # total weight of edges to neighbors in the candidate cluster
+                                in_delta: float = target_weights[neighbors_clusters == cluster].sum()
+                                # minus the probability to choose a neighbor in the candidate cluster
+                                in_delta -= node_ratio * target_cluster_proba[cluster]
+
+                                local_delta[index_cluster] += in_delta
+
+                            delta_argmax: int = local_delta.argmax()
+                            best_delta: float = local_delta[delta_argmax]
+                            if best_delta > 0:
+                                pass_increase += best_delta
+                                best_cluster = unique_clusters[delta_argmax]
+
+                                source_cluster_proba[node_cluster] -= node_proba
+                                source_cluster_proba[best_cluster] += node_proba
+                                source_labels[node] = best_cluster
+
+                total_increase += pass_increase
+                if pass_increase > self.tol:
+                    increase = True
+
+            self.score_ = total_increase
+            _, self.sample_labels_ = np.unique(sample_labels, return_inverse=True)
+            _, self.feature_labels_ = np.unique(feature_labels, return_inverse=True)
+
+            return self
+
+        elif self.engine == 'numba':
+            transposed_adjacency = graph.norm_adjacency.T.tocsr()
+            sample_args = (graph.n_samples, graph.sample_weights,
+                           graph.norm_adjacency.indptr, graph.norm_adjacency.indices, graph.norm_adjacency.data)
+            feature_args = (graph.n_features, graph.feature_weights,
+                            transposed_adjacency.indptr, transposed_adjacency.indices, transposed_adjacency.data)
+
+            sample_labels, feature_labels, total_increase = fit_core(sample_args, feature_args,
+                                                                     self.resolution, self.tol)
+
+            self.score_ = total_increase
+            _, self.sample_labels_ = np.unique(sample_labels, return_inverse=True)
+            _, self.feature_labels_ = np.unique(feature_labels, return_inverse=True)
+
+            return self
+
+        else:
+            raise ValueError('Unknown engine.')
 
 
 class BiLouvain:
@@ -346,6 +337,8 @@ class BiLouvain:
         The optimization algorithm.
         Requires a fit method.
         Requires `score\\_`, `sample_labels\\_`,  and `labels\\_` attributes.
+
+        if ``'default'``, it will use a greedy bimodularity optimization algorithm: :class:`GreedyBipartite`.
     resolution:
         Resolution parameter.
     tol:
@@ -374,19 +367,14 @@ class BiLouvain:
         number of clusters after fit
     """
 
-    def __init__(self, algorithm: Union[str, BiOptimizer] = default, resolution: float = 1, tol: float = 1e-3,
+    def __init__(self, algorithm: Union[str, BiOptimizer] = 'default', resolution: float = 1, tol: float = 1e-3,
                  agg_tol: float = 1e-3, max_agg_iter: int = -1, verbose: bool = False):
-        if type(algorithm) == str:
-            if algorithm == "numba":
-                self.algorithm = GreedyBipartiteNumba(resolution, tol)
-            elif algorithm == "python":
-                self.algorithm = GreedyBipartite(resolution, tol)
-            else:
-                raise ValueError('Unknown algorithm name.')
+        if algorithm == 'default':
+                self.algorithm = GreedyBipartite(resolution, tol, engine='default')
         elif isinstance(algorithm, BiOptimizer):
             self.algorithm = algorithm
         else:
-            raise TypeError('Algorithm must be a string ("numba" or "python") or a valid algorithm.')
+            raise TypeError('Algorithm must be a \'default\' or a valid algorithm.')
 
         if type(max_agg_iter) != int:
             raise TypeError('The maximum number of iterations must be an integer.')

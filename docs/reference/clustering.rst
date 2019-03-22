@@ -15,8 +15,6 @@ Louvain
 .. autoclass:: sknetwork.clustering.GreedyModularity
     :members:
 
-.. autoclass:: sknetwork.clustering.GreedyModularityNumba
-    :members:
 
 Louvain for bipartite graphs
 ----------------------------
@@ -25,9 +23,6 @@ Louvain for bipartite graphs
     :members:
 
 .. autoclass:: sknetwork.clustering.GreedyBipartite
-    :members:
-
-.. autoclass:: sknetwork.clustering.GreedyBipartiteNumba
     :members:
 
 
