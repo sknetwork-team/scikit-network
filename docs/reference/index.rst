@@ -6,5 +6,7 @@ Reference
 .. toctree::
 
     embedding
-    flat_clustering
-    hierarchical_clustering
+    clustering
+    hierarchy
+    loader
+    toy_graphs

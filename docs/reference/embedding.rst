@@ -6,17 +6,30 @@ Embedding
 .. currentmodule:: sknetwork
 
 
-Spectral embeddings
--------------------
-.. automodule:: sknetwork.embedding.forwardbackward_embedding
-   :toctree: generated/
+Spectral
+--------
+.. automodule:: sknetwork.embedding
 
-.. autoclass:: ForwardBackwardEmbedding
+.. autoclass:: sknetwork.embedding.SpectralEmbedding
     :members:
 
-.. automodule:: sknetwork.embedding.spectral_embedding
-   :toctree: generated/
+SVD
+---
 
-.. autoclass:: SpectralEmbedding
+.. autoclass:: sknetwork.embedding.GSVDEmbedding
     :members:
 
+Metrics
+-------
+.. autofunction:: sknetwork.embedding.dot_modularity
+
+.. autofunction:: sknetwork.embedding.hscore
+
+
+Randomized methods
+------------------
+.. autofunction:: sknetwork.embedding.randomized_range_finder
+
+.. autofunction:: sknetwork.embedding.randomized_svd
+
+.. autofunction:: sknetwork.embedding.randomized_eig

@@ -13,4 +13,5 @@ Development Lead
 Contributors
 ------------
 
-* Alexandre Hollocou <alexandre@hollocou.fr>
+* François Durand
+* Fabien Mathieu
