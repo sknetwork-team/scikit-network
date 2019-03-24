@@ -12,7 +12,6 @@ Welcome to scikit-network's documentation!
 
    readme
    installation
-   usage
    reference/index
    contributing
    authors
