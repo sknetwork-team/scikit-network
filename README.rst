@@ -1,4 +1,4 @@
-.. figure:: ../logo_sknetwork.png
+.. image:: https://perso.telecom-paristech.fr/bonald/logo_sknetwork.png
     :align: right
     :width: 100px
     :alt: logo sknetwork
@@ -30,25 +30,16 @@ Graph algorithms
 * Documentation: https://scikit-network.readthedocs.io.
 
 
-How to use scikit-network?
---------------------------
+Quickstart
+----------
 
-Graphs have a unified format, namely ``scipy.sparse.csr_matrix``.
+Install scikit-network:
 
+.. code-block:: console
 
-About the documentation
------------------------
+    $ pip install scikit-network
 
-We use the following notations in the documentation:
+To use scikit-network in a project::
 
-* :math:`A` denotes the adjacency matrix for undirected and directed graphs.
-
-* :math:`B` denotes the biadjacency matrix for bipartite graphs (possibly non-square).
-
-* :math:`d = A1` or :math:`B1` is the out-degree vector and :math:`D = \text{diag}(d)` the associated diagonal matrix.
-
-* :math:`f = A^T1` or :math:`B^T1` is the in-degree vector and :math:`F = \text{diag}(f)` the associated diagonal matrix.
-
-* :math:`w = 1^TA1` or :math:`1 ^TB1` is the total weight of the graph.
-
+    import sknetwork as skn
 

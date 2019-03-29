@@ -17,16 +17,16 @@ class GSVDEmbedding:
 
     Parameters
     -----------
-    embedding_dimension: int, optional
-        The dimension of the projected subspace (default=2).
+    embedding_dimension: int
+        The dimension of the projected subspace.
 
     Attributes
     ----------
-    embedding_ : array, shape = (n_samples, embedding_dimension)
+    embedding_ : np.ndarray, shape = (n_samples, embedding_dimension)
         Embedding of the samples (rows of the training matrix)
-    features_ : array, shape = (n_features, embedding_dimension)
+    features_ : np.ndarray, shape = (n_features, embedding_dimension)
         Embedding of the features (columns of the training matrix)
-    singular_values_ : array, shape = (embedding_dimension)
+    singular_values_ : np.ndarray, shape = (embedding_dimension)
         Singular values of the training matrix
 
     References
@@ -52,11 +52,11 @@ class GSVDEmbedding:
         randomized_decomposition:
             whether to use a randomized (and faster) svd method or the standard scipy one.
         n_iter: int or ``'auto'`` (default is ``'auto'``)
-            See :meth:`sknetwork.embedding.randomized_matrix_factorization.randomized_range_finder`
+            See :meth:`sknetwork.embedding.randomized_range_finder`
         power_iteration_normalizer: ``'auto'`` (default), ``'QR'``, ``'LU'``, ``None``
-            See :meth:`sknetwork.embedding.randomized_matrix_factorization.randomized_range_finder`
+            See :meth:`sknetwork.embedding.randomized_range_finder`
         random_state: int, RandomState instance or ``None``, optional (default= ``None``)
-            See :meth:`sknetwork.embedding.randomized_matrix_factorization.randomized_range_finder`
+            See :meth:`sknetwork.embedding.randomized_range_finder`
 
         Returns
         -------

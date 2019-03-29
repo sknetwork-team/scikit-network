@@ -5,6 +5,7 @@ Reference
 
 .. toctree::
 
+    introduction
     embedding
     clustering
     hierarchy
