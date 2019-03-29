@@ -399,7 +399,7 @@ class Louvain:
         adjacency :
             Adjacency matrix of the graph to cluster.
         node_weights :
-            Node weights used in the second term of modularity.
+            Probabilities for node sampling in the null model. ``'degree'``, ``'uniform'`` or custom weights.
 
         Returns
         -------

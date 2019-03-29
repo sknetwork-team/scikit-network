@@ -17,6 +17,46 @@ except ImportError:
     prange = range
 
 
+def check_weights(weights: Union['str', np.ndarray],
+                  biadjacency: Union[sparse.csr_matrix, sparse.csc_matrix]) -> np.ndarray:
+    """Checks whether the weights are a valid distribution for the graph and returns a probability vector.
+
+    Parameters
+    ----------
+    weights:
+        Probabilities for node sampling in the null model. ``'degree'``, ``'uniform'`` or custom weights.
+    biadjacency:
+        The biadjacency matrix of the graph
+
+    Returns
+    -------
+        props: np.ndarray
+            probability vector for node sampling.
+
+    """
+    n_weights = biadjacency.shape[0]
+    if type(weights) == np.ndarray:
+        if len(weights) != n_weights:
+            raise ValueError('The number of node weights must match the number of nodes.')
+        else:
+            node_weights_vec = weights
+    elif type(weights) == str:
+        if weights == 'degree':
+            node_weights_vec = biadjacency.dot(np.ones(biadjacency.shape[1]))
+        elif weights == 'uniform':
+            node_weights_vec = np.ones(n_weights)
+        else:
+            raise ValueError('Unknown distribution of node weights.')
+    else:
+        raise TypeError(
+            'Node weights must be a known distribution ("degree" or "uniform" string) or a custom NumPy array.')
+
+    if np.any(node_weights_vec <= 0):
+        raise ValueError('All node weights must be positive.')
+    else:
+        return node_weights_vec / np.sum(node_weights_vec)
+
+
 class BipartiteGraph:
     """
     A class of graphs suitable for the BiLouvain algorithm.
@@ -25,6 +65,10 @@ class BipartiteGraph:
     ----------
     biadjacency:
         biadjacency matrix of the graph.
+    sample_weights: np.ndarray,
+        the normalized degree vector of the samples
+    feature_weights: np.ndarray,
+        the normalized degree vector of the features
 
     Attributes
     ----------
@@ -32,19 +76,15 @@ class BipartiteGraph:
         the cardinal of V1 (the set of samples)
     n_features: int,
         the cardinal of V2 (the set of features)
-    sample_weights: np.ndarray,
-        the normalized degree vector of the samples
-    feature_weights: np.ndarray,
-        the normalized degree vector of the features
 
     """
 
-    def __init__(self, biadjacency: sparse.csr_matrix):
+    def __init__(self, biadjacency: sparse.csr_matrix, sample_weights: np.ndarray, feature_weights: np.ndarray):
         self.n_samples: int = biadjacency.shape[0]
         self.n_features: int = biadjacency.shape[1]
+        self.sample_weights = check_weights(sample_weights, biadjacency)
+        self.feature_weights = check_weights(feature_weights, biadjacency.T)
         self.norm_adjacency: sparse.csr_matrix = biadjacency / biadjacency.data.sum()
-        self.sample_weights: np.ndarray = self.norm_adjacency.dot(np.ones(self.n_features))
-        self.feature_weights: np.ndarray = self.norm_adjacency.T.dot(np.ones(self.n_samples))
 
     def aggregate(self, sample_membership: sparse.csr_matrix, feature_membership: sparse.csr_matrix):
         """
@@ -388,13 +428,18 @@ class BiLouvain:
         self.score_ = None
         self.n_clusters_ = None
 
-    def fit(self, biadjacency: sparse.csr_matrix):
+    def fit(self, biadjacency: sparse.csr_matrix, sample_weights: Union['str', np.ndarray] = 'degree',
+            feature_weights: Union['str', np.ndarray] = 'degree'):
         """Alternates local optimization and aggregation until convergence.
 
         Parameters
         ----------
         biadjacency:
             adjacency matrix of the graph to cluster, treated as a biadjacency matrix
+        sample_weights:
+            Probabilities for the samples in the null model. ``'degree'``, ``'uniform'`` or custom weights.
+        feature_weights:
+            Probabilities for the features in the null model. ``'degree'``, ``'uniform'`` or custom weights.
 
         Returns
         -------
@@ -402,7 +447,7 @@ class BiLouvain:
         """
         if type(biadjacency) != sparse.csr_matrix:
             raise TypeError('The adjacency matrix must be in a scipy compressed sparse row (csr) format.')
-        graph = BipartiteGraph(biadjacency)
+        graph = BipartiteGraph(biadjacency, sample_weights, feature_weights)
         sample_membership = sparse.identity(graph.n_samples, format='csr')
         feature_membership = sparse.identity(graph.n_features, format='csr')
         increase: bool = True
