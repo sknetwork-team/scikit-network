@@ -1,6 +1,9 @@
+dist: xenial   # required for Python >= 3.7
 language: python
 python:
+- 3.7
 - 3.6
+- 3.5
 install: pip install -U tox-travis
 script: tox
 deploy:
