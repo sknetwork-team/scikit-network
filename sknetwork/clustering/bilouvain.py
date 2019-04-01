@@ -79,7 +79,8 @@ class BipartiteGraph:
 
     """
 
-    def __init__(self, biadjacency: sparse.csr_matrix, sample_weights: np.ndarray, feature_weights: np.ndarray):
+    def __init__(self, biadjacency: sparse.csr_matrix, sample_weights: Union['str', np.ndarray] = 'degree',
+                 feature_weights: Union['str', np.ndarray] = 'degree'):
         self.n_samples: int = biadjacency.shape[0]
         self.n_features: int = biadjacency.shape[1]
         self.sample_weights = check_weights(sample_weights, biadjacency)
