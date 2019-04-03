@@ -18,6 +18,30 @@ from scipy import sparse
 from typing import Union
 
 
+def check_engine(engine):
+    try:
+        from numba import njit, prange
+        is_numba_available = True
+    except ImportError:
+        is_numba_available = False
+
+    if engine == 'default':
+        if is_numba_available:
+            engine = 'numba'
+        else:
+            engine = 'python'
+    elif engine == 'numba':
+        if is_numba_available:
+            engine = 'numba'
+        else:
+            raise ValueError('Numba is not available')
+    elif engine == 'python':
+        engine = 'python'
+    else:
+        raise ValueError('Engine must be default, python or numba.')
+    return engine
+
+
 class NormalizedGraph:
     """
     A class of graphs suitable for the Louvain algorithm. Each node represents a cluster.
@@ -205,26 +229,7 @@ class GreedyModularity(Optimizer):
         self.resolution = resolution
         self.tol = tol
         self.shuffle_nodes = shuffle_nodes
-        try:
-            from numba import njit, prange
-            is_numba_available = True
-        except ImportError:
-            is_numba_available = False
-
-        if engine == 'default':
-            if is_numba_available:
-                self.engine = 'numba'
-            else:
-                self.engine = 'python'
-        elif engine == 'numba':
-            if is_numba_available:
-                self.engine = 'numba'
-            else:
-                raise ValueError('Numba is not available')
-        elif engine == 'python':
-            self.engine = 'python'
-        else:
-            raise ValueError('Engine must be default, python or numba.')
+        self.engine = check_engine(engine)
 
     def fit(self, graph: NormalizedGraph):
         """Iterate over the nodes to increase modularity.
@@ -325,6 +330,121 @@ class GreedyModularity(Optimizer):
             raise ValueError('Unknown engine.')
 
 
+@njit
+def fit_directed(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, ou_node_probs: np.ndarray,
+                 in_node_probs: np.ndarray, self_loops: np.ndarray, ou_data: np.ndarray, ou_indices: np.ndarray,
+                 ou_indptr: np.ndarray, in_data: np.ndarray, in_indices: np.ndarray,
+                 in_indptr: np.ndarray) -> (np.ndarray, float):
+    """
+
+    Parameters
+    ----------
+    resolution:
+        Resolution parameter (positive).
+    tol:
+        Minimum increase in modularity to enter a new optimization pass.
+    shuffle_nodes:
+        If True, shuffle the nodes before starting a new optimization pass.
+    n_nodes:
+        Number of nodes.
+    ou_node_probs:
+        Distribution of node weights based on their out-edges (sums to 1).
+    in_node_probs:
+        Distribution of node weights based on their in-edges (sums to 1).
+    self_loops:
+        Weights of self loops.
+    ou_data:
+        CSR format data array of the normalized adjacency matrix.
+    ou_indices:
+        CSR format index array of the normalized adjacency matrix.
+    ou_indptr:
+        CSR format index pointer array of the normalized adjacency matrix.
+    in_data:
+        CSR format data array of the normalized transposed adjacency matrix.
+    in_indices:
+        CSR format index array of the normalized transposed adjacency matrix.
+    in_indptr:
+        CSR format index pointer array of the normalized transposed adjacency matrix.
+
+    Returns
+    -------
+    labels:
+        Cluster index of each node
+    total_increase:
+        Score of the clustering (total increase in modularity)
+    """
+    increase: bool = True
+    total_increase: float = 0
+
+    labels: np.ndarray = np.arange(n_nodes)
+    ou_clusters_weights: np.ndarray = ou_node_probs.copy()
+    in_clusters_weights: np.ndarray = in_node_probs.copy()
+
+    nodes = np.arange(n_nodes)
+    while increase:
+        increase = False
+        pass_increase: float = 0
+
+        if shuffle_nodes:
+            nodes = np.random.permutation(np.arange(n_nodes))
+
+        for node in nodes:
+            node_cluster = labels[node]
+            ou_neighbors: np.ndarray = ou_indices[ou_indptr[node]:ou_indptr[node + 1]]
+            ou_weights: np.ndarray = ou_data[ou_indptr[node]:ou_indptr[node + 1]]
+            in_neighbors: np.ndarray = in_indices[in_indptr[node]:in_indptr[node + 1]]
+            in_weights: np.ndarray = in_data[in_indptr[node]:in_indptr[node + 1]]
+
+            ou_neighbor_cluster_weights = np.zeros(n_nodes)
+            for i, neighbor in enumerate(ou_neighbors):
+                ou_neighbor_cluster_weights[labels[neighbor]] += ou_weights[i]
+            in_neighbor_cluster_weights = np.zeros(n_nodes)
+            for i, neighbor in enumerate(in_neighbors):
+                in_neighbor_cluster_weights[labels[neighbor]] += in_weights[i]
+
+            neighbors = np.array(list(set(list(ou_neighbors) + list(in_neighbors))))
+            unique_clusters = set(labels[neighbors])
+            unique_clusters.discard(node_cluster)
+
+            if len(unique_clusters):
+                # delta for out edges
+                ou_delta: float = ou_neighbor_cluster_weights[node_cluster] - self_loops[node]
+                ou_delta -= resolution * ou_node_probs[node] * (in_clusters_weights[node_cluster] - in_node_probs[node])
+
+                # delta for in edges
+                in_delta: float = in_neighbor_cluster_weights[node_cluster] - self_loops[node]
+                in_delta -= resolution * in_node_probs[node] * (ou_clusters_weights[node_cluster] - ou_node_probs[node])
+
+                exit_delta = ou_delta + in_delta
+                best_delta: float = 0
+                best_cluster = node_cluster
+
+                for cluster in unique_clusters:
+                    ou_delta: float = ou_neighbor_cluster_weights[cluster]
+                    ou_delta -= resolution * (ou_node_probs[node] * in_clusters_weights[cluster])
+
+                    in_delta: float = in_neighbor_cluster_weights[cluster]
+                    in_delta -= resolution * (in_node_probs[node] * ou_clusters_weights[cluster])
+
+                    local_delta = ou_delta + in_delta - exit_delta
+                    if local_delta > best_delta:
+                        best_delta = local_delta
+                        best_cluster = cluster
+
+                if best_delta > 0:
+                    pass_increase += best_delta
+                    ou_clusters_weights[node_cluster] -= ou_node_probs[node]
+                    in_clusters_weights[node_cluster] -= in_node_probs[node]
+                    ou_clusters_weights[best_cluster] += ou_node_probs[node]
+                    in_clusters_weights[best_cluster] += in_node_probs[node]
+                    labels[node] = best_cluster
+
+        total_increase += pass_increase
+        if pass_increase > tol:
+            increase = True
+    return labels, total_increase
+
+
 class GreedyDirected(Optimizer):
     """
     A greedy directed modularity optimizer.
@@ -340,30 +460,12 @@ class GreedyDirected(Optimizer):
 
     """
 
-    def __init__(self, resolution: float = 1, tol: float = 1e-3, engine: str = 'default'):
+    def __init__(self, resolution: float = 1, tol: float = 1e-3, shuffle_nodes: bool = False, engine: str = 'default'):
         Optimizer.__init__(self)
         self.resolution = resolution
         self.tol = tol
-        try:
-            from numba import njit, prange
-            is_numba_available = True
-        except ImportError:
-            is_numba_available = False
-
-        if engine == 'default':
-            if is_numba_available:
-                self.engine = 'numba'
-            else:
-                self.engine = 'python'
-        elif engine == 'numba':
-            if is_numba_available:
-                self.engine = 'numba'
-            else:
-                raise ValueError('Numba is not available')
-        elif engine == 'python':
-            self.engine = 'python'
-        else:
-            raise ValueError('Engine must be default, python or numba.')
+        self.shuffle_nodes = shuffle_nodes
+        self.engine = check_engine(engine)
 
     def fit(self, graph: NormalizedGraph):
         """Iterates over the nodes of the graph and moves them to the cluster of highest increase among their neighbors.
@@ -377,26 +479,28 @@ class GreedyDirected(Optimizer):
         -------
         self: :class:`BiOptimizer`
         """
+
+        self_loops = graph.norm_adjacency.diagonal()
+        ou_node_probs = graph.norm_adjacency.dot(np.ones(graph.n_nodes))
+        in_node_probs = graph.norm_adjacency.T.dot(np.ones(graph.n_nodes))
+
+        ou_indptr: np.ndarray = graph.norm_adjacency.indptr
+        ou_indices: np.ndarray = graph.norm_adjacency.indices
+        ou_data: np.ndarray = graph.norm_adjacency.data
+
+        transposed_adjacency = graph.norm_adjacency.T.tocsr()
+        in_indptr: np.ndarray = transposed_adjacency.indptr
+        in_indices: np.ndarray = transposed_adjacency.indices
+        in_data: np.ndarray = transposed_adjacency.data
+        del transposed_adjacency
+
         if self.engine == 'python':
             increase: bool = True
             total_increase: float = 0.
-
             labels: np.ndarray = np.arange(graph.n_nodes)
-            self_loops = graph.norm_adjacency.diagonal()
-            ou_node_probs = graph.norm_adjacency.dot(np.ones(graph.n_nodes))
+
             ou_clusters_weights: np.ndarray = ou_node_probs.copy()
-            in_node_probs = graph.norm_adjacency.T.dot(np.ones(graph.n_nodes))
             in_clusters_weights: np.ndarray = in_node_probs.copy()
-
-            ou_indptr: np.ndarray = graph.norm_adjacency.indptr
-            ou_indices: np.ndarray = graph.norm_adjacency.indices
-            ou_data: np.ndarray = graph.norm_adjacency.data
-
-            transposed_adjacency = graph.norm_adjacency.T.tocsr()
-            in_indptr: np.ndarray = transposed_adjacency.indptr
-            in_indices: np.ndarray = transposed_adjacency.indices
-            in_data: np.ndarray = transposed_adjacency.data
-            del transposed_adjacency
 
             while increase:
                 increase = False
@@ -456,7 +560,14 @@ class GreedyDirected(Optimizer):
             return self
 
         elif self.engine == 'numba':
-            raise NotImplementedError
+            labels, total_increase = fit_directed(self.resolution, self.tol, self.shuffle_nodes, graph.n_nodes,
+                                                  ou_node_probs, in_node_probs, self_loops, ou_data, ou_indices,
+                                                  ou_indptr, in_data, in_indices, in_indptr)
+
+            self.score_ = total_increase
+            _, self.labels_ = np.unique(labels, return_inverse=True)
+
+            return self
 
         else:
             raise ValueError('Unknown engine.')
