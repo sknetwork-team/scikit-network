@@ -3,7 +3,8 @@
 # authors: Quentin Lutz <qlutz@enst.fr>, Nathan de Lara <ndelara@enst.fr>
 
 import unittest
-from sknetwork.toy_graphs.graph_data import karate_club_graph, star_wars_villains_graph
+from sknetwork.toy_graphs.graph_data import karate_club_graph, star_wars_villains_graph, movie_actor_graph
+
 
 class TestGraphImport(unittest.TestCase):
 
@@ -16,3 +17,6 @@ class TestGraphImport(unittest.TestCase):
 
         graph = star_wars_villains_graph()
         self.assertEqual(graph.shape, (4, 3))
+
+        graph = movie_actor_graph()
+        self.assertEqual(graph.shape, (15, 16))
