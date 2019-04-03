@@ -462,29 +462,23 @@ class BiLouvain:
         while increase:
             iteration_count += 1
             self.algorithm.fit(graph)
-            if self.algorithm.score_ - self.score_ <= self.agg_tol:
-                increase = False
-            else:
-                self.score_ = self.algorithm.score_
+            increase = (self.algorithm.score_ - self.score_ > self.agg_tol)
+            self.score_ = self.algorithm.score_
 
-                sample_row = np.arange(graph.n_samples)
-                sample_col = self.algorithm.sample_labels_
-                sample_data = np.ones(graph.n_samples)
-                feature_row = np.arange(graph.n_features)
-                feature_col = self.algorithm.feature_labels_
-                feature_data = np.ones(graph.n_features)
+            sample_row = np.arange(graph.n_samples)
+            sample_col = self.algorithm.sample_labels_
+            sample_data = np.ones(graph.n_samples)
+            feature_row = np.arange(graph.n_features)
+            feature_col = self.algorithm.feature_labels_
+            feature_data = np.ones(graph.n_features)
 
-                n_clusters = max(max(sample_col), max(feature_col)) + 1
+            sample_agg_membership = sparse.csr_matrix((sample_data, (sample_row, sample_col)))
+            sample_membership = sample_membership.dot(sample_agg_membership)
 
-                sample_agg_membership = sparse.csr_matrix((sample_data, (sample_row, sample_col)),
-                                                          shape=(graph.n_samples, n_clusters))
-                sample_membership = sample_membership.dot(sample_agg_membership)
+            feature_agg_membership = sparse.csr_matrix((feature_data, (feature_row, feature_col)))
+            feature_membership = feature_membership.dot(feature_agg_membership)
 
-                feature_agg_membership = sparse.csr_matrix((feature_data, (feature_row, feature_col)),
-                                                           shape=(graph.n_features, n_clusters))
-                feature_membership = feature_membership.dot(feature_agg_membership)
-
-                graph.aggregate(sample_agg_membership, feature_agg_membership)
+            graph.aggregate(sample_agg_membership, feature_agg_membership)
 
             if self.verbose:
                 print("Iteration", iteration_count, "completed with",
@@ -493,12 +487,11 @@ class BiLouvain:
             if iteration_count == self.max_agg_iter:
                 break
 
+        _, labels = np.unique(np.hstack((sample_membership.indices, feature_membership.indices)), return_inverse=True)
+        self.n_clusters_ = len(set(labels))
         self.iteration_count_ = iteration_count
-        self.sample_labels_ = sample_membership.indices
-        _, self.sample_labels_ = np.unique(self.sample_labels_, return_inverse=True)
-        self.feature_labels_ = feature_membership.indices
-        _, self.feature_labels_ = np.unique(self.feature_labels_, return_inverse=True)
-        self.n_clusters_ = max(max(self.sample_labels_), max(self.feature_labels_)) + 1
+        self.sample_labels_ = labels[:sample_membership.shape[0]]
+        self.feature_labels_ = labels[sample_membership.shape[0]:]
         self.aggregate_graph_ = graph.norm_adjacency * biadjacency.data.sum()
         return self
 
@@ -584,6 +577,8 @@ class ComboLouvain:
         self:
         """
         # phase 1: bilouvain greedy optimization
+        if self.verbose:
+            print('Beginning phase 1: bimodularity optimization.')
         self.iteration_count_: int = 0
         n_samples, n_features = biadjacency.shape
         bilouvain = BiLouvain(self.algorithm, self.resolution, self.tol, max_agg_iter=self.max_agg_iter,
@@ -605,11 +600,16 @@ class ComboLouvain:
         self.iteration_count_ += 1
 
         # phase 2: louvain optimization on aggregated graph
-        # adjacency = (agg_adj + agg_adj.T - sparse.diags(agg_adj.diagonal())).tocsr()
-        # louvain = Louvain(resolution=self.resolution, tol=self.tol)
-        # louvain.fit(adjacency)
-        louvain = Louvain(GreedyDirected(self.resolution, self.tol, engine='python'))
-        louvain.fit(bilouvain.aggregate_graph_)
+        if self.verbose:
+            print('Beginning phase 2: directed modularity optimization.')
+        if bilouvain.aggregate_graph_.shape[0] != bilouvain.aggregate_graph_.shape[1]:
+            largest_dim = max(bilouvain.aggregate_graph_.shape)
+            aggregate_graph = sparse.csr_matrix(bilouvain.aggregate_graph_, shape=(largest_dim, largest_dim))
+        else:
+            aggregate_graph = bilouvain.aggregate_graph_
+
+        louvain = Louvain(GreedyDirected(self.resolution, self.tol, engine='python'), verbose=self.verbose)
+        louvain.fit(aggregate_graph)
 
         row = np.arange(n_clusters)
         col = louvain.labels_
@@ -623,7 +623,6 @@ class ComboLouvain:
         _, self.sample_labels_ = np.unique(self.sample_labels_, return_inverse=True)
         self.feature_labels_ = feature_membership.indices
         _, self.feature_labels_ = np.unique(self.feature_labels_, return_inverse=True)
-        self.n_clusters_ = max(max(self.sample_labels_), max(self.feature_labels_)) + 1
-        self.aggregate_graph_ = (membership.T.dot(bilouvain.aggregate_graph_.dot(membership))).tocsr()
-        self.aggregate_graph_ *= biadjacency.data.sum()
+        self.n_clusters_ = max(len(set(self.sample_labels_)), len(set(self.feature_labels_)))
+        self.aggregate_graph_ = (membership.T.dot(aggregate_graph.dot(membership))).tocsr() * biadjacency.data.sum()
         return self
