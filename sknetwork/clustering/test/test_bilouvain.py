@@ -14,6 +14,9 @@ class TestBiLouvainClustering(unittest.TestCase):
         self.bilouvain = BiLouvain()
         self.bilouvain_high_resolution = BiLouvain(GreedyBipartite(engine='numba', resolution=2))
         self.bilouvain_numba = BiLouvain(GreedyBipartite(engine='numba'))
+        self.clouvain = ComboLouvain()
+        self.clouvain_null_resolution = ComboLouvain(resolution=0.)
+
         self.star_wars_graph = star_wars_villains_graph()
 
     def test_star_wars_graph(self):
@@ -23,3 +26,7 @@ class TestBiLouvainClustering(unittest.TestCase):
         self.assertEqual(labels.shape, (4,))
         labels = self.bilouvain_numba.fit(self.star_wars_graph).sample_labels_
         self.assertEqual(labels.shape, (4,))
+        labels = self.clouvain.fit(self.star_wars_graph).sample_labels_
+        self.assertEqual(labels.shape, (4,))
+        self.clouvain_null_resolution.fit(self.star_wars_graph)
+        self.assertEqual(self.clouvain_null_resolution.n_clusters_, 1)

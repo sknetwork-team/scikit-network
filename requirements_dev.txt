@@ -3,12 +3,12 @@ bumpversion==0.5.3
 wheel==0.33.1
 watchdog==0.9.0
 flake8==3.7.7
-tox==3.8.2
+tox==3.8.4
 Sphinx==2.0.0
 coverage==4.5.3
 twine==1.13.0
 numba==0.43.1
 
 pytest-runner==4.4
-pytest==4.3.1
+pytest==4.4.0
 
