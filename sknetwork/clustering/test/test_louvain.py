@@ -14,6 +14,7 @@ class TestLouvainClustering(unittest.TestCase):
     def setUp(self):
         self.louvain = Louvain()
         self.louvain_high_resolution = Louvain(GreedyModularity(engine='python', resolution=2))
+        self.louvain_null_resolution = Louvain(GreedyModularity(engine='python', resolution=0))
         self.louvain_numba = Louvain(GreedyModularity(engine='numba'))
         self.karate_club_graph = karate_club_graph()
 
@@ -41,4 +42,7 @@ class TestLouvainClustering(unittest.TestCase):
         labels = self.louvain_high_resolution.fit(self.karate_club_graph).labels_
         self.assertEqual(labels.shape, (34,))
         self.assertAlmostEqual(modularity(self.karate_club_graph, labels), 0.34, 2)
+        labels = self.louvain_null_resolution.fit(self.karate_club_graph).labels_
+        self.assertEqual(labels.shape, (34,))
+        self.assertEqual(self.louvain_null_resolution.n_clusters_, 1)
 

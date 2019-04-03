@@ -237,7 +237,12 @@ class GreedyModularity(Optimizer):
          Returns
          -------
          self: :class:`Optimizer`
-         """
+        """
+        adjacency: sparse.csr_matrix = graph.norm_adjacency
+        sym_error = adjacency - adjacency.T
+        if np.any(np.abs(sym_error.data) > 1e-10):
+            raise ValueError('The graph cannot be directed. Please fit a symmetric adjacency matrix.')
+
         if self.engine == 'python':
             increase = True
             total_increase: float = 0
@@ -320,6 +325,143 @@ class GreedyModularity(Optimizer):
             raise ValueError('Unknown engine.')
 
 
+class GreedyDirected(Optimizer):
+    """
+    A greedy directed modularity optimizer.
+
+    Attributes
+    ----------
+    resolution:
+        modularity resolution
+    tol:
+        minimum bimodularity increase to enter a new optimization pass
+    engine: str
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, it will test if numba is available.
+
+    """
+
+    def __init__(self, resolution: float = 1, tol: float = 1e-3, engine: str = 'default'):
+        Optimizer.__init__(self)
+        self.resolution = resolution
+        self.tol = tol
+        try:
+            from numba import njit, prange
+            is_numba_available = True
+        except ImportError:
+            is_numba_available = False
+
+        if engine == 'default':
+            if is_numba_available:
+                self.engine = 'numba'
+            else:
+                self.engine = 'python'
+        elif engine == 'numba':
+            if is_numba_available:
+                self.engine = 'numba'
+            else:
+                raise ValueError('Numba is not available')
+        elif engine == 'python':
+            self.engine = 'python'
+        else:
+            raise ValueError('Engine must be default, python or numba.')
+
+    def fit(self, graph: NormalizedGraph):
+        """Iterates over the nodes of the graph and moves them to the cluster of highest increase among their neighbors.
+
+        Parameters
+        ----------
+        graph:
+            the graph to cluster
+
+        Returns
+        -------
+        self: :class:`BiOptimizer`
+        """
+        if self.engine == 'python':
+            increase: bool = True
+            total_increase: float = 0.
+
+            labels: np.ndarray = np.arange(graph.n_nodes)
+            self_loops = graph.norm_adjacency.diagonal()
+            ou_node_probs = graph.norm_adjacency.dot(np.ones(graph.n_nodes))
+            ou_clusters_weights: np.ndarray = ou_node_probs.copy()
+            in_node_probs = graph.norm_adjacency.T.dot(np.ones(graph.n_nodes))
+            in_clusters_weights: np.ndarray = in_node_probs.copy()
+
+            ou_indptr: np.ndarray = graph.norm_adjacency.indptr
+            ou_indices: np.ndarray = graph.norm_adjacency.indices
+            ou_data: np.ndarray = graph.norm_adjacency.data
+
+            transposed_adjacency = graph.norm_adjacency.T.tocsr()
+            in_indptr: np.ndarray = transposed_adjacency.indptr
+            in_indices: np.ndarray = transposed_adjacency.indices
+            in_data: np.ndarray = transposed_adjacency.data
+            del transposed_adjacency
+
+            while increase:
+                increase = False
+                pass_increase: float = 0.
+
+                for node in range(graph.n_nodes):
+                    node_cluster: int = labels[node]
+                    ou_neighbors: np.ndarray = ou_indices[ou_indptr[node]:ou_indptr[node + 1]]
+                    ou_weights: np.ndarray = ou_data[ou_indptr[node]:ou_indptr[node + 1]]
+                    in_neighbors: np.ndarray = in_indices[in_indptr[node]:in_indptr[node + 1]]
+                    in_weights: np.ndarray = in_data[in_indptr[node]:in_indptr[node + 1]]
+
+                    neighbors = np.union1d(ou_neighbors, in_neighbors)
+                    neighbors_clusters: np.ndarray = labels[neighbors]
+                    unique_clusters: list = list(set(neighbors_clusters.tolist()) - {node_cluster})
+                    n_clusters: int = len(unique_clusters)
+
+                    if n_clusters > 0:
+                        ou_delta: float = ou_weights[labels[ou_neighbors] == node_cluster].sum() - self_loops[node]
+                        ou_delta -= self.resolution * ou_node_probs[node] * (in_clusters_weights[node_cluster] -
+                                                                             in_node_probs[node])
+
+                        in_delta: float = in_weights[labels[in_neighbors] == node_cluster].sum() - self_loops[node]
+                        in_delta -= self.resolution * in_node_probs[node] * (ou_clusters_weights[node_cluster] -
+                                                                             ou_node_probs[node])
+
+                        local_delta: np.ndarray = np.full(n_clusters, -(ou_delta + in_delta))
+
+                        for index_cluster, cluster in enumerate(unique_clusters):
+                            ou_delta: float = ou_weights[labels[ou_neighbors] == cluster].sum()
+                            ou_delta -= self.resolution * (ou_node_probs[node] * in_clusters_weights[cluster])
+
+                            in_delta: float = in_weights[labels[in_neighbors] == cluster].sum()
+                            in_delta -= self.resolution * (in_node_probs[node] * ou_clusters_weights[cluster])
+
+                            local_delta[index_cluster] += ou_delta + in_delta
+
+                        delta_argmax: int = local_delta.argmax()
+                        best_delta: float = local_delta[delta_argmax]
+                        if best_delta > 0:
+                            pass_increase += best_delta
+                            best_cluster = unique_clusters[delta_argmax]
+
+                            ou_clusters_weights[node_cluster] -= ou_node_probs[node]
+                            in_clusters_weights[node_cluster] -= in_node_probs[node]
+                            ou_clusters_weights[best_cluster] += ou_node_probs[node]
+                            in_clusters_weights[best_cluster] += in_node_probs[node]
+                            labels[node] = best_cluster
+
+                total_increase += pass_increase
+                if pass_increase > self.tol:
+                    increase = True
+
+            self.score_ = total_increase
+            _, self.labels_ = np.unique(labels, return_inverse=True)
+
+            return self
+
+        elif self.engine == 'numba':
+            raise NotImplementedError
+
+        else:
+            raise ValueError('Unknown engine.')
+
+
 class Louvain:
     """Louvain algorithm for graph clustering in Python (default) and Numba.
 
@@ -349,6 +491,8 @@ class Louvain:
     ----------
     labels_: np.ndarray
         Cluster index of each node.
+    n_clusters_: int
+        The number of clusters in the partition.
     iteration_count_: int
         Total number of aggregations performed.
     aggregate_graph_: sparse.csr_matrix
@@ -388,6 +532,7 @@ class Louvain:
         self.max_agg_iter = max_agg_iter
         self.verbose = verbose
         self.labels_ = None
+        self.n_clusters_ = None
         self.iteration_count_ = None
         self.aggregate_graph_ = None
 
@@ -409,8 +554,6 @@ class Louvain:
             raise TypeError('The adjacency matrix must be in a scipy compressed sparse row (csr) format.')
         if adjacency.shape[0] != adjacency.shape[1]:
             raise ValueError('The adjacency matrix must be square.')
-        if (adjacency != adjacency.T).nnz != 0:
-            raise ValueError('The graph cannot be directed. Please fit a symmetric adjacency matrix.')
 
         n_nodes = adjacency.shape[0]
 
@@ -463,6 +606,7 @@ class Louvain:
 
         self.iteration_count_ = iteration_count
         self.labels_ = membership.indices
+        self.n_clusters_ = len(set(self.labels_))
         _, self.labels_ = np.unique(self.labels_, return_inverse=True)
         self.aggregate_graph_ = graph.norm_adjacency * adjacency.data.sum()
         return self
