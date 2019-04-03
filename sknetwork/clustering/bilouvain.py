@@ -9,6 +9,8 @@ import numpy as np
 from scipy import sparse
 from typing import Union
 
+from sknetwork.clustering.louvain import Louvain, GreedyDirected
+
 try:
     from numba import njit, prange
 except ImportError:
@@ -468,13 +470,18 @@ class BiLouvain:
                 sample_row = np.arange(graph.n_samples)
                 sample_col = self.algorithm.sample_labels_
                 sample_data = np.ones(graph.n_samples)
-                sample_agg_membership = sparse.csr_matrix((sample_data, (sample_row, sample_col)))
-                sample_membership = sample_membership.dot(sample_agg_membership)
-
                 feature_row = np.arange(graph.n_features)
                 feature_col = self.algorithm.feature_labels_
                 feature_data = np.ones(graph.n_features)
-                feature_agg_membership = sparse.csr_matrix((feature_data, (feature_row, feature_col)))
+
+                n_clusters = max(max(sample_col), max(feature_col)) + 1
+
+                sample_agg_membership = sparse.csr_matrix((sample_data, (sample_row, sample_col)),
+                                                          shape=(graph.n_samples, n_clusters))
+                sample_membership = sample_membership.dot(sample_agg_membership)
+
+                feature_agg_membership = sparse.csr_matrix((feature_data, (feature_row, feature_col)),
+                                                           shape=(graph.n_features, n_clusters))
                 feature_membership = feature_membership.dot(feature_agg_membership)
 
                 graph.aggregate(sample_agg_membership, feature_agg_membership)
@@ -493,4 +500,130 @@ class BiLouvain:
         _, self.feature_labels_ = np.unique(self.feature_labels_, return_inverse=True)
         self.n_clusters_ = max(max(self.sample_labels_), max(self.feature_labels_)) + 1
         self.aggregate_graph_ = graph.norm_adjacency * biadjacency.data.sum()
+        return self
+
+
+class ComboLouvain:
+    """
+    BiLouvain algorithm for graph clustering in Python (default) and Numba.
+
+    Parameters
+    ----------
+    algorithm:
+        The optimization algorithm.
+        Requires a fit method.
+        Requires `score\\_`, `sample_labels\\_`,  and `labels\\_` attributes.
+
+        if ``'default'``, it will use a greedy bimodularity optimization algorithm: :class:`GreedyBipartite`.
+    resolution:
+        Resolution parameter.
+    tol:
+        Minimum increase in the objective function to enter a new optimization pass.
+    agg_tol:
+        Minimum increase in the objective function to enter a new aggregation pass.
+    max_agg_iter:
+        Maximum number of aggregations.
+        A negative value is interpreted as no limit.
+    verbose:
+        Verbose mode.
+
+    Attributes
+    ----------
+    sample_labels_: np.ndarray
+        Cluster index of each node in V1.
+    feature_labels_: np.ndarray
+        Cluster index of each node in V2.
+    iteration_count_: int
+        Total number of aggregations performed.
+    aggregate_graph_: sparse.csr_matrix
+        Aggregated graph at the end of the algorithm.
+    score_: float
+        objective function value after fit
+    n_clusters_: int
+        number of clusters after fit
+    """
+
+    def __init__(self, algorithm: Union[str, BiOptimizer] = 'default', resolution: float = 1, tol: float = 1e-3,
+                 agg_tol: float = 1e-3, max_agg_iter: int = -1, verbose: bool = False):
+        if algorithm == 'default':
+                self.algorithm = GreedyBipartite(resolution, tol, engine='default')
+        elif isinstance(algorithm, BiOptimizer):
+            self.algorithm = algorithm
+        else:
+            raise TypeError('Algorithm must be a \'default\' or a valid algorithm.')
+
+        if type(max_agg_iter) != int:
+            raise TypeError('The maximum number of iterations must be an integer.')
+        self.resolution = resolution
+        self.tol = tol
+        self.agg_tol = agg_tol
+        self.max_agg_iter = max_agg_iter
+        self.verbose = verbose
+        self.sample_labels_ = None
+        self.feature_labels_ = None
+        self.iteration_count_ = None
+        self.aggregate_graph_ = None
+        self.score_ = None
+        self.n_clusters_ = None
+
+    def fit(self, biadjacency: sparse.csr_matrix, sample_weights: Union['str', np.ndarray] = 'degree',
+            feature_weights: Union['str', np.ndarray] = 'degree'):
+        """Alternates local optimization and aggregation until convergence.
+
+        Parameters
+        ----------
+        biadjacency:
+            adjacency matrix of the graph to cluster, treated as a biadjacency matrix
+        sample_weights:
+            Probabilities for the samples in the null model. ``'degree'``, ``'uniform'`` or custom weights.
+        feature_weights:
+            Probabilities for the features in the null model. ``'degree'``, ``'uniform'`` or custom weights.
+
+        Returns
+        -------
+        self:
+        """
+        # phase 1: bilouvain greedy optimization
+        self.iteration_count_: int = 0
+        n_samples, n_features = biadjacency.shape
+        bilouvain = BiLouvain(self.algorithm, self.resolution, self.tol, max_agg_iter=self.max_agg_iter,
+                              verbose=self.verbose)
+        bilouvain.fit(biadjacency, sample_weights, feature_weights)
+
+        sample_row = np.arange(n_samples)
+        sample_col = bilouvain.sample_labels_
+        sample_data = np.ones(n_samples)
+        feature_row = np.arange(n_features)
+        feature_col = bilouvain.feature_labels_
+        feature_data = np.ones(n_features)
+
+        n_clusters = bilouvain.n_clusters_
+
+        sample_membership = sparse.csr_matrix((sample_data, (sample_row, sample_col)), shape=(n_samples, n_clusters))
+        feature_membership = sparse.csr_matrix((feature_data, (feature_row, feature_col)),
+                                               shape=(n_features, n_clusters))
+        self.iteration_count_ += 1
+
+        # phase 2: louvain optimization on aggregated graph
+        # adjacency = (agg_adj + agg_adj.T - sparse.diags(agg_adj.diagonal())).tocsr()
+        # louvain = Louvain(resolution=self.resolution, tol=self.tol)
+        # louvain.fit(adjacency)
+        louvain = Louvain(GreedyDirected(self.resolution, self.tol, engine='python'))
+        louvain.fit(bilouvain.aggregate_graph_)
+
+        row = np.arange(n_clusters)
+        col = louvain.labels_
+        data = np.ones(n_clusters)
+        membership = sparse.csr_matrix((data, (row, col)))
+        sample_membership = sample_membership.dot(membership)
+        feature_membership = feature_membership.dot(membership)
+
+        self.iteration_count_ += louvain.iteration_count_
+        self.sample_labels_ = sample_membership.indices
+        _, self.sample_labels_ = np.unique(self.sample_labels_, return_inverse=True)
+        self.feature_labels_ = feature_membership.indices
+        _, self.feature_labels_ = np.unique(self.feature_labels_, return_inverse=True)
+        self.n_clusters_ = max(max(self.sample_labels_), max(self.feature_labels_)) + 1
+        self.aggregate_graph_ = (membership.T.dot(bilouvain.aggregate_graph_.dot(membership))).tocsr()
+        self.aggregate_graph_ *= biadjacency.data.sum()
         return self

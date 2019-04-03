@@ -82,3 +82,82 @@ def star_wars_villains_graph(return_labels=False):
         return biadjacency, row_labels, col_labels
     else:
         return biadjacency
+
+
+def movie_actor_graph(return_labels=False):
+    """
+    Bipartite graph connecting movies to some actors starring in them.\n
+    31 nodes (15 movies, 16 actors), 41 edges
+
+    Parameters
+    ----------
+    return_labels: bool
+        whether to return the labels of the nodes as dictionaries.
+
+    Returns
+    -------
+    biadjacency: sparse.csr_matrix
+        Biadjacency matrix of the graph.
+    """
+    edges = {
+        0: [0, 1, 2],
+        1: [1, 2, 3],
+        2: [3, 4, 5, 8],
+        3: [4, 6],
+        4: [0, 6],
+        5: [4, 7],
+        6: [4, 7, 8],
+        7: [3, 8],
+        8: [9, 10, 11, 12, 15],
+        9: [0, 11, 12],
+        10: [9, 10],
+        11: [5, 9, 13],
+        12: [1, 9, 15],
+        13: [12, 14],
+        14: [11, 14]
+    }
+    row, col = [], []
+    for key, item in edges.items():
+        row += [key] * len(item)
+        col += item
+    biadjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)))
+
+    if return_labels:
+        row_labels = {
+            0: 'Inception',
+            1: 'The Dark Knight Rises',
+            2: 'The Big Short',
+            3: 'Drive',
+            4: 'The Great Gatsby',
+            5: 'La La Land',
+            6: 'Crazy Stupid Love',
+            7: 'Vice',
+            8: 'The Grand Budapest Hotel',
+            9: 'Aviator',
+            10: '007 Spectre',
+            11: 'Inglourious Basterds',
+            12: 'Midnight In Paris',
+            13: 'Murder on the Orient Express',
+            14: 'Fantastic Beasts 2'
+        }
+        col_labels = {
+            0: 'Leonardo DiCaprio',
+            1: 'Marion Cotillard',
+            2: 'Joseph Gordon Lewitt',
+            3: 'Christian Bale',
+            4: 'Ryan Gosling',
+            5: 'Brad Pitt',
+            6: 'Carey Mulligan',
+            7: 'Emma Stone',
+            8: 'Steve Carell',
+            9: 'Lea Seydoux',
+            10: 'Ralph Fiennes',
+            11: 'Jude Law',
+            12: 'Willem Dafoe',
+            13: 'Christophe Waltz',
+            14: 'Johnny Depp',
+            15: 'Owen Wilson'
+        }
+        return biadjacency, row_labels, col_labels
+    else:
+        return biadjacency
