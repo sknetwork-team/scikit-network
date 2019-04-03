@@ -2,6 +2,11 @@
 History
 =======
 
+0.4.0 (2019-04-03)
+------------------
+
+* Added Louvain for directed graphs and ComboLouvain for bipartite graphs.
+
 0.3.0 (2019-03-29)
 ------------------
 
