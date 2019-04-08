@@ -10,7 +10,7 @@ from scipy import sparse
 from typing import Union
 
 
-def check_engine(engine):
+def check_engine(engine: str) -> str:
     try:
         from numba import njit, prange
         is_numba_available = True
@@ -32,6 +32,26 @@ def check_engine(engine):
     else:
         raise ValueError('Engine must be default, python or numba.')
     return engine
+
+
+def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
+    if type(adjacency) not in {sparse.csr_matrix, np.ndarray}:
+        raise TypeError('Adjacency must be in Scipy CSR format or Numpy ndarray format.')
+    else:
+        return sparse.csr_matrix(adjacency)
+
+
+def check_nonnegative_entries(adjacency: sparse.csr_matrix) -> bool:
+    return np.all(adjacency.data >= 0)
+
+
+def check_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
+    return adjacency.shape[0] == adjacency.shape[1]
+
+
+def check_symmetry(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1e-10) -> bool:
+    sym_error = adjacency - adjacency.T
+    return np.all(np.abs(sym_error.data) <= tol)
 
 
 def check_weights(weights: Union['str', np.ndarray],

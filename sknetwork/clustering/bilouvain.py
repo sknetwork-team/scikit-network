@@ -9,7 +9,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering.louvain import Optimizer, GreedyDirected, Louvain
-from .utils import *
+from sknetwork.utils.checks import *
 
 try:
     from numba import njit, prange
