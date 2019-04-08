@@ -3,11 +3,14 @@
 Introduction
 ************
 
-Scikit_network is an open-source python package allowing to easily experience with graph algorithms.
-It relies on a unified graph format, namely ``scipy.sparse.csr_matrix``.
+scikit-network is an open-source python package for the analysis of large graphs.
+Graphs are represented by their adjacency matrix, in one of the following two formats:
 
-Quickstart
-----------
+* numpy array
+* scipy sparse csr matrix
+
+Quick start
+-----------
 
 Install scikit-network:
 
@@ -33,6 +36,6 @@ We use the following notations in the documentation:
 
 * :math:`f = A^T1` or :math:`B^T1` is the in-degree vector and :math:`F = \text{diag}(f)` the associated diagonal matrix.
 
-* :math:`w = 1^TA1` or :math:`1 ^TB1` is the total weight of the graph.
+* :math:`w = 1^T A1` or :math:`1 ^T B1` is the total weight of the graph.
 
 
