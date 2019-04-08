@@ -7,9 +7,9 @@ Created on Mar 3, 2019
 
 import numpy as np
 from scipy import sparse
-from typing import Union
 
-from sknetwork.clustering.louvain import Louvain, GreedyDirected
+from sknetwork.clustering.louvain import Optimizer, GreedyDirected, Louvain
+from .utils import *
 
 try:
     from numba import njit, prange
@@ -17,46 +17,6 @@ except ImportError:
     def njit(func):
         return func
     prange = range
-
-
-def check_weights(weights: Union['str', np.ndarray],
-                  biadjacency: Union[sparse.csr_matrix, sparse.csc_matrix]) -> np.ndarray:
-    """Checks whether the weights are a valid distribution for the graph and returns a probability vector.
-
-    Parameters
-    ----------
-    weights:
-        Probabilities for node sampling in the null model. ``'degree'``, ``'uniform'`` or custom weights.
-    biadjacency:
-        The biadjacency matrix of the graph
-
-    Returns
-    -------
-        props: np.ndarray
-            probability vector for node sampling.
-
-    """
-    n_weights = biadjacency.shape[0]
-    if type(weights) == np.ndarray:
-        if len(weights) != n_weights:
-            raise ValueError('The number of node weights must match the number of nodes.')
-        else:
-            node_weights_vec = weights
-    elif type(weights) == str:
-        if weights == 'degree':
-            node_weights_vec = biadjacency.dot(np.ones(biadjacency.shape[1]))
-        elif weights == 'uniform':
-            node_weights_vec = np.ones(n_weights)
-        else:
-            raise ValueError('Unknown distribution of node weights.')
-    else:
-        raise TypeError(
-            'Node weights must be a known distribution ("degree" or "uniform" string) or a custom NumPy array.')
-
-    if np.any(node_weights_vec <= 0):
-        raise ValueError('All node weights must be positive.')
-    else:
-        return node_weights_vec / np.sum(node_weights_vec)
 
 
 class BipartiteGraph:
@@ -238,26 +198,7 @@ class GreedyBipartite(BiOptimizer):
         BiOptimizer.__init__(self)
         self.resolution = resolution
         self.tol = tol
-        try:
-            from numba import njit, prange
-            is_numba_available = True
-        except ImportError:
-            is_numba_available = False
-
-        if engine == 'default':
-            if is_numba_available:
-                self.engine = 'numba'
-            else:
-                self.engine = 'python'
-        elif engine == 'numba':
-            if is_numba_available:
-                self.engine = 'numba'
-            else:
-                raise ValueError('Numba is not available')
-        elif engine == 'python':
-            self.engine = 'python'
-        else:
-            raise ValueError('Engine must be default, python or numba.')
+        self.engine = check_engine(engine)
 
     def fit(self, graph: BipartiteGraph):
         """Iterates over the nodes of the graph and moves them to the cluster of highest increase among their neighbors.
@@ -344,12 +285,6 @@ class GreedyBipartite(BiOptimizer):
                 if pass_increase > self.tol:
                     increase = True
 
-            self.score_ = total_increase
-            _, self.sample_labels_ = np.unique(sample_labels, return_inverse=True)
-            _, self.feature_labels_ = np.unique(feature_labels, return_inverse=True)
-
-            return self
-
         elif self.engine == 'numba':
             transposed_adjacency = graph.norm_adjacency.T.tocsr()
             sample_args = (graph.n_samples, graph.sample_weights,
@@ -360,14 +295,14 @@ class GreedyBipartite(BiOptimizer):
             sample_labels, feature_labels, total_increase = fit_core(sample_args, feature_args,
                                                                      self.resolution, self.tol)
 
-            self.score_ = total_increase
-            _, self.sample_labels_ = np.unique(sample_labels, return_inverse=True)
-            _, self.feature_labels_ = np.unique(feature_labels, return_inverse=True)
-
-            return self
-
         else:
             raise ValueError('Unknown engine.')
+
+        self.score_ = total_increase
+        self.sample_labels_ = sample_labels
+        _, self.feature_labels_ = np.unique(feature_labels, return_inverse=True)
+
+        return self
 
 
 class BiLouvain:
@@ -536,11 +471,11 @@ class ComboLouvain:
         number of clusters after fit
     """
 
-    def __init__(self, algorithm: Union[str, BiOptimizer] = 'default', resolution: float = 1, tol: float = 1e-3,
+    def __init__(self, algorithm: Union[str, Optimizer] = 'default', resolution: float = 1, tol: float = 1e-3,
                  agg_tol: float = 1e-3, max_agg_iter: int = -1, verbose: bool = False):
         if algorithm == 'default':
-                self.algorithm = GreedyBipartite(resolution, tol, engine='default')
-        elif isinstance(algorithm, BiOptimizer):
+                self.algorithm = GreedyDirected(resolution, tol, engine='default')
+        elif isinstance(algorithm, Optimizer):
             self.algorithm = algorithm
         else:
             raise TypeError('Algorithm must be a \'default\' or a valid algorithm.')
@@ -576,53 +511,16 @@ class ComboLouvain:
         -------
         self:
         """
-        # phase 1: bilouvain greedy optimization
-        if self.verbose:
-            print('Beginning phase 1: bimodularity optimization.')
-        self.iteration_count_: int = 0
         n_samples, n_features = biadjacency.shape
-        bilouvain = BiLouvain(self.algorithm, self.resolution, self.tol, max_agg_iter=self.max_agg_iter,
-                              verbose=self.verbose)
-        bilouvain.fit(biadjacency, sample_weights, feature_weights)
+        adjacency = sparse.bmat([[None, biadjacency], [sparse.csr_matrix((n_features, n_samples)), None]]).tocsr()
+        sample_weights = check_weights(sample_weights, biadjacency)
+        feature_weights = check_weights(feature_weights, biadjacency.T)
+        louvain = Louvain(self.algorithm, verbose=self.verbose)
+        louvain.fit(adjacency, np.hstack((sample_weights, feature_weights)))
 
-        sample_row = np.arange(n_samples)
-        sample_col = bilouvain.sample_labels_
-        sample_data = np.ones(n_samples)
-        feature_row = np.arange(n_features)
-        feature_col = bilouvain.feature_labels_
-        feature_data = np.ones(n_features)
-
-        n_clusters = bilouvain.n_clusters_
-
-        sample_membership = sparse.csr_matrix((sample_data, (sample_row, sample_col)), shape=(n_samples, n_clusters))
-        feature_membership = sparse.csr_matrix((feature_data, (feature_row, feature_col)),
-                                               shape=(n_features, n_clusters))
-        self.iteration_count_ += 1
-
-        # phase 2: louvain optimization on aggregated graph
-        if self.verbose:
-            print('Beginning phase 2: directed modularity optimization.')
-        if bilouvain.aggregate_graph_.shape[0] != bilouvain.aggregate_graph_.shape[1]:
-            largest_dim = max(bilouvain.aggregate_graph_.shape)
-            aggregate_graph = sparse.csr_matrix(bilouvain.aggregate_graph_, shape=(largest_dim, largest_dim))
-        else:
-            aggregate_graph = bilouvain.aggregate_graph_
-
-        louvain = Louvain(GreedyDirected(self.resolution, self.tol, engine='python'), verbose=self.verbose)
-        louvain.fit(aggregate_graph)
-
-        row = np.arange(n_clusters)
-        col = louvain.labels_
-        data = np.ones(n_clusters)
-        membership = sparse.csr_matrix((data, (row, col)))
-        sample_membership = sample_membership.dot(membership)
-        feature_membership = feature_membership.dot(membership)
-
-        self.iteration_count_ += louvain.iteration_count_
-        self.sample_labels_ = sample_membership.indices
-        _, self.sample_labels_ = np.unique(self.sample_labels_, return_inverse=True)
-        self.feature_labels_ = feature_membership.indices
-        _, self.feature_labels_ = np.unique(self.feature_labels_, return_inverse=True)
-        self.n_clusters_ = max(len(set(self.sample_labels_)), len(set(self.feature_labels_)))
-        self.aggregate_graph_ = (membership.T.dot(aggregate_graph.dot(membership))).tocsr() * biadjacency.data.sum()
+        self.iteration_count_ = louvain.iteration_count_
+        self.sample_labels_ = louvain.labels_[:n_samples]
+        self.feature_labels_ = louvain.labels_[n_samples:]
+        self.n_clusters_ = louvain.n_clusters_
+        self.aggregate_graph_ = louvain.aggregate_graph_
         return self
