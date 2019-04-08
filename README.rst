@@ -23,7 +23,7 @@ scikit-network
         :alt: Updates
 
 
-Graph algorithms
+Simple and efficient tools for the analysis of large graphs
 
 
 * Free software: BSD license
