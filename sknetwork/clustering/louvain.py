@@ -15,31 +15,7 @@ except ImportError:
 
 import numpy as np
 from scipy import sparse
-from typing import Union
-
-
-def check_engine(engine):
-    try:
-        from numba import njit, prange
-        is_numba_available = True
-    except ImportError:
-        is_numba_available = False
-
-    if engine == 'default':
-        if is_numba_available:
-            engine = 'numba'
-        else:
-            engine = 'python'
-    elif engine == 'numba':
-        if is_numba_available:
-            engine = 'numba'
-        else:
-            raise ValueError('Numba is not available')
-    elif engine == 'python':
-        engine = 'python'
-    else:
-        raise ValueError('Engine must be default, python or numba.')
-    return engine
+from .utils import *
 
 
 class NormalizedGraph:
@@ -310,24 +286,19 @@ class GreedyModularity(Optimizer):
                 if pass_increase > self.tol:
                     increase = True
 
-            self.score_ = total_increase
-            _, self.labels_ = np.unique(labels, return_inverse=True)
-
-            return self
-
         elif self.engine == 'numba':
             labels, total_increase = fit_core(self.resolution, self.tol, self.shuffle_nodes, graph.n_nodes,
                                               graph.node_probs, graph.norm_adjacency.diagonal(),
                                               graph.norm_adjacency.data,
                                               graph.norm_adjacency.indices, graph.norm_adjacency.indptr)
 
-            self.score_ = total_increase
-            _, self.labels_ = np.unique(labels, return_inverse=True)
-
-            return self
-
         else:
             raise ValueError('Unknown engine.')
+
+        self.score_ = total_increase
+        _, self.labels_ = np.unique(labels, return_inverse=True)
+
+        return self
 
 
 @njit
@@ -666,28 +637,7 @@ class Louvain:
         if adjacency.shape[0] != adjacency.shape[1]:
             raise ValueError('The adjacency matrix must be square.')
 
-        n_nodes = adjacency.shape[0]
-
-        if type(node_weights) == np.ndarray:
-            if len(node_weights) != n_nodes:
-                raise ValueError('The number of node weights must match the number of nodes.')
-            else:
-                node_weights_vec = node_weights
-        elif type(node_weights) == str:
-            if node_weights == 'degree':
-                node_weights_vec = adjacency.dot(np.ones(n_nodes))
-            elif node_weights == 'uniform':
-                node_weights_vec = np.ones(n_nodes)
-            else:
-                raise ValueError('Unknown distribution of node weights.')
-        else:
-            raise TypeError(
-                'Node weights must be a known distribution ("degree" or "uniform" string) or a custom NumPy array.')
-
-        if np.any(node_weights_vec <= 0):
-            raise ValueError('All node weights must be positive.')
-        else:
-            node_weights_vec = node_weights_vec / np.sum(node_weights_vec)
+        node_weights_vec = check_weights(node_weights, adjacency)
 
         graph = NormalizedGraph(adjacency, node_weights_vec)
         membership = sparse.identity(graph.n_nodes, format='csr')
