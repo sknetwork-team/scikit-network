@@ -15,7 +15,7 @@ except ImportError:
 
 import numpy as np
 from scipy import sparse
-from .utils import *
+from sknetwork.utils.checks import *
 
 
 class NormalizedGraph:
