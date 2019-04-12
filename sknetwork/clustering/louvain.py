@@ -395,10 +395,16 @@ class Louvain:
 
     References
     ----------
-    Blondel, V. D., Guillaume, J. L., Lambiotte, R., & Lefebvre, E. (2008).
-    Fast unfolding of communities in large networks.
-    Journal of statistical mechanics: theory and experiment, 2008
-    https://arxiv.org/abs/0803.0476
+    * Blondel, V. D., Guillaume, J. L., Lambiotte, R., & Lefebvre, E. (2008).
+      Fast unfolding of communities in large networks.
+      Journal of statistical mechanics: theory and experiment, 2008
+      https://arxiv.org/abs/0803.0476
+
+    * Dugué, N., & Perez, A. (2015).
+      Directed Louvain: maximizing modularity in directed networks
+      (Doctoral dissertation, Université d'Orléans).
+      https://hal.archives-ouvertes.fr/hal-01231784/document
+
     """
 
     def __init__(self, algorithm: Union[str, Optimizer] = 'default', resolution: float = 1, tol: float = 1e-3,

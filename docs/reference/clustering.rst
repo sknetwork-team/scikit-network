@@ -22,9 +22,6 @@ Louvain for bipartite graphs
 .. autoclass:: sknetwork.clustering.BiLouvain
     :members:
 
-.. autoclass:: sknetwork.clustering.GreedyBipartite
-    :members:
-
 
 Metrics
 -------

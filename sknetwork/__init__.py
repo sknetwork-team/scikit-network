@@ -4,7 +4,7 @@
 
 __author__ = """scikit-network team"""
 __email__ = "bonald@enst.fr"
-__version__ = '0.2.0'
+__version__ = '0.4.0'
 
 try:
     from numba import njit, prange
@@ -21,6 +21,7 @@ except ImportError:
     prange = range
     is_numba_available = False
 
+from scipy.sparse.csgraph import *
 from sknetwork.toy_graphs.graph_data import *
 from sknetwork.loader.parser import *
 from sknetwork.clustering.louvain import *
