@@ -10,8 +10,14 @@ Created on Nov 2, 2018
 try:
     from numba import njit
 except ImportError:
-    def njit(func):
-        return func
+    def njit(*args, **kwargs):
+        if len(args) > 0:
+            if callable(args[0]):
+                return args[0]
+        else:
+            def __wrapper__(func):
+                return func
+            return __wrapper__
 
 import numpy as np
 from scipy import sparse

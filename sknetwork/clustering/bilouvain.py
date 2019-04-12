@@ -15,8 +15,14 @@ from sknetwork.utils.checks import *
 try:
     from numba import njit, prange
 except ImportError:
-    def njit(func):
-        return func
+    def njit(*args, **kwargs):
+        if len(args) > 0:
+            if callable(args[0]):
+                return args[0]
+        else:
+            def __wrapper__(func):
+                return func
+            return __wrapper__
     prange = range
 
 
