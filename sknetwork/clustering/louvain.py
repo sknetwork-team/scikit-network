@@ -7,22 +7,11 @@ Created on Nov 2, 2018
 @author: Thomas Bonald <tbonald@enst.fr>
 """
 
-try:
-    from numba import njit
-except ImportError:
-    def njit(*args, **kwargs):
-        if len(args) > 0:
-            if callable(args[0]):
-                return args[0]
-        else:
-            def __wrapper__(func):
-                return func
-            return __wrapper__
-
 import numpy as np
 from scipy import sparse
 from sknetwork.utils.checks import *
 from sknetwork.utils.adjacency_formats import *
+from sknetwork import njit
 
 
 def membership_matrix(labels: np.ndarray) -> sparse.csr_matrix:

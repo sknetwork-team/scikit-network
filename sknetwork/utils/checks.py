@@ -8,15 +8,10 @@ Created on Apr 4, 2019
 import numpy as np
 from scipy import sparse
 from typing import Union
+from sknetwork import is_numba_available
 
 
 def check_engine(engine: str) -> str:
-    try:
-        from numba import njit, prange
-        is_numba_available = True
-    except ImportError:
-        is_numba_available = False
-
     if engine == 'default':
         if is_numba_available:
             engine = 'numba'

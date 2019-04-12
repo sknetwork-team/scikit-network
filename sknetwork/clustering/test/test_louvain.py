@@ -15,7 +15,11 @@ class TestLouvainClustering(unittest.TestCase):
         self.louvain = Louvain()
         self.louvain_high_resolution = Louvain(GreedyModularity(engine='python', resolution=2))
         self.louvain_null_resolution = Louvain(GreedyModularity(engine='python', resolution=0))
-        self.louvain_numba = Louvain(GreedyModularity(engine='numba'))
+        if is_numba_available:
+            self.louvain_numba = Louvain(GreedyModularity(engine='numba'))
+        else:
+            with self.assertRaises(ValueError):
+                Louvain(GreedyModularity(engine='numba'))
         self.karate_club_graph = karate_club_graph()
 
     def test_unknown_types(self):
@@ -36,9 +40,10 @@ class TestLouvainClustering(unittest.TestCase):
         labels = self.louvain.fit(self.karate_club_graph).labels_
         self.assertEqual(labels.shape, (34,))
         self.assertAlmostEqual(modularity(self.karate_club_graph, labels), 0.42, 2)
-        labels = self.louvain_numba.fit(self.karate_club_graph).labels_
-        self.assertEqual(labels.shape, (34,))
-        self.assertAlmostEqual(modularity(self.karate_club_graph, labels), 0.42, 2)
+        if is_numba_available:
+            labels = self.louvain_numba.fit(self.karate_club_graph).labels_
+            self.assertEqual(labels.shape, (34,))
+            self.assertAlmostEqual(modularity(self.karate_club_graph, labels), 0.42, 2)
         labels = self.louvain_high_resolution.fit(self.karate_club_graph).labels_
         self.assertEqual(labels.shape, (34,))
         self.assertAlmostEqual(modularity(self.karate_club_graph, labels), 0.34, 2)

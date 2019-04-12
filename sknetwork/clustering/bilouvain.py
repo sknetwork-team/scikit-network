@@ -11,19 +11,7 @@ from scipy import sparse
 from sknetwork.clustering.louvain import *
 from sknetwork.utils.adjacency_formats import bipartite2undirected
 from sknetwork.utils.checks import *
-
-try:
-    from numba import njit, prange
-except ImportError:
-    def njit(*args, **kwargs):
-        if len(args) > 0:
-            if callable(args[0]):
-                return args[0]
-        else:
-            def __wrapper__(func):
-                return func
-            return __wrapper__
-    prange = range
+from sknetwork import njit, prange
 
 
 @njit(parallel=False)

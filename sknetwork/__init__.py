@@ -6,7 +6,21 @@ __author__ = """scikit-network team"""
 __email__ = "bonald@enst.fr"
 __version__ = '0.2.0'
 
-from scipy.sparse.csgraph import *
+try:
+    from numba import njit, prange
+    is_numba_available = True
+except ImportError:
+    def njit(*args, **kwargs):
+        if len(args) > 0:
+            if callable(args[0]):
+                return args[0]
+        else:
+            def __wrapper__(func):
+                return func
+            return __wrapper__
+    prange = range
+    is_numba_available = False
+
 from sknetwork.toy_graphs.graph_data import *
 from sknetwork.loader.parser import *
 from sknetwork.clustering.louvain import *
