@@ -241,7 +241,7 @@ class GreedyModularity(Optimizer):
     tol:
         minimum bimodularity increase to enter a new optimization pass
     engine: str
-        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, it will test if numba is available.
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, it will tests if numba is available.
 
     """
 

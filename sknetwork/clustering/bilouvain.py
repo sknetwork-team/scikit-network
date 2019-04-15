@@ -107,7 +107,7 @@ class BiLouvain:
         Maximum number of aggregations.
         A negative value is interpreted as no limit.
     engine: str
-        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, it will test if numba is available.
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, it will tests if numba is available.
     verbose:
         Verbose mode.
 
