@@ -136,7 +136,7 @@ def fast_parse_tsv(file: str, directed: bool = False, bipartite: bool = False, w
     -------
     adj_matrix : csr_matrix
         the adjacency_matrix of the graph
-        
+
     """
     header_len = -1
     possible_delimiters = ['\t', ' ']
@@ -159,10 +159,16 @@ def fast_parse_tsv(file: str, directed: bool = False, bipartite: bool = False, w
         weighted = guess_weighted
     if delimiter is None:
         delimiter = guess_delimiter
-    parsed = fromfile(file, sep=delimiter)
+    with open(file) as f:
+        for i in range(header_len):
+            f.readline()
+        if weighted:
+            parsed = fromfile(f, sep=delimiter)
+        else:
+            parsed = fromfile(f, sep=delimiter, dtype=int)
     if weighted:
-        rows = parsed[0::3]
-        cols = parsed[1::3]
+        rows = parsed[0::3].astype(int)
+        cols = parsed[1::3].astype(int)
         dat = parsed[2::3]
     else:
         rows = parsed[0::2]
@@ -182,3 +188,4 @@ def fast_parse_tsv(file: str, directed: bool = False, bipartite: bool = False, w
         if not directed:
             adj_matrix += adj_matrix.transpose()
     return adj_matrix
+

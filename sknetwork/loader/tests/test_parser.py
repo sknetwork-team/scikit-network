@@ -27,12 +27,16 @@ class TestTSVParser(unittest.TestCase):
         text_file.write('%stub\n1 3 a\n4 5 b\n0 2 e')
         text_file.close()
 
+    def tearDown(self):
+        remove(self.stub_data_1)
+        remove(self.stub_data_2)
+        remove(self.stub_data_3)
+
     def test_unlabeled_unweighted(self):
         adj = parser.parse_tsv(self.stub_data_1)
         self.assertEqual(sum(adj.indices == np.array([2, 3, 0, 1, 5, 4])), 6)
         self.assertEqual(sum(adj.indptr == np.array([0, 1, 2, 3, 4, 5, 6])), 7)
         self.assertEqual(sum(adj.data == np.array([1, 1, 1, 1, 1, 1])), 6)
-        remove(self.stub_data_1)
 
     def test_labeled_weighted(self):
         adj, labels = parser.parse_tsv(self.stub_data_2)
@@ -40,9 +44,14 @@ class TestTSVParser(unittest.TestCase):
         self.assertEqual(sum(adj.indptr == np.array([0, 1, 2, 3, 4, 5, 6])), 7)
         self.assertEqual(sum(adj.data == np.array([6, 1, 1, 6, 5, 5])), 6)
         self.assertEqual(sum(labels == np.array(['a', 'b', 'c', 'd', 'e', 'f'])), 6)
-        remove(self.stub_data_2)
 
     def test_poor_format(self):
         self.assertRaises(ValueError, parser.parse_tsv, self.stub_data_3)
-        remove(self.stub_data_3)
+
+    def test_fast_parse(self):
+        adj = parser.fast_parse_tsv(self.stub_data_1)
+        self.assertEqual(sum(adj.indices == np.array([2, 3, 0, 1, 5, 4])), 6)
+        self.assertEqual(sum(adj.indptr == np.array([0, 1, 2, 3, 4, 5, 6])), 7)
+        self.assertEqual(sum(adj.data == np.array([1, 1, 1, 1, 1, 1])), 6)
+
 
