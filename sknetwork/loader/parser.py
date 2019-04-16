@@ -5,14 +5,17 @@ Created on Dec 5, 2018
 @author: Quentin Lutz <qlutz@enst.fr>, Nathan de Lara <ndelara@enst.fr>
 """
 
+import numpy as np
 from numpy import zeros, unique, argmax, int32, int64, ones, concatenate, fromfile
 from scipy import sparse
-from typing import Union
+from typing import Tuple, Union
 from csv import reader
 
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = None,
-              labeled: bool = None, comment: str = '%#', delimiter: str = None) -> Union[sparse.csr_matrix, tuple]:
+              labeled: bool = None, comment: str = '%#', delimiter: str = None) -> Union[sparse.csr_matrix,
+                                                                                         Tuple[sparse.csr_matrix,
+                                                                                               np.ndarray]]:
     """
     A parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
 
@@ -36,8 +39,8 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
 
     Returns
     -------
-    adj_matrix : csr_matrix
-        the adjacency_matrix of the graph
+    adjacency : csr_matrix
+        the adjacency matrix of the graph
     labels : numpy.array
         optional, an array such that labels[k] is the label or the new index given to the k-th node
 
@@ -60,7 +63,8 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
             row = f.readline()
         guess_delimiter = possible_delimiters[int(argmax(del_count))]
         guess_weighted = bool(min([line.count(guess_delimiter) for line in lines]) - 1)
-        guess_labeled = not all([all([el.strip().isdigit() for el in line.split(guess_delimiter)][0:2]) for line in lines])
+        guess_labeled = not all([all([el.strip().isdigit() for el in line.split(guess_delimiter)][0:2]) for line
+                                 in lines])
     if weighted is None:
         weighted = guess_weighted
     if labeled is None:
@@ -104,15 +108,15 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         dtype = int64
 
     if bipartite:
-        adj_matrix = sparse.csr_matrix((dat, (rows, cols)), dtype=dtype)
+        adjacency = sparse.csr_matrix((dat, (rows, cols)), dtype=dtype)
     else:
-        adj_matrix = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_nodes), dtype=dtype)
+        adjacency = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_nodes), dtype=dtype)
         if not directed:
-            adj_matrix += adj_matrix.transpose()
+            adjacency += adjacency.transpose()
     if labeled or reindex:
-        return adj_matrix, labels
+        return adjacency, labels
     else:
-        return adj_matrix
+        return adjacency
 
 
 def fast_parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = None,
@@ -198,13 +202,12 @@ def fast_parse_tsv(file: str, directed: bool = False, bipartite: bool = False, w
         dtype = int64
 
     if bipartite:
-        adj_matrix = sparse.csr_matrix((dat, (rows, cols)), dtype=dtype)
+        adjacency = sparse.csr_matrix((dat, (rows, cols)), dtype=dtype)
     else:
-        adj_matrix = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_nodes), dtype=dtype)
+        adjacency = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_nodes), dtype=dtype)
         if not directed:
-            adj_matrix += adj_matrix.transpose()
+            adjacency += adjacency.transpose()
     if reindex:
-        return adj_matrix, labels
+        return adjacency, labels
     else:
-        return adj_matrix
-
+        return adjacency
