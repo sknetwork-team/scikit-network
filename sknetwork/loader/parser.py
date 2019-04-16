@@ -39,9 +39,10 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     adj_matrix : csr_matrix
         the adjacency_matrix of the graph
     labels : numpy.array
-        optional, an array such that labels[k] is the label given to the k-th node
+        optional, an array such that labels[k] is the label or the new index given to the k-th node
 
     """
+    reindex = False
     header_len = -1
     possible_delimiters = ['\t', ',', ' ']
     del_count = zeros(3, dtype=int)
@@ -59,13 +60,14 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
             row = f.readline()
         guess_delimiter = possible_delimiters[int(argmax(del_count))]
         guess_weighted = bool(min([line.count(guess_delimiter) for line in lines]) - 1)
-        guess_labeled = not all([all([el.isdigit() for el in line.split(guess_delimiter)][0:2]) for line in lines])
+        guess_labeled = not all([all([el.strip().isdigit() for el in line.split(guess_delimiter)][0:2]) for line in lines])
     if weighted is None:
         weighted = guess_weighted
     if labeled is None:
         labeled = guess_labeled
     if delimiter is None:
         delimiter = guess_delimiter
+
     rows, cols, dat = [], [], []
     with open(file, 'r') as f:
         for i in range(header_len):
@@ -82,17 +84,20 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
                 if weighted:
                     dat.append(float(row[2]))
     n_edges = len(rows)
+    nodes = concatenate((rows, cols), axis=None)
+    labels, new_nodes = unique(nodes, return_inverse=True)
+    n_nodes = len(labels)
     if labeled:
-        nodes = concatenate((rows, cols), axis=None)
-        labels, new_nodes = unique(nodes, return_inverse=True)
         rows = new_nodes[:n_edges]
         cols = new_nodes[n_edges:]
     else:
-        labels = None
+        if not all(labels == range(len(labels))):
+            reindex = True
+            rows = new_nodes[:n_edges]
+            cols = new_nodes[n_edges:]
     if not weighted:
         dat = ones(n_edges, dtype=bool)
 
-    n_nodes = max(max(rows), max(cols)) + 1
     if n_nodes < 2 * 10e9:
         dtype = int32
     else:
@@ -104,7 +109,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         adj_matrix = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_nodes), dtype=dtype)
         if not directed:
             adj_matrix += adj_matrix.transpose()
-    if labeled:
+    if labeled or reindex:
         return adj_matrix, labels
     else:
         return adj_matrix
@@ -136,8 +141,11 @@ def fast_parse_tsv(file: str, directed: bool = False, bipartite: bool = False, w
     -------
     adj_matrix : csr_matrix
         the adjacency_matrix of the graph
+    labels : numpy.array
+        optional, an array such that labels[k] is the label or the new index given to the k-th node
 
     """
+    reindex = False
     header_len = -1
     possible_delimiters = ['\t', ' ']
     del_count = zeros(2, dtype=int)
@@ -159,6 +167,7 @@ def fast_parse_tsv(file: str, directed: bool = False, bipartite: bool = False, w
         weighted = guess_weighted
     if delimiter is None:
         delimiter = guess_delimiter
+
     with open(file) as f:
         for i in range(header_len):
             f.readline()
@@ -175,7 +184,14 @@ def fast_parse_tsv(file: str, directed: bool = False, bipartite: bool = False, w
         cols = parsed[1::2]
         dat = ones(len(rows), dtype=int)
 
-    n_nodes = max(max(rows), max(cols)) + 1
+    n_edges = len(rows)
+    nodes = concatenate((rows, cols), axis=None)
+    labels, new_nodes = unique(nodes, return_inverse=True)
+    n_nodes = len(labels)
+    if not all(labels == range(len(labels))):
+        reindex = True
+        rows = new_nodes[:n_edges]
+        cols = new_nodes[n_edges:]
     if n_nodes < 2 * 10e9:
         dtype = int32
     else:
@@ -187,5 +203,8 @@ def fast_parse_tsv(file: str, directed: bool = False, bipartite: bool = False, w
         adj_matrix = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_nodes), dtype=dtype)
         if not directed:
             adj_matrix += adj_matrix.transpose()
-    return adj_matrix
+    if reindex:
+        return adj_matrix, labels
+    else:
+        return adj_matrix
 
