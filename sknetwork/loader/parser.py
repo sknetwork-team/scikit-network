@@ -6,16 +6,15 @@ Created on Dec 5, 2018
 """
 
 import numpy as np
-from numpy import zeros, unique, argmax, int32, int64, ones, concatenate, fromfile
+from numpy import zeros, unique, argmax, int32, int64, ones, concatenate
 from scipy import sparse
 from typing import Tuple, Union
 from csv import reader
 
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = None,
-              labeled: bool = None, comment: str = '%#', delimiter: str = None) -> Union[sparse.csr_matrix,
-                                                                                         Tuple[sparse.csr_matrix,
-                                                                                               np.ndarray]]:
+              labeled: bool = None, comment: str = '%#', delimiter: str = None) ->Tuple[sparse.csr_matrix,
+                                                                                        Union[np.ndarray, None]]:
     """
     A parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
 
@@ -42,7 +41,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     adjacency : csr_matrix
         the adjacency matrix of the graph
     labels : numpy.array
-        optional, an array such that labels[k] is the label or the new index given to the k-th node
+        an array such that labels[k] is the label or the new index given to the k-th node, None if no labels
 
     """
     reindex = False
@@ -116,98 +115,5 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     if labeled or reindex:
         return adjacency, labels
     else:
-        return adjacency
+        return adjacency, None
 
-
-def fast_parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = None,
-                   comment: str = '%#', delimiter: str = None) -> Union[sparse.csr_matrix, tuple]:
-    """
-    A faster parser for Tabulation-Separated or Space-Separated Values datasets.
-
-    It requires that the data is made of integers and floats only and that the indexing need not be adjusted.
-
-    Parameters
-    ----------
-    file : str
-        the path to the dataset in TSV format
-    directed : bool
-        ensures the adjacency matrix is symmetric if False
-    bipartite : bool
-        if True, returns the biadjacency matrix of shape (n1, n2)
-    weighted : Union[bool, str]
-        retrieves the weights in the third field of the file. None makes a guess based on the first lines
-    comment : str
-        set of characters denoting lines to ignore
-    delimiter : str
-        delimiter used in the file. None makes a guess
-
-    Returns
-    -------
-    adj_matrix : csr_matrix
-        the adjacency_matrix of the graph
-    labels : numpy.array
-        optional, an array such that labels[k] is the label or the new index given to the k-th node
-
-    """
-    reindex = False
-    header_len = -1
-    possible_delimiters = ['\t', ' ']
-    del_count = zeros(2, dtype=int)
-    lines = []
-    row = comment
-    with open(file) as f:
-        while row[0] in comment:
-            row = f.readline()
-            header_len += 1
-        for line in range(3):
-            for i, poss_del in enumerate(possible_delimiters):
-                if poss_del in row:
-                    del_count[i] += 1
-            lines.append(row.rstrip())
-            row = f.readline()
-        guess_delimiter = possible_delimiters[int(argmax(del_count))]
-        guess_weighted = bool(min([line.count(guess_delimiter) for line in lines]) - 1)
-    if weighted is None:
-        weighted = guess_weighted
-    if delimiter is None:
-        delimiter = guess_delimiter
-
-    with open(file) as f:
-        for i in range(header_len):
-            f.readline()
-        if weighted:
-            parsed = fromfile(f, sep=delimiter)
-        else:
-            parsed = fromfile(f, sep=delimiter, dtype=int)
-    if weighted:
-        rows = parsed[0::3].astype(int)
-        cols = parsed[1::3].astype(int)
-        dat = parsed[2::3]
-    else:
-        rows = parsed[0::2]
-        cols = parsed[1::2]
-        dat = ones(len(rows), dtype=int)
-
-    n_edges = len(rows)
-    nodes = concatenate((rows, cols), axis=None)
-    labels, new_nodes = unique(nodes, return_inverse=True)
-    n_nodes = len(labels)
-    if not all(labels == range(len(labels))):
-        reindex = True
-        rows = new_nodes[:n_edges]
-        cols = new_nodes[n_edges:]
-    if n_nodes < 2 * 10e9:
-        dtype = int32
-    else:
-        dtype = int64
-
-    if bipartite:
-        adjacency = sparse.csr_matrix((dat, (rows, cols)), dtype=dtype)
-    else:
-        adjacency = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_nodes), dtype=dtype)
-        if not directed:
-            adjacency += adjacency.transpose()
-    if reindex:
-        return adjacency, labels
-    else:
-        return adjacency

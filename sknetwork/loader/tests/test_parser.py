@@ -5,7 +5,6 @@
 
 import unittest
 from os import remove
-from scipy import sparse
 from sknetwork.loader import parser
 
 
@@ -39,10 +38,11 @@ class TestTSVParser(unittest.TestCase):
         remove(self.stub_data_4)
 
     def test_unlabeled_unweighted(self):
-        adj: sparse.csr_matrix = parser.parse_tsv(self.stub_data_1)
+        adj, labels = parser.parse_tsv(self.stub_data_1)
         self.assertEqual(sum(adj.indices == [2, 3, 0, 1, 5, 4]), 6)
         self.assertEqual(sum(adj.indptr == [0, 1, 2, 3, 4, 5, 6]), 7)
         self.assertEqual(sum(adj.data == [1, 1, 1, 1, 1, 1]), 6)
+        self.assertIsNone(labels)
 
     def test_labeled_weighted(self):
         adj, labels = parser.parse_tsv(self.stub_data_2)
@@ -57,17 +57,6 @@ class TestTSVParser(unittest.TestCase):
         self.assertEqual(sum(adj.indptr == [0, 1, 2, 3, 4, 5, 6]), 7)
         self.assertEqual(sum(adj.data == [1, 1, 1, 1, 1, 1]), 6)
         self.assertEqual(sum(labels == [0, 12, 14, 31, 42, 50]), 6)
-        adj, labels = parser.fast_parse_tsv(self.stub_data_4)
-        self.assertEqual(sum(adj.indices == [1, 0, 3, 2, 5, 4]), 6)
-        self.assertEqual(sum(adj.indptr == [0, 1, 2, 3, 4, 5, 6]), 7)
-        self.assertEqual(sum(adj.data == [1, 1, 1, 1, 1, 1]), 6)
-        self.assertEqual(sum(labels == [0, 12, 14, 31, 42, 50]), 6)
 
     def test_poor_format(self):
         self.assertRaises(ValueError, parser.parse_tsv, self.stub_data_3)
-
-    def test_fast_parse(self):
-        adj: sparse.csr_matrix = parser.fast_parse_tsv(self.stub_data_1)
-        self.assertEqual(sum(adj.indices == [2, 3, 0, 1, 5, 4]), 6)
-        self.assertEqual(sum(adj.indptr == [0, 1, 2, 3, 4, 5, 6]), 7)
-        self.assertEqual(sum(adj.data == [1, 1, 1, 1, 1, 1]), 6)

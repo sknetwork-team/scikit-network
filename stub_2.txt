@@ -1,4 +1,0 @@
-%stub
-f e 5
-a d 6
-c b 1
