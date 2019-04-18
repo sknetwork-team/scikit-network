@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# test for graph_data.py
+# tests for graph_data.py
 # authors: Quentin Lutz <qlutz@enst.fr>, Nathan de Lara <ndelara@enst.fr>
 
 import unittest

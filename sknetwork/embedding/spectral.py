@@ -11,9 +11,10 @@ Nathan De Lara <nathan.delara@telecom-paristech.fr>
 import numpy as np
 
 from sknetwork.embedding.randomized_matrix_factorization import randomized_eig
+from sknetwork.utils.checks import check_format, check_square, check_symmetry, check_weights
 from scipy import sparse
-from scipy.sparse import csgraph
 from scipy.sparse.linalg import eigsh
+from sknetwork import connected_components
 from typing import Union
 
 
@@ -65,19 +66,13 @@ class SpectralEmbedding:
         self: :class:`SpectralEmbedding`
         """
 
-        if type(adjacency) == sparse.csr_matrix:
-            adjacency = adjacency
-        elif sparse.isspmatrix(adjacency) or type(adjacency) == np.ndarray:
-            adjacency = sparse.csr_matrix(adjacency)
-        else:
-            raise TypeError(
-                "The argument must be a NumPy array or a SciPy Sparse matrix.")
+        adjacency = check_format(adjacency)
         n_nodes, m_nodes = adjacency.shape
-        if n_nodes != m_nodes:
+        if not check_square(adjacency):
             raise ValueError("The adjacency matrix must be a square matrix.")
-        if csgraph.connected_components(adjacency, directed=False)[0] > 1:
+        if connected_components(adjacency, directed=False)[0] > 1:
             raise ValueError("The graph must be connected.")
-        if (adjacency != adjacency.maximum(adjacency.T)).nnz != 0:
+        if not check_symmetry(adjacency):
             raise ValueError("The adjacency matrix is not symmetric.")
 
         # builds standard laplacian
@@ -88,20 +83,7 @@ class SpectralEmbedding:
         # applies normalization by node weights
         if node_weights is None:
             node_weights = self.node_weights
-        if type(node_weights) == str:
-            if node_weights == 'uniform':
-                weights = np.ones(n_nodes)
-            elif node_weights == 'degree':
-                weights = degrees
-            else:
-                raise ValueError('Unknown weighting policy. Try \'degree\' or \'uniform\'.')
-        else:
-            if len(self.node_weights) != n_nodes:
-                raise ValueError('node_weights must be an array of length n_nodes.')
-            elif min(self.node_weights) < 0:
-                raise ValueError('node_weights must be positive.')
-            else:
-                weights = self.node_weights
+        weights = check_weights(node_weights, adjacency)
 
         weight_matrix = sparse.diags(np.sqrt(weights), format='csr')
         weight_matrix.data = 1 / weight_matrix.data

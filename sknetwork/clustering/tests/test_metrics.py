@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# test for metrics.py
+# tests for metrics.py
 """"tests for clustering metrics"""
 
 import unittest

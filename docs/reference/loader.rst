@@ -5,5 +5,7 @@ Loader
 
 .. currentmodule:: sknetwork
 
-.. autoclass:: sknetwork.loader.Parser
-    :members:
+.. automodule:: sknetwork.loader
+
+.. autofunction:: sknetwork.loader.parse_tsv
+

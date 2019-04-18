@@ -57,6 +57,21 @@ def karate_club_graph():
     return adjacency + adjacency.T
 
 
+def rock_paper_scissors_graph():
+    """A toy directed cycle graph from Rock Paper Scissors victory rule.
+
+    3 nodes, 3 edges
+
+    Returns
+    -------
+    adjacency: sparse.csr_matrix
+        Adjacency matrix of the graph.
+
+    """
+
+    return sparse.csr_matrix(np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]]))
+
+
 def star_wars_villains_graph(return_labels=False):
     """
     Bipartite graph connecting some Star Wars villains to the movies in which they appear.\n

@@ -8,6 +8,7 @@ Created on Thu May 31 17:16:22 2018
 import numpy as np
 
 from sknetwork.embedding.randomized_matrix_factorization import randomized_svd
+from sknetwork.utils.checks import check_format
 from scipy import sparse, linalg
 from typing import Union
 
@@ -62,13 +63,7 @@ class GSVDEmbedding:
         -------
         self: :class:`GSVDEmbedding`
         """
-        if type(adjacency) == sparse.csr_matrix:
-            adjacency = adjacency
-        elif type(adjacency) == np.ndarray:
-            adjacency = sparse.csr_matrix(adjacency)
-        else:
-            raise TypeError(
-                "The argument must be a NumPy array or a SciPy Compressed Sparse Row matrix.")
+        adjacency = check_format(adjacency)
         n_nodes, m_nodes = adjacency.shape
         total_weight = adjacency.data.sum()
         # out-degree vector
