@@ -9,4 +9,3 @@ Loader
 
 .. autofunction:: sknetwork.loader.parse_tsv
 
-.. autofunction:: sknetwork.loader.fast_parse_tsv
