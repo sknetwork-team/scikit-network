@@ -5,7 +5,7 @@
 import unittest
 import numpy as np
 from scipy import sparse
-from sknetwork.embedding.metrics import dot_modularity, hscore
+from sknetwork.embedding.metrics import dot_modularity, hscore, linear_fit
 from sknetwork import star_wars_villains_graph
 
 
@@ -36,3 +36,15 @@ class TestClusteringMetrics(unittest.TestCase):
         fit, diversity = hscore(self.graph, self.embedding, return_all=True)
         self.assertAlmostEqual(fit, 1.)
         self.assertAlmostEqual(diversity, 0.)
+
+    def test_linear_fit(self):
+        embedding = self.embedding / np.sqrt(2)
+        fit, div = linear_fit(self.graph, embedding)
+        self.assertAlmostEqual(fit, 1.)
+        self.assertAlmostEqual(div, 1.)
+        fit, div = linear_fit(self.graph, embedding, damping=0.15)
+        self.assertAlmostEqual(fit, 1.)
+        self.assertAlmostEqual(div, 1.)
+        fit, div = linear_fit(self.graph, embedding, order=3)
+        self.assertAlmostEqual(fit, 1.)
+        self.assertAlmostEqual(div, 1.)

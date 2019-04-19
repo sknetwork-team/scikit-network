@@ -4,7 +4,7 @@
 
 __author__ = """scikit-network team"""
 __email__ = "bonald@enst.fr"
-__version__ = '0.4.0'
+__version__ = '0.5.0'
 
 try:
     from numba import njit, prange
@@ -32,5 +32,5 @@ from sknetwork.hierarchy.metrics import *
 from sknetwork.embedding.gsvd import *
 from sknetwork.embedding.spectral import *
 from sknetwork.embedding.metrics import *
-from sknetwork.embedding.randomized_matrix_factorization import *
+from sknetwork.utils.randomized_matrix_factorization import *
 from sknetwork.loader import *

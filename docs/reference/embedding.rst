@@ -26,10 +26,4 @@ Metrics
 .. autofunction:: sknetwork.embedding.hscore
 
 
-Randomized methods
-------------------
-.. autofunction:: sknetwork.embedding.randomized_range_finder
 
-.. autofunction:: sknetwork.embedding.randomized_svd
-
-.. autofunction:: sknetwork.embedding.randomized_eig
