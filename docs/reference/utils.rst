@@ -14,6 +14,12 @@ Graph formats
 
 .. autofunction:: sknetwork.utils.adjacency_formats.directed2undirected
 
+Sparse + Low Rank structure
+---------------------------
+
+.. autoclass:: sknetwork.utils.sparse_lowrank.SparseLR
+    :members:
+
 Randomized methods
 ------------------
 .. autofunction:: sknetwork.utils.randomized_matrix_factorization.randomized_range_finder
