@@ -10,8 +10,8 @@ Nathan De Lara <nathan.delara@telecom-paristech.fr>
 
 import numpy as np
 
-from utils.randomized_matrix_factorization import randomized_eig
-from utils.checks import check_format, check_square, check_symmetry, check_weights
+from sknetwork.utils.randomized_matrix_factorization import randomized_eig
+from sknetwork.utils.checks import check_format, check_square, check_symmetry, check_weights
 from scipy import sparse
 from scipy.sparse.linalg import eigsh
 from sknetwork import connected_components

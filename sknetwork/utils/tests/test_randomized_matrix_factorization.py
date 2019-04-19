@@ -5,7 +5,7 @@
 import unittest
 import numpy as np
 from scipy import sparse
-from utils.randomized_matrix_factorization import randomized_eig, randomized_svd
+from sknetwork.utils.randomized_matrix_factorization import randomized_eig, randomized_svd
 
 
 class TestClusteringMetrics(unittest.TestCase):
