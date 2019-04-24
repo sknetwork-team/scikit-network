@@ -11,7 +11,7 @@ Nathan De Lara <nathan.delara@telecom-paristech.fr>
 import numpy as np
 
 from sknetwork.utils.randomized_matrix_factorization import randomized_eig
-from sknetwork.utils.checks import check_format, is_square, is_symmetric, normalize_weights
+from sknetwork.utils.checks import check_format, is_square, is_symmetric, check_weights
 from scipy import sparse
 from scipy.sparse.linalg import eigsh
 from sknetwork import connected_components
@@ -83,7 +83,7 @@ class Spectral:
         # applies normalization by node weights
         if node_weights is None:
             node_weights = self.node_weights
-        weights = normalize_weights(node_weights, adjacency)
+        weights = check_weights(node_weights, adjacency, positive_entries=False)
 
         weight_matrix = sparse.diags(np.sqrt(weights), format='csr')
         weight_matrix.data = 1 / weight_matrix.data

@@ -45,7 +45,7 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
     if not is_symmetric(adjacency):
         raise ValueError('The graph must be undirected. Please fit a symmetric adjacency matrix.')
 
-    node_probs = normalize_weights(weights, adjacency)
+    node_probs = check_probs(weights, adjacency, positive_entries=True)
 
     n_nodes = adjacency.shape[0]
 
@@ -109,7 +109,7 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     if not is_symmetric(adjacency):
         raise ValueError('The graph must be undirected. Please fit a symmetric adjacency matrix.')
 
-    node_probs = normalize_weights(weights, adjacency)
+    node_probs = check_probs(weights, adjacency, positive_entries=True)
 
     n_nodes = adjacency.shape[0]
 

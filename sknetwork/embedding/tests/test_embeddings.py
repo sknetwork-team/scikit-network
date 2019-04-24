@@ -38,3 +38,5 @@ class TestClusteringMetrics(unittest.TestCase):
         sp.fit(self.graph)
         self.assertTrue(sp.embedding_.shape == (4, 2))
         self.assertTrue(type(sp.eigenvalues_) == np.ndarray and len(sp.eigenvalues_) == 2)
+        self.assertTrue(min(sp.eigenvalues_ >= 0))
+        self.assertTrue(max(sp.eigenvalues_ <= 2))

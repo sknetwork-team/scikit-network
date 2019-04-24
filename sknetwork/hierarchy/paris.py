@@ -185,7 +185,7 @@ class Paris:
         if not is_symmetric(adjacency):
             raise ValueError('The graph must be undirected. Please fit a symmetric adjacency matrix.')
 
-        node_probs = normalize_weights(weights, adjacency)
+        node_probs = check_probs(weights, adjacency, positive_entries=True)
 
         aggregate_graph = AggregateGraph(adjacency, node_probs)
 
