@@ -5,9 +5,6 @@ Created on Mar 3, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
-import numpy as np
-from scipy import sparse
-
 from sknetwork.clustering.louvain import *
 from sknetwork.utils.adjacency_formats import bipartite2undirected
 from sknetwork.utils.checks import *

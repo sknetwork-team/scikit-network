@@ -138,7 +138,7 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     quality: float = np.sum(edge_sampling[index] * np.log(edge_sampling[index] / node_sampling[index]))
     if normalized:
         inv_node_weights = sparse.diags(1 / node_probs, shape=(n_nodes, n_nodes), format='csr')
-        sampling_ratio = inv_node_weights.dot(adjacency.dot(inv_node_weights)) / adj_matrix.data.sum()
+        sampling_ratio = inv_node_weights.dot(adjacency.dot(inv_node_weights)) / adjacency.data.sum()
         mutual_information = np.sum(adjacency.data / adjacency.data.sum() * np.log(2 * sampling_ratio.data))
         quality /= mutual_information
     return quality

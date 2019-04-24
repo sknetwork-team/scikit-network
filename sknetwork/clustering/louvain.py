@@ -7,8 +7,6 @@ Created on Nov 2, 2018
 @author: Thomas Bonald <tbonald@enst.fr>
 """
 
-import numpy as np
-from scipy import sparse
 from sknetwork.utils.checks import *
 from sknetwork.utils.adjacency_formats import *
 from sknetwork import njit

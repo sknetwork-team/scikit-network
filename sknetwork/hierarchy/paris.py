@@ -6,8 +6,6 @@ Created on March 2019
 @author: Bertrand Charpentier <bertrand.charpentier@live.fr>
 """
 
-
-import numpy as np
 from sknetwork.utils.checks import *
 
 
