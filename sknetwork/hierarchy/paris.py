@@ -9,7 +9,6 @@ Created on March 2019
 
 import numpy as np
 from sknetwork.utils.checks import *
-from sknetwork.utils.adjacency_formats import *
 
 
 class AggregateGraph:
