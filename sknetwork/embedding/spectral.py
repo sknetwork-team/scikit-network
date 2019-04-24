@@ -18,7 +18,7 @@ from sknetwork import connected_components
 from typing import Union
 
 
-class SpectralEmbedding:
+class Spectral:
     """Weighted spectral embedding of a graph
 
         Parameters
@@ -49,7 +49,7 @@ class SpectralEmbedding:
         self.eigenvalues_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], node_weights=None,
-            randomized_decomposition: bool = True) -> 'SpectralEmbedding':
+            randomized_decomposition: bool = True) -> 'Spectral':
         """Fits the model from data in adjacency_matrix
 
         Parameters
@@ -63,7 +63,7 @@ class SpectralEmbedding:
 
         Returns
         -------
-        self: :class:`SpectralEmbedding`
+        self: :class:`Spectral`
         """
 
         adjacency = check_format(adjacency)

@@ -13,7 +13,7 @@ from scipy import sparse, linalg
 from typing import Union
 
 
-class GSVDEmbedding:
+class GSVD:
     """Generalized Singular Value Decomposition for non-linear dimensionality reduction.
 
     Before applying KMeans on the embedding, we suggest to normalize it so that each line has norm 1.
@@ -44,7 +44,7 @@ class GSVDEmbedding:
         self.singular_values_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], randomized_decomposition: bool = True,
-            n_iter='auto', power_iteration_normalizer: Union[str, None] = 'auto', random_state=None) -> 'GSVDEmbedding':
+            n_iter='auto', power_iteration_normalizer: Union[str, None] = 'auto', random_state=None) -> 'GSVD':
         """Fits the model from data in adjacency_matrix.
 
         Parameters
@@ -63,7 +63,7 @@ class GSVDEmbedding:
 
         Returns
         -------
-        self: :class:`GSVDEmbedding`
+        self: :class:`GSVD`
         """
         adjacency = check_format(adjacency)
         n_nodes, m_nodes = adjacency.shape

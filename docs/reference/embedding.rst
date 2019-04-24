@@ -10,13 +10,13 @@ Spectral
 --------
 .. automodule:: sknetwork.embedding
 
-.. autoclass:: sknetwork.embedding.SpectralEmbedding
+.. autoclass:: sknetwork.embedding.Spectral
     :members:
 
 SVD
 ---
 
-.. autoclass:: sknetwork.embedding.GSVDEmbedding
+.. autoclass:: sknetwork.embedding.GSVD
     :members:
 
 Metrics

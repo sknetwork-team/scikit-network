@@ -11,12 +11,12 @@ Paris
 .. autosummary::
    :toctree: generated/
 
-.. autoclass:: sknetwork.hierarchy.paris.Paris
+.. autoclass:: sknetwork.hierarchy.Paris
     :members:
 
 
 Metrics
 -------
-.. autofunction:: sknetwork.hierarchy.metrics.dasgupta_cost
+.. autofunction:: sknetwork.hierarchy.dasgupta_cost
 
-.. autofunction:: sknetwork.hierarchy.metrics.tree_sampling_divergence
+.. autofunction:: sknetwork.hierarchy.tree_sampling_divergence
