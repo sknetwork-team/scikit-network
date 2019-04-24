@@ -8,8 +8,8 @@ Created on March 2019
 
 
 import numpy as np
-from scipy import sparse
-from typing import Union
+from sknetwork.utils.checks import *
+from sknetwork.utils.adjacency_formats import *
 
 
 class AggregateGraph:
@@ -21,7 +21,7 @@ class AggregateGraph:
     adjacency :
         Adjacency matrix of the graph.
     node_probs :
-        Distribution of node weights.
+        Probability distribution of node weights.
 
     Attributes
     ----------
@@ -162,7 +162,7 @@ class Paris:
     def __init__(self):
         self.dendrogram_ = None
 
-    def fit(self, adjacency: sparse.csr_matrix, node_weights: Union[str, np.ndarray] = 'degree', reorder: bool = True):
+    def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree', reorder: bool = True):
         """
         Agglomerative clustering using the nearest neighbor chain.
 
@@ -170,7 +170,7 @@ class Paris:
         ----------
         adjacency :
             Adjacency matrix of the graph to cluster.
-        node_weights :
+        weights :
             Node weights used in the linkage.
         reorder :
             If True, reorder the dendrogram in increasing order of heights.
@@ -179,37 +179,16 @@ class Paris:
         -------
         self: :class:`Paris`
         """
-        if type(adjacency) != sparse.csr_matrix:
-            raise TypeError('The adjacency matrix must be in a scipy compressed sparse row (csr) format.')
-        if adjacency.shape[0] != adjacency.shape[1]:
+        adjacency = check_format(adjacency)
+
+        if not is_square(adjacency):
             raise ValueError('The adjacency matrix must be square.')
         if adjacency.shape[0] <= 1:
             raise ValueError('The graph must contain at least two nodes.')
-        if (adjacency != adjacency.T).nnz != 0:
-            raise ValueError('The graph cannot be directed. Please fit a symmetric adjacency matrix.')
+        if not is_symmetric(adjacency):
+            raise ValueError('The graph must be undirected. Please fit a symmetric adjacency matrix.')
 
-        n_nodes = adjacency.shape[0]
-
-        if type(node_weights) == np.ndarray:
-            if len(node_weights) != n_nodes:
-                raise ValueError('The number of node weights must match the number of nodes.')
-            else:
-                node_probs = node_weights
-        elif type(node_weights) == str:
-            if node_weights == 'degree':
-                node_probs = adjacency.dot(np.ones(n_nodes))
-            elif node_weights == 'uniform':
-                node_probs = np.ones(n_nodes)
-            else:
-                raise ValueError('Unknown distribution of node weights.')
-        else:
-            raise TypeError(
-                'Node weights must be a known distribution ("degree" or "uniform" string) or a custom NumPy array.')
-
-        if np.any(node_probs <= 0):
-            raise ValueError('All node weights must be positive.')
-        else:
-            node_probs = node_probs / np.sum(node_probs)
+        node_probs = normalize_weights(weights, adjacency)
 
         aggregate_graph = AggregateGraph(adjacency, node_probs)
 

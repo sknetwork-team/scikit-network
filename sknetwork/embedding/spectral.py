@@ -11,7 +11,7 @@ Nathan De Lara <nathan.delara@telecom-paristech.fr>
 import numpy as np
 
 from sknetwork.utils.randomized_matrix_factorization import randomized_eig
-from sknetwork.utils.checks import check_format, check_square, check_symmetry, check_weights
+from sknetwork.utils.checks import check_format, is_square, is_symmetric, normalize_weights
 from scipy import sparse
 from scipy.sparse.linalg import eigsh
 from sknetwork import connected_components
@@ -68,11 +68,11 @@ class SpectralEmbedding:
 
         adjacency = check_format(adjacency)
         n_nodes, m_nodes = adjacency.shape
-        if not check_square(adjacency):
+        if not is_square(adjacency):
             raise ValueError("The adjacency matrix must be a square matrix.")
         if connected_components(adjacency, directed=False)[0] > 1:
             raise ValueError("The graph must be connected.")
-        if not check_symmetry(adjacency):
+        if not is_symmetric(adjacency):
             raise ValueError("The adjacency matrix is not symmetric.")
 
         # builds standard laplacian
@@ -83,7 +83,7 @@ class SpectralEmbedding:
         # applies normalization by node weights
         if node_weights is None:
             node_weights = self.node_weights
-        weights = check_weights(node_weights, adjacency)
+        weights = normalize_weights(node_weights, adjacency)
 
         weight_matrix = sparse.diags(np.sqrt(weights), format='csr')
         weight_matrix.data = 1 / weight_matrix.data

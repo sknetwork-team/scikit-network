@@ -56,9 +56,9 @@ class NormalizedGraph:
                  feature_weights: Union[None, 'str', np.ndarray] = 'degree'):
         self.n_nodes, self.n_features = adjacency.shape
         self.norm_adjacency = adjacency / adjacency.data.sum()
-        self.node_probs = check_weights(weights, adjacency)
+        self.node_probs = normalize_weights(weights, adjacency)
         if feature_weights is not None:
-            self.feat_probs = check_weights(feature_weights, adjacency.T)
+            self.feat_probs = normalize_weights(feature_weights, adjacency.T)
         else:
             self.feat_probs = None
 
@@ -447,7 +447,7 @@ class Louvain:
         """
         adjacency = check_format(adjacency)
 
-        if not check_square(adjacency):
+        if not is_square(adjacency):
             adjacency = bipartite2directed(adjacency)
 
         graph = NormalizedGraph(adjacency, weights, feature_weights)

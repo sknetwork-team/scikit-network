@@ -24,11 +24,11 @@ class TestParis(unittest.TestCase):
             self.paris.fit(identity(1))
 
         with self.assertRaises(TypeError):
-            self.paris.fit(identity(2, format='csr'), node_weights=1)
+            self.paris.fit(identity(2, format='csr'), weights=1)
 
     def test_unknown_options(self):
         with self.assertRaises(ValueError):
-            self.paris.fit(identity(2, format='csr'), node_weights='unknown')
+            self.paris.fit(identity(2, format='csr'), weights='unknown')
 
     def test_house_graph(self):
         self.paris.fit(self.house_graph)

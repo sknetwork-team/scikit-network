@@ -36,21 +36,21 @@ def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_
         return sparse.csr_matrix(adjacency)
 
 
-def check_nonnegative_entries(adjacency: sparse.csr_matrix) -> bool:
+def has_nonnegative_entries(adjacency: sparse.csr_matrix) -> bool:
     return np.all(adjacency.data >= 0)
 
 
-def check_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
+def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     return adjacency.shape[0] == adjacency.shape[1]
 
 
-def check_symmetry(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1e-10) -> bool:
+def is_symmetric(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1e-10) -> bool:
     sym_error = adjacency - adjacency.T
     return np.all(np.abs(sym_error.data) <= tol)
 
 
-def check_weights(weights: Union['str', np.ndarray],
-                  adjacency: Union[sparse.csr_matrix, sparse.csc_matrix]) -> np.ndarray:
+def normalize_weights(weights: Union['str', np.ndarray],
+                      adjacency: Union[sparse.csr_matrix, sparse.csc_matrix]) -> np.ndarray:
     """Checks whether the weights are a valid distribution for the graph and returns a probability vector.
 
     Parameters
@@ -58,12 +58,12 @@ def check_weights(weights: Union['str', np.ndarray],
     weights:
         Probabilities for node sampling in the null model. ``'degree'``, ``'uniform'`` or custom weights.
     adjacency:
-        The adjacency matrix of the graph
+        The adjacency matrix of the graph.
 
     Returns
     -------
-        props: np.ndarray
-            probability vector for node sampling.
+    node_probs: np.ndarray
+        Probability distribution of node weights.
 
     """
     n_weights = adjacency.shape[0]
