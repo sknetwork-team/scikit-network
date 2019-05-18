@@ -10,27 +10,33 @@ import numpy as np
 from numpy.random import mtrand
 from scipy import sparse, linalg
 from scipy.sparse import linalg as splinalg
+from sknetwork.utils.sparse_lowrank import SparseLR
 from typing import Union
 
 
 def safe_sparse_dot(a, b, dense_output=False):
     """
-    Dot product that handle the sparse matrix case correctly. Uses BLAS GEMM as replacement for numpy.dot where possible
+    Dot product that handle the sparse matrix case correctly
+    Uses BLAS GEMM as replacement for numpy.dot where possible
     to avoid unnecessary copies.
-
     Parameters
     ----------
-    a: array or sparse matrix
-    b: array or sparse matrix
-    dense_output: bool (default= ``False``)
-        When False, either ``a`` or ``b`` being sparse will yield sparse output.
-        When True, output will always be an array.
-
+    a : array or sparse matrix
+    b : array or sparse matrix
+    dense_output : boolean, default False
+        When False, either ``a`` or ``b`` being sparse will yield sparse
+        output. When True, output will always be an array.
     Returns
     -------
     dot_product : array or sparse matrix
         sparse if ``a`` or ``b`` is sparse and ``dense_output=False``.
     """
+    if type(a) == SparseLR and type(b) == np.ndarray:
+        return a.dot(b)
+    if type(b) == SparseLR and type(a) == np.ndarray:
+        return b.T.dot(a.T).T
+    if type(a) == SparseLR and type(b) == SparseLR:
+        raise NotImplementedError
     if sparse.issparse(a) or sparse.issparse(b):
         ret = a * b
         if dense_output and hasattr(ret, "toarray"):
