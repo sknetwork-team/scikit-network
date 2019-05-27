@@ -32,8 +32,8 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
 
      References
      ----------
-     S. Dasgupta. A cost function for similarity-based hierarchical clustering.
-     In Proceedings of ACM symposium on Theory of Computing, 2016.
+     S. Dasgupta (2016). A cost function for similarity-based hierarchical clustering.
+     Proceedings of ACM symposium on Theory of Computing.
 
     """
     adjacency = check_format(adjacency)
@@ -97,7 +97,8 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
 
      References
      ----------
-     T. Bonald, B. Charpentier (2018), Learning Graph Representations by Dendrograms, https://arxiv.org/abs/1807.05087
+     T. Bonald, B. Charpentier (2018). Learning Graph Representations by Dendrograms.
+     https://arxiv.org/abs/1807.05087
 
     """
     adjacency = check_format(adjacency)
