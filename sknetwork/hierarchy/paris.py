@@ -160,7 +160,8 @@ class Paris:
     def __init__(self):
         self.dendrogram_ = None
 
-    def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree', reorder: bool = True):
+    def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree', reorder: bool = True,
+            tol: float = 1e-10):
         """
         Agglomerative clustering using the nearest neighbor chain.
 
@@ -172,6 +173,8 @@ class Paris:
             Node weights used in the linkage.
         reorder :
             If True, reorder the dendrogram in increasing order of heights.
+        tol:
+            The tolerance to numerical errors with floats.
 
         Returns
         -------
@@ -206,11 +209,12 @@ class Paris:
                     for neighbor in aggregate_graph.graph[node]:
                         sim = aggregate_graph.graph[node][neighbor] / aggregate_graph.cluster_probs[node] / \
                               aggregate_graph.cluster_probs[neighbor]
-                        if sim > max_sim:
+                        if sim > max_sim + tol:
                             nearest_neighbor = neighbor
                             max_sim = sim
-                        elif sim == max_sim:
+                        elif sim >= max_sim:
                             nearest_neighbor = min(neighbor, nearest_neighbor)
+                            max_sim = sim
                     if chain:
                         nearest_neighbor_last = chain.pop()
                         if nearest_neighbor_last == nearest_neighbor:

@@ -288,7 +288,12 @@ class GreedyModularity(Optimizer):
                 increase = False
                 pass_increase: float = 0.
 
-                for node in range(graph.n_nodes):
+                if self.shuffle_nodes:
+                    nodes = np.random.permutation(np.arange(graph.n_nodes))
+                else:
+                    nodes = range(graph.n_nodes)
+
+                for node in nodes:
                     node_cluster: int = labels[node]
                     neighbors: np.ndarray = indices[indptr[node]:indptr[node + 1]]
                     weights: np.ndarray = data[indptr[node]:indptr[node + 1]]
@@ -367,6 +372,10 @@ class Louvain:
     max_agg_iter:
         Maximum number of aggregations.
         A negative value is interpreted as no limit.
+    shuffle_nodes:
+        Enables node shuffling before each optimization pass.
+        Works only if ``default`` is set to ``'default'``.
+        For other optimizers, use the relevant parameters of said optimizers.
     verbose:
         Verbose mode.
 
@@ -406,10 +415,11 @@ class Louvain:
     """
 
     def __init__(self, algorithm: Union[str, Optimizer] = 'default', resolution: float = 1, tol: float = 1e-3,
-                 agg_tol: float = 1e-3, max_agg_iter: int = -1, verbose: bool = False):
+                 agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False, verbose: bool = False):
 
         if algorithm == 'default':
-            self.algorithm = GreedyModularity(resolution, tol, engine=check_engine('default'))
+            self.algorithm = GreedyModularity(resolution, tol, engine=check_engine('default'),
+                                              shuffle_nodes = shuffle_nodes)
         elif isinstance(algorithm, Optimizer):
             self.algorithm = algorithm
         else:
