@@ -50,6 +50,10 @@ def has_positive_entries(entry: Union[sparse.csr_matrix, np.ndarray]) -> bool:
         return np.all(entry > 0)
 
 
+def is_proba_array(entry: np.ndarray) -> bool:
+    return has_nonnegative_entries(entry) and np.isclose(entry.sum(), 1)
+
+
 def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     return adjacency.shape[0] == adjacency.shape[1]
 
