@@ -325,7 +325,8 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
     ----------
     Finding structure with randomness: Stochastic algorithms for constructing
     approximate matrix decompositions
-    Halko, et al., 2009 http://arxiv.org/abs/arXiv:0909.4061
+    Halko, et al., 2009
+    http://arxiv.org/abs/arXiv:0909.4061
     """
 
     random_state = check_random_state(random_state)

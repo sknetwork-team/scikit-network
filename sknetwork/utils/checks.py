@@ -51,7 +51,14 @@ def has_positive_entries(entry: Union[sparse.csr_matrix, np.ndarray]) -> bool:
 
 
 def is_proba_array(entry: np.ndarray) -> bool:
-    return has_nonnegative_entries(entry) and np.isclose(entry.sum(), 1)
+    if len(entry.shape) == 1:
+        return has_nonnegative_entries(entry) and np.isclose(entry.sum(), 1)
+    elif len(entry.shape) == 2:
+        n_samples, n_features = entry.shape
+        err = entry.dot(np.ones(n_features)) - np.ones(n_samples)
+        return has_nonnegative_entries(entry) and np.isclose(np.linalg.norm(err), 0)
+    else:
+        raise TypeError('entry must be one or two-dimensional array.')
 
 
 def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
