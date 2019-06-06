@@ -10,7 +10,7 @@ import numpy as np
 
 def projection_simplex(array: np.ndarray, z: float = 1) -> np.ndarray:
     """
-    Projects each line of the input onto the Euclidean simplex.
+    Project each line of the input onto the Euclidean simplex.
 
     Parameters
     ----------

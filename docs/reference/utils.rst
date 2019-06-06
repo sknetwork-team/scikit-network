@@ -14,6 +14,12 @@ Graph formats
 
 .. autofunction:: sknetwork.utils.adjacency_formats.directed2undirected
 
+
+Preprocessing
+-------------
+
+.. autofunction:: sknetwork.utils.preprocessing.largest_connected_component
+
 Sparse + Low Rank structure
 ---------------------------
 

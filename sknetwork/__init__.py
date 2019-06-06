@@ -33,4 +33,5 @@ from sknetwork.embedding.gsvd import *
 from sknetwork.embedding.spectral import *
 from sknetwork.embedding.metrics import *
 from sknetwork.utils.randomized_matrix_factorization import *
+from sknetwork.utils.preprocessing import *
 from sknetwork.loader import *
