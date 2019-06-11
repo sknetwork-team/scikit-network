@@ -41,6 +41,9 @@ class SparseLR:
                 raise ValueError(
                     'For each low rank tuple, x (resp. y) should be a vector of lenght n_rows (resp. n_cols)')
 
+    def __add__(self, other: 'SparseLR'):
+        return SparseLR(self.sparse_mat + other.sparse_mat, self.low_rank_tuples + other.low_rank_tuples)
+
     def dot(self, matrix) -> np.ndarray:
         """Right dot product with a dense matrix.
 
