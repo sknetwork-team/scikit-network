@@ -7,7 +7,7 @@ import unittest
 from sknetwork.clustering import *
 from sknetwork.toy_graphs import *
 from scipy.sparse import identity
-from math import log10
+from math import log
 
 
 class TestLouvainClustering(unittest.TestCase):
@@ -60,4 +60,4 @@ class TestLouvainClustering(unittest.TestCase):
         for i in range(n_tries):
             self.louvain_shuffle.fit(self.bow_tie_graph)
             count += self.louvain_shuffle.labels_[0] == self.louvain_shuffle.labels_[1]
-        self.assertAlmostEqual(count/n_tries, 0.5, delta=1/log10(n_tries)/2)
+        self.assertAlmostEqual(count/n_tries, 0.5, delta=(log(200)/2/n_tries)**.5)
