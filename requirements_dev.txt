@@ -10,5 +10,5 @@ twine==1.13.0
 numba==0.44.0
 
 pytest-runner==5.1
-pytest==4.6.2
+pytest==4.6.3
 
