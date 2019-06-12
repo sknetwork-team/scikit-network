@@ -11,6 +11,23 @@ import numpy as np
 from scipy import sparse
 
 
+def bow_tie_graph():
+    """
+    Bow tie graph
+
+    5 nodes, 6 edges
+
+    Returns
+    -------
+    adjacency: sparse.csr_matrix
+        Adjacency matrix of the graph.
+    """
+    row = np.array([0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4])
+    col = np.array([1, 2, 3, 4, 0, 2, 0, 1, 0, 4, 0, 3])
+    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(5, 5))
+    return adjacency
+
+
 def house_graph():
     """
     House graph

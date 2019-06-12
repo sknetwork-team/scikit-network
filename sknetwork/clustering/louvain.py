@@ -132,7 +132,7 @@ class Optimizer:
 
 
 @njit
-def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, ou_node_probs: np.ndarray,
+def fit_core(resolution: float, tol: float, n_nodes: int, ou_node_probs: np.ndarray,
              in_node_probs: np.ndarray, self_loops: np.ndarray, data: np.ndarray, indices: np.ndarray,
              indptr: np.ndarray) -> (np.ndarray, float):
     """
@@ -143,8 +143,6 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, o
         Resolution parameter (positive).
     tol:
         Minimum increase in modularity to enter a new optimization pass.
-    shuffle_nodes:
-        If True, shuffle the nodes before starting a new optimization pass.
     n_nodes:
         Number of nodes.
     ou_node_probs:
@@ -178,9 +176,6 @@ def fit_core(resolution: float, tol: float, shuffle_nodes: bool, n_nodes: int, o
     while increase:
         increase = False
         pass_increase: float = 0
-
-        if shuffle_nodes:
-            nodes = np.random.permutation(np.arange(n_nodes))
 
         for node in nodes:
             node_cluster = labels[node]
@@ -243,11 +238,10 @@ class GreedyModularity(Optimizer):
 
     """
 
-    def __init__(self, resolution: float = 1, tol: float = 1e-3, shuffle_nodes: bool = False, engine: str = 'default'):
+    def __init__(self, resolution: float = 1, tol: float = 1e-3, engine: str = 'default'):
         Optimizer.__init__(self)
         self.resolution = resolution
         self.tol = tol
-        self.shuffle_nodes = shuffle_nodes
         self.engine = check_engine(engine)
 
     def fit(self, graph: NormalizedGraph):
@@ -270,6 +264,7 @@ class GreedyModularity(Optimizer):
             in_node_probs = ou_node_probs
 
         adjacency = 0.5 * directed2undirected(graph.norm_adjacency)
+
         self_loops = adjacency.diagonal()
 
         indptr: np.ndarray = adjacency.indptr
@@ -288,12 +283,7 @@ class GreedyModularity(Optimizer):
                 increase = False
                 pass_increase: float = 0.
 
-                if self.shuffle_nodes:
-                    nodes = np.random.permutation(np.arange(graph.n_nodes))
-                else:
-                    nodes = range(graph.n_nodes)
-
-                for node in nodes:
+                for node in range(graph.n_nodes):
                     node_cluster: int = labels[node]
                     neighbors: np.ndarray = indices[indptr[node]:indptr[node + 1]]
                     weights: np.ndarray = data[indptr[node]:indptr[node + 1]]
@@ -340,7 +330,7 @@ class GreedyModularity(Optimizer):
             return self
 
         elif self.engine == 'numba':
-            labels, total_increase = fit_core(self.resolution, self.tol, self.shuffle_nodes, graph.n_nodes,
+            labels, total_increase = fit_core(self.resolution, self.tol, graph.n_nodes,
                                               ou_node_probs, in_node_probs, self_loops, data, indices, indptr)
 
             self.score_ = total_increase
@@ -373,9 +363,7 @@ class Louvain:
         Maximum number of aggregations.
         A negative value is interpreted as no limit.
     shuffle_nodes:
-        Enables node shuffling before each optimization pass.
-        Works only if ``default`` is set to ``'default'``.
-        For other optimizers, use the relevant parameters of said optimizers.
+        Enables node shuffling before optimization.
     verbose:
         Verbose mode.
 
@@ -418,8 +406,7 @@ class Louvain:
                  agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False, verbose: bool = False):
 
         if algorithm == 'default':
-            self.algorithm = GreedyModularity(resolution, tol, engine=check_engine('default'),
-                                              shuffle_nodes = shuffle_nodes)
+            self.algorithm = GreedyModularity(resolution, tol, engine=check_engine('default'))
         elif isinstance(algorithm, Optimizer):
             self.algorithm = algorithm
         else:
@@ -434,6 +421,7 @@ class Louvain:
         self.n_clusters_ = None
         self.iteration_count_ = None
         self.aggregate_graph_ = None
+        self.shuffle_nodes = shuffle_nodes
 
     def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
             feature_weights: Union[None, str, np.ndarray] = None) -> 'Louvain':
@@ -457,6 +445,10 @@ class Louvain:
 
         if not is_square(adjacency):
             adjacency = bipartite2directed(adjacency)
+
+        if self.shuffle_nodes:
+            nodes = np.random.permutation(np.arange(adjacency.shape[0]))
+            adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
         graph = NormalizedGraph(adjacency, weights, feature_weights)
 
@@ -487,6 +479,10 @@ class Louvain:
 
         self.iteration_count_ = iteration_count
         self.labels_ = membership.indices
+        if self.shuffle_nodes:
+            reverse = np.empty(nodes.size, nodes.dtype)
+            reverse[nodes] = np.arange(nodes.size)
+            self.labels_ = self.labels_[reverse]
         self.n_clusters_ = len(set(self.labels_))
         _, self.labels_ = np.unique(self.labels_, return_inverse=True)
         self.aggregate_graph_ = graph.norm_adjacency * adjacency.data.sum()
