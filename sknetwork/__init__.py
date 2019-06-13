@@ -6,8 +6,10 @@ __author__ = """scikit-network team"""
 __email__ = "bonald@enst.fr"
 __version__ = '0.5.0'
 
+import numpy as np
 try:
-    from numba import njit, prange
+    from numba import njit, prange, types
+    from numba.typed import Dict as typedDict
     is_numba_available = True
 except ImportError:
     def njit(*args, **kwargs):
@@ -20,6 +22,9 @@ except ImportError:
             return __wrapper__
     prange = range
     is_numba_available = False
+    types = np
+    typedDict = dict
+
 
 from scipy.sparse.csgraph import *
 from sknetwork.toy_graphs.graph_data import *

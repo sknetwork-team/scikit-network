@@ -4,9 +4,11 @@
 Created on March 2019
 @author: Thomas Bonald <bonald@enst.fr>
 @author: Bertrand Charpentier <bertrand.charpentier@live.fr>
+@author: Quentin Lutz <qlutz@enst.fr>
 """
 
 from sknetwork.utils.checks import *
+from sknetwork import njit, types, typedDict
 
 
 class AggregateGraph:
@@ -108,6 +110,171 @@ def reorder_dendrogram(dendrogram: np.ndarray) -> np.ndarray:
                       dendrogram[t][2], dendrogram[t][3]] for t in range(n_nodes - 1)])[index, :]
 
 
+@njit
+def ints2int(first: np.int32, second: np.int32):
+    """Merge two int32 into one single int64
+
+    Parameters
+    ----------
+    first:
+        An int32 making up the first 32 bits of the result
+    second:
+        An int32 making up the last 32 bits of the result
+
+    Returns
+    -------
+    result: np.int64
+        An int64.
+    """
+    return (first << 32) | second
+
+
+@njit
+def fit_core(tol: float, n_nodes: int, node_probs: np.ndarray, data: np.ndarray,
+             indices: np.ndarray, indptr: np.ndarray):
+    """
+
+    Parameters
+    ----------
+    tol:
+        Minimum increase in modularity to enter a new optimization pass.
+    n_nodes:
+        Number of nodes.
+    node_probs:
+        Distribution of node weights (sums to 1).
+    data:
+        CSR format data array of the normalized adjacency matrix.
+    indices:
+        CSR format index array of the normalized adjacency matrix.
+    indptr:
+        CSR format index pointer array of the normalized adjacency matrix.
+
+    Returns
+    -------
+    dendrogram:
+        The dendrogram associated with the obtained clustering.
+    """
+    maxfloat = 1.7976931348623157e+308
+    total_weight = data.sum()
+    next_cluster = n_nodes
+    graph = typedDict.empty(
+        key_type=types.int64,
+        value_type=types.float64,
+    )
+
+    cluster_sizes = {}
+    cluster_probs = {}
+    neighbors = [[types.int32(-1)] for _ in range(n_nodes)]
+    for node in range(n_nodes):
+        node = types.int32(node)
+        # normalize so that the total weight is equal to 1
+        # remove self-loops
+        for i in range(indptr[types.int32(node)], indptr[node + 1]):
+            if i == indptr[types.int32(node)]:
+                neighbors[node][0] = indices[i]
+            else:
+                neighbors[node].append(indices[i])
+            if indices[i] != node:
+                graph[ints2int(node, indices[i])] = data[i] / total_weight
+        if node in neighbors[node]:
+            neighbors[node].remove(node)
+        cluster_sizes[node] = 1
+        cluster_probs[node] = node_probs[types.int32(node)]
+
+    connected_components = []
+    dendrogram = []
+
+    while len(cluster_sizes) > 0:
+        node = None
+        for node in cluster_sizes:
+            break
+        chain = [node]
+        while chain:
+            node = chain.pop()
+            if neighbors[node][0] != -1:
+                max_sim = -maxfloat
+                nearest_neighbor = None
+                for neighbor in neighbors[node]:
+                    sim = graph[ints2int(node, neighbor)] / cluster_probs[node] / \
+                          cluster_probs[neighbor]
+                    if sim > max_sim + tol:
+                        nearest_neighbor = neighbor
+                        max_sim = sim
+                    elif sim >= max_sim:
+                        nearest_neighbor = min(neighbor, nearest_neighbor)
+                        max_sim = sim
+                if chain:
+                    nearest_neighbor_last = chain.pop()
+                    if nearest_neighbor_last == nearest_neighbor:
+                        dendrogram.append([node, nearest_neighbor, 1. / max_sim,
+                                           cluster_sizes[node]
+                                           + cluster_sizes[nearest_neighbor]])
+                        new_node = types.int32(next_cluster)
+                        neighbors.append([types.int32(-1)])
+                        common_neighbors = set(neighbors[node]) \
+                                           & set(neighbors[nearest_neighbor]) \
+                                           - {types.int32(node), types.int32(nearest_neighbor)}
+                        for curr_node in common_neighbors:
+                            graph[ints2int(new_node, curr_node)] = graph[ints2int(node, curr_node)] + graph[
+                                ints2int(nearest_neighbor, curr_node)]
+                            graph[ints2int(curr_node, new_node)] = graph.pop(ints2int(curr_node, node)) + graph.pop(
+                                ints2int(curr_node, nearest_neighbor))
+                            if neighbors[new_node][0] != -1:
+                                neighbors[new_node].append(curr_node)
+                            else:
+                                neighbors[new_node][0] = curr_node
+                            neighbors[curr_node].append(new_node)
+                            neighbors[curr_node].remove(node)
+                            neighbors[curr_node].remove(nearest_neighbor)
+                        node_neighbors = set(neighbors[node]) \
+                                         - set(neighbors[nearest_neighbor]) \
+                                         - {types.int32(nearest_neighbor)}
+                        for curr_node in node_neighbors:
+                            graph[ints2int(new_node, curr_node)] = graph[ints2int(node, curr_node)]
+                            graph[ints2int(curr_node, new_node)] = graph.pop(ints2int(curr_node, node))
+                            if neighbors[new_node][0] != -1:
+                                neighbors[new_node].append(curr_node)
+                            else:
+                                neighbors[new_node][0] = curr_node
+                            neighbors[curr_node].append(new_node)
+                            neighbors[curr_node].remove(node)
+                        nearest_neighbor_neighbors = set(neighbors[nearest_neighbor]) \
+                                                     - set(neighbors[node]) \
+                                                     - {types.int32(node)}
+                        for curr_node in nearest_neighbor_neighbors:
+                            graph[ints2int(new_node, curr_node)] = graph[ints2int(nearest_neighbor, curr_node)]
+                            graph[ints2int(curr_node, new_node)] = graph.pop(ints2int(curr_node, nearest_neighbor))
+                            if neighbors[new_node][0] != -1:
+                                neighbors[new_node].append(curr_node)
+                            else:
+                                neighbors[new_node][0] = curr_node
+                            neighbors[curr_node].append(new_node)
+                            neighbors[curr_node].remove(nearest_neighbor)
+                        neighbors[node] = [types.int32(-1)]
+                        neighbors[nearest_neighbor] = [types.int32(-1)]
+                        cluster_sizes[new_node] = cluster_sizes.pop(node) + cluster_sizes.pop(nearest_neighbor)
+                        cluster_probs[new_node] = cluster_probs.pop(node) + cluster_probs.pop(nearest_neighbor)
+                        next_cluster += 1
+                    else:
+                        chain.append(nearest_neighbor_last)
+                        chain.append(node)
+                        chain.append(nearest_neighbor)
+                else:
+                    chain.append(node)
+                    chain.append(nearest_neighbor)
+            else:
+                connected_components.append((node, cluster_sizes[node]))
+                del cluster_sizes[node]
+
+    node, cluster_size = connected_components.pop()
+    for next_node, next_cluster_size in connected_components:
+        cluster_size += next_cluster_size
+        dendrogram.append([node, next_node, maxfloat, cluster_size])
+        node = next_cluster
+        next_cluster += 1
+    return dendrogram
+
+
 class Paris:
     """Agglomerative algorithm.
 
@@ -157,8 +324,9 @@ class Paris:
 
     """
 
-    def __init__(self):
+    def __init__(self, engine: str = 'default'):
         self.dendrogram_ = None
+        self.engine = check_engine(engine)
 
     def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree', reorder: bool = True,
             tol: float = 1e-10):
@@ -191,62 +359,80 @@ class Paris:
 
         node_probs = check_probs(weights, adjacency, positive_entries=True)
 
-        aggregate_graph = AggregateGraph(adjacency, node_probs)
+        if self.engine == 'python':
+            aggregate_graph = AggregateGraph(adjacency, node_probs)
 
-        connected_components = []
-        dendrogram = []
+            connected_components = []
+            dendrogram = []
 
-        while len(aggregate_graph.cluster_sizes) > 0:
-            node = None
-            for node in aggregate_graph.cluster_sizes:
-                break
-            chain = [node]
-            while chain:
-                node = chain.pop()
-                if aggregate_graph.graph[node]:
-                    max_sim = -float("inf")
-                    nearest_neighbor = None
-                    for neighbor in aggregate_graph.graph[node]:
-                        sim = aggregate_graph.graph[node][neighbor] / aggregate_graph.cluster_probs[node] / \
-                              aggregate_graph.cluster_probs[neighbor]
-                        if sim > max_sim + tol:
-                            nearest_neighbor = neighbor
-                            max_sim = sim
-                        elif sim >= max_sim:
-                            nearest_neighbor = min(neighbor, nearest_neighbor)
-                            max_sim = sim
-                    if chain:
-                        nearest_neighbor_last = chain.pop()
-                        if nearest_neighbor_last == nearest_neighbor:
-                            dendrogram.append([node, nearest_neighbor, 1. / max_sim,
-                                               aggregate_graph.cluster_sizes[node]
-                                               + aggregate_graph.cluster_sizes[nearest_neighbor]])
-                            aggregate_graph.merge(node, nearest_neighbor)
+            while len(aggregate_graph.cluster_sizes) > 0:
+                node = None
+                for node in aggregate_graph.cluster_sizes:
+                    break
+                chain = [node]
+                while chain:
+                    node = chain.pop()
+                    if aggregate_graph.graph[node]:
+                        max_sim = -float("inf")
+                        nearest_neighbor = None
+                        for neighbor in aggregate_graph.graph[node]:
+                            sim = aggregate_graph.graph[node][neighbor] / aggregate_graph.cluster_probs[node] / \
+                                  aggregate_graph.cluster_probs[neighbor]
+                            if sim > max_sim + tol:
+                                nearest_neighbor = neighbor
+                                max_sim = sim
+                            elif sim >= max_sim:
+                                nearest_neighbor = min(neighbor, nearest_neighbor)
+                                max_sim = sim
+                        if chain:
+                            nearest_neighbor_last = chain.pop()
+                            if nearest_neighbor_last == nearest_neighbor:
+                                dendrogram.append([node, nearest_neighbor, 1. / max_sim,
+                                                   aggregate_graph.cluster_sizes[node]
+                                                   + aggregate_graph.cluster_sizes[nearest_neighbor]])
+                                aggregate_graph.merge(node, nearest_neighbor)
+                            else:
+                                chain.append(nearest_neighbor_last)
+                                chain.append(node)
+                                chain.append(nearest_neighbor)
                         else:
-                            chain.append(nearest_neighbor_last)
                             chain.append(node)
                             chain.append(nearest_neighbor)
                     else:
-                        chain.append(node)
-                        chain.append(nearest_neighbor)
-                else:
-                    connected_components.append((node, aggregate_graph.cluster_sizes[node]))
-                    del aggregate_graph.cluster_sizes[node]
+                        connected_components.append((node, aggregate_graph.cluster_sizes[node]))
+                        del aggregate_graph.cluster_sizes[node]
 
-        node, cluster_size = connected_components.pop()
-        for next_node, next_cluster_size in connected_components:
-            cluster_size += next_cluster_size
-            dendrogram.append([node, next_node, float("inf"), cluster_size])
-            node = aggregate_graph.next_cluster
-            aggregate_graph.next_cluster += 1
+            node, cluster_size = connected_components.pop()
+            for next_node, next_cluster_size in connected_components:
+                cluster_size += next_cluster_size
+                dendrogram.append([node, next_node, float("inf"), cluster_size])
+                node = aggregate_graph.next_cluster
+                aggregate_graph.next_cluster += 1
 
-        dendrogram = np.array(dendrogram)
-        if reorder:
-            dendrogram = reorder_dendrogram(dendrogram)
+            dendrogram = np.array(dendrogram)
+            if reorder:
+                dendrogram = reorder_dendrogram(dendrogram)
 
-        self.dendrogram_ = dendrogram
+            self.dendrogram_ = dendrogram
 
-        return self
+            return self
+
+        elif self.engine == 'numba':
+
+            n_nodes = np.int32(adjacency.shape[0])
+            indices, indptr, data = adjacency.indices, adjacency.indptr, adjacency.data
+
+            dendrogram = fit_core(tol, n_nodes, node_probs, data, indices, indptr)
+            dendrogram = np.array(dendrogram)
+            if reorder:
+                dendrogram = reorder_dendrogram(dendrogram)
+
+            self.dendrogram_ = dendrogram
+
+            return self
+
+        else:
+            raise ValueError('Unknown engine.')
 
     def predict(self, n_clusters: int = 2, sorted_clusters: bool = False) -> np.ndarray:
         """
