@@ -211,9 +211,9 @@ def fit_core(tol: float, n_nodes: int, node_probs: np.ndarray, data: np.ndarray,
                                            + cluster_sizes[nearest_neighbor]])
                         new_node = types.int32(next_cluster)
                         neighbors.append([types.int32(-1)])
-                        common_neighbors = set(neighbors[node]) \
-                                           & set(neighbors[nearest_neighbor]) \
-                                           - {types.int32(node), types.int32(nearest_neighbor)}
+                        common_neighbors = set(neighbors[node]) & set(neighbors[nearest_neighbor]) - {types.int32(node),
+                                                                                                      types.int32(
+                                                                                                      nearest_neighbor)}
                         for curr_node in common_neighbors:
                             graph[ints2int(new_node, curr_node)] = graph[ints2int(node, curr_node)] + graph[
                                 ints2int(nearest_neighbor, curr_node)]
@@ -226,9 +226,8 @@ def fit_core(tol: float, n_nodes: int, node_probs: np.ndarray, data: np.ndarray,
                             neighbors[curr_node].append(new_node)
                             neighbors[curr_node].remove(node)
                             neighbors[curr_node].remove(nearest_neighbor)
-                        node_neighbors = set(neighbors[node]) \
-                                         - set(neighbors[nearest_neighbor]) \
-                                         - {types.int32(nearest_neighbor)}
+                        node_neighbors = set(neighbors[node]) - set(neighbors[nearest_neighbor]) - {types.int32(
+                            nearest_neighbor)}
                         for curr_node in node_neighbors:
                             graph[ints2int(new_node, curr_node)] = graph[ints2int(node, curr_node)]
                             graph[ints2int(curr_node, new_node)] = graph.pop(ints2int(curr_node, node))
@@ -238,9 +237,8 @@ def fit_core(tol: float, n_nodes: int, node_probs: np.ndarray, data: np.ndarray,
                                 neighbors[new_node][0] = curr_node
                             neighbors[curr_node].append(new_node)
                             neighbors[curr_node].remove(node)
-                        nearest_neighbor_neighbors = set(neighbors[nearest_neighbor]) \
-                                                     - set(neighbors[node]) \
-                                                     - {types.int32(node)}
+                        nearest_neighbor_neighbors = set(neighbors[nearest_neighbor]) - set(neighbors[node]) - {
+                            types.int32(node)}
                         for curr_node in nearest_neighbor_neighbors:
                             graph[ints2int(new_node, curr_node)] = graph[ints2int(nearest_neighbor, curr_node)]
                             graph[ints2int(curr_node, new_node)] = graph.pop(ints2int(curr_node, nearest_neighbor))
