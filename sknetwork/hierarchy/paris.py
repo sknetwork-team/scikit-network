@@ -8,7 +8,7 @@ Created on March 2019
 """
 
 from sknetwork.utils.checks import *
-from sknetwork import njit, types, typedDict
+from sknetwork import njit, types, TypedDict
 
 
 class AggregateGraph:
@@ -157,7 +157,7 @@ def fit_core(tol: float, n_nodes: int, node_probs: np.ndarray, data: np.ndarray,
     maxfloat = 1.7976931348623157e+308
     total_weight = data.sum()
     next_cluster = n_nodes
-    graph = typedDict.empty(
+    graph = TypedDict.empty(
         key_type=types.int64,
         value_type=types.float64,
     )

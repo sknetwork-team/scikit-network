@@ -446,8 +446,9 @@ class Louvain:
         if not is_square(adjacency):
             adjacency = bipartite2directed(adjacency)
 
+        nodes = np.arange(adjacency.shape[0])
         if self.shuffle_nodes:
-            nodes = np.random.permutation(np.arange(adjacency.shape[0]))
+            nodes = np.random.permutation(nodes)
             adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
         graph = NormalizedGraph(adjacency, weights, feature_weights)

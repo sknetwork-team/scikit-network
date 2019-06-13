@@ -9,7 +9,7 @@ __version__ = '0.5.0'
 import numpy as np
 try:
     from numba import njit, prange, types
-    from numba.typed import Dict as typedDict
+    from numba.typed import Dict as TypedDict
     is_numba_available = True
 except ImportError:
     def njit(*args, **kwargs):
@@ -23,7 +23,11 @@ except ImportError:
     prange = range
     is_numba_available = False
     types = np
-    typedDict = dict
+
+    class TypedDict(dict):
+        @staticmethod
+        def empty(**kwargs):
+            pass
 
 
 from scipy.sparse.csgraph import *
