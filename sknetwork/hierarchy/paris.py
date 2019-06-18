@@ -100,8 +100,8 @@ def reorder_dendrogram(dendrogram: np.ndarray) -> np.ndarray:
     """
     n_nodes = np.shape(dendrogram)[0] + 1
     order = np.zeros((2, n_nodes - 1), float)
-    order[0] = np.arange(n_nodes - 1)
-    order[1] = np.array(dendrogram)[:, 2]
+    order[1] = np.amax(dendrogram[:, :2], axis=1)
+    order[0] = np.amin(dendrogram[:, :2], axis=1)
     index = np.lexsort(order)
     node_index = np.arange(2 * n_nodes - 1)
     for t in range(n_nodes - 1):
