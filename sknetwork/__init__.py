@@ -4,7 +4,7 @@
 
 __author__ = """scikit-network team"""
 __email__ = "bonald@enst.fr"
-__version__ = '0.6.0'
+__version__ = '0.6.1'
 
 import numpy as np
 try:
