@@ -2,6 +2,16 @@
 History
 =======
 
+0.6.0 (2019-06-19)
+------------------
+
+* Largest connected component
+* Simplex projection
+* Sparse Low Rank Decomposition
+* Numba support for Paris
+* Various fixes and updates
+
+
 0.4.0 (2019-04-03)
 ------------------
 
