@@ -290,8 +290,8 @@ class Paris:
     >>> adjacency = adjacency + adjacency.T
 
     >>> paris = Paris()
-    >>> paris.dendrogram_.shape
-    (4,4)
+    >>> paris.fit(adjacency).dendrogram_.shape
+    (4, 4)
 
     Notes
     -----
@@ -424,4 +424,3 @@ class Paris:
 
         else:
             raise ValueError('Unknown engine.')
-

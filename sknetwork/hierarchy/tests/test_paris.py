@@ -9,7 +9,7 @@ Created on March 2019
 import unittest
 import numpy as np
 from scipy.sparse import identity
-from sknetwork.hierarchy import Paris, simple_cut
+from sknetwork.hierarchy import Paris, cut
 from sknetwork.toy_graphs import house_graph, karate_club_graph
 from sknetwork import is_numba_available
 
@@ -41,15 +41,15 @@ class TestParis(unittest.TestCase):
         if is_numba_available:
             self.paris_numba.fit(self.house_graph)
             self.assertEqual(self.paris_numba.dendrogram_.shape[0], 4)
-            labels = simple_cut(self.paris_numba.dendrogram_, sorted_clusters=True)
+            labels = cut(self.paris_numba.dendrogram_, sorted_clusters=True)
             self.assertTrue(np.array_equal(labels, np.array([0, 0, 1, 1, 0])))
         self.paris_python.fit(self.house_graph)
         self.assertEqual(self.paris_python.dendrogram_.shape[0], 4)
-        labels = simple_cut(self.paris_python.dendrogram_, sorted_clusters=True)
+        labels = cut(self.paris_python.dendrogram_, sorted_clusters=True)
         self.assertTrue(np.array_equal(labels, np.array([0, 0, 1, 1, 0])))
 
     def test_karate_club_graph(self):
         self.paris_python.fit(self.karate_club_graph)
         self.assertEqual(self.paris_python.dendrogram_.shape[0], 33)
-        labels = simple_cut(self.paris_python.dendrogram_)
+        labels = cut(self.paris_python.dendrogram_)
         self.assertEqual(np.max(labels), 1)

@@ -1,3 +1,3 @@
 from sknetwork.hierarchy.paris import *
 from sknetwork.hierarchy.metrics import *
-from sknetwork.hierarchy.cut import *
+from sknetwork.hierarchy.cuts import *

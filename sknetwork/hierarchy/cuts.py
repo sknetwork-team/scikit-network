@@ -10,7 +10,7 @@ Created on June 2019
 from sknetwork.utils.checks import *
 
 
-def simple_cut(dendrogram: np.ndarray, n_clusters: int = 2, sorted_clusters: bool = False) -> np.ndarray:
+def cut(dendrogram: np.ndarray, n_clusters: int = 2, sorted_clusters: bool = False) -> np.ndarray:
     """
     Extract the clustering with given number of clusters from the dendrogram.
 
@@ -28,8 +28,6 @@ def simple_cut(dendrogram: np.ndarray, n_clusters: int = 2, sorted_clusters: boo
     labels : np.ndarray
         Cluster index of each node.
     """
-    if dendrogram is None:
-        raise ValueError("First fit data using the fit method.")
     n_nodes = np.shape(dendrogram)[0] + 1
     if n_clusters < 1 or n_clusters > n_nodes:
         raise ValueError("The number of clusters must be between 1 and the number of nodes.")
