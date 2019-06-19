@@ -15,8 +15,15 @@ Paris
     :members:
 
 
+Cuts
+----
+.. autofunction:: sknetwork.hierarchy.cut
+
+
+
 Metrics
 -------
 .. autofunction:: sknetwork.hierarchy.dasgupta_cost
 
 .. autofunction:: sknetwork.hierarchy.tree_sampling_divergence
+
