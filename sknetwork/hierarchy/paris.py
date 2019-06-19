@@ -100,8 +100,8 @@ def reorder_dendrogram(dendrogram: np.ndarray) -> np.ndarray:
     """
     n_nodes = np.shape(dendrogram)[0] + 1
     order = np.zeros((2, n_nodes - 1), float)
-    order[1] = np.amax(dendrogram[:, :2], axis=1)
-    order[0] = np.amin(dendrogram[:, :2], axis=1)
+    order[0] = np.arange(n_nodes - 1)
+    order[1] = np.array(dendrogram)[:, 2]
     index = np.lexsort(order)
     node_index = np.arange(2 * n_nodes - 1)
     for t in range(n_nodes - 1):
@@ -130,14 +130,12 @@ def ints2int(first: np.int32, second: np.int32):
 
 
 @njit
-def fit_core(tol: float, n_nodes: int, node_probs: np.ndarray, data: np.ndarray,
+def fit_core(n_nodes: int, node_probs: np.ndarray, data: np.ndarray,
              indices: np.ndarray, indptr: np.ndarray):
     """
 
     Parameters
     ----------
-    tol:
-        Minimum increase in modularity to enter a new optimization pass.
     n_nodes:
         Number of nodes.
     node_probs:
@@ -195,14 +193,13 @@ def fit_core(tol: float, n_nodes: int, node_probs: np.ndarray, data: np.ndarray,
                 max_sim = -maxfloat
                 nearest_neighbor = None
                 for neighbor in neighbors[node]:
-                    sim = graph[ints2int(node, neighbor)] / cluster_probs[node] / \
-                          cluster_probs[neighbor]
-                    if sim > max_sim + tol:
+                    sim = graph[ints2int(node, neighbor)] / \
+                          (cluster_probs[node] * cluster_probs[neighbor])
+                    if sim > max_sim:
                         nearest_neighbor = neighbor
                         max_sim = sim
-                    elif sim >= max_sim:
+                    elif sim == max_sim:
                         nearest_neighbor = min(neighbor, nearest_neighbor)
-                        max_sim = sim
                 if chain:
                     nearest_neighbor_last = chain.pop()
                     if nearest_neighbor_last == nearest_neighbor:
@@ -326,8 +323,7 @@ class Paris:
         self.dendrogram_ = None
         self.engine = check_engine(engine)
 
-    def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree', reorder: bool = True,
-            tol: float = 1e-10):
+    def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree', reorder: bool = True):
         """
         Agglomerative clustering using the nearest neighbor chain.
 
@@ -339,8 +335,6 @@ class Paris:
             Node weights used in the linkage.
         reorder :
             If True, reorder the dendrogram in increasing order of heights.
-        tol:
-            The tolerance to numerical errors with floats.
 
         Returns
         -------
@@ -374,14 +368,13 @@ class Paris:
                         max_sim = -float("inf")
                         nearest_neighbor = None
                         for neighbor in aggregate_graph.graph[node]:
-                            sim = aggregate_graph.graph[node][neighbor] / aggregate_graph.cluster_probs[node] / \
-                                  aggregate_graph.cluster_probs[neighbor]
-                            if sim > max_sim + tol:
+                            sim = aggregate_graph.graph[node][neighbor] / \
+                                  (aggregate_graph.cluster_probs[node] * aggregate_graph.cluster_probs[neighbor])
+                            if sim > max_sim:
                                 nearest_neighbor = neighbor
                                 max_sim = sim
-                            elif sim >= max_sim:
+                            elif sim == max_sim:
                                 nearest_neighbor = min(neighbor, nearest_neighbor)
-                                max_sim = sim
                         if chain:
                             nearest_neighbor_last = chain.pop()
                             if nearest_neighbor_last == nearest_neighbor:
@@ -420,7 +413,7 @@ class Paris:
             n_nodes = np.int32(adjacency.shape[0])
             indices, indptr, data = adjacency.indices, adjacency.indptr, adjacency.data
 
-            dendrogram = fit_core(tol, n_nodes, node_probs, data, indices, indptr)
+            dendrogram = fit_core(n_nodes, node_probs, data, indices, indptr)
             dendrogram = np.array(dendrogram)
             if reorder:
                 dendrogram = reorder_dendrogram(dendrogram)
