@@ -13,9 +13,55 @@ import numpy as np
 
 from scipy import sparse
 from scipy.stats import hmean
+from sknetwork.utils.checks import check_format
+from typing import Union
 
 
-def dot_modularity(adjacency_matrix, embedding: np.ndarray, features=None, resolution=1., weights='degree',
+def linear_fit(adjacency: Union[sparse.csr_matrix, np.ndarray], embedding: np.ndarray, order: int=1,
+               damping: float=0.85) -> tuple:
+    """Linear multi order proximity fit and diversity.
+
+    Parameters
+    ----------
+    adjacency:
+        Adjacency matrix of the graph.
+    embedding:
+        Two dimensional array, line i represents the embedding of node i.
+    order:
+        Number of proximity order to consider.
+    damping:
+        Decay factor for multi-order metrics, only useful if ``order > 1``.
+
+    Returns
+    -------
+        A tuple of non-negative floats.
+
+    """
+    adjacency = check_format(adjacency)
+    n_nodes, m_nodes = adjacency.shape
+    if embedding.shape[0] != adjacency.shape[0]:
+        raise ValueError('The embedding and the adjacency must have the same number of rows.')
+    scale = 1.
+    total_scale = 0.
+    fit, div = 0., 0.
+    degree = np.ones(adjacency.shape[1])
+    current = embedding
+    for k in range(order):
+        scale *= damping
+        total_scale += scale
+        degree = adjacency.dot(degree)
+        total_weight = degree.sum()
+        current = adjacency.dot(current)
+        fit += scale * np.multiply(embedding, current).sum() / total_weight
+        div += scale * np.linalg.norm(embedding.T.dot(degree) / total_weight)
+
+    normalization = np.linalg.norm(embedding) ** 2 / np.sqrt(n_nodes * m_nodes)
+    fit /= (total_scale * normalization)
+    div /= (total_scale * normalization)
+    return fit, div
+
+
+def dot_modularity(adjacency, embedding: np.ndarray, features=None, resolution=1., weights='degree',
                    return_all: bool=False):
     """
     Difference of the weighted average dot product between embeddings of pairs of neighbors in the graph
@@ -28,7 +74,7 @@ def dot_modularity(adjacency_matrix, embedding: np.ndarray, features=None, resol
 
     Parameters
     ----------
-    adjacency_matrix: sparse.csr_matrix or np.ndarray
+    adjacency: sparse.csr_matrix or np.ndarray
         the adjacency matrix of the graph
     embedding: np.ndarray
         the embedding to evaluate, embedding[i] must represent the embedding of node i
@@ -46,15 +92,9 @@ def dot_modularity(adjacency_matrix, embedding: np.ndarray, features=None, resol
     -------
     dot_modularity: a float or a tuple of floats.
     """
-    if type(adjacency_matrix) == sparse.csr_matrix:
-        adj_matrix = adjacency_matrix
-    elif sparse.isspmatrix(adjacency_matrix) or type(adjacency_matrix) == np.ndarray:
-        adj_matrix = sparse.csr_matrix(adjacency_matrix)
-    else:
-        raise TypeError(
-            "The argument must be a NumPy array or a SciPy Sparse matrix.")
-    n_nodes, m_nodes = adj_matrix.shape
-    total_weight: float = adjacency_matrix.data.sum()
+    adjacency = check_format(adjacency)
+    n_nodes, m_nodes = adjacency.shape
+    total_weight: float = adjacency.data.sum()
 
     if features is None:
         if n_nodes != m_nodes:
@@ -66,15 +106,15 @@ def dot_modularity(adjacency_matrix, embedding: np.ndarray, features=None, resol
         normalization = np.linalg.norm(embedding.dot(features.T)) / np.sqrt(n_nodes * m_nodes)
 
     if weights == 'degree':
-        wou = adj_matrix.dot(np.ones(m_nodes)) / total_weight
-        win = adj_matrix.T.dot(np.ones(n_nodes)) / total_weight
+        wou = adjacency.dot(np.ones(m_nodes)) / total_weight
+        win = adjacency.T.dot(np.ones(n_nodes)) / total_weight
     elif weights == 'uniform':
         wou = np.ones(n_nodes) / n_nodes
         win = np.ones(m_nodes) / m_nodes
     else:
         raise ValueError('weights must be degree or uniform.')
 
-    fit = (np.multiply(embedding, adjacency_matrix.dot(features))).sum() / (total_weight * normalization)
+    fit = (np.multiply(embedding, adjacency.dot(features))).sum() / (total_weight * normalization)
     diversity = (embedding.T.dot(wou)).dot(features.T.dot(win)) / normalization
 
     if return_all:
@@ -83,12 +123,12 @@ def dot_modularity(adjacency_matrix, embedding: np.ndarray, features=None, resol
         return fit - resolution * diversity
 
 
-def hscore(adjacency_matrix, embedding: np.ndarray, order='second', return_all: bool=False):
+def hscore(adjacency, embedding: np.ndarray, order='second', return_all: bool=False):
     """Harmonic mean of fit and diversity with respect to first or second order node similarity.
 
     Parameters
     ----------
-    adjacency_matrix: sparse.csr_matrix or np.ndarray
+    adjacency: sparse.csr_matrix or np.ndarray
         the adjacency matrix of the graph
     embedding: np.ndarray
         the embedding to evaluate, embedding[i] must represent the embedding of node i
@@ -103,21 +143,15 @@ def hscore(adjacency_matrix, embedding: np.ndarray, order='second', return_all: 
     hscore: a float or a tuple of floats.
 
     """
-    if type(adjacency_matrix) == sparse.csr_matrix:
-        adj_matrix = adjacency_matrix
-    elif sparse.isspmatrix(adjacency_matrix) or type(adjacency_matrix) == np.ndarray:
-        adj_matrix = sparse.csr_matrix(adjacency_matrix)
-    else:
-        raise TypeError(
-            "The argument must be a NumPy array or a SciPy Sparse matrix.")
-    n_nodes, m_nodes = adj_matrix.shape
+    adjacency = check_format(adjacency)
+    n_nodes, m_nodes = adjacency.shape
     if order == 'first' and (n_nodes != m_nodes):
         raise ValueError('For fist order similarity, the adjacency matrix must be square.')
-    total_weight = adj_matrix.data.sum()
+    total_weight = adjacency.data.sum()
     # out-degree vector
-    dou = adj_matrix.dot(np.ones(m_nodes))
+    dou = adjacency.dot(np.ones(m_nodes))
     # in-degree vector
-    din = adj_matrix.T.dot(np.ones(n_nodes))
+    din = adjacency.T.dot(np.ones(n_nodes))
 
     pdhou, pdhin = np.zeros(n_nodes), np.zeros(m_nodes)
     pdhou[dou.nonzero()] = 1 / np.sqrt(dou[dou.nonzero()])
@@ -125,10 +159,10 @@ def hscore(adjacency_matrix, embedding: np.ndarray, order='second', return_all: 
 
     normalization = np.linalg.norm(embedding.T * np.sqrt(dou)) ** 2
     if order == 'first':
-        fit = (np.multiply(embedding, adjacency_matrix.dot(embedding))).sum()
+        fit = (np.multiply(embedding, adjacency.dot(embedding))).sum()
         fit /= total_weight * (np.linalg.norm(embedding) ** 2 / n_nodes)
     elif order == 'second':
-        fit = np.linalg.norm(adj_matrix.T.dot(embedding).T * pdhin) ** 2 / normalization
+        fit = np.linalg.norm(adjacency.T.dot(embedding).T * pdhin) ** 2 / normalization
     else:
         raise ValueError('The similarity order should be \'first\' or \'second\'.')
     diversity = (np.linalg.norm(embedding.T.dot(dou))) ** 2 / total_weight

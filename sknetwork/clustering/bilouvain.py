@@ -5,9 +5,6 @@ Created on Mar 3, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
-import numpy as np
-from scipy import sparse
-
 from sknetwork.clustering.louvain import *
 from sknetwork.utils.adjacency_formats import bipartite2undirected
 from sknetwork.utils.checks import *
@@ -164,8 +161,8 @@ class BiLouvain:
         biadjacency = check_format(biadjacency)
         n_samp, n_feat = biadjacency.shape
 
-        samp_weights = np.hstack((check_weights(weights, biadjacency), np.zeros(n_feat)))
-        feat_weights = np.hstack((np.zeros(n_samp), check_weights(feature_weights, biadjacency.T)))
+        samp_weights = np.hstack((check_probs(weights, biadjacency), np.zeros(n_feat)))
+        feat_weights = np.hstack((np.zeros(n_samp), check_probs(feature_weights, biadjacency.T)))
         graph = NormalizedGraph(bipartite2undirected(biadjacency), samp_weights, feat_weights)
 
         iteration_count: int = 0

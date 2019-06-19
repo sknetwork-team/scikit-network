@@ -6,7 +6,7 @@
 import unittest
 from sknetwork.toy_graphs import star_wars_villains_graph, rock_paper_scissors_graph, house_graph
 from sknetwork.utils.adjacency_formats import *
-from sknetwork.utils.checks import check_symmetry
+from sknetwork.utils.checks import is_symmetric
 
 
 class TestFormats(unittest.TestCase):
@@ -19,7 +19,7 @@ class TestFormats(unittest.TestCase):
     def test_dir2undir(self):
         undirected_graph = directed2undirected(self.adjacency)
         self.assertEqual(undirected_graph.shape, self.adjacency.shape)
-        self.assertTrue(check_symmetry(undirected_graph))
+        self.assertTrue(is_symmetric(undirected_graph))
         error = 0.5 * directed2undirected(self.house) - self.house
         self.assertEqual(error.nnz, 0)
 
@@ -32,4 +32,4 @@ class TestFormats(unittest.TestCase):
         n_nodes = self.biadjacency.shape[0] + self.biadjacency.shape[1]
         undirected_graph = bipartite2undirected(self.biadjacency)
         self.assertEqual(undirected_graph.shape, (n_nodes, n_nodes))
-        self.assertTrue(check_symmetry(undirected_graph))
+        self.assertTrue(is_symmetric(undirected_graph))

@@ -4,10 +4,12 @@
 
 __author__ = """scikit-network team"""
 __email__ = "bonald@enst.fr"
-__version__ = '0.5.0'
+__version__ = '0.6.0'
 
+import numpy as np
 try:
-    from numba import njit, prange
+    from numba import njit, prange, types
+    from numba.typed import Dict as TypedDict
     is_numba_available = True
 except ImportError:
     def njit(*args, **kwargs):
@@ -20,6 +22,13 @@ except ImportError:
             return __wrapper__
     prange = range
     is_numba_available = False
+    types = np
+
+    class TypedDict(dict):
+        @staticmethod
+        def empty(**kwargs):
+            pass
+
 
 from scipy.sparse.csgraph import *
 from sknetwork.toy_graphs.graph_data import *
@@ -32,5 +41,6 @@ from sknetwork.hierarchy.metrics import *
 from sknetwork.embedding.gsvd import *
 from sknetwork.embedding.spectral import *
 from sknetwork.embedding.metrics import *
-from sknetwork.embedding.randomized_matrix_factorization import *
+from sknetwork.utils.randomized_matrix_factorization import *
+from sknetwork.utils.preprocessing import *
 from sknetwork.loader import *

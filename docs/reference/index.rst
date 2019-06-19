@@ -9,5 +9,7 @@ Reference
     embedding
     clustering
     hierarchy
+    ranking
     loader
     toy_graphs
+    utils
