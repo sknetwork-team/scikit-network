@@ -2,6 +2,12 @@
 History
 =======
 
+0.7.0 (2019-06-24)
+------------------
+
+* Updated PageRank
+* Added tests for Numba versioning
+
 0.6.1 (2019-06-19)
 ------------------
 

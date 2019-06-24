@@ -7,4 +7,5 @@ Ranking
 
 Pagerank
 --------
-.. autofunction:: sknetwork.ranking.pagerank
+.. autoclass:: sknetwork.ranking.PageRank
+    :members:

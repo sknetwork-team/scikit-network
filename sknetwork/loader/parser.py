@@ -26,9 +26,9 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         ensures the adjacency matrix is symmetric if False
     bipartite : bool
         if True, returns the biadjacency matrix of shape (n1, n2)
-    weighted : Union[bool, str]
+    weighted : Union[NoneType, bool]
         retrieves the weights in the third field of the file. None makes a guess based on the first lines
-    labeled : Union[bool, str]
+    labeled : Union[NoneType, bool]
         retrieves the names given to the nodes and renumbers them. Returns an additional array. None makes a guess
         based on the first lines
     comment : str
