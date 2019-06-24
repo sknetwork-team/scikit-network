@@ -124,5 +124,6 @@ class PageRank:
             _, eigenvector = randomized_eig(pagerank_matrix, 1)
 
             self.ranking_ = abs(eigenvector.real) / abs(eigenvector.real).sum()
+            self.ranking_.reshape((self.ranking_.shape[0]))
 
         return self
