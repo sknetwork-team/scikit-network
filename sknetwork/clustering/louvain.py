@@ -4,7 +4,7 @@
 Created on Nov 2, 2018
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Quentin Lutz <qlutz@enst.fr>
-@author: Thomas Bonald <tbonald@enst.fr>
+@author: Thomas Bonald <bonald@enst.fr>
 """
 
 from sknetwork.utils.checks import *
