@@ -7,5 +7,5 @@ Ranking
 
 Pagerank
 --------
-.. autoclass:: sknetwork.clustering.PageRank
+.. autoclass:: sknetwork.ranking.PageRank
     :members:

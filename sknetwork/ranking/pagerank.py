@@ -43,13 +43,13 @@ class PageRank:
     ranking_: np.ndarray
         Ranking of each node.
 
-     References
+    References
     ----------
     * Hong, D., Huynh, T. D., & Mathieu, F. (2015). D-iteration: diffusion approach for solving pagerank.
-     arXiv preprint arXiv:1501.06350.
+      arXiv preprint arXiv:1501.06350.
 
     * Page, L., Brin, S., Motwani, R., & Winograd, T. (1999). The PageRank citation ranking: Bringing order to the web.
-     Stanford InfoLab.
+      Stanford InfoLab.
     """
     def __init__(self, damping_factor: float = 0.85, method: str = 'diter', n_iter: int = 25):
         self.ranking_ = None
@@ -72,7 +72,7 @@ class PageRank:
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Union[None, np.ndarray] = None) -> 'PageRank':
-        """Standard pagerank via matrix factorization.
+        """Standard pagerank via matrix factorization or D-iteration.
 
         Parameters
         ----------
