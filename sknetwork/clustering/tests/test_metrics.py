@@ -3,8 +3,10 @@
 """"tests for clustering metrics"""
 
 import unittest
-from sknetwork.clustering import *
-from sknetwork.toy_graphs import *
+import numpy as np
+from scipy import sparse
+from sknetwork.clustering import modularity, cocitation_modularity, bimodularity, performance, cocitation_performance
+from sknetwork.toy_graphs import star_wars_villains_graph
 
 
 class TestClusteringMetrics(unittest.TestCase):

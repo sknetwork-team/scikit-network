@@ -38,6 +38,14 @@ class GSVD:
     singular_values_ : np.ndarray, shape = (embedding_dimension)
         Singular values of the training matrix
 
+    Example
+    -------
+    >>> from sknetwork.toy_graphs import movie_actor_graph
+    >>> graph = movie_actor_graph()
+    >>> gsvd = GSVD(embedding_dimension=2)
+    >>> gsvd.fit(graph).embedding_.shape
+    (15, 2)
+
     References
     ----------
     * Abdi, H. (2007). Singular value decomposition (SVD) and generalized singular value decomposition.

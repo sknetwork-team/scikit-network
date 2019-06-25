@@ -222,6 +222,12 @@ def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='a
         random_state : int, RandomState instance or None, optional (default=None)
             See :meth:`randomized_range_finder`
 
+        Returns
+        -------
+        left_singular_vectors: np.ndarray
+        singular_values: np.ndarray
+        right_singular_vectors: np.ndarray
+
         Notes
         -----
         This algorithm finds a (usually very good) approximate truncated
@@ -321,6 +327,9 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
 
     Returns
     -------
+    eigenvalues: np.ndarray
+    eigenvectors: np.ndarray
+
     References
     ----------
     Finding structure with randomness: Stochastic algorithms for constructing

@@ -23,18 +23,18 @@ Preprocessing
 Sparse + Low Rank structure
 ---------------------------
 
-.. autoclass:: sknetwork.utils.sparse_lowrank.SparseLR
+.. autoclass:: sknetwork.utils.SparseLR
     :members:
 
 Projection
 ----------
-.. autofunction:: sknetwork.utils.projection_simplex.projection_simplex
+.. autofunction:: sknetwork.utils.projection_simplex
 
 
 Randomized methods
 ------------------
 .. autofunction:: sknetwork.utils.randomized_matrix_factorization.randomized_range_finder
 
-.. autofunction:: sknetwork.utils.randomized_matrix_factorization.randomized_svd
+.. autofunction:: sknetwork.utils.randomized_svd
 
-.. autofunction:: sknetwork.utils.randomized_matrix_factorization.randomized_eig
+.. autofunction:: sknetwork.utils.randomized_eig

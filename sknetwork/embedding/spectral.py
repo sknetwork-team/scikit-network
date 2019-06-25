@@ -35,6 +35,14 @@ class Spectral:
         eigenvalues_ : array, shape = (embedding_dimension)
             Smallest eigenvalues of the training matrix
 
+        Example
+        -------
+        >>> from sknetwork.toy_graphs import karate_club_graph
+        >>> graph = karate_club_graph()
+        >>> spectral = Spectral(embedding_dimension=2)
+        >>> spectral.fit(graph).embedding_.shape
+        (34, 2)
+
         References
         ----------
         * Weighted Spectral Embedding, T. Bonald

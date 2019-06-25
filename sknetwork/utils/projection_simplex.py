@@ -24,6 +24,13 @@ def projection_simplex(array: np.ndarray, z: float = 1) -> np.ndarray:
     projection: np.ndarray
         Array with the same shape as the input.
 
+    Example
+    -------
+    >>> test_array = np.array([[2, 2], [-0.75, 0.25]])
+    >>> projection_simplex(test_array)
+    array([[0.5, 0.5],
+           [0. , 1. ]])
+
     References
     ----------
     Duchi, J., Shalev-Shwartz, S., Singer, Y., & Chandra, T. (2008, July).
