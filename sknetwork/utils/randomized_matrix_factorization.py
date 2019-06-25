@@ -9,7 +9,6 @@ Part of this code was adapted from the scikit-learn project: https://scikit-lear
 import numpy as np
 from numpy.random import mtrand
 from scipy import sparse, linalg
-from scipy.sparse import linalg as splinalg
 from sknetwork.utils.sparse_lowrank import SparseLR
 from typing import Union
 
@@ -349,7 +348,10 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
     if which == 'SM':
         lambda_max, _ = randomized_eig(matrix, n_components=1)
         matrix *= -1
-        matrix += SparseLR(lambda_max[0] * sparse.identity(matrix.shape[0]), [])
+        if isinstance(matrix, SparseLR):
+            matrix += SparseLR(lambda_max[0] * sparse.identity(matrix.shape[0]), [])
+        else:
+            matrix += lambda_max[0] * sparse.identity(matrix.shape[0])
 
     if n_iter == 'auto':
         # Checks if the number of iterations is explicitly specified
