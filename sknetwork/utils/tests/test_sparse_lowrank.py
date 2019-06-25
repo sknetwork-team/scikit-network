@@ -7,6 +7,7 @@ import numpy as np
 from scipy import sparse
 from sknetwork.toy_graphs import house_graph, star_wars_villains_graph
 from sknetwork.utils.sparse_lowrank import SparseLR
+from sknetwork.utils import randomized_svd, randomized_eig
 
 
 class TestSparseLowRank(unittest.TestCase):
@@ -37,3 +38,17 @@ class TestSparseLowRank(unittest.TestCase):
         x, y = transposed.low_rank_tuples[0]
         self.assertTrue((x == np.ones(3)).all())
         self.assertTrue((y == np.ones(4)).all())
+
+    def test_decomposition(self):
+        eigenvalues, eigenvectors = randomized_eig(self.undirected, n_components=2, which='LM')
+        self.assertEqual(eigenvalues.shape, (2,))
+        self.assertEqual(eigenvectors.shape, (5, 2))
+
+        eigenvalues, eigenvectors = randomized_eig(self.undirected, n_components=2, which='SM')
+        self.assertEqual(eigenvalues.shape, (2,))
+        self.assertEqual(eigenvectors.shape, (5, 2))
+
+        left_sv, sv, right_sv = randomized_svd(self.bipartite, n_components=2)
+        self.assertEqual(left_sv.shape, (4, 2))
+        self.assertEqual(sv.shape, (2,))
+        self.assertEqual(right_sv.shape, (2, 3))
