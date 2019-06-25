@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 from scipy import sparse
 from sknetwork.embedding.metrics import dot_modularity, hscore, linear_fit
-from sknetwork import star_wars_villains_graph
+from sknetwork.toy_graphs import star_wars_villains_graph
 
 
 class TestClusteringMetrics(unittest.TestCase):

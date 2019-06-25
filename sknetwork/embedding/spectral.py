@@ -10,11 +10,11 @@ Nathan De Lara <nathan.delara@telecom-paristech.fr>
 
 import numpy as np
 
-from sknetwork.utils.randomized_matrix_factorization import randomized_eig
+from sknetwork.utils import randomized_eig
 from sknetwork.utils.checks import check_format, is_square, is_symmetric, check_weights
 from scipy import sparse
 from scipy.sparse.linalg import eigsh
-from sknetwork import connected_components
+from sknetwork.utils.preprocessing import connected_components
 from typing import Union
 
 

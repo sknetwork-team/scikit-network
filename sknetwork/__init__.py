@@ -35,17 +35,10 @@ except ImportError:
             pass
 
 
-from scipy.sparse.csgraph import *
-from sknetwork.toy_graphs.graph_data import *
-from sknetwork.loader.parser import *
-from sknetwork.clustering.louvain import *
-from sknetwork.clustering.bilouvain import *
-from sknetwork.clustering.metrics import *
-from sknetwork.hierarchy.paris import *
-from sknetwork.hierarchy.metrics import *
-from sknetwork.embedding.gsvd import *
-from sknetwork.embedding.spectral import *
-from sknetwork.embedding.metrics import *
-from sknetwork.utils.randomized_matrix_factorization import *
-from sknetwork.utils.preprocessing import *
-from sknetwork.loader import *
+import sknetwork.clustering
+import sknetwork.embedding
+import sknetwork.hierarchy
+import sknetwork.loader
+import sknetwork.ranking
+import sknetwork.toy_graphs
+import sknetwork.utils
