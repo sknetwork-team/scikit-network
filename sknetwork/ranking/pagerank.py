@@ -43,6 +43,14 @@ class PageRank:
     ranking_: np.ndarray
         Ranking of each node.
 
+    Example
+    -------
+    >>> from sknetwork.toy_graphs import rock_paper_scissors_graph
+    >>> graph = rock_paper_scissors_graph()
+    >>> pagerank = PageRank().fit(graph)
+    >>> np.round(pagerank.ranking_, 2)
+    array([0.33, 0.33, 0.33])
+
     References
     ----------
     * Hong, D., Huynh, T. D., & Mathieu, F. (2015). D-iteration: diffusion approach for solving pagerank.
@@ -113,7 +121,7 @@ class PageRank:
                 diffusion(transition_matrix.indptr, transition_matrix.indices, transition_matrix.data,
                           flow_history, current_flow, self.damping_factor)
 
-            self.ranking_ = abs(flow_history) / abs(flow_history).sum()
+            self.ranking_ = abs(flow_history) / np.sum(abs(flow_history))
 
         elif self.method == 'spectral':
 

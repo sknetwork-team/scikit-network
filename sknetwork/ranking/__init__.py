@@ -1,1 +1,1 @@
-from sknetwork.ranking.pagerank import *
+from sknetwork.ranking.pagerank import PageRank
