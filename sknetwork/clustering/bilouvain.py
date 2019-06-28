@@ -8,6 +8,7 @@ Created on Mar 3, 2019
 from sknetwork.clustering.louvain import *
 from sknetwork.utils.adjacency_formats import bipartite2undirected
 from sknetwork.utils.checks import *
+from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork import njit, prange
 
 
@@ -87,7 +88,7 @@ def local_updates(nodes, node_probs, indptr, indices, data, labels, source_clust
     return increases, labels, source_clusters_probs
 
 
-class BiLouvain:
+class BiLouvain(Algorithm):
     """
     BiLouvain algorithm for graph clustering in Python (default) and Numba.
 

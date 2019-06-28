@@ -9,11 +9,12 @@ import numpy as np
 
 from sknetwork.utils.randomized_matrix_factorization import randomized_svd
 from sknetwork.utils.checks import check_format, check_weights
+from sknetwork.utils.algorithm_base_class import Algorithm
 from scipy import sparse, linalg
 from typing import Union
 
 
-class GSVD:
+class GSVD(Algorithm):
     """Generalized Singular Value Decomposition for non-linear dimensionality reduction.
 
     Before applying KMeans on the embedding, we suggest to normalize it so that each line has norm 1.

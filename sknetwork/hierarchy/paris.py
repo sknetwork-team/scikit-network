@@ -8,6 +8,7 @@ Created on March 2019
 """
 
 from sknetwork.utils.checks import *
+from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork import njit, types, TypedDict
 
 
@@ -270,7 +271,7 @@ def fit_core(n_nodes: int, node_probs: np.ndarray, data: np.ndarray,
     return dendrogram
 
 
-class Paris:
+class Paris(Algorithm):
     """Agglomerative algorithm.
 
     Attributes

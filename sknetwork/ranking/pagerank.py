@@ -10,6 +10,7 @@ import numpy as np
 from sknetwork import njit, prange
 from sknetwork.utils.checks import check_format, is_proba_array, is_square
 from sknetwork.utils.randomized_matrix_factorization import SparseLR, randomized_eig
+from sknetwork.utils.algorithm_base_class import Algorithm
 from scipy import sparse
 from typing import Union
 
@@ -27,7 +28,7 @@ def diffusion(indptr, indices, data, flow_history, current_flow, damping_factor)
         current_flow[i] -= tmp
 
 
-class PageRank:
+class PageRank(Algorithm):
     """
     Parameters
     ----------

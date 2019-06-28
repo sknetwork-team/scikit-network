@@ -9,6 +9,7 @@ Created on Nov 2, 2018
 
 from sknetwork.utils.checks import *
 from sknetwork.utils.adjacency_formats import *
+from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork import njit
 
 
@@ -101,7 +102,7 @@ class NormalizedGraph:
         return self
 
 
-class Optimizer:
+class Optimizer(Algorithm):
     """A generic optimization algorithm.
 
     Attributes
@@ -342,7 +343,7 @@ class GreedyModularity(Optimizer):
             raise ValueError('Unknown engine.')
 
 
-class Louvain:
+class Louvain(Algorithm):
     """Louvain algorithm for graph clustering in Python (default) and Numba.
 
     Parameters

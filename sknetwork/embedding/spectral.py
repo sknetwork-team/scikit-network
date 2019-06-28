@@ -12,13 +12,14 @@ import numpy as np
 
 from sknetwork.utils import randomized_eig
 from sknetwork.utils.checks import check_format, is_square, is_symmetric, check_weights
+from sknetwork.utils.algorithm_base_class import Algorithm
 from scipy import sparse
 from scipy.sparse.linalg import eigsh
 from sknetwork.utils.preprocessing import connected_components
 from typing import Union
 
 
-class Spectral:
+class Spectral(Algorithm):
     """Weighted spectral embedding of a graph
 
         Parameters
