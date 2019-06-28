@@ -24,6 +24,6 @@ class Algorithm:
             if type(val) == str:
                 val = "'" + val + "'"
             else:
-                val = str(self.__dict__[p])
+                val = str(val)
             output += p + '=' + val + ', '
         return output[:-2] + ')'
