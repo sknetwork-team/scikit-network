@@ -41,7 +41,9 @@ class Spectral(Algorithm):
         >>> from sknetwork.toy_graphs import karate_club_graph
         >>> graph = karate_club_graph()
         >>> spectral = Spectral(embedding_dimension=2)
-        >>> spectral.fit(graph).embedding_.shape
+        >>> spectral.fit(graph)
+        Spectral(embedding_dimension=2, node_weights='degree')
+        >>> spectral.embedding_.shape
         (34, 2)
 
         References

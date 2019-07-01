@@ -44,7 +44,9 @@ class GSVD(Algorithm):
     >>> from sknetwork.toy_graphs import movie_actor_graph
     >>> graph = movie_actor_graph()
     >>> gsvd = GSVD(embedding_dimension=2)
-    >>> gsvd.fit(graph).embedding_.shape
+    >>> gsvd.fit(graph)
+    GSVD(embedding_dimension=2, weights='degree', feature_weights='degree')
+    >>> gsvd.embedding_.shape
     (15, 2)
 
     References
