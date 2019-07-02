@@ -9,7 +9,7 @@ import numpy as np
 from scipy import sparse, linalg
 from sknetwork.utils import SparseLR
 from sknetwork.utils.algorithm_base_class import Algorithm
-from sknetwork.utils.checks import check_format, check_weights
+from sknetwork.utils.checks import check_format, check_weights, check_random_state
 from sknetwork.utils.randomized_matrix_factorization import randomized_svd, safe_sparse_dot
 from typing import Union
 
@@ -98,6 +98,7 @@ class GSVD(Algorithm):
         -------
         self: :class:`GSVD`
         """
+        random_state = check_random_state(random_state)
         adjacency = check_format(adjacency)
         n_nodes, m_nodes = adjacency.shape
         if self.low_rank_regularization:
