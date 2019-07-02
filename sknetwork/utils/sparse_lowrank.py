@@ -35,8 +35,17 @@ class SparseLR(LinearOperator):
                 raise ValueError(
                     'For each low rank tuple, x (resp. y) should be a vector of lenght n_rows (resp. n_cols)')
 
+    def __neg__(self):
+        return SparseLR(-self.sparse_mat, [(-x, y) for (x, y) in self.low_rank_tuples])
+
     def __add__(self, other: 'SparseLR'):
-        return SparseLR(self.sparse_mat + other.sparse_mat, self.low_rank_tuples + other.low_rank_tuples)
+        if type(other) == sparse.csr_matrix:
+            return SparseLR(self.sparse_mat + other, self.low_rank_tuples)
+        else:
+            return SparseLR(self.sparse_mat + other.sparse_mat, self.low_rank_tuples + other.low_rank_tuples)
+
+    def __sub__(self, other):
+        return self.__add__(-other)
 
     def __mul__(self, other):
         return SparseLR(other * self.sparse_mat, [(other * x, y) for (x, y) in self.low_rank_tuples])
@@ -72,6 +81,34 @@ class SparseLR(LinearOperator):
         transposed_sparse = sparse.csr_matrix(self.sparse_mat.T)
         transposed_tuples = [(y, x) for (x, y) in self.low_rank_tuples]
         return SparseLR(transposed_sparse, transposed_tuples)
+
+    def left_sparse_dot(self, matrix):
+        """Left dot product with a sparse matrix
+
+        Parameters
+        ----------
+        matrix: sparse.csr_matrix
+
+        Returns
+        -------
+        a SparseLR object
+
+        """
+        return SparseLR(matrix.dot(self.sparse_mat), [(matrix.dot(x), y) for (x, y) in self.low_rank_tuples])
+
+    def right_sparse_dot(self, matrix):
+        """Right dot product with a sparse matrix
+
+        Parameters
+        ----------
+        matrix: sparse.csr_matrix
+
+        Returns
+        -------
+        a SparseLR object
+
+        """
+        return SparseLR(self.sparse_mat.dot(matrix), [(x, matrix.T.dot(y)) for (x, y) in self.low_rank_tuples])
 
     def astype(self, dtype):
         self.sparse_mat = self.sparse_mat.astype(dtype)

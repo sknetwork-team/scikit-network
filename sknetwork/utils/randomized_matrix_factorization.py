@@ -36,6 +36,10 @@ def safe_sparse_dot(a, b, dense_output=False):
         return b.T.dot(a.T).T
     if type(a) == SparseLR and type(b) == SparseLR:
         raise NotImplementedError
+    if type(a) == SparseLR and type(b) == sparse.csr_matrix:
+        return a.right_sparse_dot(b)
+    if type(b) == SparseLR and type(a) == sparse.csr_matrix:
+        return b.left_sparse_dot(a)
     if sparse.issparse(a) or sparse.issparse(b):
         ret = a * b
         if dense_output and hasattr(ret, "toarray"):
