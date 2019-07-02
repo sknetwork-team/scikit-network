@@ -367,6 +367,8 @@ class Louvain(Algorithm):
         Enables node shuffling before optimization.
     verbose:
         Verbose mode.
+    random_state:
+        Random number generator or random seed. If None, numpy.random will be used.
 
     Attributes
     ----------
@@ -404,8 +406,10 @@ class Louvain(Algorithm):
     """
 
     def __init__(self, algorithm: Union[str, Optimizer] = 'default', resolution: float = 1, tol: float = 1e-3,
-                 agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False, verbose: bool = False):
+                 agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False, verbose: bool = False,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None):
 
+        self.random_state = check_random_state(random_state)
         if algorithm == 'default':
             self.algorithm = GreedyModularity(resolution, tol, engine=check_engine('default'))
         elif isinstance(algorithm, Optimizer):
@@ -449,7 +453,7 @@ class Louvain(Algorithm):
 
         nodes = np.arange(adjacency.shape[0])
         if self.shuffle_nodes:
-            nodes = np.random.permutation(nodes)
+            nodes = self.random_state.permutation(nodes)
             adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
         graph = NormalizedGraph(adjacency, weights, feature_weights)

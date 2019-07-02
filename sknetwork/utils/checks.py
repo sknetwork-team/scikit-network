@@ -7,7 +7,7 @@ Created on Apr 4, 2019
 
 import numpy as np
 from scipy import sparse
-from typing import Union
+from typing import Union, Optional
 from sknetwork import is_numba_available
 
 
@@ -132,3 +132,14 @@ def check_probs(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_m
                 positive_entries: bool = False) -> np.ndarray:
     weights = check_weights(weights, adjacency, positive_entries)
     return weights / np.sum(weights)
+
+
+def check_random_state(random_state: Optional[Union[np.random.RandomState, int]]) -> np.random.RandomState:
+    if random_state is None:
+        return np.random
+    elif type(random_state) == int:
+        return np.random.RandomState(random_state)
+    elif type(random_state) == np.random.RandomState:
+        return random_state
+    else:
+        raise TypeError('To specify a random state, pass the seed (as an int) or a NumPy random state object.')
