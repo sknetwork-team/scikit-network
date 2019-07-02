@@ -87,8 +87,9 @@ class Spectral(Algorithm):
         n_nodes, m_nodes = adjacency.shape
         if not is_square(adjacency):
             raise ValueError("The adjacency matrix must be a square matrix.")
-        if connected_components(adjacency, directed=False)[0] > 1:
-            raise ValueError("The graph must be connected.")
+        if connected_components(adjacency, directed=False)[0] > 1 and self.low_rank_regularization is None:
+            raise Warning("The graph is not connected and low-rank regularization is set to None."
+                          "This can cause errors in the computation of the embedding.")
         if not is_symmetric(adjacency):
             raise ValueError("The adjacency matrix is not symmetric.")
         if self.low_rank_regularization:

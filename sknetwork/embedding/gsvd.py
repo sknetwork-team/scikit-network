@@ -134,7 +134,8 @@ class GSVD(Algorithm):
 
         if self.energy_scaling:
             energy_levels: np.ndarray = np.sqrt(1 - sigma ** 2)
-            self.embedding_ /= energy_levels
-            self.features_ /= energy_levels
+            energy_levels[energy_levels > 0] = 1 / energy_levels[energy_levels > 0]
+            self.embedding_ *= energy_levels
+            self.features_ *= energy_levels
 
         return self

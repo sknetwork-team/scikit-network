@@ -385,11 +385,11 @@ class Louvain(Algorithm):
     -------
     >>> louvain = Louvain()
     >>> graph = sparse.identity(3, format='csr')
-    >>> (louvain.fit(graph).labels_ == np.array([0, 1, 2])).all()
-    True
-    >>> louvain_numba = Louvain(algorithm=GreedyModularity(engine='numba'))
-    >>> (louvain_numba.fit(graph).labels_ == np.array([0, 1, 2])).all()
-    True
+    >>> louvain.fit(graph)
+    Louvain(algorithm=GreedyModularity(resolution=1, tol=0.001, engine='numba'), agg_tol=0.001, max_agg_iter=-1, \
+shuffle_nodes=False, verbose=False)
+    >>> louvain.labels_
+    array([0, 1, 2])
 
     References
     ----------
