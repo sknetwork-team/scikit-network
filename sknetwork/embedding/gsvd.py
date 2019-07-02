@@ -6,18 +6,16 @@ Created on Thu May 31 17:16:22 2018
 """
 
 import numpy as np
-
-from sknetwork.utils.randomized_matrix_factorization import randomized_svd
-from sknetwork.utils.checks import check_format, check_weights
-from sknetwork.utils.algorithm_base_class import Algorithm
 from scipy import sparse, linalg
+from sknetwork.utils import SparseLR
+from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.checks import check_format, check_weights
+from sknetwork.utils.randomized_matrix_factorization import randomized_svd, safe_sparse_dot
 from typing import Union
 
 
 class GSVD(Algorithm):
     """Generalized Singular Value Decomposition for non-linear dimensionality reduction.
-
-    Before applying KMeans on the embedding, we suggest to normalize it so that each line has norm 1.
 
     Setting ``weights`` and ``feature_weights`` to ``'uniform'`` leads to the standard SVD.
 
@@ -29,6 +27,10 @@ class GSVD(Algorithm):
         Default weighting for the rows.
     feature_weights: ``'degree'`` or ``'uniform'``
         Default weighting for the columns.
+    low_rank_regularization: ``None`` or float (default=0.01)
+        Implicitly add edges of given weight between all pairs of nodes.
+    energy_scaling: bool (default=True)
+        If ``True``, rescales each column of the embedding by dividing it by :math:`\\sqrt{1-\\sigma_i^2}`.
 
     Attributes
     ----------
@@ -45,7 +47,8 @@ class GSVD(Algorithm):
     >>> graph = movie_actor_graph()
     >>> gsvd = GSVD(embedding_dimension=2)
     >>> gsvd.fit(graph)
-    GSVD(embedding_dimension=2, weights='degree', feature_weights='degree')
+    GSVD(embedding_dimension=2, weights='degree', feature_weights='degree', low_rank_regularization=0.01,\
+ energy_scaling=True)
     >>> gsvd.embedding_.shape
     (15, 2)
 
@@ -56,10 +59,13 @@ class GSVD(Algorithm):
       https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf
     """
 
-    def __init__(self, embedding_dimension=2, weights='degree', feature_weights='degree'):
+    def __init__(self, embedding_dimension=2, weights='degree', feature_weights='degree',
+                 low_rank_regularization: Union[None, float] = 0.01, energy_scaling: bool = True):
         self.embedding_dimension = embedding_dimension
         self.weights = weights
         self.feature_weights = feature_weights
+        self.low_rank_regularization = low_rank_regularization
+        self.energy_scaling = energy_scaling
         self.embedding_ = None
         self.features_ = None
         self.singular_values_ = None
@@ -93,7 +99,9 @@ class GSVD(Algorithm):
         """
         adjacency = check_format(adjacency)
         n_nodes, m_nodes = adjacency.shape
-        total_weight = adjacency.data.sum()
+        if self.low_rank_regularization:
+            adjacency = SparseLR(adjacency, [(self.low_rank_regularization * np.ones(n_nodes), np.ones(m_nodes))])
+        total_weight = adjacency.dot(np.ones(m_nodes)).sum()
 
         if weights is None:
             weights = self.weights
@@ -110,21 +118,23 @@ class GSVD(Algorithm):
         diag_feat = sparse.diags(np.sqrt(w_feat), shape=(m_nodes, m_nodes), format='csr')
         diag_feat.data = 1 / diag_feat.data
 
-        laplacian = diag_samp.dot(adjacency.dot(diag_feat))
+        normalized_adj = safe_sparse_dot(diag_samp, safe_sparse_dot(adjacency, diag_feat))
 
         if randomized_decomposition:
-            u, sigma, vt = randomized_svd(laplacian, self.embedding_dimension,
+            u, sigma, vt = randomized_svd(normalized_adj, self.embedding_dimension,
                                           n_iter=n_iter,
                                           power_iteration_normalizer=power_iteration_normalizer,
                                           random_state=random_state)
         else:
-            u, sigma, vt = linalg.svds(laplacian, self.embedding_dimension)
+            u, sigma, vt = linalg.svds(normalized_adj, self.embedding_dimension)
 
         self.singular_values_ = sigma
         self.embedding_ = np.sqrt(total_weight) * diag_samp.dot(u) * sigma
         self.features_ = np.sqrt(total_weight) * diag_feat.dot(vt.T)
-        # shift the center of mass
-        self.embedding_ -= np.ones((n_nodes, 1)).dot(self.embedding_.T.dot(w_samp)[:, np.newaxis].T) / total_weight
-        self.features_ -= np.ones((m_nodes, 1)).dot(self.features_.T.dot(w_feat)[:, np.newaxis].T) / total_weight
+
+        if self.energy_scaling:
+            energy_levels: np.ndarray = np.sqrt(1 - sigma ** 2)
+            self.embedding_ /= energy_levels
+            self.features_ /= energy_levels
 
         return self
