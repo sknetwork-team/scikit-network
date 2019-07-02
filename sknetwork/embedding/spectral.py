@@ -31,6 +31,7 @@ class Spectral(Algorithm):
             Implicitly add edges of given weight between all pairs of nodes.
         energy_scaling: bool (default=True)
             If ``True``, rescales each column of the embedding by dividing it by :math:`\\sqrt{\\lambda_i}`.
+            Only valid if ``node_weights == 'degree'``.
 
         Attributes
         ----------
@@ -88,8 +89,12 @@ class Spectral(Algorithm):
         if not is_square(adjacency):
             raise ValueError("The adjacency matrix must be a square matrix.")
         if connected_components(adjacency, directed=False)[0] > 1 and self.low_rank_regularization is None:
-            raise Warning("The graph is not connected and low-rank regularization is set to None."
-                          "This can cause errors in the computation of the embedding.")
+            if self.energy_scaling:
+                raise ValueError('energy_scaling without low-rank regularization'
+                                 'is not compatible with a disconnected graph')
+            else:
+                raise Warning("The graph is not connected and low-rank regularization is set to None."
+                              "This can cause errors in the computation of the embedding.")
         if not is_symmetric(adjacency):
             raise ValueError("The adjacency matrix is not symmetric.")
         if self.low_rank_regularization:
@@ -118,6 +123,7 @@ class Spectral(Algorithm):
 
         self.eigenvalues_ = eigenvalues[1:]
         self.embedding_ = np.array(weight_matrix.dot(eigenvectors[:, 1:]))
-        if self.energy_scaling:
+
+        if self.energy_scaling and node_weights == 'degree':
             self.embedding_ /= np.sqrt(self.eigenvalues_)
         return self

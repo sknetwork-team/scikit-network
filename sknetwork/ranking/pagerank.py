@@ -32,11 +32,11 @@ class PageRank(Algorithm):
     """
     Parameters
     ----------
-    damping_factor
+    damping_factor: float
         Probability to jump according to the graph transition matrix in the random walk.
-    method
+    method: str
         Specifies the used method. Must be 'diter' or 'spectral'
-    n_iter
+    n_iter: int
         Number of iterations if method is 'diter'
 
     Attributes

@@ -31,6 +31,7 @@ class GSVD(Algorithm):
         Implicitly add edges of given weight between all pairs of nodes.
     energy_scaling: bool (default=True)
         If ``True``, rescales each column of the embedding by dividing it by :math:`\\sqrt{1-\\sigma_i^2}`.
+        Only valid if ``weights == 'degree'`` and ``feature_weights == 'degree'``.
 
     Attributes
     ----------
@@ -132,8 +133,8 @@ class GSVD(Algorithm):
         self.embedding_ = np.sqrt(total_weight) * diag_samp.dot(u) * sigma
         self.features_ = np.sqrt(total_weight) * diag_feat.dot(vt.T)
 
-        if self.energy_scaling:
-            energy_levels: np.ndarray = np.sqrt(1 - sigma ** 2)
+        if self.energy_scaling and weights == 'degree' and feature_weights == 'degree':
+            energy_levels: np.ndarray = np.sqrt(1 - np.clip(sigma, 0, 1) ** 2)
             energy_levels[energy_levels > 0] = 1 / energy_levels[energy_levels > 0]
             self.embedding_ *= energy_levels
             self.features_ *= energy_levels
