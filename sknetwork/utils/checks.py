@@ -61,6 +61,13 @@ def is_proba_array(entry: np.ndarray) -> bool:
         raise TypeError('entry must be one or two-dimensional array.')
 
 
+def check_is_proba(entry: Union[float, int]):
+    if type(entry) not in [float, int]:
+        raise TypeError('Probabilities must be floats (or ints if 0 or 1).')
+    if entry < 0 or entry > 1:
+        raise ValueError('Probabilities must have value between 0 and 1.')
+
+
 def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     return adjacency.shape[0] == adjacency.shape[1]
 

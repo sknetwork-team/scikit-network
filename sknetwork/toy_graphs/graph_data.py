@@ -4,7 +4,7 @@
 Created on Nov 29, 2018
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Nathan de Lara <ndelara@enst.fr>
-@author: Thomas Bonald <tbonald@enst.ft>
+@author: Thomas Bonald <tbonald@enst.fr>
 """
 
 import numpy as np
