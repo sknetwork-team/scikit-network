@@ -17,6 +17,21 @@ from typing import Union
 
 @njit(parallel=True)
 def diffusion(indptr, indices, data, flow_history, current_flow, damping_factor):
+    """Diffusion for D-iteration.
+
+    Parameters
+    ----------
+    indptr
+    indices
+    data
+    flow_history
+    current_flow
+    damping_factor
+
+    Returns
+    -------
+
+    """
     active = np.nonzero(current_flow)[0]
     for a in prange(len(active)):
         i = active[a]
