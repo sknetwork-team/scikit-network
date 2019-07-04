@@ -28,6 +28,5 @@ Metrics
 
 .. autofunction:: sknetwork.embedding.hscore
 
-.. autofunction:: sknetwork.embedding.bhatta_coefficient
 
 

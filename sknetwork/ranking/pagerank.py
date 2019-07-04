@@ -45,6 +45,12 @@ def diffusion(indptr, indices, data, flow_history, current_flow, damping_factor)
 
 class PageRank(Algorithm):
     """
+    Assign to each node the probability for a random surfer to be on that node in a stationary
+    regime with teleportation.
+
+    The set of nodes to which the random surfer teleports can be chosen by the user. This variant is referred to as
+    Personalized PageRank.
+
     Parameters
     ----------
     damping_factor: float

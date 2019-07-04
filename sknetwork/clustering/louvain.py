@@ -351,7 +351,7 @@ class Louvain(Algorithm):
 
     :math:`Q = \\sum_{ij}\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_if_j}{w^2}\\big)\\delta_{ij}`,
 
-    where :math:`\\gamma \ge 0` is a resolution parameter and :math:`\\delta_{ij} = 1` if nodes :math:`i` and :math:`j`
+    where :math:`\\gamma \\ge 0` is a resolution parameter and :math:`\\delta_{ij} = 1` if nodes :math:`i` and :math:`j`
     belong to the same cluster and :math:`\\delta_{ij} = 0` otherwise.
 
     Parameters
@@ -391,10 +391,10 @@ class Louvain(Algorithm):
 
     Example
     -------
-    >>> louvain = Louvain()
+    >>> louvain = Louvain(GreedyModularity(engine='python'))
     >>> graph = sparse.identity(3, format='csr')
     >>> louvain.fit(graph)
-    Louvain(algorithm=GreedyModularity(resolution=1, tol=0.001, engine='numba'), agg_tol=0.001, max_agg_iter=-1, \
+    Louvain(algorithm=GreedyModularity(resolution=1, tol=0.001, engine='python'), agg_tol=0.001, max_agg_iter=-1, \
 shuffle_nodes=False, verbose=False)
     >>> louvain.labels_
     array([0, 1, 2])
