@@ -13,6 +13,7 @@ Welcome to scikit-network's documentation!
    readme
    installation
    reference/index
+   tutorials/index
    contributing
    authors
    history
