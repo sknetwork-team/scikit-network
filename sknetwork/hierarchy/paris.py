@@ -272,7 +272,17 @@ def fit_core(n_nodes: int, node_probs: np.ndarray, data: np.ndarray,
 
 
 class Paris(Algorithm):
-    """Agglomerative algorithm.
+    """
+    Agglomerative clustering algorithm that performs greedy merge of clusters based on their similarity.
+
+    The similarity between clusters i,j is :math:`\\dfrac{A_{ij}}{w_i w_j}` where
+
+    * :math:`A_{ij}` is the weight of edge i,j in the aggregate graph
+
+    * :math:`w_{i}` is the weight of cluster i
+
+    * :math:`w_{j}` is the weight of cluster j.
+
 
     Attributes
     ----------
@@ -281,31 +291,21 @@ class Paris(Algorithm):
 
     Examples
     --------
-    >>> import numpy as np
-    >>> from scipy import sparse
-
-    >>> # House graph
-    >>> row = np.array([0, 0, 1, 1, 2, 3])
-    >>> col = np.array([1, 4, 2, 4, 3, 4])
-    >>> adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(5, 5))
-    >>> adjacency = adjacency + adjacency.T
-
+    >>> from sknetwork.toy_graphs import house_graph
+    >>> adjacency = house_graph()
     >>> paris = Paris()
-    >>> paris.fit(adjacency).dendrogram_.shape
-    (4, 4)
+    >>> paris.fit(adjacency)
+    Paris(engine='numba')
+    >>> paris.dendrogram_
+    array([[3.        , 2.        , 0.33333333, 2.        ],
+           [1.        , 0.        , 0.5       , 2.        ],
+           [6.        , 4.        , 0.625     , 3.        ],
+           [7.        , 5.        , 1.33333333, 5.        ]])
 
     Notes
     -----
     Each row of the dendrogram = i, j, height, size of cluster i + j.
 
-    The similarity between clusters i,j is :math:`\\dfrac{A_{ij}}{w_i w_j}`
-    where
-
-    * :math:`A_{ij}` is the weight of edge i,j in the aggregate graph
-
-    * :math:`w_{i}` is the weight of cluster i
-
-    * :math:`w_{j}` is the weight of cluster j
 
     See Also
     --------

@@ -8,15 +8,17 @@ Created on June 4 2019
 import numpy as np
 
 
-def projection_simplex(array: np.ndarray, z: float = 1) -> np.ndarray:
+def projection_simplex(array: np.ndarray, scale: float = 1) -> np.ndarray:
     """
-    Project each line of the input onto the Euclidean simplex.
+    Project each line of the input onto the Euclidean simplex i.e. solve
+
+    :math:`\\underset{w}{min} ||w - x_i||_2^2` s.t. :math:`\sum w_j = z, w_j \ge 0`.
 
     Parameters
     ----------
     array: np.ndarray
         Data to project. Either one or two dimensional.
-    z: float
+    scale: float
         Scale of the simplex i.e. sums of the projected coefficients.
 
     Returns
@@ -44,7 +46,7 @@ def projection_simplex(array: np.ndarray, z: float = 1) -> np.ndarray:
     n_samples, n_features = array.shape
 
     sorted_array = -np.sort(-array)
-    cumsum_array = np.cumsum(sorted_array, axis=1) - z
+    cumsum_array = np.cumsum(sorted_array, axis=1) - scale
     denom = 1 + np.arange(n_features)
     condition = sorted_array - cumsum_array / denom > 0
     max_index = np.argmax(condition / denom[::-1], axis=1)
