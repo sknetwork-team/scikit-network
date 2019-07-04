@@ -5,6 +5,9 @@ Embedding
 
 .. currentmodule:: sknetwork
 
+This submodule contains embedding algorithms, characterized by their ``.embedding_`` attribute which assigns a dense
+vector representation to each node in the graph.
+
 
 Spectral
 --------

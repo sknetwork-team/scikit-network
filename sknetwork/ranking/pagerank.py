@@ -10,12 +10,28 @@ import numpy as np
 from sknetwork import njit, prange
 from sknetwork.utils.checks import check_format, is_proba_array, is_square
 from sknetwork.utils.randomized_matrix_factorization import SparseLR, randomized_eig
+from sknetwork.utils.algorithm_base_class import Algorithm
 from scipy import sparse
 from typing import Union
 
 
 @njit(parallel=True)
 def diffusion(indptr, indices, data, flow_history, current_flow, damping_factor):
+    """Diffusion for D-iteration.
+
+    Parameters
+    ----------
+    indptr
+    indices
+    data
+    flow_history
+    current_flow
+    damping_factor
+
+    Returns
+    -------
+
+    """
     active = np.nonzero(current_flow)[0]
     for a in prange(len(active)):
         i = active[a]
@@ -27,21 +43,35 @@ def diffusion(indptr, indices, data, flow_history, current_flow, damping_factor)
         current_flow[i] -= tmp
 
 
-class PageRank:
+class PageRank(Algorithm):
     """
+    Assign to each node the probability for a random surfer to be on that node in a stationary
+    regime with teleportation.
+
+    The set of nodes to which the random surfer teleports can be chosen by the user. This variant is referred to as
+    Personalized PageRank.
+
     Parameters
     ----------
-    damping_factor
+    damping_factor: float
         Probability to jump according to the graph transition matrix in the random walk.
-    method
+    method: str
         Specifies the used method. Must be 'diter' or 'spectral'
-    n_iter
+    n_iter: int
         Number of iterations if method is 'diter'
 
     Attributes
     ----------
     ranking_: np.ndarray
         Ranking of each node.
+
+    Example
+    -------
+    >>> from sknetwork.toy_graphs import rock_paper_scissors_graph
+    >>> graph = rock_paper_scissors_graph()
+    >>> pagerank = PageRank().fit(graph)
+    >>> np.round(pagerank.ranking_, 2)
+    array([0.33, 0.33, 0.33])
 
     References
     ----------
@@ -113,7 +143,7 @@ class PageRank:
                 diffusion(transition_matrix.indptr, transition_matrix.indices, transition_matrix.data,
                           flow_history, current_flow, self.damping_factor)
 
-            self.ranking_ = abs(flow_history) / abs(flow_history).sum()
+            self.ranking_ = abs(flow_history) / np.sum(abs(flow_history))
 
         elif self.method == 'spectral':
 

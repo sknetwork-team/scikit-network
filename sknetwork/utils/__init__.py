@@ -1,0 +1,3 @@
+from sknetwork.utils.projection_simplex import projection_simplex
+from sknetwork.utils.randomized_matrix_factorization import randomized_eig, randomized_svd, safe_sparse_dot
+from sknetwork.utils.sparse_lowrank import SparseLR

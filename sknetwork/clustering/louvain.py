@@ -9,6 +9,7 @@ Created on Nov 2, 2018
 
 from sknetwork.utils.checks import *
 from sknetwork.utils.adjacency_formats import *
+from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork import njit
 
 
@@ -101,7 +102,7 @@ class NormalizedGraph:
         return self
 
 
-class Optimizer:
+class Optimizer(Algorithm):
     """A generic optimization algorithm.
 
     Attributes
@@ -342,8 +343,16 @@ class GreedyModularity(Optimizer):
             raise ValueError('Unknown engine.')
 
 
-class Louvain:
+class Louvain(Algorithm):
     """Louvain algorithm for graph clustering in Python (default) and Numba.
+
+    Seek the best partition of the nodes with respect to its modularity by performing local updates in a greedy fashion.
+    The modularity of a partition is
+
+    :math:`Q = \\sum_{ij}\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_if_j}{w^2}\\big)\\delta_{ij}`,
+
+    where :math:`\\gamma \\ge 0` is a resolution parameter and :math:`\\delta_{ij} = 1` if nodes :math:`i` and :math:`j`
+    belong to the same cluster and :math:`\\delta_{ij} = 0` otherwise.
 
     Parameters
     ----------
@@ -366,6 +375,8 @@ class Louvain:
         Enables node shuffling before optimization.
     verbose:
         Verbose mode.
+    random_state:
+        Random number generator or random seed. If None, numpy.random will be used.
 
     Attributes
     ----------
@@ -380,13 +391,13 @@ class Louvain:
 
     Example
     -------
-    >>> louvain = Louvain()
+    >>> louvain = Louvain(GreedyModularity(engine='python'))
     >>> graph = sparse.identity(3, format='csr')
-    >>> (louvain.fit(graph).labels_ == np.array([0, 1, 2])).all()
-    True
-    >>> louvain_numba = Louvain(algorithm=GreedyModularity(engine='numba'))
-    >>> (louvain_numba.fit(graph).labels_ == np.array([0, 1, 2])).all()
-    True
+    >>> louvain.fit(graph)
+    Louvain(algorithm=GreedyModularity(resolution=1, tol=0.001, engine='python'), agg_tol=0.001, max_agg_iter=-1, \
+shuffle_nodes=False, verbose=False)
+    >>> louvain.labels_
+    array([0, 1, 2])
 
     References
     ----------
@@ -403,8 +414,10 @@ class Louvain:
     """
 
     def __init__(self, algorithm: Union[str, Optimizer] = 'default', resolution: float = 1, tol: float = 1e-3,
-                 agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False, verbose: bool = False):
+                 agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False, verbose: bool = False,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None):
 
+        self.random_state = check_random_state(random_state)
         if algorithm == 'default':
             self.algorithm = GreedyModularity(resolution, tol, engine=check_engine('default'))
         elif isinstance(algorithm, Optimizer):
@@ -448,7 +461,7 @@ class Louvain:
 
         nodes = np.arange(adjacency.shape[0])
         if self.shuffle_nodes:
-            nodes = np.random.permutation(nodes)
+            nodes = self.random_state.permutation(nodes)
             adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
         graph = NormalizedGraph(adjacency, weights, feature_weights)

@@ -5,6 +5,13 @@ Hierarchical clustering
 
 .. currentmodule:: sknetwork
 
+This submodule contains embedding algorithms, characterized by their ``.dendrogram_`` attribute.
+
+A dendrogram is an :math:`(n-1) \times 4` array ``Z`` representing the successive merges of clusters i.e.
+clsuters with indices ``Z[i, 0]`` and ``Z[i, 1]`` which are at distance ``Z[i, 2]`` are merged into cluster :math:`n+i`
+which contains ``Z[i, 3]`` samples.
+
+
 Paris
 -----
 .. automodule:: sknetwork.hierarchy
@@ -15,8 +22,10 @@ Paris
     :members:
 
 
-Cuts
-----
+Utils
+-----
+.. autofunction:: sknetwork.hierarchy.reorder_dendrogram
+
 .. autofunction:: sknetwork.hierarchy.cut
 
 

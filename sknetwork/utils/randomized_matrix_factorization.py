@@ -7,10 +7,9 @@ Part of this code was adapted from the scikit-learn project: https://scikit-lear
 """
 
 import numpy as np
-from numpy.random import mtrand
 from scipy import sparse, linalg
-from scipy.sparse import linalg as splinalg
 from sknetwork.utils.sparse_lowrank import SparseLR
+from sknetwork.utils.checks import check_random_state
 from typing import Union
 
 
@@ -37,6 +36,10 @@ def safe_sparse_dot(a, b, dense_output=False):
         return b.T.dot(a.T).T
     if type(a) == SparseLR and type(b) == SparseLR:
         raise NotImplementedError
+    if type(a) == SparseLR and type(b) == sparse.csr_matrix:
+        return a.right_sparse_dot(b)
+    if type(b) == SparseLR and type(a) == sparse.csr_matrix:
+        return b.left_sparse_dot(a)
     if sparse.issparse(a) or sparse.issparse(b):
         ret = a * b
         if dense_output and hasattr(ret, "toarray"):
@@ -44,28 +47,6 @@ def safe_sparse_dot(a, b, dense_output=False):
         return ret
     else:
         return np.dot(a, b)
-
-
-def check_random_state(seed):
-    """Turn seed into a np.random.RandomState instance
-
-    Parameters
-    ----------
-    seed : None | int | instance of RandomState
-        If seed is None, return the RandomState singleton used by np.random.
-        If seed is an int, return a new RandomState instance seeded with seed.
-        If seed is already a RandomState instance, return it.
-        Otherwise raise ValueError.
-    """
-    if seed is None or seed is np.random:
-        # noinspection PyProtectedMember
-        return mtrand._rand
-    if isinstance(seed, np.integer) or isinstance(seed, int):
-        return np.random.RandomState(seed)
-    if isinstance(seed, np.random.RandomState):
-        return seed
-    raise ValueError('%r cannot be used to seed a numpy.random.RandomState'
-                     ' instance' % seed)
 
 
 def randomized_range_finder(matrix, size, n_iter, power_iteration_normalizer='auto', random_state=None,
@@ -190,7 +171,7 @@ def svd_flip(u, v, u_based_decision=True):
 
 
 def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='auto', transpose='auto',
-                   power_iteration_normalizer: Union[str, None] = 'auto', flip_sign: bool = True, random_state=0):
+                   power_iteration_normalizer: Union[str, None] = 'auto', flip_sign: bool = True, random_state=None):
     """Computes a truncated randomized SVD
 
         Parameters
@@ -221,6 +202,12 @@ def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='a
             loadings for each component in the left singular vectors positive.
         random_state : int, RandomState instance or None, optional (default=None)
             See :meth:`randomized_range_finder`
+
+        Returns
+        -------
+        left_singular_vectors: np.ndarray
+        singular_values: np.ndarray
+        right_singular_vectors: np.ndarray
 
         Notes
         -----
@@ -292,7 +279,7 @@ def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='a
 
 
 def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 10, n_iter='auto',
-                   power_iteration_normalizer: Union[str, None] = 'auto', random_state=0, one_pass: bool = False):
+                   power_iteration_normalizer: Union[str, None] = 'auto', random_state=None, one_pass: bool = False):
     """Computes a randomized eigenvalue decomposition.
 
     Parameters
@@ -321,6 +308,9 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
 
     Returns
     -------
+    eigenvalues: np.ndarray
+    eigenvectors: np.ndarray
+
     References
     ----------
     Finding structure with randomness: Stochastic algorithms for constructing
@@ -338,9 +328,12 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
         raise ValueError('The input matrix is not square.')
 
     if which == 'SM':
-        lambda_max, _ = splinalg.eigsh(matrix.astype(float), 1, which='LM')
-        matrix -= lambda_max[0] * sparse.identity(matrix.shape[0])
+        lambda_max, _ = randomized_eig(matrix, n_components=1)
         matrix *= -1
+        if isinstance(matrix, SparseLR):
+            matrix += SparseLR(lambda_max[0] * sparse.identity(matrix.shape[0]), [])
+        else:
+            matrix += lambda_max[0] * sparse.identity(matrix.shape[0])
 
     if n_iter == 'auto':
         # Checks if the number of iterations is explicitly specified

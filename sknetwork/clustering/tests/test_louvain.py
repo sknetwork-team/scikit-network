@@ -7,7 +7,6 @@ import unittest
 from sknetwork.clustering import *
 from sknetwork.toy_graphs import *
 from scipy.sparse import identity
-from math import log
 
 
 class TestLouvainClustering(unittest.TestCase):
@@ -21,7 +20,8 @@ class TestLouvainClustering(unittest.TestCase):
         else:
             with self.assertRaises(ValueError):
                 Louvain(GreedyModularity(engine='numba'))
-        self.louvain_shuffle = Louvain(GreedyModularity(engine='python'), shuffle_nodes=True)
+        self.louvain_shuffle_first = Louvain(GreedyModularity(engine='python'), shuffle_nodes=True, random_state=0)
+        self.louvain_shuffle_second = Louvain(GreedyModularity(engine='python'), shuffle_nodes=True, random_state=123)
         self.karate_club_graph = karate_club_graph()
         self.bow_tie_graph = bow_tie_graph()
 
@@ -55,9 +55,7 @@ class TestLouvainClustering(unittest.TestCase):
         self.assertEqual(self.louvain_null_resolution.n_clusters_, 1)
 
     def test_shuffling(self):
-        n_tries = 10
-        count = 0
-        for i in range(n_tries):
-            self.louvain_shuffle.fit(self.bow_tie_graph)
-            count += self.louvain_shuffle.labels_[0] == self.louvain_shuffle.labels_[1]
-        self.assertAlmostEqual(count/n_tries, 0.5, delta=(log(200)/2/n_tries)**.5)
+        self.louvain_shuffle_first.fit(self.bow_tie_graph)
+        self.assertEqual(self.louvain_shuffle_first.labels_[1], 0)
+        self.louvain_shuffle_second.fit(self.bow_tie_graph)
+        self.assertEqual(self.louvain_shuffle_second.labels_[1], 1)

@@ -23,18 +23,50 @@ Preprocessing
 Sparse + Low Rank structure
 ---------------------------
 
-.. autoclass:: sknetwork.utils.sparse_lowrank.SparseLR
+.. autoclass:: sknetwork.utils.SparseLR
     :members:
 
 Projection
 ----------
-.. autofunction:: sknetwork.utils.projection_simplex.projection_simplex
+
+.. autofunction:: sknetwork.utils.projection_simplex
 
 
 Randomized methods
 ------------------
+
 .. autofunction:: sknetwork.utils.randomized_matrix_factorization.randomized_range_finder
 
-.. autofunction:: sknetwork.utils.randomized_matrix_factorization.randomized_svd
+.. autofunction:: sknetwork.utils.randomized_svd
 
-.. autofunction:: sknetwork.utils.randomized_matrix_factorization.randomized_eig
+.. autofunction:: sknetwork.utils.randomized_eig
+
+Checks
+------
+
+.. autofunction:: sknetwork.utils.checks.has_nonnegative_entries
+
+.. autofunction:: sknetwork.utils.checks.has_positive_entries
+
+.. autofunction:: sknetwork.utils.checks.is_proba_array
+
+.. autofunction:: sknetwork.utils.checks.is_square
+
+.. autofunction:: sknetwork.utils.checks.is_symmetric
+
+.. autofunction:: sknetwork.utils.checks.make_weights
+
+.. autofunction:: sknetwork.utils.checks.check_engine
+
+.. autofunction:: sknetwork.utils.checks.check_format
+
+.. autofunction:: sknetwork.utils.checks.check_is_proba
+
+.. autofunction:: sknetwork.utils.checks.check_weights
+
+.. autofunction:: sknetwork.utils.checks.check_probs
+
+.. autofunction:: sknetwork.utils.checks.check_random_state
+
+
+

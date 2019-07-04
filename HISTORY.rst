@@ -2,6 +2,14 @@
 History
 =======
 
+0.7.1 (2019-07-04)
+------------------
+
+* Added Algorithm class for nicer repr of some classes
+* Added Jupyter notebooks as tutorials in the docs
+* Minor fixes
+
+
 0.7.0 (2019-06-24)
 ------------------
 

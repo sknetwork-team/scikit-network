@@ -3,8 +3,8 @@
 """tests for embeddings"""
 
 import unittest
-from sknetwork.embedding.gsvd import GSVD
-from sknetwork.embedding.spectral import Spectral
+from sknetwork.embedding import GSVD
+from sknetwork.embedding import Spectral
 from scipy import sparse
 import numpy as np
 
