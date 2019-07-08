@@ -7,15 +7,21 @@ __email__ = "bonald@enst.fr"
 __version__ = '0.7.1'
 
 import numpy as np
+import warnings
+
+warnings.filterwarnings("default", category=DeprecationWarning)
 try:
     from numba import __version__ as numba_version
-    if int(numba_version.split('.')[1]) < 44 and int(numba_version.split('.')[0]) == 0:
-        raise ImportWarning('To enable all features using Numba, please update Numba.')
+    if [int(num) for num in numba_version.split('.')] < [0, 44, 0]:
+        raise DeprecationWarning('To enable all features using Numba, please update Numba (currently using {}).'
+                                 .format(numba_version))
     from numba import njit, prange, types
     from numba.typed import Dict as TypedDict
     is_numba_available = True
-except ImportError:
+except (ImportError, DeprecationWarning) as error:
     numba_version = ''
+    if type(error) is DeprecationWarning:
+        warnings.warn(error, DeprecationWarning)
 
     def njit(*args, **kwargs):
         if len(args) > 0:
