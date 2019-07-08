@@ -14,7 +14,7 @@ try:
     from numba import njit, prange, types
     from numba.typed import Dict as TypedDict
     is_numba_available = True
-except ImportError:
+except (ImportError, ImportWarning):
     numba_version = ''
 
     def njit(*args, **kwargs):
