@@ -10,7 +10,7 @@ import numpy as np
 try:
     from numba import __version__ as numba_version
     if (int(numba_version.split('.')[1]) == 44 and int(numba_version.split('.')[0]) == 0)\
-            or int(numba_version.split('.')[1]) <= 44:
+            or int(numba_version.split('.')[1]) < 44:
         raise ImportWarning('To enable all features using Numba, please update Numba.')
     from numba import njit, prange, types
     from numba.typed import Dict as TypedDict
