@@ -5,5 +5,5 @@ Tutorials
 
 .. toctree::
 
-    clustering_example
+    clustering_Louvain
     pagerank

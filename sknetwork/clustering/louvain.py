@@ -7,8 +7,11 @@ Created on Nov 2, 2018
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
-from sknetwork.utils.checks import *
-from sknetwork.utils.adjacency_formats import *
+import numpy as np
+from scipy import sparse
+from typing import Union, Optional
+from sknetwork.utils.checks import check_probs, check_format, check_engine, check_random_state, is_square
+from sknetwork.utils.adjacency_formats import directed2undirected, bipartite2directed
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork import njit
 
@@ -349,10 +352,14 @@ class Louvain(Algorithm):
     Seek the best partition of the nodes with respect to its modularity by performing local updates in a greedy fashion.
     The modularity of a partition is
 
-    :math:`Q = \\sum_{ij}\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_if_j}{w^2}\\big)\\delta_{ij}`,
+    :math:`Q = \\sum_{ij}\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2}\\big)\\delta_{ij}`,
 
-    where :math:`\\gamma \\ge 0` is a resolution parameter and :math:`\\delta_{ij} = 1` if nodes :math:`i` and :math:`j`
+    where
+
+    :math:`\\gamma \\ge 0` is a resolution parameter
+    :math:`\\delta_{ij} = 1` if nodes :math:`i` and :math:`j`
     belong to the same cluster and :math:`\\delta_{ij} = 0` otherwise.
+
 
     Parameters
     ----------
