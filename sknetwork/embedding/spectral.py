@@ -143,5 +143,5 @@ class Spectral(Algorithm):
         if self.embedding_.shape[0] > n_nodes:
             self.features_ = self.embedding_[n_nodes:]
             self.embedding_ = self.embedding_[:n_nodes]
-            
+
         return self

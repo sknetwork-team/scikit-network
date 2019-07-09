@@ -10,7 +10,7 @@ from scipy import sparse, linalg
 from sknetwork.linalg import SparseLR
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, check_weights
-from linalg.randomized_matrix_factorization import randomized_svd, safe_sparse_dot
+from sknetwork.linalg.randomized_matrix_factorization import randomized_svd, safe_sparse_dot
 from typing import Union
 
 
