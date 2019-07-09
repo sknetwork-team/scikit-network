@@ -68,8 +68,10 @@ class PageRank(Algorithm):
     Example
     -------
     >>> from sknetwork.toy_graphs import rock_paper_scissors_graph
-    >>> graph = rock_paper_scissors_graph()
-    >>> pagerank = PageRank().fit(graph)
+    >>> pagerank = PageRank()
+    >>> adjacency = rock_paper_scissors_graph()
+    >>> pagerank.fit(adjacency)
+    PageRank(damping_factor=0.85, method='diter', n_iter=25)
     >>> np.round(pagerank.ranking_, 2)
     array([0.33, 0.33, 0.33])
 

@@ -7,8 +7,11 @@ Created on Nov 2, 2018
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
-from sknetwork.utils.checks import *
-from sknetwork.utils.adjacency_formats import *
+import numpy as np
+from scipy import sparse
+from typing import Union, Optional
+from sknetwork.utils.checks import check_probs, check_format, check_engine, check_random_state, is_square
+from sknetwork.utils.adjacency_formats import directed2undirected, bipartite2directed
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork import njit
 
