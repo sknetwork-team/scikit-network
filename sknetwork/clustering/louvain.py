@@ -352,10 +352,15 @@ class Louvain(Algorithm):
     Seek the best partition of the nodes with respect to its modularity by performing local updates in a greedy fashion.
     The modularity of a partition is
 
-    :math:`Q = \\sum_{ij}\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_if_j}{w^2}\\big)\\delta_{ij}`,
+    :math:`Q = \\sum_{ij}\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2}\\big)\\delta_{ij}`,
 
-    where :math:`\\gamma \\ge 0` is a resolution parameter and :math:`\\delta_{ij} = 1` if nodes :math:`i` and :math:`j`
+    where
+
+    :math:`\\gamma \\ge 0` is a resolution parameter
+    :math:`\\delta_{ij} = 1` if nodes :math:`i` and :math:`j`
     belong to the same cluster and :math:`\\delta_{ij} = 0` otherwise.
+
+    If the matrix
 
     Parameters
     ----------

@@ -5,7 +5,7 @@ Clustering
 
 .. currentmodule:: sknetwork
 
-This submodule contains clustering algorithms, characterized by their ``.labels_`` attribute which assigns a cluster to
+This module contains clustering algorithms. The ``.labels_`` attribute assigns a cluster to
 each node in the graph.
 
 Louvain
