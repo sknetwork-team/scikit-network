@@ -121,7 +121,7 @@ class PageRank(Algorithm):
         else:
             n_nodes: int = adjacency.shape[0]
 
-        # pseudo inverse square-root out-degree matrix
+        # pseudo inverse out-degree matrix
         diag_out: sparse.csr_matrix = sparse.diags(adjacency.dot(np.ones(n_nodes)),
                                                    shape=(n_nodes, n_nodes), format='csr')
         diag_out.data = 1 / diag_out.data
