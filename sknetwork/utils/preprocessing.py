@@ -6,10 +6,28 @@ Created on June 4 2019
 """
 
 import numpy as np
-from sknetwork.utils.checks import check_format, is_square
 from scipy import sparse
 from scipy.sparse.csgraph import connected_components
+from sknetwork.utils.checks import check_format, is_square
+from sknetwork.utils.adjacency_formats import bipartite2undirected
 from typing import Union
+
+
+def is_connected(adjacency: sparse.csr_matrix) -> bool:
+    """Check whether a graph is weakly connected. Bipartite graphs are treated as undirected ones.
+
+    Parameters
+    ----------
+    adjacency
+
+    Returns
+    -------
+
+    """
+    n, m = adjacency.shape
+    if n != m:
+        adjacency = bipartite2undirected(adjacency)
+    return connected_components(adjacency, directed=False)[0] == 1
 
 
 def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], return_labels: bool = False):
