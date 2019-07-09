@@ -48,7 +48,7 @@ We use the following notations in the documentation:
 * :math:`P^-= {D^-}^{-1}A` is the transition matrix of the random walk in reverse direction  (for positive node in-weights).
 * :math:`w = 1^T A1` is the total weight of the graph.
 
-**Bipartite graphs
+**Bipartite graphs**
 
 * :math:`B` denotes the biadjacency matrix of the graph, rows and columns corresponding to samples and features.
 * :math:`d = B1` is the vector of sample weights.

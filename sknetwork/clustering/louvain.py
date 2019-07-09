@@ -360,7 +360,6 @@ class Louvain(Algorithm):
     :math:`\\delta_{ij} = 1` if nodes :math:`i` and :math:`j`
     belong to the same cluster and :math:`\\delta_{ij} = 0` otherwise.
 
-    If the matrix
 
     Parameters
     ----------
