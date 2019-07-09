@@ -9,7 +9,7 @@ from scipy import sparse
 import numpy as np
 
 
-class TestClusteringMetrics(unittest.TestCase):
+class TestEmbeddings(unittest.TestCase):
 
     def setUp(self):
         self.graph = sparse.csr_matrix(np.array([[0, 1, 1, 1],

@@ -6,8 +6,8 @@ import unittest
 import numpy as np
 from scipy import sparse
 from sknetwork.toy_graphs import house_graph, star_wars_villains_graph
-from sknetwork.utils.sparse_lowrank import SparseLR
-from sknetwork.utils import randomized_svd, randomized_eig
+from sknetwork.linalg.sparse_lowrank import SparseLR
+from sknetwork.linalg.randomized_matrix_factorization import randomized_svd, randomized_eig
 
 
 class TestSparseLowRank(unittest.TestCase):
