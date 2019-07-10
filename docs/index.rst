@@ -26,7 +26,4 @@ Welcome to scikit-network's documentation!
    contributing
    authors
    history
-
-
-
-:ref:`genindex`
+   genindex
