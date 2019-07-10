@@ -82,6 +82,9 @@ class SparseLR(LinearOperator):
         transposed_tuples = [(y, x) for (x, y) in self.low_rank_tuples]
         return SparseLR(transposed_sparse, transposed_tuples)
 
+    def _adjoint(self):
+        return self.transpose()
+
     def left_sparse_dot(self, matrix):
         """Left dot product with a sparse matrix
 

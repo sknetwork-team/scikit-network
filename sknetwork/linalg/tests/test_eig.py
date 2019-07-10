@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tests for randomized matrix factorization"""
+"""tests for eig"""
 
 import unittest
 import numpy as np
@@ -38,3 +38,26 @@ class TestSolvers(unittest.TestCase):
         solver = HalkoEig('SM')
         solver.fit(self.adjacency, 2)
         self.assertEqual(len(solver.eigenvalues_), 2)
+
+    def compare_solvers(self):
+        lanczos = LanczosEig('LM')
+        halko = HalkoEig('LM')
+
+        lanczos.fit(self.adjacency, 2)
+        halko.fit(self.adjacency, 2)
+        self.assertAlmostEqual(np.linalg.norm(lanczos.eigenvalues_ - halko.eigenvalues_), 0.)
+
+        lanczos.fit(self.slr, 2)
+        halko.fit(self.slr, 2)
+        self.assertAlmostEqual(np.linalg.norm(lanczos.eigenvalues_ - halko.eigenvalues_), 0.)
+
+        lanczos = LanczosEig('SM')
+        halko = HalkoEig('SM')
+
+        lanczos.fit(self.adjacency, 2)
+        halko.fit(self.adjacency, 2)
+        self.assertAlmostEqual(np.linalg.norm(lanczos.eigenvalues_ - halko.eigenvalues_), 0.)
+
+        lanczos.fit(self.slr, 2)
+        halko.fit(self.slr, 2)
+        self.assertAlmostEqual(np.linalg.norm(lanczos.eigenvalues_ - halko.eigenvalues_), 0.)
