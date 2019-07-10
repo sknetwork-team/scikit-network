@@ -28,4 +28,8 @@ class Algorithm:
             else:
                 val = str(val)
             output += p + '=' + val + ', '
-        return output[:-2] + ')'
+
+        if arguments:
+            return output[:-2] + ')'
+        else:
+            return output + ')'

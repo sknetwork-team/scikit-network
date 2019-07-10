@@ -20,15 +20,16 @@ def diffusion(indptr, indices, data, flow_history, current_flow, damping_factor)
 
     Parameters
     ----------
-    indptr
-    indices
-    data
+    indptr:
+        CSR format index pointer array of the normalized adjacency matrix.
+    indices:
+        CSR format index array of the normalized adjacency matrix.
+    data:
+        CSR format data array of the normalized adjacency matrix.
     flow_history
     current_flow
     damping_factor
-
-    Returns
-    -------
+        Damping factor for D-iteration
 
     """
     active = np.nonzero(current_flow)[0]
