@@ -293,9 +293,9 @@ class Paris(Algorithm):
     --------
     >>> from sknetwork.toy_graphs import house_graph
     >>> adjacency = house_graph()
-    >>> paris = Paris()
+    >>> paris = Paris('python')
     >>> paris.fit(adjacency)
-    Paris(engine='numba')
+    Paris(engine='python')
     >>> paris.dendrogram_
     array([[3.        , 2.        , 0.33333333, 2.        ],
            [1.        , 0.        , 0.5       , 2.        ],
