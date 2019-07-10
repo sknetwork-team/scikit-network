@@ -10,7 +10,7 @@ Nathan De Lara <nathan.delara@telecom-paristech.fr>
 
 import numpy as np
 from scipy import sparse
-from sknetwork.linalg import safe_sparse_dot, SparseLR, EigSolver, HalkoEig, LanczosEig
+from sknetwork.linalg import safe_sparse_dot, SparseLR, EigSolver, HalkoEig, LanczosEig, auto_solver
 from sknetwork.utils.adjacency_formats import bipartite2undirected
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, check_weights
@@ -35,8 +35,9 @@ class Spectral(Algorithm):
         force_biadjacency: bool (default=False)
             Only relevant for symmetric inputs. Force the algorithm to treat the adjacency as a biadjacency
             as it would do for asymmetric inputs.
-        solver: 'halko', 'lanczos' or EigSolver object
+        solver: 'auto', 'halko', 'lanczos' or EigSolver object
             Which eigenvalue solver to use
+            * 'auto' calls the auto_solver function
             * 'halko': randomized method, fast but less accurate than 'lanczos' for ill-conditioned matrices
             * 'lanczos': power-iteration based method
             * custom: the user must provide an EigSolver object.
@@ -57,8 +58,7 @@ class Spectral(Algorithm):
         >>> spectral = Spectral(embedding_dimension=2)
         >>> spectral.fit(graph)
         Spectral(embedding_dimension=2, node_weights='degree', regularization=0.01, energy_scaling=True,\
- force_biadjacency=False, solver=HalkoEig(which='SM', n_oversamples=10, n_iter='auto',\
- power_iteration_normalizer='auto', one_pass=False))
+ force_biadjacency=False, solver=LanczosEig(which='SM'))
         >>> spectral.embedding_.shape
         (34, 2)
 
@@ -71,7 +71,7 @@ class Spectral(Algorithm):
 
     def __init__(self, embedding_dimension: int = 2, node_weights='degree',
                  regularization: Union[None, float] = 0.01, energy_scaling: bool = True,
-                 force_biadjacency: bool = False, solver: Union[str, EigSolver] = 'halko'):
+                 force_biadjacency: bool = False, solver: Union[str, EigSolver] = 'auto'):
         self.embedding_dimension = embedding_dimension
         self.node_weights = node_weights
         if regularization == 0:
@@ -85,7 +85,7 @@ class Spectral(Algorithm):
         elif solver == 'lanczos':
             self.solver: EigSolver = LanczosEig(which='SM')
         else:
-            self.solver: EigSolver = solver
+            self.solver = solver
 
         self.embedding_ = None
         self.features_ = None
@@ -106,6 +106,14 @@ class Spectral(Algorithm):
 
         adjacency = check_format(adjacency)
         n_nodes, m_nodes = adjacency.shape
+
+        if self.solver == 'auto':
+            solver = auto_solver(adjacency.shape)
+            if solver == 'lanczos':
+                self.solver: EigSolver = LanczosEig(which='SM')
+            else:
+                self.solver: EigSolver = HalkoEig(which='SM')
+
         if self.regularization is None and not is_connected(adjacency):
             if self.energy_scaling:
                 raise ValueError('energy_scaling without low-rank regularization'
