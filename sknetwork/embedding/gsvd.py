@@ -6,11 +6,11 @@ Created on Thu May 31 17:16:22 2018
 """
 
 import numpy as np
-from scipy import sparse, linalg
+from scipy import sparse
 from sknetwork.linalg import SparseLR
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, check_weights
-from sknetwork.linalg.randomized_matrix_factorization import randomized_svd, safe_sparse_dot
+from sknetwork.linalg import SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot
 from typing import Union
 
 
@@ -46,8 +46,7 @@ class GSVD(Algorithm):
     >>> graph = movie_actor_graph()
     >>> gsvd = GSVD(embedding_dimension=2)
     >>> gsvd.fit(graph)
-    GSVD(embedding_dimension=2, weights='degree', regularization=0.01, energy_scaling=True,\
- randomized_decomposition=True)
+    GSVD(embedding_dimension=2, weights='degree', regularization=0.01, energy_scaling=True, solver=LanczosSVD())
     >>> gsvd.embedding_.shape
     (15, 2)
 
@@ -59,12 +58,17 @@ class GSVD(Algorithm):
     """
 
     def __init__(self, embedding_dimension=2, weights='degree', regularization: Union[None, float] = 0.01,
-                 energy_scaling: bool = True, randomized_decomposition: bool = True):
+                 energy_scaling: bool = True, solver: Union[str, SVDSolver] = 'auto'):
         self.embedding_dimension = embedding_dimension
         self.weights = weights
         self.regularization = regularization
         self.energy_scaling = energy_scaling
-        self.randomized_decomposition = randomized_decomposition
+        if solver == 'halko':
+            self.solver: SVDSolver = HalkoSVD()
+        elif solver == 'lanczos':
+            self.solver: SVDSolver = LanczosSVD()
+        else:
+            self.solver = solver
 
         self.embedding_ = None
         self.features_ = None
@@ -85,6 +89,14 @@ class GSVD(Algorithm):
         """
         adjacency = check_format(adjacency)
         n_nodes, m_nodes = adjacency.shape
+
+        if self.solver == 'auto':
+            solver = auto_solver(adjacency.nnz)
+            if solver == 'lanczos':
+                self.solver: SVDSolver = LanczosSVD()
+            else:
+                self.solver: SVDSolver = HalkoSVD()
+
         if self.regularization:
             adjacency = SparseLR(adjacency, [(self.regularization * np.ones(n_nodes), np.ones(m_nodes))])
         total_weight = adjacency.dot(np.ones(m_nodes)).sum()
@@ -101,17 +113,17 @@ class GSVD(Algorithm):
 
         normalized_adj = safe_sparse_dot(diag_samp, safe_sparse_dot(adjacency, diag_feat))
 
-        if self.randomized_decomposition:
-            u, sigma, vt = randomized_svd(normalized_adj, self.embedding_dimension)
-        else:
-            u, sigma, vt = linalg.svds(normalized_adj, self.embedding_dimension)
+        self.solver.fit(normalized_adj, self.embedding_dimension)
 
-        self.singular_values_ = sigma
-        self.embedding_ = np.sqrt(total_weight) * diag_samp.dot(u) * sigma
-        self.features_ = np.sqrt(total_weight) * diag_feat.dot(vt.T)
+        self.singular_values_ = self.solver.singular_values_
+        self.embedding_ = np.sqrt(total_weight) * diag_samp.dot(self.solver.left_singular_vectors_)
+        self.features_ = np.sqrt(total_weight) * diag_feat.dot(self.solver.right_singular_vectors_)
+
+        # rescale to get barycenter property
+        self.embedding_ *= self.singular_values_
 
         if self.energy_scaling and self.weights == 'degree':
-            energy_levels: np.ndarray = np.sqrt(1 - np.clip(sigma, 0, 1) ** 2)
+            energy_levels: np.ndarray = np.sqrt(1 - np.clip(self.singular_values_, 0, 1) ** 2)
             energy_levels[energy_levels > 0] = 1 / energy_levels[energy_levels > 0]
             self.embedding_ *= energy_levels
             self.features_ *= energy_levels
