@@ -13,24 +13,27 @@ from typing import Union, Optional
 from sknetwork.utils.checks import check_probs, check_format, check_engine, check_random_state, is_square
 from sknetwork.utils.adjacency_formats import directed2undirected, bipartite2directed
 from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.clustering.postprocessing import reindex_clusters
 from sknetwork import njit
 
 
 def membership_matrix(labels: np.ndarray) -> sparse.csr_matrix:
-    """Builds a n x k matrix whose lines are one-hot vectors representing the cluster assignments of the samples.
+    """
+    Builds a n x k matrix of the label assignments.
 
     Parameters
     ----------
     labels:
-        partition of the samples.
+        label of each node.
 
     Returns
     -------
-    membership: sparse.csr_matrix
+    membership:
+        binary matrix of label assignments.
 
     """
-    n_samp = len(labels)
-    return sparse.csr_matrix((np.ones(n_samp), (np.arange(n_samp), labels)))
+    n_nodes = len(labels)
+    return sparse.csr_matrix((np.ones(n_nodes), (np.arange(n_nodes), labels)))
 
 
 class NormalizedGraph:
@@ -39,9 +42,9 @@ class NormalizedGraph:
 
     Parameters
     ----------
-    adjacency :
+    adjacency:
         Adjacency matrix of the graph.
-    weights :
+    weights:
         Distribution of node weights (sums to 1), used in the second term of modularity.
 
     Attributes
@@ -50,7 +53,7 @@ class NormalizedGraph:
         Number of nodes.
     norm_adjacency: sparse.csr_matrix
         Normalized adjacency matrix (sums to 1).
-    node_probs : np.ndarray
+    node_probs: np.ndarray
         Distribution of node weights (sums to 1).
     """
 
@@ -77,7 +80,7 @@ class NormalizedGraph:
 
         Returns
         -------
-        The aggregated graph
+        The aggregated graph.
         """
         if membership.shape[0] != self.n_nodes:
             raise ValueError('The size of the partition must match the number of nodes.')
@@ -106,7 +109,8 @@ class NormalizedGraph:
 
 
 class Optimizer(Algorithm):
-    """A generic optimization algorithm.
+    """
+    A generic optimization algorithm.
 
     Attributes
     ----------
@@ -165,9 +169,9 @@ def fit_core(resolution: float, tol: float, n_nodes: int, ou_node_probs: np.ndar
     Returns
     -------
     labels:
-        Cluster index of each node
+        Cluster index of each node.
     total_increase:
-        Score of the clustering (total increase in modularity)
+        Score of the clustering (total increase in modularity).
     """
     increase: bool = True
     total_increase: float = 0
@@ -254,7 +258,7 @@ class GreedyModularity(Optimizer):
         Parameters
         ----------
         graph:
-            the graph to cluster
+            The graph to cluster.
 
         Returns
         -------
@@ -347,18 +351,24 @@ class GreedyModularity(Optimizer):
 
 
 class Louvain(Algorithm):
-    """Louvain algorithm for graph clustering in Python (default) and Numba.
+    """
+    Louvain algorithm for graph clustering in Python (default) and Numba.
 
-    Seek the best partition of the nodes with respect to its modularity by performing local updates in a greedy fashion.
-    The modularity of a partition is
+    Seeks the best partition of the nodes with respect to modularity by local updates of the clustering.
 
-    :math:`Q = \\sum_{ij}\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2}\\big)\\delta_{ij}`,
+    For undirected graphs, the modularity of a clustering is
+
+    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2}\\big)\\delta_{c_i,c_j}`,
 
     where
 
-    :math:`\\gamma \\ge 0` is a resolution parameter
-    :math:`\\delta_{ij} = 1` if nodes :math:`i` and :math:`j`
-    belong to the same cluster and :math:`\\delta_{ij} = 0` otherwise.
+    :math:`\\gamma \\ge 0` is a resolution parameter,
+    :math:`c_i` is the cluster of node `i`
+    :math:`\\delta` is the Kronecker symbol.
+
+    For directed graphs, the modularity of a clustering is modified as follows:
+
+    :math:`Q = \\sum_{i,j}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d^+_id^-_j}{w^2}\\big)\\delta_{c_i,c_j}`.
 
 
     Parameters
@@ -505,6 +515,6 @@ shuffle_nodes=False, verbose=False)
             reverse[nodes] = np.arange(nodes.size)
             self.labels_ = self.labels_[reverse]
         self.n_clusters_ = len(set(self.labels_))
-        _, self.labels_ = np.unique(self.labels_, return_inverse=True)
+        self.labels_ = reindex_clusters(self.labels_)
         self.aggregate_graph_ = graph.norm_adjacency * adjacency.data.sum()
         return self
