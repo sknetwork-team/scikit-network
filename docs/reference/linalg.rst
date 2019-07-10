@@ -22,6 +22,12 @@ Solvers
 .. autoclass:: sknetwork.linalg.HalkoEig
     :members:
 
+.. autoclass:: sknetwork.linalg.LanczosSVD
+    :members:
+
+.. autoclass:: sknetwork.linalg.HalkoSVD
+    :members:
+
 Randomized methods
 ------------------
 

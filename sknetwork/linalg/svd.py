@@ -47,14 +47,13 @@ class SVDSolver(Algorithm):
         Returns
         -------
         self: :class:`SVDSolver`
-
         """
         return self
 
 
 class LanczosSVD(SVDSolver):
     """
-    An SVD solver using Lanczos method on AA^T or A^TA.
+    An SVD solver using Lanczos method on :math:`AA^T` or :math:`A^TA`.
 
     Attributes
     ----------
@@ -68,7 +67,6 @@ class LanczosSVD(SVDSolver):
     See Also
     --------
     scipy.sparse.linalg.svds
-
     """
 
     def __init__(self):
@@ -87,7 +85,6 @@ class LanczosSVD(SVDSolver):
         Returns
         -------
         self: :class:`SVDSolver`
-
         """
         u, s, vt = svds(matrix.astype(np.float), n_components)
         self.left_singular_vectors_ = u
@@ -103,7 +100,7 @@ class HalkoSVD(SVDSolver):
 
     Parameters
     ----------
-   n_oversamples : int (default=10)
+    n_oversamples : int (default=10)
         Additional number of random vectors to sample the range of M so as
         to ensure proper conditioning. The total number of random vectors
         used to find the range of M is embedding_dimension + n_oversamples. Smaller
@@ -134,7 +131,6 @@ class HalkoSVD(SVDSolver):
         Two-dimensional array, each column is a right singular vector of the input.
     singular_values_: np.ndarray
         Singular values.
-
     """
 
     def __init__(self, n_oversamples: int = 10, n_iter='auto', transpose='auto',
