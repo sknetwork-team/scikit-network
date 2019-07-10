@@ -10,6 +10,7 @@ Reference
     clustering
     hierarchy
     ranking
+    linalg
     loader
     toy_graphs
     utils

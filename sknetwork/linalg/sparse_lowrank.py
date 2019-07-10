@@ -110,7 +110,7 @@ class SparseLR(LinearOperator):
         """
         return SparseLR(self.sparse_mat.dot(matrix), [(x, matrix.T.dot(y)) for (x, y) in self.low_rank_tuples])
 
-    def astype(self, dtype):
+    def astype(self, dtype: Union[str, np.dtype]):
         """Change dtype of the object.
 
         Parameters
@@ -124,6 +124,9 @@ class SparseLR(LinearOperator):
         """
         self.sparse_mat = self.sparse_mat.astype(dtype)
         self.low_rank_tuples = [(x.astype(dtype), y.astype(dtype)) for (x, y) in self.low_rank_tuples]
-        self.dtype = dtype
+        if type(dtype) == np.dtype:
+            self.dtype = dtype
+        else:
+            self.dtype = np.dtype(dtype)
 
         return self

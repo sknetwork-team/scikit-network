@@ -7,7 +7,7 @@ Created on Apr 8, 2019
 
 import numpy as np
 from scipy import sparse
-from sknetwork.utils.sparse_lowrank import SparseLR
+from sknetwork.linalg.sparse_lowrank import SparseLR
 from typing import Union
 
 

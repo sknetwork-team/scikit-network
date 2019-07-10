@@ -8,7 +8,7 @@ Part of this code was adapted from the scikit-learn project: https://scikit-lear
 
 import numpy as np
 from scipy import sparse, linalg
-from sknetwork.utils.sparse_lowrank import SparseLR
+from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.utils.checks import check_random_state
 from typing import Union
 

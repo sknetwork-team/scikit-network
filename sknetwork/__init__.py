@@ -41,10 +41,10 @@ except (ImportError, DeprecationWarning) as error:
             pass
 
 
-import sknetwork.clustering
-import sknetwork.embedding
-import sknetwork.hierarchy
-import sknetwork.loader
-import sknetwork.ranking
-import sknetwork.toy_graphs
-import sknetwork.utils
+# import sknetwork.clustering
+# import sknetwork.embedding
+# import sknetwork.hierarchy
+# import sknetwork.loader
+# import sknetwork.ranking
+# import sknetwork.toy_graphs
+# import sknetwork.utils

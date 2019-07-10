@@ -20,26 +20,12 @@ Preprocessing
 
 .. autofunction:: sknetwork.utils.preprocessing.largest_connected_component
 
-Sparse + Low Rank structure
----------------------------
-
-.. autoclass:: sknetwork.utils.SparseLR
-    :members:
 
 Projection
 ----------
 
 .. autofunction:: sknetwork.utils.projection_simplex
 
-
-Randomized methods
-------------------
-
-.. autofunction:: sknetwork.utils.randomized_matrix_factorization.randomized_range_finder
-
-.. autofunction:: sknetwork.utils.randomized_svd
-
-.. autofunction:: sknetwork.utils.randomized_eig
 
 Checks
 ------

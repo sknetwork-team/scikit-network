@@ -9,7 +9,7 @@ Created on May 31 2019
 import numpy as np
 from sknetwork import njit, prange
 from sknetwork.utils.checks import check_format, is_proba_array, is_square
-from sknetwork.utils.randomized_matrix_factorization import SparseLR, randomized_eig
+from sknetwork.linalg.randomized_matrix_factorization import SparseLR, randomized_eig
 from sknetwork.utils.algorithm_base_class import Algorithm
 from scipy import sparse
 from typing import Union

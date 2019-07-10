@@ -9,7 +9,7 @@ from scipy import sparse
 import numpy as np
 
 
-class TestClusteringMetrics(unittest.TestCase):
+class TestEmbeddings(unittest.TestCase):
 
     def setUp(self):
         self.graph = sparse.csr_matrix(np.array([[0, 1, 1, 1],
@@ -40,3 +40,8 @@ class TestClusteringMetrics(unittest.TestCase):
         self.assertTrue(type(sp.eigenvalues_) == np.ndarray and len(sp.eigenvalues_) == 2)
         self.assertTrue(min(sp.eigenvalues_ >= 0))
         self.assertTrue(max(sp.eigenvalues_ <= 2))
+
+        sp.fit(self.bipartite)
+        self.assertEqual(sp.embedding_.shape, (4, 2))
+        self.assertEqual(sp.features_.shape, (3, 2))
+        self.assertTrue(type(sp.eigenvalues_) == np.ndarray and len(sp.eigenvalues_) == 2)

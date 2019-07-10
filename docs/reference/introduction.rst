@@ -28,7 +28,8 @@ About the documentation
 
 We use the following notations in the documentation:
 
-**Undirected graphs**
+Undirected graphs
+^^^^^^^^^^^^^^^^^
 
 * :math:`A` is the adjacency matrix of the graph.
 * :math:`d = A1` is the vector of node weights (node degrees if the matrix :math:`A` is binary)
@@ -37,7 +38,8 @@ We use the following notations in the documentation:
 * :math:`P = D^{-1}A` is the transition matrix of the random walk in the graph (for positive node weights).
 * :math:`w = 1^T A1` is the total weight of the graph.
 
-**Directed graphs**
+Directed graphs
+^^^^^^^^^^^^^^^
 
 * :math:`A` is the adjacency matrix of the graph.
 * :math:`d^+ = A1` is the vector of node out-weights (node out-degrees if the matrix :math:`A` is binary)
@@ -48,7 +50,8 @@ We use the following notations in the documentation:
 * :math:`P^-= {D^-}^{-1}A` is the transition matrix of the random walk in reverse direction  (for positive node in-weights).
 * :math:`w = 1^T A1` is the total weight of the graph.
 
-**Bipartite graphs**
+Bipartite graphs
+^^^^^^^^^^^^^^^^
 
 * :math:`B` denotes the biadjacency matrix of the graph, rows and columns corresponding to samples and features.
 * :math:`d = B1` is the vector of sample weights.
