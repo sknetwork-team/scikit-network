@@ -1,7 +1,7 @@
 .. _linalg:
 
-Linalg
-******
+Linear algebra
+**************
 
 .. currentmodule:: sknetwork
 
