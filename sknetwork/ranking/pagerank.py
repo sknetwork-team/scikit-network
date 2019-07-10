@@ -145,7 +145,7 @@ class PageRank(Algorithm):
 
             for i in range(self.n_iter):
                 self.diffusion(transition_matrix.indptr, transition_matrix.indices, transition_matrix.data,
-                          flow_history, current_flow, self.damping_factor)
+                               flow_history, current_flow, self.damping_factor)
 
             self.ranking_ = abs(flow_history) / np.sum(abs(flow_history))
 
