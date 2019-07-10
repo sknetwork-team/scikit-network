@@ -15,7 +15,6 @@ from scipy import sparse
 from typing import Union
 
 
-@njit(parallel=True)
 def diffusion(indptr, indices, data, flow_history, current_flow, damping_factor):
     """Diffusion for D-iteration.
 
@@ -59,6 +58,8 @@ class PageRank(Algorithm):
         Specifies the used method. Must be 'diter' or 'spectral'
     n_iter: int
         Number of iterations if method is 'diter'
+    parallel: bool
+        Enable parallelization (Numba is required)
 
     Attributes
     ----------
@@ -83,7 +84,7 @@ class PageRank(Algorithm):
     * Page, L., Brin, S., Motwani, R., & Winograd, T. (1999). The PageRank citation ranking: Bringing order to the web.
       Stanford InfoLab.
     """
-    def __init__(self, damping_factor: float = 0.85, method: str = 'diter', n_iter: int = 25):
+    def __init__(self, damping_factor: float = 0.85, method: str = 'diter', n_iter: int = 25, parallel: bool = False):
         self.ranking_ = None
         if damping_factor < 0. or damping_factor > 1.:
             raise ValueError('Damping factor must be between 0 and 1.')
@@ -101,6 +102,7 @@ class PageRank(Algorithm):
             raise ValueError("Number of iterations must be positive.'")
         else:
             self.n_iter = n_iter
+        self.diffusion = njit(diffusion, parallel=parallel)
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Union[None, np.ndarray] = None) -> 'PageRank':
@@ -142,7 +144,7 @@ class PageRank(Algorithm):
             flow_history = -current_flow / 2
 
             for i in range(self.n_iter):
-                diffusion(transition_matrix.indptr, transition_matrix.indices, transition_matrix.data,
+                self.diffusion(transition_matrix.indptr, transition_matrix.indices, transition_matrix.data,
                           flow_history, current_flow, self.damping_factor)
 
             self.ranking_ = abs(flow_history) / np.sum(abs(flow_history))
