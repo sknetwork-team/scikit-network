@@ -53,9 +53,9 @@ Directed graphs
 Bipartite graphs
 ^^^^^^^^^^^^^^^^
 
-* :math:`B` denotes the biadjacency matrix of the graph (dimension :math:`n\times p`); rows and columns are viewed as items and features
-* :math:`d = B1` is the vector of item weights
-* :math:`D = \text{diag}(d)` is the diagonal matrix of item weights
+* :math:`B` denotes the biadjacency matrix of the graph (dimension :math:`n\times p`); rows and columns are viewed as samples and features
+* :math:`d = B1` is the vector of sample weights
+* :math:`D = \text{diag}(d)` is the diagonal matrix of sample weights
 * :math:`f = B^T1` is the vector of feature weights
 * :math:`F = \text{diag}(f)` the diagonal matrix of feature weights
 * :math:`w = 1^T B1` is the total weight of the graph (total weight of edges)

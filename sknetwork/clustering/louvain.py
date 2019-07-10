@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 from typing import Union, Optional
 from sknetwork.utils.checks import check_probs, check_format, check_engine, check_random_state, is_square
-from sknetwork.utils.adjacency_formats import directed2undirected, bipartite2directed
+from sknetwork.utils.adjacency_formats import directed2undirected
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.clustering.postprocessing import reindex_clusters
 from sknetwork import njit
@@ -36,7 +36,7 @@ def membership_matrix(labels: np.ndarray) -> sparse.csr_matrix:
     return sparse.csr_matrix((np.ones(n_nodes), (np.arange(n_nodes), labels)))
 
 
-class NormalizedGraph:
+class AggregateGraph:
     """
     A class of graphs suitable for the Louvain algorithm. Each node represents a cluster.
 
@@ -69,7 +69,8 @@ class NormalizedGraph:
 
     def aggregate(self, membership: Union[sparse.csr_matrix, np.ndarray],
                   feat_membership: Union[None, sparse.csr_matrix, np.ndarray] = None):
-        """Aggregates nodes belonging to the same cluster.
+        """
+        Aggregates nodes belonging to the same cluster.
 
         Parameters
         ----------
@@ -123,8 +124,9 @@ class Optimizer(Algorithm):
         self.score_ = None
         self.labels_ = None
 
-    def fit(self, graph: NormalizedGraph):
-        """Fit the clusters to the objective function.
+    def fit(self, graph: AggregateGraph):
+        """
+        Fits the clusters to the objective function.
 
          Parameters
          ----------
@@ -144,6 +146,7 @@ def fit_core(resolution: float, tol: float, n_nodes: int, ou_node_probs: np.ndar
              in_node_probs: np.ndarray, self_loops: np.ndarray, data: np.ndarray, indices: np.ndarray,
              indptr: np.ndarray) -> (np.ndarray, float):
     """
+    Fits the clusters to the objective function.
 
     Parameters
     ----------
@@ -238,9 +241,9 @@ class GreedyModularity(Optimizer):
     Attributes
     ----------
     resolution:
-        modularity resolution
+        Modularity resolution.
     tol:
-        minimum bimodularity increase to enter a new optimization pass
+        Minimum modularity increase to enter a new optimization pass.
     engine: str
         ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, it will tests if numba is available.
 
@@ -252,8 +255,9 @@ class GreedyModularity(Optimizer):
         self.tol = tol
         self.engine = check_engine(engine)
 
-    def fit(self, graph: NormalizedGraph):
-        """Iterates over the nodes of the graph and moves them to the cluster of highest increase among their neighbors.
+    def fit(self, graph: AggregateGraph):
+        """
+        Iterates over the nodes of the graph and moves them to the cluster of highest increase among their neighbors.
 
         Parameters
         ----------
@@ -354,7 +358,7 @@ class Louvain(Algorithm):
     """
     Louvain algorithm for graph clustering in Python (default) and Numba.
 
-    Seeks the best partition of the nodes with respect to modularity by local updates of the clustering.
+    Seeks the best partition of the nodes with respect to modularity.
 
     For undirected graphs, the modularity of a clustering is
 
@@ -362,13 +366,13 @@ class Louvain(Algorithm):
 
     where
 
-    :math:`\\gamma \\ge 0` is a resolution parameter,
-    :math:`c_i` is the cluster of node `i`
+    :math:`\\gamma \\ge 0` is a resolution parameter,\n
+    :math:`c_i` is the cluster of node `i`\n
     :math:`\\delta` is the Kronecker symbol.
 
     For directed graphs, the modularity of a clustering is modified as follows:
 
-    :math:`Q = \\sum_{i,j}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d^+_id^-_j}{w^2}\\big)\\delta_{c_i,c_j}`.
+    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d^+_id^-_j}{w^2}\\big)\\delta_{c_i,c_j}`.
 
 
     Parameters
@@ -409,8 +413,8 @@ class Louvain(Algorithm):
     Example
     -------
     >>> louvain = Louvain(GreedyModularity(engine='python'))
-    >>> graph = sparse.identity(3, format='csr')
-    >>> louvain.fit(graph)
+    >>> adjacency = sparse.identity(3, format='csr')
+    >>> louvain.fit(adjacency)
     Louvain(algorithm=GreedyModularity(resolution=1, tol=0.001, engine='python'), agg_tol=0.001, max_agg_iter=-1, \
 shuffle_nodes=False, verbose=False)
     >>> louvain.labels_
@@ -455,7 +459,8 @@ shuffle_nodes=False, verbose=False)
 
     def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
             feature_weights: Union[None, str, np.ndarray] = None) -> 'Louvain':
-        """Clustering using chosen Optimizer.
+        """
+        Clustering using chosen Optimizer.
 
         Parameters
         ----------
@@ -474,14 +479,14 @@ shuffle_nodes=False, verbose=False)
         adjacency = check_format(adjacency)
 
         if not is_square(adjacency):
-            adjacency = bipartite2directed(adjacency)
+            raise TypeError('The adjacency matrix must be a square matrix. See Bilouvain for rectangular matrices.')
 
         nodes = np.arange(adjacency.shape[0])
         if self.shuffle_nodes:
             nodes = self.random_state.permutation(nodes)
             adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
-        graph = NormalizedGraph(adjacency, weights, feature_weights)
+        graph = AggregateGraph(adjacency, weights, feature_weights)
 
         membership = sparse.identity(graph.n_nodes, format='csr')
         increase = True

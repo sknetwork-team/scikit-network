@@ -12,43 +12,65 @@ from typing import Union
 
 
 def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
-                        weighted: bool = True) -> Union[sparse.csr_matrix, SparseLR]:
+                        weight_sum: bool = True) -> Union[sparse.csr_matrix, SparseLR]:
     """
+    Returns the adjacency matrix of the undirected graph.
+
+    The entry :math:`i,j` of the new matrix becomes either:
+
+    :math:`A_{ij} + A_{ji}` (default)
+
+    or
+
+    :math:`\\max(A_{ij},A_{ji})`
+
+    If the initial adjacency matrix :math:`A` is binary, bidirectional edges have eight weight 2
+    (first method, default) or 1 (second method).
 
     Parameters
     ----------
-    adjacency
-    weighted
+    adjacency:
+        Adjacency matrix.
+    weight_sum:
+        If True, return the sum of the weights in both directions of each edge.
 
     Returns
     -------
-
+    New adjacency matrix (symmetric).
     """
     if type(adjacency) == sparse.csr_matrix:
-        if weighted:
+        if weight_sum:
             return sparse.csr_matrix(adjacency + adjacency.T)
         else:
             return adjacency.maximum(adjacency.T)
     elif type(adjacency) == SparseLR:
-        if weighted:
+        if weight_sum:
             new_tuples = [(y, x) for (x, y) in adjacency.low_rank_tuples]
             return SparseLR(directed2undirected(adjacency.sparse_mat), adjacency.low_rank_tuples + new_tuples)
         else:
-            raise ValueError('This function only works with ``weighted==True`` for SparseLR objects.')
+            raise ValueError('This function only works with ``weight_sum==True`` for SparseLR objects.')
     else:
         raise TypeError('Input must be a scipy CSR matrix or a SparseLR object.')
 
 
 def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union[sparse.csr_matrix, SparseLR]:
     """
+    Returns the adjacency matrix of a bipartite graph seen as a directed graph (with edges from one part to the other).
+
+    The returned adjacency matrix is:
+
+    :math:`A  = \\begin{bmatrix} 0 & B \\\ 0 & 0 \\end{bmatrix}`
+
+    where :math:`B` is the biadjacency matrix of the bipartite graph.
 
     Parameters
     ----------
-    biadjacency
+    biadjacency:
+        Biadjacency matrix of the bipartite graph.
 
     Returns
     -------
-
+    Adjacency matrix.
     """
     n, m = biadjacency.shape
     if type(biadjacency) == sparse.csr_matrix:
@@ -63,14 +85,22 @@ def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union
 
 def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union[sparse.csr_matrix, SparseLR]:
     """
+    Returns the adjacency matrix of a bipartite graph defined by its biadjacency matrix.
+
+    The returned adjacency matrix is:
+
+    :math:`A  = \\begin{bmatrix} 0 & B \\\ B^T & 0 \\end{bmatrix}`
+
+    where :math:`B` is the biadjacency matrix of the bipartite graph.
 
     Parameters
     ----------
-    biadjacency
+    biadjacency:
+        Biadjacency matrix of the bipartite graph.
 
     Returns
     -------
-
+    Adjacency matrix (symmetric).
     """
     if type(biadjacency) == sparse.csr_matrix:
         return sparse.bmat([[None, biadjacency], [biadjacency.T, None]], format='csr')
