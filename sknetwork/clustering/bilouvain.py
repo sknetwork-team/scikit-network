@@ -96,17 +96,19 @@ class BiLouvain(Algorithm):
 
     The bimodularity of a clustering is
 
-    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{d_if_j}{w^2}\\big)\\delta_{c^d_i,c^f_j}`,
+    :math:`Q = \\sum_{i=1}^n\\sum_{j=1}^p\\big(\\dfrac{B_{ij}}{w} -
+    \\gamma \\dfrac{d_if_j}{w^2}\\big)\\delta_{c^d_i,c^f_j}`,
 
     where
 
-    :math:`\\gamma \\ge 0` is a resolution parameter,\n
     :math:`c^d_i` is the cluster of sample node `i` (rows of the biadjacency matrix),\n
     :math:`c^f_j` is the cluster of feature node `j` (columns of the biadjacency matrix),\n
-    :math:`\\delta` is the Kronecker symbol.
+    :math:`\\delta` is the Kronecker symbol,
+    :math:`\\gamma \\ge 0` is the resolution parameter.\n
 
-    The ```as_undirected``` parameter of the fit method allows one to cluster the graph as undirected,
-    without considering the bipartite structure of the graph.
+
+    The ```force_undirected``` parameter of the fit method forces the algorithm to consider the graph as undirected,
+    without considering its bipartite structure.
 
     Parameters
     ----------
@@ -159,7 +161,7 @@ class BiLouvain(Algorithm):
         self.n_clusters_ = None
 
     def fit(self, biadjacency: sparse.csr_matrix, weights: Union['str', np.ndarray] = 'degree',
-            feature_weights: Union['str', np.ndarray] = 'degree', as_undirected: bool = False):
+            feature_weights: Union['str', np.ndarray] = 'degree', force_undirected: bool = False):
         """
         Alternates local optimization and aggregation until convergence.
 
@@ -171,7 +173,7 @@ class BiLouvain(Algorithm):
             Probabilities for the samples in the null model. ``'degree'``, ``'uniform'`` or custom weights.
         feature_weights:
             Probabilities for the features in the null model. ``'degree'``, ``'uniform'`` or custom weights.
-        as_undirected:
+        force_undirected:
             If True, maximizes the modularity of the undirected graph instead of the bimodularity.
 
         Returns
@@ -183,7 +185,7 @@ class BiLouvain(Algorithm):
 
         samp_weights = np.hstack((check_probs(weights, biadjacency), np.zeros(n_feat)))
         feat_weights = np.hstack((np.zeros(n_samp), check_probs(feature_weights, biadjacency.T)))
-        if as_undirected:
+        if force_undirected:
             graph = AggregateGraph(bipartite2undirected(biadjacency), samp_weights, feat_weights)
         else:
             graph = AggregateGraph(bipartite2directed(biadjacency), samp_weights, feat_weights)

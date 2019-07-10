@@ -5,7 +5,7 @@
 import unittest
 import numpy as np
 from scipy import sparse
-from sknetwork.clustering import modularity, cocitation_modularity, bimodularity, performance, cocitation_performance
+from sknetwork.clustering import modularity, cocitation_modularity, bimodularity
 from sknetwork.toy_graphs import star_wars_villains_graph
 
 
@@ -30,11 +30,3 @@ class TestClusteringMetrics(unittest.TestCase):
     def test_cocitation_modularity(self):
         self.assertAlmostEqual(cocitation_modularity(self.graph, self.labels), 0.0521, 3)
         self.assertAlmostEqual(cocitation_modularity(self.graph, self.unique_cluster), 0.)
-
-    def test_performance(self):
-        self.assertAlmostEqual(performance(self.graph, self.labels), 0.625, 3)
-        self.assertAlmostEqual(performance(self.graph, self.unique_cluster), 0.5)
-
-    def test_cocitation_performance(self):
-        self.assertAlmostEqual(cocitation_performance(self.graph, self.labels), 0.827, 3)
-        self.assertAlmostEqual(cocitation_performance(self.graph, self.unique_cluster), 0.741, 3)

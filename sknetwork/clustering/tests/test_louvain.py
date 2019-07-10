@@ -4,9 +4,10 @@
 
 
 import unittest
-from sknetwork.clustering import *
-from sknetwork.toy_graphs import *
+from sknetwork.clustering import Louvain, GreedyModularity, modularity
+from sknetwork.toy_graphs import karate_club_graph, bow_tie_graph
 from scipy.sparse import identity
+from sknetwork import is_numba_available
 
 
 class TestLouvainClustering(unittest.TestCase):
