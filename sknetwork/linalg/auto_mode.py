@@ -8,14 +8,16 @@ Nathan De Lara <nathan.delara@telecom-paris.fr>
 """
 
 
-def auto_solver(shape: tuple) -> str:
+def auto_solver(nnz: int, threshold: int = 1e4) -> str:
     """Recommend a solver for SVD or Eigenvalue decomposition depending of the size of the input matrix.
     Halko's randomized method is returned for big matrices and Lanczos for small ones.
 
     Parameters
     ----------
-    shape: tuple
-        Shape of the matrix to decompose.
+    nnz: int
+        Number of non-zero entries of the matrix to decompose.
+    threshold: int
+        Threshold beyond which randomized methods are applied.
 
     Returns
     -------
@@ -23,7 +25,7 @@ def auto_solver(shape: tuple) -> str:
         'halko' or ' lanczos'
 
     """
-    if min(shape[0], shape[1]) > 10 ** 3:
+    if nnz > threshold:
         return 'halko'
     else:
         return 'lanczos'

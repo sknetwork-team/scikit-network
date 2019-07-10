@@ -108,7 +108,7 @@ class Spectral(Algorithm):
         n_nodes, m_nodes = adjacency.shape
 
         if self.solver == 'auto':
-            solver = auto_solver(adjacency.shape)
+            solver = auto_solver(adjacency.nnz)
             if solver == 'lanczos':
                 self.solver: EigSolver = LanczosEig(which='SM')
             else:
