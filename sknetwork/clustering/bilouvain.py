@@ -5,9 +5,13 @@ Created on Mar 3, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
-from sknetwork.clustering.louvain import *
+import numpy as np
+from scipy import sparse
+from typing import Union
+from sknetwork.clustering.louvain import Louvain, AggregateGraph, membership_matrix, GreedyModularity
+from sknetwork.clustering.postprocessing import reindex_clusters
 from sknetwork.utils.adjacency_formats import bipartite2undirected, bipartite2directed
-from sknetwork.utils.checks import *
+from sknetwork.utils.checks import check_probs, check_format, check_engine
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork import njit, prange
 
@@ -213,7 +217,8 @@ class BiLouvain(Algorithm):
 
         self.n_clusters_ = louvain.n_clusters_
         self.iteration_count_ = iteration_count
-        self.labels_ = membership.indices[:n_samp]
-        self.feature_labels_ = membership.indices[n_samp:]
+        labels = reindex_clusters(membership.indices)
+        self.labels_ = labels[:n_samp]
+        self.feature_labels_ = labels[n_samp:]
         self.aggregate_graph_ = louvain.aggregate_graph_ * biadjacency.data.sum()
         return self

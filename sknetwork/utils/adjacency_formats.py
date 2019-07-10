@@ -59,7 +59,7 @@ def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union
 
     The returned adjacency matrix is:
 
-    :math:`A  = \\begin{bmatrix} 0 & B \\\ 0 & 0 \\end{bmatrix}`
+    :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}`
 
     where :math:`B` is the biadjacency matrix of the bipartite graph.
 
@@ -89,7 +89,7 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
 
     The returned adjacency matrix is:
 
-    :math:`A  = \\begin{bmatrix} 0 & B \\\ B^T & 0 \\end{bmatrix}`
+    :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`
 
     where :math:`B` is the biadjacency matrix of the bipartite graph.
 

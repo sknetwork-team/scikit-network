@@ -4,8 +4,8 @@
 
 
 import unittest
-from sknetwork.clustering import *
-from sknetwork.toy_graphs import *
+from sknetwork.clustering import BiLouvain
+from sknetwork.toy_graphs import star_wars_villains_graph
 from sknetwork import is_numba_available
 
 

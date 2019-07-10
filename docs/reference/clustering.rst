@@ -33,3 +33,7 @@ Metrics
 .. autofunction:: sknetwork.clustering.bimodularity
 
 .. autofunction:: sknetwork.clustering.cocitation_modularity
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
