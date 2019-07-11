@@ -13,7 +13,7 @@ from scipy import sparse
 from sknetwork.linalg import safe_sparse_dot, SparseLR, EigSolver, HalkoEig, LanczosEig, auto_solver
 from sknetwork.utils.adjacency_formats import bipartite2undirected
 from sknetwork.utils.algorithm_base_class import Algorithm
-from sknetwork.utils.checks import check_format, check_weights
+from sknetwork.utils.checks import check_format
 from sknetwork.utils.preprocessing import is_connected
 from typing import Union
 
@@ -25,8 +25,8 @@ class Spectral(Algorithm):
         ----------
         embedding_dimension : int, optional
             Dimension of the embedding space
-        node_weights : {``'uniform'``, ``'degree'``, array of length n_nodes with positive entries}, optional
-            Weights used for the normalization for the laplacian, :math:`W^{-1/2} L W^{-1/2}`
+        normalized_laplacian : bool (default = True)
+            whether to use the normalized laplacian, :math:`I - D^{-1/2} A D^{-1/2}`
         regularization: ``None`` or float (default=0.01)
             Implicitly add edges of given weight between all pairs of nodes.
         energy_scaling: bool (default=True)
@@ -57,23 +57,21 @@ class Spectral(Algorithm):
         >>> adjacency = karate_club_graph()
         >>> spectral = Spectral(embedding_dimension=2)
         >>> spectral.fit(adjacency)
-        Spectral(embedding_dimension=2, node_weights='degree', regularization=0.01, energy_scaling=True,\
+        Spectral(embedding_dimension=2, normalized_laplacian=True, regularization=0.01, energy_scaling=True,\
  force_biadjacency=False, solver=LanczosEig(which='SM'))
         >>> spectral.embedding_.shape
         (34, 2)
 
         References
         ----------
-        * Weighted Spectral Embedding, T. Bonald
-          https://arxiv.org/abs/1809.11115
         * Laplacian Eigenmaps for Dimensionality Reduction and Data Representation, M. Belkin, P. Niyogi
         """
 
-    def __init__(self, embedding_dimension: int = 2, node_weights='degree',
+    def __init__(self, embedding_dimension: int = 2, normalized_laplacian=True,
                  regularization: Union[None, float] = 0.01, energy_scaling: bool = True,
                  force_biadjacency: bool = False, solver: Union[str, EigSolver] = 'auto'):
         self.embedding_dimension = embedding_dimension
-        self.node_weights = node_weights
+        self.normalized_laplacian = normalized_laplacian
         if regularization == 0:
             self.regularization = None
         else:
@@ -96,8 +94,8 @@ class Spectral(Algorithm):
 
         Parameters
         ----------
-        adjacency : array-like, shape = (n, n)
-              Adjacency matrix of the adjacency
+        adjacency : array-like, shape = (n, p)
+              Adjacency or biadjacency matrix of the graph.
 
         Returns
         -------
@@ -126,26 +124,27 @@ class Spectral(Algorithm):
         if p != n or self.force_biadjacency:
             adjacency = bipartite2undirected(adjacency)
 
-        # builds standard laplacian
+        # builds standard Laplacian
         degrees = adjacency.dot(np.ones(adjacency.shape[1]))
         degree_matrix = sparse.diags(degrees, format='csr')
         laplacian = -(adjacency - degree_matrix)
 
-        # applies normalization by node weights
-        weights = check_weights(self.node_weights, adjacency, positive_entries=False)
-        weight_matrix = sparse.diags(np.sqrt(weights), format='csr')
-        weight_matrix.data = 1 / weight_matrix.data
-
-        laplacian = safe_sparse_dot(weight_matrix, safe_sparse_dot(laplacian, weight_matrix))
+        # applies normalization of the Laplacian
+        if self.normalized_laplacian:
+            weight_matrix = sparse.diags(np.sqrt(degrees), format='csr')
+            weight_matrix.data = 1 / weight_matrix.data
+            laplacian = safe_sparse_dot(weight_matrix, safe_sparse_dot(laplacian, weight_matrix))
 
         # spectral decomposition
         n_components = min(self.embedding_dimension + 1, min(n, p))
         self.solver.fit(laplacian, n_components)
 
         self.eigenvalues_ = self.solver.eigenvalues_[1:]
-        self.embedding_ = np.array(weight_matrix.dot(self.solver.eigenvectors_[:, 1:]))
+        self.embedding_ = self.solver.eigenvectors_[:, 1:]
+        if self.normalized_laplacian:
+            self.embedding_ = np.array(weight_matrix.dot(self.embedding_))
 
-        if self.energy_scaling and self.node_weights == 'degree':
+        if self.energy_scaling and self.normalized_laplacian:
             self.embedding_ /= np.sqrt(self.eigenvalues_)
 
         if self.embedding_.shape[0] > n:
