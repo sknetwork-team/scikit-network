@@ -16,7 +16,7 @@ def block_model(clusters: Union[np.ndarray, int], shape: Optional[Tuple[int, int
                 outer_prob: float = .01, random_state: Optional[Union[np.random.RandomState, int]] = None) \
                 -> Tuple[sparse.csr_matrix, np.ndarray, np.ndarray]:
     """
-    A block model graph
+    A block model adjacency
 
     Parameters
     ----------
@@ -25,7 +25,7 @@ def block_model(clusters: Union[np.ndarray, int], shape: Optional[Tuple[int, int
          or an int denoting the number of clusters). If an int is passed, shape must be given and
          the clusters are identical in shape.
     shape: Optional[Tuple[int]]
-        The size of the graph to obtain (might be rectangular for a bipartite graph).
+        The size of the adjacency to obtain (might be rectangular for a biadjacency adjacency).
     inner_prob: float
         Intra-cluster connection probability.
     outer_prob: float
@@ -36,7 +36,7 @@ def block_model(clusters: Union[np.ndarray, int], shape: Optional[Tuple[int, int
     Returns
     -------
     adjacency: sparse.csr_matrix
-        The adjacency matrix of the graph
+        The adjacency matrix of the adjacency
     ground_truth_features: np.ndarray
         The labels associated with the features
     ground_truth_samples: np.ndarray

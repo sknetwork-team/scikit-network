@@ -13,7 +13,7 @@ from typing import Union
 def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feature_labels: np.ndarray,
                  resolution: float = 1) -> float:
     """
-    Modularity for bipartite graphs.
+    Modularity for biadjacency graphs.
 
     :math:`Q = \\sum_{i=1}^n\\sum_{j=1}^p (\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{d_if_j}{w^2})\\delta_{c^d_i,c^f_j},`
 
@@ -76,7 +76,7 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], partition: Union
     partition : dict or np.ndarray
        The partition of the nodes. The keys of the dictionary correspond to the nodes and the values to the communities.
     adjacency : scipy.csr_matrix or np.ndarray
-        The adjacency matrix of the graph (sparse or dense).
+        The adjacency matrix of the adjacency (sparse or dense).
     resolution : float, optional (default=1.)
         The resolution parameter in the modularity function.
     directed: bool
@@ -124,8 +124,8 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], partition: Union
 
 def cocitation_modularity(adjacency, partition, resolution: float = 1) -> float:
     """
-    Compute the modularity of a node partition on the normalized cocitation graph
-    associated to a network without explicit computation of the cocitation graph.
+    Compute the modularity of a node partition on the normalized cocitation adjacency
+    associated to a network without explicit computation of the cocitation adjacency.
 
     :math:`Q = \\sum_{ij}(\\dfrac{(AF^{-1}A^T)_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})\\delta_{ij}`
 
@@ -134,14 +134,14 @@ def cocitation_modularity(adjacency, partition, resolution: float = 1) -> float:
     partition: dict or np.ndarray
        The partition of the nodes. The keys of the dictionary correspond to the nodes and the values to the communities.
     adjacency: scipy.csr_matrix or np.ndarray
-        The adjacency matrix of the graph (sparse or dense).
+        The adjacency matrix of the adjacency (sparse or dense).
     resolution: float (default=1.)
         The resolution parameter in the modularity function.
 
     Returns
     -------
     modularity: float
-       The modularity on the normalized cocitation graph.
+       The modularity on the normalized cocitation adjacency.
     """
 
     if type(adjacency) == sparse.csr_matrix:

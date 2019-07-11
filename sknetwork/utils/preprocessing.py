@@ -14,7 +14,7 @@ from typing import Union
 
 
 def is_connected(adjacency: sparse.csr_matrix) -> bool:
-    """Check whether a graph is weakly connected. Bipartite graphs are treated as undirected ones.
+    """Check whether a adjacency is weakly connected. Bipartite graphs are treated as undirected ones.
 
     Parameters
     ----------
@@ -32,21 +32,21 @@ def is_connected(adjacency: sparse.csr_matrix) -> bool:
 
 def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], return_labels: bool = False):
     """
-    Extract largest connected component of a graph. Bipartite graphs are treated as undirected ones.
+    Extract largest connected component of a adjacency. Bipartite graphs are treated as undirected ones.
 
     Parameters
     ----------
     adjacency
-        Adjacency or biadjacency matrix of the graph.
+        Adjacency or biadjacency matrix of the adjacency.
     return_labels: bool
-        Whether to return the indices of the new nodes in the original graph.
+        Whether to return the indices of the new nodes in the original adjacency.
 
     Returns
     -------
     new_adjacency: sparse.csr_matrix
         Adjacency or biadjacency matrix of the largest connected component.
     indices: array or tuple of array
-        Indices of the nodes in the original graph. For bipartite graphes, ``indices[0]`` corresponds to the lines and
+        Indices of the nodes in the original adjacency. For biadjacency graphes, ``indices[0]`` corresponds to the lines and
         ``indices[1]`` to the columns.
 
     """

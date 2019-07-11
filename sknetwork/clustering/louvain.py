@@ -43,7 +43,7 @@ class AggregateGraph:
     Parameters
     ----------
     adjacency:
-        Adjacency matrix of the graph.
+        Adjacency matrix of the adjacency.
     weights:
         Distribution of node weights (sums to 1), used in the second term of modularity.
 
@@ -81,7 +81,7 @@ class AggregateGraph:
 
         Returns
         -------
-        The aggregated graph.
+        The aggregated adjacency.
         """
         if membership.shape[0] != self.n_nodes:
             raise ValueError('The size of the partition must match the number of nodes.')
@@ -92,7 +92,7 @@ class AggregateGraph:
             if feat_membership.shape[0] != self.n_features:
                 raise ValueError('The number of feature labels must match the number of columns.')
             if self.feat_probs is None:
-                raise ValueError('This graph does not have a feat_probs attribute.')
+                raise ValueError('This adjacency does not have a feat_probs attribute.')
             elif type(feat_membership) == np.ndarray:
                 feat_membership = membership_matrix(feat_membership)
 
@@ -257,12 +257,12 @@ class GreedyModularity(Optimizer):
 
     def fit(self, graph: AggregateGraph):
         """
-        Iterates over the nodes of the graph and moves them to the cluster of highest increase among their neighbors.
+        Iterates over the nodes of the adjacency and moves them to the cluster of highest increase among their neighbors.
 
         Parameters
         ----------
         graph:
-            The graph to cluster.
+            The adjacency to cluster.
 
         Returns
         -------
@@ -356,7 +356,7 @@ class GreedyModularity(Optimizer):
 
 class Louvain(Algorithm):
     """
-    Louvain algorithm for graph clustering in Python (default) and Numba.
+    Louvain algorithm for adjacency clustering in Python (default) and Numba.
 
     Seeks the best partition of the nodes with respect to modularity.
 
@@ -408,7 +408,7 @@ class Louvain(Algorithm):
     iteration_count_: int
         Total number of aggregations performed.
     aggregate_graph_: sparse.csr_matrix
-        Aggregated graph at the end of the algorithm.
+        Aggregated adjacency at the end of the algorithm.
 
     Example
     -------
@@ -465,7 +465,7 @@ shuffle_nodes=False, verbose=False)
         Parameters
         ----------
         adjacency :
-            Adjacency matrix of the graph to cluster.
+            Adjacency matrix of the adjacency to cluster.
         weights :
             Probabilities for node sampling in the null model. ``'degree'``, ``'uniform'`` or custom weights.
         feature_weights :

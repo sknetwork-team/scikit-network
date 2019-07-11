@@ -6,7 +6,7 @@ Created on Nov 6 2018
 Authors:
 Nathan De Lara <ndelara@enst.fr>
 
-Quality metrics for graph embeddings
+Quality metrics for adjacency embeddings
 """
 
 import numpy as np
@@ -24,7 +24,7 @@ def linear_fit(adjacency: Union[sparse.csr_matrix, np.ndarray], embedding: np.nd
     Parameters
     ----------
     adjacency:
-        Adjacency matrix of the graph.
+        Adjacency matrix of the adjacency.
     embedding:
         Two dimensional array, line i represents the embedding of node i.
     order:
@@ -64,8 +64,8 @@ def linear_fit(adjacency: Union[sparse.csr_matrix, np.ndarray], embedding: np.nd
 def dot_modularity(adjacency, embedding: np.ndarray, features=None, resolution=1., weights='degree',
                    return_all: bool=False):
     """
-    Difference of the weighted average dot product between embeddings of pairs of neighbors in the graph
-    (fit term) and pairs of nodes in the graph (diversity term).
+    Difference of the weighted average dot product between embeddings of pairs of neighbors in the adjacency
+    (fit term) and pairs of nodes in the adjacency (diversity term).
 
     :math:`Q = \\sum_{ij}(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})x_i^Tx_j`
 
@@ -75,11 +75,11 @@ def dot_modularity(adjacency, embedding: np.ndarray, features=None, resolution=1
     Parameters
     ----------
     adjacency: sparse.csr_matrix or np.ndarray
-        the adjacency matrix of the graph
+        the adjacency matrix of the adjacency
     embedding: np.ndarray
         the embedding to evaluate, embedding[i] must represent the embedding of node i
     features: None or np.ndarray
-        For bipartite graphs, features should be the embedding of the second part
+        For biadjacency graphs, features should be the embedding of the second part
     resolution: float
         scaling for first-order approximation
     weights: ``'degree'`` or ``'uniform'``
@@ -129,12 +129,12 @@ def hscore(adjacency, embedding: np.ndarray, order='second', return_all: bool=Fa
     Parameters
     ----------
     adjacency: sparse.csr_matrix or np.ndarray
-        the adjacency matrix of the graph
+        the adjacency matrix of the adjacency
     embedding: np.ndarray
         the embedding to evaluate, embedding[i] must represent the embedding of node i
     order: \'first\' or \'second\'.
         The order of the node similarity metric to use. First-order corresponds to edges weights while second-order
-        corresponds to the weights of the edges in the normalized cocitation graph.
+        corresponds to the weights of the edges in the normalized cocitation adjacency.
     return_all: bool, default = ``False``
         whether to return (fit, diversity) or hmean(fit, diversity)
 

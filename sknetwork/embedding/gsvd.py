@@ -43,9 +43,9 @@ class GSVD(Algorithm):
     Example
     -------
     >>> from sknetwork.toy_graphs import movie_actor_graph
-    >>> graph = movie_actor_graph()
+    >>> adjacency = movie_actor_graph()
     >>> gsvd = GSVD(embedding_dimension=2)
-    >>> gsvd.fit(graph)
+    >>> gsvd.fit(adjacency)
     GSVD(embedding_dimension=2, weights='degree', regularization=0.01, energy_scaling=True, solver=LanczosSVD())
     >>> gsvd.embedding_.shape
     (15, 2)
@@ -79,16 +79,16 @@ class GSVD(Algorithm):
 
         Parameters
         ----------
-        adjacency: array-like, shape = (n, m)
-            Adjacency matrix, where n = m is the number of nodes for a standard directed or undirected graph,
-            n is the cardinal of V1 and m is the cardinal of V2 for a bipartite graph.
+        adjacency: array-like, shape = (n, p)
+            Adjacency matrix, where n = p is the number of nodes for a standard directed or undirected adjacency,
+            n, p are the number of nodes in each part for a biadjacency adjacency.
 
         Returns
         -------
         self: :class:`GSVD`
         """
         adjacency = check_format(adjacency)
-        n_nodes, m_nodes = adjacency.shape
+        n, p = adjacency.shape
 
         if self.solver == 'auto':
             solver = auto_solver(adjacency.nnz)
@@ -98,26 +98,28 @@ class GSVD(Algorithm):
                 self.solver: SVDSolver = HalkoSVD()
 
         if self.regularization:
-            adjacency = SparseLR(adjacency, [(self.regularization * np.ones(n_nodes), np.ones(m_nodes))])
-        total_weight = adjacency.dot(np.ones(m_nodes)).sum()
+            adjacency = SparseLR(adjacency, [(self.regularization * np.ones(n), np.ones(p))])
+        total_weight = adjacency.dot(np.ones(p)).sum()
 
         w_samp = check_weights(self.weights, adjacency)
         w_feat = check_weights(self.weights, adjacency.T)
 
         # pseudo inverse square-root out-degree matrix
-        diag_samp = sparse.diags(np.sqrt(w_samp), shape=(n_nodes, n_nodes), format='csr')
+        diag_samp = sparse.diags(np.sqrt(w_samp), shape=(n, n), format='csr')
         diag_samp.data = 1 / diag_samp.data
         # pseudo inverse square-root in-degree matrix
-        diag_feat = sparse.diags(np.sqrt(w_feat), shape=(m_nodes, m_nodes), format='csr')
+        diag_feat = sparse.diags(np.sqrt(w_feat), shape=(p, p), format='csr')
         diag_feat.data = 1 / diag_feat.data
 
         normalized_adj = safe_sparse_dot(diag_samp, safe_sparse_dot(adjacency, diag_feat))
 
-        self.solver.fit(normalized_adj, self.embedding_dimension)
+        # svd
+        n_components = min(self.embedding_dimension + 1, min(n, p) - 1)
+        self.solver.fit(normalized_adj, n_components)
 
-        self.singular_values_ = self.solver.singular_values_
-        self.embedding_ = np.sqrt(total_weight) * diag_samp.dot(self.solver.left_singular_vectors_)
-        self.features_ = np.sqrt(total_weight) * diag_feat.dot(self.solver.right_singular_vectors_)
+        self.singular_values_ = self.solver.singular_values_[1:]
+        self.embedding_ = np.sqrt(total_weight) * diag_samp.dot(self.solver.left_singular_vectors_[:, 1:])
+        self.features_ = np.sqrt(total_weight) * diag_feat.dot(self.solver.right_singular_vectors_[:, 1:])
 
         # rescale to get barycenter property
         self.embedding_ *= self.singular_values_

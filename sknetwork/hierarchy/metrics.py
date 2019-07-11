@@ -16,13 +16,13 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
      Parameters
      ----------
      adjacency :
-        Adjacency matrix of the graph.
+        Adjacency matrix of the adjacency.
      dendrogram :
         Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
      weights :
         Vector of node weights. Default = 'uniform', weight 1 for each node.
      normalized:
-        If true, normalized by the number of ndoes of the graph.
+        If true, normalized by the number of ndoes of the adjacency.
 
      Returns
      -------
@@ -41,9 +41,9 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
     if not is_square(adjacency):
         raise ValueError('The adjacency matrix must be square.')
     if adjacency.shape[0] <= 1:
-        raise ValueError('The graph must contain at least two nodes.')
+        raise ValueError('The adjacency must contain at least two nodes.')
     if not is_symmetric(adjacency):
-        raise ValueError('The graph must be undirected. Please fit a symmetric adjacency matrix.')
+        raise ValueError('The adjacency must be undirected. Please fit a symmetric adjacency matrix.')
 
     node_probs = check_probs(weights, adjacency, positive_entries=True)
 
@@ -81,13 +81,13 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
      Parameters
      ----------
      adjacency :
-        Adjacency matrix of the graph.
+        Adjacency matrix of the adjacency.
      dendrogram :
         Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
      weights :
-        Vector of node weights. Default = 'degree', weight of each node in the graph.
+        Vector of node weights. Default = 'degree', weight of each node in the adjacency.
      normalized:
-        If true, normalized by the mutual information of the graph.
+        If true, normalized by the mutual information of the adjacency.
 
      Returns
      -------
@@ -106,9 +106,9 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     if not is_square(adjacency):
         raise ValueError('The adjacency matrix must be square.')
     if adjacency.shape[0] <= 1:
-        raise ValueError('The graph must contain at least two nodes.')
+        raise ValueError('The adjacency must contain at least two nodes.')
     if not is_symmetric(adjacency):
-        raise ValueError('The graph must be undirected. Please fit a symmetric adjacency matrix.')
+        raise ValueError('The adjacency must be undirected. Please fit a symmetric adjacency matrix.')
 
     node_probs = check_probs(weights, adjacency, positive_entries=True)
 

@@ -54,7 +54,7 @@ class PageRank(Algorithm):
     Parameters
     ----------
     damping_factor: float
-        Probability to jump according to the graph transition matrix in the random walk.
+        Probability to jump according to the adjacency transition matrix in the random walk.
     method: str
         Specifies the used method. Must be 'diter' or 'spectral'
     n_iter: int
@@ -112,7 +112,7 @@ class PageRank(Algorithm):
         Parameters
         ----------
         adjacency
-            Adjacency matrix of the graph.
+            Adjacency matrix of the adjacency.
         personalization
             If ``None``, the uniform probability distribution over the nodes is used.
             Otherwise, the user must provide a valid probability vector.

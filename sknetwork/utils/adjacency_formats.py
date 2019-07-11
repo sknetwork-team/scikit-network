@@ -14,7 +14,7 @@ from typing import Union
 def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
                         weight_sum: bool = True) -> Union[sparse.csr_matrix, SparseLR]:
     """
-    Returns the adjacency matrix of the undirected graph.
+    Returns the adjacency matrix of the undirected adjacency.
 
     The entry :math:`i,j` of the new matrix becomes either:
 
@@ -55,18 +55,18 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
 
 def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union[sparse.csr_matrix, SparseLR]:
     """
-    Returns the adjacency matrix of a bipartite graph seen as a directed graph (with edges from one part to the other).
+    Returns the adjacency matrix of a biadjacency adjacency seen as a directed adjacency (with edges from one part to the other).
 
     The returned adjacency matrix is:
 
     :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}`
 
-    where :math:`B` is the biadjacency matrix of the bipartite graph.
+    where :math:`B` is the biadjacency matrix of the biadjacency adjacency.
 
     Parameters
     ----------
     biadjacency:
-        Biadjacency matrix of the bipartite graph.
+        Biadjacency matrix of the biadjacency adjacency.
 
     Returns
     -------
@@ -85,18 +85,18 @@ def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union
 
 def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union[sparse.csr_matrix, SparseLR]:
     """
-    Returns the adjacency matrix of a bipartite graph defined by its biadjacency matrix.
+    Returns the adjacency matrix of a biadjacency adjacency defined by its biadjacency matrix.
 
     The returned adjacency matrix is:
 
     :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`
 
-    where :math:`B` is the biadjacency matrix of the bipartite graph.
+    where :math:`B` is the biadjacency matrix of the biadjacency adjacency.
 
     Parameters
     ----------
     biadjacency:
-        Biadjacency matrix of the bipartite graph.
+        Biadjacency matrix of the biadjacency adjacency.
 
     Returns
     -------

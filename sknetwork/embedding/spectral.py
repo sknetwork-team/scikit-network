@@ -19,7 +19,7 @@ from typing import Union
 
 
 class Spectral(Algorithm):
-    """Weighted spectral embedding of a graph.
+    """Weighted spectral embedding of a adjacency.
 
         Parameters
         ----------
@@ -54,9 +54,9 @@ class Spectral(Algorithm):
         Example
         -------
         >>> from sknetwork.toy_graphs import karate_club_graph
-        >>> graph = karate_club_graph()
+        >>> adjacency = karate_club_graph()
         >>> spectral = Spectral(embedding_dimension=2)
-        >>> spectral.fit(graph)
+        >>> spectral.fit(adjacency)
         Spectral(embedding_dimension=2, node_weights='degree', regularization=0.01, energy_scaling=True,\
  force_biadjacency=False, solver=LanczosEig(which='SM'))
         >>> spectral.embedding_.shape
@@ -97,7 +97,7 @@ class Spectral(Algorithm):
         Parameters
         ----------
         adjacency : array-like, shape = (n, n)
-              Adjacency matrix of the graph
+              Adjacency matrix of the adjacency
 
         Returns
         -------
@@ -105,7 +105,7 @@ class Spectral(Algorithm):
         """
 
         adjacency = check_format(adjacency)
-        n_nodes, m_nodes = adjacency.shape
+        n, p = adjacency.shape
 
         if self.solver == 'auto':
             solver = auto_solver(adjacency.nnz)
@@ -117,13 +117,13 @@ class Spectral(Algorithm):
         if self.regularization is None and not is_connected(adjacency):
             if self.energy_scaling:
                 raise ValueError('energy_scaling without low-rank regularization'
-                                 'is not compatible with a disconnected graph')
+                                 'is not compatible with a disconnected adjacency')
             else:
-                raise Warning("The graph is not connected and low-rank regularization is not active."
+                raise Warning("The adjacency is not connected and low-rank regularization is not active."
                               "This can cause errors in the computation of the embedding.")
         if self.regularization:
-            adjacency = SparseLR(adjacency, [(self.regularization * np.ones(n_nodes), np.ones(m_nodes))])
-        if m_nodes != n_nodes or self.force_biadjacency:
+            adjacency = SparseLR(adjacency, [(self.regularization * np.ones(n), np.ones(p))])
+        if p != n or self.force_biadjacency:
             adjacency = bipartite2undirected(adjacency)
 
         # builds standard laplacian
@@ -139,7 +139,7 @@ class Spectral(Algorithm):
         laplacian = safe_sparse_dot(weight_matrix, safe_sparse_dot(laplacian, weight_matrix))
 
         # spectral decomposition
-        n_components = min(self.embedding_dimension + 1, min(n_nodes, m_nodes))
+        n_components = min(self.embedding_dimension + 1, min(n, p))
         self.solver.fit(laplacian, n_components)
 
         self.eigenvalues_ = self.solver.eigenvalues_[1:]
@@ -148,8 +148,8 @@ class Spectral(Algorithm):
         if self.energy_scaling and self.node_weights == 'degree':
             self.embedding_ /= np.sqrt(self.eigenvalues_)
 
-        if self.embedding_.shape[0] > n_nodes:
-            self.features_ = self.embedding_[n_nodes:]
-            self.embedding_ = self.embedding_[:n_nodes]
+        if self.embedding_.shape[0] > n:
+            self.features_ = self.embedding_[n:]
+            self.embedding_ = self.embedding_[:n]
 
         return self

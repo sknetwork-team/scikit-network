@@ -94,7 +94,7 @@ def local_updates(nodes, node_probs, indptr, indices, data, labels, source_clust
 
 class BiLouvain(Algorithm):
     """
-    BiLouvain algorithm for the co-clustering of bipartite graphs in Python (default) and Numba.
+    BiLouvain algorithm for the co-clustering of biadjacency graphs in Python (default) and Numba.
 
     Seeks the best partition of the nodes with respect to bimodularity.
 
@@ -111,8 +111,8 @@ class BiLouvain(Algorithm):
     :math:`\\gamma \\ge 0` is the resolution parameter.\n
 
 
-    The ```force_undirected``` parameter of the fit method forces the algorithm to consider the graph as undirected,
-    without considering its bipartite structure.
+    The ```force_undirected``` parameter of the fit method forces the algorithm to consider the adjacency as undirected,
+    without considering its biadjacency structure.
 
     Parameters
     ----------
@@ -140,7 +140,7 @@ class BiLouvain(Algorithm):
     iteration_count_: int
         Total number of aggregations performed.
     aggregate_graph_: sparse.csr_matrix
-        Aggregated graph at the end of the algorithm.
+        Aggregated adjacency at the end of the algorithm.
     score_: float
         objective function value after fit
     n_clusters_: int
@@ -172,13 +172,13 @@ class BiLouvain(Algorithm):
         Parameters
         ----------
         biadjacency:
-            Biadjacency matrix of the graph to cluster.
+            Biadjacency matrix of the adjacency to cluster.
         weights:
             Probabilities for the samples in the null model. ``'degree'``, ``'uniform'`` or custom weights.
         feature_weights:
             Probabilities for the features in the null model. ``'degree'``, ``'uniform'`` or custom weights.
         force_undirected:
-            If True, maximizes the modularity of the undirected graph instead of the bimodularity.
+            If True, maximizes the modularity of the undirected adjacency instead of the bimodularity.
 
         Returns
         -------
