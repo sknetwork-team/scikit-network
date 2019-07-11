@@ -252,7 +252,7 @@ def rock_paper_scissors_graph():
     return sparse.csr_matrix(np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]]))
 
 
-def star_wars_villains_graph(return_labels=False):
+def star_wars_villains_graph(return_labels: bool = False):
     """
     Bipartite adjacency connecting some Star Wars villains to the movies in which they appear.\n
     7 nodes (4 villains, 3 movies), 8 edges
@@ -279,7 +279,7 @@ def star_wars_villains_graph(return_labels=False):
         return biadjacency
 
 
-def movie_actor_graph(return_labels=False):
+def movie_actor_graph(return_labels: bool = False):
     """
     Bipartite adjacency connecting movies to some actors starring in them.\n
     31 nodes (15 movies, 16 actors), 41 edges
@@ -292,7 +292,11 @@ def movie_actor_graph(return_labels=False):
     Returns
     -------
     biadjacency: sparse.csr_matrix
-        Biadjacency matrix of the adjacency.
+        Biadjacency matrix of the graph.
+    col_labels: dict
+        Labels of rows (movies)
+    col_labels: dict
+        Labels of columns (actors)
     """
     edges = {
         0: [0, 1, 2],
@@ -356,3 +360,46 @@ def movie_actor_graph(return_labels=False):
         return biadjacency, row_labels, col_labels
     else:
         return biadjacency
+
+
+def painters_graph(return_labels: bool = False):
+    """
+    Directed graph of top painters with links on Wikipedia.
+
+    Parameters
+    ----------
+    return_labels: bool
+        whether to return the names of the nodes as a dictionary.
+
+    Returns
+    -------
+    adjacency: sparse.csr_matrix
+        Adjacency matrix of the graph.
+    labels: dictionary
+        Names of painters.
+    """
+    indptr = np.array([0,  2,  4,  5, 10, 13, 17, 19, 25, 32, 34, 39, 44, 48, 50])
+    indices = np.array([3, 10, 3, 12, 9, 0, 1, 7, 11, 12, 2, 5, 9, 2, 4, 8, 9,
+                        0, 13, 1, 2, 3, 8, 11, 12, 0, 1, 4, 5, 7, 10, 11, 2, 4,
+                        0, 3, 8, 11, 12, 0, 1, 3, 10, 12, 1, 3, 4, 7, 6, 8])
+    data = np.ones(50, dtype=int)
+    adjacency = sparse.csr_matrix((data, indices, indptr))
+    if return_labels:
+        labels = {
+                 0: 'Pablo Picasso',
+                 1: 'Claude Monet',
+                 2: 'Michelangelo',
+                 3: 'Edouard Manet',
+                 4: 'Peter Paul Rubens',
+                 5: 'Rembrandt',
+                 6: 'Gustav Klimt',
+                 7: 'Edgar Degas',
+                 8: 'Vincent van Gogh',
+                 9: 'Leonardo da Vinci',
+                 10: 'Henri Matisse',
+                 11: 'Paul Cezanne',
+                 12: 'Pierre-Auguste Renoir',
+                 13: 'Egon Schiele'}
+        return adjacency, labels
+    else:
+        return adjacency
