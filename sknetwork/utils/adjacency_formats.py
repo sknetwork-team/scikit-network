@@ -24,7 +24,7 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
 
     :math:`\\max(A,A^T)`
 
-    If the initial adjacency matrix :math:`A` is binary, bidirectional edges have eight weight 2
+    If the initial adjacency matrix :math:`A` is binary, bidirectional edges have weight 2
     (first method, default) or 1 (second method).
 
     Parameters

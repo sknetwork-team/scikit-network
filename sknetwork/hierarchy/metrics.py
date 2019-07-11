@@ -22,7 +22,7 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
      weights :
         Vector of node weights. Default = 'uniform', weight 1 for each node.
      normalized:
-        If true, normalized by the number of ndoes of the adjacency.
+        If true, normalized by the number of nodes of the adjacency.
 
      Returns
      -------
