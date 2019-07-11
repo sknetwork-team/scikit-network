@@ -16,13 +16,13 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
     """
     Returns the adjacency matrix of the undirected adjacency.
 
-    The entry :math:`i,j` of the new matrix becomes either:
+    The new matrix becomes either:
 
-    :math:`A_{ij} + A_{ji}` (default)
+    :math:`A+A^T` (default)
 
     or
 
-    :math:`\\max(A_{ij},A_{ji})`
+    :math:`\\max(A,A^T)`
 
     If the initial adjacency matrix :math:`A` is binary, bidirectional edges have eight weight 2
     (first method, default) or 1 (second method).
