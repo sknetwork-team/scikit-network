@@ -95,7 +95,7 @@ todo_include_todos = False
 # a list of builtin themes.
 #
 html_theme = 'sphinx_rtd_theme'
-html_logo = '../images/logo_sknetwork.png'
+html_logo = '../images/logo_sknetwork_long.png'
 html_theme_options = {
     'logo_only': True
 }
