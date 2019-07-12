@@ -46,6 +46,8 @@ class AggregateGraph:
         Adjacency matrix of the adjacency.
     weights:
         Distribution of node weights (sums to 1), used in the second term of modularity.
+    in_weights:
+        Distribution of in-weights (sums to 1), used in the second term of modularity for directed graphs.
 
     Attributes
     ----------
@@ -55,17 +57,19 @@ class AggregateGraph:
         Normalized adjacency matrix (sums to 1).
     node_probs: np.ndarray
         Distribution of node weights (sums to 1).
+    in_probs:  np.ndarray
+        Distribution of node in-weights (sums to 1).
     """
 
     def __init__(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
-                 feature_weights: Union[None, 'str', np.ndarray] = 'degree'):
+                 in_weights: Union[None, 'str', np.ndarray] = 'degree'):
         self.n_nodes, self.n_features = adjacency.shape
         self.norm_adjacency = adjacency / adjacency.data.sum()
         self.node_probs = check_probs(weights, adjacency)
-        if feature_weights is not None:
-            self.feat_probs = check_probs(feature_weights, adjacency.T)
+        if in_weights is not None:
+            self.in_probs = check_probs(in_weights, adjacency.T)
         else:
-            self.feat_probs = None
+            self.in_probs = None
 
     def aggregate(self, membership: Union[sparse.csr_matrix, np.ndarray],
                   feat_membership: Union[None, sparse.csr_matrix, np.ndarray] = None):
@@ -91,18 +95,18 @@ class AggregateGraph:
         if feat_membership is not None:
             if feat_membership.shape[0] != self.n_features:
                 raise ValueError('The number of feature labels must match the number of columns.')
-            if self.feat_probs is None:
-                raise ValueError('This adjacency does not have a feat_probs attribute.')
+            if self.in_probs is None:
+                raise ValueError('This adjacency does not have a in_probs attribute.')
             elif type(feat_membership) == np.ndarray:
                 feat_membership = membership_matrix(feat_membership)
 
             self.norm_adjacency = membership.T.dot(self.norm_adjacency.dot(feat_membership)).tocsr()
-            self.feat_probs = np.array(feat_membership.T.dot(self.feat_probs).T)
+            self.in_probs = np.array(feat_membership.T.dot(self.in_probs).T)
 
         else:
             self.norm_adjacency = membership.T.dot(self.norm_adjacency.dot(membership)).tocsr()
-            if self.feat_probs is not None:
-                self.feat_probs = np.array(membership.T.dot(self.feat_probs).T)
+            if self.in_probs is not None:
+                self.in_probs = np.array(membership.T.dot(self.in_probs).T)
 
         self.node_probs = np.array(membership.T.dot(self.node_probs).T)
         self.n_nodes, self.n_features = self.norm_adjacency.shape
@@ -270,8 +274,8 @@ class GreedyModularity(Optimizer):
         """
 
         ou_node_probs = graph.node_probs
-        if graph.feat_probs is not None:
-            in_node_probs = graph.feat_probs
+        if graph.in_probs is not None:
+            in_node_probs = graph.in_probs
         else:
             in_node_probs = ou_node_probs
 

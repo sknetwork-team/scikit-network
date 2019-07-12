@@ -187,11 +187,16 @@ class BiLouvain(Algorithm):
         biadjacency = check_format(biadjacency)
         n_samp, n_feat = biadjacency.shape
 
-        samp_weights = np.hstack((check_probs(weights, biadjacency), np.zeros(n_feat)))
-        feat_weights = np.hstack((np.zeros(n_samp), check_probs(feature_weights, biadjacency.T)))
         if force_undirected:
-            graph = AggregateGraph(bipartite2undirected(biadjacency), samp_weights, feat_weights)
+            adjacency = bipartite2undirected(biadjacency)
+            samp_weights = check_probs(weights, biadjacency)
+            feat_weights = check_probs(feature_weights, biadjacency.T)
+            weights = np.hstack((samp_weights, feat_weights))
+            weights = check_probs(weights, adjacency)
+            graph = AggregateGraph(adjacency, weights)
         else:
+            samp_weights = np.hstack((check_probs(weights, biadjacency), np.zeros(n_feat)))
+            feat_weights = np.hstack((np.zeros(n_samp), check_probs(feature_weights, biadjacency.T)))
             graph = AggregateGraph(bipartite2directed(biadjacency), samp_weights, feat_weights)
 
         iteration_count: int = 0

@@ -72,19 +72,20 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], partition: Union
     membership = sparse.csr_matrix((data, (row, col)))
 
     fit = ((membership.multiply(norm_adj.dot(membership))).dot(np.ones(membership.shape[1]))).sum()
-    diversity = np.sum(membership.T.dot(in_probs) * membership.T.dot(out_probs))
+    diversity = membership.T.dot(in_probs).dot(membership.T.dot(out_probs))
     return float(fit - resolution * diversity)
 
 
 def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feature_labels: np.ndarray,
                  resolution: float = 1) -> float:
     """
-    Modularity for biadjacency graphs.
+    Modularity for bipartite graphs:
 
     :math:`Q = \\sum_{i=1}^n\\sum_{j=1}^p (\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{d_if_j}{w^2})\\delta_{c^d_i,c^f_j},`
 
     where
 
+    :math:`B` is the biadjacency matrix of the graph (shape :math:`n\\times p`),\n
     :math:`c^d_i` is the cluster of sample node `i` (rows of the biadjacency matrix),\n
     :math:`c^f_j` is the cluster of feature node `j` (columns of the biadjacency matrix),\n
     :math:`\\delta` is the Kronecker symbol,\n
