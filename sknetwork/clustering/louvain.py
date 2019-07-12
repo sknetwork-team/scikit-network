@@ -371,7 +371,7 @@ class Louvain(Algorithm):
     where
 
     :math:`c_i` is the cluster of node `i`,\n
-    :math:`\\delta` is the Kronecker symbol,\,
+    :math:`\\delta` is the Kronecker symbol,\n
     :math:`\\gamma \\ge 0` is the resolution parameter.
 
     Parameters
@@ -381,7 +381,7 @@ class Louvain(Algorithm):
         Requires a fit method.
         Requires `score\\_`  and `labels\\_` attributes.
 
-        If ``'default'``, , it will use a greedy bimodularity optimization algorithm: :class:`GreedyModularity`.
+        If ``'default'``, use greedy modularity optimization algorithm: :class:`GreedyModularity`.
     resolution:
         Resolution parameter.
     tol:

@@ -87,8 +87,8 @@ def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feat
 
     :math:`c^d_i` is the cluster of sample node `i` (rows of the biadjacency matrix),\n
     :math:`c^f_j` is the cluster of feature node `j` (columns of the biadjacency matrix),\n
-    :math:`\\delta` is the Kronecker symbol,
-    :math:`\\gamma \\ge 0` is the resolution parameter.\n
+    :math:`\\delta` is the Kronecker symbol,\n
+    :math:`\\gamma \\ge 0` is the resolution parameter.
 
 
     Parameters
@@ -130,10 +130,17 @@ def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feat
 
 def cocitation_modularity(adjacency, partition, resolution: float = 1) -> float:
     """
-    Compute the modularity of a node partition on the normalized cocitation adjacency
-    associated to a network without explicit computation of the cocitation adjacency.
+    Computes the modularity of a clustering on the normalized cocitation adjacency matrix.
+    Does not require the explicit computation of the normalized cocitation adjacency matrix.
 
-    :math:`Q = \\sum_{ij}(\\dfrac{(AF^{-1}A^T)_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})\\delta_{ij}`
+    :math:`Q = \\sum_{i,j=1}^n(\\dfrac{(AF^{-1}A^T)_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})\\delta_{c_i,c_j}`
+
+    where
+
+    :math:`AF^{-1}A^T` is the normalized cocitation adjacency matrix,\n
+    :math:`c_j` is the cluster of node `i`,\n
+    :math:`\\delta` is the Kronecker symbol,\n
+    :math:`\\gamma \\ge 0` is the resolution parameter.
 
     Parameters
     ----------
@@ -142,12 +149,12 @@ def cocitation_modularity(adjacency, partition, resolution: float = 1) -> float:
     adjacency: scipy.csr_matrix or np.ndarray
         The adjacency matrix of the adjacency (sparse or dense).
     resolution: float (default=1.)
-        The resolution parameter in the modularity function.
+        The resolution parameter.
 
     Returns
     -------
     modularity: float
-       The modularity on the normalized cocitation adjacency.
+       The modularity on the normalized cocitation adjacency matrix.
     """
 
     if type(adjacency) == sparse.csr_matrix:

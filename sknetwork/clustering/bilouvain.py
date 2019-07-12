@@ -107,12 +107,12 @@ class BiLouvain(Algorithm):
 
     :math:`c^d_i` is the cluster of sample node `i` (rows of the biadjacency matrix),\n
     :math:`c^f_j` is the cluster of feature node `j` (columns of the biadjacency matrix),\n
-    :math:`\\delta` is the Kronecker symbol,
-    :math:`\\gamma \\ge 0` is the resolution parameter.\n
+    :math:`\\delta` is the Kronecker symbol,\n
+    :math:`\\gamma \\ge 0` is the resolution parameter.
 
 
-    The ```force_undirected``` parameter of the fit method forces the algorithm to consider the adjacency as undirected,
-    without considering its biadjacency structure.
+    The `force_undirected` parameter of the :class:`fit` method forces the algorithm to consider the adjacency
+    as undirected, without considering its biadjacency structure.
 
     Parameters
     ----------
@@ -127,7 +127,7 @@ class BiLouvain(Algorithm):
         Maximum number of aggregations.
         A negative value is interpreted as no limit.
     engine: str
-        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, it will tests if numba is available.
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     verbose:
         Verbose mode.
 
