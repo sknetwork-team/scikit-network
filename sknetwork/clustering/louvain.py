@@ -461,7 +461,7 @@ shuffle_nodes=False, verbose=False)
         self.shuffle_nodes = shuffle_nodes
 
     def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
-            feature_weights: Union[None, str, np.ndarray] = None) -> 'Louvain':
+            feature_weights: Union[None, str, np.ndarray] = None, sorted_cluster: bool = True) -> 'Louvain':
         """
         Clustering using chosen Optimizer.
 
@@ -474,6 +474,8 @@ shuffle_nodes=False, verbose=False)
         feature_weights :
             Probabilities for feature sampling in the null model. ``'degree'``, ``'uniform'`` or custom weights,
             only useful for directed modularity optimization.
+        sorted_cluster :
+            If True, sort labels in decreasing order of cluster size.
 
         Returns
         -------
@@ -523,6 +525,7 @@ shuffle_nodes=False, verbose=False)
             reverse[nodes] = np.arange(nodes.size)
             self.labels_ = self.labels_[reverse]
         self.n_clusters_ = len(set(self.labels_))
-        self.labels_ = reindex_clusters(self.labels_)
+        if sorted_cluster:
+            self.labels_ = reindex_clusters(self.labels_)
         self.aggregate_graph_ = graph.norm_adjacency * adjacency.data.sum()
         return self
