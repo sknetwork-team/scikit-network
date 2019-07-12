@@ -257,7 +257,7 @@ class GreedyModularity(Optimizer):
 
     def fit(self, graph: AggregateGraph):
         """
-        Iterates over the nodes of the adjacency and moves them to the cluster of highest increase among their neighbors.
+        Local optimization of modularity.
 
         Parameters
         ----------
@@ -479,7 +479,7 @@ shuffle_nodes=False, verbose=False)
         adjacency = check_format(adjacency)
 
         if not is_square(adjacency):
-            raise TypeError('The adjacency matrix must be a square matrix. See Bilouvain for rectangular matrices.')
+            raise ValueError('The adjacency matrix must be a square matrix. See Bilouvain for rectangular matrices.')
 
         nodes = np.arange(adjacency.shape[0])
         if self.shuffle_nodes:
