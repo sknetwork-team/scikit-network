@@ -19,7 +19,8 @@ from typing import Union
 
 
 class Spectral(Algorithm):
-    """Weighted spectral embedding of a adjacency.
+    """
+    Weighted spectral embedding of a graph.
 
         Parameters
         ----------
@@ -64,7 +65,8 @@ class Spectral(Algorithm):
 
         References
         ----------
-        * Laplacian Eigenmaps for Dimensionality Reduction and Data Representation, M. Belkin, P. Niyogi
+        * Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
+        Neural computation.
         """
 
     def __init__(self, embedding_dimension: int = 2, normalized_laplacian=True,

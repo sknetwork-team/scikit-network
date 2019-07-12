@@ -14,12 +14,12 @@ from sknetwork import njit, types, TypedDict
 
 class AggregateGraph:
     """
-    A class of adjacency suitable for aggregation. Each node represents a cluster.
+    A class of graph suitable for aggregation. Each node represents a cluster.
 
     Parameters
     ----------
     adjacency :
-        Adjacency matrix of the adjacency.
+        Adjacency matrix of the graph.
     node_probs :
         Probability distribution of node weights.
 
@@ -61,7 +61,7 @@ class AggregateGraph:
         Returns
         -------
         self: :class:`AggregateGraph`
-            The aggregated adjacency (without self-loop).
+            The aggregate grate (without self-loop).
         """
         new_node = self.next_cluster
         self.graph[new_node] = {}
@@ -277,7 +277,7 @@ class Paris(Algorithm):
 
     The similarity between clusters i,j is :math:`\\dfrac{A_{ij}}{w_i w_j}` where
 
-    * :math:`A_{ij}` is the weight of edge i,j in the aggregate adjacency
+    * :math:`A_{ij}` is the weight of edge i,j in the aggregate graph
 
     * :math:`w_{i}` is the weight of cluster i
 
@@ -331,7 +331,7 @@ class Paris(Algorithm):
         Parameters
         ----------
         adjacency :
-            Adjacency matrix of the adjacency to cluster.
+            Adjacency matrix of the graph to cluster.
         weights :
             Node weights used in the linkage.
         reorder :
@@ -346,9 +346,9 @@ class Paris(Algorithm):
         if not is_square(adjacency):
             raise ValueError('The adjacency matrix must be square.')
         if adjacency.shape[0] <= 1:
-            raise ValueError('The adjacency must contain at least two nodes.')
+            raise ValueError('The graph must contain at least two nodes.')
         if not is_symmetric(adjacency):
-            raise ValueError('The adjacency must be undirected. Please fit a symmetric adjacency matrix.')
+            raise ValueError('The graph must be undirected. Please fit a symmetric adjacency matrix.')
 
         node_probs = check_probs(weights, adjacency, positive_entries=True)
 
