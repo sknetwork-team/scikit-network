@@ -5,7 +5,7 @@ Welcome to scikit-network's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Installation & Reference:
+   :caption: Installation & Reference
 
    installation
    reference/index
@@ -13,17 +13,19 @@ Welcome to scikit-network's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Tutorials:
+   :caption: Tutorials
 
    tutorials/clustering_Louvain
+   tutorials/hierarchical_clustering
    tutorials/pagerank
 
 
 .. toctree::
    :maxdepth: 1
-   :caption: About:
+   :caption: About
 
    contributing
    authors
    history
    genindex
+

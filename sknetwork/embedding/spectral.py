@@ -115,9 +115,9 @@ class Spectral(Algorithm):
         if self.regularization is None and not is_connected(adjacency):
             if self.energy_scaling:
                 raise ValueError('energy_scaling without low-rank regularization'
-                                 'is not compatible with a disconnected adjacency')
+                                 'is not compatible with a disconnected graph.')
             else:
-                raise Warning("The adjacency is not connected and low-rank regularization is not active."
+                raise Warning("The graph is not connected and low-rank regularization is not active."
                               "This can cause errors in the computation of the embedding.")
         if self.regularization:
             adjacency = SparseLR(adjacency, [(self.regularization * np.ones(n), np.ones(p))])
