@@ -1,6 +1,6 @@
 .. _utils:
 
-Tools
+Utils
 *****
 
 .. currentmodule:: sknetwork
