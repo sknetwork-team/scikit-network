@@ -10,6 +10,72 @@ from scipy import sparse
 from typing import Union
 
 
+def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], partition: Union[dict, np.ndarray],
+               resolution: float = 1) -> float:
+    """
+    Compute the modularity of a clustering (node partition).
+
+    The modularity of a clustering is
+
+    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2}\\big)\\delta_{c_i,c_j}`
+    for undirected graphs
+
+    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d^+_id^-_j}{w^2}\\big)\\delta_{c_i,c_j}`
+    for directed graphs
+
+    where
+
+    :math:`c_i` is the cluster of node `i`,\n
+    :math:`\\delta` is the Kronecker symbol,\n
+    :math:`\\gamma \\ge 0` is the resolution parameter.
+
+    Parameters
+    ----------
+    partition : dict or np.ndarray
+       The partition of the nodes. The keys of the dictionary correspond to the nodes and the values to the labels.
+    adjacency : scipy.csr_matrix or np.ndarray
+        The adjacency matrix of the graph (sparse or dense).
+    resolution : float, optional (default=1.)
+        The resolution parameter.
+
+    Returns
+    -------
+    modularity : float
+        The modularity.
+    """
+
+    if type(adjacency) == sparse.csr_matrix:
+        adj_matrix = adjacency
+    elif sparse.isspmatrix(adjacency) or type(adjacency) == np.ndarray:
+        adj_matrix = sparse.csr_matrix(adjacency)
+    else:
+        raise TypeError(
+            "The argument must be a NumPy array or a SciPy Sparse matrix.")
+
+    n, p = adj_matrix.shape
+    if n != p:
+        raise ValueError('The adjacency must be a square matrix.')
+    norm_adj = adj_matrix / adj_matrix.data.sum()
+    out_probs = norm_adj.dot(np.ones(n))
+    in_probs = norm_adj.T.dot(np.ones(n))
+
+    if type(partition) == dict:
+        labels = np.array([partition[i] for i in range(n)])
+    elif type(partition) == np.ndarray:
+        labels = partition.copy()
+    else:
+        raise TypeError('The partition must be a dictionary or a NumPy array.')
+
+    row = np.arange(n)
+    col = labels
+    data = np.ones(n)
+    membership = sparse.csr_matrix((data, (row, col)))
+
+    fit = ((membership.multiply(norm_adj.dot(membership))).dot(np.ones(membership.shape[1]))).sum()
+    diversity = np.sum(membership.T.dot(in_probs) * membership.T.dot(out_probs))
+    return float(fit - resolution * diversity)
+
+
 def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feature_labels: np.ndarray,
                  resolution: float = 1) -> float:
     """
@@ -60,66 +126,6 @@ def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feat
     div: float = (sample_membership.T.dot(sample_weights)).dot(feature_membership.T.dot(features_weights))
 
     return fit - resolution * div
-
-
-def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], partition: Union[dict, np.ndarray],
-               resolution: float = 1, directed: bool = False) -> float:
-    """
-    Compute the modularity of a node partition.
-
-    :math:`Q = \\sum_{ij}(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})\\delta_{ij}` for undirected graphs,
-
-    :math:`Q = \\sum_{ij}(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_if_j}{w^2})\\delta_{ij}` for directed graphs.
-
-    Parameters
-    ----------
-    partition : dict or np.ndarray
-       The partition of the nodes. The keys of the dictionary correspond to the nodes and the values to the communities.
-    adjacency : scipy.csr_matrix or np.ndarray
-        The adjacency matrix of the adjacency (sparse or dense).
-    resolution : float, optional (default=1.)
-        The resolution parameter in the modularity function.
-    directed: bool
-        Whether to compute the modularity for directed graphs or not.
-
-    Returns
-    -------
-    modularity : float
-        The modularity.
-    """
-
-    if type(adjacency) == sparse.csr_matrix:
-        adj_matrix = adjacency
-    elif sparse.isspmatrix(adjacency) or type(adjacency) == np.ndarray:
-        adj_matrix = sparse.csr_matrix(adjacency)
-    else:
-        raise TypeError(
-            "The argument must be a NumPy array or a SciPy Sparse matrix.")
-
-    n_nodes, m_nodes = adj_matrix.shape
-    if n_nodes != m_nodes:
-        raise ValueError('The adjacency must be a square matrix.')
-    norm_adj = adj_matrix / adj_matrix.data.sum()
-    probs = norm_adj.dot(np.ones(n_nodes))
-
-    if type(partition) == dict:
-        labels = np.array([partition[i] for i in range(n_nodes)])
-    elif type(partition) == np.ndarray:
-        labels = partition.copy()
-    else:
-        raise TypeError('The partition must be a dictionary or a NumPy array.')
-
-    if directed:
-        return bimodularity(adjacency, labels, labels, resolution)
-    else:
-        row = np.arange(n_nodes)
-        col = labels
-        data = np.ones(n_nodes)
-        membership = sparse.csr_matrix((data, (row, col)))
-
-        fit = ((membership.multiply(norm_adj.dot(membership))).dot(np.ones(membership.shape[1]))).sum()
-        diversity = np.linalg.norm(membership.T.dot(probs)) ** 2
-        return float(fit - resolution * diversity)
 
 
 def cocitation_modularity(adjacency, partition, resolution: float = 1) -> float:

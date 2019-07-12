@@ -360,20 +360,19 @@ class Louvain(Algorithm):
 
     Seeks the best partition of the nodes with respect to modularity.
 
-    For undirected graphs, the modularity of a clustering is
+    The modularity of a clustering is
 
-    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2}\\big)\\delta_{c_i,c_j}`,
+    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2}\\big)\\delta_{c_i,c_j}`
+    for undirected graphs
+
+    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d^+_id^-_j}{w^2}\\big)\\delta_{c_i,c_j}`
+    for directed graphs
 
     where
 
-    :math:`\\gamma \\ge 0` is a resolution parameter,\n
-    :math:`c_i` is the cluster of node `i`\n
-    :math:`\\delta` is the Kronecker symbol.
-
-    For directed graphs, the modularity of a clustering is modified as follows:
-
-    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d^+_id^-_j}{w^2}\\big)\\delta_{c_i,c_j}`.
-
+    :math:`c_i` is the cluster of node `i`,\n
+    :math:`\\delta` is the Kronecker symbol,\,
+    :math:`\\gamma \\ge 0` is the resolution parameter.
 
     Parameters
     ----------
