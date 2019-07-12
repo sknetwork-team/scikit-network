@@ -12,8 +12,8 @@ clsuters with indices ``Z[i, 0]`` and ``Z[i, 1]`` which are at distance ``Z[i, 2
 which contains ``Z[i, 3]`` samples.
 
 
-Paris
------
+Paris algorithm
+---------------
 .. automodule:: sknetwork.hierarchy
 .. autosummary::
    :toctree: generated/
@@ -22,11 +22,9 @@ Paris
     :members:
 
 
-Utils
------
-.. autofunction:: sknetwork.hierarchy.reorder_dendrogram
-
-.. autofunction:: sknetwork.hierarchy.cut
+Cuts of the dendrogram
+----------------------
+.. autofunction:: sknetwork.hierarchy.straight_cut
 
 
 

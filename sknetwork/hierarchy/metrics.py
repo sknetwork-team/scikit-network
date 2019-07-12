@@ -11,7 +11,7 @@ from sknetwork.utils.checks import *
 
 def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
                   weights: Union[str, np.ndarray] = 'uniform', normalized: bool = True) -> float:
-    """Dasgupta's cost of a hierarchy (cost metric)
+    """Dasgupta's cost of a hierarchy (cost metric).
 
      Parameters
      ----------
@@ -76,7 +76,8 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
 
 def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
                              weights: Union[str, np.ndarray] = 'degree', normalized: bool = True) -> float:
-    """Tree sampling divergence of a hierarchy (quality metric)
+    """
+    Tree sampling divergence of a hierarchy (quality metric).
 
      Parameters
      ----------
@@ -97,9 +98,9 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
 
      References
      ----------
-     T. Bonald, B. Charpentier (2018). Learning Graph Representations by Dendrograms.
-     https://arxiv.org/abs/1807.05087
-
+     Charpentier, B. & Bonald, T. (2019).  Tree Sampling Divergence: An Information-Theoretic Metric for
+     Hierarchical Graph Clustering. Proceedings of IJCAI.
+     https://hal.telecom-paristech.fr/hal-02144394/document
     """
     adjacency = check_format(adjacency)
 

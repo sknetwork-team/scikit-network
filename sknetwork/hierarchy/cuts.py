@@ -7,10 +7,10 @@ Created on June 2019
 @author: Quentin Lutz <qlutz@enst.fr>
 """
 
-from sknetwork.utils.checks import *
+import numpy as np
 
 
-def cut(dendrogram: np.ndarray, n_clusters: int = 2, sorted_clusters: bool = False) -> np.ndarray:
+def straight_cut(dendrogram: np.ndarray, n_clusters: int = 2, sorted_clusters: bool = True) -> np.ndarray:
     """
     Extract the clustering with given number of clusters from the dendrogram.
 
@@ -19,7 +19,7 @@ def cut(dendrogram: np.ndarray, n_clusters: int = 2, sorted_clusters: bool = Fal
     dendrogram:
         Dendrogram
     n_clusters :
-        Number of clusters.
+        Number of cluster.
     sorted_clusters :
         If True, sort labels in decreasing order of cluster size.
 
@@ -33,13 +33,14 @@ def cut(dendrogram: np.ndarray, n_clusters: int = 2, sorted_clusters: bool = Fal
         raise ValueError("The number of clusters must be between 1 and the number of nodes.")
 
     labels = np.zeros(n_nodes, dtype=int)
-    clusters = {node: [node] for node in range(n_nodes)}
+    cluster = {node: [node] for node in range(n_nodes)}
     for t in range(n_nodes - n_clusters):
-        clusters[n_nodes + t] = clusters.pop(int(dendrogram[t][0])) + \
-                                clusters.pop(int(dendrogram[t][1]))
-    clusters = list(clusters.values())
+        cluster[n_nodes + t] = cluster.pop(int(dendrogram[t][0])) + \
+                                cluster.pop(int(dendrogram[t][1]))
+
+    clusters = list(cluster.values())
     if sorted_clusters:
         clusters = sorted(clusters, key=len, reverse=True)
-    for label, cluster in enumerate(clusters):
-        labels[cluster] = label
+    for label, index in enumerate(clusters):
+        labels[index] = label
     return labels
