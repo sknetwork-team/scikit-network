@@ -13,14 +13,14 @@ from scipy import sparse
 
 def miserables_graph(return_labels=False):
     """
-    Co-occurrence adjacency of the characters in Les Miserables (by Victor Hugo).
+    Co-occurrence graph of the characters in Les Miserables (by Victor Hugo).
 
     77 nodes, 508 edges
 
     Returns
     -------
     adjacency: sparse.csr_matrix
-        Adjacency matrix of the adjacency.
+        Adjacency matrix of the graph.
     labels: dict, optional
         The names of the characters corresponding to the nodes in the adjacency.
     """
@@ -192,14 +192,14 @@ def bow_tie_graph():
 
 def house_graph():
     """
-    House adjacency
+    House graph
 
     5 nodes, 6 edges
 
     Returns
     -------
     adjacency: sparse.csr_matrix
-        Adjacency matrix of the adjacency.
+        Adjacency matrix of the graph.
     """
     row = np.array([0, 0, 1, 1, 2, 3])
     col = np.array([1, 4, 2, 4, 3, 4])
@@ -218,7 +218,7 @@ def karate_club_graph():
     Returns
     -------
     adjacency: sparse.csr_matrix
-        Adjacency matrix of the adjacency.
+        Adjacency matrix of the graph.
     """
     row = np.array(
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
@@ -238,14 +238,14 @@ def karate_club_graph():
 
 def rock_paper_scissors_graph():
     """
-    A toy directed cycle adjacency from Rock Paper Scissors victory rule.
+    A toy directed cycle graph from Rock Paper Scissors victory rule.
 
     3 nodes, 3 edges
 
     Returns
     -------
     adjacency: sparse.csr_matrix
-        Adjacency matrix of the adjacency.
+        Adjacency matrix of the graph.
 
     """
 
@@ -254,7 +254,7 @@ def rock_paper_scissors_graph():
 
 def star_wars_villains_graph(return_labels: bool = False):
     """
-    Bipartite adjacency connecting some Star Wars villains to the movies in which they appear.\n
+    Bipartite graph connecting some Star Wars villains to the movies in which they appear.\n
     7 nodes (4 villains, 3 movies), 8 edges
 
     Parameters
@@ -265,7 +265,7 @@ def star_wars_villains_graph(return_labels: bool = False):
     Returns
     -------
     biadjacency: sparse.csr_matrix
-        Biadjacency matrix of the adjacency.
+        Biadjacency matrix of the graph.
     """
     row = np.array([0, 0, 1, 2, 2, 2, 3, 3])
     col = np.array([0, 2, 0, 0, 1, 2, 1, 2])
@@ -281,7 +281,7 @@ def star_wars_villains_graph(return_labels: bool = False):
 
 def movie_actor_graph(return_labels: bool = False):
     """
-    Bipartite adjacency connecting movies to some actors starring in them.\n
+    Bipartite graph connecting movies to some actors starring in them.\n
     31 nodes (15 movies, 16 actors), 41 edges
 
     Parameters
