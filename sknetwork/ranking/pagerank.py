@@ -8,7 +8,7 @@ Created on May 31 2019
 
 import numpy as np
 from sknetwork import njit, prange
-from sknetwork.utils.checks import check_format, is_proba_array, is_square
+from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_square
 from sknetwork.linalg.randomized_matrix_factorization import SparseLR, randomized_eig
 from sknetwork.utils.algorithm_base_class import Algorithm
 from scipy import sparse
@@ -45,22 +45,21 @@ def diffusion(indptr, indices, data, flow_history, current_flow, damping_factor)
 
 class PageRank(Algorithm):
     """
-    Assign to each node the probability for a random surfer to be on that node in a stationary
-    regime with teleportation.
+    Computes the PageRank of each node, corresponding to its frequency of visit by a random walk.
 
-    The set of nodes to which the random surfer teleports can be chosen by the user. This variant is referred to as
-    Personalized PageRank.
+    The random walk restarts with some fixed probability. The restart distribution can be personalized by the user.
+    This variant is known as Personalized PageRank.
 
     Parameters
     ----------
-    damping_factor: float
-        Probability to jump according to the adjacency transition matrix in the random walk.
-    method: str
-        Specifies the used method. Must be 'diter' or 'spectral'
-    n_iter: int
-        Number of iterations if method is 'diter'
-    parallel: bool
-        Enable parallelization (Numba is required)
+    damping_factor : float
+        Probability to continue the random walk.
+    method : str
+        Computation method. Must be ``'diter'`` or ``'spectral'``.
+    n_iter : int
+        Number of iterations if method is ``'diter'``.
+    parallel : bool
+        Enables parallelization (Numba required).
 
     Attributes
     ----------
@@ -107,20 +106,19 @@ class PageRank(Algorithm):
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Union[None, np.ndarray] = None) -> 'PageRank':
-        """Standard pagerank via matrix factorization or D-iteration.
+        """Standard PageRank via matrix factorization or D-iteration.
 
         Parameters
         ----------
-        adjacency
+        adjacency :
             Adjacency matrix of the adjacency.
-        personalization
+        personalization :
             If ``None``, the uniform probability distribution over the nodes is used.
-            Otherwise, the user must provide a valid probability vector.
-
+            Otherwise, the user must provide a non-negative vector.
         """
         adjacency = check_format(adjacency)
         if not is_square(adjacency):
-            raise ValueError('Adjacency must be square.')
+            raise ValueError('The adjacency matrix must be square.')
         else:
             n_nodes: int = adjacency.shape[0]
 
@@ -132,16 +130,16 @@ class PageRank(Algorithm):
         transition_matrix = diag_out.dot(adjacency)
 
         if personalization is None:
-            root: np.ndarray = np.ones(n_nodes) / n_nodes
+            restart_prob: np.ndarray = np.ones(n_nodes) / n_nodes
         else:
-            if is_proba_array(personalization) and len(personalization) == n_nodes:
-                root = personalization.astype(float)
+            if has_nonnegative_entries(personalization) and len(personalization) == n_nodes:
+                restart_prob = personalization.astype(float) / np.sum(personalization)
             else:
                 raise ValueError('Personalization must be None or a valid probability array.')
 
         if self.method == 'diter':
 
-            current_flow = root
+            current_flow = restart_prob
             flow_history = -current_flow / 2
 
             for i in range(self.n_iter):
@@ -153,9 +151,9 @@ class PageRank(Algorithm):
         elif self.method == 'spectral':
 
             weight_matrix = sparse.eye(n_nodes, format='csr') - self.damping_factor * diag_out.astype(bool)
-            root = weight_matrix.dot(root)
+            restart_prob = weight_matrix.dot(restart_prob)
 
-            pagerank_matrix = SparseLR(self.damping_factor * transition_matrix, [(root, np.ones(n_nodes))])
+            pagerank_matrix = SparseLR(self.damping_factor * transition_matrix, [(restart_prob, np.ones(n_nodes))])
             _, eigenvector = randomized_eig(pagerank_matrix, 1)
 
             self.ranking_ = abs(eigenvector.real) / abs(eigenvector.real).sum()

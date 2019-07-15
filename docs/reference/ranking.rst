@@ -5,10 +5,12 @@ Ranking
 
 .. currentmodule:: sknetwork
 
-This submodule contains ranking algorithms, characterized by their ``.ranking_`` attribute which assigns an importance
-score to each node in the graph.
+This module contains ranking algorithms. The attribute ``.ranking_`` assigns an importance
+score to each node of the graph.
 
-Pagerank
+PageRank
 --------
+.. automodule:: sknetwork.ranking
+
 .. autoclass:: sknetwork.ranking.PageRank
     :members:

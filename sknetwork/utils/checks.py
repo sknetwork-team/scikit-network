@@ -39,7 +39,7 @@ def is_proba_array(entry: np.ndarray) -> bool:
         err = entry.dot(np.ones(n_features)) - np.ones(n_samples)
         return has_nonnegative_entries(entry) and np.isclose(np.linalg.norm(err), 0)
     else:
-        raise TypeError('entry must be one or two-dimensional array.')
+        raise TypeError('Entry must be one or two-dimensional array.')
 
 
 def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
