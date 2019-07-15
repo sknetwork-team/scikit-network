@@ -7,6 +7,14 @@ __email__ = "bonald@enst.fr"
 __version__ = '0.7.1'
 
 import numpy as np
+import sknetwork.clustering
+import sknetwork.embedding
+import sknetwork.hierarchy
+import sknetwork.loader
+import sknetwork.ranking
+import sknetwork.toy_graphs
+import sknetwork.utils
+
 import warnings
 
 warnings.filterwarnings("default", category=DeprecationWarning)
@@ -39,12 +47,3 @@ except (ImportError, DeprecationWarning) as error:
         @staticmethod
         def empty(**kwargs):
             pass
-
-
-# import sknetwork.clustering
-# import sknetwork.embedding
-# import sknetwork.hierarchy
-# import sknetwork.loader
-# import sknetwork.ranking
-# import sknetwork.toy_graphs
-# import sknetwork.utils
