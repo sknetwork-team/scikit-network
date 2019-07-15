@@ -56,7 +56,7 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
     in_probs = norm_adj.T.dot(np.ones(n))
 
     if len(labels) != n:
-        raise ValueError('Dimension mismatch.')
+        raise ValueError('The number of labels must match the number of rows.')
 
     row = np.arange(n)
     col = labels
@@ -108,7 +108,7 @@ def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], sample_label
     features_weights = biadjacency.T.dot(np.ones(n)) / total_weight
 
     if len(sample_labels) != n or len(feature_labels) != p:
-        raise ValueError('Dimension mismatch.')
+        raise ValueError('The number of sample / feature labels must match the number of rows / columns.')
 
     _, unique_sample_labels = np.unique(sample_labels, return_inverse=True)
     _, unique_feature_labels = np.unique(feature_labels, return_inverse=True)
@@ -171,7 +171,7 @@ def cocitation_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], label
     normalized_adjacency = (adjacency.dot(norm_diag_matrix)).T.tocsr()
 
     if len(labels) != n:
-        raise ValueError('Dimension mismatch.')
+        raise ValueError('The number of labels must match the number of rows.')
 
     membership = sparse.csc_matrix((np.ones(n), (np.arange(n), labels)), shape=(n, labels.max() + 1))
     fit = ((normalized_adjacency.dot(membership)).data ** 2).sum() / total_weight

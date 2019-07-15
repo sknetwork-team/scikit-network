@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tests for louvain.py"""
+"""Tests for Louvain"""
 
 
 import unittest
 from sknetwork.clustering import Louvain, GreedyModularity, modularity
-from sknetwork.toy_graphs import karate_club_graph, bow_tie_graph
+from sknetwork.toy_graphs import karate_club_graph, bow_tie_graph, painters_graph
 from scipy.sparse import identity
 from sknetwork import is_numba_available
 
@@ -25,6 +25,7 @@ class TestLouvainClustering(unittest.TestCase):
         self.louvain_shuffle_second = Louvain(GreedyModularity(engine='python'), shuffle_nodes=True, random_state=123)
         self.karate_club_graph = karate_club_graph()
         self.bow_tie_graph = bow_tie_graph()
+        self.painters_graph = painters_graph(return_labels=False)
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):
@@ -40,7 +41,7 @@ class TestLouvainClustering(unittest.TestCase):
     def test_single_node_graph(self):
         self.assertEqual(self.louvain.fit(identity(1, format='csr')).labels_, [0])
 
-    def test_karate_club_graph(self):
+    def test_undirected(self):
         labels = self.louvain.fit(self.karate_club_graph).labels_
         self.assertEqual(labels.shape, (34,))
         self.assertAlmostEqual(modularity(self.karate_club_graph, labels), 0.42, 2)
@@ -54,6 +55,11 @@ class TestLouvainClustering(unittest.TestCase):
         labels = self.louvain_null_resolution.fit(self.karate_club_graph).labels_
         self.assertEqual(labels.shape, (34,))
         self.assertEqual(self.louvain_null_resolution.n_clusters_, 1)
+
+    def test_directed(self):
+        labels = self.louvain.fit(self.painters_graph).labels_
+        self.assertEqual(labels.shape, (14,))
+        self.assertAlmostEqual(modularity(self.painters_graph, labels), 0.32, 2)
 
     def test_shuffling(self):
         self.louvain_shuffle_first.fit(self.bow_tie_graph)

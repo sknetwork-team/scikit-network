@@ -401,5 +401,4 @@ def painters_graph(return_labels: bool = False):
                  12: 'Pierre-Auguste Renoir',
                  13: 'Egon Schiele'}
         return adjacency, labels
-    else:
-        return adjacency
+    return adjacency

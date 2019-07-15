@@ -19,17 +19,17 @@ from sknetwork import njit
 
 def membership_matrix(labels: np.ndarray) -> sparse.csr_matrix:
     """
-    Builds a n x k matrix of the label assignments.
+    Builds a n x k matrix of the label assignments, with k the number of labels.
 
     Parameters
     ----------
     labels:
-        label of each node.
+        Label of each node.
 
     Returns
     -------
     membership:
-        binary matrix of label assignments.
+        Binary matrix of label assignments.
 
     """
     n_nodes = len(labels)
@@ -43,7 +43,7 @@ class AggregateGraph:
     Parameters
     ----------
     adjacency:
-        Adjacency matrix of the adjacency.
+        Adjacency matrix of the graph.
     weights:
         Distribution of node weights (sums to 1), used in the second term of modularity.
     in_weights:
@@ -63,7 +63,7 @@ class AggregateGraph:
 
     def __init__(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
                  in_weights: Union[None, 'str', np.ndarray] = 'degree'):
-        self.n_nodes, self.n_features = adjacency.shape
+        self.n_nodes = adjacency.shape[0]
         self.norm_adjacency = adjacency / adjacency.data.sum()
         self.node_probs = check_probs(weights, adjacency)
         if in_weights is not None:
@@ -71,45 +71,39 @@ class AggregateGraph:
         else:
             self.in_probs = None
 
-    def aggregate(self, membership: Union[sparse.csr_matrix, np.ndarray],
-                  feat_membership: Union[None, sparse.csr_matrix, np.ndarray] = None):
+    def aggregate(self, row_membership: Union[sparse.csr_matrix, np.ndarray],
+                  col_membership: Union[None, sparse.csr_matrix, np.ndarray] = None):
         """
         Aggregates nodes belonging to the same cluster.
 
         Parameters
         ----------
-        membership:
-            Partition of the nodes (lines of the adjacency).
-        feat_membership:
-            Partition of the columns.
+        row_membership:
+            membership matrix (rows).
+        col_membership:
+            membership matrix (columns).
 
         Returns
         -------
-        The aggregated adjacency.
+        The aggregated graph.
         """
-        if membership.shape[0] != self.n_nodes:
-            raise ValueError('The size of the partition must match the number of nodes.')
-        elif type(membership) == np.ndarray:
-            membership = membership_matrix(membership)
+        if type(row_membership) == np.ndarray:
+            row_membership = membership_matrix(row_membership)
 
-        if feat_membership is not None:
-            if feat_membership.shape[0] != self.n_features:
-                raise ValueError('The number of feature labels must match the number of columns.')
-            if self.in_probs is None:
-                raise ValueError('This adjacency does not have a in_probs attribute.')
-            elif type(feat_membership) == np.ndarray:
-                feat_membership = membership_matrix(feat_membership)
+        if col_membership is not None:
+            if type(col_membership) == np.ndarray:
+                col_membership = membership_matrix(col_membership)
 
-            self.norm_adjacency = membership.T.dot(self.norm_adjacency.dot(feat_membership)).tocsr()
-            self.in_probs = np.array(feat_membership.T.dot(self.in_probs).T)
+            self.norm_adjacency = row_membership.T.dot(self.norm_adjacency.dot(col_membership)).tocsr()
+            self.in_probs = np.array(col_membership.T.dot(self.in_probs).T)
 
         else:
-            self.norm_adjacency = membership.T.dot(self.norm_adjacency.dot(membership)).tocsr()
+            self.norm_adjacency = row_membership.T.dot(self.norm_adjacency.dot(row_membership)).tocsr()
             if self.in_probs is not None:
-                self.in_probs = np.array(membership.T.dot(self.in_probs).T)
+                self.in_probs = np.array(row_membership.T.dot(self.in_probs).T)
 
-        self.node_probs = np.array(membership.T.dot(self.node_probs).T)
-        self.n_nodes, self.n_features = self.norm_adjacency.shape
+        self.node_probs = np.array(row_membership.T.dot(self.node_probs).T)
+        self.n_nodes = self.norm_adjacency.shape[0]
         return self
 
 
@@ -461,7 +455,7 @@ shuffle_nodes=False, verbose=False)
         self.shuffle_nodes = shuffle_nodes
 
     def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
-            feature_weights: Union[None, str, np.ndarray] = None, sorted_cluster: bool = True) -> 'Louvain':
+            in_weights: Union[None, str, np.ndarray] = None, sorted_cluster: bool = True) -> 'Louvain':
         """
         Clustering using chosen Optimizer.
 
@@ -471,7 +465,7 @@ shuffle_nodes=False, verbose=False)
             Adjacency matrix of the adjacency to cluster.
         weights :
             Probabilities for node sampling in the null model. ``'degree'``, ``'uniform'`` or custom weights.
-        feature_weights :
+        in_weights :
             Probabilities for feature sampling in the null model. ``'degree'``, ``'uniform'`` or custom weights,
             only useful for directed modularity optimization.
         sorted_cluster :
@@ -481,17 +475,17 @@ shuffle_nodes=False, verbose=False)
         -------
         self: :class:`Louvain`
         """
-        adjacency = check_format(adjacency)
+        adj_matrix = check_format(adjacency)
 
-        if not is_square(adjacency):
+        if not is_square(adj_matrix):
             raise ValueError('The adjacency matrix must be a square matrix. See Bilouvain for rectangular matrices.')
 
-        nodes = np.arange(adjacency.shape[0])
+        nodes = np.arange(adj_matrix.shape[0])
         if self.shuffle_nodes:
             nodes = self.random_state.permutation(nodes)
-            adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
+            adj_matrix = adj_matrix[nodes, :].tocsc()[:, nodes].tocsr()
 
-        graph = AggregateGraph(adjacency, weights, feature_weights)
+        graph = AggregateGraph(adj_matrix, weights, in_weights)
 
         membership = sparse.identity(graph.n_nodes, format='csr')
         increase = True
@@ -527,5 +521,5 @@ shuffle_nodes=False, verbose=False)
         self.n_clusters_ = len(set(self.labels_))
         if sorted_cluster:
             self.labels_ = reindex_clusters(self.labels_)
-        self.aggregate_graph_ = graph.norm_adjacency * adjacency.data.sum()
+        self.aggregate_graph_ = graph.norm_adjacency * adj_matrix.data.sum()
         return self

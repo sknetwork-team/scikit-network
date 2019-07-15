@@ -43,7 +43,8 @@ def is_proba_array(entry: np.ndarray) -> bool:
 
 
 def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """Checks whether the matrix is square.
+    """
+    Checks whether the matrix is square.
     """
     return adjacency.shape[0] == adjacency.shape[1]
 
@@ -103,7 +104,8 @@ def check_engine(engine: str) -> str:
 
 
 def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
-    """Checks whether the matrix is an instance of a supported type (NumPy array or Scipy CSR matrix) and returns
+    """
+    Checks whether the matrix is an instance of a supported type (NumPy array or Scipy CSR matrix) and returns
     the corresponding Scipy CSR matrix.
     """
     if type(adjacency) not in {sparse.csr_matrix, np.ndarray}:
