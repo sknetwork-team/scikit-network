@@ -18,6 +18,7 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
     ----------
     adjacency :
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     Adjacency matrix of the graph.
     dendrogram :
     Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
@@ -38,6 +39,8 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
     Proceedings of ACM symposium on Theory of Computing.
 
 =======
+=======
+>>>>>>> Stashed changes
         Adjacency matrix of the graph.
     dendrogram :
         Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
@@ -56,6 +59,9 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
     ----------
     Dasgupta, S. (2016). A cost function for similarity-based hierarchical clustering.
     Proceedings of ACM symposium on Theory of Computing.
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     """
     adjacency = check_format(adjacency)
@@ -105,6 +111,7 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     ----------
     adjacency :
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     Adjacency matrix of the graph.
     dendrogram :
     Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
@@ -119,6 +126,8 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
      The tree sampling divergence of the hierarchy (quality metric).
      Normalized by the mutual information to get a value between 0 and 1.
 =======
+=======
+>>>>>>> Stashed changes
         Adjacency matrix of the graph.
     dendrogram :
         Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
@@ -132,6 +141,9 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     quality :
         The tree sampling divergence of the hierarchy (quality metric).
         Normalized by the mutual information to get a value between 0 and 1.
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
     References
