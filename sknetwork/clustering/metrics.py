@@ -8,9 +8,10 @@ Created on Thu July 10 2018
 import numpy as np
 from scipy import sparse
 from typing import Union
+from sknetwork.utils.checks import check_format, is_square
 
 
-def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: Union[dict, np.ndarray],
+def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray,
                resolution: float = 1) -> float:
     """
     Compute the modularity of a clustering (node partition).
@@ -36,7 +37,7 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: Union[di
     labels:
         Labels of the nodes.
     resolution:
-        Resolution parameter.
+        Resolution parameter (default = 1).
 
     Returns
     -------
@@ -44,27 +45,18 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: Union[di
         The modularity.
     """
 
-    if type(adjacency) == sparse.csr_matrix:
-        adj_matrix = adjacency
-    elif sparse.isspmatrix(adjacency) or type(adjacency) == np.ndarray:
-        adj_matrix = sparse.csr_matrix(adjacency)
-    else:
-        raise TypeError(
-            "The argument must be a NumPy array or a SciPy Sparse matrix.")
+    adjacency = check_format(adjacency)
 
-    n, p = adj_matrix.shape
-    if n != p:
+    if not is_square(adjacency):
         raise ValueError('The adjacency must be a square matrix.')
-    norm_adj = adj_matrix / adj_matrix.data.sum()
+
+    n = adjacency.shape[0]
+    norm_adj = adjacency / adjacency.data.sum()
     out_probs = norm_adj.dot(np.ones(n))
     in_probs = norm_adj.T.dot(np.ones(n))
 
-    if type(labels) == dict:
-        labels = np.array([labels[i] for i in range(n)])
-    elif type(labels) == np.ndarray:
-        labels = labels.copy()
-    else:
-        raise TypeError('The labels must be a dictionary or a NumPy array.')
+    if len(labels) != n:
+        raise ValueError('Dimension mismatch.')
 
     row = np.arange(n)
     col = labels
@@ -76,8 +68,8 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: Union[di
     return float(fit - resolution * diversity)
 
 
-def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], sample_labels: np.ndarray, feature_labels: np.ndarray,
-                 resolution: float = 1) -> float:
+def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], sample_labels: np.ndarray,
+                 feature_labels: np.ndarray, resolution: float = 1) -> float:
     """
     Modularity for bipartite graphs:
 
@@ -108,28 +100,24 @@ def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], sample_label
     bimodularity:
         Bimodularity of the clustering.
     """
-    n_samples, n_features = biadjacency.shape
-    one_samples, one_features = np.ones(n_samples), np.ones(n_features)
+    biadjacency = check_format(biadjacency)
+
+    n, p = biadjacency.shape
     total_weight: float = biadjacency.data.sum()
-    sample_weights = biadjacency.dot(one_features) / total_weight
-    features_weights = biadjacency.T.dot(one_samples) / total_weight
+    sample_weights = biadjacency.dot(np.ones(p)) / total_weight
+    features_weights = biadjacency.T.dot(np.ones(n)) / total_weight
 
-    if type(labels) == dict:
-        labels = np.array([labels[i] for i in range(n)])
-    elif type(labels) == np.ndarray:
-        labels = labels.copy()
-    else:
-        raise TypeError('The labels must be a dictionary or a NumPy array.')
+    if len(sample_labels) != n or len(feature_labels) != p:
+        raise ValueError('Dimension mismatch.')
 
+    _, unique_sample_labels = np.unique(sample_labels, return_inverse=True)
+    _, unique_feature_labels = np.unique(feature_labels, return_inverse=True)
+    n_clusters = max(len(set(unique_sample_labels)), len(set(unique_feature_labels)))
 
-    _, sample_labels = np.unique(sample_labels, return_inverse=True)
-    _, feature_labels = np.unique(feature_labels, return_inverse=True)
-    n_clusters = max(len(set(sample_labels)), len(set(feature_labels)))
-
-    sample_membership = sparse.csr_matrix((one_samples, (np.arange(n_samples), sample_labels)),
-                                          shape=(n_samples, n_clusters))
-    feature_membership = sparse.csc_matrix((one_features, (np.arange(n_features), feature_labels)),
-                                           shape=(n_features, n_clusters))
+    sample_membership = sparse.csr_matrix((np.ones(n), (np.arange(n), unique_sample_labels)),
+                                          shape=(n, n_clusters))
+    feature_membership = sparse.csc_matrix((np.ones(p), (np.arange(p), unique_feature_labels)),
+                                           shape=(p, n_clusters))
 
     fit: float = sample_membership.multiply(biadjacency.dot(feature_membership)).data.sum() / total_weight
     div: float = (sample_membership.T.dot(sample_weights)).dot(feature_membership.T.dot(features_weights))
@@ -137,9 +125,10 @@ def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], sample_label
     return fit - resolution * div
 
 
-def cocitation_modularity(adjacency, partition, resolution: float = 1) -> float:
+def cocitation_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray,
+                          resolution: float = 1) -> float:
     """
-    Computes the modularity of a clustering on the normalized cocitation adjacency matrix.
+    Computes the modularity of a clustering in the normalized cocitation graph.
     Does not require the explicit computation of the normalized cocitation adjacency matrix.
 
     :math:`Q = \\sum_{i,j=1}^n(\\dfrac{(AF^{-1}A^T)_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})\\delta_{c_i,c_j}`
@@ -147,55 +136,45 @@ def cocitation_modularity(adjacency, partition, resolution: float = 1) -> float:
     where
 
     :math:`AF^{-1}A^T` is the normalized cocitation adjacency matrix,\n
+    :math:`F = \\diag(A^T1)` is the diagonal matrix of feature weights,\n
     :math:`c_j` is the cluster of node `i`,\n
     :math:`\\delta` is the Kronecker symbol,\n
     :math:`\\gamma \\ge 0` is the resolution parameter.
 
     Parameters
     ----------
-    partition: dict or np.ndarray
-       The partition of the nodes. The keys of the dictionary correspond to the nodes and the values to the communities.
-    adjacency: scipy.csr_matrix or np.ndarray
-        The adjacency matrix of the adjacency (sparse or dense).
-    resolution: float (default=1.)
-        The resolution parameter.
+    adjacency:
+        Adjacency matrix of the graph.
+    labels:
+       Labels of the nodes.
+    resolution:
+        Resolution parameter (default = 1).
 
     Returns
     -------
     modularity: float
-       The modularity on the normalized cocitation adjacency matrix.
+       Modularity of the clustering in the normalized cocitation graph.
     """
 
-    if type(adjacency) == sparse.csr_matrix:
-        adj_matrix = adjacency
-    elif sparse.isspmatrix(adjacency) or type(adjacency) == np.ndarray:
-        adj_matrix = sparse.csr_matrix(adjacency)
-    else:
-        raise TypeError(
-            "The argument must be a NumPy array or a SciPy Sparse matrix.")
+    adjacency = check_format(adjacency)
 
-    n_samples, n_features = adj_matrix.shape
-    total_weight = adj_matrix.data.sum()
-    pou = adj_matrix.dot(np.ones(n_samples)) / total_weight
-    din = adj_matrix.T.dot(np.ones(n_features))
+    n, p = adjacency.shape
+    total_weight = adjacency.data.sum()
+    probs = adjacency.dot(np.ones(n)) / total_weight
 
-    # pseudo inverse square-root in-degree matrix
-    dhin = sparse.diags(np.sqrt(din), shape=(n_features, n_features), format='csr')
-    dhin.data = 1 / dhin.data
+    feature_weights = adjacency.T.dot(np.ones(p))
 
-    normalized_adjacency = (adj_matrix.dot(dhin)).T.tocsr()
+    # pseudo inverse square-root feature weight matrix
+    norm_diag_matrix = sparse.diags(np.sqrt(feature_weights), shape=(p, p), format='csr')
+    norm_diag_matrix.data = 1 / norm_diag_matrix.data
 
-    if type(partition) == dict:
-        labels = np.array([partition[i] for i in range(n_samples)])
-    elif type(partition) == np.ndarray:
-        labels = partition.copy()
-    else:
-        raise TypeError('The partition must be a dictionary or a NumPy array.')
+    normalized_adjacency = (adjacency.dot(norm_diag_matrix)).T.tocsr()
 
-    membership = sparse.csc_matrix((np.ones(n_samples), (np.arange(n_samples), labels)),
-                                   shape=(n_samples, labels.max() + 1))
+    if len(labels) != n:
+        raise ValueError('Dimension mismatch.')
+
+    membership = sparse.csc_matrix((np.ones(n), (np.arange(n), labels)), shape=(n, labels.max() + 1))
     fit = ((normalized_adjacency.dot(membership)).data ** 2).sum() / total_weight
-    diversity = np.linalg.norm(membership.T.dot(pou)) ** 2
+    diversity = np.linalg.norm(membership.T.dot(probs)) ** 2
 
     return float(fit - resolution * diversity)
-
