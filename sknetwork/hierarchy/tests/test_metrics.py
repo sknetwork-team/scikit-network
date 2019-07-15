@@ -14,7 +14,11 @@ class TestMetrics(unittest.TestCase):
 
     def setUp(self):
         self.paris = Paris()
+<<<<<<< HEAD
         self.karate_club = karate_club()
+=======
+        self.karate_club_graph = karate_club()
+>>>>>>> develop
 
     def test_undirected(self):
         adjacency = self.karate_club
