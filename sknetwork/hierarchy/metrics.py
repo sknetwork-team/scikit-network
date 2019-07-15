@@ -17,6 +17,7 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
     Parameters
     ----------
     adjacency :
+<<<<<<< Updated upstream
     Adjacency matrix of the graph.
     dendrogram :
     Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
@@ -36,6 +37,26 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
     S. Dasgupta (2016). A cost function for similarity-based hierarchical clustering.
     Proceedings of ACM symposium on Theory of Computing.
 
+=======
+        Adjacency matrix of the graph.
+    dendrogram :
+        Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
+    weights :
+        Vector of node weights. Default = ``'uniform'``, weight 1 for each node.
+    normalized :
+        If ``True``, normalized by the number of nodes of the graph.
+
+    Returns
+    -------
+    cost :
+        Dasgupta's cost of the hierarchy.
+        Normalized by the number of nodes to get a value between 0 and 1.
+
+    References
+    ----------
+    Dasgupta, S. (2016). A cost function for similarity-based hierarchical clustering.
+    Proceedings of ACM symposium on Theory of Computing.
+>>>>>>> Stashed changes
     """
     adjacency = check_format(adjacency)
 
@@ -83,6 +104,7 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     Parameters
     ----------
     adjacency :
+<<<<<<< Updated upstream
     Adjacency matrix of the graph.
     dendrogram :
     Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
@@ -96,6 +118,21 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     quality : float
      The tree sampling divergence of the hierarchy (quality metric).
      Normalized by the mutual information to get a value between 0 and 1.
+=======
+        Adjacency matrix of the graph.
+    dendrogram :
+        Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
+    weights :
+        Vector of node weights. Default = ``'degree'``, weight of each node in the adjacency.
+    normalized :
+        If ``True``, normalized by the mutual information of the graph.
+
+    Returns
+    -------
+    quality :
+        The tree sampling divergence of the hierarchy (quality metric).
+        Normalized by the mutual information to get a value between 0 and 1.
+>>>>>>> Stashed changes
 
     References
     ----------

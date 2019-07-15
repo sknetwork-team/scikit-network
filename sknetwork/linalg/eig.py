@@ -23,8 +23,9 @@ class EigSolver(Algorithm):
     ----------
     which: str
         Which eigenvectors and eigenvalues to find:
-        * ‘LM’ : Largest (in magnitude) eigenvalues.
-        * ‘SM’ : Smallest (in magnitude) eigenvalues.
+
+        * ``'LM'`` : Largest (in magnitude) eigenvalues.
+        * ``'SM'` : Smallest (in magnitude) eigenvalues.
 
     Attributes
     ----------
@@ -66,8 +67,9 @@ class LanczosEig(EigSolver):
     ----------
     which: str
         Which eigenvectors and eigenvalues to find:
-        * ‘LM’ : Largest (in magnitude) eigenvalues.
-        * ‘SM’ : Smallest (in magnitude) eigenvalues.
+
+        * ``'LM'`` : Largest (in magnitude) eigenvalues.
+        * ``'SM'`` : Smallest (in magnitude) eigenvalues.
 
     Attributes
     ----------
@@ -115,8 +117,10 @@ class HalkoEig(EigSolver):
     ----------
     which: str
         Which eigenvectors and eigenvalues to find:
-        * ‘LM’ : Largest (in magnitude) eigenvalues.
-        * ‘SM’ : Smallest (in magnitude) eigenvalues.
+
+        * ``'LM'`` : Largest (in magnitude) eigenvalues.
+        * ``'SM'`` : Smallest (in magnitude) eigenvalues.
+
     n_oversamples : int (default=10)
         Additional number of random vectors to sample the range of ``matrix`` so as
         to ensure proper conditioning. The total number of random vectors
@@ -148,9 +152,9 @@ class HalkoEig(EigSolver):
 
         Parameters
         ----------
-        matrix:
+        matrix :
             Matrix to decompose.
-        n_components
+        n_components :
             Number of eigenvectors to compute
 
         Returns

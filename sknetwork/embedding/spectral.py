@@ -31,17 +31,18 @@ class Spectral(Algorithm):
     regularization : ``None`` or float (default=0.01)
         Implicitly add edges of given weight between all pairs of nodes.
     energy_scaling : bool (default=True)
-        If ``True``, rescales each column of the embedding by dividing it by :math:`\\sqrt{\\lambda_i}`.
-        Only valid if ``node_weights == 'degree'``.
+        If ``True``, rescales each column of the embedding by dividing it by the square-root of the corresponding
+        eigenvalue. Only valid if ``node_weights == 'degree'``.
     force_biadjacency : bool (default=False)
         Only relevant for symmetric inputs. Force the algorithm to treat the adjacency as a biadjacency
         as it would do for asymmetric inputs.
     solver: 'auto', 'halko', 'lanczos' or EigSolver object
         Which eigenvalue solver to use
-        * 'auto' calls the auto_solver function
-        * 'halko': randomized method, fast but less accurate than 'lanczos' for ill-conditioned matrices
-        * 'lanczos': power-iteration based method
-        * custom: the user must provide an EigSolver object.
+
+        * ``'auto'`` calls the auto_solver function
+        * ``'halko'``: randomized method, fast but less accurate than 'lanczos' for ill-conditioned matrices
+        * ``'lanczos'``: power-iteration based method
+        * ``custom``: the user must provide an EigSolver object.
 
     Attributes
     ----------
@@ -65,7 +66,7 @@ class Spectral(Algorithm):
 
     References
     ----------
-    * Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
+    Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
     Neural computation.
 
     """

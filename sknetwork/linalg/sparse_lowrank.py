@@ -12,7 +12,10 @@ from typing import Union
 
 
 class SparseLR(LinearOperator):
-    """Class for matrices with "sparse + low rank" structure. Ex: A + xy^T.
+    """Class for matrices with "sparse + low rank" structure.
+    Example:
+
+    :math:`A + xy^T`
 
     Parameters
     ----------
@@ -20,8 +23,7 @@ class SparseLR(LinearOperator):
         sparse component. Is converted to csr format automatically.
     low_rank_tuples: list
         list of tuple of arrays representing the low rank components [(x1, y1), (x2, y2),...].
-        Each low rank component is of the form xy^T.
-
+        Each low rank component is of the form :math:`xy^T`.
     """
 
     def __init__(self, sparse_mat: Union[sparse.csr_matrix, sparse.csc_matrix], low_rank_tuples: list):
