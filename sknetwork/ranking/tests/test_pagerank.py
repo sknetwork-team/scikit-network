@@ -20,19 +20,19 @@ class TestPageRank(unittest.TestCase):
         self.parallel_ranking = PageRank(parallel=True)
 
     def test_pagerank(self):
-        ranking = self.spectral_ranking.fit(self.adjacency).ranking_
-        self.assertAlmostEqual(np.linalg.norm(ranking - np.ones(3) / 3), 0.)
-        ranking = self.no_damping_spectral_ranking.fit(self.adjacency).ranking_
-        self.assertAlmostEqual(np.linalg.norm(ranking - np.ones(3) / 3), 0.)
-        ranking = self.spectral_ranking.fit(self.adjacency, personalization=np.array([1, 0, 0])).ranking_
-        self.assertAlmostEqual(np.linalg.norm(ranking - np.ones(3) / 3), 0.)
-        ranking = self.diter_ranking.fit(self.adjacency).ranking_
-        self.assertAlmostEqual(np.linalg.norm(ranking - np.ones(3) / 3), 0., places=2)
-        ranking = self.no_damping_diter_ranking.fit(self.adjacency).ranking_
-        self.assertAlmostEqual(np.linalg.norm(ranking - np.ones(3) / 3), 0., places=2)
-        ranking = self.diter_ranking.fit(self.adjacency, personalization=np.array([1, 0, 0])).ranking_
-        self.assertAlmostEqual(np.linalg.norm(ranking - np.ones(3) / 3), 0., places=1)
+        score = self.spectral_ranking.fit(self.adjacency).score_
+        self.assertAlmostEqual(np.linalg.norm(score - np.ones(3) / 3), 0.)
+        score = self.no_damping_spectral_ranking.fit(self.adjacency).score_
+        self.assertAlmostEqual(np.linalg.norm(score - np.ones(3) / 3), 0.)
+        score = self.spectral_ranking.fit(self.adjacency, personalization=np.array([1, 0, 0])).score_
+        self.assertAlmostEqual(np.linalg.norm(score - np.ones(3) / 3), 0.)
+        score = self.diter_ranking.fit(self.adjacency).score_
+        self.assertAlmostEqual(np.linalg.norm(score - np.ones(3) / 3), 0., places=2)
+        score = self.no_damping_diter_ranking.fit(self.adjacency).score_
+        self.assertAlmostEqual(np.linalg.norm(score - np.ones(3) / 3), 0., places=2)
+        score = self.diter_ranking.fit(self.adjacency, personalization=np.array([1, 0, 0])).score_
+        self.assertAlmostEqual(np.linalg.norm(score - np.ones(3) / 3), 0., places=1)
 
     def test_parallelize(self):
-        ranking = self.parallel_ranking.fit(self.adjacency).ranking_
-        self.assertIsNotNone(ranking)
+        score = self.parallel_ranking.fit(self.adjacency).score_
+        self.assertIsNotNone(score)

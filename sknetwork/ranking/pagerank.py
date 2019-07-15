@@ -63,8 +63,8 @@ class PageRank(Algorithm):
 
     Attributes
     ----------
-    ranking_: np.ndarray
-        Ranking of each node.
+    score_ : np.ndarray
+        PageRank score of each node.
 
     Example
     -------
@@ -73,7 +73,7 @@ class PageRank(Algorithm):
     >>> adjacency = rock_paper_scissors()
     >>> pagerank.fit(adjacency)
     PageRank(damping_factor=0.85, method='diter', n_iter=25)
-    >>> np.round(pagerank.ranking_, 2)
+    >>> np.round(pagerank.score_, 2)
     array([0.33, 0.33, 0.33])
 
     References
@@ -85,7 +85,7 @@ class PageRank(Algorithm):
       Stanford InfoLab.
     """
     def __init__(self, damping_factor: float = 0.85, method: str = 'diter', n_iter: int = 25, parallel: bool = False):
-        self.ranking_ = None
+        self.score_ = None
         if damping_factor < 0. or damping_factor > 1.:
             raise ValueError('Damping factor must be between 0 and 1.')
         else:
@@ -111,7 +111,7 @@ class PageRank(Algorithm):
         Parameters
         ----------
         adjacency :
-            Adjacency matrix of the adjacency.
+            Adjacency matrix of the graph.
         personalization :
             If ``None``, the uniform probability distribution over the nodes is used.
             Otherwise, the user must provide a non-negative vector.
@@ -146,7 +146,7 @@ class PageRank(Algorithm):
                 self.diffusion(transition_matrix.indptr, transition_matrix.indices, transition_matrix.data,
                                flow_history, current_flow, self.damping_factor)
 
-            self.ranking_ = abs(flow_history) / np.sum(abs(flow_history))
+            self.score_ = abs(flow_history) / np.sum(abs(flow_history))
 
         elif self.method == 'spectral':
 
@@ -156,7 +156,7 @@ class PageRank(Algorithm):
             pagerank_matrix = SparseLR(self.damping_factor * transition_matrix, [(restart_prob, np.ones(n_nodes))])
             _, eigenvector = randomized_eig(pagerank_matrix, 1)
 
-            self.ranking_ = abs(eigenvector.real) / abs(eigenvector.real).sum()
-            self.ranking_.reshape((self.ranking_.shape[0]))
+            self.score_ = abs(eigenvector.real) / abs(eigenvector.real).sum()
+            self.score_.reshape((self.score_.shape[0]))
 
         return self
