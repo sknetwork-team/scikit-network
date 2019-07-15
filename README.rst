@@ -1,4 +1,4 @@
-.. image:: https://perso.telecom-paristech.fr/bonald/logo_sknetwork.png
+.. image:: ../images/logo_sknetwork.png
     :align: right
     :width: 100px
     :alt: logo sknetwork
