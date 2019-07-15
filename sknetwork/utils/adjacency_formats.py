@@ -14,9 +14,9 @@ from typing import Union
 def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
                         weight_sum: bool = True) -> Union[sparse.csr_matrix, SparseLR]:
     """
-    Returns the adjacency matrix of the undirected adjacency.
+    Returns the adjacency matrix of the undirected graph associated with some directed graph.
 
-    The new matrix becomes either:
+    The new adjacency matrix becomes either:
 
     :math:`A+A^T` (default)
 
@@ -55,18 +55,19 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
 
 def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union[sparse.csr_matrix, SparseLR]:
     """
-    Returns the adjacency matrix of a biadjacency adjacency seen as a directed adjacency (with edges from one part to the other).
+    Returns the adjacency matrix of the directed graph associated with a bipartite graph
+    (with edges from one part to the other).
 
     The returned adjacency matrix is:
 
     :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}`
 
-    where :math:`B` is the biadjacency matrix of the biadjacency adjacency.
+    where :math:`B` is the biadjacency matrix.
 
     Parameters
     ----------
     biadjacency:
-        Biadjacency matrix of the biadjacency adjacency.
+        Biadjacency matrix of the graph.
 
     Returns
     -------
@@ -96,7 +97,7 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
     Parameters
     ----------
     biadjacency:
-        Biadjacency matrix of the biadjacency adjacency.
+        Biadjacency matrix of the graph.
 
     Returns
     -------

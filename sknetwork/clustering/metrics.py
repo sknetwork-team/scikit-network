@@ -10,7 +10,7 @@ from scipy import sparse
 from typing import Union
 
 
-def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], partition: Union[dict, np.ndarray],
+def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: Union[dict, np.ndarray],
                resolution: float = 1) -> float:
     """
     Compute the modularity of a clustering (node partition).
@@ -31,12 +31,12 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], partition: Union
 
     Parameters
     ----------
-    partition : dict or np.ndarray
-       The partition of the nodes. The keys of the dictionary correspond to the nodes and the values to the labels.
-    adjacency : scipy.csr_matrix or np.ndarray
-        The adjacency matrix of the graph (sparse or dense).
-    resolution : float, optional (default=1.)
-        The resolution parameter.
+    adjacency:
+        Adjacency matrix of the graph.
+    labels:
+        Labels of the nodes.
+    resolution:
+        Resolution parameter.
 
     Returns
     -------
@@ -59,12 +59,12 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], partition: Union
     out_probs = norm_adj.dot(np.ones(n))
     in_probs = norm_adj.T.dot(np.ones(n))
 
-    if type(partition) == dict:
-        labels = np.array([partition[i] for i in range(n)])
-    elif type(partition) == np.ndarray:
-        labels = partition.copy()
+    if type(labels) == dict:
+        labels = np.array([labels[i] for i in range(n)])
+    elif type(labels) == np.ndarray:
+        labels = labels.copy()
     else:
-        raise TypeError('The partition must be a dictionary or a NumPy array.')
+        raise TypeError('The labels must be a dictionary or a NumPy array.')
 
     row = np.arange(n)
     col = labels
@@ -76,7 +76,7 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], partition: Union
     return float(fit - resolution * diversity)
 
 
-def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feature_labels: np.ndarray,
+def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], sample_labels: np.ndarray, feature_labels: np.ndarray,
                  resolution: float = 1) -> float:
     """
     Modularity for bipartite graphs:
@@ -95,9 +95,9 @@ def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feat
     Parameters
     ----------
     biadjacency:
-        Matrix of shape n x p.
+        Biadjacency matrix of the graph (shape n x p).
     sample_labels:
-        Cluster of each sample, vector of size n.
+        Label of each sample, vector of size n.
     feature_labels:
         Cluster of each feature, vector of size p.
     resolution:
@@ -113,6 +113,14 @@ def bimodularity(biadjacency: sparse.csr_matrix, sample_labels: np.ndarray, feat
     total_weight: float = biadjacency.data.sum()
     sample_weights = biadjacency.dot(one_features) / total_weight
     features_weights = biadjacency.T.dot(one_samples) / total_weight
+
+    if type(labels) == dict:
+        labels = np.array([labels[i] for i in range(n)])
+    elif type(labels) == np.ndarray:
+        labels = labels.copy()
+    else:
+        raise TypeError('The labels must be a dictionary or a NumPy array.')
+
 
     _, sample_labels = np.unique(sample_labels, return_inverse=True)
     _, feature_labels = np.unique(feature_labels, return_inverse=True)
