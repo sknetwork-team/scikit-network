@@ -4,7 +4,7 @@
 
 
 import unittest
-from sknetwork.toy_graphs import star_wars_villains_graph, rock_paper_scissors_graph, house_graph
+from sknetwork.toy_graphs import star_wars_villains, rock_paper_scissors, house
 from sknetwork.utils.adjacency_formats import *
 from sknetwork.utils.checks import is_symmetric
 
@@ -12,9 +12,9 @@ from sknetwork.utils.checks import is_symmetric
 class TestFormats(unittest.TestCase):
 
     def setUp(self):
-        self.adjacency = rock_paper_scissors_graph()
-        self.biadjacency = star_wars_villains_graph(return_labels=False)
-        self.house = house_graph()
+        self.adjacency = rock_paper_scissors()
+        self.biadjacency = star_wars_villains(return_labels=False)
+        self.house = house()
 
     def test_dir2undir(self):
         undirected_graph = directed2undirected(self.adjacency)

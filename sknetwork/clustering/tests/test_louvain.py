@@ -5,7 +5,7 @@
 
 import unittest
 from sknetwork.clustering import Louvain, GreedyModularity, modularity
-from sknetwork.toy_graphs import karate_club_graph, bow_tie_graph, painters_graph
+from sknetwork.toy_graphs import karate_club, bow_tie, painters
 from scipy.sparse import identity
 from sknetwork import is_numba_available
 
@@ -23,9 +23,9 @@ class TestLouvainClustering(unittest.TestCase):
                 Louvain(GreedyModularity(engine='numba'))
         self.louvain_shuffle_first = Louvain(GreedyModularity(engine='python'), shuffle_nodes=True, random_state=0)
         self.louvain_shuffle_second = Louvain(GreedyModularity(engine='python'), shuffle_nodes=True, random_state=123)
-        self.karate_club_graph = karate_club_graph()
-        self.bow_tie_graph = bow_tie_graph()
-        self.painters_graph = painters_graph(return_labels=False)
+        self.karate_club_graph = karate_club()
+        self.bow_tie_graph = bow_tie()
+        self.painters_graph = painters(return_labels=False)
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):

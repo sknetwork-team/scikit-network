@@ -5,13 +5,13 @@
 import unittest
 import numpy as np
 from sknetwork.linalg import LanczosEig, HalkoEig, SparseLR
-from sknetwork.toy_graphs import house_graph
+from sknetwork.toy_graphs import house
 
 
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):
-        self.adjacency = house_graph()
+        self.adjacency = house()
         n, m = self.adjacency.shape
         self.slr = SparseLR(self.adjacency, [(np.ones(n), np.ones(m))])
 

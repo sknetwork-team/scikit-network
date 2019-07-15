@@ -5,14 +5,14 @@
 
 import unittest
 import numpy as np
-from sknetwork.toy_graphs import rock_paper_scissors_graph
+from sknetwork.toy_graphs import rock_paper_scissors
 from sknetwork.ranking.pagerank import PageRank
 
 
 class TestPageRank(unittest.TestCase):
 
     def setUp(self):
-        self.adjacency = rock_paper_scissors_graph()
+        self.adjacency = rock_paper_scissors()
         self.spectral_ranking = PageRank(method='spectral')
         self.no_damping_spectral_ranking = PageRank(damping_factor=0., method='spectral')
         self.diter_ranking = PageRank()

@@ -54,12 +54,12 @@ class Spectral(Algorithm):
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import karate_club_graph
-    >>> adjacency = karate_club_graph()
+    >>> from sknetwork.toy_graphs import karate_club
+    >>> adjacency = karate_club()
     >>> spectral = Spectral(embedding_dimension=2)
     >>> spectral.fit(adjacency)
     Spectral(embedding_dimension=2, normalized_laplacian=True, regularization=0.01, energy_scaling=True,\
-force_biadjacency=False, solver=LanczosEig(which='SM'))
+ force_biadjacency=False, solver=LanczosEig(which='SM'))
     >>> spectral.embedding_.shape
     (34, 2)
 

@@ -291,8 +291,8 @@ class Paris(Algorithm):
 
     Examples
     --------
-    >>> from sknetwork.toy_graphs import house_graph
-    >>> adjacency = house_graph()
+    >>> from sknetwork.toy_graphs import house
+    >>> adjacency = house()
     >>> paris = Paris('python')
     >>> paris.fit(adjacency)
     Paris(engine='python')

@@ -7,17 +7,17 @@ Created on March 2019
 
 import unittest
 from sknetwork.hierarchy import Paris, tree_sampling_divergence, dasgupta_cost
-from sknetwork.toy_graphs import karate_club_graph
+from sknetwork.toy_graphs import karate_club
 
 
 class TestMetrics(unittest.TestCase):
 
     def setUp(self):
         self.paris = Paris()
-        self.karate_club_graph = karate_club_graph()
+        self.karate_club = karate_club()
 
-    def test_karate_club_graph(self):
-        adjacency = self.karate_club_graph
+    def test_undirected(self):
+        adjacency = self.karate_club
         dendrogram = self.paris.fit(adjacency).dendrogram_
         tsd = tree_sampling_divergence(adjacency, dendrogram, normalized=True)
         self.assertAlmostEqual(tsd, .65, 2)
