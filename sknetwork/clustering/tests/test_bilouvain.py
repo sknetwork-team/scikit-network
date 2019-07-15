@@ -5,7 +5,7 @@
 
 import unittest
 from sknetwork.clustering import BiLouvain
-from sknetwork.toy_graphs import star_wars_villains_graph
+from sknetwork.toy_graphs import star_wars_villains
 from sknetwork import is_numba_available
 
 
@@ -21,7 +21,7 @@ class TestBiLouvainClustering(unittest.TestCase):
                 BiLouvain(engine='numba')
         self.biouvain_null_resolution = BiLouvain(resolution=0., verbose=False)
 
-        self.star_wars_graph = star_wars_villains_graph()
+        self.star_wars_graph = star_wars_villains()
 
     def test_star_wars_graph(self):
         labels = self.bilouvain.fit(self.star_wars_graph).labels_

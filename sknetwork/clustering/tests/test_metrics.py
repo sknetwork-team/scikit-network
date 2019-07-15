@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 from scipy import sparse
 from sknetwork.clustering import modularity, cocitation_modularity, bimodularity
-from sknetwork.toy_graphs import star_wars_villains_graph
+from sknetwork.toy_graphs import star_wars_villains
 
 
 class TestClusteringMetrics(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestClusteringMetrics(unittest.TestCase):
                                                  [1, 0, 0, 0],
                                                  [1, 0, 0, 1],
                                                  [1, 0, 1, 0]]))
-        self.star_wars_graph = star_wars_villains_graph()
+        self.star_wars_graph = star_wars_villains()
         self.labels = np.array([0, 1, 0, 0])
         self.unique_cluster = np.zeros(4, dtype=int)
 

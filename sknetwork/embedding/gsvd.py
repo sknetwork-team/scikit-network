@@ -42,8 +42,8 @@ class GSVD(Algorithm):
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import movie_actor_graph
-    >>> adjacency = movie_actor_graph()
+    >>> from sknetwork.toy_graphs import movie_actor
+    >>> adjacency = movie_actor()
     >>> gsvd = GSVD(embedding_dimension=2)
     >>> gsvd.fit(adjacency)
     GSVD(embedding_dimension=2, weights='degree', regularization=0.01, energy_scaling=True, solver=LanczosSVD())

@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 
 
-def miserables_graph(return_labels=False):
+def miserables(return_labels=False):
     """
     Co-occurrence graph of the characters in Les Miserables (by Victor Hugo).
 
@@ -173,7 +173,7 @@ def miserables_graph(return_labels=False):
     return adjacency
 
 
-def bow_tie_graph():
+def bow_tie():
     """
     Bow tie graph
 
@@ -190,7 +190,7 @@ def bow_tie_graph():
     return adjacency
 
 
-def house_graph():
+def house():
     """
     House graph
 
@@ -207,7 +207,7 @@ def house_graph():
     return adjacency + adjacency.T
 
 
-def karate_club_graph():
+def karate_club():
     """
     Zachary's Karate Club Graph
 
@@ -236,7 +236,7 @@ def karate_club_graph():
     return adjacency + adjacency.T
 
 
-def rock_paper_scissors_graph():
+def rock_paper_scissors():
     """
     A toy directed cycle graph from Rock Paper Scissors victory rule.
 
@@ -252,7 +252,7 @@ def rock_paper_scissors_graph():
     return sparse.csr_matrix(np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]]))
 
 
-def star_wars_villains_graph(return_labels: bool = False):
+def star_wars_villains(return_labels: bool = False):
     """
     Bipartite graph connecting some Star Wars villains to the movies in which they appear.\n
     7 nodes (4 villains, 3 movies), 8 edges
@@ -279,7 +279,7 @@ def star_wars_villains_graph(return_labels: bool = False):
         return biadjacency
 
 
-def movie_actor_graph(return_labels: bool = False):
+def movie_actor(return_labels: bool = False):
     """
     Bipartite graph connecting movies to some actors starring in them.\n
     31 nodes (15 movies, 16 actors), 41 edges
@@ -362,7 +362,7 @@ def movie_actor_graph(return_labels: bool = False):
         return biadjacency
 
 
-def painters_graph(return_labels: bool = False):
+def painters(return_labels: bool = False):
     """
     Directed graph of top painters with links on Wikipedia.
 

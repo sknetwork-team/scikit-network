@@ -5,13 +5,13 @@
 import unittest
 import numpy as np
 from sknetwork.linalg import LanczosSVD, HalkoSVD, SparseLR
-from sknetwork.toy_graphs import movie_actor_graph
+from sknetwork.toy_graphs import movie_actor
 
 
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):
-        self.biadjacency = movie_actor_graph()
+        self.biadjacency = movie_actor()
         n, m = self.biadjacency.shape
         self.slr = SparseLR(self.biadjacency, [(np.ones(n), np.ones(m))])
 

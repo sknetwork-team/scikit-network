@@ -3,8 +3,8 @@
 # authors: Quentin Lutz <qlutz@enst.fr>, Nathan de Lara <ndelara@enst.fr>
 
 import unittest
-from sknetwork.toy_graphs.graph_data import karate_club_graph, star_wars_villains_graph, \
-    movie_actor_graph, painters_graph
+from sknetwork.toy_graphs.graph_data import karate_club, star_wars_villains, \
+    movie_actor, painters
 
 
 class TestGraphImport(unittest.TestCase):
@@ -13,14 +13,14 @@ class TestGraphImport(unittest.TestCase):
         pass
 
     def test_available(self):
-        adjacency = karate_club_graph()
+        adjacency = karate_club()
         self.assertEqual(adjacency.shape[0], 34)
 
-        biadjacency = star_wars_villains_graph()
+        biadjacency = star_wars_villains()
         self.assertEqual(biadjacency.shape, (4, 3))
 
-        biadjacency = movie_actor_graph()
+        biadjacency = movie_actor()
         self.assertEqual(biadjacency.shape, (15, 16))
 
-        adjacency = painters_graph()
+        adjacency = painters()
         self.assertEqual(adjacency.shape[0], 14)
