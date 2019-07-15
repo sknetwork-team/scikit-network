@@ -136,8 +136,8 @@ def cocitation_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], label
     where
 
     :math:`AF^{-1}A^T` is the normalized cocitation adjacency matrix,\n
-    :math:`F = \\diag(A^T1)` is the diagonal matrix of feature weights,\n
-    :math:`c_j` is the cluster of node `i`,\n
+    :math:`F = \\text{diag}(A^T1)` is the diagonal matrix of feature weights,\n
+    :math:`c_i` is the cluster of node `i`,\n
     :math:`\\delta` is the Kronecker symbol,\n
     :math:`\\gamma \\ge 0` is the resolution parameter.
 

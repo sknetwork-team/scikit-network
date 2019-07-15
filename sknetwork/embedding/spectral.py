@@ -20,54 +20,55 @@ from typing import Union
 
 class Spectral(Algorithm):
     """
-    Weighted spectral embedding of a graph.
+    Spectral embedding of a graph.
 
-        Parameters
-        ----------
-        embedding_dimension : int, optional
-            Dimension of the embedding space
-        normalized_laplacian : bool (default = True)
-            whether to use the normalized laplacian, :math:`I - D^{-1/2} A D^{-1/2}`
-        regularization: ``None`` or float (default=0.01)
-            Implicitly add edges of given weight between all pairs of nodes.
-        energy_scaling: bool (default=True)
-            If ``True``, rescales each column of the embedding by dividing it by :math:`\\sqrt{\\lambda_i}`.
-            Only valid if ``node_weights == 'degree'``.
-        force_biadjacency: bool (default=False)
-            Only relevant for symmetric inputs. Force the algorithm to treat the adjacency as a biadjacency
-            as it would do for asymmetric inputs.
-        solver: 'auto', 'halko', 'lanczos' or EigSolver object
-            Which eigenvalue solver to use
-            * 'auto' calls the auto_solver function
-            * 'halko': randomized method, fast but less accurate than 'lanczos' for ill-conditioned matrices
-            * 'lanczos': power-iteration based method
-            * custom: the user must provide an EigSolver object.
+    Parameters
+    ----------
+    embedding_dimension : int, optional
+        Dimension of the embedding space
+    normalized_laplacian : bool (default = True)
+        whether to use the normalized laplacian, :math:`I - D^{-1/2} A D^{-1/2}`
+    regularization : ``None`` or float (default=0.01)
+        Implicitly add edges of given weight between all pairs of nodes.
+    energy_scaling : bool (default=True)
+        If ``True``, rescales each column of the embedding by dividing it by :math:`\\sqrt{\\lambda_i}`.
+        Only valid if ``node_weights == 'degree'``.
+    force_biadjacency : bool (default=False)
+        Only relevant for symmetric inputs. Force the algorithm to treat the adjacency as a biadjacency
+        as it would do for asymmetric inputs.
+    solver: 'auto', 'halko', 'lanczos' or EigSolver object
+        Which eigenvalue solver to use
+        * 'auto' calls the auto_solver function
+        * 'halko': randomized method, fast but less accurate than 'lanczos' for ill-conditioned matrices
+        * 'lanczos': power-iteration based method
+        * custom: the user must provide an EigSolver object.
 
-        Attributes
-        ----------
-        embedding_ : array, shape = (n_nodes, embedding_dimension)
-            Embedding matrix of the nodes
-        features_ : array, shape = (m_nodes, embedding_dimension)
-            Only relevant for asymmetric inputs or if ``force_biadjacency==True``.
-        eigenvalues_ : array, shape = (embedding_dimension)
-            Smallest eigenvalues of the training matrix
+    Attributes
+    ----------
+    embedding_ : array, shape = (n, embedding_dimension)
+        Embedding matrix of the nodes
+    features_ : array, shape = (p, embedding_dimension)
+        Only relevant for asymmetric inputs or if ``force_biadjacency==True``.
+    eigenvalues_ : array, shape = (embedding_dimension)
+        Smallest eigenvalues of the training matrix
 
-        Example
-        -------
-        >>> from sknetwork.toy_graphs import karate_club_graph
-        >>> adjacency = karate_club_graph()
-        >>> spectral = Spectral(embedding_dimension=2)
-        >>> spectral.fit(adjacency)
-        Spectral(embedding_dimension=2, normalized_laplacian=True, regularization=0.01, energy_scaling=True,\
- force_biadjacency=False, solver=LanczosEig(which='SM'))
-        >>> spectral.embedding_.shape
-        (34, 2)
+    Example
+    -------
+    >>> from sknetwork.toy_graphs import karate_club_graph
+    >>> adjacency = karate_club_graph()
+    >>> spectral = Spectral(embedding_dimension=2)
+    >>> spectral.fit(adjacency)
+    Spectral(embedding_dimension=2, normalized_laplacian=True, regularization=0.01, energy_scaling=True,\
+force_biadjacency=False, solver=LanczosEig(which='SM'))
+    >>> spectral.embedding_.shape
+    (34, 2)
 
-        References
-        ----------
-        * Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
-        Neural computation.
-        """
+    References
+    ----------
+    * Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
+    Neural computation.
+
+    """
 
     def __init__(self, embedding_dimension: int = 2, normalized_laplacian=True,
                  regularization: Union[None, float] = 0.01, energy_scaling: bool = True,

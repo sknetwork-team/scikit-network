@@ -156,7 +156,7 @@ def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr
             'Node weights must be a known distribution ("degree" or "uniform" string) or a custom NumPy array.')
 
     if positive_entries and not has_positive_entries(node_weights_vec):
-        raise ValueError('Some of the weights are not positive.')
+        raise ValueError('All weights must be positive.')
     else:
         if np.any(node_weights_vec < 0) or node_weights_vec.sum() <= 0:
             raise ValueError('Node weights must be non-negative with positive sum.')

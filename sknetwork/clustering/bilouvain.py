@@ -29,44 +29,46 @@ class BiLouvain(Algorithm):
 
     where
 
-    :math:`c^d_i` is the cluster of sample node `i` (rows of the biadjacency matrix),\n
-    :math:`c^f_j` is the cluster of feature node `j` (columns of the biadjacency matrix),\n
+    :math:`d_i` is the weight of sample node :math:`i` (rows of the biadjacency matrix),\n
+    :math:`f_j` is the weight of feature node :math:`j` (columns of the biadjacency matrix),\n
+    :math:`c^d_i` is the cluster of sample node :math:`i`,\n
+    :math:`c^f_j` is the cluster of feature node :math:`j`,\n
     :math:`\\delta` is the Kronecker symbol,\n
     :math:`\\gamma \\ge 0` is the resolution parameter.
 
 
-    The `force_undirected` parameter of the :class:`fit` method forces the algorithm to consider the adjacency
-    as undirected, without considering its biadjacency structure.
+    The `force_undirected` parameter of the :class:`fit` method forces the algorithm to consider the graph
+    as undirected, without considering its bipartite structure.
 
     Parameters
     ----------
-    resolution:
+    resolution :
         Resolution parameter.
-    tol:
+    tol :
         Minimum increase in the objective function to enter a new optimization pass.
-    agg_tol:
+    agg_tol :
         Minimum increase in the objective function to enter a new aggregation pass.
-    max_agg_iter:
+    max_agg_iter :
         Maximum number of aggregations.
         A negative value is interpreted as no limit.
-    engine: str
+    engine : str
         ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
-    verbose:
+    verbose :
         Verbose mode.
 
     Attributes
     ----------
-    labels_: np.ndarray
-        Cluster index of each sample node (rows).
-    feature_labels_: np.ndarray
-        Cluster index of each feature node (columns).
-    iteration_count_: int
+    labels_ : np.ndarray
+        Labels of sample nodes (rows).
+    feature_labels_ : np.ndarray
+        Labels of feature nodes (columns).
+    iteration_count_ : int
         Total number of aggregations performed.
-    aggregate_graph_: sparse.csr_matrix
+    aggregate_graph_ : sparse.csr_matrix
         Aggregated adjacency at the end of the algorithm.
-    score_: float
+    score_ : float
         objective function value after fit
-    n_clusters_: int
+    n_clusters_ : int
         number of clusters after fit
     """
 
@@ -95,15 +97,15 @@ class BiLouvain(Algorithm):
 
         Parameters
         ----------
-        biadjacency:
+        biadjacency :
             Biadjacency matrix of the graph.
-        weights:
+        weights :
             Probabilities for the samples in the null model. ``'degree'``, ``'uniform'`` or custom weights.
-        feature_weights:
+        feature_weights :
             Probabilities for the features in the null model. ``'degree'``, ``'uniform'`` or custom weights.
-        force_undirected:
+        force_undirected :
             If True, maximizes the modularity of the undirected graph instead of the bimodularity.
-        sorted_cluster:
+        sorted_cluster :
             If True, sort labels in decreasing order of cluster size.
 
         Returns
@@ -135,5 +137,5 @@ class BiLouvain(Algorithm):
             labels = reindex_clusters(labels)
         self.labels_ = labels[:n]
         self.feature_labels_ = labels[n:]
-        self.aggregate_graph_ = louvain.aggregate_graph_
+        self.aggregate_graph_ = louvain.aggregate_graph_ * adjacency.data.sum()
         return self
