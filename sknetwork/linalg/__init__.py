@@ -1,4 +1,3 @@
-"""init file for linalg submodule"""
 from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.linalg.auto_mode import auto_solver
 from sknetwork.linalg.eig import EigSolver, LanczosEig, HalkoEig
