@@ -298,8 +298,7 @@ class Paris(Algorithm):
     >>> from sknetwork.toy_graphs import house
     >>> adjacency = house()
     >>> paris = Paris('python')
-    >>> paris.fit(adjacency)
-    >>> paris.dendrogram_
+    >>> paris.fit(adjacency).dendrogram_
     array([[3.        , 2.        , 0.33333333, 2.        ],
            [1.        , 0.        , 0.5       , 2.        ],
            [6.        , 4.        , 0.625     , 3.        ],
@@ -327,7 +326,8 @@ class Paris(Algorithm):
         self.dendrogram_ = None
         self.engine = check_engine(engine)
 
-    def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree', reorder: bool = True):
+    def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree', reorder: bool = True) \
+            -> 'Paris':
         """
         Agglomerative clustering using the nearest neighbor chain.
 
@@ -339,6 +339,10 @@ class Paris(Algorithm):
             Node weights used in the linkage.
         reorder :
             If True, reorder the dendrogram in increasing order of heights.
+
+        Returns
+        -------
+        self: :class: 'Paris'
         """
         adjacency = check_format(adjacency)
 
@@ -405,6 +409,7 @@ class Paris(Algorithm):
                 dendrogram = reorder_dendrogram(dendrogram)
 
             self.dendrogram_ = dendrogram
+            return self
 
         elif self.engine == 'numba':
 
@@ -417,6 +422,7 @@ class Paris(Algorithm):
                 dendrogram = reorder_dendrogram(dendrogram)
 
             self.dendrogram_ = dendrogram
+            return self
 
         else:
             raise ValueError('Unknown engine.')

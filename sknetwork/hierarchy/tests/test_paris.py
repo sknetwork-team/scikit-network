@@ -17,14 +17,14 @@ from sknetwork import is_numba_available
 class TestParis(unittest.TestCase):
 
     def setUp(self):
-        self.paris_python = Paris(engine='python')
+        self.paris_python = Paris('python')
         self.house_graph = house()
         self.karate_club_graph = karate_club()
         if is_numba_available:
-            self.paris_numba = Paris(engine='numba')
+            self.paris_numba = Paris('numba')
         else:
             with self.assertRaises(ValueError):
-                Paris(engine='numba')
+                Paris('numba')
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):

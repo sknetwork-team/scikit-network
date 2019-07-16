@@ -415,8 +415,7 @@ class Louvain(Algorithm):
     -------
     >>> louvain = Louvain('python')
     >>> adjacency = sparse.identity(3, format='csr')
-    >>> louvain.fit(adjacency)
-    >>> louvain.labels_
+    >>> louvain.fit(adjacency).labels_
     array([0, 1, 2])
 
     References
@@ -459,7 +458,7 @@ class Louvain(Algorithm):
         self.shuffle_nodes = shuffle_nodes
 
     def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
-            in_weights: Union[None, str, np.ndarray] = None, sorted_cluster: bool = True):
+            in_weights: Union[None, str, np.ndarray] = None, sorted_cluster: bool = True) -> 'Louvain':
         """
         Clustering using chosen Optimizer.
 
@@ -476,6 +475,10 @@ class Louvain(Algorithm):
             If None, taken equal to out-weights.
         sorted_cluster :
             If True, sorts labels in decreasing order of cluster size.
+
+        Returns
+        -------
+        self: :class: 'Louvain'
         """
         adjacency = check_format(adjacency)
 
@@ -524,3 +527,5 @@ class Louvain(Algorithm):
         if sorted_cluster:
             self.labels_ = reindex_clusters(self.labels_)
         self.aggregate_graph_ = graph.norm_adjacency * adjacency.data.sum()
+
+        return self

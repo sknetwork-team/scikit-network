@@ -74,8 +74,7 @@ class PageRank(Algorithm):
     >>> from sknetwork.toy_graphs import rock_paper_scissors
     >>> pagerank = PageRank()
     >>> adjacency = rock_paper_scissors()
-    >>> pagerank.fit(adjacency)
-    >>> np.round(pagerank.score_, 2)
+    >>> np.round(pagerank.fit(adjacency).score_, 2)
     array([0.33, 0.33, 0.33])
 
     References
@@ -107,7 +106,7 @@ class PageRank(Algorithm):
         self.diffusion = njit(diffusion, parallel=parallel)
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Union[None, np.ndarray] = None):
+            personalization: Union[None, np.ndarray] = None) -> 'PageRank':
         """Standard PageRank via matrix factorization or D-iteration.
 
         Parameters
@@ -117,6 +116,10 @@ class PageRank(Algorithm):
         personalization :
             If ``None``, the uniform probability distribution over the nodes is used.
             Otherwise, the user must provide a non-negative vector.
+
+        Returns
+        -------
+        self: :class: 'PageRank'
         """
         adjacency = check_format(adjacency)
         if not is_square(adjacency):
@@ -160,3 +163,5 @@ class PageRank(Algorithm):
 
             self.score_ = abs(eigenvector.real) / abs(eigenvector.real).sum()
             self.score_.reshape((self.score_.shape[0]))
+
+        return self

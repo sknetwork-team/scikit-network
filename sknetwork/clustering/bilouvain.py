@@ -104,7 +104,7 @@ class BiLouvain(Algorithm):
 
     def fit(self, biadjacency: sparse.csr_matrix, weights: Union['str', np.ndarray] = 'degree',
             feature_weights: Union['str', np.ndarray] = 'degree', force_undirected: bool = False,
-            sorted_cluster: bool = True):
+            sorted_cluster: bool = True) -> 'BiLouvain':
         """
         Alternates local optimization and aggregation until convergence.
 
@@ -120,6 +120,10 @@ class BiLouvain(Algorithm):
             If True, maximizes the modularity of the undirected graph instead of the bimodularity.
         sorted_cluster :
             If True, sort labels in decreasing order of cluster size.
+
+        Returns
+        -------
+        self: :class: 'BiLouvain'
         """
         biadjacency = check_format(biadjacency)
         n, p = biadjacency.shape
@@ -147,3 +151,5 @@ class BiLouvain(Algorithm):
         self.labels_ = labels[:n]
         self.feature_labels_ = labels[n:]
         self.aggregate_graph_ = louvain.aggregate_graph_ * adjacency.data.sum()
+
+        return self
