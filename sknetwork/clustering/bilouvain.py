@@ -8,17 +8,17 @@ Created on Mar 3, 2019
 
 import numpy as np
 from scipy import sparse
-from typing import Union
-from sknetwork.clustering.louvain import Louvain, GreedyModularity
+from typing import Union, Optional
+from sknetwork.clustering.louvain import Louvain, GreedyModularity, Optimizer
 from sknetwork.clustering.postprocessing import reindex_clusters
 from sknetwork.utils.adjacency_formats import bipartite2undirected, bipartite2directed
-from sknetwork.utils.checks import check_probs, check_format, check_engine
+from sknetwork.utils.checks import check_probs, check_format, check_engine, check_random_state
 from sknetwork.utils.algorithm_base_class import Algorithm
 
 
 class BiLouvain(Algorithm):
     """
-    BiLouvain algorithm for the co-clustering of biadjacency graphs in Python (default) and Numba.
+    BiLouvain algorithm for the co-clustering of bipartite graphs.
 
     Seeks the best partition of the nodes with respect to bimodularity.
 
@@ -36,12 +36,19 @@ class BiLouvain(Algorithm):
     :math:`\\delta` is the Kronecker symbol,\n
     :math:`\\gamma \\ge 0` is the resolution parameter.
 
-
     The `force_undirected` parameter of the :class:`fit` method forces the algorithm to consider the graph
     as undirected, without considering its bipartite structure.
 
     Parameters
     ----------
+    algorithm :
+        The optimization algorithm.
+        Requires a fit method.
+        Requires `score\\_`  and `labels\\_` attributes.
+
+        If ``'default'``, uses greedy modularity optimization algorithm: :class:`GreedyModularity`.
+    engine : str
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     resolution :
         Resolution parameter.
     tol :
@@ -51,8 +58,6 @@ class BiLouvain(Algorithm):
     max_agg_iter :
         Maximum number of aggregations.
         A negative value is interpreted as no limit.
-    engine : str
-        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     verbose :
         Verbose mode.
 
@@ -72,8 +77,16 @@ class BiLouvain(Algorithm):
         number of clusters after fit
     """
 
-    def __init__(self, resolution: float = 1, tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1,
-                 engine='default', verbose: bool = False):
+    def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
+                 tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
+        self.random_state = check_random_state(random_state)
+        if algorithm == 'default':
+            self.algorithm = GreedyModularity(resolution, tol, engine=check_engine(engine))
+        elif isinstance(algorithm, Optimizer):
+            self.algorithm = algorithm
+        else:
+            raise TypeError('Algorithm must be \'auto\' or a valid algorithm.')
         self.resolution = resolution
         self.tol = tol
         self.agg_tol = agg_tol
@@ -107,15 +120,11 @@ class BiLouvain(Algorithm):
             If True, maximizes the modularity of the undirected graph instead of the bimodularity.
         sorted_cluster :
             If True, sort labels in decreasing order of cluster size.
-
-        Returns
-        -------
-        self: :class:`BiLouvain`
         """
         biadjacency = check_format(biadjacency)
         n, p = biadjacency.shape
 
-        louvain = Louvain(GreedyModularity(self.resolution, self.tol, engine=self.engine), verbose=self.verbose)
+        louvain = Louvain(algorithm=self.algorithm, verbose=self.verbose)
 
         if force_undirected:
             adjacency = bipartite2undirected(biadjacency)
@@ -138,4 +147,3 @@ class BiLouvain(Algorithm):
         self.labels_ = labels[:n]
         self.feature_labels_ = labels[n:]
         self.aggregate_graph_ = louvain.aggregate_graph_ * adjacency.data.sum()
-        return self

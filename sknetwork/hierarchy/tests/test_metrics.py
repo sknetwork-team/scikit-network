@@ -18,7 +18,8 @@ class TestMetrics(unittest.TestCase):
 
     def test_undirected(self):
         adjacency = self.karate_club
-        dendrogram = self.paris.fit(adjacency).dendrogram_
+        self.paris.fit(adjacency)
+        dendrogram = self.paris.dendrogram_
         tsd = tree_sampling_divergence(adjacency, dendrogram, normalized=True)
         self.assertAlmostEqual(tsd, .65, 2)
         dc = dasgupta_cost(adjacency, dendrogram, normalized=True)

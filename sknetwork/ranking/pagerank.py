@@ -15,20 +15,23 @@ from scipy import sparse
 from typing import Union
 
 
-def diffusion(indptr, indices, data, flow_history, current_flow, damping_factor):
+def diffusion(indptr: np.ndarray, indices: np.ndarray, data: np.ndarray, flow_history: np.ndarray,
+              current_flow: np.ndarray, damping_factor: float):
     """Diffusion for D-iteration.
 
     Parameters
     ----------
-    indptr:
-        CSR format index pointer array of the normalized adjacency matrix.
-    indices:
-        CSR format index array of the normalized adjacency matrix.
-    data:
-        CSR format data array of the normalized adjacency matrix.
-    flow_history
-    current_flow
-    damping_factor
+    indptr : n
+        index pointer array of the normalized adjacency matrix.
+    indices :
+        index array of the normalized adjacency matrix.
+    data :
+        data array of the normalized adjacency matrix.
+    flow_history :
+        past flow
+    current_flow :
+        current flow
+    damping_factor :
         Damping factor for D-iteration
 
     """

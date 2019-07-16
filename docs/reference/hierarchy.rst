@@ -12,8 +12,8 @@ clusters of indices ``Z[i, 0]`` and ``Z[i, 1]``, which are at distance ``Z[i, 2]
 :math:`n+i`, which contains ``Z[i, 3]`` nodes.
 
 
-Paris algorithm
----------------
+Paris
+-----
 .. automodule:: sknetwork.hierarchy
 
 .. autoclass:: sknetwork.hierarchy.Paris

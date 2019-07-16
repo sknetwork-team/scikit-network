@@ -283,6 +283,10 @@ class Paris(Algorithm):
 
     * :math:`w_{j}` is the weight of cluster j.
 
+    Parameters
+    ----------
+    engine : str
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
 
     Attributes
     ----------
@@ -295,7 +299,6 @@ class Paris(Algorithm):
     >>> adjacency = house()
     >>> paris = Paris('python')
     >>> paris.fit(adjacency)
-    Paris(engine='python')
     >>> paris.dendrogram_
     array([[3.        , 2.        , 0.33333333, 2.        ],
            [1.        , 0.        , 0.5       , 2.        ],
@@ -304,7 +307,7 @@ class Paris(Algorithm):
 
     Notes
     -----
-    Each row of the dendrogram = i, j, height, size of cluster i + j.
+    Each row of the dendrogram = :math:`i, j`, height, size of cluster :math:`i + j`.
 
 
     See Also
@@ -336,10 +339,6 @@ class Paris(Algorithm):
             Node weights used in the linkage.
         reorder :
             If True, reorder the dendrogram in increasing order of heights.
-
-        Returns
-        -------
-        self: :class:`Paris`
         """
         adjacency = check_format(adjacency)
 
@@ -407,8 +406,6 @@ class Paris(Algorithm):
 
             self.dendrogram_ = dendrogram
 
-            return self
-
         elif self.engine == 'numba':
 
             n_nodes = np.int32(adjacency.shape[0])
@@ -420,8 +417,6 @@ class Paris(Algorithm):
                 dendrogram = reorder_dendrogram(dendrogram)
 
             self.dendrogram_ = dendrogram
-
-            return self
 
         else:
             raise ValueError('Unknown engine.')

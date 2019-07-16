@@ -24,12 +24,15 @@ class TestBiLouvainClustering(unittest.TestCase):
         self.star_wars_graph = star_wars_villains()
 
     def test_star_wars_graph(self):
-        labels = self.bilouvain.fit(self.star_wars_graph).labels_
+        self.bilouvain.fit(self.star_wars_graph)
+        labels = self.bilouvain.labels_
         self.assertEqual(labels.shape, (4,))
-        labels = self.bilouvain_high_resolution.fit(self.star_wars_graph).labels_
+        self.bilouvain_high_resolution.fit(self.star_wars_graph)
+        labels = self.bilouvain_high_resolution.labels_
         self.assertEqual(labels.shape, (4,))
         if is_numba_available:
-            labels = self.bilouvain_numba.fit(self.star_wars_graph).labels_
+            self.bilouvain_numba.fit(self.star_wars_graph)
+            labels = self.bilouvain_numba.labels_
             self.assertEqual(labels.shape, (4,))
         self.biouvain_null_resolution.fit(self.star_wars_graph)
         self.assertEqual(self.biouvain_null_resolution.n_clusters_, 1)

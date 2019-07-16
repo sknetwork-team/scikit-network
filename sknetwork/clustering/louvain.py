@@ -382,6 +382,8 @@ class Louvain(Algorithm):
         Requires `score\\_`  and `labels\\_` attributes.
 
         If ``'default'``, uses greedy modularity optimization algorithm: :class:`GreedyModularity`.
+    engine : str
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     resolution :
         Resolution parameter.
     tol :
@@ -393,10 +395,10 @@ class Louvain(Algorithm):
         A negative value is interpreted as no limit.
     shuffle_nodes :
         Enables node shuffling before optimization.
-    verbose :
-        Verbose mode.
     random_state :
         Random number generator or random seed. If None, numpy.random is used.
+    verbose :
+        Verbose mode.
 
     Attributes
     ----------
@@ -411,11 +413,9 @@ class Louvain(Algorithm):
 
     Example
     -------
-    >>> louvain = Louvain(GreedyModularity(engine='python'))
+    >>> louvain = Louvain('python')
     >>> adjacency = sparse.identity(3, format='csr')
     >>> louvain.fit(adjacency)
-    Louvain(algorithm=GreedyModularity(resolution=1, tol=0.001, engine='python'), agg_tol=0.001, max_agg_iter=-1, \
-shuffle_nodes=False, verbose=False)
     >>> louvain.labels_
     array([0, 1, 2])
 
@@ -433,18 +433,20 @@ shuffle_nodes=False, verbose=False)
 
     """
 
-    def __init__(self, algorithm: Union[str, Optimizer] = 'default', resolution: float = 1, tol: float = 1e-3,
-                 agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False, verbose: bool = False,
-                 random_state: Optional[Union[np.random.RandomState, int]] = None):
+    def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
+                 tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
 
         self.random_state = check_random_state(random_state)
         if algorithm == 'default':
-            self.algorithm = GreedyModularity(resolution, tol, engine=check_engine('default'))
+            self.algorithm = GreedyModularity(resolution, tol, engine=check_engine(engine))
         elif isinstance(algorithm, Optimizer):
             self.algorithm = algorithm
         else:
             raise TypeError('Algorithm must be \'auto\' or a valid algorithm.')
 
+        self.resolution = resolution
+        self.tol = tol
         if type(max_agg_iter) != int:
             raise TypeError('The maximum number of iterations must be an integer.')
         self.agg_tol = agg_tol
@@ -457,7 +459,7 @@ shuffle_nodes=False, verbose=False)
         self.shuffle_nodes = shuffle_nodes
 
     def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
-            in_weights: Union[None, str, np.ndarray] = None, sorted_cluster: bool = True) -> 'Louvain':
+            in_weights: Union[None, str, np.ndarray] = None, sorted_cluster: bool = True):
         """
         Clustering using chosen Optimizer.
 
@@ -474,10 +476,6 @@ shuffle_nodes=False, verbose=False)
             If None, taken equal to out-weights.
         sorted_cluster :
             If True, sorts labels in decreasing order of cluster size.
-
-        Returns
-        -------
-        self: :class:`Louvain`
         """
         adjacency = check_format(adjacency)
 
@@ -526,4 +524,3 @@ shuffle_nodes=False, verbose=False)
         if sorted_cluster:
             self.labels_ = reindex_clusters(self.labels_)
         self.aggregate_graph_ = graph.norm_adjacency * adjacency.data.sum()
-        return self
