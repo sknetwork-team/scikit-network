@@ -75,7 +75,6 @@ class PageRank(Algorithm):
     >>> pagerank = PageRank()
     >>> adjacency = rock_paper_scissors()
     >>> pagerank.fit(adjacency)
-    PageRank(damping_factor=0.85, method='diter', n_iter=25)
     >>> np.round(pagerank.score_, 2)
     array([0.33, 0.33, 0.33])
 
@@ -108,7 +107,7 @@ class PageRank(Algorithm):
         self.diffusion = njit(diffusion, parallel=parallel)
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Union[None, np.ndarray] = None) -> 'PageRank':
+            personalization: Union[None, np.ndarray] = None):
         """Standard PageRank via matrix factorization or D-iteration.
 
         Parameters
@@ -161,5 +160,3 @@ class PageRank(Algorithm):
 
             self.score_ = abs(eigenvector.real) / abs(eigenvector.real).sum()
             self.score_.reshape((self.score_.shape[0]))
-
-        return self

@@ -376,14 +376,14 @@ class Louvain(Algorithm):
 
     Parameters
     ----------
+    engine : str
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     algorithm :
         The optimization algorithm.
         Requires a fit method.
         Requires `score\\_`  and `labels\\_` attributes.
 
         If ``'default'``, uses greedy modularity optimization algorithm: :class:`GreedyModularity`.
-    engine : str
-        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     resolution :
         Resolution parameter.
     tol :

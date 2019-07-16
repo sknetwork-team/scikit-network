@@ -97,7 +97,7 @@ def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], sample_label
 
     Returns
     -------
-    bimodularity:
+    bimodularity: float
         Bimodularity of the clustering.
     """
     biadjacency = check_format(biadjacency)

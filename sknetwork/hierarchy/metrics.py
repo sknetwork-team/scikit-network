@@ -17,23 +17,23 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
     Parameters
     ----------
     adjacency :
-    Adjacency matrix of the graph.
+        Adjacency matrix of the graph.
     dendrogram :
-    Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
+        Dendrogram.
     weights :
-    Vector of node weights. Default = 'uniform', weight 1 for each node.
+        Vector of node weights. Default = 'uniform', weight 1 for each node.
     normalized:
-    If true, normalized by the number of nodes of the graph.
+        If true, normalized by the number of nodes of the graph.
 
     Returns
     -------
     cost : float
-     Dasgupta's cost of the hierarchy.
-     Normalized by the number of nodes to get a value between 0 and 1.
+        Dasgupta's cost of the hierarchy.
+        If normalized, normalized by the number of nodes to get a value between 0 and 1.
 
     References
     ----------
-    S. Dasgupta (2016). A cost function for similarity-based hierarchical clustering.
+    Dasgupta, S. (2016). A cost function for similarity-based hierarchical clustering.
     Proceedings of ACM symposium on Theory of Computing.
 
     """
@@ -83,19 +83,19 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     Parameters
     ----------
     adjacency :
-    Adjacency matrix of the graph.
+        Adjacency matrix of the graph.
     dendrogram :
-    Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
+        Dendrogram.
     weights :
-    Vector of node weights. Default = 'degree', weight of each node in the adjacency.
+        Vector of node weights. Default = 'degree', weight of each node in the adjacency.
     normalized:
-    If true, normalized by the mutual information of the graph.
+        If true, normalized by the mutual information of the graph.
 
     Returns
     -------
     quality : float
-     The tree sampling divergence of the hierarchy (quality metric).
-     Normalized by the mutual information to get a value between 0 and 1.
+        The tree sampling divergence of the hierarchy (quality metric).
+        If normalized, normalized by the mutual information of the graph to get a value between 0 and 1.
 
     References
     ----------
