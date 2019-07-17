@@ -8,7 +8,7 @@ Created on May 31 2019
 
 import numpy as np
 from sknetwork import njit, prange
-from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_square
+from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_square, check_engine
 from sknetwork.linalg.randomized_matrix_factorization import SparseLR, randomized_eig
 from sknetwork.utils.algorithm_base_class import Algorithm
 from scipy import sparse
@@ -85,8 +85,9 @@ class PageRank(Algorithm):
     * Page, L., Brin, S., Motwani, R., & Winograd, T. (1999). The PageRank citation ranking: Bringing order to the web.
       Stanford InfoLab.
     """
-    def __init__(self, damping_factor: float = 0.85, method: str = 'diter', n_iter: int = 25, parallel: bool = False):
+    def __init__(self, engine='default', damping_factor: float = 0.85, method: str = 'diter', n_iter: int = 25, parallel: bool = False):
         self.score_ = None
+        self.engine = check_engine(engine)
         if damping_factor < 0. or damping_factor > 1.:
             raise ValueError('Damping factor must be between 0 and 1.')
         else:
@@ -103,7 +104,10 @@ class PageRank(Algorithm):
             raise ValueError("Number of iterations must be positive.'")
         else:
             self.n_iter = n_iter
-        self.diffusion = njit(diffusion, parallel=parallel)
+        if engine == 'python':
+            self.diffusion = diffusion
+        else:
+            self.diffusion = njit(diffusion, parallel=parallel)
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Union[None, np.ndarray] = None) -> 'PageRank':
