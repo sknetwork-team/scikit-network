@@ -444,8 +444,6 @@ class Louvain(Algorithm):
         else:
             raise TypeError('Algorithm must be \'auto\' or a valid algorithm.')
 
-        self.resolution = resolution
-        self.tol = tol
         if type(max_agg_iter) != int:
             raise TypeError('The maximum number of iterations must be an integer.')
         self.agg_tol = agg_tol
