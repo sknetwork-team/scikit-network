@@ -4,7 +4,7 @@
 
 
 import unittest
-from sknetwork.clustering import Louvain, GreedyModularity, modularity
+from sknetwork.clustering import Louvain, modularity
 from sknetwork.toy_graphs import karate_club, bow_tie, painters
 from scipy.sparse import identity
 from sknetwork import is_numba_available

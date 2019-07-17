@@ -9,9 +9,10 @@ Created on Nov 29, 2018
 
 import numpy as np
 from scipy import sparse
+from typing import Union, Tuple
 
 
-def miserables(return_labels=False):
+def miserables(return_labels=False) -> Union[sparse.csr_matrix, Tuple[sparse.csr_matrix, dict]]:
     """
     Co-occurrence graph of the characters in Les Miserables (by Victor Hugo).
 
@@ -252,7 +253,7 @@ def rock_paper_scissors():
     return sparse.csr_matrix(np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]]))
 
 
-def star_wars_villains(return_labels: bool = False):
+def star_wars_villains(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, dict, dict], sparse.csr_matrix]:
     """
     Bipartite graph connecting some Star Wars villains to the movies in which they appear.\n
     7 nodes (4 villains, 3 movies), 8 edges
@@ -279,7 +280,7 @@ def star_wars_villains(return_labels: bool = False):
         return biadjacency
 
 
-def movie_actor(return_labels: bool = False):
+def movie_actor(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, dict, dict], sparse.csr_matrix]:
     """
     Bipartite graph connecting movies to some actors starring in them.\n
     31 nodes (15 movies, 16 actors), 41 edges
@@ -362,7 +363,7 @@ def movie_actor(return_labels: bool = False):
         return biadjacency
 
 
-def painters(return_labels: bool = False):
+def painters(return_labels: bool = False) -> Union[sparse.csr_matrix, Tuple[sparse.csr_matrix, dict]]:
     """
     Directed graph of top painters with links on Wikipedia.
 

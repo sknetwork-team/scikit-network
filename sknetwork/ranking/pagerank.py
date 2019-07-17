@@ -22,15 +22,15 @@ def diffusion(indptr: np.ndarray, indices: np.ndarray, data: np.ndarray, flow_hi
     Parameters
     ----------
     indptr : n
-        index pointer array of the normalized adjacency matrix.
+        Index pointer array of the normalized adjacency matrix.
     indices :
-        index array of the normalized adjacency matrix.
+        Index array of the normalized adjacency matrix.
     data :
-        data array of the normalized adjacency matrix.
+        Data array of the normalized adjacency matrix.
     flow_history :
-        past flow
+        Past flow
     current_flow :
-        current flow
+        Current flow
     damping_factor :
         Damping factor for D-iteration
 
