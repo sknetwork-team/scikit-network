@@ -119,4 +119,4 @@ data/
 *.ipynb
 
 #allow notebooks for tutorials
-!/docs/tutorials/*.ipynb
+!/docs/tutorials/*/*.ipynb
