@@ -20,9 +20,9 @@ class SparseLR(LinearOperator):
     Parameters
     ----------
     sparse_mat: scipy.spmatrix
-        sparse component. Is converted to csr format automatically.
+        Sparse component. Is converted to csr format automatically.
     low_rank_tuples: list
-        list of tuple of arrays representing the low rank components [(x1, y1), (x2, y2),...].
+        List of tuple of arrays representing the low rank components [(x1, y1), (x2, y2),...].
         Each low rank component is of the form :math:`xy^T`.
     """
 
@@ -52,16 +52,17 @@ class SparseLR(LinearOperator):
     def __mul__(self, other):
         return SparseLR(other * self.sparse_mat, [(other * x, y) for (x, y) in self.low_rank_tuples])
 
-    def _matvec(self, matrix):
+    def _matvec(self, matrix: np.ndarray):
         """Right dot product with a dense matrix.
 
         Parameters
         ----------
-        matrix: np.ndarray
+        matrix:
+            Matrix.
 
         Returns
         -------
-        the dot product as a dense array
+        Dot product as a dense array
         """
         prod = self.sparse_mat.dot(matrix)
         if len(matrix.shape) == 1:
@@ -78,7 +79,7 @@ class SparseLR(LinearOperator):
 
         Returns
         -------
-        a SparseLR object
+        SparseLR object
         """
         transposed_sparse = sparse.csr_matrix(self.sparse_mat.T)
         transposed_tuples = [(y, x) for (x, y) in self.low_rank_tuples]
@@ -87,30 +88,32 @@ class SparseLR(LinearOperator):
     def _adjoint(self):
         return self.transpose()
 
-    def left_sparse_dot(self, matrix):
+    def left_sparse_dot(self, matrix: sparse.csr_matrix):
         """Left dot product with a sparse matrix
 
         Parameters
         ----------
-        matrix: sparse.csr_matrix
+        matrix:
+            Matrix
 
         Returns
         -------
-        a SparseLR object
+        SparseLR object
 
         """
         return SparseLR(matrix.dot(self.sparse_mat), [(matrix.dot(x), y) for (x, y) in self.low_rank_tuples])
 
-    def right_sparse_dot(self, matrix):
+    def right_sparse_dot(self, matrix: sparse.csr_matrix):
         """Right dot product with a sparse matrix
 
         Parameters
         ----------
-        matrix: sparse.csr_matrix
+        matrix:
+            Matrix
 
         Returns
         -------
-        a SparseLR object
+        SparseLR object
 
         """
         return SparseLR(self.sparse_mat.dot(matrix), [(x, matrix.T.dot(y)) for (x, y) in self.low_rank_tuples])
@@ -124,7 +127,7 @@ class SparseLR(LinearOperator):
 
         Returns
         -------
-        a SparseLR object
+        SparseLR object
 
         """
         self.sparse_mat = self.sparse_mat.astype(dtype)
