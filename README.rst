@@ -43,3 +43,6 @@ To use scikit-network in a project::
 
     import sknetwork as skn
 
+See examples in the Tutorials_ section.
+
+.. _Tutorials: https://scikit-network.readthedocs.io/en/latest/tutorials/

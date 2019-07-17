@@ -5,8 +5,7 @@ Clustering
 
 .. currentmodule:: sknetwork
 
-This submodule contains clustering algorithms, characterized by their ``.labels_`` attribute which assigns a cluster to
-each node in the graph.
+This module contains clustering algorithms. The attribute ``.labels_``  assigns a cluster to each node of the graph.
 
 Louvain
 -------
@@ -33,7 +32,3 @@ Metrics
 .. autofunction:: sknetwork.clustering.bimodularity
 
 .. autofunction:: sknetwork.clustering.cocitation_modularity
-
-.. autofunction:: sknetwork.clustering.performance
-
-.. autofunction:: sknetwork.clustering.cocitation_performance

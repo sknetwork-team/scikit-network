@@ -3,193 +3,140 @@
 """
 Created on Mar 3, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
+@author: Thomas Bonald <bonald@enst.fr>
 """
 
-from sknetwork.clustering.louvain import *
-from sknetwork.utils.adjacency_formats import bipartite2undirected
-from sknetwork.utils.checks import *
-from sknetwork.utils.algorithm_base_class import Algorithm
-from sknetwork import njit, prange
+import numpy as np
+from scipy import sparse
+from typing import Union, Optional
+from sknetwork.clustering.louvain import Louvain, Optimizer
+from sknetwork.clustering.postprocessing import reindex_clusters
+from sknetwork.utils.adjacency_formats import bipartite2undirected, bipartite2directed
+from sknetwork.utils.checks import check_probs, check_format
 
 
-@njit(parallel=False)
-def fit_core(n_samp, node_probs, indptr, indices, data, resolution, tol):
-    n_feat = len(node_probs) - n_samp
-    increase = True
-    total_increase = 0.
-
-    labels: np.ndarray = np.arange(n_samp + n_feat)
-    samp_clusters_probs: np.ndarray = np.hstack((node_probs[:n_samp], np.zeros(n_feat)))
-    feat_clusters_probs: np.ndarray = np.hstack((np.zeros(n_samp), node_probs[n_samp:]))
-
-    while increase:
-        increase = False
-        pass_increase = 0.
-
-        for nodes, source_clusters_probs, target_clusters_probs in ((prange(n_samp), samp_clusters_probs,
-                                                                     feat_clusters_probs),
-                                                                    (prange(n_samp, n_samp + n_feat),
-                                                                     feat_clusters_probs, samp_clusters_probs)):
-
-            increases, labels, source_clusters_probs = local_updates(nodes, node_probs, indptr, indices, data, labels,
-                                                                     source_clusters_probs, target_clusters_probs,
-                                                                     resolution)
-            pass_increase += increases.sum()
-        total_increase += pass_increase
-        if pass_increase > tol:
-            increase = True
-
-    return labels, total_increase
-
-
-@njit(parallel=True)
-def local_updates(nodes, node_probs, indptr, indices, data, labels, source_clusters_probs, target_clusters_probs,
-                  resolution):
-    increases = np.zeros(len(node_probs))
-    for node in nodes:
-        node_cluster: int = labels[node]
-        unique_clusters = set(labels[indices[indptr[node]:indptr[node + 1]]])
-        unique_clusters.discard(node_cluster)
-        n_clusters = len(unique_clusters)
-
-        if n_clusters > 0:
-            node_proba: float = node_probs[node]
-            out_delta: float = resolution * node_proba * target_clusters_probs[node_cluster]
-
-            unique_clusters_list = list(unique_clusters)
-            neighbor_cluster_weights = np.full(n_clusters, 0.0)
-
-            for ix in range(indptr[node], indptr[node + 1]):
-                neighbor_cluster = labels[indices[ix]]
-                if neighbor_cluster == node_cluster:
-                    out_delta -= data[ix]
-                else:
-                    neighbor_cluster_ix = unique_clusters_list.index(neighbor_cluster)
-                    neighbor_cluster_weights[neighbor_cluster_ix] += data[ix]
-
-            best_delta = 0.0
-            best_cluster = node_cluster
-
-            for ix, cluster in enumerate(unique_clusters):
-                in_delta: float = neighbor_cluster_weights[ix]
-                in_delta -= resolution * node_proba * target_clusters_probs[cluster]
-
-                local_delta = out_delta + in_delta
-                if local_delta > best_delta:
-                    best_delta = local_delta
-                    best_cluster = cluster
-
-            if best_delta > 0:
-                increases[node] = best_delta
-                source_clusters_probs[node_cluster] -= node_proba
-                source_clusters_probs[best_cluster] += node_proba
-                labels[node] = best_cluster
-
-    return increases, labels, source_clusters_probs
-
-
-class BiLouvain(Algorithm):
+class BiLouvain(Louvain):
     """
-    BiLouvain algorithm for graph clustering in Python (default) and Numba.
+    BiLouvain algorithm for the co-clustering of bipartite graphs.
+
+    Seeks the best partition of the nodes with respect to bimodularity.
+
+    The bimodularity of a clustering is
+
+    :math:`Q = \\sum_{i=1}^n\\sum_{j=1}^p\\big(\\dfrac{B_{ij}}{w} -
+    \\gamma \\dfrac{d_if_j}{w^2}\\big)\\delta_{c^d_i,c^f_j}`,
+
+    where
+
+    :math:`d_i` is the weight of sample node :math:`i` (rows of the biadjacency matrix),\n
+    :math:`f_j` is the weight of feature node :math:`j` (columns of the biadjacency matrix),\n
+    :math:`c^d_i` is the cluster of sample node :math:`i`,\n
+    :math:`c^f_j` is the cluster of feature node :math:`j`,\n
+    :math:`\\delta` is the Kronecker symbol,\n
+    :math:`\\gamma \\ge 0` is the resolution parameter.
+
+    The `force_undirected` parameter of the :class:`fit` method forces the algorithm to consider the graph
+    as undirected, without considering its bipartite structure.
 
     Parameters
     ----------
+    engine : str
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
+    algorithm :
+        The optimization algorithm.
+        Requires a fit method.
+        Requires `score\\_`  and `labels\\_` attributes.
 
-    resolution:
+        If ``'default'``, uses greedy modularity optimization algorithm: :class:`GreedyModularity`.
+    resolution :
         Resolution parameter.
-    tol:
+    tol :
         Minimum increase in the objective function to enter a new optimization pass.
-    agg_tol:
+    agg_tol :
         Minimum increase in the objective function to enter a new aggregation pass.
-    max_agg_iter:
+    max_agg_iter :
         Maximum number of aggregations.
         A negative value is interpreted as no limit.
-    engine: str
-        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, it will tests if numba is available.
-    verbose:
+    verbose :
         Verbose mode.
 
     Attributes
     ----------
-    labels_: np.ndarray
-        Cluster index of each node in V1.
-    feature_labels_: np.ndarray
-        Cluster index of each node in V2.
-    iteration_count_: int
+    labels_ : np.ndarray
+        Labels of sample nodes (rows).
+    feature_labels_ : np.ndarray
+        Labels of feature nodes (columns).
+    iteration_count_ : int
         Total number of aggregations performed.
-    aggregate_graph_: sparse.csr_matrix
-        Aggregated graph at the end of the algorithm.
-    score_: float
-        objective function value after fit
-    n_clusters_: int
-        number of clusters after fit
+    aggregate_graph_ : sparse.csr_matrix
+        Aggregated adjacency at the end of the algorithm.
+
+    Example
+    -------
+    >>> from sknetwork.toy_graphs import star_wars_villains
+    >>> bilouvain = BiLouvain('python')
+    >>> biadjacency = star_wars_villains()
+    >>> bilouvain.fit(biadjacency).labels_
+    array([1, 1, 0, 0])
+    >>> bilouvain.feature_labels_
+    array([1, 0, 0])
     """
 
-    def __init__(self, resolution: float = 1, tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1,
-                 engine='default', verbose: bool = False):
-        self.resolution = resolution
-        self.tol = tol
-        self.agg_tol = agg_tol
-        if type(max_agg_iter) != int:
-            raise TypeError('The maximum number of iterations must be an integer.')
-        self.max_agg_iter = max_agg_iter
-        self.engine = check_engine(engine)
-        self.verbose = verbose
-        self.labels_ = None
+    def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
+                 tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
+        super().__init__(engine, algorithm, resolution, tol, agg_tol, max_agg_iter, shuffle_nodes, random_state,
+                         verbose)
         self.feature_labels_ = None
-        self.iteration_count_ = None
-        self.aggregate_graph_ = None
-        self.score_ = None
-        self.n_clusters_ = None
 
     def fit(self, biadjacency: sparse.csr_matrix, weights: Union['str', np.ndarray] = 'degree',
-            feature_weights: Union['str', np.ndarray] = 'degree'):
-        """Alternates local optimization and aggregation until convergence.
+            feature_weights: Union['str', np.ndarray] = 'degree', force_undirected: bool = False,
+            sorted_cluster: bool = True) -> 'BiLouvain':
+        """
+        Alternates local optimization and aggregation until convergence.
 
         Parameters
         ----------
-        biadjacency:
-            adjacency matrix of the graph to cluster, treated as a biadjacency matrix
-        weights:
+        biadjacency :
+            Biadjacency matrix of the graph.
+        weights :
             Probabilities for the samples in the null model. ``'degree'``, ``'uniform'`` or custom weights.
-        feature_weights:
+        feature_weights :
             Probabilities for the features in the null model. ``'degree'``, ``'uniform'`` or custom weights.
+        force_undirected :
+            If True, maximizes the modularity of the undirected graph instead of the bimodularity.
+        sorted_cluster :
+            If True, sort labels in decreasing order of cluster size.
 
         Returns
         -------
-        self: :class:`BiLouvain`
+        self: :class: 'BiLouvain'
         """
         biadjacency = check_format(biadjacency)
-        n_samp, n_feat = biadjacency.shape
+        n, p = biadjacency.shape
 
-        samp_weights = np.hstack((check_probs(weights, biadjacency), np.zeros(n_feat)))
-        feat_weights = np.hstack((np.zeros(n_samp), check_probs(feature_weights, biadjacency.T)))
-        graph = NormalizedGraph(bipartite2undirected(biadjacency), samp_weights, feat_weights)
+        louvain = Louvain(algorithm=self.algorithm, agg_tol=self.agg_tol, max_agg_iter=self.max_agg_iter,
+                          shuffle_nodes=self.shuffle_nodes, random_state=self.random_state, verbose=self.verbose)
 
-        iteration_count: int = 0
-        if self.verbose:
-            print("Starting with", biadjacency.shape, "nodes")
+        if force_undirected:
+            adjacency = bipartite2undirected(biadjacency)
+            samp_weights = check_probs(weights, biadjacency)
+            feat_weights = check_probs(feature_weights, biadjacency.T)
+            weights = np.hstack((samp_weights, feat_weights))
+            weights = check_probs(weights, adjacency)
+            louvain.fit(adjacency, weights)
+        else:
+            adjacency = bipartite2directed(biadjacency)
+            samp_weights = np.hstack((check_probs(weights, biadjacency), np.zeros(p)))
+            feat_weights = np.hstack((np.zeros(n), check_probs(feature_weights, biadjacency.T)))
+            louvain.fit(adjacency, samp_weights, feat_weights)
 
-        labels, total_increase = fit_core(n_samp, graph.node_probs, graph.norm_adjacency.indptr,
-                                          graph.norm_adjacency.indices, graph.norm_adjacency.data, self.resolution,
-                                          self.tol)
-        _, labels = np.unique(labels, return_inverse=True)
-        iteration_count += 1
+        self.iteration_count_ = louvain.iteration_count_
+        labels = louvain.labels_
+        if sorted_cluster:
+            labels = reindex_clusters(labels)
+        self.labels_ = labels[:n]
+        self.feature_labels_ = labels[n:]
+        self.aggregate_graph_ = louvain.aggregate_graph_ * adjacency.data.sum()
 
-        membership = membership_matrix(labels)
-        graph.aggregate(membership)
-        if self.verbose:
-            print("Initial iteration completed with", graph.norm_adjacency.shape, "clusters")
-
-        louvain = Louvain(GreedyModularity(self.resolution, self.tol, engine=self.engine), verbose=self.verbose)
-        louvain.fit(graph.norm_adjacency)
-        iteration_count += louvain.iteration_count_
-
-        membership = membership.dot(membership_matrix(louvain.labels_))
-
-        self.n_clusters_ = louvain.n_clusters_
-        self.iteration_count_ = iteration_count
-        self.labels_ = membership.indices[:n_samp]
-        self.feature_labels_ = membership.indices[n_samp:]
-        self.aggregate_graph_ = louvain.aggregate_graph_ * biadjacency.data.sum()
         return self

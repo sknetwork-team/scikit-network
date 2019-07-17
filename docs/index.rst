@@ -1,25 +1,31 @@
-.. figure:: ../images/logo_sknetwork.png
-    :align: right
-    :width: 200px
-    :alt: logo sknetwork
-
 Welcome to scikit-network's documentation!
 ==========================================
 
+.. include:: readme.rst
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Installation & Reference
 
-   readme
    installation
    reference/index
-   tutorials/index
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Tutorials
+
+   tutorials/clustering_Louvain
+   tutorials/hierarchical_clustering
+   tutorials/pagerank
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: About
+
    contributing
    authors
    history
+   genindex
 
-Indices and tables
-==================
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

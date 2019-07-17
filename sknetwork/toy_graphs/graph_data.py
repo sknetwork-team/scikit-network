@@ -9,9 +9,10 @@ Created on Nov 29, 2018
 
 import numpy as np
 from scipy import sparse
+from typing import Union, Tuple
 
 
-def miserables_graph(return_labels=False):
+def miserables(return_labels=False) -> Union[sparse.csr_matrix, Tuple[sparse.csr_matrix, dict]]:
     """
     Co-occurrence graph of the characters in Les Miserables (by Victor Hugo).
 
@@ -22,7 +23,7 @@ def miserables_graph(return_labels=False):
     adjacency: sparse.csr_matrix
         Adjacency matrix of the graph.
     labels: dict, optional
-        The names of the characters corresponding to the nodes in the graph.
+        The names of the characters corresponding to the nodes in the adjacency.
     """
     indptr = np.array([0,  10,  11,  14,  17,  18,  19,  20,  21,  22,  23,  24,  60,
                        62,  63,  64,  65,  74,  81,  88,  95, 102, 109, 116, 131, 142,
@@ -173,7 +174,7 @@ def miserables_graph(return_labels=False):
     return adjacency
 
 
-def bow_tie_graph():
+def bow_tie():
     """
     Bow tie graph
 
@@ -190,7 +191,7 @@ def bow_tie_graph():
     return adjacency
 
 
-def house_graph():
+def house():
     """
     House graph
 
@@ -207,7 +208,7 @@ def house_graph():
     return adjacency + adjacency.T
 
 
-def karate_club_graph():
+def karate_club():
     """
     Zachary's Karate Club Graph
 
@@ -236,8 +237,9 @@ def karate_club_graph():
     return adjacency + adjacency.T
 
 
-def rock_paper_scissors_graph():
-    """A toy directed cycle graph from Rock Paper Scissors victory rule.
+def rock_paper_scissors():
+    """
+    A toy directed cycle graph from Rock Paper Scissors victory rule.
 
     3 nodes, 3 edges
 
@@ -251,15 +253,16 @@ def rock_paper_scissors_graph():
     return sparse.csr_matrix(np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]]))
 
 
-def star_wars_villains_graph(return_labels=False):
+def star_wars_villains(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, dict, dict], sparse.csr_matrix]:
     """
-    Bipartite graph connecting some Star Wars villains to the movies in which they appear.\n
+    Bipartite graph connecting some Star Wars villains to the movies in which they appear.
+
     7 nodes (4 villains, 3 movies), 8 edges
 
     Parameters
     ----------
     return_labels: bool
-        whether to return the labels of the nodes as dictionaries.
+        Whether to return the labels of the nodes as dictionaries.
 
     Returns
     -------
@@ -278,20 +281,25 @@ def star_wars_villains_graph(return_labels=False):
         return biadjacency
 
 
-def movie_actor_graph(return_labels=False):
+def movie_actor(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, dict, dict], sparse.csr_matrix]:
     """
-    Bipartite graph connecting movies to some actors starring in them.\n
+    Bipartite graph connecting movies to some actors starring in them.
+
     31 nodes (15 movies, 16 actors), 41 edges
 
     Parameters
     ----------
     return_labels: bool
-        whether to return the labels of the nodes as dictionaries.
+        Whether to return the labels of the nodes as dictionaries.
 
     Returns
     -------
     biadjacency: sparse.csr_matrix
         Biadjacency matrix of the graph.
+    col_labels: dict
+        Labels of rows (movies)
+    col_labels: dict
+        Labels of columns (actors)
     """
     edges = {
         0: [0, 1, 2],
@@ -355,3 +363,47 @@ def movie_actor_graph(return_labels=False):
         return biadjacency, row_labels, col_labels
     else:
         return biadjacency
+
+
+def painters(return_labels: bool = False) -> Union[sparse.csr_matrix, Tuple[sparse.csr_matrix, dict]]:
+    """
+    Directed graph of some famous painters with links on Wikipedia.
+
+    14 nodes, 50 edges
+
+    Parameters
+    ----------
+    return_labels: bool
+        Whether to return the names of the nodes as a dictionary.
+
+    Returns
+    -------
+    adjacency: sparse.csr_matrix
+        Adjacency matrix of the graph.
+    labels: dict, optional
+        Names of painters.
+    """
+    indptr = np.array([0,  2,  4,  5, 10, 13, 17, 19, 25, 32, 34, 39, 44, 48, 50])
+    indices = np.array([3, 10, 3, 12, 9, 0, 1, 7, 11, 12, 2, 5, 9, 2, 4, 8, 9,
+                        0, 13, 1, 2, 3, 8, 11, 12, 0, 1, 4, 5, 7, 10, 11, 2, 4,
+                        0, 3, 8, 11, 12, 0, 1, 3, 10, 12, 1, 3, 4, 7, 6, 8])
+    data = np.ones(50, dtype=int)
+    adjacency = sparse.csr_matrix((data, indices, indptr))
+    if return_labels:
+        labels = {
+                 0: 'Pablo Picasso',
+                 1: 'Claude Monet',
+                 2: 'Michelangelo',
+                 3: 'Edouard Manet',
+                 4: 'Peter Paul Rubens',
+                 5: 'Rembrandt',
+                 6: 'Gustav Klimt',
+                 7: 'Edgar Degas',
+                 8: 'Vincent van Gogh',
+                 9: 'Leonardo da Vinci',
+                 10: 'Henri Matisse',
+                 11: 'Paul Cezanne',
+                 12: 'Pierre-Auguste Renoir',
+                 13: 'Egon Schiele'}
+        return adjacency, labels
+    return adjacency

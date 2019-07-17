@@ -7,7 +7,10 @@ Created on March 2019
 @author: Quentin Lutz <qlutz@enst.fr>
 """
 
-from sknetwork.utils.checks import *
+import numpy as np
+from scipy import sparse
+from typing import Union
+from sknetwork.utils.checks import check_probs, check_engine, check_format, is_square, is_symmetric
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork import njit, types, TypedDict
 
@@ -61,7 +64,7 @@ class AggregateGraph:
         Returns
         -------
         self: :class:`AggregateGraph`
-            The aggregated graph (without self-loop).
+            The aggregate grate (without self-loop).
         """
         new_node = self.next_cluster
         self.graph[new_node] = {}
@@ -283,6 +286,10 @@ class Paris(Algorithm):
 
     * :math:`w_{j}` is the weight of cluster j.
 
+    Parameters
+    ----------
+    engine : str
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
 
     Attributes
     ----------
@@ -291,12 +298,10 @@ class Paris(Algorithm):
 
     Examples
     --------
-    >>> from sknetwork.toy_graphs import house_graph
-    >>> adjacency = house_graph()
-    >>> paris = Paris()
-    >>> paris.fit(adjacency)
-    Paris(engine='numba')
-    >>> paris.dendrogram_
+    >>> from sknetwork.toy_graphs import house
+    >>> adjacency = house()
+    >>> paris = Paris('python')
+    >>> paris.fit(adjacency).dendrogram_
     array([[3.        , 2.        , 0.33333333, 2.        ],
            [1.        , 0.        , 0.5       , 2.        ],
            [6.        , 4.        , 0.625     , 3.        ],
@@ -304,7 +309,7 @@ class Paris(Algorithm):
 
     Notes
     -----
-    Each row of the dendrogram = i, j, height, size of cluster i + j.
+    Each row of the dendrogram = :math:`i, j`, height, size of cluster :math:`i + j`.
 
 
     See Also
@@ -324,7 +329,8 @@ class Paris(Algorithm):
         self.dendrogram_ = None
         self.engine = check_engine(engine)
 
-    def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree', reorder: bool = True):
+    def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree', reorder: bool = True) \
+            -> 'Paris':
         """
         Agglomerative clustering using the nearest neighbor chain.
 
@@ -339,7 +345,7 @@ class Paris(Algorithm):
 
         Returns
         -------
-        self: :class:`Paris`
+        self: :class: 'Paris'
         """
         adjacency = check_format(adjacency)
 
@@ -406,7 +412,6 @@ class Paris(Algorithm):
                 dendrogram = reorder_dendrogram(dendrogram)
 
             self.dendrogram_ = dendrogram
-
             return self
 
         elif self.engine == 'numba':
@@ -420,7 +425,6 @@ class Paris(Algorithm):
                 dendrogram = reorder_dendrogram(dendrogram)
 
             self.dendrogram_ = dendrogram
-
             return self
 
         else:

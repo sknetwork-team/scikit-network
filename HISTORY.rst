@@ -2,6 +2,14 @@
 History
 =======
 
+0.8.0 (2019-07-17)
+------------------
+
+* Changed Louvain, BiLouvain, Paris and PageRank APIs
+* Changed PageRank method
+* Documentation overhaul
+* Improved Jupyter tutorials
+
 0.7.1 (2019-07-04)
 ------------------
 

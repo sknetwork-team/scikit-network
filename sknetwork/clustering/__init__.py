@@ -1,3 +1,4 @@
-from sknetwork.clustering.louvain import *
-from sknetwork.clustering.bilouvain import *
-from sknetwork.clustering.metrics import *
+from sknetwork.clustering.louvain import Louvain, GreedyModularity
+from sknetwork.clustering.bilouvain import BiLouvain
+from sknetwork.clustering.metrics import modularity, bimodularity, cocitation_modularity
+

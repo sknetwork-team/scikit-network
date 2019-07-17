@@ -6,10 +6,30 @@ Created on June 4 2019
 """
 
 import numpy as np
-from sknetwork.utils.checks import check_format, is_square
 from scipy import sparse
 from scipy.sparse.csgraph import connected_components
+from sknetwork.utils.checks import check_format, is_square
+from sknetwork.utils.adjacency_formats import bipartite2undirected
 from typing import Union
+
+
+def is_connected(adjacency: sparse.csr_matrix) -> bool:
+    """
+    Check whether a graph is weakly connected. Bipartite graphs are treated as undirected ones.
+
+    Parameters
+    ----------
+    adjacency:
+        Adjacency matrix of the graph.
+
+    Returns
+    -------
+
+    """
+    n, m = adjacency.shape
+    if n != m:
+        adjacency = bipartite2undirected(adjacency)
+    return connected_components(adjacency, directed=False)[0] == 1
 
 
 def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], return_labels: bool = False):
@@ -28,8 +48,8 @@ def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray],
     new_adjacency: sparse.csr_matrix
         Adjacency or biadjacency matrix of the largest connected component.
     indices: array or tuple of array
-        Indices of the nodes in the original graph. For bipartite graphes, ``indices[0]`` corresponds to the lines and
-        ``indices[1]`` to the columns.
+        Indices of the nodes in the original graph. For biadjacency matrices,
+        ``indices[0]`` corresponds to the rows and ``indices[1]`` to the columns.
 
     """
     adjacency = check_format(adjacency)

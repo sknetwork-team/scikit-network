@@ -8,12 +8,12 @@ Part of this code was adapted from the scikit-learn project: https://scikit-lear
 
 import numpy as np
 from scipy import sparse, linalg
-from sknetwork.utils.sparse_lowrank import SparseLR
+from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.utils.checks import check_random_state
 from typing import Union
 
 
-def safe_sparse_dot(a, b, dense_output=False):
+def safe_sparse_dot(a, b, dense_output: bool = False):
     """
     Dot product that handle the sparse matrix case correctly
     Uses BLAS GEMM as replacement for numpy.dot where possible
@@ -22,7 +22,7 @@ def safe_sparse_dot(a, b, dense_output=False):
     ----------
     a : array or sparse matrix
     b : array or sparse matrix
-    dense_output : boolean, default False
+    dense_output :
         When False, either ``a`` or ``b`` being sparse will yield sparse
         output. When True, output will always be an array.
     Returns
@@ -49,17 +49,17 @@ def safe_sparse_dot(a, b, dense_output=False):
         return np.dot(a, b)
 
 
-def randomized_range_finder(matrix, size, n_iter, power_iteration_normalizer='auto', random_state=None,
-                            return_all: bool = False) -> [np.ndarray, tuple]:
-    """Computes an orthonormal matrix whose range approximates the range of A.
+def randomized_range_finder(matrix: np.ndarray, size: int, n_iter: int, power_iteration_normalizer='auto',
+                            random_state=None, return_all: bool = False) -> [np.ndarray, tuple]:
+    """Computes an orthonormal matrix whose range approximates the range of the input matrix.
 
     Parameters
     ----------
-    matrix : two dimensional array
-        The input data matrix
-    size : integer
+    matrix :
+        Input matrix
+    size :
         Size of the return array
-    n_iter : int
+    n_iter :
         Number of power iterations. It can be used to deal with very noisy
         problems. When 'auto', it is set to 4, unless ``size`` is small
         (< .1 * min(matrix.shape)) in which case ``n_iter`` is set to 7.

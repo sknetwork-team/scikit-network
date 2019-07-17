@@ -39,7 +39,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     Returns
     -------
     adjacency : csr_matrix
-        the adjacency matrix of the graph
+        the adjacency matrix of the adjacency
     labels : numpy.array
         an array such that labels[k] is the label or the new index given to the k-th node, None if no labels
 

@@ -39,11 +39,12 @@ def is_proba_array(entry: np.ndarray) -> bool:
         err = entry.dot(np.ones(n_features)) - np.ones(n_samples)
         return has_nonnegative_entries(entry) and np.isclose(np.linalg.norm(err), 0)
     else:
-        raise TypeError('entry must be one or two-dimensional array.')
+        raise TypeError('Entry must be one or two-dimensional array.')
 
 
 def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """Checks whether the matrix is square.
+    """
+    Checks whether the matrix is square.
     """
     return adjacency.shape[0] == adjacency.shape[1]
 
@@ -63,7 +64,7 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
        distribution:
            Distribution for node sampling. Only ``'degree'`` or ``'uniform'`` are accepted.
        adjacency:
-           The adjacency matrix of the graph.
+           The adjacency matrix of the adjacency.
 
        Returns
        -------
@@ -103,7 +104,8 @@ def check_engine(engine: str) -> str:
 
 
 def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
-    """Checks whether the matrix is an instance of a supported type (NumPy array or Scipy CSR matrix) and returns
+    """
+    Checks whether the matrix is an instance of a supported type (NumPy array or Scipy CSR matrix) and returns
     the corresponding Scipy CSR matrix.
     """
     if type(adjacency) not in {sparse.csr_matrix, np.ndarray}:
@@ -124,14 +126,14 @@ def check_is_proba(entry: Union[float, int]):
 
 def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_matrix, sparse.csc_matrix],
                   positive_entries: bool = False) -> np.ndarray:
-    """Checks whether the weights are a valid distribution for the graph and returns a probability vector.
+    """Checks whether the weights are a valid distribution for the adjacency and returns a probability vector.
 
     Parameters
     ----------
     weights:
         Probabilities for node sampling in the null model. ``'degree'``, ``'uniform'`` or custom weights.
     adjacency:
-        The adjacency matrix of the graph.
+        The adjacency matrix of the adjacency.
     positive_entries:
         If true, the weights must all be positive, if False, the weights must be nonnegative.
 
@@ -154,7 +156,7 @@ def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr
             'Node weights must be a known distribution ("degree" or "uniform" string) or a custom NumPy array.')
 
     if positive_entries and not has_positive_entries(node_weights_vec):
-        raise ValueError('Some of the weights are not positive.')
+        raise ValueError('All weights must be positive.')
     else:
         if np.any(node_weights_vec < 0) or node_weights_vec.sum() <= 0:
             raise ValueError('Node weights must be non-negative with positive sum.')
@@ -164,7 +166,7 @@ def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr
 
 def check_probs(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_matrix, sparse.csc_matrix],
                 positive_entries: bool = False) -> np.ndarray:
-    """Checks whether the weights are a valid distribution for the graph and returns a normalized probability vector.
+    """Checks whether the weights are a valid distribution for the adjacency and returns a normalized probability vector.
     """
     weights = check_weights(weights, adjacency, positive_entries)
     return weights / np.sum(weights)

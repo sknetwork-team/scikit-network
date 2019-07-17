@@ -11,29 +11,30 @@ from sknetwork.utils.checks import *
 
 def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
                   weights: Union[str, np.ndarray] = 'uniform', normalized: bool = True) -> float:
-    """Dasgupta's cost of a hierarchy (cost metric)
+    """
+    Dasgupta's cost of a hierarchy (cost metric).
 
-     Parameters
-     ----------
-     adjacency :
+    Parameters
+    ----------
+    adjacency :
         Adjacency matrix of the graph.
-     dendrogram :
-        Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
-     weights :
+    dendrogram :
+        Dendrogram.
+    weights :
         Vector of node weights. Default = 'uniform', weight 1 for each node.
-     normalized:
-        If true, normalized by the number of ndoes of the graph.
+    normalized:
+        If true, normalized by the number of nodes of the graph.
 
-     Returns
-     -------
-     cost : float
-         Dasgupta's cost of the hierarchy.
-         Normalized by the number of nodes to get a value between 0 and 1.
+    Returns
+    -------
+    cost : float
+        Dasgupta's cost of the hierarchy.
+        If normalized, normalized by the number of nodes to get a value between 0 and 1.
 
-     References
-     ----------
-     S. Dasgupta (2016). A cost function for similarity-based hierarchical clustering.
-     Proceedings of ACM symposium on Theory of Computing.
+    References
+    ----------
+    Dasgupta, S. (2016). A cost function for similarity-based hierarchical clustering.
+    Proceedings of ACM symposium on Theory of Computing.
 
     """
     adjacency = check_format(adjacency)
@@ -43,7 +44,7 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
     if adjacency.shape[0] <= 1:
         raise ValueError('The graph must contain at least two nodes.')
     if not is_symmetric(adjacency):
-        raise ValueError('The graph must be undirected. Please fit a symmetric adjacency matrix.')
+        raise ValueError('The graph must be undirected. Please enter a symmetric adjacency matrix.')
 
     node_probs = check_probs(weights, adjacency, positive_entries=True)
 
@@ -76,30 +77,31 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
 
 def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
                              weights: Union[str, np.ndarray] = 'degree', normalized: bool = True) -> float:
-    """Tree sampling divergence of a hierarchy (quality metric)
+    """
+    Tree sampling divergence of a hierarchy (quality metric).
 
-     Parameters
-     ----------
-     adjacency :
+    Parameters
+    ----------
+    adjacency :
         Adjacency matrix of the graph.
-     dendrogram :
-        Each row contains the two merged nodes, the height in the dendrogram, and the size of the corresponding cluster
-     weights :
-        Vector of node weights. Default = 'degree', weight of each node in the graph.
-     normalized:
+    dendrogram :
+        Dendrogram.
+    weights :
+        Vector of node weights. Default = 'degree', weight of each node in the adjacency.
+    normalized:
         If true, normalized by the mutual information of the graph.
 
-     Returns
-     -------
-     quality : float
-         The tree sampling divergence of the hierarchy (quality metric).
-         Normalized by the mutual information to get a value between 0 and 1.
+    Returns
+    -------
+    quality : float
+        The tree sampling divergence of the hierarchy (quality metric).
+        If normalized, normalized by the mutual information of the graph to get a value between 0 and 1.
 
-     References
-     ----------
-     T. Bonald, B. Charpentier (2018). Learning Graph Representations by Dendrograms.
-     https://arxiv.org/abs/1807.05087
-
+    References
+    ----------
+    Charpentier, B. & Bonald, T. (2019).  Tree Sampling Divergence: An Information-Theoretic Metric for
+    Hierarchical Graph Clustering. Proceedings of IJCAI.
+    https://hal.telecom-paristech.fr/hal-02144394/document
     """
     adjacency = check_format(adjacency)
 
@@ -108,7 +110,7 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     if adjacency.shape[0] <= 1:
         raise ValueError('The graph must contain at least two nodes.')
     if not is_symmetric(adjacency):
-        raise ValueError('The graph must be undirected. Please fit a symmetric adjacency matrix.')
+        raise ValueError('The graph must be undirected. Please enter a symmetric adjacency matrix.')
 
     node_probs = check_probs(weights, adjacency, positive_entries=True)
 
@@ -136,7 +138,7 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
         aggregate_graph.merge(node1, node2)
 
     index = np.where(edge_sampling)[0]
-    quality: float = np.sum(edge_sampling[index] * np.log(edge_sampling[index] / node_sampling[index]))
+    quality = float(np.sum(edge_sampling[index] * np.log(edge_sampling[index] / node_sampling[index])))
     if normalized:
         inv_node_weights = sparse.diags(1 / node_probs, shape=(n_nodes, n_nodes), format='csr')
         sampling_ratio = inv_node_weights.dot(adjacency.dot(inv_node_weights)) / adjacency.data.sum()
