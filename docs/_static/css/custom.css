@@ -1,0 +1,37 @@
+html  {
+    background-color: #e6e6e6;
+}
+
+body.wy-body-for-nav {
+    line-height: 1.5em;
+    color: #333;
+}
+
+div.wy-nav-side {
+    background-color: #333;
+}
+
+div.wy-side-nav-search {
+    background-color: #777777;
+}
+
+
+div.wy-menu.wy-menu-vertical>p {
+    color: #ffffff /* section titles */
+}
+
+.wy-nav-top {
+    background-color: #777777;
+}
+
+.wy-side-nav-search>a:hover, .wy-side-nav-search .wy-dropdown>a:hover {
+    background: None; /*background for logo when hovered*/
+}
+
+.wy-side-nav-search>div.version {
+    color: white;
+}
+
+.wy-side-nav-search input[type=text] {
+    border-color: #d9d9d9;
+}

@@ -23,6 +23,15 @@ To use scikit-network in a project::
     import sknetwork as skn
 
 
+Optional dependency
+-------------------
+
+Numba_ is not listed as an explicit dependency for scikit-network. However it is automatically
+used whenever possible -  unless specified otherwise by the user - in order to speed algorithm executions up.
+
+Note that when using a Numba-accelerated function for the first time in a session,
+just-in-time compilation takes a few seconds.
+
 About the documentation
 -----------------------
 
@@ -66,4 +75,6 @@ Notes
 * Adjacency and biadjacency matrices have non-negative entries (the edges of the graph)
 * Nodes are indexed from 1 to :math:`n` in the documentation and from 0 to :math:`n-1` in the code
 * Bipartite graphs are undirected but have a special structure that is exploited by some algorithms
+
+.. _Numba: https://numba.pydata.org
 
