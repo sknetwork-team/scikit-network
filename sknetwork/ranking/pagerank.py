@@ -53,7 +53,8 @@ class PageRank(Algorithm):
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Union[None, np.ndarray] = None) -> 'PageRank':
-        """Standard PageRank via matrix factorization or D-iteration.
+        """
+        Standard PageRank with restart.
 
         Parameters
         ----------
