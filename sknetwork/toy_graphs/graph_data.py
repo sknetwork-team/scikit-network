@@ -255,13 +255,14 @@ def rock_paper_scissors():
 
 def star_wars_villains(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, dict, dict], sparse.csr_matrix]:
     """
-    Bipartite graph connecting some Star Wars villains to the movies in which they appear.\n
+    Bipartite graph connecting some Star Wars villains to the movies in which they appear.
+
     7 nodes (4 villains, 3 movies), 8 edges
 
     Parameters
     ----------
     return_labels: bool
-        whether to return the labels of the nodes as dictionaries.
+        Whether to return the labels of the nodes as dictionaries.
 
     Returns
     -------
@@ -282,13 +283,14 @@ def star_wars_villains(return_labels: bool = False) -> Union[Tuple[sparse.csr_ma
 
 def movie_actor(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, dict, dict], sparse.csr_matrix]:
     """
-    Bipartite graph connecting movies to some actors starring in them.\n
+    Bipartite graph connecting movies to some actors starring in them.
+
     31 nodes (15 movies, 16 actors), 41 edges
 
     Parameters
     ----------
     return_labels: bool
-        whether to return the labels of the nodes as dictionaries.
+        Whether to return the labels of the nodes as dictionaries.
 
     Returns
     -------
@@ -365,18 +367,20 @@ def movie_actor(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, d
 
 def painters(return_labels: bool = False) -> Union[sparse.csr_matrix, Tuple[sparse.csr_matrix, dict]]:
     """
-    Directed graph of top painters with links on Wikipedia.
+    Directed graph of some famous painters with links on Wikipedia.
+
+    14 nodes, 50 edges
 
     Parameters
     ----------
     return_labels: bool
-        whether to return the names of the nodes as a dictionary.
+        Whether to return the names of the nodes as a dictionary.
 
     Returns
     -------
     adjacency: sparse.csr_matrix
         Adjacency matrix of the graph.
-    labels: dictionary
+    labels: dict, optional
         Names of painters.
     """
     indptr = np.array([0,  2,  4,  5, 10, 13, 17, 19, 25, 32, 34, 39, 44, 48, 50])
