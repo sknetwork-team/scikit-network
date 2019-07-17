@@ -18,8 +18,8 @@ Louvain
     :members:
 
 
-Louvain for bipartite graphs
-----------------------------
+BiLouvain
+---------
 
 .. autoclass:: sknetwork.clustering.BiLouvain
     :members:
