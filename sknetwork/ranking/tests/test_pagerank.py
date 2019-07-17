@@ -13,33 +13,13 @@ class TestPageRank(unittest.TestCase):
 
     def setUp(self):
         self.adjacency = rock_paper_scissors()
-        self.spectral_ranking = PageRank(method='spectral')
-        self.no_damping_spectral_ranking = PageRank(damping_factor=0., method='spectral')
-        self.diter_ranking = PageRank()
-        self.no_damping_diter_ranking = PageRank(damping_factor=0.)
-        self.parallel_ranking = PageRank(parallel=True)
+        self.pagerank = PageRank()
+        self.pagerank_high_damping = PageRank(damping_factor=0.99)
 
     def test_pagerank(self):
-        self.spectral_ranking.fit(self.adjacency)
-        score = self.spectral_ranking.score_
+        self.pagerank.fit(self.adjacency)
+        score = self.pagerank.score_
         self.assertAlmostEqual(np.linalg.norm(score - np.ones(3) / 3), 0.)
-        self.no_damping_spectral_ranking.fit(self.adjacency)
-        score = self.no_damping_spectral_ranking.score_
-        self.assertAlmostEqual(np.linalg.norm(score - np.ones(3) / 3), 0.)
-        self.spectral_ranking.fit(self.adjacency, personalization=np.array([1, 0, 0]))
-        score = self.spectral_ranking.score_
-        self.assertAlmostEqual(np.linalg.norm(score - np.ones(3) / 3), 0.)
-        self.diter_ranking.fit(self.adjacency)
-        score = self.diter_ranking.score_
-        self.assertAlmostEqual(np.linalg.norm(score - np.ones(3) / 3), 0., places=2)
-        self.no_damping_diter_ranking.fit(self.adjacency)
-        score = self.no_damping_diter_ranking.score_
-        self.assertAlmostEqual(np.linalg.norm(score - np.ones(3) / 3), 0., places=2)
-        self.diter_ranking.fit(self.adjacency, personalization=np.array([1, 0, 0]))
-        score = self.diter_ranking.score_
+        self.pagerank_high_damping.fit(self.adjacency)
+        score = self.pagerank_high_damping.score_
         self.assertAlmostEqual(np.linalg.norm(score - np.ones(3) / 3), 0., places=1)
-
-    def test_parallelize(self):
-        self.parallel_ranking.fit(self.adjacency)
-        score = self.parallel_ranking.score_
-        self.assertIsNotNone(score)
