@@ -1,5 +1,3 @@
-.. _hierarchy:
-
 Hierarchical clustering
 ***********************
 

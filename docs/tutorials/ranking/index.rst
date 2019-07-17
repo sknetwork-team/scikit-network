@@ -1,5 +1,3 @@
-.. _ranking:
-
 Ranking
 *******
 
