@@ -18,6 +18,7 @@ Welcome to scikit-network's documentation!
    tutorials/clustering_Louvain
    tutorials/hierarchical_clustering
    tutorials/pagerank
+   tutorials/diffusion
 
 
 .. toctree::

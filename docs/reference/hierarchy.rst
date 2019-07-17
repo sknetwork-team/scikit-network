@@ -1,7 +1,7 @@
 .. _hierarchical_clustering:
 
-Hierarchical clustering
-***********************
+Hierarchy
+*********
 
 .. currentmodule:: sknetwork
 

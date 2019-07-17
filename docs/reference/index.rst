@@ -6,9 +6,9 @@ Reference
 .. toctree::
 
     introduction
-    embedding
     clustering
     hierarchy
+    embedding
     ranking
     linalg
     loader
