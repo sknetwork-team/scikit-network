@@ -4,4 +4,4 @@ Clustering
 
 .. toctree::
 
-   clustering_Louvain
+   louvain
