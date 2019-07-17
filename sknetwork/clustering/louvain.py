@@ -404,8 +404,6 @@ class Louvain(Algorithm):
     ----------
     labels_ : np.ndarray
         Cluster index of each node.
-    n_clusters_ : int
-        The number of clusters in the partition.
     iteration_count_ : int
         Total number of aggregations performed.
     aggregate_graph_ : sparse.csr_matrix
@@ -450,7 +448,6 @@ class Louvain(Algorithm):
         self.max_agg_iter = max_agg_iter
         self.verbose = verbose
         self.labels_ = None
-        self.n_clusters_ = None
         self.iteration_count_ = None
         self.aggregate_graph_ = None
         self.shuffle_nodes = shuffle_nodes
@@ -521,7 +518,6 @@ class Louvain(Algorithm):
             reverse = np.empty(nodes.size, nodes.dtype)
             reverse[nodes] = np.arange(nodes.size)
             self.labels_ = self.labels_[reverse]
-        self.n_clusters_ = len(set(self.labels_))
         if sorted_cluster:
             self.labels_ = reindex_clusters(self.labels_)
         self.aggregate_graph_ = graph.norm_adjacency * adjacency.data.sum()

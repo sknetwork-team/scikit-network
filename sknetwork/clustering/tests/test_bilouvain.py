@@ -19,7 +19,7 @@ class TestBiLouvainClustering(unittest.TestCase):
         else:
             with self.assertRaises(ValueError):
                 BiLouvain(engine='numba')
-        self.biouvain_null_resolution = BiLouvain(resolution=0., verbose=False)
+        self.bilouvain_null_resolution = BiLouvain(resolution=0., verbose=False)
 
         self.star_wars_graph = star_wars_villains()
 
@@ -34,5 +34,5 @@ class TestBiLouvainClustering(unittest.TestCase):
             self.bilouvain_numba.fit(self.star_wars_graph)
             labels = self.bilouvain_numba.labels_
             self.assertEqual(labels.shape, (4,))
-        self.biouvain_null_resolution.fit(self.star_wars_graph)
-        self.assertEqual(self.biouvain_null_resolution.n_clusters_, 1)
+        self.bilouvain_null_resolution.fit(self.star_wars_graph)
+        self.assertEqual(len(set(self.bilouvain_null_resolution.labels_)), 1)

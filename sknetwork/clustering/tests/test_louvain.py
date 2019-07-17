@@ -59,7 +59,7 @@ class TestLouvainClustering(unittest.TestCase):
         self.louvain_null_resolution.fit(self.karate_club_graph)
         labels = self.louvain_null_resolution.labels_
         self.assertEqual(labels.shape, (34,))
-        self.assertEqual(self.louvain_null_resolution.n_clusters_, 1)
+        self.assertEqual(len(set(self.louvain_null_resolution.labels_)), 1)
 
     def test_directed(self):
         self.louvain.fit(self.painters_graph)

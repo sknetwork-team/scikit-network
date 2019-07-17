@@ -9,14 +9,13 @@ Created on Mar 3, 2019
 import numpy as np
 from scipy import sparse
 from typing import Union, Optional
-from sknetwork.clustering.louvain import Louvain, GreedyModularity, Optimizer
+from sknetwork.clustering.louvain import Louvain, Optimizer
 from sknetwork.clustering.postprocessing import reindex_clusters
 from sknetwork.utils.adjacency_formats import bipartite2undirected, bipartite2directed
-from sknetwork.utils.checks import check_probs, check_format, check_engine, check_random_state
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.checks import check_probs, check_format
 
 
-class BiLouvain(Algorithm):
+class BiLouvain(Louvain):
     """
     BiLouvain algorithm for the co-clustering of bipartite graphs.
 
@@ -71,36 +70,24 @@ class BiLouvain(Algorithm):
         Total number of aggregations performed.
     aggregate_graph_ : sparse.csr_matrix
         Aggregated adjacency at the end of the algorithm.
-    score_ : float
-        objective function value after fit
-    n_clusters_ : int
-        number of clusters after fit
+
+    Example
+    -------
+    >>> from sknetwork.toy_graphs import star_wars_villains
+    >>> bilouvain = BiLouvain('python')
+    >>> biadjacency = star_wars_villains()
+    >>> bilouvain.fit(biadjacency).labels_
+    array([1, 1, 0, 0])
+    >>> bilouvain.feature_labels_
+    array([1, 0, 0])
     """
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
-                 tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1,
+                 tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
                  random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
-        self.random_state = check_random_state(random_state)
-        if algorithm == 'default':
-            self.algorithm = GreedyModularity(resolution, tol, engine=check_engine(engine))
-        elif isinstance(algorithm, Optimizer):
-            self.algorithm = algorithm
-        else:
-            raise TypeError('Algorithm must be \'auto\' or a valid algorithm.')
-        self.resolution = resolution
-        self.tol = tol
-        self.agg_tol = agg_tol
-        if type(max_agg_iter) != int:
-            raise TypeError('The maximum number of iterations must be an integer.')
-        self.max_agg_iter = max_agg_iter
-        self.engine = check_engine(engine)
-        self.verbose = verbose
-        self.labels_ = None
+        super().__init__(engine, algorithm, resolution, tol, agg_tol, max_agg_iter, shuffle_nodes, random_state,
+                         verbose)
         self.feature_labels_ = None
-        self.iteration_count_ = None
-        self.aggregate_graph_ = None
-        self.score_ = None
-        self.n_clusters_ = None
 
     def fit(self, biadjacency: sparse.csr_matrix, weights: Union['str', np.ndarray] = 'degree',
             feature_weights: Union['str', np.ndarray] = 'degree', force_undirected: bool = False,
@@ -128,7 +115,8 @@ class BiLouvain(Algorithm):
         biadjacency = check_format(biadjacency)
         n, p = biadjacency.shape
 
-        louvain = Louvain(algorithm=self.algorithm, verbose=self.verbose)
+        louvain = Louvain(algorithm=self.algorithm, agg_tol=self.agg_tol, max_agg_iter=self.max_agg_iter,
+                          shuffle_nodes=self.shuffle_nodes, random_state=self.random_state, verbose=self.verbose)
 
         if force_undirected:
             adjacency = bipartite2undirected(biadjacency)
@@ -143,7 +131,6 @@ class BiLouvain(Algorithm):
             feat_weights = np.hstack((np.zeros(n), check_probs(feature_weights, biadjacency.T)))
             louvain.fit(adjacency, samp_weights, feat_weights)
 
-        self.n_clusters_ = louvain.n_clusters_
         self.iteration_count_ = louvain.iteration_count_
         labels = louvain.labels_
         if sorted_cluster:
