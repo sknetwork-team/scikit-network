@@ -14,3 +14,8 @@ PageRank
 
 .. autoclass:: sknetwork.ranking.PageRank
     :members:
+
+Diffusion
+---------
+.. autoclass:: sknetwork.ranking.Diffusion
+    :members:

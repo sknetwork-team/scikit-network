@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on May 31 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+Created on July 17 2019
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
@@ -10,7 +9,7 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
 from typing import Union
-from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_square
+from sknetwork.utils.checks import check_format, is_square
 from sknetwork.utils.algorithm_base_class import Algorithm
 
 
