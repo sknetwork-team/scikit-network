@@ -5,7 +5,7 @@ Linear algebra
 
 .. currentmodule:: sknetwork
 
-Submodule for linear Algebra.
+Module for linear Algebra.
 
 Sparse + Low Rank structure
 ---------------------------
