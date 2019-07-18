@@ -74,22 +74,25 @@ class PageRank(Algorithm):
         else:
             n: int = adjacency.shape[0]
 
-        diag_out: sparse.csr_matrix = sparse.diags(adjacency.dot(np.ones(n)), shape=(n, n), format='csr')
-        diag_out.data = 1 / diag_out.data
-        transition_matrix = diag_out.dot(adjacency)
+        if adjacency.nnz:
+            diag_out: sparse.csr_matrix = sparse.diags(adjacency.dot(np.ones(n)), shape=(n, n), format='csr')
+            diag_out.data = 1 / diag_out.data
+            transition_matrix = diag_out.dot(adjacency)
 
-        if personalization is None:
-            restart_prob: np.ndarray = np.ones(n) / n
-        else:
-            if has_nonnegative_entries(personalization) and len(personalization) == n and np.sum(personalization):
-                restart_prob = personalization.astype(float) / np.sum(personalization)
+            if personalization is None:
+                restart_prob: np.ndarray = np.ones(n) / n
             else:
-                raise ValueError('Personalization must be None or a non-negative, non-null vector.')
+                if has_nonnegative_entries(personalization) and len(personalization) == n and np.sum(personalization):
+                    restart_prob = personalization.astype(float) / np.sum(personalization)
+                else:
+                    raise ValueError('Personalization must be None or a non-negative, non-null vector.')
 
-        a = sparse.eye(n, format='csr') - self.damping_factor * transition_matrix.T
-        b = (1 - self.damping_factor * diag_out.data.astype(bool)) * restart_prob
-        x = spsolve(a, b)
+            a = sparse.eye(n, format='csr') - self.damping_factor * transition_matrix.T
+            b = (1 - self.damping_factor * diag_out.data.astype(bool)) * restart_prob
+            x = spsolve(a, b)
 
-        self.score_ = abs(x.real) / abs(x.real).sum()
+            self.score_ = abs(x.real) / abs(x.real).sum()
+        else:
+            self.score_ = np.zeros(n)
 
         return self
