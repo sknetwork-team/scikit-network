@@ -1,0 +1,7 @@
+Hierarchy
+*********
+
+
+.. toctree::
+
+   paris

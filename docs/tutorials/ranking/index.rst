@@ -1,0 +1,8 @@
+Ranking
+*******
+
+
+.. toctree::
+
+   pagerank
+   diffusion

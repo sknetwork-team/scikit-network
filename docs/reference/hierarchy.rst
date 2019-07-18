@@ -1,7 +1,7 @@
 .. _hierarchical_clustering:
 
-Hierarchical clustering
-***********************
+Hierarchy
+*********
 
 .. currentmodule:: sknetwork
 
@@ -20,8 +20,8 @@ Paris
     :members:
 
 
-Cuts of the dendrogram
-----------------------
+Cuts
+----
 .. autofunction:: sknetwork.hierarchy.straight_cut
 
 

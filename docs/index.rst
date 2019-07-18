@@ -15,9 +15,9 @@ Welcome to scikit-network's documentation!
    :maxdepth: 2
    :caption: Tutorials
 
-   tutorials/clustering_Louvain
-   tutorials/hierarchical_clustering
-   tutorials/pagerank
+   tutorials/clustering/index
+   tutorials/hierarchy/index
+   tutorials/ranking/index
 
 
 .. toctree::
