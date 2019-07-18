@@ -3,31 +3,33 @@
 Introduction
 ************
 
-scikit-network is an open-source python package for the analysis of large graphs.
-Graphs are represented by their adjacency matrix, in one of the following two formats:
+:mod:`scikit-network` is an open-source python package for the analysis of large graphs.
 
-* numpy array
-* scipy sparse csr matrix
 
 Quick start
 -----------
 
-Install scikit-network:
+Install :mod:`scikit-network`:
 
 .. code-block:: console
 
     $ pip install scikit-network
 
-To use scikit-network in a project::
+Import :mod:`scikit-network` in a Python project::
 
     import sknetwork as skn
+
+Data format
+-----------
+
+Each graph is represented by its adjacency matrix, either as a dense ``numpy array`` or as a sparse ``scipy CSR matrix``.
 
 
 Optional dependency
 -------------------
 
-Numba_ is not listed as an explicit dependency for scikit-network. However it is automatically
-used whenever possible -  unless specified otherwise by the user - in order to speed algorithm executions up.
+Numba_ is not listed as an explicit dependency for :mod:`scikit-network`. It is automatically
+used whenever possible (unless specified otherwise by the user) in order to speed up algorithm executions.
 
 Note that when using a Numba-accelerated function for the first time in a session,
 just-in-time compilation takes a few seconds.

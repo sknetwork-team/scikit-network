@@ -3,9 +3,6 @@
     :width: 100px
     :alt: logo sknetwork
 
-==============
-scikit-network
-==============
 
 
 .. image:: https://img.shields.io/pypi/v/scikit-network.svg
@@ -23,7 +20,7 @@ scikit-network
         :alt: Updates
 
 
-Simple and efficient tools for the analysis of large graphs
+Simple and efficient tools for the analysis of large graphs.
 
 
 * Free software: BSD license
@@ -33,14 +30,15 @@ Simple and efficient tools for the analysis of large graphs
 Quickstart
 ----------
 
-Install scikit-network:
+Install :mod:`scikit-network`:
 
 .. code-block:: console
 
     $ pip install scikit-network
 
-To use scikit-network in a project::
+Import :mod:`scikit-network` in a Python project::
 
     import sknetwork as skn
+
 
 See examples in the tutorials.

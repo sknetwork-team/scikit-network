@@ -1,7 +1,7 @@
-Hierarchical clustering
-***********************
+Hierarchy
+*********
 
 
 .. toctree::
 
-   hierarchical_clustering
+   paris

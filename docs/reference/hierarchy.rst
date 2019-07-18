@@ -20,8 +20,8 @@ Paris
     :members:
 
 
-Cuts of the dendrogram
-----------------------
+Cuts
+----
 .. autofunction:: sknetwork.hierarchy.straight_cut
 
 
