@@ -2,6 +2,13 @@
 History
 =======
 
+0.8.1 (2019-07-18)
+------------------
+
+* Added diffusion ranking
+* Minor fixes
+* Minor doc tweaking
+
 0.8.0 (2019-07-17)
 ------------------
 
@@ -16,7 +23,6 @@ History
 * Added Algorithm class for nicer repr of some classes
 * Added Jupyter notebooks as tutorials in the docs
 * Minor fixes
-
 
 0.7.0 (2019-06-24)
 ------------------
