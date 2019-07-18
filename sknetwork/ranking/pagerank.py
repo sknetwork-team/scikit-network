@@ -9,7 +9,7 @@ Created on May 31 2019
 import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
-from typing import Union
+from typing import Union, Optional
 from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_square
 from sknetwork.utils.algorithm_base_class import Algorithm
 
@@ -52,7 +52,7 @@ class PageRank(Algorithm):
             self.damping_factor = damping_factor
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Union[None, np.ndarray] = None) -> 'PageRank':
+            personalization: Optional[Union[dict, np.ndarray]] = None) -> 'PageRank':
         """
         Standard PageRank with restart.
 
@@ -62,7 +62,7 @@ class PageRank(Algorithm):
             Adjacency matrix of the graph.
         personalization :
             If ``None``, the uniform distribution is used.
-            Otherwise, a non-negative, non-zero vector must be provided.
+            Otherwise, a non-negative, non-zero vector or a dictionary must be provided.
 
         Returns
         -------
@@ -82,10 +82,15 @@ class PageRank(Algorithm):
             if personalization is None:
                 restart_prob: np.ndarray = np.ones(n) / n
             else:
-                if has_nonnegative_entries(personalization) and len(personalization) == n and np.sum(personalization):
+                if type(personalization) == dict:
+                    tmp = np.zeros(n)
+                    tmp[list(personalization.keys())] = list(personalization.values())
+                    personalization = tmp
+                if type(personalization) == np.ndarray and len(personalization) == n \
+                        and has_nonnegative_entries(personalization) and np.sum(personalization):
                     restart_prob = personalization.astype(float) / np.sum(personalization)
                 else:
-                    raise ValueError('Personalization must be None or a non-negative, non-null vector.')
+                    raise ValueError('Personalization must be None or a non-negative, non-null vector or a dictionary.')
 
             a = sparse.eye(n, format='csr') - self.damping_factor * transition_matrix.T
             b = (1 - self.damping_factor * diag_out.data.astype(bool)) * restart_prob
