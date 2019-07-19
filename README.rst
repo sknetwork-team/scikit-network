@@ -30,15 +30,14 @@ Simple and efficient tools for the analysis of large graphs.
 Quickstart
 ----------
 
-Install :mod:`scikit-network`:
+Install scikit-network:
 
 .. code-block:: console
 
     $ pip install scikit-network
 
-Import :mod:`scikit-network` in a Python project::
+Import scikit-network in a Python project::
 
     import sknetwork as skn
-
 
 See examples in the tutorials.
