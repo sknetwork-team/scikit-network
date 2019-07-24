@@ -12,7 +12,7 @@ from typing import Tuple, Union
 from csv import reader
 
 
-def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = None,
+def parse_tsv(file: str, undirected: bool = True, bipartite: bool = False, weighted: bool = None,
               labeled: bool = None, comment: str = '%#', delimiter: str = None) ->Tuple[sparse.csr_matrix,
                                                                                         Union[np.ndarray, None]]:
     """
@@ -21,28 +21,27 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     Parameters
     ----------
     file : str
-        the path to the dataset in TSV format
-    directed : bool
-        ensures the adjacency matrix is symmetric if False
+        The path to the dataset in TSV format
+    undirected : bool
+        If True, considers the graph as undirected.
     bipartite : bool
-        if True, returns the biadjacency matrix of shape (n1, n2)
+        If True, returns a biadjacency matrix of shape (n, p).
     weighted : Union[NoneType, bool]
-        retrieves the weights in the third field of the file. None makes a guess based on the first lines
+        Retrieves the weights in the third field of the file. None makes a guess based on the first lines.
     labeled : Union[NoneType, bool]
-        retrieves the names given to the nodes and renumbers them. Returns an additional array. None makes a guess
-        based on the first lines
+        Retrieves the names given to the nodes and renumbers them. Returns an additional array. None makes a guess
+        based on the first lines.
     comment : str
-        set of characters denoting lines to ignore
+        Set of characters denoting lines to ignore.
     delimiter : str
         delimiter used in the file. None makes a guess
 
     Returns
     -------
     adjacency : csr_matrix
-        the adjacency matrix of the adjacency
+        Adjacency or biadjacency matrix of the graph.
     labels : numpy.array
-        an array such that labels[k] is the label or the new index given to the k-th node, None if no labels
-
+        Label of each node.
     """
     reindex = False
     header_len = -1
@@ -110,7 +109,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         adjacency = sparse.csr_matrix((dat, (rows, cols)), dtype=dtype)
     else:
         adjacency = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_nodes), dtype=dtype)
-        if not directed:
+        if undirected:
             adjacency += adjacency.transpose()
     if labeled or reindex:
         return adjacency, labels
