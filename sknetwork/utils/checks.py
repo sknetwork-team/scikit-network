@@ -7,7 +7,8 @@ Created on Apr 4, 2019
 
 import numpy as np
 from scipy import sparse
-from typing import Union, Optional
+from scipy.sparse.csgraph import connected_components
+from typing import Union, Optional, Tuple
 from sknetwork import is_numba_available
 
 
@@ -43,8 +44,7 @@ def is_proba_array(entry: np.ndarray) -> bool:
 
 
 def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """
-    Checks whether the matrix is square.
+    """Checks whether the matrix is square.
     """
     return adjacency.shape[0] == adjacency.shape[1]
 
@@ -54,6 +54,33 @@ def is_symmetric(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1
     """
     sym_error = adjacency - adjacency.T
     return np.all(np.abs(sym_error.data) <= tol)
+
+
+def is_bipartite(adjacency: sparse.csr_matrix) -> Tuple[bool, Optional[np.ndarray]]:
+    """Checks whether the graph is bipartite and returns a possible partition of the nodes if it is.
+    """
+    if not is_symmetric(adjacency):
+        return False, None
+    if adjacency.diagonal().any():
+        return False, None
+    n_nodes = adjacency.indptr.shape[0] - 1
+    coloring = np.full(n_nodes, -1, dtype=int)
+    exists_remaining = n_nodes
+    while exists_remaining:
+        src = np.argwhere(coloring == -1)[0, 0]
+        next_nodes = [src]
+        coloring[src] = 0
+        exists_remaining -= 1
+        while next_nodes:
+            node = next_nodes.pop()
+            for neighbor in adjacency.indices[adjacency.indptr[node]:adjacency.indptr[node+1]]:
+                if coloring[neighbor] == -1:
+                    coloring[neighbor] = 1 - coloring[node]
+                    next_nodes.append(neighbor)
+                    exists_remaining -= 1
+                elif coloring[neighbor] == coloring[node]:
+                    return False, None
+    return True, coloring
 
 
 def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
@@ -104,8 +131,7 @@ def check_engine(engine: str) -> str:
 
 
 def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
-    """
-    Checks whether the matrix is an instance of a supported type (NumPy array or Scipy CSR matrix) and returns
+    """Checks whether the matrix is an instance of a supported type (NumPy array or Scipy CSR matrix) and returns
     the corresponding Scipy CSR matrix.
     """
     if type(adjacency) not in {sparse.csr_matrix, np.ndarray}:
