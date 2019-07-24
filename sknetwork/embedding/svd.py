@@ -14,7 +14,7 @@ from sknetwork.linalg import SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_
 from typing import Union
 
 
-class GSVD(Algorithm):
+class SVD(Algorithm):
     """
     Graph embedding by Generalized Singular Value Decomposition.
 
@@ -47,16 +47,16 @@ class GSVD(Algorithm):
     -------
     >>> from sknetwork.toy_graphs import movie_actor
     >>> adjacency = movie_actor()
-    >>> gsvd = GSVD(embedding_dimension=2)
-    >>> embedding = gsvd.fit(adjacency).embedding_
+    >>> svd = SVD(embedding_dimension=2)
+    >>> embedding = svd.fit(adjacency).embedding_
     >>> embedding.shape
     (15, 2)
 
     References
     ----------
-    * Abdi, H. (2007). Singular value decomposition (SVD) and generalized singular value decomposition.
-      Encyclopedia of measurement and statistics, 907-912.
-      https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf
+    Abdi, H. (2007). Singular value decomposition (SVD) and generalized singular value decomposition.
+    Encyclopedia of measurement and statistics, 907-912.
+    https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf
     """
 
     def __init__(self, embedding_dimension=2, weights='degree', feature_weights='degree',
@@ -78,8 +78,9 @@ class GSVD(Algorithm):
         self.coembedding_ = None
         self.singular_values_ = None
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'GSVD':
-        """Fits the model from data in adjacency_matrix.
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'SVD':
+        """
+        Computes the generalized SVD of the adjacency matrix.
 
         Parameters
         ----------
@@ -89,7 +90,7 @@ class GSVD(Algorithm):
 
         Returns
         -------
-        self: :class:`GSVD`
+        self: :class:`SVD`
         """
         adjacency = check_format(adjacency)
         n, p = adjacency.shape

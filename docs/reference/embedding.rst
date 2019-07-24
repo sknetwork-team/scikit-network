@@ -18,7 +18,7 @@ Spectral
 SVD
 ---
 
-.. autoclass:: sknetwork.embedding.GSVD
+.. autoclass:: sknetwork.embedding.SVD
     :members:
 
 Metrics
