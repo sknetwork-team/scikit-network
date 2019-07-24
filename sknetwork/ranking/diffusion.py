@@ -74,8 +74,9 @@ class Diffusion(Algorithm):
                                  ' of length equal to the number of nodes.')
 
             diag_out: sparse.csr_matrix = sparse.diags(adjacency.dot(np.ones(n)), shape=(n, n), format='csr')
-            diag_out.data = 1 / diag_out.data * (1 - border)
-            diffusion_matrix = diag_out.dot(adjacency)
+            diag_out.data = 1 / diag_out.data
+            interior: sparse.csr_matrix = sparse.diags(1 - border, shape=(n, n), format='csr')
+            diffusion_matrix = interior.dot(diag_out.dot(adjacency))
 
             a = sparse.eye(n, format='csr') - diffusion_matrix
             self.score_ = spsolve(a, b)
