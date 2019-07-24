@@ -1,7 +1,7 @@
-Clustering
-**********
+Embedding
+*********
 
 
 .. toctree::
 
-   louvain
+   spectral
