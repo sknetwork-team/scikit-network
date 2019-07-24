@@ -42,7 +42,7 @@ def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak',
     connection
         Must be ``'weak'`` (default) or ``'strong'``. The type of connection to use for directed graphs.
     return_components
-        If True (default), then return the labels for each of the connected components.
+        If ``True`` (default), then return the labels for each of the connected components.
 
     Returns
     -------

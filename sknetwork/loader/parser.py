@@ -13,8 +13,8 @@ from csv import reader
 
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = None,
-              labeled: bool = None, comment: str = '%#', delimiter: str = None) ->Tuple[sparse.csr_matrix,
-                                                                                        Union[np.ndarray, None]]:
+              labeled: bool = None, comment: str = '%#', delimiter: str = None) -> Tuple[sparse.csr_matrix,
+                                                                                         Union[np.ndarray, None]]:
     """
     A parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
 
@@ -115,4 +115,3 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         return adjacency, labels
     else:
         return adjacency, None
-
