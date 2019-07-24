@@ -12,7 +12,7 @@ from typing import Tuple, Union
 from csv import reader
 
 
-def parse_tsv(file: str, undirected: bool = True, bipartite: bool = False, weighted: bool = None,
+def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = None,
               labeled: bool = None, comment: str = '%#', delimiter: str = None) ->Tuple[sparse.csr_matrix,
                                                                                         Union[np.ndarray, None]]:
     """
@@ -22,8 +22,8 @@ def parse_tsv(file: str, undirected: bool = True, bipartite: bool = False, weigh
     ----------
     file : str
         The path to the dataset in TSV format
-    undirected : bool
-        If True, considers the graph as undirected.
+    directed : bool
+        If False, considers the graph as undirected.
     bipartite : bool
         If True, returns a biadjacency matrix of shape (n, p).
     weighted : Union[NoneType, bool]
@@ -109,7 +109,7 @@ def parse_tsv(file: str, undirected: bool = True, bipartite: bool = False, weigh
         adjacency = sparse.csr_matrix((dat, (rows, cols)), dtype=dtype)
     else:
         adjacency = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_nodes), dtype=dtype)
-        if undirected:
+        if not directed:
             adjacency += adjacency.transpose()
     if labeled or reindex:
         return adjacency, labels
