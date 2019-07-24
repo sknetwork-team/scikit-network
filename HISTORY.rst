@@ -2,6 +2,14 @@
 History
 =======
 
+0.9.0 (2019-07-24)
+------------------
+
+* Change parser output
+* Fix bugs in ranking algorithms (zero-degree nodes)
+* Add notebooks
+* Import algorithms from scipy (shortest path, connected components, bfs/dfs)
+* Change SVD embedding (now in decreasing order of singular values)
 
 0.8.2 (2019-07-19)
 ------------------
