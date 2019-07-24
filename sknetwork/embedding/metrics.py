@@ -68,7 +68,7 @@ def dot_modularity(adjacency, embedding: np.ndarray, coembedding=None, resolutio
 
     :math:`Q = \\sum_{ij}(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})x_i^Tx_j`
 
-    This metric is normalized to lie between -1 and 1.
+    This metric is normalized to lie between -1 and 1 (for :math:`|||gamma = 1`).
 
     If the embeddings are normalized, this reduces to cosine modularity.
 
@@ -97,7 +97,7 @@ def dot_modularity(adjacency, embedding: np.ndarray, coembedding=None, resolutio
 
     if coembedding is None:
         if n_nodes != m_nodes:
-            raise ValueError('feature cannot be None for non-square adjacency matrices.')
+            raise ValueError('coembedding cannot be None for non-square adjacency matrices.')
         else:
             normalization = np.linalg.norm(embedding) ** 2 / np.sqrt(n_nodes * m_nodes)
             coembedding = embedding
