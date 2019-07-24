@@ -1,5 +1,5 @@
-Hierarchy
-*********
+Hierarchical clustering
+***********************
 
 
 .. toctree::
