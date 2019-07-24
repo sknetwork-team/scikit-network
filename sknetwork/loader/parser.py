@@ -5,16 +5,17 @@ Created on Dec 5, 2018
 @author: Quentin Lutz <qlutz@enst.fr>, Nathan de Lara <ndelara@enst.fr>
 """
 
-import numpy as np
-from numpy import zeros, unique, argmax, int32, int64, ones, concatenate
+from numpy import zeros, unique, argmax, ones, concatenate
 from scipy import sparse
 from typing import Tuple, Union
 from csv import reader
 
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = None,
-              labeled: bool = None, comment: str = '%#', delimiter: str = None) -> Tuple[sparse.csr_matrix,
-                                                                                         Union[np.ndarray, None]]:
+              labeled: bool = None, comment: str = '%#', delimiter: str = None) -> Union[sparse.csr_matrix,
+                                                                                         Tuple[sparse.csr_matrix, dict],
+                                                                                         Tuple[sparse.csr_matrix, dict,
+                                                                                               dict]]:
     """
     A parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
 
@@ -40,8 +41,10 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     -------
     adjacency : csr_matrix
         Adjacency or biadjacency matrix of the graph.
-    labels : numpy.array
+    labels : dict, optional
         Label of each node.
+    feature_labels : dict, optional
+        Label of each feature node (for bipartite graph).
     """
     reindex = False
     header_len = -1
@@ -86,32 +89,39 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
                 if weighted:
                     dat.append(float(row[2]))
     n_edges = len(rows)
-    nodes = concatenate((rows, cols), axis=None)
-    labels, new_nodes = unique(nodes, return_inverse=True)
-    n_nodes = len(labels)
-    if labeled:
-        rows = new_nodes[:n_edges]
-        cols = new_nodes[n_edges:]
+    if bipartite:
+        labels, rows = unique(rows, return_inverse=True)
+        feature_labels, cols = unique(cols, return_inverse=True)
+        n_nodes = len(labels)
+        n_feature_nodes = len(feature_labels)
+        if not weighted:
+            dat = ones(n_edges, dtype=bool)
+        biadjacency = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_feature_nodes))
+        if labeled:
+            labels = {i: l for i, l in enumerate(labels)}
+            feature_labels = {i: l for i, l in enumerate(feature_labels)}
+            return biadjacency, labels, feature_labels
+        else:
+            return biadjacency
     else:
-        if not all(labels == range(len(labels))):
-            reindex = True
+        nodes = concatenate((rows, cols), axis=None)
+        labels, new_nodes = unique(nodes, return_inverse=True)
+        n_nodes = len(labels)
+        if labeled:
             rows = new_nodes[:n_edges]
             cols = new_nodes[n_edges:]
-    if not weighted:
-        dat = ones(n_edges, dtype=bool)
-
-    if n_nodes < 2 * 10e9:
-        dtype = int32
-    else:
-        dtype = int64
-
-    if bipartite:
-        adjacency = sparse.csr_matrix((dat, (rows, cols)), dtype=dtype)
-    else:
-        adjacency = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_nodes), dtype=dtype)
+        else:
+            if not all(labels == range(len(labels))):
+                reindex = True
+                rows = new_nodes[:n_edges]
+                cols = new_nodes[n_edges:]
+        if not weighted:
+            dat = ones(n_edges, dtype=bool)
+        adjacency = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_nodes))
         if not directed:
             adjacency += adjacency.transpose()
-    if labeled or reindex:
-        return adjacency, labels
-    else:
-        return adjacency, None
+        if labeled or reindex:
+            labels = {i: l for i, l in enumerate(labels)}
+            return adjacency, labels
+        else:
+            return adjacency
