@@ -7,28 +7,27 @@ Basics
 
 This module contains well-known algorithms for shortest path computation, connectedness of the graph and searches.
 
-Shortest paths
---------------
+Many algorithms are adapted from SciPy_.
+
 .. automodule:: sknetwork.basics
 
-.. autoclass:: sknetwork.basics
-    :members:
+Shortest paths
+--------------
 
-.. autoclass:: sknetwork.clustering.GreedyModularity
-    :members:
+Searches
+--------
 
 
-BiLouvain
+
+Structure
 ---------
+.. autofunction:: sknetwork.basics.is_connected
 
-.. autoclass:: sknetwork.clustering.BiLouvain
-    :members:
+.. autofunction:: sknetwork.basics.connected_components
+
+.. autofunction:: sknetwork.basics.largest_connected_component
+
+.. autofunction:: sknetwork.basics.is_bipartite
 
 
-Metrics
--------
-.. autofunction:: sknetwork.clustering.modularity
-
-.. autofunction:: sknetwork.clustering.bimodularity
-
-.. autofunction:: sknetwork.clustering.cocitation_modularity
+.. _Scipy: https://docs.scipy.org/doc/scipy/reference/sparse.csgraph.html

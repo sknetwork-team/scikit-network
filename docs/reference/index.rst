@@ -11,6 +11,7 @@ Reference
     embedding
     ranking
     linalg
+    basics
     loader
     toy_graphs
     utils
