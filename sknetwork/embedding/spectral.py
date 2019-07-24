@@ -16,6 +16,7 @@ from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, is_symmetric
 from sknetwork.basics.structure import is_connected
 from typing import Union
+import warnings
 
 
 class Spectral(Algorithm):
@@ -120,7 +121,7 @@ class Spectral(Algorithm):
                 self.solver: EigSolver = HalkoEig(which='SM')
 
         if self.embedding_dimension > n_ - 2:
-            raise Warning("The dimension of the embedding must be less than the number of nodes - 1.")
+            warnings.warn(Warning("The dimension of the embedding must be less than the number of nodes - 1."))
             n_components = n_ - 2
         else:
             n_components = self.embedding_dimension + 1
@@ -131,8 +132,8 @@ class Spectral(Algorithm):
                                  "This can cause errors in the computation of the embedding."
                                  "The parameter energy_scaling must be set to False")
             else:
-                raise Warning("The graph is not connected and low-rank regularization is not active."
-                              "This can cause errors in the computation of the embedding.")
+                warnings.warn(Warning("The graph is not connected and low-rank regularization is not active."
+                                      "This can cause errors in the computation of the embedding."))
 
         if self.regularization:
             adjacency = SparseLR(adjacency, [(self.regularization * np.ones(n_), np.ones(n_))])
