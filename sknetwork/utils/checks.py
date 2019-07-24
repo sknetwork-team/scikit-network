@@ -7,7 +7,6 @@ Created on Apr 4, 2019
 
 import numpy as np
 from scipy import sparse
-from scipy.sparse.csgraph import connected_components
 from typing import Union, Optional, Tuple
 from sknetwork import is_numba_available
 
@@ -58,6 +57,18 @@ def is_symmetric(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1
 
 def is_bipartite(adjacency: sparse.csr_matrix) -> Tuple[bool, Optional[np.ndarray]]:
     """Checks whether the graph is bipartite and returns a possible partition of the nodes if it is.
+
+        Parameters
+        ----------
+        adjacency:
+           The adjacency matrix of the graph.
+
+        Returns
+        -------
+        is_bipartite: bool
+            A boolean denoting if the graph is bipartite
+        coloring: np.ndarray
+            An array denoting a possible partition of the bipartite graph (None if the graph is not bipartite)
     """
     if not is_symmetric(adjacency):
         return False, None
@@ -80,7 +91,7 @@ def is_bipartite(adjacency: sparse.csr_matrix) -> Tuple[bool, Optional[np.ndarra
                     exists_remaining -= 1
                 elif coloring[neighbor] == coloring[node]:
                     return False, None
-    return True, coloring
+    return True, coloring.astype(bool)
 
 
 def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
@@ -91,7 +102,7 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
        distribution:
            Distribution for node sampling. Only ``'degree'`` or ``'uniform'`` are accepted.
        adjacency:
-           The adjacency matrix of the adjacency.
+           The adjacency matrix of the graph.
 
        Returns
        -------
@@ -159,7 +170,7 @@ def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr
     weights:
         Probabilities for node sampling in the null model. ``'degree'``, ``'uniform'`` or custom weights.
     adjacency:
-        The adjacency matrix of the adjacency.
+        The adjacency matrix of the graph.
     positive_entries:
         If true, the weights must all be positive, if False, the weights must be nonnegative.
 
@@ -192,7 +203,8 @@ def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr
 
 def check_probs(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_matrix, sparse.csc_matrix],
                 positive_entries: bool = False) -> np.ndarray:
-    """Checks whether the weights are a valid distribution for the adjacency and returns a normalized probability vector.
+    """Checks whether the weights are a valid distribution for the adjacency
+    and returns a normalized probability vector.
     """
     weights = check_weights(weights, adjacency, positive_entries)
     return weights / np.sum(weights)
