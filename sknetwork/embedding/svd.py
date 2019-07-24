@@ -3,6 +3,7 @@
 """
 Created on Thu May 31 17:16:22 2018
 @author: Nathan de Lara <ndelara@enst.fr>
+@author: Thomas Bonald <bonald@enst.fr>
 """
 
 import numpy as np
@@ -86,7 +87,7 @@ class SVD(Algorithm):
         ----------
         adjacency: array-like, shape = (n, p)
             Adjacency matrix, where n = p is the number of nodes for a standard directed or undirected graph,
-            n, p are the number of nodes in each part for a biadjacency matrix.
+            n, p are the number of nodes in each part for a bipartite graph.
 
         Returns
         -------
@@ -122,9 +123,10 @@ class SVD(Algorithm):
         n_components = min(self.embedding_dimension + 1, min(n, p) - 1)
         self.solver.fit(normalized_adj, n_components)
 
-        self.singular_values_ = self.solver.singular_values_[1:]
-        self.embedding_ = np.sqrt(total_weight) * diag_samp.dot(self.solver.left_singular_vectors_[:, 1:])
-        self.coembedding_ = np.sqrt(total_weight) * diag_feat.dot(self.solver.right_singular_vectors_[:, 1:])
+        index = np.argsort(self.solver.singular_values_)
+        self.singular_values_ = self.solver.singular_values_[index[:-1]]
+        self.embedding_ = np.sqrt(total_weight) * diag_samp.dot(self.solver.left_singular_vectors_[:, index[:-1]])
+        self.coembedding_ = np.sqrt(total_weight) * diag_feat.dot(self.solver.right_singular_vectors_[:, index[:-1]])
 
         # rescale to get barycenter property
         self.embedding_ *= self.singular_values_

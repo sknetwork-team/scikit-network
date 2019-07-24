@@ -119,6 +119,12 @@ class Spectral(Algorithm):
             else:
                 self.solver: EigSolver = HalkoEig(which='SM')
 
+        if self.embedding_dimension > n_ - 2:
+            raise Warning("The dimension of the embedding must be less than the number of nodes - 1.")
+            n_components = n_ - 2
+        else:
+            n_components = self.embedding_dimension + 1
+
         if self.regularization is None and not is_connected(adjacency):
             if self.energy_scaling:
                 raise ValueError("The graph is not connected and low-rank regularization is not active."
@@ -142,8 +148,6 @@ class Spectral(Algorithm):
             inv_sqrt_degree_matrix.data = 1 / inv_sqrt_degree_matrix.data
             laplacian = safe_sparse_dot(inv_sqrt_degree_matrix, safe_sparse_dot(laplacian, inv_sqrt_degree_matrix))
 
-        # spectral decomposition
-        n_components = min(self.embedding_dimension + 1, n_)
         self.solver.fit(laplacian, n_components)
 
         self.eigenvalues_ = self.solver.eigenvalues_[1:]
