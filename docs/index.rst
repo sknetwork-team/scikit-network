@@ -17,8 +17,9 @@ Welcome to scikit-network's documentation!
 
    tutorials/clustering/index
    tutorials/hierarchy/index
+   tutorials/embedding/index
    tutorials/ranking/index
-
+   tutorials/loader/index
 
 .. toctree::
    :maxdepth: 1

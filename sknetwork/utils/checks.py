@@ -43,8 +43,7 @@ def is_proba_array(entry: np.ndarray) -> bool:
 
 
 def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """
-    Checks whether the matrix is square.
+    """Checks whether the matrix is square.
     """
     return adjacency.shape[0] == adjacency.shape[1]
 
@@ -64,7 +63,7 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
        distribution:
            Distribution for node sampling. Only ``'degree'`` or ``'uniform'`` are accepted.
        adjacency:
-           The adjacency matrix of the adjacency.
+           The adjacency matrix of the graph.
 
        Returns
        -------
@@ -104,8 +103,7 @@ def check_engine(engine: str) -> str:
 
 
 def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
-    """
-    Checks whether the matrix is an instance of a supported type (NumPy array or Scipy CSR matrix) and returns
+    """Checks whether the matrix is an instance of a supported type (NumPy array or Scipy CSR matrix) and returns
     the corresponding Scipy CSR matrix.
     """
     if type(adjacency) not in {sparse.csr_matrix, np.ndarray}:
@@ -133,7 +131,7 @@ def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr
     weights:
         Probabilities for node sampling in the null model. ``'degree'``, ``'uniform'`` or custom weights.
     adjacency:
-        The adjacency matrix of the adjacency.
+        The adjacency matrix of the graph.
     positive_entries:
         If true, the weights must all be positive, if False, the weights must be nonnegative.
 
@@ -166,7 +164,8 @@ def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr
 
 def check_probs(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_matrix, sparse.csc_matrix],
                 positive_entries: bool = False) -> np.ndarray:
-    """Checks whether the weights are a valid distribution for the adjacency and returns a normalized probability vector.
+    """Checks whether the weights are a valid distribution for the adjacency
+    and returns a normalized probability vector.
     """
     weights = check_weights(weights, adjacency, positive_entries)
     return weights / np.sum(weights)

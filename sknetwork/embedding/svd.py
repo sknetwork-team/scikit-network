@@ -3,6 +3,7 @@
 """
 Created on Thu May 31 17:16:22 2018
 @author: Nathan de Lara <ndelara@enst.fr>
+@author: Thomas Bonald <bonald@enst.fr>
 """
 
 import numpy as np
@@ -14,53 +15,57 @@ from sknetwork.linalg import SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_
 from typing import Union
 
 
-class GSVD(Algorithm):
-    """Generalized Singular Value Decomposition for non-linear dimensionality reduction.
+class SVD(Algorithm):
+    """
+    Graph embedding by Generalized Singular Value Decomposition.
 
     Setting ``weights`` and ``feature_weights`` to ``'uniform'`` leads to the standard SVD.
 
     Parameters
     -----------
     embedding_dimension: int
-        The dimension of the projected subspace.
-    weights: ``'degree'`` or ``'uniform'``
-        Default weighting for the rows.
+        Dimension of the embedding.
+    weights: ``'degree'`` or ``'uniform'`` (default=``'degree'``)
+        Weights of the nodes.
+    feature_weights: ``'degree'`` or ``'uniform'`` (default=``'degree'``)
+        Weights of the feature nodes.
     regularization: ``None`` or float (default=0.01)
         Implicitly add edges of given weight between all pairs of nodes.
     energy_scaling: bool (default=True)
-        If ``True``, rescales each column of the embedding by dividing it by :math:`\\sqrt{1-\\sigma_i^2}`.
+        If ``True``, rescales each dimension of the embedding by the corresponding energy.
         Only valid if ``weights == 'degree'``.
 
     Attributes
     ----------
     embedding_ : np.ndarray, shape = (n_samples, embedding_dimension)
-        Embedding of the samples (rows of the training matrix)
-    features_ : np.ndarray, shape = (n_features, embedding_dimension)
-        Embedding of the features (columns of the training matrix)
+        Embedding of the nodes (rows of the adjacency matrix)
+    coembedding_ : np.ndarray, shape = (n_features, embedding_dimension)
+        Embedding of the feature nodes (columns of the adjacency matrix)
     singular_values_ : np.ndarray, shape = (embedding_dimension)
-        Singular values of the training matrix
+        Generalized singular values of the adjacency matrix
 
     Example
     -------
     >>> from sknetwork.toy_graphs import movie_actor
     >>> adjacency = movie_actor()
-    >>> gsvd = GSVD(embedding_dimension=2)
-    >>> gsvd.fit(adjacency)
-    GSVD(embedding_dimension=2, weights='degree', regularization=0.01, energy_scaling=True, solver=LanczosSVD())
-    >>> gsvd.embedding_.shape
+    >>> svd = SVD(embedding_dimension=2)
+    >>> embedding = svd.fit(adjacency).embedding_
+    >>> embedding.shape
     (15, 2)
 
     References
     ----------
-    * Abdi, H. (2007). Singular value decomposition (SVD) and generalized singular value decomposition.
-      Encyclopedia of measurement and statistics, 907-912.
-      https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf
+    Abdi, H. (2007). Singular value decomposition (SVD) and generalized singular value decomposition.
+    Encyclopedia of measurement and statistics, 907-912.
+    https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf
     """
 
-    def __init__(self, embedding_dimension=2, weights='degree', regularization: Union[None, float] = 0.01,
-                 energy_scaling: bool = True, solver: Union[str, SVDSolver] = 'auto'):
+    def __init__(self, embedding_dimension=2, weights='degree', feature_weights='degree',
+                 regularization: Union[None, float] = 0.01, energy_scaling: bool = True,
+                 solver: Union[str, SVDSolver] = 'auto'):
         self.embedding_dimension = embedding_dimension
         self.weights = weights
+        self.feature_weights = feature_weights
         self.regularization = regularization
         self.energy_scaling = energy_scaling
         if solver == 'halko':
@@ -71,21 +76,22 @@ class GSVD(Algorithm):
             self.solver = solver
 
         self.embedding_ = None
-        self.features_ = None
+        self.coembedding_ = None
         self.singular_values_ = None
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'GSVD':
-        """Fits the model from data in adjacency_matrix.
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'SVD':
+        """
+        Computes the generalized SVD of the adjacency matrix.
 
         Parameters
         ----------
         adjacency: array-like, shape = (n, p)
-            Adjacency matrix, where n = p is the number of nodes for a standard directed or undirected adjacency,
-            n, p are the number of nodes in each part for a biadjacency adjacency.
+            Adjacency matrix, where n = p is the number of nodes for a standard directed or undirected graph,
+            n, p are the number of nodes in each part for a bipartite graph.
 
         Returns
         -------
-        self: :class:`GSVD`
+        self: :class:`SVD`
         """
         adjacency = check_format(adjacency)
         n, p = adjacency.shape
@@ -102,7 +108,7 @@ class GSVD(Algorithm):
         total_weight = adjacency.dot(np.ones(p)).sum()
 
         w_samp = check_weights(self.weights, adjacency)
-        w_feat = check_weights(self.weights, adjacency.T)
+        w_feat = check_weights(self.feature_weights, adjacency.T)
 
         # pseudo inverse square-root out-degree matrix
         diag_samp = sparse.diags(np.sqrt(w_samp), shape=(n, n), format='csr')
@@ -117,9 +123,10 @@ class GSVD(Algorithm):
         n_components = min(self.embedding_dimension + 1, min(n, p) - 1)
         self.solver.fit(normalized_adj, n_components)
 
-        self.singular_values_ = self.solver.singular_values_[1:]
-        self.embedding_ = np.sqrt(total_weight) * diag_samp.dot(self.solver.left_singular_vectors_[:, 1:])
-        self.features_ = np.sqrt(total_weight) * diag_feat.dot(self.solver.right_singular_vectors_[:, 1:])
+        index = np.argsort(-self.solver.singular_values_)
+        self.singular_values_ = self.solver.singular_values_[index[1:]]
+        self.embedding_ = np.sqrt(total_weight) * diag_samp.dot(self.solver.left_singular_vectors_[:, index[1:]])
+        self.coembedding_ = np.sqrt(total_weight) * diag_feat.dot(self.solver.right_singular_vectors_[:, index[1:]])
 
         # rescale to get barycenter property
         self.embedding_ *= self.singular_values_
@@ -128,6 +135,6 @@ class GSVD(Algorithm):
             energy_levels: np.ndarray = np.sqrt(1 - np.clip(self.singular_values_, 0, 1) ** 2)
             energy_levels[energy_levels > 0] = 1 / energy_levels[energy_levels > 0]
             self.embedding_ *= energy_levels
-            self.features_ *= energy_levels
+            self.coembedding_ *= energy_levels
 
         return self

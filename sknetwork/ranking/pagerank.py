@@ -93,7 +93,7 @@ class PageRank(Algorithm):
                     raise ValueError('Personalization must be None or a non-negative, non-null vector or a dictionary.')
 
             a = sparse.eye(n, format='csr') - self.damping_factor * transition_matrix.T
-            b = (1 - self.damping_factor * diag_out.data.astype(bool)) * restart_prob
+            b = (1 - self.damping_factor * diag_out.dot(np.ones(n)).astype(bool)) * restart_prob
             x = spsolve(a, b)
 
             self.score_ = abs(x.real) / abs(x.real).sum()

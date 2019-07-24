@@ -1,16 +1,16 @@
-pip==19.1.1
+pip==19.2.1
 bumpversion==0.5.3
 wheel==0.33.4
 watchdog==0.9.0
-flake8==3.7.7
+flake8==3.7.8
 tox==3.13.2
 Sphinx==2.1.2
 coverage==4.5.3
 twine==1.13.0
-numba==0.44.1
+numba==0.45.0
 nbsphinx==0.4.2
 ipython==7.6.1
 
 pytest-runner==5.1
-pytest==5.0.0
+pytest==5.0.1
 

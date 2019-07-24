@@ -1,0 +1,9 @@
+Embedding
+*********
+
+
+.. toctree::
+
+   spectral
+   svd
+

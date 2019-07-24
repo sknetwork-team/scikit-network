@@ -22,12 +22,12 @@ class TestClusteringMetrics(unittest.TestCase):
 
     def test_dot_modularity(self):
         self.assertAlmostEqual(dot_modularity(self.graph, self.embedding), 0.)
-        fit, diversity = dot_modularity(self.graph, self.embedding, return_all=True)
+        fit, diversity, modularity = dot_modularity(self.graph, self.embedding, return_all=True)
         self.assertAlmostEqual(fit, 1.)
         self.assertAlmostEqual(diversity, 1.)
 
         self.assertAlmostEqual(dot_modularity(self.bipartite, self.embedding, self.features), 0.)
-        fit, diversity = dot_modularity(self.bipartite, self.embedding, self.features, return_all=True)
+        fit, diversity, modularity = dot_modularity(self.bipartite, self.embedding, self.features, return_all=True)
         self.assertAlmostEqual(fit, 1.)
         self.assertAlmostEqual(diversity, 1.)
 
