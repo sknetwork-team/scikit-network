@@ -14,7 +14,7 @@ from sknetwork.linalg import safe_sparse_dot, SparseLR, EigSolver, HalkoEig, Lan
 from sknetwork.utils.adjacency_formats import bipartite2undirected
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, is_symmetric
-from sknetwork.utils.preprocessing import is_connected
+from sknetwork.basics.structure import is_connected
 from typing import Union
 
 
