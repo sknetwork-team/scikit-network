@@ -123,10 +123,10 @@ class SVD(Algorithm):
         n_components = min(self.embedding_dimension + 1, min(n, p) - 1)
         self.solver.fit(normalized_adj, n_components)
 
-        index = np.argsort(self.solver.singular_values_)
-        self.singular_values_ = self.solver.singular_values_[index[:-1]]
-        self.embedding_ = np.sqrt(total_weight) * diag_samp.dot(self.solver.left_singular_vectors_[:, index[:-1]])
-        self.coembedding_ = np.sqrt(total_weight) * diag_feat.dot(self.solver.right_singular_vectors_[:, index[:-1]])
+        index = np.argsort(-self.solver.singular_values_)
+        self.singular_values_ = self.solver.singular_values_[index[1:]]
+        self.embedding_ = np.sqrt(total_weight) * diag_samp.dot(self.solver.left_singular_vectors_[:, index[1:]])
+        self.coembedding_ = np.sqrt(total_weight) * diag_feat.dot(self.solver.right_singular_vectors_[:, index[1:]])
 
         # rescale to get barycenter property
         self.embedding_ *= self.singular_values_
