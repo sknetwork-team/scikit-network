@@ -208,18 +208,22 @@ def house():
     return adjacency + adjacency.T
 
 
-def karate_club():
+def karate_club(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, np.ndarray], sparse.csr_matrix]:
     """
     Zachary's Karate Club Graph
 
-    Data file from: http://vlado.fmf.uni-lj.si/pub/networks/data/Ucinet/UciData.htm
-
     34 nodes, 78 edges
 
+    Parameters
+    ----------
+    return_labels: bool
+        If True, returns the labels of the nodes.
     Returns
     -------
     adjacency: sparse.csr_matrix
         Adjacency matrix of the graph.
+    labels: np.ndarray
+        Label of each node (community in the karate club).
     """
     row = np.array(
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
@@ -234,7 +238,12 @@ def karate_club():
          33, 33, 32, 33, 32, 33, 25, 27, 29, 32, 33, 25, 27, 31, 31, 29, 33,
          33, 31, 33, 32, 33, 32, 33, 32, 33, 33])
     adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(34, 34))
-    return adjacency + adjacency.T
+    if return_labels:
+        labels = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0])
+        return adjacency + adjacency.T, labels
+    else:
+        return adjacency + adjacency.T
 
 
 def rock_paper_scissors():
@@ -262,21 +271,25 @@ def star_wars_villains(return_labels: bool = False) -> Union[Tuple[sparse.csr_ma
     Parameters
     ----------
     return_labels: bool
-        Whether to return the labels of the nodes as dictionaries.
+        If True, returns the labels of the nodes as dictionaries.
 
     Returns
     -------
     biadjacency: sparse.csr_matrix
         Biadjacency matrix of the graph.
+    villains: dict
+        Names of villains (rows)
+    movies: dict
+        Names of movies (columns)
     """
     row = np.array([0, 0, 1, 2, 2, 2, 3, 3])
     col = np.array([0, 2, 0, 0, 1, 2, 1, 2])
     biadjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)))
 
     if return_labels:
-        row_labels = {0: 'Jabba', 1: 'Greedo', 2: 'Vador', 3: 'Boba'}
-        col_labels = {0: 'A_New_Hope', 1: 'The_Empire_Strikes_Back', 2: 'Return_Of_The_Jedi'}
-        return biadjacency, row_labels, col_labels
+        villains = {0: 'Jabba', 1: 'Greedo', 2: 'Vador', 3: 'Boba'}
+        movies = {0: 'A_New_Hope', 1: 'The_Empire_Strikes_Back', 2: 'Return_Of_The_Jedi'}
+        return biadjacency, villains, movies
     else:
         return biadjacency
 
@@ -290,16 +303,16 @@ def movie_actor(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, d
     Parameters
     ----------
     return_labels: bool
-        Whether to return the labels of the nodes as dictionaries.
+        If True, returns the labels of the nodes as dictionaries.
 
     Returns
     -------
     biadjacency: sparse.csr_matrix
         Biadjacency matrix of the graph.
-    col_labels: dict
-        Labels of rows (movies)
-    col_labels: dict
-        Labels of columns (actors)
+    movies: dict
+        Names of movies (rows)
+    actors: dict
+        Names of actors (columns)
     """
     edges = {
         0: [0, 1, 2],
@@ -325,7 +338,7 @@ def movie_actor(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, d
     biadjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)))
 
     if return_labels:
-        row_labels = {
+        movies = {
             0: 'Inception',
             1: 'The Dark Knight Rises',
             2: 'The Big Short',
@@ -342,7 +355,7 @@ def movie_actor(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, d
             13: 'Murder on the Orient Express',
             14: 'Fantastic Beasts 2'
         }
-        col_labels = {
+        actors = {
             0: 'Leonardo DiCaprio',
             1: 'Marion Cotillard',
             2: 'Joseph Gordon Lewitt',
@@ -360,7 +373,7 @@ def movie_actor(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, d
             14: 'Johnny Depp',
             15: 'Owen Wilson'
         }
-        return biadjacency, row_labels, col_labels
+        return biadjacency, movies, actors
     else:
         return biadjacency
 
