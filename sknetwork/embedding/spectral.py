@@ -30,31 +30,32 @@ class Spectral(Algorithm):
     embedding_dimension : int, optional
         Dimension of the embedding space
     normalized_laplacian : bool (default = True)
-        If True, uses the normalized Laplacian, :math:`I - D^{-1/2} A D^{-1/2}`
-    regularization : ``None`` or float (default=0.01)
+        If True, use the normalized Laplacian, :math:`I - D^{-1/2} A D^{-1/2}`.
+    regularization : ``None`` or float (default= ``0.01``)
         Implicitly add edges of given weight between all pairs of nodes.
-    energy_scaling : bool (default=True)
-        If ``True``, rescales each column of the embedding by dividing it by the square-root of the corresponding
-        eigenvalue. Only valid if ``node_weights == 'degree'``.
-    force_biadjacency : bool (default=False)
-        Forces the input matrix to be considered as a biadjacency matrix. Only relevant for a symmetric input matrix.
-    solver: 'auto', 'halko', 'lanczos' or EigSolver object
-        Which eigenvalue solver to use
+    energy_scaling : bool (default= ``True``)
+        If ``True``, rescale each column of the embedding by dividing it by the square-root of the corresponding
+        eigenvalue. Only valid if **node_weights** is ``'degree'``.
+    force_biadjacency : bool (default= ``False``)
+        If ``True``, force the input matrix to be considered as a biadjacency matrix.
+        Only relevant for a symmetric input matrix.
+    solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver`
+        Which eigenvalue solver to use.
 
-        * ``'auto'`` calls the auto_solver function
-        * ``'halko'``: randomized method, fast but less accurate than 'lanczos' for ill-conditioned matrices
-        * ``'lanczos'``: power-iteration based method
-        * ``custom``: the user must provide an EigSolver object.
+        * ``'auto'`` call the auto_solver function.
+        * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
+        * ``'lanczos'``: power-iteration based method.
+        * :class:`EigSolver`: custom solver.
 
     Attributes
     ----------
     embedding_ : array, shape = (n, embedding_dimension)
-        Embedding of the nodes
+        Embedding of the nodes.
     coembedding_ : array, shape = (p, embedding_dimension)
-        Co-embedding of the feature nodes
-        Only relevant for an asymmetric input matrix or if ``force_biadjacency==True``.
+        Co-embedding of the feature nodes.
+        Only relevant for an asymmetric input matrix or if **force_biadjacency** = ``True``.
     eigenvalues_ : array, shape = (embedding_dimension)
-        Smallest eigenvalues
+        Eigenvalues in increasing order (first eigenvalue ignored).
 
     Example
     -------

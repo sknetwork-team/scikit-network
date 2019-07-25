@@ -92,7 +92,7 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
 
     :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`
 
-    where :math:`B` is the biadjacency matrix of the biadjacency adjacency.
+    where :math:`B` is the biadjacency matrix of the bipartite graph.
 
     Parameters
     ----------

@@ -21,21 +21,21 @@ class SVD(Algorithm):
     """
     Graph embedding by Generalized Singular Value Decomposition.
 
-    Setting ``weights`` and ``feature_weights`` to ``'uniform'`` leads to the standard SVD.
+    Setting **weights** and **feature_weights** to ``'uniform'`` leads to the standard SVD.
 
     Parameters
     -----------
     embedding_dimension: int
         Dimension of the embedding.
-    weights: 'degree' or 'uniform' (default='degree')
+    weights: ``'degree'`` or ``'uniform'`` (default= ``'degree'``)
         Weights of the nodes.
     feature_weights: ``'degree'`` or ``'uniform'`` (default= ``'degree'``)
         Weights of the feature nodes.
-    regularization: ``None`` or float (default=0.01)
+    regularization: ``None`` or float (default= ``0.01``)
         Implicitly add edges of given weight between all pairs of nodes.
-    energy_scaling: bool (default=True)
+    energy_scaling: bool (default= ``True``)
         If ``True``, rescales each dimension of the embedding by the corresponding energy.
-        Only valid if ``weights == 'degree'`` and ``feature_weights == 'degree'``.
+        Only valid if **weights** = ``'degree'`` and **feature_weights** = ``'degree'``.
 
     Attributes
     ----------

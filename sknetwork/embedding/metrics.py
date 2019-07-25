@@ -69,7 +69,7 @@ def dot_modularity(adjacency, embedding: np.ndarray, coembedding=None, resolutio
 
     :math:`Q = \\sum_{ij}(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})x_i^Tx_j`
 
-    This metric is normalized to lie between -1 and 1 (for :math:`|||gamma = 1`).
+    This metric is normalized to lie between -1 and 1 (for :math:`\\gamma = 1`).
 
     If the embeddings are normalized, this reduces to cosine modularity.
 
