@@ -21,7 +21,7 @@ def shortest_path(adjacency: sparse.csr_matrix, method: str = 'auto', directed: 
     adjacency:
         The adjacency matrix of the graph
     method:
-        The method to be used. Must be ``'auto'``(default), ``'FW'`` (Floyd-Warshall),``'D'`` (Dijkstra),
+        The method to be used. Must be ``'auto'`` (default), ``'FW'`` (Floyd-Warshall),``'D'`` (Dijkstra),
         ``'BF'`` (Bellman-Ford) or ``'J'`` (Johnson).
     directed:
         Denotes if the graph is directed
