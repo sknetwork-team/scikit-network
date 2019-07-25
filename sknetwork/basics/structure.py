@@ -108,7 +108,7 @@ def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray],
 
 def is_bipartite(adjacency: sparse.csr_matrix,
                  return_biadjacency: bool = False) -> Union[bool, Tuple[bool, Optional[sparse.csr_matrix]]]:
-    """Check whether an undirected graph is bipartite and returns a possible partition of the nodes if it is.
+    """Check whether an undirected graph is bipartite and can return a possible biadjacency.
 
         Parameters
         ----------
