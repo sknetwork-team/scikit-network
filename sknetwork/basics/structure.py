@@ -115,7 +115,7 @@ def is_bipartite(adjacency: sparse.csr_matrix,
         adjacency:
            The symmetric adjacency matrix of the graph.
         return_biadjacency:
-            If True, a possible biadjacency is returned if the graph is bipartite (None is returned otherwise)
+            If ``True`` , a possible biadjacency is returned if the graph is bipartite (None is returned otherwise)
 
         Returns
         -------

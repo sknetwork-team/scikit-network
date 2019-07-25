@@ -23,7 +23,8 @@ Summary of the different methods and their worst-case complexity (for the all-pa
 +================+================================+=============================================+
 | Floyd-Warshall | :math:`O(|V|^3)`               | All-pairs shortest path problem only        |
 +----------------+--------------------------------+---------------------------------------------+
-|    Dijkstra    | :math:`O(|V|^2 \log |V| + |E|)`| For use on graphs with positive weights only|
+|    Dijkstra    | :math:`O(|V|^2 \log |V| + |E|)`|   | For use on graphs                       |
+|                |                                |   | with positive weights only              |
 +----------------+--------------------------------+---------------------------------------------+
 |  Bellman-Ford  | :math:`O(|V||E|)`              |                                             |
 +----------------+--------------------------------+   | For use on graphs without               +
