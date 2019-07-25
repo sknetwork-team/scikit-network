@@ -8,15 +8,16 @@ Created on Nov 2, 2018
 """
 
 from typing import Union, Optional
+import warnings
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering.postprocessing import reindex_clusters
+from sknetwork.clustering.post_processing import reindex_clusters
 from sknetwork import njit
-from sknetwork.utils.adjacency_formats import directed2undirected
+from sknetwork.utils.adjacency_formats import directed2undirected, bipartite2undirected, bipartite2directed
 from sknetwork.utils.algorithm_base_class import Algorithm
-from sknetwork.utils.checks import check_probs, check_format, check_engine, check_random_state, is_square
+from sknetwork.utils.checks import check_probs, check_format, check_engine, check_random_state
 
 
 def membership_matrix(labels: np.ndarray) -> sparse.csr_matrix:
@@ -363,22 +364,31 @@ class Louvain(Algorithm):
     The modularity of a clustering is
 
     :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w_iw_j}{w^2}\\big)\\delta_{c_i,c_j}`
-    for undirected graphs
+    for undirected graphs,
 
     :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w^+_iw^-_j}{w^2}\\big)\\delta_{c_i,c_j}`
-    for directed graphs
+    for directed graphs,
+
+    :math:`Q = \\sum_{i=1}^n\\sum_{j=1}^p\\big(\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{w^s_iw^f_j}{w^2}\\big)
+    \\delta_{c^s_i,c^f_j}`
+    for bipartite graphs,
 
     where
 
+    :math:`A` is the adjacency matrix,\n
     :math:`w_i` is the weight of node :math:`i` (undirected graphs),\n
     :math:`w^+_i, w^-_i` are the out-weight and in-weight of node :math:`i` (directed graphs),\n
-    :math:`c_i` is the cluster of node :math:`i`,\n
+    :math:`c_i` is the cluster of node :math:`i` (undirected and directed graphs),\n
+    :math:`B` is the biadjacency matrix (for bipartite graphs),\n
+    :math:`w^s_i, w^f_j` are the weights of sample node :math:`i` and feature node :math:`j` (bipartite graphs),\n
+    :math:`c^s_i, c^f_j` are the clusters of sample node :math:`i` and feature node :math:`j` (bipartite graphs),\n
+    :math:`w = 1^TA1` or :math:`w = 1^TB1` is the total weight,\n
     :math:`\\delta` is the Kronecker symbol,\n
     :math:`\\gamma \\ge 0` is the resolution parameter.
 
     Parameters
     ----------
-    engine : str
+    engine :
         ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     algorithm :
         The optimization algorithm.
@@ -405,7 +415,9 @@ class Louvain(Algorithm):
     Attributes
     ----------
     labels_ : np.ndarray
-        Cluster index of each node.
+        Label of each node.
+    feature_labels_ : np.ndarray
+        Label of each feature node (for bipartite and directed graphs).
     iteration_count_ : int
         Total number of aggregations performed.
     aggregate_graph_ : sparse.csr_matrix
@@ -450,12 +462,14 @@ class Louvain(Algorithm):
         self.max_agg_iter = max_agg_iter
         self.verbose = verbose
         self.labels_ = None
+        self.feature_labels_ = None
         self.iteration_count_ = None
         self.aggregate_graph_ = None
         self.shuffle_nodes = shuffle_nodes
 
     def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
-            in_weights: Union[None, str, np.ndarray] = None, sorted_cluster: bool = True) -> 'Louvain':
+            feature_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
+            force_biadjacency: bool = False, sorted_cluster: bool = True) -> 'Louvain':
         """
         Clustering using chosen Optimizer.
 
@@ -466,30 +480,60 @@ class Louvain(Algorithm):
         weights :
             Weights (undirected graphs) or out-weights (directed graphs) used in the second term of modularity.
             ``'degree'``, ``'uniform'`` or custom weights.
-        in_weights :
-            In-weights (directed graphs) used in the second term of modularity.
+        feature_weights :
+            Feature weights (bipartite graphs) or in-weights (directed graphs) used in the second term of modularity.
             ``None``, ``'degree'``, ``'uniform'`` or custom weights.
-            If None, taken equal to out-weights.
+            If ``None``, taken equal to weights.
+        force_undirected : bool (default= ``False``)
+            If `True``, consider the graph as undirected.  `
+            Only relevant for a non-symmetric matrix.
+        force_biadjacency : bool (default= ``False``)
+            If ``True``, force the input matrix to be considered as a biadjacency matrix.
+            Only relevant for a symmetric input matrix.
         sorted_cluster :
-            If True, sorts labels in decreasing order of cluster size.
+            If ``True``, sort labels in decreasing order of cluster size.
 
         Returns
         -------
-        self: :class: 'Louvain'
+        self: :class:`Louvain`
         """
         adjacency = check_format(adjacency)
+        n, p = adjacency.shape
 
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix must be a square matrix. See Bilouvain for rectangular matrices.')
+        if p != n or force_biadjacency:
+            # bipartite graph
+            sample_weights = check_probs(weights, adjacency)
+            if feature_weights is None:
+                if type(weights) == str:
+                    feature_weights = weights
+                else:
+                    warnings.warn(Warning("Feature_weights have been set to 'degree'."))
+                    feature_weights = 'degree'
+            feature_weights = check_probs(feature_weights, adjacency.T)
+            if force_undirected:
+                adjacency = bipartite2undirected(adjacency)
+                out_weights = np.hstack((sample_weights, feature_weights))
+                in_weights = None
+            else:
+                adjacency = bipartite2directed(adjacency)
+                out_weights = np.hstack((sample_weights, np.zeros(p)))
+                in_weights = np.hstack((np.zeros(n), feature_weights))
+        else:
+            # non-bipartite graph
+            if force_undirected:
+                adjacency = directed2undirected(adjacency)
+            out_weights = weights
+            in_weights = feature_weights
 
         nodes = np.arange(adjacency.shape[0])
         if self.shuffle_nodes:
             nodes = self.random_state.permutation(nodes)
             adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
-        graph = AggregateGraph(adjacency, weights, in_weights)
+        n_ = adjacency.shape[0]
+        graph = AggregateGraph(adjacency, out_weights, in_weights)
 
-        membership = sparse.identity(graph.n_nodes, format='csr')
+        membership = sparse.identity(n_, format='csr')
         increase = True
         iteration_count = 0
         if self.verbose:
@@ -522,6 +566,10 @@ class Louvain(Algorithm):
             self.labels_ = self.labels_[reverse]
         if sorted_cluster:
             self.labels_ = reindex_clusters(self.labels_)
+        if n_ > n:
+            self.feature_labels_ = self.labels_[n:]
+            self.labels_ = self.labels_[:n]
         self.aggregate_graph_ = graph.norm_adjacency * adjacency.data.sum()
 
         return self
+

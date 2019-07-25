@@ -17,14 +17,6 @@ Louvain
 .. autoclass:: sknetwork.clustering.GreedyModularity
     :members:
 
-
-BiLouvain
----------
-
-.. autoclass:: sknetwork.clustering.BiLouvain
-    :members:
-
-
 Metrics
 -------
 .. autofunction:: sknetwork.clustering.modularity

@@ -4,10 +4,11 @@
 
 
 import unittest
-from sknetwork.clustering import Louvain, modularity
-from sknetwork.toy_graphs import karate_club, bow_tie, painters
 from scipy.sparse import identity
+
 from sknetwork import is_numba_available
+from sknetwork.clustering import Louvain, modularity
+from sknetwork.toy_graphs import karate_club, bow_tie, painters, star_wars_villains
 
 
 class TestLouvainClustering(unittest.TestCase):
@@ -26,6 +27,7 @@ class TestLouvainClustering(unittest.TestCase):
         self.karate_club = karate_club()
         self.bow_tie = bow_tie()
         self.painters = painters(return_labels=False)
+        self.star_wars = star_wars_villains()
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):
@@ -66,6 +68,17 @@ class TestLouvainClustering(unittest.TestCase):
         labels = self.louvain.labels_
         self.assertEqual(labels.shape, (14,))
         self.assertAlmostEqual(modularity(self.painters, labels), 0.32, 2)
+
+    def test_bipartite(self):
+        self.louvain.fit(self.star_wars)
+        labels = self.louvain.labels_
+        feature_labels = self.louvain.feature_labels_
+        self.assertEqual(labels.shape, (4,))
+        self.assertEqual(feature_labels.shape, (3,))
+        if is_numba_available:
+            self.louvain_numba.fit(self.star_wars)
+            labels = self.louvain_numba.labels_
+            self.assertEqual(labels.shape, (4,))
 
     def test_shuffling(self):
         self.louvain_shuffle_first.fit(self.bow_tie)
