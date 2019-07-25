@@ -7,14 +7,16 @@ Created on Nov 2, 2018
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
+from typing import Union, Optional
+
 import numpy as np
 from scipy import sparse
-from typing import Union, Optional
-from sknetwork.utils.checks import check_probs, check_format, check_engine, check_random_state, is_square
-from sknetwork.utils.adjacency_formats import directed2undirected
-from sknetwork.utils.algorithm_base_class import Algorithm
+
 from sknetwork.clustering.postprocessing import reindex_clusters
 from sknetwork import njit
+from sknetwork.utils.adjacency_formats import directed2undirected
+from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.checks import check_probs, check_format, check_engine, check_random_state, is_square
 
 
 def membership_matrix(labels: np.ndarray) -> sparse.csr_matrix:

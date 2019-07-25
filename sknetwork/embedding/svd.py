@@ -6,13 +6,15 @@ Created on Thu May 31 17:16:22 2018
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
+from typing import Union
+import warnings
+
 import numpy as np
 from scipy import sparse
-from sknetwork.linalg import SparseLR
+
+from sknetwork.linalg import SparseLR, SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, check_weights
-from sknetwork.linalg import SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot
-from typing import Union
 
 
 class SVD(Algorithm):
@@ -25,15 +27,15 @@ class SVD(Algorithm):
     -----------
     embedding_dimension: int
         Dimension of the embedding.
-    weights: ``'degree'`` or ``'uniform'`` (default=``'degree'``)
+    weights: 'degree' or 'uniform' (default='degree')
         Weights of the nodes.
-    feature_weights: ``'degree'`` or ``'uniform'`` (default=``'degree'``)
+    feature_weights: ``'degree'`` or ``'uniform'`` (default= ``'degree'``)
         Weights of the feature nodes.
     regularization: ``None`` or float (default=0.01)
         Implicitly add edges of given weight between all pairs of nodes.
     energy_scaling: bool (default=True)
         If ``True``, rescales each dimension of the embedding by the corresponding energy.
-        Only valid if ``weights == 'degree'``.
+        Only valid if ``weights == 'degree'`` and ``feature_weights == 'degree'``.
 
     Attributes
     ----------
@@ -47,7 +49,7 @@ class SVD(Algorithm):
     Example
     -------
     >>> from sknetwork.toy_graphs import movie_actor
-    >>> adjacency = movie_actor()
+    >>> adjacency: sparse.csr_matrix = movie_actor()
     >>> svd = SVD(embedding_dimension=2)
     >>> embedding = svd.fit(adjacency).embedding_
     >>> embedding.shape
@@ -68,6 +70,12 @@ class SVD(Algorithm):
         self.feature_weights = feature_weights
         self.regularization = regularization
         self.energy_scaling = energy_scaling
+
+        if energy_scaling:
+            if weights != 'degree' or feature_weights != 'degree':
+                warnings.warn(Warning("The option energy_scaling is valid only with ``weights = 'degree'`` and "
+                                      "``feature_weights = 'degree'``. It will be ignored."))
+
         if solver == 'halko':
             self.solver: SVDSolver = HalkoSVD()
         elif solver == 'lanczos':
@@ -131,7 +139,7 @@ class SVD(Algorithm):
         # rescale to get barycenter property
         self.embedding_ *= self.singular_values_
 
-        if self.energy_scaling and self.weights == 'degree':
+        if self.energy_scaling and self.weights == 'degree' and self.feature_weights == 'degree':
             energy_levels: np.ndarray = np.sqrt(1 - np.clip(self.singular_values_, 0, 1) ** 2)
             energy_levels[energy_levels > 0] = 1 / energy_levels[energy_levels > 0]
             self.embedding_ *= energy_levels

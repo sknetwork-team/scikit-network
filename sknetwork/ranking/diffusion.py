@@ -5,10 +5,12 @@ Created on July 17 2019
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
+from typing import Union
+
 import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
-from typing import Union
+
 from sknetwork.utils.checks import check_format, is_square
 from sknetwork.utils.algorithm_base_class import Algorithm
 
