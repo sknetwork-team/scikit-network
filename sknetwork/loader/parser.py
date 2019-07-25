@@ -5,10 +5,11 @@ Created on Dec 5, 2018
 @author: Quentin Lutz <qlutz@enst.fr>, Nathan de Lara <ndelara@enst.fr>
 """
 
+from csv import reader
+from typing import Tuple, Union
+
 from numpy import zeros, unique, argmax, ones, concatenate
 from scipy import sparse
-from typing import Tuple, Union
-from csv import reader
 
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = None,

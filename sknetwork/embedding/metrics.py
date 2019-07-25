@@ -9,12 +9,13 @@ Nathan De Lara <ndelara@enst.fr>
 Quality metrics for adjacency embeddings
 """
 
-import numpy as np
+from typing import Union
 
+import numpy as np
 from scipy import sparse
 from scipy.stats import hmean
+
 from sknetwork.utils.checks import check_format
-from typing import Union
 
 
 def linear_fit(adjacency: Union[sparse.csr_matrix, np.ndarray], embedding: np.ndarray, order: int = 1,

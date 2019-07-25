@@ -8,15 +8,17 @@ Thomas Bonald <thomas.bonald@telecom-paristech.fr>
 Nathan De Lara <nathan.delara@telecom-paristech.fr>
 """
 
+from typing import Union
+import warnings
+
 import numpy as np
 from scipy import sparse
+
+from sknetwork.basics.structure import is_connected
 from sknetwork.linalg import safe_sparse_dot, SparseLR, EigSolver, HalkoEig, LanczosEig, auto_solver
 from sknetwork.utils.adjacency_formats import bipartite2undirected
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, is_symmetric
-from sknetwork.basics.structure import is_connected
-from typing import Union
-import warnings
 
 
 class Spectral(Algorithm):
@@ -57,7 +59,7 @@ class Spectral(Algorithm):
     Example
     -------
     >>> from sknetwork.toy_graphs import karate_club
-    >>> adjacency = karate_club()
+    >>> adjacency: sparse.csr_matrix = karate_club()
     >>> spectral = Spectral(embedding_dimension=2)
     >>> embedding = spectral.fit(adjacency).embedding_
     >>> embedding.shape
@@ -111,6 +113,7 @@ class Spectral(Algorithm):
         if p != n or not is_symmetric(adjacency) or self.force_biadjacency:
             adjacency = bipartite2undirected(adjacency)
 
+        # size of the adjacency matrix (n or n + p)
         n_ = adjacency.shape[0]
 
         if self.solver == 'auto':
@@ -145,16 +148,17 @@ class Spectral(Algorithm):
 
         # applies normalization of the Laplacian
         if self.normalized_laplacian:
-            inv_sqrt_degree_matrix = sparse.diags(np.sqrt(degrees), format='csr')
-            inv_sqrt_degree_matrix.data = 1 / inv_sqrt_degree_matrix.data
-            laplacian = safe_sparse_dot(inv_sqrt_degree_matrix, safe_sparse_dot(laplacian, inv_sqrt_degree_matrix))
+            normalizing_matrix = sparse.diags(np.sqrt(degrees), format='csr')
+            normalizing_matrix.data = 1 / normalizing_matrix.data
+        else:
+            normalizing_matrix = sparse.eye(n_)
 
+        laplacian = safe_sparse_dot(normalizing_matrix, safe_sparse_dot(laplacian, normalizing_matrix))
         self.solver.fit(laplacian, n_components)
 
         self.eigenvalues_ = self.solver.eigenvalues_[1:]
         self.embedding_ = self.solver.eigenvectors_[:, 1:]
-        if self.normalized_laplacian:
-            self.embedding_ = np.array(inv_sqrt_degree_matrix.dot(self.embedding_))
+        self.embedding_ = np.array(normalizing_matrix.dot(self.embedding_))
 
         if self.energy_scaling and self.normalized_laplacian:
             self.embedding_ /= np.sqrt(self.eigenvalues_)

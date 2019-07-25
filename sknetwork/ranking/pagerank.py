@@ -6,12 +6,14 @@ Created on May 31 2019
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
+from typing import Union, Optional
+
 import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
-from typing import Union, Optional
-from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_square
+
 from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_square
 
 
 class PageRank(Algorithm):
