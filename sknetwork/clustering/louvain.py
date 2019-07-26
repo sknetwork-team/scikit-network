@@ -48,9 +48,9 @@ class AggregateGraph:
     adjacency :
         Adjacency matrix of the graph.
     out_weights :
-        Out weights.
+        Out-weights.
     in_weights :
-        In weights.
+        In-weights.
 
     Attributes
     ----------
@@ -237,16 +237,16 @@ def fit_core(resolution: float, tol: float, n_nodes: int, out_node_probs: np.nda
 
 class GreedyModularity(Optimizer):
     """
-    A greedy directed modularity optimizer.
+    A greedy modularity optimizer.
 
     Attributes
     ----------
-    resolution :
+    resolution : float
         Modularity resolution.
-    tol :
+    tol : float
         Minimum modularity increase to enter a new optimization pass.
     engine : str
-        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, test if numba is available.
 
     """
 
@@ -263,7 +263,7 @@ class GreedyModularity(Optimizer):
         Parameters
         ----------
         graph :
-            The adjacency to cluster.
+            The graph to cluster.
 
         Returns
         -------
@@ -375,11 +375,11 @@ class Louvain(Algorithm):
 
     where
 
-    :math:`A` is the adjacency matrix,\n
+    :math:`A` is the adjacency matrix (size :math:`n\\times n)`,\n
     :math:`w_i` is the weight of node :math:`i` (undirected graphs),\n
     :math:`w^+_i, w^-_i` are the out-weight and in-weight of node :math:`i` (directed graphs),\n
     :math:`c_i` is the cluster of node :math:`i` (undirected and directed graphs),\n
-    :math:`B` is the biadjacency matrix (for bipartite graphs),\n
+    :math:`B` is the biadjacency matrix (size :math:`n\\times p)`,\n
     :math:`w^s_i, w^f_j` are the weights of sample node :math:`i` and feature node :math:`j` (bipartite graphs),\n
     :math:`c^s_i, c^f_j` are the clusters of sample node :math:`i` and feature node :math:`j` (bipartite graphs),\n
     :math:`w = 1^TA1` or :math:`w = 1^TB1` is the total weight,\n
@@ -421,7 +421,7 @@ class Louvain(Algorithm):
     iteration_count_ : int
         Total number of aggregations performed.
     aggregate_graph_ : sparse.csr_matrix
-        Aggregated adjacency at the end of the algorithm.
+        Adjacency matrix of the aggregate graph at the end of the algorithm.
 
     Example
     -------
@@ -476,7 +476,7 @@ class Louvain(Algorithm):
         Parameters
         ----------
         adjacency :
-            Adjacency matrix of the graph.
+            Adjacency or biadjacency matrix of the graph.
         weights :
             Weights (undirected graphs) or out-weights (directed graphs) used in the second term of modularity.
             ``'degree'``, ``'uniform'`` or custom weights.
@@ -485,8 +485,7 @@ class Louvain(Algorithm):
             ``None``, ``'degree'``, ``'uniform'`` or custom weights.
             If ``None``, taken equal to weights.
         force_undirected : bool (default= ``False``)
-            If `True``, consider the graph as undirected.  `
-            Only relevant for a non-symmetric matrix.
+            If ``True``, consider the graph as undirected.
         force_biadjacency : bool (default= ``False``)
             If ``True``, force the input matrix to be considered as a biadjacency matrix.
             Only relevant for a symmetric input matrix.
