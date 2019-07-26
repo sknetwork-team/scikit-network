@@ -3,8 +3,10 @@
 """tests for randomized matrix factorization"""
 
 import unittest
+
 import numpy as np
 from scipy import sparse
+
 from sknetwork.linalg.randomized_matrix_factorization import randomized_eig, randomized_svd
 
 

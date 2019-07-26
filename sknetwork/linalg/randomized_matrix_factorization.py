@@ -6,11 +6,13 @@ Created on Oct 12 2018
 Part of this code was adapted from the scikit-learn project: https://scikit-learn.org/stable/.
 """
 
+from typing import Union
+
 import numpy as np
 from scipy import sparse, linalg
+
 from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.utils.checks import check_random_state
-from typing import Union
 
 
 def safe_sparse_dot(a, b, dense_output: bool = False):

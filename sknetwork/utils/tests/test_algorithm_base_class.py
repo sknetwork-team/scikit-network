@@ -3,9 +3,10 @@
 """tests for algorithm_base_class.py"""
 
 import unittest
-from sknetwork.ranking import PageRank
-from sknetwork.hierarchy import Paris
+
 from sknetwork.clustering import Louvain
+from sknetwork.hierarchy import Paris
+from sknetwork.ranking import PageRank
 from sknetwork.utils.checks import check_engine
 
 

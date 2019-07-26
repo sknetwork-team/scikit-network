@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 """tests for parser.py"""
 
-
 import unittest
 from os import remove
-from sknetwork.loader import parser
+
 import numpy as np
+
+from sknetwork.loader import parser
 
 
 class TestTSVParser(unittest.TestCase):

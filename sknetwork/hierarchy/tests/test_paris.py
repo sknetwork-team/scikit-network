@@ -7,11 +7,13 @@ Created on March 2019
 """
 
 import unittest
+
 import numpy as np
 from scipy.sparse import identity
+
+from sknetwork import is_numba_available
 from sknetwork.hierarchy import Paris, straight_cut
 from sknetwork.toy_graphs import house, karate_club
-from sknetwork import is_numba_available
 
 
 class TestParis(unittest.TestCase):

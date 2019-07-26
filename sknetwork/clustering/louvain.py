@@ -7,14 +7,14 @@ Created on Nov 2, 2018
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
-from typing import Union, Optional
 import warnings
+from typing import Union, Optional
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering.post_processing import reindex_clusters
 from sknetwork import njit
+from sknetwork.clustering.post_processing import reindex_clusters
 from sknetwork.utils.adjacency_formats import directed2undirected, bipartite2undirected, bipartite2directed
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_probs, check_format, check_engine, check_random_state
@@ -121,6 +121,7 @@ class Optimizer(Algorithm):
     labels_ : np.ndarray
         Cluster index of each node.
     """
+
     def __init__(self):
         self.score_ = None
         self.labels_ = None
@@ -571,4 +572,3 @@ class Louvain(Algorithm):
         self.aggregate_graph_ = graph.norm_adjacency * adjacency.data.sum()
 
         return self
-

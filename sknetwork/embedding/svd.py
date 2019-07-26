@@ -6,8 +6,8 @@ Created on Thu May 31 17:16:22 2018
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
-from typing import Union
 import warnings
+from typing import Union
 
 import numpy as np
 from scipy import sparse

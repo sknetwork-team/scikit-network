@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 """tests for pagerank.py"""
 
-
 import unittest
+
 import numpy as np
-from sknetwork.toy_graphs import rock_paper_scissors
+
 from sknetwork.ranking.pagerank import PageRank
+from sknetwork.toy_graphs import rock_paper_scissors
 
 
 class TestPageRank(unittest.TestCase):

@@ -2,6 +2,7 @@
 
 """Console script for sknetwork."""
 import sys
+
 import click
 
 

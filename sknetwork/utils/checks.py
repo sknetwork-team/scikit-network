@@ -5,9 +5,11 @@ Created on Apr 4, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
+from typing import Union, Optional
+
 import numpy as np
 from scipy import sparse
-from typing import Union, Optional
+
 from sknetwork import is_numba_available
 
 

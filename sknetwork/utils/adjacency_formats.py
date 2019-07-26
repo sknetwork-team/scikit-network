@@ -5,10 +5,12 @@ Created on Apr 8, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
+from typing import Union
+
 import numpy as np
 from scipy import sparse
+
 from sknetwork.linalg.sparse_lowrank import SparseLR
-from typing import Union
 
 
 def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],

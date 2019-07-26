@@ -1,4 +1,4 @@
-class cached_property:
+class CachedProperty:
     """
     Decorator used in replacement of @property to put the value in cache automatically.
 
@@ -30,6 +30,7 @@ class cached_property:
         if instance is None:
             def f():
                 pass
+
             f.__doc__ = self._factory.__doc__
             f = property(f)
             return f
@@ -54,7 +55,7 @@ class DeleteCacheMixin:
     Cf. decorator :class:"cached_property".
 
     >>> class Example(DeleteCacheMixin):
-    ...     @cached_property
+    ...     @CachedProperty
     ...     def x(self):
     ...         print('Big computation...')
     ...         return 6 * 7
@@ -69,6 +70,7 @@ class DeleteCacheMixin:
     Big computation...
     42
     """
+
     def delete_cache(self) -> None:
         if not hasattr(self, 'cached_properties'):
             return

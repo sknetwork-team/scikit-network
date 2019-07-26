@@ -3,6 +3,7 @@
 # authors: Quentin Lutz <qlutz@enst.fr>
 
 import unittest
+
 from sknetwork.toy_graphs.block_model import block_model
 
 

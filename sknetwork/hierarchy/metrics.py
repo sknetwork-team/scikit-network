@@ -5,7 +5,7 @@ Created on March 2019
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
-from sknetwork.hierarchy import AggregateGraph
+from sknetwork.hierarchy.paris import AggregateGraph
 from sknetwork.utils.checks import *
 
 

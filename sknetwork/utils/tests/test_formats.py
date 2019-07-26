@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """tests for adjacency_formats.py"""
 
-
 import unittest
+
 from sknetwork.toy_graphs import star_wars_villains, rock_paper_scissors, house
 from sknetwork.utils.adjacency_formats import *
 from sknetwork.utils.checks import is_symmetric

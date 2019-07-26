@@ -11,8 +11,8 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
 
-from sknetwork.utils.checks import check_format, is_square
 from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.checks import check_format, is_square
 
 
 class Diffusion(Algorithm):
@@ -37,6 +37,7 @@ class Diffusion(Algorithm):
     ----------
     Chung, F. (2007). The heat kernel as the pagerank of a graph. Proceedings of the National Academy of Sciences.
     """
+
     def __init__(self):
         self.score_ = None
 

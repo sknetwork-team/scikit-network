@@ -3,8 +3,10 @@
 """tests for embeddings metrics"""
 
 import unittest
+
 import numpy as np
 from scipy import sparse
+
 from sknetwork.embedding.metrics import dot_modularity, hscore, linear_fit
 from sknetwork.toy_graphs import star_wars_villains
 
