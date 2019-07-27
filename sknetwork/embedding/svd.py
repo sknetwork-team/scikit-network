@@ -48,12 +48,12 @@ class SVD(Algorithm):
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import movie_actor
-    >>> adjacency: sparse.csr_matrix = movie_actor()
-    >>> svd = SVD(embedding_dimension=2)
+    >>> from sknetwork.toy_graphs import house
+    >>> adjacency = house()
+    >>> svd = SVD()
     >>> embedding = svd.fit(adjacency).embedding_
     >>> embedding.shape
-    (15, 2)
+    (5, 2)
 
     References
     ----------

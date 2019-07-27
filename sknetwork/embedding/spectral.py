@@ -59,12 +59,12 @@ class Spectral(Algorithm):
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import karate_club
-    >>> adjacency: sparse.csr_matrix = karate_club()
-    >>> spectral = Spectral(embedding_dimension=2)
+    >>> from sknetwork.toy_graphs import house
+    >>> adjacency = house()
+    >>> spectral = Spectral()
     >>> embedding = spectral.fit(adjacency).embedding_
     >>> embedding.shape
-    (34, 2)
+    (5, 2)
 
     References
     ----------
