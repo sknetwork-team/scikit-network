@@ -128,7 +128,7 @@ class Optimizer(Algorithm):
 
     def fit(self, graph: AggregateGraph):
         """
-        Fits the clusters to the objective function.
+        Fit the clusters to the objective function.
 
          Parameters
          ----------
@@ -148,7 +148,7 @@ def fit_core(resolution: float, tol: float, n_nodes: int, out_node_probs: np.nda
              in_node_probs: np.ndarray, self_loops: np.ndarray, data: np.ndarray, indices: np.ndarray,
              indptr: np.ndarray) -> (np.ndarray, float):
     """
-    Fits the clusters to the objective function.
+    Fit the clusters to the objective function.
 
     Parameters
     ----------
@@ -240,10 +240,12 @@ class GreedyModularity(Optimizer):
     """
     A greedy modularity optimizer.
 
+    See :class:`modularity`
+
     Attributes
     ----------
     resolution : float
-        Modularity resolution.
+        Resolution parameter.
     tol : float
         Minimum modularity increase to enter a new optimization pass.
     engine : str
@@ -360,32 +362,8 @@ class Louvain(Algorithm):
     """
     Louvain algorithm for graph clustering in Python (default) and Numba.
 
-    Seeks the best partition of the nodes with respect to modularity.
-
-    The modularity of a clustering is
-
-    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w_iw_j}{w^2}\\big)\\delta_{c_i,c_j}`
-    for undirected graphs,
-
-    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w^+_iw^-_j}{w^2}\\big)\\delta_{c_i,c_j}`
-    for directed graphs,
-
-    :math:`Q = \\sum_{i=1}^n\\sum_{j=1}^p\\big(\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{w^s_iw^f_j}{w^2}\\big)
-    \\delta_{c^s_i,c^f_j}`
-    for bipartite graphs,
-
-    where
-
-    :math:`A` is the adjacency matrix (size :math:`n\\times n)`,\n
-    :math:`w_i` is the weight of node :math:`i` (undirected graphs),\n
-    :math:`w^+_i, w^-_i` are the out-weight and in-weight of node :math:`i` (directed graphs),\n
-    :math:`c_i` is the cluster of node :math:`i` (undirected and directed graphs),\n
-    :math:`B` is the biadjacency matrix (size :math:`n\\times p)`,\n
-    :math:`w^s_i, w^f_j` are the weights of sample node :math:`i` and feature node :math:`j` (bipartite graphs),\n
-    :math:`c^s_i, c^f_j` are the clusters of sample node :math:`i` and feature node :math:`j` (bipartite graphs),\n
-    :math:`w = 1^TA1` or :math:`w = 1^TB1` is the total weight,\n
-    :math:`\\delta` is the Kronecker symbol,\n
-    :math:`\\gamma \\ge 0` is the resolution parameter.
+    Compute the best partition of the nodes with respect to the optimization criterion
+    (default: :class:`GreedyModularity`).
 
     Parameters
     ----------
@@ -479,11 +457,11 @@ class Louvain(Algorithm):
         adjacency :
             Adjacency or biadjacency matrix of the graph.
         weights :
-            Weights (undirected graphs) or out-weights (directed graphs) used in the second term of modularity.
-            ``'degree'``, ``'uniform'`` or custom weights.
+            Weights (undirected graphs) or out-weights (directed graphs) of nodes.
+            ``'degree'`` (default), ``'uniform'`` or custom weights.
         feature_weights :
-            Feature weights (bipartite graphs) or in-weights (directed graphs) used in the second term of modularity.
-            ``None``, ``'degree'``, ``'uniform'`` or custom weights.
+            Weights of feature nodes (bipartite graphs) or in-weights of nodes (directed graphs).
+            ``None`` (default), ``'degree'``, ``'uniform'`` or custom weights.
             If ``None``, taken equal to weights.
         force_undirected : bool (default= ``False``)
             If ``True``, consider the graph as undirected.
