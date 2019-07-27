@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 """tests for diffusion.py"""
 
-
 import unittest
+
 import numpy as np
 from scipy.sparse import identity
-from sknetwork.toy_graphs import karate_club, painters
+
 from sknetwork.ranking.diffusion import Diffusion
+from sknetwork.toy_graphs import karate_club, painters
 
 
 class TestDiffusion(unittest.TestCase):

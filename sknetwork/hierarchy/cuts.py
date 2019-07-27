@@ -36,7 +36,7 @@ def straight_cut(dendrogram: np.ndarray, n_clusters: int = 2, sorted_clusters: b
     cluster = {node: [node] for node in range(n_nodes)}
     for t in range(n_nodes - n_clusters):
         cluster[n_nodes + t] = cluster.pop(int(dendrogram[t][0])) + \
-                                cluster.pop(int(dendrogram[t][1]))
+                               cluster.pop(int(dendrogram[t][1]))
 
     clusters = list(cluster.values())
     if sorted_clusters:

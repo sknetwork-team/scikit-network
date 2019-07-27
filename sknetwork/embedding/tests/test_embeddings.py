@@ -3,10 +3,12 @@
 """tests for embeddings"""
 
 import unittest
+
+import numpy as np
+from scipy import sparse
+
 from sknetwork.embedding import SVD
 from sknetwork.embedding import Spectral
-from scipy import sparse
-import numpy as np
 
 
 class TestEmbeddings(unittest.TestCase):

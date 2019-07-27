@@ -3,6 +3,7 @@
 # authors: Quentin Lutz <qlutz@enst.fr>, Nathan de Lara <ndelara@enst.fr>
 
 import unittest
+
 from sknetwork.toy_graphs.graph_data import karate_club, star_wars_villains, \
     movie_actor, painters
 

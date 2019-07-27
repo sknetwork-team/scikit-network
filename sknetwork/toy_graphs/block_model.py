@@ -6,9 +6,11 @@ Created on Jul 1, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
+from typing import Union, Tuple, Optional
+
 import numpy as np
 from scipy import sparse
-from typing import Union, Tuple, Optional
+
 from sknetwork.utils.checks import check_is_proba, check_random_state
 
 

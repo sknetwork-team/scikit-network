@@ -6,6 +6,7 @@ Created on March 2019
 """
 
 import unittest
+
 from sknetwork.hierarchy import Paris, tree_sampling_divergence, dasgupta_cost
 from sknetwork.toy_graphs import karate_club
 
@@ -24,5 +25,3 @@ class TestMetrics(unittest.TestCase):
         self.assertAlmostEqual(tsd, .65, 2)
         dc = dasgupta_cost(adjacency, dendrogram, normalized=True)
         self.assertAlmostEqual(dc, .33, 2)
-
-

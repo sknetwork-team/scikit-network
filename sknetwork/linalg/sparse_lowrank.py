@@ -5,10 +5,11 @@ Created on Apr 19 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
+from typing import Union
+
 import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
-from typing import Union
 
 
 class SparseLR(LinearOperator):

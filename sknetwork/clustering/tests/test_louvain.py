@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """Tests for Louvain"""
 
-
 import unittest
+
 from scipy.sparse import identity
 
 from sknetwork import is_numba_available

@@ -5,9 +5,11 @@ Created on Thu July 10 2018
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
+from typing import Union
+
 import numpy as np
 from scipy import sparse
-from typing import Union
+
 from sknetwork.utils.checks import check_format, is_square
 
 

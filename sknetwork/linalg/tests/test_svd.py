@@ -3,7 +3,9 @@
 """tests for svd"""
 
 import unittest
+
 import numpy as np
+
 from sknetwork.linalg import LanczosSVD, HalkoSVD, SparseLR
 from sknetwork.toy_graphs import movie_actor
 

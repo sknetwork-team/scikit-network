@@ -8,8 +8,8 @@ Thomas Bonald <thomas.bonald@telecom-paristech.fr>
 Nathan De Lara <nathan.delara@telecom-paristech.fr>
 """
 
-from typing import Union
 import warnings
+from typing import Union
 
 import numpy as np
 from scipy import sparse

@@ -7,12 +7,14 @@ Created on March 2019
 @author: Quentin Lutz <qlutz@enst.fr>
 """
 
+from typing import Union
+
 import numpy as np
 from scipy import sparse
-from typing import Union
-from sknetwork.utils.checks import check_probs, check_engine, check_format, is_square, is_symmetric
-from sknetwork.utils.algorithm_base_class import Algorithm
+
 from sknetwork import njit, types, TypedDict
+from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.checks import check_probs, check_engine, check_format, is_square, is_symmetric
 
 
 class AggregateGraph:
