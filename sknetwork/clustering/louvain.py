@@ -395,8 +395,8 @@ class Louvain(Algorithm):
     ----------
     labels_ : np.ndarray
         Label of each node.
-    feature_labels_ : np.ndarray
-        Label of each feature node (for bipartite and directed graphs).
+    secondary_labels_ : np.ndarray
+        Label of each secondary node (for bipartite graphs).
     iteration_count_ : int
         Total number of aggregations performed.
     aggregate_graph_ : sparse.csr_matrix
@@ -441,13 +441,13 @@ class Louvain(Algorithm):
         self.max_agg_iter = max_agg_iter
         self.verbose = verbose
         self.labels_ = None
-        self.feature_labels_ = None
+        self.secondary_labels_ = None
         self.iteration_count_ = None
         self.aggregate_graph_ = None
         self.shuffle_nodes = shuffle_nodes
 
     def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
-            feature_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
+            secondary_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
             force_biadjacency: bool = False, sorted_cluster: bool = True) -> 'Louvain':
         """
         Clustering using chosen Optimizer.
@@ -459,8 +459,8 @@ class Louvain(Algorithm):
         weights :
             Weights (undirected graphs) or out-weights (directed graphs) of nodes.
             ``'degree'`` (default), ``'uniform'`` or custom weights.
-        feature_weights :
-            Weights of feature nodes (bipartite graphs) or in-weights of nodes (directed graphs).
+        secondary_weights :
+            Weights of secondary nodes (bipartite graphs).
             ``None`` (default), ``'degree'``, ``'uniform'`` or custom weights.
             If ``None``, taken equal to weights.
         force_undirected : bool (default= ``False``)
@@ -476,42 +476,42 @@ class Louvain(Algorithm):
         self: :class:`Louvain`
         """
         adjacency = check_format(adjacency)
-        n, p = adjacency.shape
+        n1, n2 = adjacency.shape
 
-        if p != n or force_biadjacency:
+        if n1 != n2 or force_biadjacency:
             # bipartite graph
-            sample_weights = check_probs(weights, adjacency)
-            if feature_weights is None:
-                if type(weights) == str:
-                    feature_weights = weights
-                else:
-                    warnings.warn(Warning("Feature_weights have been set to 'degree'."))
-                    feature_weights = 'degree'
-            feature_weights = check_probs(feature_weights, adjacency.T)
             if force_undirected:
                 adjacency = bipartite2undirected(adjacency)
-                out_weights = np.hstack((sample_weights, feature_weights))
-                in_weights = None
+                out_weights = check_probs(weights, adjacency)
+                in_weights = out_weights
             else:
+                primary_weights = check_probs(weights, adjacency)
+                if secondary_weights is None:
+                    if type(weights) == str:
+                        secondary_weights = weights
+                    else:
+                        warnings.warn(Warning("Feature_weights have been set to 'degree'."))
+                        secondary_weights = 'degree'
+                secondary_weights = check_probs(secondary_weights, adjacency.T)
                 adjacency = bipartite2directed(adjacency)
-                out_weights = np.hstack((sample_weights, np.zeros(p)))
-                in_weights = np.hstack((np.zeros(n), feature_weights))
+                out_weights = np.hstack((primary_weights, np.zeros(n2)))
+                in_weights = np.hstack((np.zeros(n1), secondary_weights))
         else:
             # non-bipartite graph
             if force_undirected:
                 adjacency = directed2undirected(adjacency)
             out_weights = weights
-            in_weights = feature_weights
+            in_weights = weights
 
         nodes = np.arange(adjacency.shape[0])
         if self.shuffle_nodes:
             nodes = self.random_state.permutation(nodes)
             adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
-        n_ = adjacency.shape[0]
+        n = adjacency.shape[0]
         graph = AggregateGraph(adjacency, out_weights, in_weights)
 
-        membership = sparse.identity(n_, format='csr')
+        membership = sparse.identity(n, format='csr')
         increase = True
         iteration_count = 0
         if self.verbose:
@@ -544,9 +544,9 @@ class Louvain(Algorithm):
             self.labels_ = self.labels_[reverse]
         if sorted_cluster:
             self.labels_ = reindex_clusters(self.labels_)
-        if n_ > n:
-            self.feature_labels_ = self.labels_[n:]
-            self.labels_ = self.labels_[:n]
+        if n > n1:
+            self.secondary_labels_ = self.labels_[n1:]
+            self.labels_ = self.labels_[:n1]
         self.aggregate_graph_ = graph.norm_adjacency * adjacency.data.sum()
 
         return self

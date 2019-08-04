@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering import modularity, cocitation_modularity, bimodularity
+from sknetwork.clustering import modularity, cocitation_modularity
 from sknetwork.toy_graphs import star_wars_villains
 
 
@@ -25,9 +25,7 @@ class TestClusteringMetrics(unittest.TestCase):
     def test_modularity(self):
         self.assertAlmostEqual(modularity(self.graph, self.labels), -0.0312, 3)
         self.assertAlmostEqual(modularity(self.graph, self.unique_cluster), 0.)
-
-    def test_bimodularity(self):
-        self.assertAlmostEqual(bimodularity(self.graph, self.unique_cluster, self.unique_cluster), 0.)
+        self.assertAlmostEqual(modularity(self.graph, self.unique_cluster, self.unique_cluster), 0.)
 
     def test_cocitation_modularity(self):
         self.assertAlmostEqual(cocitation_modularity(self.graph, self.labels), 0.0521, 3)
