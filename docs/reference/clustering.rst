@@ -23,6 +23,4 @@ Metrics
 -------
 .. autofunction:: sknetwork.clustering.modularity
 
-.. autofunction:: sknetwork.clustering.bimodularity
-
 .. autofunction:: sknetwork.clustering.cocitation_modularity
