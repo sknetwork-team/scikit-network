@@ -5,6 +5,9 @@ Toy graphs
 
 .. currentmodule:: sknetwork
 
+Real-world data
+---------------
+
 Undirected graphs
 =================
 
@@ -29,5 +32,10 @@ Bipartite graphs
 .. autofunction:: sknetwork.toy_graphs.movie_actor
 
 .. autofunction:: sknetwork.toy_graphs.star_wars_villains
+
+Random graphs
+-------------
+
+.. autofunction:: sknetwork.toy_graphs.block_model
 
 

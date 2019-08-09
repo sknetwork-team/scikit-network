@@ -23,22 +23,22 @@ def block_model(clusters: Union[np.ndarray, int], shape: Optional[Tuple[int, int
     Parameters
     ----------
     clusters: Union[np.ndarray, int]
-        Cluster specifications (array of couples where each line denotes the shape of a cluster
-         or an int denoting the number of clusters). If an int is passed, shape must be given and
+         Cluster specifications (array of couples where each entry denotes the shape of a cluster
+         or an int denoting the number of clusters). If an ``int`` is passed, ``shape`` must be given and
          the clusters are identical in shape.
     shape: Optional[Tuple[int]]
-        The size of the adjacency to obtain (might be rectangular for a biadjacency adjacency).
+        The size of the adjacency to obtain (might be rectangular for a biadjacency matrix).
     inner_prob: float
         Intra-cluster connection probability.
     outer_prob: float
         Inter-cluster connection probability.
     random_state: Optional[Union[np.random.RandomState, int]]
-        Random number generator or random seed. If None, numpy.random will be used.
+        Random number generator or random seed. If ``None``, ``numpy.random`` will be used.
 
     Returns
     -------
     adjacency: sparse.csr_matrix
-        The adjacency matrix of the adjacency
+        The adjacency (or biadjacency) matrix of the graph
     ground_truth_features: np.ndarray
         The labels associated with the features
     ground_truth_samples: np.ndarray
