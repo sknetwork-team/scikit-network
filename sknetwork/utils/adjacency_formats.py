@@ -5,12 +5,14 @@ Created on Apr 8, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
+import warnings
 from typing import Union
 
 import numpy as np
 from scipy import sparse
 
 from sknetwork.linalg.sparse_lowrank import SparseLR
+from sknetwork.utils.checks import check_probs
 
 
 def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
@@ -116,3 +118,35 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
         return SparseLR(bipartite2undirected(biadjacency.sparse_mat), new_tuples)
     else:
         raise TypeError('Input must be a scipy CSR matrix or a SparseLR object.')
+
+
+def set_adjacency_weights(adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray],
+                          secondary_weights: Union[None, str, np.ndarray], force_undirected: bool,
+                          force_biadjacency: bool):
+
+        n1, n2 = adjacency.shape
+
+        if n1 != n2 or force_biadjacency:
+            # bipartite graph
+            if force_undirected:
+                adjacency = bipartite2undirected(adjacency)
+                out_weights = check_probs(weights, adjacency)
+                in_weights = out_weights
+            else:
+                if secondary_weights is None:
+                    if type(weights) == str:
+                        secondary_weights = weights
+                    else:
+                        warnings.warn(Warning("Feature_weights have been set to 'degree'."))
+                        secondary_weights = 'degree'
+                out_weights = np.hstack((check_probs(weights, adjacency), np.zeros(n2)))
+                in_weights = np.hstack((np.zeros(n1), check_probs(secondary_weights, adjacency.T)))
+                adjacency = bipartite2directed(adjacency)
+        else:
+            # non-bipartite graph
+            if force_undirected:
+                adjacency = directed2undirected(adjacency)
+            out_weights = check_probs(weights, adjacency)
+            in_weights = out_weights
+
+        return adjacency, out_weights, in_weights

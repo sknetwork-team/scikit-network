@@ -283,9 +283,7 @@ class Paris(Algorithm):
     The similarity between clusters i,j is :math:`\\dfrac{A_{ij}}{w_i w_j}` where
 
     * :math:`A_{ij}` is the weight of edge i,j in the aggregate graph
-
     * :math:`w_{i}` is the weight of cluster i
-
     * :math:`w_{j}` is the weight of cluster j.
 
     Parameters

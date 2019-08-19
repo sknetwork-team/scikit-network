@@ -7,7 +7,6 @@ Created on Nov 2, 2018
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
-import warnings
 from typing import Union, Optional
 
 import numpy as np
@@ -15,7 +14,7 @@ from scipy import sparse
 
 from sknetwork import njit
 from sknetwork.clustering.post_processing import reindex_clusters
-from sknetwork.utils.adjacency_formats import directed2undirected, bipartite2undirected, bipartite2directed
+from sknetwork.utils.adjacency_formats import set_adjacency_weights, directed2undirected
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_probs, check_format, check_engine, check_random_state
 
@@ -476,36 +475,14 @@ class Louvain(Algorithm):
         """
         adjacency = check_format(adjacency)
         n1, n2 = adjacency.shape
-
-        if n1 != n2 or force_biadjacency:
-            # bipartite graph
-            if force_undirected:
-                adjacency = bipartite2undirected(adjacency)
-                out_weights = check_probs(weights, adjacency)
-                in_weights = out_weights
-            else:
-                if secondary_weights is None:
-                    if type(weights) == str:
-                        secondary_weights = weights
-                    else:
-                        warnings.warn(Warning("Feature_weights have been set to 'degree'."))
-                        secondary_weights = 'degree'
-                out_weights = np.hstack((check_probs(weights, adjacency), np.zeros(n2)))
-                in_weights = np.hstack((np.zeros(n1), check_probs(secondary_weights, adjacency.T)))
-                adjacency = bipartite2directed(adjacency)
-        else:
-            # non-bipartite graph
-            if force_undirected:
-                adjacency = directed2undirected(adjacency)
-            out_weights = check_probs(weights, adjacency)
-            in_weights = out_weights
-
-        nodes = np.arange(adjacency.shape[0])
+        adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, secondary_weights,
+                                                                   force_undirected, force_biadjacency)
+        n = adjacency.shape[0]
+        nodes = np.arange(n)
         if self.shuffle_nodes:
             nodes = self.random_state.permutation(nodes)
             adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
-        n = adjacency.shape[0]
         graph = AggregateGraph(adjacency, out_weights, in_weights)
 
         membership = sparse.identity(n, format='csr')

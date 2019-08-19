@@ -6,14 +6,13 @@ Created on Thu July 10 2018
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
-import warnings
 from typing import Union, Tuple
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.utils.adjacency_formats import bipartite2undirected, bipartite2directed, directed2undirected
-from sknetwork.utils.checks import check_format, check_probs
+from sknetwork.utils.adjacency_formats import set_adjacency_weights
+from sknetwork.utils.checks import check_format
 
 
 def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray,
@@ -54,7 +53,8 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
     adjacency:
         Adjacency or biadjacency matrix of the graph (shape :math:`n \\times n` or :math:`n_1 \\times n_2`).
     labels:
-        Labels of nodes, vector of size :math:`n` (or :math:`n_1`).
+        Labels of nodes, vector of size :math:`n` (or :math:`n_1` for bipartite graphs
+        ).
     secondary_labels:
         Labels of secondary nodes (for bipartite graphs), vector of size :math:`n_2`.
     weights :
@@ -86,34 +86,15 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
         raise ValueError('Dimension mismatch between labels and adjacency matrix.')
 
     if n1 != n2 or force_biadjacency:
-        # bipartite graph
         if secondary_labels is None:
             raise ValueError('For a biadjacency matrix, secondary labels must be specified.')
         elif len(labels) != n1:
             raise ValueError('Dimension mismatch between secondary labels and biadjacency matrix.')
         else:
             labels = np.hstack((labels, secondary_labels))
-        if force_undirected:
-            adjacency = bipartite2undirected(adjacency)
-            out_weights = check_probs(weights, adjacency)
-            in_weights = out_weights
-        else:
-            if secondary_weights is None:
-                if type(weights) == str:
-                    secondary_weights = weights
-                else:
-                    warnings.warn(Warning("Feature_weights have been set to 'degree'."))
-                    secondary_weights = 'degree'
-            out_weights = np.hstack((check_probs(weights, adjacency), np.zeros(n2)))
-            in_weights = np.hstack((np.zeros(n1), check_probs(secondary_weights, adjacency.T)))
-            adjacency = bipartite2directed(adjacency)
-    else:
-        # non-bipartite graph
-        if force_undirected:
-            adjacency = directed2undirected(adjacency)
-        out_weights = check_probs(weights, adjacency)
-        in_weights = out_weights
 
+    adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, secondary_weights,
+                                                               force_undirected, force_biadjacency)
     n = adjacency.shape[0]
 
     _, unique_labels = np.unique(labels, return_inverse=True)
