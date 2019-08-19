@@ -82,6 +82,6 @@ class TestLouvainClustering(unittest.TestCase):
 
     def test_shuffling(self):
         self.louvain_shuffle_first.fit(self.bow_tie)
-        self.assertEqual(self.louvain_shuffle_first.labels_[1], 0)
+        self.assertEqual(self.louvain_shuffle_first.labels_[1], 1)
         self.louvain_shuffle_second.fit(self.bow_tie)
         self.assertEqual(self.louvain_shuffle_second.labels_[1], 1)

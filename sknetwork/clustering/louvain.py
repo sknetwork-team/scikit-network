@@ -457,17 +457,16 @@ class Louvain(Algorithm):
         adjacency :
             Adjacency or biadjacency matrix of the graph.
         weights :
-            Weights (undirected graphs) or out-weights (directed graphs) of nodes.
+            Weights of nodes.
             ``'degree'`` (default), ``'uniform'`` or custom weights.
         secondary_weights :
-            Weights of secondary nodes (bipartite graphs).
+            Weights of secondary nodes (for bipartite graphs).
             ``None`` (default), ``'degree'``, ``'uniform'`` or custom weights.
             If ``None``, taken equal to weights.
         force_undirected : bool (default= ``False``)
             If ``True``, consider the graph as undirected.
         force_biadjacency : bool (default= ``False``)
             If ``True``, force the input matrix to be considered as a biadjacency matrix.
-            Only relevant for a symmetric input matrix.
         sorted_cluster :
             If ``True``, sort labels in decreasing order of cluster size.
 
@@ -485,23 +484,21 @@ class Louvain(Algorithm):
                 out_weights = check_probs(weights, adjacency)
                 in_weights = out_weights
             else:
-                primary_weights = check_probs(weights, adjacency)
                 if secondary_weights is None:
                     if type(weights) == str:
                         secondary_weights = weights
                     else:
                         warnings.warn(Warning("Feature_weights have been set to 'degree'."))
                         secondary_weights = 'degree'
-                secondary_weights = check_probs(secondary_weights, adjacency.T)
+                out_weights = np.hstack((check_probs(weights, adjacency), np.zeros(n2)))
+                in_weights = np.hstack((np.zeros(n1), check_probs(secondary_weights, adjacency.T)))
                 adjacency = bipartite2directed(adjacency)
-                out_weights = np.hstack((primary_weights, np.zeros(n2)))
-                in_weights = np.hstack((np.zeros(n1), secondary_weights))
         else:
             # non-bipartite graph
             if force_undirected:
                 adjacency = directed2undirected(adjacency)
-            out_weights = weights
-            in_weights = weights
+            out_weights = check_probs(weights, adjacency)
+            in_weights = out_weights
 
         nodes = np.arange(adjacency.shape[0])
         if self.shuffle_nodes:
