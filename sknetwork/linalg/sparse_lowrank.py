@@ -25,6 +25,13 @@ class SparseLR(LinearOperator):
     low_rank_tuples: list
         List of tuple of arrays representing the low rank components [(x1, y1), (x2, y2),...].
         Each low rank component is of the form :math:`xy^T`.
+
+    References
+    ----------
+    De Lara (2019). The Sparse + Low Rank trick for Matrix Factorization-Based Graph Algorithms,
+    Proceedings of the 15th International Workshop on Mining and Learning with Graphs (MLG).
+    http://www.mlgworkshop.org/2019/papers/MLG2019_paper_1.pdf
+
     """
 
     def __init__(self, sparse_mat: Union[sparse.csr_matrix, sparse.csc_matrix], low_rank_tuples: list):
