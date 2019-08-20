@@ -45,7 +45,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     labels : dict, optional
         Label of each node.
     feature_labels : dict, optional
-        Label of each feature node (for bipartite graph).
+        Label of each feature node (for bipartite graphs).
     """
     reindex = False
     header_len = -1

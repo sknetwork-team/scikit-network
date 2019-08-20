@@ -13,13 +13,15 @@ from scipy.sparse import identity
 
 from sknetwork import is_numba_available
 from sknetwork.hierarchy import Paris, straight_cut
-from sknetwork.toy_graphs import house, karate_club
+from sknetwork.toy_graphs import random_graph, random_bipartite_graph, house, karate_club
 
 
 class TestParis(unittest.TestCase):
 
     def setUp(self):
         self.paris_python = Paris('python')
+        self.random_graph = random_graph()
+        self.random_bipartite_graph = random_bipartite_graph()
         self.house_graph = house()
         self.karate_club_graph = karate_club()
         if is_numba_available:
@@ -38,6 +40,14 @@ class TestParis(unittest.TestCase):
     def test_unknown_options(self):
         with self.assertRaises(ValueError):
             self.paris_python.fit(identity(2, format='csr'), weights='unknown')
+
+    def test_random_graph(self):
+        self.paris_python.fit(self.random_graph)
+        self.assertEqual(self.paris_python.dendrogram_.shape[0], 9)
+
+    def test_random_bipartite_graph(self):
+        self.paris_python.fit(self.random_bipartite_graph)
+        self.assertEqual(self.paris_python.dendrogram_.shape[0], 8)
 
     def test_house_graph(self):
         if is_numba_available:

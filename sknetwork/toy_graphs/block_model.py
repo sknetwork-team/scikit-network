@@ -18,7 +18,7 @@ def block_model(clusters: Union[np.ndarray, int], shape: Optional[Tuple[int, int
                 outer_prob: float = .01, random_state: Optional[Union[np.random.RandomState, int]] = None) \
                 -> Tuple[sparse.csr_matrix, np.ndarray, np.ndarray]:
     """
-    A block model adjacency
+    A block model graph.
 
     Parameters
     ----------
@@ -38,7 +38,7 @@ def block_model(clusters: Union[np.ndarray, int], shape: Optional[Tuple[int, int
     Returns
     -------
     adjacency: sparse.csr_matrix
-        The adjacency (or biadjacency) matrix of the graph
+        The adjacency (or biadjacency) matrix of the graph.
     ground_truth_features: np.ndarray
         The labels associated with the features
     ground_truth_samples: np.ndarray

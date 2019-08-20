@@ -65,7 +65,7 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
        distribution:
            Distribution for node sampling. Only ``'degree'`` or ``'uniform'`` are accepted.
        adjacency:
-           The adjacency matrix of the graph.
+           The adjacency matrix of the neighbors.
 
        Returns
        -------
@@ -135,7 +135,7 @@ def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr
     adjacency:
         The adjacency matrix of the graph.
     positive_entries:
-        If true, the weights must all be positive, if False, the weights must be nonnegative.
+        If true, the weights must all be positive, if False, the weights must be non-negative.
 
     Returns
     -------

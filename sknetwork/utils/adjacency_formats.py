@@ -6,7 +6,7 @@ Created on Apr 8, 2019
 """
 
 import warnings
-from typing import Union
+from typing import Union, Tuple
 
 import numpy as np
 from scipy import sparse
@@ -122,7 +122,7 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
 
 def set_adjacency_weights(adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray],
                           secondary_weights: Union[None, str, np.ndarray], force_undirected: bool,
-                          force_biadjacency: bool):
+                          force_biadjacency: bool) -> Tuple[sparse.csr_matrix, np.ndarray, np.ndarray]:
 
         n1, n2 = adjacency.shape
 
@@ -147,6 +147,6 @@ def set_adjacency_weights(adjacency: sparse.csr_matrix, weights: Union[str, np.n
             if force_undirected:
                 adjacency = directed2undirected(adjacency)
             out_weights = check_probs(weights, adjacency)
-            in_weights = out_weights
+            in_weights = check_probs(weights, adjacency.T)
 
         return adjacency, out_weights, in_weights

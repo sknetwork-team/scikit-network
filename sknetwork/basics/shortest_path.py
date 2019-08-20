@@ -13,19 +13,19 @@ from scipy import sparse
 def shortest_path(adjacency: sparse.csr_matrix, method: str = 'auto', directed: bool = True,
                   return_predecessors: bool = False, unweighted: bool = False,
                   overwrite: bool = False, indices: Optional[np.ndarray] = None):
-    """Compute the shortest paths in the graph.
+    """Compute the shortest paths in the neighbors.
 
     Based on SciPy (scipy.sparse.csgraph.shortest_path)
 
     Parameters
     ----------
     adjacency:
-        The adjacency matrix of the graph
+        The adjacency matrix of the neighbors
     method:
         The method to be used. Must be ``'auto'`` (default), ``'FW'`` (Floyd-Warshall), ``'D'`` (Dijkstra),
         ``'BF'`` (Bellman-Ford) or ``'J'`` (Johnson).
     directed:
-        Denotes if the graph is directed
+        Denotes if the neighbors is directed
     return_predecessors:
         If ``True``, the size predecessor matrix is returned
     unweighted:
@@ -38,8 +38,8 @@ def shortest_path(adjacency: sparse.csr_matrix, method: str = 'auto', directed: 
     Returns
     -------
     dist_matrix: np.ndarray
-        The matrix of distances between graph nodes. ``dist_matrix[i,j]`` gives the shortest
-        distance from point ``i`` to point ``j`` along the graph.
+        The matrix of distances between neighbors nodes. ``dist_matrix[i,j]`` gives the shortest
+        distance from point ``i`` to point ``j`` along the neighbors.
     predecessors: np.ndarray
         Returned only if ``return_predecessors == True``. The matrix of predecessors, which can be used to reconstruct
         the shortest paths. Row i of the predecessor matrix contains information on the shortest paths from point ``i``:

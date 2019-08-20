@@ -13,6 +13,147 @@ import numpy as np
 from scipy import sparse
 
 
+def line_graph():
+    """
+    Line graph
+
+    3 nodes, 2 edges
+
+    Returns
+    -------
+    adjacency: sparse.csr_matrix
+        Adjacency matrix of the graph.
+    """
+    row = np.array([0, 1])
+    col = np.array([1, 2])
+    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(3, 3))
+    return adjacency
+
+
+def house():
+    """
+    House graph
+
+    5 nodes, 6 edges
+
+    Returns
+    -------
+    adjacency: sparse.csr_matrix
+        Adjacency matrix of the graph.
+    """
+    row = np.array([0, 0, 1, 1, 2, 3])
+    col = np.array([1, 4, 2, 4, 3, 4])
+    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(5, 5))
+    return adjacency + adjacency.T
+
+
+def bow_tie():
+    """
+    Bow tie graph
+
+    5 nodes, 6 edges
+
+    Returns
+    -------
+    adjacency: sparse.csr_matrix
+        Adjacency matrix of the graph.
+    """
+    row = np.array([0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4])
+    col = np.array([1, 2, 3, 4, 0, 2, 0, 1, 0, 4, 0, 3])
+    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(5, 5))
+    return adjacency
+
+
+def random_graph():
+    """
+    Random graph
+
+    10 nodes, 10 edges
+
+    Returns
+    -------
+    adjacency: sparse.csr_matrix
+        Adjacency matrix of the graph.
+    """
+    row = np.array([1, 2, 3, 4, 6, 6, 6, 7, 8, 9])
+    col = np.array([1, 3, 2, 5, 4, 5, 7, 9, 9, 9])
+    data = np.array([1, 2, 1, 2, 2, 1, 2, 2, 1, 2])
+    adjacency = sparse.csr_matrix((data, (row, col)), shape=(10, 10))
+    return adjacency
+
+
+def random_bipartite_graph():
+    """
+    Random bipartite graph
+
+    4 x 5 nodes, 6 edges
+
+    Returns
+    -------
+    adjacency: sparse.csr_matrix
+        Adjacency matrix of the graph.
+    """
+    row = np.array([1, 1, 1, 2, 2, 3])
+    col = np.array([1, 2, 3, 1, 3, 4])
+    data = np.array([1, 2, 1, 2, 2, 1])
+    adjacency = sparse.csr_matrix((data, (row, col)), shape=(4, 5))
+    return adjacency
+
+
+def karate_club(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, np.ndarray], sparse.csr_matrix]:
+    """
+    Zachary's Karate Club Graph
+
+    34 nodes, 78 edges
+
+    Parameters
+    ----------
+    return_labels: bool
+        If True, returns the labels of the nodes.
+    Returns
+    -------
+    adjacency: sparse.csr_matrix
+        Adjacency matrix of the graph.
+    labels: np.ndarray
+        Label of each node (community in the karate club).
+    """
+    row = np.array(
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+         1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3,
+         3, 4, 4, 5, 5, 5, 6, 8, 8, 8, 9, 13, 14, 14, 15, 15, 18,
+         18, 19, 20, 20, 22, 22, 23, 23, 23, 23, 23, 24, 24, 24, 25, 26, 26,
+         27, 28, 28, 29, 29, 30, 30, 31, 31, 32])
+    col = np.array(
+        [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 17, 19, 21, 31, 2,
+         3, 7, 13, 17, 19, 21, 30, 3, 7, 8, 9, 13, 27, 28, 32, 7, 12,
+         13, 6, 10, 6, 10, 16, 16, 30, 32, 33, 33, 33, 32, 33, 32, 33, 32,
+         33, 33, 32, 33, 32, 33, 25, 27, 29, 32, 33, 25, 27, 31, 31, 29, 33,
+         33, 31, 33, 32, 33, 32, 33, 32, 33, 33])
+    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(34, 34))
+    if return_labels:
+        labels = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0])
+        return adjacency + adjacency.T, labels
+    else:
+        return adjacency + adjacency.T
+
+
+def rock_paper_scissors():
+    """
+    A toy directed cycle graph from Rock Paper Scissors victory rule.
+
+    3 nodes, 3 edges
+
+    Returns
+    -------
+    adjacency: sparse.csr_matrix
+        Adjacency matrix of the graph.
+
+    """
+
+    return sparse.csr_matrix(np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]]))
+
+
 def miserables(return_labels=False) -> Union[sparse.csr_matrix, Tuple[sparse.csr_matrix, dict]]:
     """
     Co-occurrence graph of the characters in Les Miserables (by Victor Hugo).
@@ -24,7 +165,7 @@ def miserables(return_labels=False) -> Union[sparse.csr_matrix, Tuple[sparse.csr
     adjacency: sparse.csr_matrix
         Adjacency matrix of the graph.
     labels: dict, optional
-        The names of the characters corresponding to the nodes in the adjacency.
+        Names of the characters.
     """
     indptr = np.array([0, 10, 11, 14, 17, 18, 19, 20, 21, 22, 23, 24, 60,
                        62, 63, 64, 65, 74, 81, 88, 95, 102, 109, 116, 131, 142,
@@ -173,94 +314,6 @@ def miserables(return_labels=False) -> Union[sparse.csr_matrix, Tuple[sparse.csr
                   76: 'Mme Hucheloup'}
         return adjacency, labels
     return adjacency
-
-
-def bow_tie():
-    """
-    Bow tie graph
-
-    5 nodes, 6 edges
-
-    Returns
-    -------
-    adjacency: sparse.csr_matrix
-        Adjacency matrix of the graph.
-    """
-    row = np.array([0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4])
-    col = np.array([1, 2, 3, 4, 0, 2, 0, 1, 0, 4, 0, 3])
-    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(5, 5))
-    return adjacency
-
-
-def house():
-    """
-    House graph
-
-    5 nodes, 6 edges
-
-    Returns
-    -------
-    adjacency: sparse.csr_matrix
-        Adjacency matrix of the graph.
-    """
-    row = np.array([0, 0, 1, 1, 2, 3])
-    col = np.array([1, 4, 2, 4, 3, 4])
-    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(5, 5))
-    return adjacency + adjacency.T
-
-
-def karate_club(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, np.ndarray], sparse.csr_matrix]:
-    """
-    Zachary's Karate Club Graph
-
-    34 nodes, 78 edges
-
-    Parameters
-    ----------
-    return_labels: bool
-        If True, returns the labels of the nodes.
-    Returns
-    -------
-    adjacency: sparse.csr_matrix
-        Adjacency matrix of the graph.
-    labels: np.ndarray
-        Label of each node (community in the karate club).
-    """
-    row = np.array(
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-         1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3,
-         3, 4, 4, 5, 5, 5, 6, 8, 8, 8, 9, 13, 14, 14, 15, 15, 18,
-         18, 19, 20, 20, 22, 22, 23, 23, 23, 23, 23, 24, 24, 24, 25, 26, 26,
-         27, 28, 28, 29, 29, 30, 30, 31, 31, 32])
-    col = np.array(
-        [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 17, 19, 21, 31, 2,
-         3, 7, 13, 17, 19, 21, 30, 3, 7, 8, 9, 13, 27, 28, 32, 7, 12,
-         13, 6, 10, 6, 10, 16, 16, 30, 32, 33, 33, 33, 32, 33, 32, 33, 32,
-         33, 33, 32, 33, 32, 33, 25, 27, 29, 32, 33, 25, 27, 31, 31, 29, 33,
-         33, 31, 33, 32, 33, 32, 33, 32, 33, 33])
-    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(34, 34))
-    if return_labels:
-        labels = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                           0, 0, 0])
-        return adjacency + adjacency.T, labels
-    else:
-        return adjacency + adjacency.T
-
-
-def rock_paper_scissors():
-    """
-    A toy directed cycle graph from Rock Paper Scissors victory rule.
-
-    3 nodes, 3 edges
-
-    Returns
-    -------
-    adjacency: sparse.csr_matrix
-        Adjacency matrix of the graph.
-
-    """
-
-    return sparse.csr_matrix(np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]]))
 
 
 def star_wars_villains(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, dict, dict], sparse.csr_matrix]:
