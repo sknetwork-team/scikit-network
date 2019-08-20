@@ -17,11 +17,11 @@ def breadth_first_search(adjacency: sparse.csr_matrix, starting_node: int,
     Parameters
     ----------
     adjacency:
-        The adjacency matrix of the neighbors
+        The adjacency matrix of the graph
     starting_node:
         The node from which to start the ordering
     directed:
-        Denotes if the neighbors is directed
+        Denotes if the graph is directed
     return_predecessors:
         If ``True``, the size predecessor matrix is returned
 
@@ -48,11 +48,11 @@ def depth_first_search(adjacency: sparse.csr_matrix, starting_node: int,
     Parameters
     ----------
     adjacency:
-        The adjacency matrix of the neighbors
+        The adjacency matrix of the graph
     starting_node:
         The node from which to start the ordering
     directed:
-        Denotes if the neighbors is directed
+        Denotes if the graph is directed
     return_predecessors:
         If ``True``, the size predecessor matrix is returned
 
