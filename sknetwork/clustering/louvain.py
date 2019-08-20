@@ -385,6 +385,8 @@ class Louvain(Algorithm):
         A negative value is interpreted as no limit.
     shuffle_nodes :
         Enables node shuffling before optimization.
+    sorted_cluster :
+            If ``True``, sort labels in decreasing order of cluster size.
     random_state :
         Random number generator or random seed. If None, numpy.random is used.
     verbose :
@@ -424,7 +426,8 @@ class Louvain(Algorithm):
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
                  tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
-                 random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
+                 sorted_cluster: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
+                 verbose: bool = False):
 
         self.random_state = check_random_state(random_state)
         if algorithm == 'default':
@@ -438,16 +441,17 @@ class Louvain(Algorithm):
             raise TypeError('The maximum number of iterations must be an integer.')
         self.agg_tol = agg_tol
         self.max_agg_iter = max_agg_iter
+        self.shuffle_nodes = shuffle_nodes
+        self.sorted_cluster = sorted_cluster
         self.verbose = verbose
         self.labels_ = None
         self.secondary_labels_ = None
         self.iteration_count_ = None
         self.aggregate_graph_ = None
-        self.shuffle_nodes = shuffle_nodes
 
     def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
             secondary_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
-            force_biadjacency: bool = False, sorted_cluster: bool = True) -> 'Louvain':
+            force_biadjacency: bool = False) -> 'Louvain':
         """
         Clustering using chosen Optimizer.
 
@@ -466,8 +470,6 @@ class Louvain(Algorithm):
             If ``True``, consider the graph as undirected.
         force_biadjacency : bool (default= ``False``)
             If ``True``, force the input matrix to be considered as a biadjacency matrix.
-        sorted_cluster :
-            If ``True``, sort labels in decreasing order of cluster size.
 
         Returns
         -------
@@ -516,7 +518,7 @@ class Louvain(Algorithm):
             reverse = np.empty(nodes.size, nodes.dtype)
             reverse[nodes] = np.arange(nodes.size)
             self.labels_ = self.labels_[reverse]
-        if sorted_cluster:
+        if self.sorted_cluster:
             self.labels_ = reindex_clusters(self.labels_)
         if n > n1:
             self.secondary_labels_ = self.labels_[n1:]

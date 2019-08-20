@@ -328,6 +328,8 @@ class Paris(Algorithm):
     ----------
     engine : str
         ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
+    reorder :
+            If True, reorder the dendrogram in increasing order of heights.
 
     Attributes
     ----------
@@ -363,13 +365,14 @@ class Paris(Algorithm):
 
     """
 
-    def __init__(self, engine: str = 'default'):
+    def __init__(self, engine: str = 'default', reorder: bool = True):
         self.dendrogram_ = None
         self.engine = check_engine(engine)
+        self.reorder = reorder
 
     def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
             secondary_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
-            force_biadjacency: bool = False, reorder: bool = True) -> 'Paris':
+            force_biadjacency: bool = False) -> 'Paris':
         """
         Agglomerative clustering using the nearest neighbor chain.
 
@@ -388,8 +391,6 @@ class Paris(Algorithm):
             If ``True``, consider the graph as undirected.
         force_biadjacency : bool (default= ``False``)
             If ``True``, force the input matrix to be considered as a biadjacency matrix.
-        reorder :
-            If True, reorder the dendrogram in increasing order of heights.
 
         Returns
         -------
@@ -451,7 +452,7 @@ class Paris(Algorithm):
                 aggregate_graph.next_cluster += 1
 
             dendrogram = np.array(dendrogram)
-            if reorder:
+            if self.reorder:
                 dendrogram = reorder_dendrogram(dendrogram)
 
             self.dendrogram_ = dendrogram
@@ -465,7 +466,7 @@ class Paris(Algorithm):
 
             dendrogram = fit_core(n, out_weights, in_weights, data, indices, indptr)
             dendrogram = np.array(dendrogram)
-            if reorder:
+            if self.reorder:
                 dendrogram = reorder_dendrogram(dendrogram)
 
             self.dendrogram_ = dendrogram
