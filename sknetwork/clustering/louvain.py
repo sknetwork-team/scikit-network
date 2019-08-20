@@ -376,6 +376,13 @@ class Louvain(Algorithm):
         If ``'default'``, uses greedy modularity optimization algorithm: :class:`GreedyModularity`.
     resolution :
         Resolution parameter.
+    weights :
+            Weights of nodes.
+            ``'degree'`` (default), ``'uniform'``.
+    secondary_weights :
+        Weights of secondary nodes (for bipartite graphs).
+        ``None`` (default), ``'degree'``, ``'uniform'``.
+        If ``None``, taken equal to weights.
     tol :
         Minimum increase in the objective function to enter a new optimization pass.
     agg_tol :
@@ -385,6 +392,8 @@ class Louvain(Algorithm):
         A negative value is interpreted as no limit.
     shuffle_nodes :
         Enables node shuffling before optimization.
+    force_undirected : bool (default= ``False``)
+            If ``True``, consider the graph as undirected.
     sorted_cluster :
             If ``True``, sort labels in decreasing order of cluster size.
     random_state :
@@ -425,8 +434,10 @@ class Louvain(Algorithm):
     """
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
+                 weights: str = 'degree', secondary_weights: Union[None, str] = None,
                  tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
-                 sorted_cluster: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
+                 force_undirected: bool = False, sorted_cluster: bool = True,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None,
                  verbose: bool = False):
 
         self.random_state = check_random_state(random_state)
@@ -436,12 +447,14 @@ class Louvain(Algorithm):
             self.algorithm = algorithm
         else:
             raise TypeError('Algorithm must be \'auto\' or a valid algorithm.')
-
+        self.weights = weights
+        self.secondary_weights = secondary_weights
         if type(max_agg_iter) != int:
             raise TypeError('The maximum number of iterations must be an integer.')
         self.agg_tol = agg_tol
         self.max_agg_iter = max_agg_iter
         self.shuffle_nodes = shuffle_nodes
+        self.force_undirected = force_undirected
         self.sorted_cluster = sorted_cluster
         self.verbose = verbose
         self.labels_ = None
@@ -449,9 +462,8 @@ class Louvain(Algorithm):
         self.iteration_count_ = None
         self.aggregate_graph_ = None
 
-    def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
-            secondary_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
-            force_biadjacency: bool = False) -> 'Louvain':
+    def fit(self, adjacency: sparse.csr_matrix, custom_weights: Union[None, np.ndarray] = None,
+            custom_secondary_weights: Union[None, np.ndarray] = None, force_biadjacency: bool = False) -> 'Louvain':
         """
         Clustering using chosen Optimizer.
 
@@ -459,15 +471,10 @@ class Louvain(Algorithm):
         ----------
         adjacency :
             Adjacency or biadjacency matrix of the graph.
-        weights :
-            Weights of nodes.
-            ``'degree'`` (default), ``'uniform'`` or custom weights.
-        secondary_weights :
-            Weights of secondary nodes (for bipartite graphs).
-            ``None`` (default), ``'degree'``, ``'uniform'`` or custom weights.
-            If ``None``, taken equal to weights.
-        force_undirected : bool (default= ``False``)
-            If ``True``, consider the graph as undirected.
+        custom_weights :
+            Array of input dependent node weights.
+        custom_secondary_weights :
+            Array of input dependent secondary node weights.
         force_biadjacency : bool (default= ``False``)
             If ``True``, force the input matrix to be considered as a biadjacency matrix.
 
@@ -477,8 +484,16 @@ class Louvain(Algorithm):
         """
         adjacency = check_format(adjacency)
         n1, n2 = adjacency.shape
+        if custom_weights:
+            weights = custom_weights
+        else:
+            weights = self.weights
+        if custom_secondary_weights:
+            secondary_weights = custom_secondary_weights
+        else:
+            secondary_weights = self.secondary_weights
         adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, secondary_weights,
-                                                                   force_undirected, force_biadjacency)
+                                                                   self.force_undirected, force_biadjacency)
         n = adjacency.shape[0]
         nodes = np.arange(n)
         if self.shuffle_nodes:

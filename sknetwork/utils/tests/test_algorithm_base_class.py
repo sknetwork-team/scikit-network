@@ -20,10 +20,14 @@ class TestAlgo(unittest.TestCase):
 
     def test_reprs(self):
         self.assertEqual(str(self.pagerank), "PageRank(damping_factor=0.85)")
-        self.assertEqual(str(self.paris), "Paris(engine='{}', reorder=True)".format(self.engine))
+        self.assertEqual(str(self.paris), "Paris(weights='degree', secondary_weights=None, force_undirected=False, "
+                                          "engine='{}', reorder=True)".format(self.engine))
         self.assertEqual(str(self.louvain), "Louvain(algorithm=GreedyModularity(resolution=1, "
-                                            "tol=0, engine='{}'), agg_tol=0.001, max_agg_iter=-1, "
-                                            "shuffle_nodes=False, sorted_cluster=True, "
-                                            "verbose=False)".format(self.engine))
+                                            "tol=0, engine='{}'), "
+                                            "weights='degree', secondary_weights=None, "
+                                            "agg_tol=0.001, max_agg_iter=-1, "
+                                            "shuffle_nodes=False, "
+                                            "force_undirected=False, "
+                                            "sorted_cluster=True, verbose=False)".format(self.engine))
         self.assertEqual(str(self.louvain.algorithm), "GreedyModularity(resolution=1, "
                                                       "tol=0, engine='{}')".format(self.engine))

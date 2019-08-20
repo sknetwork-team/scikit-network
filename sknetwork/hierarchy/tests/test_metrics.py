@@ -16,7 +16,8 @@ from sknetwork.toy_graphs import random_graph, random_bipartite_graph, line_grap
 class TestMetrics(unittest.TestCase):
 
     def setUp(self):
-        self.paris = Paris('python')
+        self.paris = Paris(engine='python')
+        self.undirected_paris = Paris(engine='python', force_undirected=True)
         self.random_graph = random_graph()
         self.random_bipartite_graph = random_bipartite_graph()
         self.line_graph = line_graph()
@@ -35,8 +36,8 @@ class TestMetrics(unittest.TestCase):
 
     def test_undirected(self):
         adjacency = self.line_graph
-        self.paris.fit(adjacency, force_undirected=True)
-        dendrogram = self.paris.dendrogram_
+        self.undirected_paris.fit(adjacency)
+        dendrogram = self.undirected_paris.dendrogram_
         dc = dasgupta_cost(adjacency, dendrogram, force_undirected=True)
         self.assertAlmostEqual(dc, .833, 2)
         tsd = tree_sampling_divergence(adjacency, dendrogram, force_undirected=True, normalized=False)

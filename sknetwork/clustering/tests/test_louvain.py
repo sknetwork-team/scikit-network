@@ -35,11 +35,11 @@ class TestLouvainClustering(unittest.TestCase):
             self.louvain.fit(identity(1))
 
         with self.assertRaises(TypeError):
-            self.louvain.fit(identity(2, format='csr'), weights=1)
+            self.louvain.fit(identity(2, format='csr'), custom_weights=1)
 
     def test_unknown_options(self):
         with self.assertRaises(ValueError):
-            self.louvain.fit(identity(2, format='csr'), weights='unknown')
+            self.louvain.fit(identity(2, format='csr'), custom_weights='unknown')
 
     def test_single_node_graph(self):
         self.louvain.fit(identity(1, format='csr'))
