@@ -5,9 +5,9 @@ Basics
 
 .. currentmodule:: sknetwork
 
-This module contains well-known algorithms for shortest path computation, connectedness of the graph and searches.
+This module contains well-known algorithms for shortest path computation, structure of the graph and searches (BFS, DFS).
 
-Many algorithms are adapted from SciPy_.
+Most algorithms are adapted from SciPy_.
 
 .. automodule:: sknetwork.basics
 
@@ -16,20 +16,21 @@ Shortest paths
 
 .. autofunction:: sknetwork.basics.shortest_path
 
-Summary of the different methods and their worst-case complexity (for the all-pairs problem):
+Summary of the different methods and their worst-case complexity for :math:`n` nodes and :math:`m` edges (for the
+all-pairs problem):
 
-+----------------+--------------------------------+---------------------------------------------+
-|     Method     |    Worst-case time complexity  |                      Remarks                |
-+================+================================+=============================================+
-| Floyd-Warshall | :math:`O(|V|^3)`               | All-pairs shortest path problem only        |
-+----------------+--------------------------------+---------------------------------------------+
-|    Dijkstra    | :math:`O(|V|^2 \log |V| + |E|)`|   | For use on graphs                       |
-|                |                                |   | with positive weights only              |
-+----------------+--------------------------------+---------------------------------------------+
-|  Bellman-Ford  | :math:`O(|V||E|)`              |                                             |
-+----------------+--------------------------------+   | For use on graphs without               +
-|    Johnson     | :math:`O(|V|^2 \log |V| + |E|)`|   | negative-weight cycles only             |
-+----------------+--------------------------------+---------------------------------------------+
++----------------+------------------------------+----------------------------------------+
+|     Method     |  Worst-case time complexity  |                 Remarks                |
++================+==============================+========================================+
+| Floyd-Warshall | :math:`O(n^3)`               | All-pairs shortest path problem only   |
++----------------+------------------------------+----------------------------------------+
+|    Dijkstra    | :math:`O(n^2 \log n + m)`    | For use on graphs                      |
+|                |                              | with positive weights only             |
++----------------+------------------------------+----------------------------------------+
+|  Bellman-Ford  | :math:`O(nm)`                |                                        |
++----------------+------------------------------+ For use on graphs without              |
+|    Johnson     | :math:`O(n^2 \log n + m)`    | negative-weight cycles only            |
++----------------+------------------------------+----------------------------------------+
 
 
 Searches

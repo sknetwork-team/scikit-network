@@ -22,5 +22,3 @@ Louvain
 Metrics
 -------
 .. autofunction:: sknetwork.clustering.modularity
-
-.. autofunction:: sknetwork.clustering.cocitation_modularity

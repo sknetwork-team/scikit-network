@@ -7,9 +7,15 @@ Hierarchical clustering
 
 This module contains hierarchical clustering algorithms. The attribute ``.dendrogram_`` contains the dendrogram.
 
-A dendrogram is an :math:`(n-1) \times 4` array ``Z`` representing the successive merges of clusters, i.e.,
-clusters of indices ``Z[i, 0]`` and ``Z[i, 1]``, which are at distance ``Z[i, 2]``, are merged into cluster of index
-:math:`n+i`, which contains ``Z[i, 3]`` nodes.
+A dendrogram is an array of size :math:`(n-1) \times 4` representing the successive merges of nodes:
+
+* The first two columns contain the indices of the merges nodes.
+
+* The third column gives the distance between these nodes.
+
+* The last column gives the size of the corresponding cluster (in number of nodes) after the merge.
+
+Any new node resulting from a merge takes the first available index (e.g., the first merge corresponds to node :math:`n`).
 
 
 Paris

@@ -5,8 +5,8 @@ Toy graphs
 
 .. currentmodule:: sknetwork
 
-Real-world data
----------------
+Synthetic data
+--------------
 
 Undirected graphs
 =================
@@ -14,6 +14,26 @@ Undirected graphs
 .. autofunction:: sknetwork.toy_graphs.bow_tie
 
 .. autofunction:: sknetwork.toy_graphs.house
+
+.. autofunction:: sknetwork.toy_graphs.random_graph
+
+Directed graphs
+===============
+
+.. autofunction:: sknetwork.toy_graphs.rock_paper_scissors
+
+.. autofunction:: sknetwork.toy_graphs.line_graph
+
+Bipartite graphs
+================
+
+.. autofunction:: sknetwork.toy_graphs.random_bipartite_graph
+
+Real-world data
+---------------
+
+Undirected graphs
+=================
 
 .. autofunction:: sknetwork.toy_graphs.karate_club
 
@@ -24,8 +44,6 @@ Directed graphs
 
 .. autofunction:: sknetwork.toy_graphs.painters
 
-.. autofunction:: sknetwork.toy_graphs.rock_paper_scissors
-
 Bipartite graphs
 ================
 
@@ -33,8 +51,8 @@ Bipartite graphs
 
 .. autofunction:: sknetwork.toy_graphs.star_wars_villains
 
-Random graphs
--------------
+Random graph models
+-------------------
 
 .. autofunction:: sknetwork.toy_graphs.block_model
 
