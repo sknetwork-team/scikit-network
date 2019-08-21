@@ -8,7 +8,7 @@ import numpy as np
 from scipy.sparse import identity
 
 from sknetwork.ranking.diffusion import Diffusion
-from sknetwork.toy_graphs import karate_club, painters
+from sknetwork.toy_graphs import karate_club, painters, random_bipartite_graph
 
 
 class TestDiffusion(unittest.TestCase):
@@ -17,6 +17,7 @@ class TestDiffusion(unittest.TestCase):
         self.diffusion = Diffusion()
         self.karate_club = karate_club()
         self.painters = painters(return_labels=False)
+        self.bipartite = random_bipartite_graph()
 
     def test_unknown_types(self):
         with self.assertRaises(ValueError):
@@ -37,3 +38,10 @@ class TestDiffusion(unittest.TestCase):
         self.diffusion.fit(adjacency, {0: 0, 1: 1, 2: -1})
         score = self.diffusion.score_
         self.assertTrue(np.all(score <= 1) and np.all(score >= -1))
+
+    def test_bipartite(self):
+        biadjacency = self.bipartite
+        self.diffusion.fit(biadjacency, {0: 0, 1: 1, 2: -1})
+        score = self.diffusion.score_
+        self.assertEqual(len(score), 9)
+

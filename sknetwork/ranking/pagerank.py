@@ -14,6 +14,7 @@ from scipy.sparse.linalg import spsolve
 
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_square
+from sknetwork.utils.adjacency_formats import bipartite2undirected
 
 
 class PageRank(Algorithm):
@@ -54,27 +55,27 @@ class PageRank(Algorithm):
             self.damping_factor = damping_factor
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Optional[Union[dict, np.ndarray]] = None) -> 'PageRank':
+            personalization: Optional[Union[dict, np.ndarray]] = None, force_biadjacency: bool = False) -> 'PageRank':
         """
         Standard PageRank with restart.
 
         Parameters
         ----------
         adjacency :
-            Adjacency matrix of the graph.
+            Adjacency or biadjacency matrix of the graph.
         personalization :
             If ``None``, the uniform distribution is used.
             Otherwise, a non-negative, non-zero vector or a dictionary must be provided.
-
+        force_biadjacency : bool (default= ``False``)
+            If ``True``, force the input matrix to be considered as a biadjacency matrix.
         Returns
         -------
         self: :class: 'PageRank'
         """
         adjacency = check_format(adjacency)
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix must be square.')
-        else:
-            n: int = adjacency.shape[0]
+        if not is_square(adjacency) or force_biadjacency:
+            adjacency = bipartite2undirected(adjacency)
+        n: int = adjacency.shape[0]
 
         if adjacency.nnz:
             diag_out: sparse.csr_matrix = sparse.diags(adjacency.dot(np.ones(n)), shape=(n, n), format='csr')
