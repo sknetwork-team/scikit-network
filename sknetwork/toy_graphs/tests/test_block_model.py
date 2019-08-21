@@ -4,7 +4,7 @@
 
 import unittest
 
-from sknetwork.toy_graphs.block_model_ import block_model
+from sknetwork.toy_graphs.graph_models import block_model
 
 
 class TestGraphImport(unittest.TestCase):

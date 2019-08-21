@@ -326,6 +326,15 @@ class Paris(Algorithm):
 
     Parameters
     ----------
+    weights :
+            Weights of nodes.
+            ``'degree'`` (default), ``'uniform'`` or custom weights.
+    secondary_weights :
+        Weights of secondary nodes (for bipartite graphs).
+        ``None`` (default), ``'degree'``, ``'uniform'`` or custom weights.
+        If ``None``, taken equal to weights.
+    force_undirected : bool (default= ``False``)
+        If ``True``, consider the graph as undirected.
     engine : str
         ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     reorder :
@@ -340,7 +349,7 @@ class Paris(Algorithm):
     --------
     >>> from sknetwork.toy_graphs import house
     >>> adjacency = house()
-    >>> paris = Paris('python')
+    >>> paris = Paris(engine='python')
     >>> paris.fit(adjacency).dendrogram_
     array([[3.        , 2.        , 0.16666667, 2.        ],
            [1.        , 0.        , 0.25      , 2.        ],
@@ -365,14 +374,17 @@ class Paris(Algorithm):
 
     """
 
-    def __init__(self, engine: str = 'default', reorder: bool = True):
-        self.dendrogram_ = None
+    def __init__(self, weights: str = 'degree', secondary_weights: Union[None, str] = None,
+                 force_undirected: bool = False, engine: str = 'default', reorder: bool = True):
+        self.weights = weights
+        self.secondary_weights = secondary_weights
+        self.force_undirected = force_undirected
         self.engine = check_engine(engine)
         self.reorder = reorder
+        self.dendrogram_ = None
 
-    def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
-            secondary_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
-            force_biadjacency: bool = False) -> 'Paris':
+    def fit(self, adjacency: sparse.csr_matrix, custom_weights: Union[None, np.ndarray] = None,
+            custom_secondary_weights: Union[None, np.ndarray] = None, force_biadjacency: bool = False) -> 'Paris':
         """
         Agglomerative clustering using the nearest neighbor chain.
 
@@ -380,15 +392,10 @@ class Paris(Algorithm):
         ----------
         adjacency :
             Adjacency or biadjacency matrix of the graph.
-        weights :
-            Weights of nodes.
-            ``'degree'`` (default), ``'uniform'`` or custom weights.
-        secondary_weights :
-            Weights of secondary nodes (for bipartite graphs).
-            ``None`` (default), ``'degree'``, ``'uniform'`` or custom weights.
-            If ``None``, taken equal to weights.
-        force_undirected : bool (default= ``False``)
-            If ``True``, consider the graph as undirected.
+        custom_weights :
+            Array of input dependent node weights.
+        custom_secondary_weights :
+            Array of input dependent secondary node weights.
         force_biadjacency : bool (default= ``False``)
             If ``True``, force the input matrix to be considered as a biadjacency matrix.
 
@@ -397,8 +404,16 @@ class Paris(Algorithm):
         self: :class: 'Paris'
         """
         adjacency = check_format(adjacency)
+        if custom_weights:
+            weights = custom_weights
+        else:
+            weights = self.weights
+        if custom_secondary_weights:
+            secondary_weights = custom_secondary_weights
+        else:
+            secondary_weights = self.secondary_weights
         adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, secondary_weights,
-                                                                   force_undirected, force_biadjacency)
+                                                                   self.force_undirected, force_biadjacency)
         n = adjacency.shape[0]
         if n <= 1:
             raise ValueError('The graph must contain at least two nodes.')
