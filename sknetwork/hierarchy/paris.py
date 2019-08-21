@@ -316,22 +316,21 @@ def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.n
 
 class Paris(Algorithm):
     """
-    Agglomerative clustering algorithm that performs greedy merge of clusters based on their similarity.
+    Agglomerative clustering algorithm that performs greedy merge of nodes based on their similarity.
 
-    The similarity between clusters i,j is :math:`\\dfrac{A_{ij}}{w_i w_j}` where
+    The similarity between nodes :math:`i,j` is :math:`\\dfrac{A_{ij}}{w_i w_j}` where
 
-    * :math:`A_{ij}` is the weight of edge i,j in the aggregate graph,
-    * :math:`w_{i}` is the weight of cluster i,
-    * :math:`w_{j}` is the weight of cluster j.
+    * :math:`A_{ij}` is the weight of edge :math:`i,j`,
+    * :math:`w_i, w_j` are the weights of nodes :math:`i,j`
 
     Parameters
     ----------
     weights :
             Weights of nodes.
-            ``'degree'`` (default), ``'uniform'`` or custom weights.
+            ``'degree'`` (default) or ``'uniform'``.
     secondary_weights :
         Weights of secondary nodes (for bipartite graphs).
-        ``None`` (default), ``'degree'``, ``'uniform'`` or custom weights.
+        ``None`` (default), ``'degree'`` or ``'uniform'``.
         If ``None``, taken equal to weights.
     force_undirected : bool (default= ``False``)
         If ``True``, consider the graph as undirected.
@@ -374,8 +373,8 @@ class Paris(Algorithm):
 
     """
 
-    def __init__(self, weights: str = 'degree', secondary_weights: Union[None, str] = None,
-                 force_undirected: bool = False, engine: str = 'default', reorder: bool = True):
+    def __init__(self, engine: str = 'default', weights: str = 'degree', secondary_weights: Union[None, str] = None,
+                 force_undirected: bool = False, reorder: bool = True):
         self.weights = weights
         self.secondary_weights = secondary_weights
         self.force_undirected = force_undirected
@@ -395,7 +394,7 @@ class Paris(Algorithm):
         custom_weights :
             Array of input dependent node weights.
         custom_secondary_weights :
-            Array of input dependent secondary node weights.
+            Array of input dependent weights of secondary nodes (for bipartite graphs).
         force_biadjacency : bool (default= ``False``)
             If ``True``, force the input matrix to be considered as a biadjacency matrix.
 

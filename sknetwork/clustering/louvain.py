@@ -474,7 +474,7 @@ class Louvain(Algorithm):
         custom_weights :
             Array of input dependent node weights.
         custom_secondary_weights :
-            Array of input dependent secondary node weights.
+            Array of input dependent weights of secondary nodes.
         force_biadjacency : bool (default= ``False``)
             If ``True``, force the input matrix to be considered as a biadjacency matrix.
 

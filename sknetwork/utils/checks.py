@@ -73,11 +73,11 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
            Valid weights of nodes.
 
     """
-    n_weights = adjacency.shape[0]
+    n = adjacency.shape[0]
     if distribution == 'degree':
         node_weights_vec = adjacency.dot(np.ones(adjacency.shape[1]))
     elif distribution == 'uniform':
-        node_weights_vec = np.ones(n_weights)
+        node_weights_vec = np.ones(n)
     else:
         raise ValueError('Unknown distribution of node weights.')
     return node_weights_vec
@@ -143,9 +143,9 @@ def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr
         Valid weights of nodes.
 
     """
-    n_weights = adjacency.shape[0]
+    n = adjacency.shape[0]
     if type(weights) == np.ndarray:
-        if len(weights) != n_weights:
+        if len(weights) != n:
             raise ValueError('The number of node weights must match the number of nodes.')
         else:
             node_weights_vec = weights
