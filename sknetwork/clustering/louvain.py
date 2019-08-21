@@ -455,7 +455,7 @@ class Louvain(Algorithm):
         self.iteration_count_ = None
         self.aggregate_graph_ = None
 
-    def fit(self, adjacency: sparse.csr_matrix, custom_weights: Union[None, np.ndarray] = None,
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], custom_weights: Union[None, np.ndarray] = None,
             custom_secondary_weights: Union[None, np.ndarray] = None, force_biadjacency: bool = False) -> 'Louvain':
         """
         Clustering using chosen Optimizer.
