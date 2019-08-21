@@ -16,7 +16,7 @@ from sknetwork import njit
 from sknetwork.clustering.post_processing import reindex_clusters
 from sknetwork.utils.adjacency_formats import set_adjacency_weights, directed2undirected
 from sknetwork.utils.algorithm_base_class import Algorithm
-from sknetwork.utils.checks import check_probs, check_format, check_engine, check_random_state
+from sknetwork.utils.checks import check_format, check_engine, check_random_state
 
 
 def membership_matrix(labels: np.ndarray) -> sparse.csr_matrix:
@@ -63,15 +63,11 @@ class AggregateGraph:
         Distribution of in-weights (sums to 1).
     """
 
-    def __init__(self, adjacency: sparse.csr_matrix, out_weights: Union[str, np.ndarray] = 'degree',
-                 in_weights: Union[None, 'str', np.ndarray] = 'degree'):
+    def __init__(self, adjacency: sparse.csr_matrix, out_weights: np.ndarray, in_weights: np.ndarray):
         self.n_nodes = adjacency.shape[0]
         self.norm_adjacency = adjacency / adjacency.data.sum()
-        self.out_probs = check_probs(out_weights, adjacency)
-        if in_weights is not None:
-            self.in_probs = check_probs(in_weights, adjacency.T)
-        else:
-            self.in_probs = None
+        self.out_probs = out_weights
+        self.in_probs = in_weights
 
     def aggregate(self, row_membership: Union[sparse.csr_matrix, np.ndarray],
                   col_membership: Union[None, sparse.csr_matrix, np.ndarray] = None):
@@ -273,10 +269,7 @@ class GreedyModularity(Optimizer):
         """
 
         out_node_probs = graph.out_probs
-        if graph.in_probs is not None:
-            in_node_probs = graph.in_probs
-        else:
-            in_node_probs = out_node_probs
+        in_node_probs = graph.in_probs
 
         adjacency = 0.5 * directed2undirected(graph.norm_adjacency)
 
