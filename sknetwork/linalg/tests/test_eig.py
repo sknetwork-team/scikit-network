@@ -10,36 +10,48 @@ from sknetwork.linalg import LanczosEig, HalkoEig, SparseLR
 from sknetwork.toy_graphs import house
 
 
+def eigenvector_err(matrix, eigenvectors, eigenvalues):
+    err = matrix.dot(eigenvectors) - eigenvectors * eigenvalues
+    return np.linalg.norm(err)
+
+
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):
         self.adjacency = house()
-        n, m = self.adjacency.shape
-        self.slr = SparseLR(self.adjacency, [(np.ones(n), np.ones(m))])
+        n = self.adjacency.shape[0]
+        x = np.random.random(n)
+        self.slr = SparseLR(self.adjacency, [(x, x)])
 
     def test_lanczos(self):
         solver = LanczosEig('LM')
         solver.fit(self.adjacency, 2)
         self.assertEqual(len(solver.eigenvalues_), 2)
+        self.assertAlmostEqual(eigenvector_err(self.adjacency, solver.eigenvectors_, solver.eigenvalues_), 0)
 
         solver.fit(self.slr, 2)
         self.assertEqual(len(solver.eigenvalues_), 2)
+        self.assertAlmostEqual(eigenvector_err(self.slr, solver.eigenvectors_, solver.eigenvalues_), 0)
 
         solver = LanczosEig('SM')
         solver.fit(self.adjacency, 2)
         self.assertEqual(len(solver.eigenvalues_), 2)
+        self.assertAlmostEqual(eigenvector_err(self.adjacency, solver.eigenvectors_, solver.eigenvalues_), 0)
 
     def test_halko(self):
         solver = HalkoEig('LM')
         solver.fit(self.adjacency, 2)
         self.assertEqual(len(solver.eigenvalues_), 2)
+        self.assertAlmostEqual(eigenvector_err(self.adjacency, solver.eigenvectors_, solver.eigenvalues_), 0)
 
         solver.fit(self.slr, 2)
         self.assertEqual(len(solver.eigenvalues_), 2)
+        self.assertAlmostEqual(eigenvector_err(self.slr, solver.eigenvectors_, solver.eigenvalues_), 0)
 
         solver = HalkoEig('SM')
         solver.fit(self.adjacency, 2)
         self.assertEqual(len(solver.eigenvalues_), 2)
+        # self.assertAlmostEqual(eigenvector_err(self.adjacency, solver.eigenvectors_, solver.eigenvalues_), 0)
 
     def compare_solvers(self):
         lanczos = LanczosEig('LM')

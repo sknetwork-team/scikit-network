@@ -138,6 +138,11 @@ class Spectral(Algorithm):
             norm_adjacency = safe_sparse_dot(normalizing_matrix, safe_sparse_dot(adjacency, normalizing_matrix))
             self.solver.which = 'LA'
             self.solver.fit(norm_adjacency, n_components)
+            # sort the eigenvalues by decreasing order
+            self.solver.eigenvalues_ = self.solver.eigenvalues_[::-1]
+            self.solver.eigenvectors_ = self.solver.eigenvectors_[:, ::-1]
+
+            # eigenvalues of the laplacian by increasing order
             self.eigenvalues_ = 1 - self.solver.eigenvalues_[1:]
             self.embedding_ = self.solver.eigenvectors_[:, 1:]
             self.embedding_ = np.array(normalizing_matrix.dot(self.embedding_))
