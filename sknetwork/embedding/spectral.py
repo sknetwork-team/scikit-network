@@ -16,9 +16,9 @@ from scipy import sparse
 
 from sknetwork.basics.structure import is_connected
 from sknetwork.linalg import safe_sparse_dot, SparseLR, EigSolver, HalkoEig, LanczosEig, auto_solver
-from sknetwork.utils.adjacency_formats import bipartite2undirected
+from sknetwork.utils.adjacency_formats import set_adjacency
 from sknetwork.utils.algorithm_base_class import Algorithm
-from sknetwork.utils.checks import check_format, is_symmetric
+from sknetwork.utils.checks import check_format
 
 
 class Spectral(Algorithm):
@@ -29,16 +29,12 @@ class Spectral(Algorithm):
     ----------
     embedding_dimension : int, optional
         Dimension of the embedding space
-    normalized_laplacian : bool (default = True)
-        If True, use the normalized Laplacian, :math:`I - D^{-1/2} A D^{-1/2}`.
+    normalized_laplacian : bool (default = ``True``)
+        If ``True``, use the normalized Laplacian, :math:`I - D^{-1/2} A D^{-1/2}`.
     regularization : ``None`` or float (default= ``0.01``)
         Implicitly add edges of given weight between all pairs of nodes.
-    energy_scaling : bool (default= ``True``)
-        If ``True``, rescale each column of the embedding by dividing it by the square-root of the corresponding
-        eigenvalue. Only valid if **node_weights** is ``'degree'``.
-    force_biadjacency : bool (default= ``False``)
-        If ``True``, force the input matrix to be considered as a biadjacency matrix.
-        Only relevant for a symmetric input matrix.
+    scaling : ``None`` or ``'multiply'`` or ``'divide'`` (default = ``'multiply'``)
+        If ```'multiply'``, multiply by the square-root of each eigenvalue.
     solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver`
         Which eigenvalue solver to use.
 
@@ -74,16 +70,15 @@ class Spectral(Algorithm):
     """
 
     def __init__(self, embedding_dimension: int = 2, normalized_laplacian=True,
-                 regularization: Union[None, float] = 0.01, energy_scaling: bool = True,
-                 force_biadjacency: bool = False, solver: Union[str, EigSolver] = 'auto'):
+                 regularization: Union[None, float] = 0.01, scaling: Union[None, str] = 'multiply',
+                 solver: Union[str, EigSolver] = 'auto'):
         self.embedding_dimension = embedding_dimension
         self.normalized_laplacian = normalized_laplacian
         if regularization == 0:
             self.regularization = None
         else:
             self.regularization = regularization
-        self.energy_scaling = energy_scaling
-        self.force_biadjacency = force_biadjacency
+        self.scaling = scaling
         if solver == 'halko':
             self.solver: EigSolver = HalkoEig(which='SM')
         elif solver == 'lanczos':
@@ -95,13 +90,15 @@ class Spectral(Algorithm):
         self.coembedding_ = None
         self.eigenvalues_ = None
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Spectral':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], force_biadjacency: bool = False) -> 'Spectral':
         """Fits the model from data in adjacency_matrix
 
         Parameters
         ----------
-        adjacency : array-like, shape = (n, p)
+        adjacency :
               Adjacency or biadjacency matrix of the graph.
+        force_biadjacency :
+            If ``True``, force the input matrix to be considered as a biadjacency matrix.
 
         Returns
         -------
@@ -109,13 +106,9 @@ class Spectral(Algorithm):
         """
 
         adjacency = check_format(adjacency)
-        n, p = adjacency.shape
-
-        if p != n or not is_symmetric(adjacency) or self.force_biadjacency:
-            adjacency = bipartite2undirected(adjacency)
-
-        # size of the adjacency matrix (n or n + p)
-        n_ = adjacency.shape[0]
+        n1, n2 = adjacency.shape
+        adjacency = set_adjacency(adjacency, force_undirected=True, force_biadjacency=force_biadjacency)
+        n = adjacency.shape[0]
 
         if self.solver == 'auto':
             solver = auto_solver(adjacency.nnz)
@@ -124,35 +117,30 @@ class Spectral(Algorithm):
             else:
                 self.solver: EigSolver = HalkoEig(which='SM')
 
-        if self.embedding_dimension > n_ - 2:
+        if self.embedding_dimension > n - 2:
             warnings.warn(Warning("The dimension of the embedding must be less than the number of nodes - 1."))
-            n_components = n_ - 2
+            n_components = n - 2
         else:
             n_components = self.embedding_dimension + 1
 
         if self.regularization is None and not is_connected(adjacency):
-            if self.energy_scaling:
-                raise ValueError("The graph is not connected and low-rank regularization is not active."
-                                 "This can cause errors in the computation of the embedding."
-                                 "The parameter energy_scaling must be set to False")
-            else:
-                warnings.warn(Warning("The graph is not connected and low-rank regularization is not active."
-                                      "This can cause errors in the computation of the embedding."))
+            warnings.warn(Warning("The graph is not connected and low-rank regularization is not active."
+                                  "This can cause errors in the computation of the embedding."))
 
         if self.regularization:
-            adjacency = SparseLR(adjacency, [(self.regularization * np.ones(n_), np.ones(n_))])
+            adjacency = SparseLR(adjacency, [(self.regularization * np.ones(n), np.ones(n))])
 
         # builds standard Laplacian
-        degrees = adjacency.dot(np.ones(adjacency.shape[1]))
-        degree_matrix = sparse.diags(degrees, format='csr')
-        laplacian = -(adjacency - degree_matrix)
+        weights = adjacency.dot(np.ones(n))
+        weight_matrix = sparse.diags(weights, format='csr')
+        laplacian = -(adjacency - weight_matrix)
 
         # applies normalization of the Laplacian
         if self.normalized_laplacian:
-            normalizing_matrix = sparse.diags(np.sqrt(degrees), format='csr')
+            normalizing_matrix = sparse.diags(np.sqrt(weights), format='csr')
             normalizing_matrix.data = 1 / normalizing_matrix.data
         else:
-            normalizing_matrix = sparse.eye(n_)
+            normalizing_matrix = sparse.eye(n, format='csr')
 
         laplacian = safe_sparse_dot(normalizing_matrix, safe_sparse_dot(laplacian, normalizing_matrix))
         self.solver.fit(laplacian, n_components)
@@ -161,11 +149,22 @@ class Spectral(Algorithm):
         self.embedding_ = self.solver.eigenvectors_[:, 1:]
         self.embedding_ = np.array(normalizing_matrix.dot(self.embedding_))
 
-        if self.energy_scaling and self.normalized_laplacian:
-            self.embedding_ /= np.sqrt(self.eigenvalues_)
-
-        if n_ > n:
-            self.coembedding_ = self.embedding_[n:]
-            self.embedding_ = self.embedding_[:n]
+        if self.scaling:
+            if self.scaling == 'multiply':
+                if self.normalized_laplacian:
+                    self.eigenvalues_ = np.minimum(self.eigenvalues_, 1)
+                    self.embedding_ *= np.sqrt(1 - self.eigenvalues_)
+                else:
+                    self.embedding_ *= np.sqrt(abs(self.eigenvalues_))
+            elif self.scaling == 'divide':
+                inv_eigenvalues = np.zeros(len(self.eigenvalues_))
+                index = np.where(self.eigenvalues_ > 0)[0]
+                inv_eigenvalues[index] = 1 / self.eigenvalues_[index]
+                self.embedding_ *= np.sqrt(inv_eigenvalues)
+            else:
+                warnings.warn(Warning("The scaling must be 'multiply' or 'divide'. No scaling done."))
+        if n > n1:
+            self.coembedding_ = self.embedding_[n1:]
+            self.embedding_ = self.embedding_[:n1]
 
         return self

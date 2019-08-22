@@ -120,6 +120,24 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
         raise TypeError('Input must be a scipy CSR matrix or a SparseLR object.')
 
 
+def set_adjacency(adjacency: sparse.csr_matrix, force_undirected: bool, force_biadjacency: bool) -> sparse.csr_matrix:
+
+        n1, n2 = adjacency.shape
+
+        if n1 != n2 or force_biadjacency:
+            # bipartite graph
+            if force_undirected:
+                adjacency = bipartite2undirected(adjacency)
+            else:
+                adjacency = bipartite2directed(adjacency)
+        else:
+            # non-bipartite graph
+            if force_undirected:
+                adjacency = directed2undirected(adjacency)
+
+        return adjacency
+
+
 def set_adjacency_weights(adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray],
                           secondary_weights: Union[None, str, np.ndarray], force_undirected: bool,
                           force_biadjacency: bool) -> Tuple[sparse.csr_matrix, np.ndarray, np.ndarray]:
