@@ -37,13 +37,13 @@ class SparseLR(LinearOperator):
     def __init__(self, sparse_mat: Union[sparse.csr_matrix, sparse.csc_matrix], low_rank_tuples: list):
         self.sparse_mat = sparse_mat.tocsr()
         self.low_rank_tuples = []
-        LinearOperator.__init__(self, self.sparse_mat.dtype, self.sparse_mat.shape)
+        LinearOperator.__init__(self, dtype=float, shape=self.sparse_mat.shape)
         for x, y in low_rank_tuples:
             if x.shape == (self.shape[0],) and y.shape == (self.shape[1],):
                 self.low_rank_tuples.append((x.astype(self.dtype), y.astype(self.dtype)))
             else:
                 raise ValueError(
-                    'For each low rank tuple, x (resp. y) should be a vector of lenght n_rows (resp. n_cols)')
+                    'For each low rank tuple, x (resp. y) should be a vector of length n_rows (resp. n_cols)')
 
     def __neg__(self):
         return SparseLR(-self.sparse_mat, [(-x, y) for (x, y) in self.low_rank_tuples])
