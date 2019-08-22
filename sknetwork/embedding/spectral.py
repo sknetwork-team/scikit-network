@@ -113,9 +113,9 @@ class Spectral(Algorithm):
         if self.solver == 'auto':
             solver = auto_solver(adjacency.nnz)
             if solver == 'lanczos':
-                self.solver: EigSolver = LanczosEig(which='SM')
+                self.solver: EigSolver = LanczosEig()
             else:
-                self.solver: EigSolver = HalkoEig(which='SM')
+                self.solver: EigSolver = HalkoEig()
 
         if self.embedding_dimension > n - 2:
             warnings.warn(Warning("The dimension of the embedding must be less than the number of nodes - 1."))
@@ -130,24 +130,24 @@ class Spectral(Algorithm):
         if self.regularization:
             adjacency = SparseLR(adjacency, [(self.regularization * np.ones(n), np.ones(n))])
 
-        # builds standard Laplacian
         weights = adjacency.dot(np.ones(n))
-        weight_matrix = sparse.diags(weights, format='csr')
-        laplacian = -(adjacency - weight_matrix)
 
-        # applies normalization of the Laplacian
         if self.normalized_laplacian:
             normalizing_matrix = sparse.diags(np.sqrt(weights), format='csr')
             normalizing_matrix.data = 1 / normalizing_matrix.data
+            norm_adjacency = safe_sparse_dot(normalizing_matrix, safe_sparse_dot(adjacency, normalizing_matrix))
+            self.solver.which = 'LA'
+            self.solver.fit(norm_adjacency, n_components)
+            self.eigenvalues_ = 1 - self.solver.eigenvalues_[1:]
+            self.embedding_ = self.solver.eigenvectors_[:, 1:]
+            self.embedding_ = np.array(normalizing_matrix.dot(self.embedding_))
         else:
-            normalizing_matrix = sparse.eye(n, format='csr')
-
-        laplacian = safe_sparse_dot(normalizing_matrix, safe_sparse_dot(laplacian, normalizing_matrix))
-        self.solver.fit(laplacian, n_components)
-
-        self.eigenvalues_ = self.solver.eigenvalues_[1:]
-        self.embedding_ = self.solver.eigenvectors_[:, 1:]
-        self.embedding_ = np.array(normalizing_matrix.dot(self.embedding_))
+            weight_matrix = sparse.diags(weights, format='csr')
+            laplacian = -(adjacency - weight_matrix)
+            self.solver.which = 'SM'
+            self.solver.fit(laplacian, n_components)
+            self.eigenvalues_ = self.solver.eigenvalues_[1:]
+            self.embedding_ = self.solver.eigenvectors_[:, 1:]
 
         if self.scaling:
             if self.scaling == 'multiply':

@@ -15,22 +15,19 @@ from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.utils.checks import check_random_state
 
 
-def safe_sparse_dot(a, b, dense_output: bool = False):
+def safe_sparse_dot(a, b):
     """
-    Dot product that handle the sparse matrix case correctly
+    Dot product that handles the sparse matrix case correctly
     Uses BLAS GEMM as replacement for numpy.dot where possible
     to avoid unnecessary copies.
     Parameters
     ----------
-    a : array or sparse matrix
-    b : array or sparse matrix
-    dense_output :
-        When False, either ``a`` or ``b`` being sparse will yield sparse
-        output. When True, output will always be an array.
+    a : array or sparse matrix or SparseLR
+    b : array or sparse matrix or SparseLR
     Returns
     -------
     dot_product : array or sparse matrix
-        sparse if ``a`` or ``b`` is sparse and ``dense_output=False``.
+        sparse if ``a`` or ``b`` is sparse.
     """
     if type(a) == SparseLR and type(b) == np.ndarray:
         return a.dot(b)
@@ -42,13 +39,9 @@ def safe_sparse_dot(a, b, dense_output: bool = False):
         return a.right_sparse_dot(b)
     if type(b) == SparseLR and type(a) == sparse.csr_matrix:
         return b.left_sparse_dot(a)
-    if sparse.issparse(a) or sparse.issparse(b):
-        ret = a * b
-        if dense_output and hasattr(ret, "toarray"):
-            ret = ret.toarray()
-        return ret
-    else:
-        return np.dot(a, b)
+    if type(a) == np.ndarray:
+        return b.T.dot(a.T).T
+    return a.dot(b)
 
 
 def randomized_range_finder(matrix: np.ndarray, size: int, n_iter: int, power_iteration_normalizer='auto',

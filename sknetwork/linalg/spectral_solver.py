@@ -86,7 +86,7 @@ class LanczosEig(EigSolver):
 
     """
 
-    def __init__(self, which):
+    def __init__(self, which='LM'):
         EigSolver.__init__(self, which=which)
 
     def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator], n_components: int):
