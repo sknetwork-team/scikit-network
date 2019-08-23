@@ -13,12 +13,91 @@ from typing import Union
 
 import numpy as np
 from scipy import sparse
+from scipy.sparse.linalg import LinearOperator
 
 from sknetwork.basics.structure import is_connected
-from sknetwork.linalg import safe_sparse_dot, SparseLR, EigSolver, HalkoEig, LanczosEig, auto_solver
+from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver
 from sknetwork.utils.adjacency_formats import set_adjacency
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format
+
+
+class LaplacianOperator(LinearOperator):
+    """
+    Regularized Laplacian matrix as a scipy LinearOperator.
+    """
+    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
+        LinearOperator.__init__(self, dtype=float, shape=adjacency.shape)
+        self.adjacency = adjacency
+        self.regularization = regularization
+        self.weights = self.adjacency.dot(np.ones(self.shape[1]))
+
+    def _matvec(self, matrix: np.ndarray):
+        prod = matrix.T.dot(self.weights).T
+        prod += self.shape[0] * self.regularization * matrix
+        prod -= self.adjacency.dot(matrix)
+        prod -= self.regularization * np.tile(matrix.sum(axis=0), (self.shape[0], 1))
+
+        return prod
+
+    def _transpose(self):
+        return self
+
+    def astype(self, dtype: Union[str, np.dtype]):
+        """Change dtype of the object.
+
+        Parameters
+        ----------
+        dtype
+
+        Returns
+        -------
+        self
+
+        """
+        self.dtype = np.dtype(dtype)
+        self.adjacency = self.adjacency.astype(self.dtype)
+        self.weights = self.weights.astype(self.dtype)
+
+        return self
+
+
+class NormalizedAdjacencyOperator(LinearOperator):
+    """
+    Regularied normalized adjacency matrix as a scipy LinearOperator.
+    """
+    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
+        LinearOperator.__init__(self, dtype=float, shape=adjacency.shape)
+        self.adjacency = adjacency
+        self.regularization = regularization
+
+        n = self.adjacency.shape[0]
+        self.sqrt_weights = np.sqrt(self.adjacency.dot(np.ones(n)) + self.regularization * n)
+
+    def _matvec(self, matrix: np.ndarray):
+        matrix = (matrix.T / self.sqrt_weights).T
+        return ((self.adjacency.dot(matrix) + self.regularization * matrix.sum()).T / self.sqrt_weights).T
+
+    def _transpose(self):
+        return self
+
+    def astype(self, dtype: Union[str, np.dtype]):
+        """Change dtype of the object.
+
+        Parameters
+        ----------
+        dtype
+
+        Returns
+        -------
+        self
+
+        """
+        self.dtype = np.dtype(dtype)
+        self.adjacency = self.adjacency.astype(self.dtype)
+        self.sqrt_weights = self.sqrt_weights.astype(self.dtype)
+
+        return self
 
 
 class Spectral(Algorithm):
@@ -123,32 +202,37 @@ class Spectral(Algorithm):
         else:
             n_components = self.embedding_dimension + 1
 
-        if self.regularization is None and not is_connected(adjacency):
+        if (self.regularization is None or self.regularization == 0.) and not is_connected(adjacency):
             warnings.warn(Warning("The graph is not connected and low-rank regularization is not active."
                                   "This can cause errors in the computation of the embedding."))
 
-        if self.regularization:
-            adjacency = SparseLR(adjacency, [(self.regularization * np.ones(n), np.ones(n))])
-
         weights = adjacency.dot(np.ones(n))
+        normalizing_matrix = sparse.diags(np.sqrt(weights), format='csr')
+        normalizing_matrix.data = 1 / normalizing_matrix.data
 
         if self.normalized_laplacian:
-            normalizing_matrix = sparse.diags(np.sqrt(weights), format='csr')
-            normalizing_matrix.data = 1 / normalizing_matrix.data
-            norm_adjacency = safe_sparse_dot(normalizing_matrix, safe_sparse_dot(adjacency, normalizing_matrix))
+            # Findind the largest eigenvectors of the normalized adjacency is easier for the solver than findind the
+            # smallest ones of the normalized laplacian.
+            if self.regularization:
+                norm_adjacency = NormalizedAdjacencyOperator(adjacency, self.regularization)
+            else:
+                norm_adjacency = normalizing_matrix.dot(adjacency.dot(normalizing_matrix))
+
             self.solver.which = 'LA'
             self.solver.fit(norm_adjacency, n_components)
-            # sort the eigenvalues by decreasing order
-            self.solver.eigenvalues_ = self.solver.eigenvalues_[::-1]
-            self.solver.eigenvectors_ = self.solver.eigenvectors_[:, ::-1]
-
             # eigenvalues of the laplacian by increasing order
-            self.eigenvalues_ = 1 - self.solver.eigenvalues_[1:]
-            self.embedding_ = self.solver.eigenvectors_[:, 1:]
+            index = np.argsort(1 - self.solver.eigenvalues_)
+            self.eigenvalues_ = self.solver.eigenvalues_[index][1:]
+            self.embedding_ = self.solver.eigenvectors_[:, index][:, 1:]
             self.embedding_ = np.array(normalizing_matrix.dot(self.embedding_))
+
         else:
-            weight_matrix = sparse.diags(weights, format='csr')
-            laplacian = -(adjacency - weight_matrix)
+            if self.regularization:
+                laplacian = LaplacianOperator(adjacency, self.regularization)
+            else:
+                weight_matrix = sparse.diags(weights, format='csr')
+                laplacian = weight_matrix - adjacency
+
             self.solver.which = 'SM'
             self.solver.fit(laplacian, n_components)
             self.eigenvalues_ = self.solver.eigenvalues_[1:]
