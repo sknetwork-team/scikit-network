@@ -11,21 +11,26 @@ from sknetwork.embedding import Spectral, SVD
 from sknetwork.toy_graphs import random_graph, random_bipartite_graph, house
 
 
-def barycenter(adjacency, embedding) -> np.ndarray:
+def barycenter_norm(adjacency, spectral: Spectral) -> np.ndarray:
     """Barycenter of the embedding with respect to adjacency weights.
 
     Parameters
     ----------
     adjacency
-    embedding
+    spectral
 
     Returns
     -------
     barycenter
 
     """
-    weights = adjacency.dot(np.ones(adjacency.shape[1]))
-    return embedding.T.dot(weights)
+    if spectral.normalized_laplacian:
+        weights = adjacency.dot(np.ones(adjacency.shape[1]))
+        if spectral.regularization:
+            weights += spectral.regularization * adjacency.shape[1]
+        return np.linalg.norm(spectral.embedding_.T.dot(weights)) / weights.sum()
+    else:
+        return np.linalg.norm(spectral.embedding_.mean(axis=0))
 
 
 def has_proper_shape(adjacency, algo: Union[Spectral, SVD]) -> bool:
@@ -67,8 +72,9 @@ class TestEmbeddings(unittest.TestCase):
         self.biadjacency = random_bipartite_graph()
         self.house = house()
 
-    def test_spectral(self):
-        spectral = Spectral(2, solver='lanczos')
+    def test_spectral_normalized(self):
+        # Spectral with lanczos solver
+        spectral = Spectral(2, normalized_laplacian=True, solver='lanczos')
         spectral.fit(self.adjacency)
         self.assertTrue(has_proper_shape(self.adjacency, spectral))
         self.assertTrue(min(spectral.eigenvalues_ >= -1e-6) and max(spectral.eigenvalues_ <= 2))
@@ -80,14 +86,15 @@ class TestEmbeddings(unittest.TestCase):
         # without regularization
         spectral.regularization = None
         spectral.fit(self.house)
-        self.assertAlmostEqual(np.linalg.norm(barycenter(self.house, spectral.embedding_)), 0)
+        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
 
         # with regularization
-        spectral.regularization = 0.01
+        spectral.regularization = 0.1
         spectral.fit(self.house)
-        self.assertAlmostEqual(np.linalg.norm(barycenter(self.house, spectral.embedding_)), 0, places=2)
+        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0, places=2)
 
-        spectral = Spectral(2, solver='halko')
+        # Spectral with halko solver
+        spectral = Spectral(2, normalized_laplacian=True, solver='halko')
         spectral.fit(self.adjacency)
         self.assertTrue(has_proper_shape(self.adjacency, spectral))
         self.assertTrue(min(spectral.eigenvalues_ >= -1e-6) and max(spectral.eigenvalues_ <= 2))
@@ -100,15 +107,43 @@ class TestEmbeddings(unittest.TestCase):
         # without regularization
         spectral.regularization = None
         spectral.fit(self.house)
-        self.assertAlmostEqual(np.linalg.norm(barycenter(self.house, spectral.embedding_)), 0)
+        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
 
         # with regularization
-        spectral.regularization = 0.01
+        spectral.regularization = 0.1
         spectral.fit(self.house)
-        self.assertAlmostEqual(np.linalg.norm(barycenter(self.house, spectral.embedding_)), 0, places=2)
+        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0, places=2)
+
+    def test_spectral_basic(self):
+        # Spectral with lanczos solver
+        spectral = Spectral(2, normalized_laplacian=False, solver='lanczos')
+        spectral.fit(self.adjacency)
+        self.assertTrue(has_proper_shape(self.adjacency, spectral))
+        self.assertTrue(min(spectral.eigenvalues_ >= -1) and max(spectral.eigenvalues_ <= 1))
+
+        spectral.fit(self.biadjacency)
+        self.assertTrue(has_proper_shape(self.biadjacency, spectral))
+
+        # test if the embedding is centered
+        # without regularization
+        spectral.regularization = None
+        spectral.fit(self.house)
+        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
+
+        # with regularization
+        spectral.regularization = 0.1
+        spectral.fit(self.house)
+        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
 
     def test_svd(self):
-        svd = SVD(2)
+        svd = SVD(2, solver='lanczos')
+        svd.fit(self.adjacency)
+        self.assertTrue(has_proper_shape(self.adjacency, svd))
+
+        svd.fit(self.biadjacency)
+        self.assertTrue(has_proper_shape(self.biadjacency, svd))
+
+        svd = SVD(2, solver='halko')
         svd.fit(self.adjacency)
         self.assertTrue(has_proper_shape(self.adjacency, svd))
 

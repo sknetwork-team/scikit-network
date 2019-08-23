@@ -28,15 +28,17 @@ class LaplacianOperator(LinearOperator):
     """
     def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
         LinearOperator.__init__(self, dtype=float, shape=adjacency.shape)
-        self.adjacency = adjacency
         self.regularization = regularization
-        self.weights = self.adjacency.dot(np.ones(self.shape[1]))
+        self.weights = adjacency.dot(np.ones(adjacency.shape[1]))
+        self.laplacian = sparse.diags(self.weights, format='csr') - adjacency
 
     def _matvec(self, matrix: np.ndarray):
-        prod = matrix.T.dot(self.weights).T
+        prod = self.laplacian.dot(matrix)
         prod += self.shape[0] * self.regularization * matrix
-        prod -= self.adjacency.dot(matrix)
-        prod -= self.regularization * np.tile(matrix.sum(axis=0), (self.shape[0], 1))
+        if len(matrix.shape) == 2:
+            prod -= self.regularization * np.tile(matrix.sum(axis=0), (self.shape[0], 1))
+        else:
+            prod -= self.regularization * matrix.sum()
 
         return prod
 
@@ -56,7 +58,7 @@ class LaplacianOperator(LinearOperator):
 
         """
         self.dtype = np.dtype(dtype)
-        self.adjacency = self.adjacency.astype(self.dtype)
+        self.laplacian = self.laplacian.astype(self.dtype)
         self.weights = self.weights.astype(self.dtype)
 
         return self
@@ -64,7 +66,7 @@ class LaplacianOperator(LinearOperator):
 
 class NormalizedAdjacencyOperator(LinearOperator):
     """
-    Regularied normalized adjacency matrix as a scipy LinearOperator.
+    Regularized normalized adjacency matrix as a scipy LinearOperator.
     """
     def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
         LinearOperator.__init__(self, dtype=float, shape=adjacency.shape)
@@ -76,7 +78,12 @@ class NormalizedAdjacencyOperator(LinearOperator):
 
     def _matvec(self, matrix: np.ndarray):
         matrix = (matrix.T / self.sqrt_weights).T
-        return ((self.adjacency.dot(matrix) + self.regularization * matrix.sum()).T / self.sqrt_weights).T
+        prod = self.adjacency.dot(matrix)
+        if len(matrix.shape) == 2:
+            prod += self.regularization * np.tile(matrix.sum(axis=0), (self.shape[0], 1))
+        else:
+            prod += self.regularization * matrix.sum()
+        return (prod.T / self.sqrt_weights).T
 
     def _transpose(self):
         return self
@@ -206,22 +213,30 @@ class Spectral(Algorithm):
             warnings.warn(Warning("The graph is not connected and low-rank regularization is not active."
                                   "This can cause errors in the computation of the embedding."))
 
+        if isinstance(self.solver, HalkoEig) and not self.normalized_laplacian:
+            raise NotImplementedError('Halko solver is not yet compatible with unormalized Laplacian.'
+                                      'Please chose normalized Laplacian or force lanczos solver.')
+
         weights = adjacency.dot(np.ones(n))
-        normalizing_matrix = sparse.diags(np.sqrt(weights), format='csr')
-        normalizing_matrix.data = 1 / normalizing_matrix.data
+        if self.regularization:
+            weights += self.regularization * n
 
         if self.normalized_laplacian:
             # Findind the largest eigenvectors of the normalized adjacency is easier for the solver than findind the
             # smallest ones of the normalized laplacian.
+            normalizing_matrix = sparse.diags(np.sqrt(weights), format='csr')
+            normalizing_matrix.data = 1 / normalizing_matrix.data
+
             if self.regularization:
                 norm_adjacency = NormalizedAdjacencyOperator(adjacency, self.regularization)
             else:
                 norm_adjacency = normalizing_matrix.dot(adjacency.dot(normalizing_matrix))
 
             self.solver.which = 'LA'
-            self.solver.fit(norm_adjacency, n_components)
+            self.solver.fit(matrix=norm_adjacency, n_components=n_components)
+            self.solver.eigenvalues_ = 1 - self.solver.eigenvalues_
             # eigenvalues of the laplacian by increasing order
-            index = np.argsort(1 - self.solver.eigenvalues_)
+            index = np.argsort(self.solver.eigenvalues_)
             self.eigenvalues_ = self.solver.eigenvalues_[index][1:]
             self.embedding_ = self.solver.eigenvectors_[:, index][:, 1:]
             self.embedding_ = np.array(normalizing_matrix.dot(self.embedding_))
@@ -234,7 +249,7 @@ class Spectral(Algorithm):
                 laplacian = weight_matrix - adjacency
 
             self.solver.which = 'SM'
-            self.solver.fit(laplacian, n_components)
+            self.solver.fit(matrix=laplacian, n_components=n_components)
             self.eigenvalues_ = self.solver.eigenvalues_[1:]
             self.embedding_ = self.solver.eigenvectors_[:, 1:]
 
