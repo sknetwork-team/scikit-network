@@ -108,6 +108,11 @@ class LanczosEig(EigSolver):
         self.eigenvectors_ = eigenvectors
         self.eigenvalues_ = eigenvalues
 
+        if self.which in ['LM', 'LA']:
+            index = np.argsort(self.eigenvalues_)[::-1]
+            self.eigenvalues_ = self.eigenvalues_[index]
+            self.eigenvectors_ = self.eigenvectors_[:, index]
+
         return self
 
 
