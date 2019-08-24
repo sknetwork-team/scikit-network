@@ -102,7 +102,7 @@ class SVD(Algorithm):
         -------
         self: :class:`SVD`
         """
-        adjacency = check_format(adjacency)
+        adjacency = check_format(adjacency).asfptype()
         n1, n2 = adjacency.shape
 
         if self.solver == 'auto':

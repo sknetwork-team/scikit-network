@@ -12,7 +12,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.linalg.sparse_lowrank import SparseLR
-from sknetwork.utils.checks import check_probs
+from sknetwork.utils.checks import check_probs, is_symmetric
 
 
 def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
@@ -121,50 +121,81 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
 
 
 def set_adjacency(adjacency: sparse.csr_matrix, force_undirected: bool, force_biadjacency: bool) -> sparse.csr_matrix:
+    """Transform adjacency to match algorithms requirements.
 
-        n1, n2 = adjacency.shape
+    Parameters
+    ----------
+    adjacency:
+        Input matrix.
+    force_undirected:
+        If the adjacency is not already symmetric and force_biadjacency==False, returns A+A^T.
+    force_biadjacency:
+        If True, returns the mirror adjacency even for square matrices.
 
-        if n1 != n2 or force_biadjacency:
-            # bipartite graph
-            if force_undirected:
-                adjacency = bipartite2undirected(adjacency)
-            else:
-                adjacency = bipartite2directed(adjacency)
+    Returns
+    -------
+        The modified adjacency.
+
+    """
+
+    n1, n2 = adjacency.shape
+
+    if n1 != n2 or force_biadjacency:
+        # bipartite graph
+        if force_undirected:
+            adjacency = bipartite2undirected(adjacency)
         else:
-            # non-bipartite graph
-            if force_undirected:
-                adjacency = directed2undirected(adjacency)
+            adjacency = bipartite2directed(adjacency)
+    else:
+        # non-bipartite graph
+        if force_undirected and not is_symmetric(adjacency):
+            adjacency = directed2undirected(adjacency)
 
-        return adjacency
+    return adjacency
 
 
 def set_adjacency_weights(adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray],
                           secondary_weights: Union[None, str, np.ndarray], force_undirected: bool,
                           force_biadjacency: bool) -> Tuple[sparse.csr_matrix, np.ndarray, np.ndarray]:
+    """Modify adjacency and compute weights.
 
-        n1, n2 = adjacency.shape
+    Parameters
+    ----------
+    adjacency
+    weights
+    secondary_weights
+    force_undirected
+    force_biadjacency
 
-        if n1 != n2 or force_biadjacency:
-            # bipartite graph
-            if force_undirected:
-                adjacency = bipartite2undirected(adjacency)
-                out_weights = check_probs(weights, adjacency)
-                in_weights = out_weights
-            else:
-                if secondary_weights is None:
-                    if type(weights) == str:
-                        secondary_weights = weights
-                    else:
-                        warnings.warn(Warning("Feature_weights have been set to 'degree'."))
-                        secondary_weights = 'degree'
-                out_weights = np.hstack((check_probs(weights, adjacency), np.zeros(n2)))
-                in_weights = np.hstack((np.zeros(n1), check_probs(secondary_weights, adjacency.T)))
-                adjacency = bipartite2directed(adjacency)
-        else:
-            # non-bipartite graph
-            if force_undirected:
-                adjacency = directed2undirected(adjacency)
+    Returns
+    -------
+        adjacency, weights, secondary_weights
+
+    """
+
+    n1, n2 = adjacency.shape
+
+    if n1 != n2 or force_biadjacency:
+        # bipartite graph
+        if force_undirected:
+            adjacency = bipartite2undirected(adjacency)
             out_weights = check_probs(weights, adjacency)
-            in_weights = check_probs(weights, adjacency.T)
+            in_weights = out_weights
+        else:
+            if secondary_weights is None:
+                if type(weights) == str:
+                    secondary_weights = weights
+                else:
+                    warnings.warn(Warning("Feature_weights have been set to 'degree'."))
+                    secondary_weights = 'degree'
+            out_weights = np.hstack((check_probs(weights, adjacency), np.zeros(n2)))
+            in_weights = np.hstack((np.zeros(n1), check_probs(secondary_weights, adjacency.T)))
+            adjacency = bipartite2directed(adjacency)
+    else:
+        # non-bipartite graph
+        if force_undirected and not is_symmetric(adjacency):
+            adjacency = directed2undirected(adjacency)
+        out_weights = check_probs(weights, adjacency)
+        in_weights = check_probs(weights, adjacency.T)
 
-        return adjacency, out_weights, in_weights
+    return adjacency, out_weights, in_weights

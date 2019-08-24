@@ -191,7 +191,7 @@ class Spectral(Algorithm):
         self: :class:`Spectral`
         """
 
-        adjacency = check_format(adjacency)
+        adjacency = check_format(adjacency).asfptype()
         n1, n2 = adjacency.shape
         adjacency = set_adjacency(adjacency, force_undirected=True, force_biadjacency=force_biadjacency)
         n = adjacency.shape[0]

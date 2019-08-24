@@ -323,12 +323,12 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
         raise ValueError('The input matrix is not square.')
 
     if which == 'SM':
-        lambda_max, _ = randomized_eig(matrix, n_components=1)
+        lambda_max: float = 1.1 * randomized_eig(matrix, n_components=1)[0][0]
         matrix *= -1
         if isinstance(matrix, SparseLR):
-            matrix += SparseLR(lambda_max[0] * sparse.identity(matrix.shape[0]), [])
+            matrix += SparseLR(lambda_max * sparse.identity(matrix.shape[0]), [])
         else:
-            matrix += lambda_max[0] * sparse.identity(matrix.shape[0])
+            matrix += lambda_max * sparse.identity(matrix.shape[0])
 
     if n_iter == 'auto':
         # Checks if the number of iterations is explicitly specified
