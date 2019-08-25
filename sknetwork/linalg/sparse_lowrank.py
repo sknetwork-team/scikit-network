@@ -34,10 +34,11 @@ class SparseLR(LinearOperator):
 
     """
 
-    def __init__(self, sparse_mat: Union[sparse.csr_matrix, sparse.csc_matrix], low_rank_tuples: list):
-        self.sparse_mat = sparse_mat.tocsr()
+    def __init__(self, sparse_mat: Union[sparse.csr_matrix, sparse.csc_matrix], low_rank_tuples: list, dtype=float):
+        self.sparse_mat = sparse_mat.tocsr().astype(dtype)
         self.low_rank_tuples = []
-        LinearOperator.__init__(self, dtype=float, shape=self.sparse_mat.shape)
+        LinearOperator.__init__(self, dtype=dtype, shape=self.sparse_mat.shape)
+
         for x, y in low_rank_tuples:
             if x.shape == (self.shape[0],) and y.shape == (self.shape[1],):
                 self.low_rank_tuples.append((x.astype(self.dtype), y.astype(self.dtype)))

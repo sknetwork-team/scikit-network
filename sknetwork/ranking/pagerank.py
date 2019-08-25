@@ -17,6 +17,38 @@ from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_squ
 from sknetwork.utils.adjacency_formats import bipartite2undirected
 
 
+def restart_probability(n: int, personalization: Union[dict, np.ndarray] = None) -> np.ndarray:
+    """
+
+    Parameters
+    ----------
+    personalization :
+        If ``None``, the uniform distribution is used.
+        Otherwise, a non-negative, non-zero vector or a dictionary must be provided.
+    n :
+        Total number of samples.
+
+    Returns
+    -------
+    restart_prob:
+        A probability vector.
+
+    """
+    if personalization is None:
+        restart_prob: np.ndarray = np.ones(n) / n
+    else:
+        if type(personalization) == dict:
+            tmp = np.zeros(n)
+            tmp[list(personalization.keys())] = list(personalization.values())
+            personalization = tmp
+        if type(personalization) == np.ndarray and len(personalization) == n \
+           and has_nonnegative_entries(personalization) and np.sum(personalization):
+            restart_prob = personalization.astype(float) / np.sum(personalization)
+        else:
+            raise ValueError('Personalization must be None or a non-negative, non-null vector or a dictionary.')
+    return restart_prob
+
+
 class PageRank(Algorithm):
     """
     Computes the PageRank of each node, corresponding to its frequency of visit by a random walk.
@@ -28,6 +60,8 @@ class PageRank(Algorithm):
     ----------
     damping_factor : float
         Probability to continue the random walk.
+    solver : str
+        Which solver to use: 'spsolve', 'lanczos' or 'halko'.
 
     Attributes
     ----------
@@ -47,12 +81,14 @@ class PageRank(Algorithm):
     Page, L., Brin, S., Motwani, R., & Winograd, T. (1999). The PageRank citation ranking: Bringing order to the web.
     Stanford InfoLab.
     """
-    def __init__(self, damping_factor: float = 0.85):
-        self.score_ = None
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'spsolve'):
         if damping_factor < 0 or damping_factor >= 1:
             raise ValueError('Damping factor must be between 0 and 1.')
         else:
             self.damping_factor = damping_factor
+        self.solver = solver
+
+        self.score_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Optional[Union[dict, np.ndarray]] = None, force_biadjacency: bool = False) -> 'PageRank':
@@ -82,25 +118,18 @@ class PageRank(Algorithm):
             diag_out.data = 1 / diag_out.data
             transition_matrix = diag_out.dot(adjacency)
 
-            if personalization is None:
-                restart_prob: np.ndarray = np.ones(n) / n
-            else:
-                if type(personalization) == dict:
-                    tmp = np.zeros(n)
-                    tmp[list(personalization.keys())] = list(personalization.values())
-                    personalization = tmp
-                if type(personalization) == np.ndarray and len(personalization) == n \
-                        and has_nonnegative_entries(personalization) and np.sum(personalization):
-                    restart_prob = personalization.astype(float) / np.sum(personalization)
-                else:
-                    raise ValueError('Personalization must be None or a non-negative, non-null vector or a dictionary.')
+            restart_prob = restart_probability(n, personalization)
 
-            a = sparse.eye(n, format='csr') - self.damping_factor * transition_matrix.T
+            a = self.damping_factor * transition_matrix.T
             b = (1 - self.damping_factor * diag_out.dot(np.ones(n)).astype(bool)) * restart_prob
-            x = spsolve(a, b)
+
+            if self.solver == 'spsolve':
+                x = spsolve(sparse.eye(n, format='csr') - a, b)
+            else:
+                raise NotImplementedError('Other solvers are not yet available.')
 
             self.score_ = abs(x.real) / abs(x.real).sum()
+
         else:
             self.score_ = np.zeros(n)
-
         return self
