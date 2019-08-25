@@ -10,7 +10,7 @@ from typing import Union, Optional
 
 import numpy as np
 from scipy import sparse
-from scipy.sparse.linalg import spsolve
+from scipy.sparse.linalg import eigs, LinearOperator, spsolve
 
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_square
@@ -47,6 +47,44 @@ def restart_probability(n: int, personalization: Union[dict, np.ndarray] = None)
         else:
             raise ValueError('Personalization must be None or a non-negative, non-null vector or a dictionary.')
     return restart_prob
+
+
+class RandomSurferOperator(LinearOperator):
+    """
+    Random surfer as a LinearOperator
+
+    Parameters
+    ----------
+    adjacency :
+        Adjacency matrix of the graph.
+    damping_factor : float
+        Probability to continue the random walk.
+    personalization :
+        If ``None``, the uniform distribution is used.
+        Otherwise, a non-negative, non-zero vector or a dictionary must be provided.
+
+    Attributes
+    ----------
+    a : sparse.csr_matrix
+        Scaled transposed transition matrix.
+    b : np.ndarray
+        Scaled restart probability vector.
+
+    """
+    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float=0.85, personalization=None):
+        LinearOperator.__init__(self, shape=adjacency.shape, dtype=float)
+        n = adjacency.shape[0]
+
+        out_degrees = adjacency.dot(np.ones(n))
+        diag_out = sparse.diags(out_degrees, format='csr')
+        diag_out.data = 1. / diag_out.data
+        self.a = damping_factor * adjacency.T.dot(diag_out)
+
+        restart_prob = restart_probability(n, personalization)
+        self.b = (np.ones(n) - damping_factor * out_degrees.astype(bool)) * restart_prob
+
+    def _matvec(self, x):
+        return self.a.dot(x) + self.b * x.sum()
 
 
 class PageRank(Algorithm):
@@ -90,6 +128,7 @@ class PageRank(Algorithm):
 
         self.score_ = None
 
+    # noinspection PyTypeChecker
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Optional[Union[dict, np.ndarray]] = None, force_biadjacency: bool = False) -> 'PageRank':
         """
@@ -114,21 +153,17 @@ class PageRank(Algorithm):
         n: int = adjacency.shape[0]
 
         if adjacency.nnz:
-            diag_out: sparse.csr_matrix = sparse.diags(adjacency.dot(np.ones(n)), shape=(n, n), format='csr')
-            diag_out.data = 1 / diag_out.data
-            transition_matrix = diag_out.dot(adjacency)
-
-            restart_prob = restart_probability(n, personalization)
-
-            a = self.damping_factor * transition_matrix.T
-            b = (1 - self.damping_factor * diag_out.dot(np.ones(n)).astype(bool)) * restart_prob
+            rso = RandomSurferOperator(adjacency, self.damping_factor, personalization)
 
             if self.solver == 'spsolve':
-                x = spsolve(sparse.eye(n, format='csr') - a, b)
+                x = spsolve(sparse.eye(n, format='csr') - rso.a, rso.b)
+            elif self.solver == 'lanczos':
+                _, x = sparse.linalg.eigs(rso, k=1)
             else:
                 raise NotImplementedError('Other solvers are not yet available.')
 
-            self.score_ = abs(x.real) / abs(x.real).sum()
+            x = abs(x.flatten().real)
+            self.score_ = x / x.sum()
 
         else:
             self.score_ = np.zeros(n)

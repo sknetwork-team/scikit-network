@@ -90,7 +90,7 @@ class LanczosEig(EigSolver):
         EigSolver.__init__(self, which=which)
 
     def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator], n_components: int):
-        """Perform eigenvalue decomposition on input matrix.
+        """Perform eigenvalue decomposition on symmetric input matrix.
 
         Parameters
         ----------

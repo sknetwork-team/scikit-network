@@ -16,7 +16,7 @@ class TestPageRank(unittest.TestCase):
         self.adjacency = rock_paper_scissors()
         self.miserables = miserables()
         self.pagerank_sps = PageRank(solver='spsolve')
-        # self.pagerank_lcz = PageRank(solver='lanczos')
+        self.pagerank_lcz = PageRank(solver='lanczos')
         # self.pagerank_hlk = PageRank(solver='halko')
         self.pagerank_high_damping = PageRank(damping_factor=0.99)
         self.bipartite = random_bipartite_graph()
@@ -27,13 +27,16 @@ class TestPageRank(unittest.TestCase):
         score = self.pagerank_sps.score_
         self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0.)
 
+        self.pagerank_sps.fit(self.adjacency, personalization=np.array([0, 1, 0]))
+        self.pagerank_sps.fit(self.adjacency, personalization={1: 1})
+
         self.pagerank_high_damping.fit(self.adjacency)
         score = self.pagerank_high_damping.score_
         self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0., places=1)
 
-        # self.pagerank_lcz.fit(self.adjacency)
-        # score = self.pagerank_lcz.score_
-        # self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0.)
+        self.pagerank_lcz.fit(self.adjacency)
+        score = self.pagerank_lcz.score_
+        self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0.)
 
         # self.pagerank_hlk.fit(self.adjacency)
         # score = self.pagerank_hlk.score_
