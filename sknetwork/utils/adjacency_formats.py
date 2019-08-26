@@ -77,11 +77,11 @@ def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union
     -------
     Adjacency matrix.
     """
-    n, m = biadjacency.shape
+    n1, n2 = biadjacency.shape
     if type(biadjacency) == sparse.csr_matrix:
-        return sparse.bmat([[None, biadjacency], [sparse.csr_matrix((m, n)), None]], format='csr')
+        return sparse.bmat([[None, biadjacency], [sparse.csr_matrix((n2, n1)), None]], format='csr')
     elif type(biadjacency) == SparseLR:
-        new_tuples = [(np.hstack((x, np.zeros(m))), np.hstack((np.zeros(n), y)))
+        new_tuples = [(np.hstack((x, np.zeros(n2))), np.hstack((np.zeros(n1), y)))
                       for (x, y) in biadjacency.low_rank_tuples]
         return SparseLR(bipartite2directed(biadjacency.sparse_mat), new_tuples)
     else:
@@ -110,11 +110,11 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
     if type(biadjacency) == sparse.csr_matrix:
         return sparse.bmat([[None, biadjacency], [biadjacency.T, None]], format='csr')
     elif type(biadjacency) == SparseLR:
-        n, m = biadjacency.shape
+        n1, n2 = biadjacency.shape
         new_tuples = []
         for (x, y) in biadjacency.low_rank_tuples:
-            new_tuples.append((np.hstack((x, np.zeros(m))), np.hstack((np.zeros(n), y))))
-            new_tuples.append((np.hstack((np.zeros(n), y)), np.hstack((x, np.zeros(m)))))
+            new_tuples.append((np.hstack((x, np.zeros(n2))), np.hstack((np.zeros(n1), y))))
+            new_tuples.append((np.hstack((np.zeros(n1), y)), np.hstack((x, np.zeros(n2)))))
         return SparseLR(bipartite2undirected(biadjacency.sparse_mat), new_tuples)
     else:
         raise TypeError('Input must be a scipy CSR matrix or a SparseLR object.')
