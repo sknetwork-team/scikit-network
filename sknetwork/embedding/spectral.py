@@ -117,8 +117,10 @@ class Spectral(Algorithm):
         Dimension of the embedding space
     normalized_laplacian : bool (default = ``True``)
         If ``True``, use the normalized Laplacian, :math:`I - D^{-1/2} A D^{-1/2}`.
-    regularization : ``None`` or float (default= ``0.01``)
+    regularization : ``None`` or float (default = ``0.01``)
         Implicitly add edges of given weight between all pairs of nodes.
+    relative_regularization : bool (default = ``True``)
+        If ``True``, consider the regularization as relative to the total weight of the graph.
     scaling : ``None`` or ``'multiply'`` or ``'divide'`` (default = ``'multiply'``)
         If ```'multiply'``, multiply by the square-root of each eigenvalue.
     solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver`
@@ -156,14 +158,15 @@ class Spectral(Algorithm):
     """
 
     def __init__(self, embedding_dimension: int = 2, normalized_laplacian=True,
-                 regularization: Union[None, float] = 0.01, scaling: Union[None, str] = 'multiply',
-                 solver: Union[str, EigSolver] = 'auto'):
+                 regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
+                 scaling: Union[None, str] = 'multiply', solver: Union[str, EigSolver] = 'auto'):
         self.embedding_dimension = embedding_dimension
         self.normalized_laplacian = normalized_laplacian
         if regularization == 0:
             self.regularization = None
         else:
             self.regularization = regularization
+        self.relative_regularization = relative_regularization
         self.scaling = scaling
         if solver == 'halko':
             self.solver: EigSolver = HalkoEig(which='SM')
@@ -218,17 +221,20 @@ class Spectral(Algorithm):
                                       'Please chose normalized Laplacian or force lanczos solver.')
 
         weights = adjacency.dot(np.ones(n))
-        if self.regularization:
-            weights += self.regularization * n
+        regularization = self.regularization
+        if regularization:
+            if self.relative_regularization:
+                regularization = regularization * weights.sum() / n**2
+            weights += regularization * n
 
         if self.normalized_laplacian:
-            # Findind the largest eigenvectors of the normalized adjacency is easier for the solver than findind the
+            # Finding the largest eigenvectors of the normalized adjacency is easier for the solver than finding the
             # smallest ones of the normalized laplacian.
             normalizing_matrix = sparse.diags(np.sqrt(weights), format='csr')
             normalizing_matrix.data = 1 / normalizing_matrix.data
 
-            if self.regularization:
-                norm_adjacency = NormalizedAdjacencyOperator(adjacency, self.regularization)
+            if regularization:
+                norm_adjacency = NormalizedAdjacencyOperator(adjacency, regularization)
             else:
                 norm_adjacency = normalizing_matrix.dot(adjacency.dot(normalizing_matrix))
 
@@ -242,8 +248,8 @@ class Spectral(Algorithm):
             self.embedding_ = np.array(normalizing_matrix.dot(self.embedding_))
 
         else:
-            if self.regularization:
-                laplacian = LaplacianOperator(adjacency, self.regularization)
+            if regularization:
+                laplacian = LaplacianOperator(adjacency, regularization)
             else:
                 weight_matrix = sparse.diags(weights, format='csr')
                 laplacian = weight_matrix - adjacency
