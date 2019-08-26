@@ -89,9 +89,11 @@ class LanczosSVD(SVDSolver):
         self: :class:`SVDSolver`
         """
         u, s, vt = svds(matrix.astype(np.float), n_components)
-        self.left_singular_vectors_ = u
-        self.right_singular_vectors_ = vt.T
-        self.singular_values_ = s
+        # order the singular values by decreasing order
+        index = np.argsort(s)[::-1]
+        self.left_singular_vectors_ = u[:, index]
+        self.right_singular_vectors_ = vt.T[:, index]
+        self.singular_values_ = s[index]
 
         return self
 

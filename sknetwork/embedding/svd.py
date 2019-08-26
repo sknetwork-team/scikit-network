@@ -34,7 +34,7 @@ class SVD(Algorithm):
     regularization: ``None`` or float (default= ``0.01``)
         Implicitly add edges of given weight between all pairs of nodes.
     scaling:  ``None`` or ``'multiply'`` or ``'divide'`` (default = ``'multiply'``)
-        If ```'multiply'``, multiply by the singular values .
+        If ``'multiply'``, multiply by the singular values .
 
     Attributes
     ----------

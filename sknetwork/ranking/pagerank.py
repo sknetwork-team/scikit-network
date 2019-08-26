@@ -22,11 +22,11 @@ def restart_probability(n: int, personalization: Union[dict, np.ndarray] = None)
 
     Parameters
     ----------
+    n :
+        Total number of samples.
     personalization :
         If ``None``, the uniform distribution is used.
         Otherwise, a non-negative, non-zero vector or a dictionary must be provided.
-    n :
-        Total number of samples.
 
     Returns
     -------
