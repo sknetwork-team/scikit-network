@@ -33,6 +33,8 @@ class SVD(Algorithm):
         Weights of the secondary nodes (taken equal to **weights** if ``None``).
     regularization: ``None`` or float (default= ``0.01``)
         Implicitly add edges of given weight between all pairs of nodes.
+    relative_regularization : bool (default = ``True``)
+        If ``True``, consider the regularization as relative to the total weight of the graph.
     scaling:  ``None`` or ``'multiply'`` or ``'divide'`` (default = ``'multiply'``)
         If ``'multiply'``, multiply by the singular values .
 
@@ -62,14 +64,15 @@ class SVD(Algorithm):
     """
 
     def __init__(self, embedding_dimension=2, weights='degree', secondary_weights=None,
-                 regularization: Union[None, float] = 0.01, scaling: Union[None, str] = 'multiply',
-                 solver: Union[str, SVDSolver] = 'auto'):
+                 regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
+                 scaling: Union[None, str] = 'multiply', solver: Union[str, SVDSolver] = 'auto'):
         self.embedding_dimension = embedding_dimension
         self.weights = weights
         if secondary_weights is None:
             secondary_weights = weights
         self.secondary_weights = secondary_weights
         self.regularization = regularization
+        self.relative_regularization = relative_regularization
         self.scaling = scaling
 
         if scaling == 'divide':
@@ -112,9 +115,12 @@ class SVD(Algorithm):
             else:
                 self.solver: SVDSolver = HalkoSVD()
 
-        if self.regularization:
-            adjacency = SparseLR(adjacency, [(self.regularization * np.ones(n1), np.ones(n2))])
         total_weight = adjacency.dot(np.ones(n2)).sum()
+        regularization = self.regularization
+        if regularization:
+            if self.relative_regularization:
+                regularization = regularization * total_weight / n1 / n2
+            adjacency = SparseLR(adjacency, [(regularization * np.ones(n1), np.ones(n2))])
 
         w_samp = check_weights(self.weights, adjacency)
         w_feat = check_weights(self.secondary_weights, adjacency.T)
@@ -153,7 +159,5 @@ class SVD(Algorithm):
                 energy_levels[energy_levels > 0] = 1 / energy_levels[energy_levels > 0]
                 self.embedding_ *= energy_levels
                 self.coembedding_ *= energy_levels
-        else:
-            warnings.warn(Warning("The scaling must be 'multiply' or 'divide'. No scaling done."))
 
         return self
