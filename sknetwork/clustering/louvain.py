@@ -7,14 +7,16 @@ Created on Nov 2, 2018
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
+from typing import Union, Optional
+
 import numpy as np
 from scipy import sparse
-from typing import Union, Optional
-from sknetwork.utils.checks import check_probs, check_format, check_engine, check_random_state, is_square
-from sknetwork.utils.adjacency_formats import directed2undirected
-from sknetwork.utils.algorithm_base_class import Algorithm
-from sknetwork.clustering.postprocessing import reindex_clusters
+
 from sknetwork import njit
+from sknetwork.clustering.post_processing import reindex_clusters
+from sknetwork.utils.adjacency_formats import set_adjacency_weights, directed2undirected
+from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.checks import check_format, check_engine, check_random_state
 
 
 def membership_matrix(labels: np.ndarray) -> sparse.csr_matrix:
@@ -45,9 +47,9 @@ class AggregateGraph:
     adjacency :
         Adjacency matrix of the graph.
     out_weights :
-        Out weights.
+        Out-weights.
     in_weights :
-        In weights.
+        In-weights.
 
     Attributes
     ----------
@@ -61,15 +63,11 @@ class AggregateGraph:
         Distribution of in-weights (sums to 1).
     """
 
-    def __init__(self, adjacency: sparse.csr_matrix, out_weights: Union[str, np.ndarray] = 'degree',
-                 in_weights: Union[None, 'str', np.ndarray] = 'degree'):
+    def __init__(self, adjacency: sparse.csr_matrix, out_weights: np.ndarray, in_weights: np.ndarray):
         self.n_nodes = adjacency.shape[0]
         self.norm_adjacency = adjacency / adjacency.data.sum()
-        self.out_probs = check_probs(out_weights, adjacency)
-        if in_weights is not None:
-            self.in_probs = check_probs(in_weights, adjacency.T)
-        else:
-            self.in_probs = None
+        self.out_probs = out_weights
+        self.in_probs = in_weights
 
     def aggregate(self, row_membership: Union[sparse.csr_matrix, np.ndarray],
                   col_membership: Union[None, sparse.csr_matrix, np.ndarray] = None):
@@ -118,13 +116,14 @@ class Optimizer(Algorithm):
     labels_ : np.ndarray
         Cluster index of each node.
     """
+
     def __init__(self):
         self.score_ = None
         self.labels_ = None
 
     def fit(self, graph: AggregateGraph):
         """
-        Fits the clusters to the objective function.
+        Fit the clusters to the objective function.
 
          Parameters
          ----------
@@ -144,7 +143,7 @@ def fit_core(resolution: float, tol: float, n_nodes: int, out_node_probs: np.nda
              in_node_probs: np.ndarray, self_loops: np.ndarray, data: np.ndarray, indices: np.ndarray,
              indptr: np.ndarray) -> (np.ndarray, float):
     """
-    Fits the clusters to the objective function.
+    Fit the clusters to the objective function.
 
     Parameters
     ----------
@@ -234,16 +233,18 @@ def fit_core(resolution: float, tol: float, n_nodes: int, out_node_probs: np.nda
 
 class GreedyModularity(Optimizer):
     """
-    A greedy directed modularity optimizer.
+    A greedy modularity optimizer.
+
+    See :class:`modularity`
 
     Attributes
     ----------
-    resolution :
-        Modularity resolution.
-    tol :
+    resolution : float
+        Resolution parameter.
+    tol : float
         Minimum modularity increase to enter a new optimization pass.
     engine : str
-        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, test if numba is available.
 
     """
 
@@ -260,7 +261,7 @@ class GreedyModularity(Optimizer):
         Parameters
         ----------
         graph :
-            The adjacency to cluster.
+            The graph to cluster.
 
         Returns
         -------
@@ -268,10 +269,7 @@ class GreedyModularity(Optimizer):
         """
 
         out_node_probs = graph.out_probs
-        if graph.in_probs is not None:
-            in_node_probs = graph.in_probs
-        else:
-            in_node_probs = out_node_probs
+        in_node_probs = graph.in_probs
 
         adjacency = 0.5 * directed2undirected(graph.norm_adjacency)
 
@@ -356,27 +354,12 @@ class Louvain(Algorithm):
     """
     Louvain algorithm for graph clustering in Python (default) and Numba.
 
-    Seeks the best partition of the nodes with respect to modularity.
-
-    The modularity of a clustering is
-
-    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w_iw_j}{w^2}\\big)\\delta_{c_i,c_j}`
-    for undirected graphs
-
-    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w^+_iw^-_j}{w^2}\\big)\\delta_{c_i,c_j}`
-    for directed graphs
-
-    where
-
-    :math:`w_i` is the weight of node :math:`i` (undirected graphs),\n
-    :math:`w^+_i, w^-_i` are the out-weight and in-weight of node :math:`i` (directed graphs),\n
-    :math:`c_i` is the cluster of node :math:`i`,\n
-    :math:`\\delta` is the Kronecker symbol,\n
-    :math:`\\gamma \\ge 0` is the resolution parameter.
+    Compute the best partition of the nodes with respect to the optimization criterion
+    (default: :class:`GreedyModularity`).
 
     Parameters
     ----------
-    engine : str
+    engine :
         ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     algorithm :
         The optimization algorithm.
@@ -386,6 +369,13 @@ class Louvain(Algorithm):
         If ``'default'``, uses greedy modularity optimization algorithm: :class:`GreedyModularity`.
     resolution :
         Resolution parameter.
+    weights :
+            Weights of nodes.
+            ``'degree'`` (default), ``'uniform'``.
+    secondary_weights :
+        Weights of secondary nodes (for bipartite graphs).
+        ``None`` (default), ``'degree'``, ``'uniform'``.
+        If ``None``, taken equal to weights.
     tol :
         Minimum increase in the objective function to enter a new optimization pass.
     agg_tol :
@@ -395,6 +385,10 @@ class Louvain(Algorithm):
         A negative value is interpreted as no limit.
     shuffle_nodes :
         Enables node shuffling before optimization.
+    force_undirected : bool (default= ``False``)
+            If ``True``, consider the graph as undirected.
+    sorted_cluster :
+            If ``True``, sort labels in decreasing order of cluster size.
     random_state :
         Random number generator or random seed. If None, numpy.random is used.
     verbose :
@@ -403,11 +397,13 @@ class Louvain(Algorithm):
     Attributes
     ----------
     labels_ : np.ndarray
-        Cluster index of each node.
+        Label of each node.
+    secondary_labels_ : np.ndarray
+        Label of each secondary node (for bipartite graphs).
     iteration_count_ : int
         Total number of aggregations performed.
     aggregate_graph_ : sparse.csr_matrix
-        Aggregated adjacency at the end of the algorithm.
+        Adjacency matrix of the aggregate graph at the end of the algorithm.
 
     Example
     -------
@@ -431,8 +427,11 @@ class Louvain(Algorithm):
     """
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
+                 weights: str = 'degree', secondary_weights: Union[None, str] = None,
                  tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
-                 random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
+                 force_undirected: bool = False, sorted_cluster: bool = True,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None,
+                 verbose: bool = False):
 
         self.random_state = check_random_state(random_state)
         if algorithm == 'default':
@@ -441,53 +440,62 @@ class Louvain(Algorithm):
             self.algorithm = algorithm
         else:
             raise TypeError('Algorithm must be \'auto\' or a valid algorithm.')
-
+        self.weights = weights
+        self.secondary_weights = secondary_weights
         if type(max_agg_iter) != int:
             raise TypeError('The maximum number of iterations must be an integer.')
         self.agg_tol = agg_tol
         self.max_agg_iter = max_agg_iter
+        self.shuffle_nodes = shuffle_nodes
+        self.force_undirected = force_undirected
+        self.sorted_cluster = sorted_cluster
         self.verbose = verbose
         self.labels_ = None
+        self.secondary_labels_ = None
         self.iteration_count_ = None
         self.aggregate_graph_ = None
-        self.shuffle_nodes = shuffle_nodes
 
-    def fit(self, adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray] = 'degree',
-            in_weights: Union[None, str, np.ndarray] = None, sorted_cluster: bool = True) -> 'Louvain':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], custom_weights: Union[None, np.ndarray] = None,
+            custom_secondary_weights: Union[None, np.ndarray] = None, force_biadjacency: bool = False) -> 'Louvain':
         """
         Clustering using chosen Optimizer.
 
         Parameters
         ----------
         adjacency :
-            Adjacency matrix of the graph.
-        weights :
-            Weights (undirected graphs) or out-weights (directed graphs) used in the second term of modularity.
-            ``'degree'``, ``'uniform'`` or custom weights.
-        in_weights :
-            In-weights (directed graphs) used in the second term of modularity.
-            ``None``, ``'degree'``, ``'uniform'`` or custom weights.
-            If None, taken equal to out-weights.
-        sorted_cluster :
-            If True, sorts labels in decreasing order of cluster size.
+            Adjacency or biadjacency matrix of the graph.
+        custom_weights :
+            Array of input dependent node weights.
+        custom_secondary_weights :
+            Array of input dependent weights of secondary nodes.
+        force_biadjacency :
+            If ``True``, force the input matrix to be considered as a biadjacency matrix.
 
         Returns
         -------
-        self: :class: 'Louvain'
+        self: :class:`Louvain`
         """
         adjacency = check_format(adjacency)
-
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix must be a square matrix. See Bilouvain for rectangular matrices.')
-
-        nodes = np.arange(adjacency.shape[0])
+        n1, n2 = adjacency.shape
+        if custom_weights:
+            weights = custom_weights
+        else:
+            weights = self.weights
+        if custom_secondary_weights:
+            secondary_weights = custom_secondary_weights
+        else:
+            secondary_weights = self.secondary_weights
+        adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, secondary_weights,
+                                                                   self.force_undirected, force_biadjacency)
+        n = adjacency.shape[0]
+        nodes = np.arange(n)
         if self.shuffle_nodes:
             nodes = self.random_state.permutation(nodes)
             adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
-        graph = AggregateGraph(adjacency, weights, in_weights)
+        graph = AggregateGraph(adjacency, out_weights, in_weights)
 
-        membership = sparse.identity(graph.n_nodes, format='csr')
+        membership = sparse.identity(n, format='csr')
         increase = True
         iteration_count = 0
         if self.verbose:
@@ -518,8 +526,11 @@ class Louvain(Algorithm):
             reverse = np.empty(nodes.size, nodes.dtype)
             reverse[nodes] = np.arange(nodes.size)
             self.labels_ = self.labels_[reverse]
-        if sorted_cluster:
+        if self.sorted_cluster:
             self.labels_ = reindex_clusters(self.labels_)
+        if n > n1:
+            self.secondary_labels_ = self.labels_[n1:]
+            self.labels_ = self.labels_[:n1]
         self.aggregate_graph_ = graph.norm_adjacency * adjacency.data.sum()
 
         return self

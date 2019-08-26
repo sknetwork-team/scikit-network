@@ -3,7 +3,8 @@
 # authors: Quentin Lutz <qlutz@enst.fr>
 
 import unittest
-from sknetwork.toy_graphs.block_model import block_model
+
+from sknetwork.toy_graphs.graph_models import block_model
 
 
 class TestGraphImport(unittest.TestCase):

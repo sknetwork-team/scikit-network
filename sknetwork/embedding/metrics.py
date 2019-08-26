@@ -9,12 +9,13 @@ Nathan De Lara <ndelara@enst.fr>
 Quality metrics for adjacency embeddings
 """
 
-import numpy as np
+from typing import Union
 
+import numpy as np
 from scipy import sparse
 from scipy.stats import hmean
+
 from sknetwork.utils.checks import check_format
-from typing import Union
 
 
 def linear_fit(adjacency: Union[sparse.csr_matrix, np.ndarray], embedding: np.ndarray, order: int = 1,
@@ -68,7 +69,7 @@ def dot_modularity(adjacency, embedding: np.ndarray, coembedding=None, resolutio
 
     :math:`Q = \\sum_{ij}(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})x_i^Tx_j`
 
-    This metric is normalized to lie between -1 and 1 (for :math:`|||gamma = 1`).
+    This metric is normalized to lie between -1 and 1 (for :math:`\\gamma = 1`).
 
     If the embeddings are normalized, this reduces to cosine modularity.
 

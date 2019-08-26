@@ -6,9 +6,11 @@ Created on Jul 24, 2019
 @author: Quentin Lutz <qlutz@enst.fr>
 """
 
+from typing import Tuple, Optional, Union
+
 import numpy as np
 from scipy import sparse
-from typing import Tuple, Optional, Union
+
 from sknetwork.utils.adjacency_formats import bipartite2undirected
 from sknetwork.utils.checks import is_symmetric, is_square, check_format
 
@@ -108,14 +110,14 @@ def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray],
 
 def is_bipartite(adjacency: sparse.csr_matrix,
                  return_biadjacency: bool = False) -> Union[bool, Tuple[bool, Optional[sparse.csr_matrix]]]:
-    """Check whether an undirected graph is bipartite and returns a possible partition of the nodes if it is.
+    """Check whether an undirected graph is bipartite and can return a possible biadjacency.
 
         Parameters
         ----------
         adjacency:
            The symmetric adjacency matrix of the graph.
         return_biadjacency:
-            If True, a possible biadjacency is returned if the graph is bipartite (None is returned otherwise)
+            If ``True`` , a possible biadjacency is returned if the graph is bipartite (None is returned otherwise)
 
         Returns
         -------
@@ -141,7 +143,7 @@ def is_bipartite(adjacency: sparse.csr_matrix,
         exists_remaining -= 1
         while next_nodes:
             node = next_nodes.pop()
-            for neighbor in adjacency.indices[adjacency.indptr[node]:adjacency.indptr[node+1]]:
+            for neighbor in adjacency.indices[adjacency.indptr[node]:adjacency.indptr[node + 1]]:
                 if coloring[neighbor] == -1:
                     coloring[neighbor] = 1 - coloring[node]
                     next_nodes.append(neighbor)

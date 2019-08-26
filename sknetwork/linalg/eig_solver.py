@@ -6,13 +6,15 @@ Created on July 9 2019
 Authors:
 Nathan De Lara <nathan.delara@telecom-paris.fr>
 """
+from typing import Union
+
 import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import eigsh
-from sknetwork.utils.algorithm_base_class import Algorithm
+
 from sknetwork.linalg import SparseLR
 from sknetwork.linalg.randomized_matrix_factorization import randomized_eig
-from typing import Union
+from sknetwork.utils.algorithm_base_class import Algorithm
 
 
 class EigSolver(Algorithm):
@@ -84,11 +86,11 @@ class LanczosEig(EigSolver):
 
     """
 
-    def __init__(self, which):
+    def __init__(self, which='LM'):
         EigSolver.__init__(self, which=which)
 
     def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator], n_components: int):
-        """Perform eigenvalue decomposition on input matrix.
+        """Perform eigenvalue decomposition on symmetric input matrix.
 
         Parameters
         ----------
@@ -105,6 +107,11 @@ class LanczosEig(EigSolver):
         eigenvalues, eigenvectors = eigsh(matrix.astype(np.float), n_components, which=self.which)
         self.eigenvectors_ = eigenvectors
         self.eigenvalues_ = eigenvalues
+
+        if self.which in ['LM', 'LA']:
+            index = np.argsort(self.eigenvalues_)[::-1]
+            self.eigenvalues_ = self.eigenvalues_[index]
+            self.eigenvectors_ = self.eigenvectors_[:, index]
 
         return self
 

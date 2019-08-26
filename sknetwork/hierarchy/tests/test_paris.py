@@ -7,35 +7,47 @@ Created on March 2019
 """
 
 import unittest
+
 import numpy as np
 from scipy.sparse import identity
-from sknetwork.hierarchy import Paris, straight_cut
-from sknetwork.toy_graphs import house, karate_club
+
 from sknetwork import is_numba_available
+from sknetwork.hierarchy import Paris, straight_cut
+from sknetwork.toy_graphs import random_graph, random_bipartite_graph, house, karate_club
 
 
 class TestParis(unittest.TestCase):
 
     def setUp(self):
-        self.paris_python = Paris('python')
+        self.paris_python = Paris(engine='python')
+        self.random_graph = random_graph()
+        self.random_bipartite_graph = random_bipartite_graph()
         self.house_graph = house()
         self.karate_club_graph = karate_club()
         if is_numba_available:
-            self.paris_numba = Paris('numba')
+            self.paris_numba = Paris(engine='numba')
         else:
             with self.assertRaises(ValueError):
-                Paris('numba')
+                Paris(engine='numba')
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):
             self.paris_python.fit(identity(1))
 
         with self.assertRaises(TypeError):
-            self.paris_python.fit(identity(2, format='csr'), weights=1)
+            self.paris_python.fit(identity(2, format='csr'), custom_weights=1)
 
     def test_unknown_options(self):
         with self.assertRaises(ValueError):
-            self.paris_python.fit(identity(2, format='csr'), weights='unknown')
+            self.paris_python.fit(identity(2, format='csr'), custom_weights='unknown')
+
+    def test_random_graph(self):
+        self.paris_python.fit(self.random_graph)
+        self.assertEqual(self.paris_python.dendrogram_.shape[0], 9)
+
+    def test_random_bipartite_graph(self):
+        self.paris_python.fit(self.random_bipartite_graph)
+        self.assertEqual(self.paris_python.dendrogram_.shape[0], 8)
 
     def test_house_graph(self):
         if is_numba_available:

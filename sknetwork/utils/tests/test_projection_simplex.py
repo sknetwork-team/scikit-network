@@ -3,7 +3,9 @@
 """tests for projection_simplex.py"""
 
 import unittest
+
 import numpy as np
+
 from sknetwork.utils.checks import is_proba_array
 from sknetwork.utils.projection_simplex import projection_simplex
 

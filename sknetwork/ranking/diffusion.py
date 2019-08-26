@@ -5,12 +5,15 @@ Created on July 17 2019
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
+from typing import Union
+
 import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import spsolve
-from typing import Union
-from sknetwork.utils.checks import check_format, is_square
+
 from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.checks import check_format, is_square
+from sknetwork.utils.adjacency_formats import bipartite2undirected
 
 
 class Diffusion(Algorithm):
@@ -35,30 +38,32 @@ class Diffusion(Algorithm):
     ----------
     Chung, F. (2007). The heat kernel as the pagerank of a graph. Proceedings of the National Academy of Sciences.
     """
+
     def __init__(self):
         self.score_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Union[dict, np.ndarray]) -> 'Diffusion':
+            personalization: Union[dict, np.ndarray], force_biadjacency: bool = False) -> 'Diffusion':
         """
         Compute the diffusion (temperature at equilibrium).
 
         Parameters
         ----------
         adjacency :
-            Adjacency matrix of the graph.
+            Adjacency or biadjacency matrix of the graph.
         personalization :
             Dictionary or vector (temperature of border nodes).
+        force_biadjacency : bool (default= ``False``)
+            If ``True``, force the input matrix to be considered as a biadjacency matrix.
 
         Returns
         -------
         self: :class: 'Diffusion'
         """
         adjacency = check_format(adjacency)
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix must be square.')
-        else:
-            n: int = adjacency.shape[0]
+        if not is_square(adjacency) or force_biadjacency:
+            adjacency = bipartite2undirected(adjacency)
+        n: int = adjacency.shape[0]
 
         if adjacency.nnz:
             b = np.zeros(n)

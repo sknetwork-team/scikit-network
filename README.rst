@@ -40,6 +40,6 @@ Import scikit-network in a Python project::
 
     import sknetwork as skn
 
-See examples in the tutorials (which can be downloaded here_)
+See examples in the tutorials; the notebooks are available here_.
 
 .. _here: https://github.com/sknetwork-team/scikit-network/tree/master/docs/tutorials

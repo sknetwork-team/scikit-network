@@ -5,10 +5,11 @@ Created on Apr 19 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
+from typing import Union
+
 import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
-from typing import Union
 
 
 class SparseLR(LinearOperator):
@@ -24,18 +25,26 @@ class SparseLR(LinearOperator):
     low_rank_tuples: list
         List of tuple of arrays representing the low rank components [(x1, y1), (x2, y2),...].
         Each low rank component is of the form :math:`xy^T`.
+
+    References
+    ----------
+    De Lara (2019). The Sparse + Low Rank trick for Matrix Factorization-Based Graph Algorithms,
+    Proceedings of the 15th International Workshop on Mining and Learning with Graphs (MLG).
+    http://www.mlgworkshop.org/2019/papers/MLG2019_paper_1.pdf
+
     """
 
-    def __init__(self, sparse_mat: Union[sparse.csr_matrix, sparse.csc_matrix], low_rank_tuples: list):
-        self.sparse_mat = sparse_mat.tocsr()
+    def __init__(self, sparse_mat: Union[sparse.csr_matrix, sparse.csc_matrix], low_rank_tuples: list, dtype=float):
+        self.sparse_mat = sparse_mat.tocsr().astype(dtype)
         self.low_rank_tuples = []
-        LinearOperator.__init__(self, self.sparse_mat.dtype, self.sparse_mat.shape)
+        LinearOperator.__init__(self, dtype=dtype, shape=self.sparse_mat.shape)
+
         for x, y in low_rank_tuples:
             if x.shape == (self.shape[0],) and y.shape == (self.shape[1],):
                 self.low_rank_tuples.append((x.astype(self.dtype), y.astype(self.dtype)))
             else:
                 raise ValueError(
-                    'For each low rank tuple, x (resp. y) should be a vector of lenght n_rows (resp. n_cols)')
+                    'For each low rank tuple, x (resp. y) should be a vector of length n_rows (resp. n_cols)')
 
     def __neg__(self):
         return SparseLR(-self.sparse_mat, [(-x, y) for (x, y) in self.low_rank_tuples])

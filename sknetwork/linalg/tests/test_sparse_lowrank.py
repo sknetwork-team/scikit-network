@@ -3,11 +3,13 @@
 """tests for embeddings metrics"""
 
 import unittest
+
 import numpy as np
 from scipy import sparse
-from sknetwork.toy_graphs import house, star_wars_villains
-from sknetwork.linalg.sparse_lowrank import SparseLR
+
 from sknetwork.linalg.randomized_matrix_factorization import randomized_svd, randomized_eig
+from sknetwork.linalg.sparse_lowrank import SparseLR
+from sknetwork.toy_graphs import house, star_wars_villains
 
 
 class TestSparseLowRank(unittest.TestCase):
@@ -29,6 +31,8 @@ class TestSparseLowRank(unittest.TestCase):
         self.assertEqual(prod.shape, (5,))
         prod = self.bipartite.dot(np.ones(3))
         self.assertEqual(np.linalg.norm(prod - np.array([5., 4., 6., 5.])), 0.)
+        prod = self.bipartite.dot(0.5 * np.ones(3))
+        self.assertEqual(np.linalg.norm(prod - np.array([2.5, 2., 3., 2.5])), 0.)
 
     def test_transposition(self):
         transposed = self.undirected.T

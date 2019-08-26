@@ -6,29 +6,28 @@ Created on Oct 12 2018
 Part of this code was adapted from the scikit-learn project: https://scikit-learn.org/stable/.
 """
 
-import numpy as np
-from scipy import sparse, linalg
-from sknetwork.linalg.sparse_lowrank import SparseLR
-from sknetwork.utils.checks import check_random_state
 from typing import Union
 
+import numpy as np
+from scipy import sparse, linalg
 
-def safe_sparse_dot(a, b, dense_output: bool = False):
+from sknetwork.linalg.sparse_lowrank import SparseLR
+from sknetwork.utils.checks import check_random_state
+
+
+def safe_sparse_dot(a, b):
     """
-    Dot product that handle the sparse matrix case correctly
+    Dot product that handles the sparse matrix case correctly
     Uses BLAS GEMM as replacement for numpy.dot where possible
     to avoid unnecessary copies.
     Parameters
     ----------
-    a : array or sparse matrix
-    b : array or sparse matrix
-    dense_output :
-        When False, either ``a`` or ``b`` being sparse will yield sparse
-        output. When True, output will always be an array.
+    a : array or sparse matrix or SparseLR
+    b : array or sparse matrix or SparseLR
     Returns
     -------
     dot_product : array or sparse matrix
-        sparse if ``a`` or ``b`` is sparse and ``dense_output=False``.
+        sparse if ``a`` or ``b`` is sparse.
     """
     if type(a) == SparseLR and type(b) == np.ndarray:
         return a.dot(b)
@@ -40,13 +39,9 @@ def safe_sparse_dot(a, b, dense_output: bool = False):
         return a.right_sparse_dot(b)
     if type(b) == SparseLR and type(a) == sparse.csr_matrix:
         return b.left_sparse_dot(a)
-    if sparse.issparse(a) or sparse.issparse(b):
-        ret = a * b
-        if dense_output and hasattr(ret, "toarray"):
-            ret = ret.toarray()
-        return ret
-    else:
-        return np.dot(a, b)
+    if type(a) == np.ndarray:
+        return b.T.dot(a.T).T
+    return a.dot(b)
 
 
 def randomized_range_finder(matrix: np.ndarray, size: int, n_iter: int, power_iteration_normalizer='auto',
@@ -328,12 +323,12 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
         raise ValueError('The input matrix is not square.')
 
     if which == 'SM':
-        lambda_max, _ = randomized_eig(matrix, n_components=1)
+        lambda_max: float = 1.1 * randomized_eig(matrix, n_components=1)[0][0]
         matrix *= -1
         if isinstance(matrix, SparseLR):
-            matrix += SparseLR(lambda_max[0] * sparse.identity(matrix.shape[0]), [])
+            matrix += SparseLR(lambda_max * sparse.identity(matrix.shape[0]), [])
         else:
-            matrix += lambda_max[0] * sparse.identity(matrix.shape[0])
+            matrix += lambda_max * sparse.identity(matrix.shape[0])
 
     if n_iter == 'auto':
         # Checks if the number of iterations is explicitly specified

@@ -14,11 +14,7 @@ Graph formats
 
 .. autofunction:: sknetwork.utils.adjacency_formats.directed2undirected
 
-
-Projection
-----------
-
-.. autofunction:: sknetwork.utils.projection_simplex
+.. autofunction:: sknetwork.utils.adjacency_formats.set_adjacency
 
 
 Checks

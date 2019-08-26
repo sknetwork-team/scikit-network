@@ -8,15 +8,103 @@ Thomas Bonald <thomas.bonald@telecom-paristech.fr>
 Nathan De Lara <nathan.delara@telecom-paristech.fr>
 """
 
+import warnings
+from typing import Union
+
 import numpy as np
 from scipy import sparse
-from sknetwork.linalg import safe_sparse_dot, SparseLR, EigSolver, HalkoEig, LanczosEig, auto_solver
-from sknetwork.utils.adjacency_formats import bipartite2undirected
-from sknetwork.utils.algorithm_base_class import Algorithm
-from sknetwork.utils.checks import check_format, is_symmetric
+from scipy.sparse.linalg import LinearOperator
+
 from sknetwork.basics.structure import is_connected
-from typing import Union
-import warnings
+from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver
+from sknetwork.utils.adjacency_formats import set_adjacency
+from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.checks import check_format
+
+
+class LaplacianOperator(LinearOperator):
+    """
+    Regularized Laplacian matrix as a scipy LinearOperator.
+    """
+    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
+        LinearOperator.__init__(self, dtype=float, shape=adjacency.shape)
+        self.regularization = regularization
+        self.weights = adjacency.dot(np.ones(adjacency.shape[1]))
+        self.laplacian = sparse.diags(self.weights, format='csr') - adjacency
+
+    def _matvec(self, matrix: np.ndarray):
+        prod = self.laplacian.dot(matrix)
+        prod += self.shape[0] * self.regularization * matrix
+        if len(matrix.shape) == 2:
+            prod -= self.regularization * np.tile(matrix.sum(axis=0), (self.shape[0], 1))
+        else:
+            prod -= self.regularization * matrix.sum()
+
+        return prod
+
+    def _transpose(self):
+        return self
+
+    def astype(self, dtype: Union[str, np.dtype]):
+        """Change dtype of the object.
+
+        Parameters
+        ----------
+        dtype
+
+        Returns
+        -------
+        self
+
+        """
+        self.dtype = np.dtype(dtype)
+        self.laplacian = self.laplacian.astype(self.dtype)
+        self.weights = self.weights.astype(self.dtype)
+
+        return self
+
+
+class NormalizedAdjacencyOperator(LinearOperator):
+    """
+    Regularized normalized adjacency matrix as a scipy LinearOperator.
+    """
+    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
+        LinearOperator.__init__(self, dtype=float, shape=adjacency.shape)
+        self.adjacency = adjacency
+        self.regularization = regularization
+
+        n = self.adjacency.shape[0]
+        self.sqrt_weights = np.sqrt(self.adjacency.dot(np.ones(n)) + self.regularization * n)
+
+    def _matvec(self, matrix: np.ndarray):
+        matrix = (matrix.T / self.sqrt_weights).T
+        prod = self.adjacency.dot(matrix)
+        if len(matrix.shape) == 2:
+            prod += self.regularization * np.tile(matrix.sum(axis=0), (self.shape[0], 1))
+        else:
+            prod += self.regularization * matrix.sum()
+        return (prod.T / self.sqrt_weights).T
+
+    def _transpose(self):
+        return self
+
+    def astype(self, dtype: Union[str, np.dtype]):
+        """Change dtype of the object.
+
+        Parameters
+        ----------
+        dtype
+
+        Returns
+        -------
+        self
+
+        """
+        self.dtype = np.dtype(dtype)
+        self.adjacency = self.adjacency.astype(self.dtype)
+        self.sqrt_weights = self.sqrt_weights.astype(self.dtype)
+
+        return self
 
 
 class Spectral(Algorithm):
@@ -27,41 +115,40 @@ class Spectral(Algorithm):
     ----------
     embedding_dimension : int, optional
         Dimension of the embedding space
-    normalized_laplacian : bool (default = True)
-        If True, uses the normalized Laplacian, :math:`I - D^{-1/2} A D^{-1/2}`
-    regularization : ``None`` or float (default=0.01)
+    normalized_laplacian : bool (default = ``True``)
+        If ``True``, use the normalized Laplacian, :math:`I - D^{-1/2} A D^{-1/2}`.
+    regularization : ``None`` or float (default = ``0.01``)
         Implicitly add edges of given weight between all pairs of nodes.
-    energy_scaling : bool (default=True)
-        If ``True``, rescales each column of the embedding by dividing it by the square-root of the corresponding
-        eigenvalue. Only valid if ``node_weights == 'degree'``.
-    force_biadjacency : bool (default=False)
-        Forces the input matrix to be considered as a biadjacency matrix. Only relevant for a symmetric input matrix.
-    solver: 'auto', 'halko', 'lanczos' or EigSolver object
-        Which eigenvalue solver to use
+    relative_regularization : bool (default = ``True``)
+        If ``True``, consider the regularization as relative to the total weight of the graph.
+    scaling : ``None`` or ``'multiply'`` or ``'divide'`` (default = ``'multiply'``)
+        If ```'multiply'``, multiply by the square-root of each eigenvalue.
+    solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver`
+        Which eigenvalue solver to use.
 
-        * ``'auto'`` calls the auto_solver function
-        * ``'halko'``: randomized method, fast but less accurate than 'lanczos' for ill-conditioned matrices
-        * ``'lanczos'``: power-iteration based method
-        * ``custom``: the user must provide an EigSolver object.
+        * ``'auto'`` call the auto_solver function.
+        * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
+        * ``'lanczos'``: power-iteration based method.
+        * :class:`EigSolver`: custom solver.
 
     Attributes
     ----------
     embedding_ : array, shape = (n, embedding_dimension)
-        Embedding of the nodes
+        Embedding of the nodes.
     coembedding_ : array, shape = (p, embedding_dimension)
-        Co-embedding of the feature nodes
-        Only relevant for an asymmetric input matrix or if ``force_biadjacency==True``.
+        Co-embedding of the feature nodes.
+        Only relevant for an asymmetric input matrix or if **force_biadjacency** = ``True``.
     eigenvalues_ : array, shape = (embedding_dimension)
-        Smallest eigenvalues
+        Eigenvalues in increasing order (first eigenvalue ignored).
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import karate_club
-    >>> adjacency = karate_club()
-    >>> spectral = Spectral(embedding_dimension=2)
+    >>> from sknetwork.toy_graphs import house
+    >>> adjacency = house()
+    >>> spectral = Spectral()
     >>> embedding = spectral.fit(adjacency).embedding_
     >>> embedding.shape
-    (34, 2)
+    (5, 2)
 
     References
     ----------
@@ -71,16 +158,16 @@ class Spectral(Algorithm):
     """
 
     def __init__(self, embedding_dimension: int = 2, normalized_laplacian=True,
-                 regularization: Union[None, float] = 0.01, energy_scaling: bool = True,
-                 force_biadjacency: bool = False, solver: Union[str, EigSolver] = 'auto'):
+                 regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
+                 scaling: Union[None, str] = 'multiply', solver: Union[str, EigSolver] = 'auto'):
         self.embedding_dimension = embedding_dimension
         self.normalized_laplacian = normalized_laplacian
         if regularization == 0:
             self.regularization = None
         else:
             self.regularization = regularization
-        self.energy_scaling = energy_scaling
-        self.force_biadjacency = force_biadjacency
+        self.relative_regularization = relative_regularization
+        self.scaling = scaling
         if solver == 'halko':
             self.solver: EigSolver = HalkoEig(which='SM')
         elif solver == 'lanczos':
@@ -92,75 +179,102 @@ class Spectral(Algorithm):
         self.coembedding_ = None
         self.eigenvalues_ = None
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Spectral':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], force_biadjacency: bool = False) -> 'Spectral':
         """Fits the model from data in adjacency_matrix
 
         Parameters
         ----------
-        adjacency : array-like, shape = (n, p)
+        adjacency :
               Adjacency or biadjacency matrix of the graph.
+        force_biadjacency :
+            If ``True``, force the input matrix to be considered as a biadjacency matrix.
 
         Returns
         -------
         self: :class:`Spectral`
         """
 
-        adjacency = check_format(adjacency)
-        n, p = adjacency.shape
-
-        if p != n or not is_symmetric(adjacency) or self.force_biadjacency:
-            adjacency = bipartite2undirected(adjacency)
-
-        n_ = adjacency.shape[0]
+        adjacency = check_format(adjacency).asfptype()
+        n1, n2 = adjacency.shape
+        adjacency = set_adjacency(adjacency, force_undirected=True, force_biadjacency=force_biadjacency)
+        n = adjacency.shape[0]
 
         if self.solver == 'auto':
             solver = auto_solver(adjacency.nnz)
             if solver == 'lanczos':
-                self.solver: EigSolver = LanczosEig(which='SM')
+                self.solver: EigSolver = LanczosEig()
             else:
-                self.solver: EigSolver = HalkoEig(which='SM')
+                self.solver: EigSolver = HalkoEig()
 
-        if self.embedding_dimension > n_ - 2:
+        if self.embedding_dimension > n - 2:
             warnings.warn(Warning("The dimension of the embedding must be less than the number of nodes - 1."))
-            n_components = n_ - 2
+            n_components = n - 2
         else:
             n_components = self.embedding_dimension + 1
 
-        if self.regularization is None and not is_connected(adjacency):
-            if self.energy_scaling:
-                raise ValueError("The graph is not connected and low-rank regularization is not active."
-                                 "This can cause errors in the computation of the embedding."
-                                 "The parameter energy_scaling must be set to False")
+        if (self.regularization is None or self.regularization == 0.) and not is_connected(adjacency):
+            warnings.warn(Warning("The graph is not connected and low-rank regularization is not active."
+                                  "This can cause errors in the computation of the embedding."))
+
+        if isinstance(self.solver, HalkoEig) and not self.normalized_laplacian:
+            raise NotImplementedError('Halko solver is not yet compatible with unormalized Laplacian.'
+                                      'Please chose normalized Laplacian or force lanczos solver.')
+
+        weights = adjacency.dot(np.ones(n))
+        regularization = self.regularization
+        if regularization:
+            if self.relative_regularization:
+                regularization = regularization * weights.sum() / n**2
+            weights += regularization * n
+
+        if self.normalized_laplacian:
+            # Finding the largest eigenvectors of the normalized adjacency is easier for the solver than finding the
+            # smallest ones of the normalized laplacian.
+            normalizing_matrix = sparse.diags(np.sqrt(weights), format='csr')
+            normalizing_matrix.data = 1 / normalizing_matrix.data
+
+            if regularization:
+                norm_adjacency = NormalizedAdjacencyOperator(adjacency, regularization)
             else:
-                warnings.warn(Warning("The graph is not connected and low-rank regularization is not active."
-                                      "This can cause errors in the computation of the embedding."))
+                norm_adjacency = normalizing_matrix.dot(adjacency.dot(normalizing_matrix))
 
-        if self.regularization:
-            adjacency = SparseLR(adjacency, [(self.regularization * np.ones(n_), np.ones(n_))])
+            self.solver.which = 'LA'
+            self.solver.fit(matrix=norm_adjacency, n_components=n_components)
+            self.solver.eigenvalues_ = 1 - self.solver.eigenvalues_
+            # eigenvalues of the laplacian by increasing order
+            index = np.argsort(self.solver.eigenvalues_)
+            self.eigenvalues_ = self.solver.eigenvalues_[index][1:]
+            self.embedding_ = self.solver.eigenvectors_[:, index][:, 1:]
+            self.embedding_ = np.array(normalizing_matrix.dot(self.embedding_))
 
-        # builds standard Laplacian
-        degrees = adjacency.dot(np.ones(adjacency.shape[1]))
-        degree_matrix = sparse.diags(degrees, format='csr')
-        laplacian = -(adjacency - degree_matrix)
+        else:
+            if regularization:
+                laplacian = LaplacianOperator(adjacency, regularization)
+            else:
+                weight_matrix = sparse.diags(weights, format='csr')
+                laplacian = weight_matrix - adjacency
 
-        # applies normalization of the Laplacian
-        if self.normalized_laplacian:
-            inv_sqrt_degree_matrix = sparse.diags(np.sqrt(degrees), format='csr')
-            inv_sqrt_degree_matrix.data = 1 / inv_sqrt_degree_matrix.data
-            laplacian = safe_sparse_dot(inv_sqrt_degree_matrix, safe_sparse_dot(laplacian, inv_sqrt_degree_matrix))
+            self.solver.which = 'SM'
+            self.solver.fit(matrix=laplacian, n_components=n_components)
+            self.eigenvalues_ = self.solver.eigenvalues_[1:]
+            self.embedding_ = self.solver.eigenvectors_[:, 1:]
 
-        self.solver.fit(laplacian, n_components)
-
-        self.eigenvalues_ = self.solver.eigenvalues_[1:]
-        self.embedding_ = self.solver.eigenvectors_[:, 1:]
-        if self.normalized_laplacian:
-            self.embedding_ = np.array(inv_sqrt_degree_matrix.dot(self.embedding_))
-
-        if self.energy_scaling and self.normalized_laplacian:
-            self.embedding_ /= np.sqrt(self.eigenvalues_)
-
-        if n_ > n:
-            self.coembedding_ = self.embedding_[n:]
-            self.embedding_ = self.embedding_[:n]
+        if self.scaling:
+            if self.scaling == 'multiply':
+                if self.normalized_laplacian:
+                    self.eigenvalues_ = np.minimum(self.eigenvalues_, 1)
+                    self.embedding_ *= np.sqrt(1 - self.eigenvalues_)
+                else:
+                    self.embedding_ *= np.sqrt(abs(self.eigenvalues_))
+            elif self.scaling == 'divide':
+                inv_eigenvalues = np.zeros(len(self.eigenvalues_))
+                index = np.where(self.eigenvalues_ > 0)[0]
+                inv_eigenvalues[index] = 1 / self.eigenvalues_[index]
+                self.embedding_ *= np.sqrt(inv_eigenvalues)
+            else:
+                warnings.warn(Warning("The scaling must be 'multiply' or 'divide'. No scaling done."))
+        if n > n1:
+            self.coembedding_ = self.embedding_[n1:]
+            self.embedding_ = self.embedding_[:n1]
 
         return self

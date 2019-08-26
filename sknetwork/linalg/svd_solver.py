@@ -6,13 +6,15 @@ Created on July 10 2019
 Authors:
 Nathan De Lara <nathan.delara@telecom-paris.fr>
 """
+from typing import Union
+
 import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import svds
-from sknetwork.utils.algorithm_base_class import Algorithm
+
 from sknetwork.linalg import SparseLR
 from sknetwork.linalg.randomized_matrix_factorization import randomized_svd
-from typing import Union
+from sknetwork.utils.algorithm_base_class import Algorithm
 
 
 class SVDSolver(Algorithm):
@@ -87,9 +89,11 @@ class LanczosSVD(SVDSolver):
         self: :class:`SVDSolver`
         """
         u, s, vt = svds(matrix.astype(np.float), n_components)
-        self.left_singular_vectors_ = u
-        self.right_singular_vectors_ = vt.T
-        self.singular_values_ = s
+        # order the singular values by decreasing order
+        index = np.argsort(s)[::-1]
+        self.left_singular_vectors_ = u[:, index]
+        self.right_singular_vectors_ = vt.T[:, index]
+        self.singular_values_ = s[index]
 
         return self
 
