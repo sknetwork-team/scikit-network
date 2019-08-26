@@ -71,7 +71,7 @@ class RandomSurferOperator(LinearOperator):
         Scaled restart probability vector.
 
     """
-    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float=0.85, personalization=None):
+    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float = 0.85, personalization=None):
         LinearOperator.__init__(self, shape=adjacency.shape, dtype=float)
         n = adjacency.shape[0]
 
@@ -99,7 +99,7 @@ class PageRank(Algorithm):
     damping_factor : float
         Probability to continue the random walk.
     solver : str
-        Which solver to use: 'spsolve', 'lanczos' or 'halko'.
+        Which solver to use: 'spsolve', 'lanczos' (default) or 'halko'.
 
     Attributes
     ----------
@@ -119,7 +119,7 @@ class PageRank(Algorithm):
     Page, L., Brin, S., Motwani, R., & Winograd, T. (1999). The PageRank citation ranking: Bringing order to the web.
     Stanford InfoLab.
     """
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'spsolve'):
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos'):
         if damping_factor < 0 or damping_factor >= 1:
             raise ValueError('Damping factor must be between 0 and 1.')
         else:
