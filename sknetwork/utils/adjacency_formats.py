@@ -121,21 +121,28 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
 
 
 def set_adjacency(adjacency: sparse.csr_matrix, force_undirected: bool, force_biadjacency: bool) -> sparse.csr_matrix:
-    """Transform adjacency to match algorithms requirements.
+    """Transform the input matrix :math:`A` to a (square) adjacency matrix, given by:
+
+    * :math:`\\begin{bmatrix} 0 & A \\\\ 0 & 0 \\end{bmatrix}` if :math:`A` is not square or **force_biadjacency** is ``True``
+
+    * :math:`\\begin{bmatrix} 0 & A \\\\ A^T & 0 \\end{bmatrix}` if in addition, **force_undirected** is ``True``
+
+    * :math:`A + A^T` if :math:`A` is square, **force_biadjacency** is ``False`` and **force_undirected** is ``True``
+
+    * :math:`A` otherwise
 
     Parameters
     ----------
     adjacency:
-        Input matrix.
+        Adjacency of biadjacency matrix of the graph.
     force_undirected:
-        If the adjacency is not already symmetric and force_biadjacency==False, returns A+A^T.
-    force_biadjacency:
-        If True, returns the mirror adjacency even for square matrices.
+        If ``True``, consider the graph as undirected.
+    force_biadjacency :
+        If ``True``, consider the input matrix as a biadjacency matrix.
 
     Returns
     -------
-        The modified adjacency.
-
+    Adjacency matrix (symmetric).
     """
 
     n1, n2 = adjacency.shape
@@ -161,15 +168,20 @@ def set_adjacency_weights(adjacency: sparse.csr_matrix, weights: Union[str, np.n
 
     Parameters
     ----------
-    adjacency
-    weights
-    secondary_weights
-    force_undirected
-    force_biadjacency
+    adjacency :
+        Adjacency or biadjacency matrix of the graph.
+    weights :
+        Weights of nodes.
+    secondary_weights :
+        Weights of secondary nodes (for bipartite graphs).
+    force_undirected :
+        If ``True``, consider the graph as undirected.
+    force_biadjacency :
+        If ``True``, consider the input matrix as a biadjacency matrix.
 
     Returns
     -------
-        adjacency, weights, secondary_weights
+        adjacency, weights, secondary_weights : Tuple[sparse.csr_matrix, np.ndarray, np.ndarray]
 
     """
 
