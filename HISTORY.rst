@@ -3,7 +3,7 @@ History
 =======
 
 0.10.0 (2019-08-26)
-------------------
+-------------------
 
 * Clustering (and related metrics) for directed and bipartite graphs
 * Hierarchical clustering (and related metrics) for directed and bipartite graphs
