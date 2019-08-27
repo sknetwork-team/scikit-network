@@ -18,6 +18,7 @@ class TestDiffusion(unittest.TestCase):
         self.karate_club = karate_club()
         self.painters = painters(return_labels=False)
         self.star_wars = star_wars_villains(return_labels=False)
+        self.tol = 1e-6
 
     def test_unknown_types(self):
         with self.assertRaises(ValueError):
@@ -31,17 +32,17 @@ class TestDiffusion(unittest.TestCase):
         adjacency: sparse.csr_matrix = karate_club()
         self.diffusion.fit(adjacency, {0: 0, 1: 1, 2: -1})
         score = self.diffusion.score_
-        self.assertTrue(np.all(score <= 1) and np.all(score >= -1))
+        self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= -1 - self.tol))
 
     def test_directed(self):
         adjacency: sparse.csr_matrix = self.painters
         self.diffusion.fit(adjacency, {0: 0, 1: 1, 2: -1})
         score = self.diffusion.score_
-        self.assertTrue(np.all(score <= 1) and np.all(score >= -1))
+        self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= -1 - self.tol))
 
     def test_bipartite(self):
         biadjacency: sparse.csr_matrix = self.star_wars
         self.diffusion.fit(biadjacency, {0: 0, 1: 1, 2: -1})
         score = self.diffusion.score_
-        self.assertTrue(np.all(score <= 1) and np.all(score >= -1))
+        self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= -1 - self.tol))
 

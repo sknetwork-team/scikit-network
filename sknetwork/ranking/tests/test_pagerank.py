@@ -17,6 +17,7 @@ class TestPageRank(unittest.TestCase):
         self.miserables = miserables()
         self.pagerank_sps = PageRank(solver='spsolve')
         self.pagerank_lcz = PageRank(solver='lanczos')
+        self.pagerank_lsq = PageRank(solver='lsqr')
         # self.pagerank_hlk = PageRank(solver='halko')
         self.pagerank_high_damping = PageRank(damping_factor=0.99)
         self.bipartite = random_bipartite_graph()
@@ -36,6 +37,10 @@ class TestPageRank(unittest.TestCase):
 
         self.pagerank_lcz.fit(self.adjacency)
         score = self.pagerank_lcz.score_
+        self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0.)
+
+        self.pagerank_lsq.fit(self.adjacency)
+        score = self.pagerank_lsq.score_
         self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0.)
 
         # self.pagerank_hlk.fit(self.adjacency)

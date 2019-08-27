@@ -10,7 +10,7 @@ from typing import Union, Optional
 
 import numpy as np
 from scipy import sparse
-from scipy.sparse.linalg import eigs, LinearOperator, spsolve
+from scipy.sparse.linalg import eigs, LinearOperator, lsqr, spsolve
 
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_square
@@ -99,7 +99,7 @@ class PageRank(Algorithm):
     damping_factor : float
         Probability to continue the random walk.
     solver : str
-        Which solver to use: 'spsolve', 'lanczos' (default) or 'halko'.
+        Which solver to use: 'spsolve', 'lanczos' (default), 'lsqr' or 'halko'.
 
     Attributes
     ----------
@@ -159,6 +159,8 @@ class PageRank(Algorithm):
                 x = spsolve(sparse.eye(n, format='csr') - rso.a, rso.b)
             elif self.solver == 'lanczos':
                 _, x = sparse.linalg.eigs(rso, k=1)
+            elif self.solver == 'lsqr':
+                x = lsqr(sparse.eye(n, format='csr') - rso.a, rso.b)[0]
             else:
                 raise NotImplementedError('Other solvers are not yet available.')
 

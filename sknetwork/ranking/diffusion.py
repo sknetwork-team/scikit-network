@@ -9,7 +9,7 @@ from typing import Union
 
 import numpy as np
 from scipy import sparse
-from scipy.sparse.linalg import spsolve
+from scipy.sparse.linalg import lsqr, spsolve
 
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, is_square
@@ -20,6 +20,11 @@ class Diffusion(Algorithm):
     """
     Computes the temperature of each node, associated with the diffusion along the edges (heat equation).
 
+    Parameters
+    ----------
+    solver : str
+        Which solver to use: 'spsolve' or 'lsqr' (default).
+
     Attributes
     ----------
     score_ : np.ndarray
@@ -28,7 +33,7 @@ class Diffusion(Algorithm):
     Example
     -------
     >>> from sknetwork.toy_graphs import house
-    >>> diffusion = Diffusion()
+    >>> diffusion = Diffusion(solver='spsolve')
     >>> adjacency = house()
     >>> personalization = {0: 0, 1: 1}
     >>> np.round(diffusion.fit(adjacency, personalization).score_, 2)
@@ -39,7 +44,9 @@ class Diffusion(Algorithm):
     Chung, F. (2007). The heat kernel as the pagerank of a graph. Proceedings of the National Academy of Sciences.
     """
 
-    def __init__(self):
+    def __init__(self, solver: str = 'lsqr'):
+        self.solver = solver
+
         self.score_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
@@ -66,8 +73,8 @@ class Diffusion(Algorithm):
         n: int = adjacency.shape[0]
 
         if adjacency.nnz:
-            b = np.zeros(n)
-            border = np.zeros(n)
+            b: np.ndarray = np.zeros(n)
+            border: np.ndarray = np.zeros(n)
             if type(personalization) == dict:
                 b[list(personalization.keys())] = list(personalization.values())
                 border[list(personalization.keys())] = 1
@@ -84,7 +91,12 @@ class Diffusion(Algorithm):
             diffusion_matrix = interior.dot(diag_out.dot(adjacency))
 
             a = sparse.eye(n, format='csr') - diffusion_matrix
-            self.score_ = spsolve(a, b)
+            if self.solver == 'spsolve':
+                self.score_ = spsolve(a, b)
+            elif self.solver == 'lsqr':
+                self.score_ = lsqr(a, b)[0]
+            else:
+                raise ValueError('Unknown solver.')
 
         else:
             self.score_ = np.zeros(n)
