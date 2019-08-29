@@ -97,6 +97,7 @@ class Diffusion(Algorithm):
                 self.score_ = lsqr(a, b)[0]
             else:
                 raise ValueError('Unknown solver.')
+            self.score_ = np.clip(self.score_, b.min(), b.max())
 
         else:
             self.score_ = np.zeros(n)
