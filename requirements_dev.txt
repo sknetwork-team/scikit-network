@@ -9,8 +9,8 @@ coverage==4.5.4
 twine==1.13.0
 numba==0.45.1
 nbsphinx==0.4.2
-ipython==7.7.0
+ipython==7.8.0
 
 pytest-runner==5.1
-pytest==5.1.1
+pytest==5.1.2
 
