@@ -13,29 +13,10 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork import njit
-from sknetwork.clustering.post_processing import reindex_clusters
+from sknetwork.clustering.post_processing import membership_matrix, reindex_clusters
 from sknetwork.utils.adjacency_formats import set_adjacency_weights, directed2undirected
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, check_engine, check_random_state
-
-
-def membership_matrix(labels: np.ndarray) -> sparse.csr_matrix:
-    """
-    Builds a n x k matrix of the label assignments, with k the number of labels.
-
-    Parameters
-    ----------
-    labels :
-        Label of each node.
-
-    Returns
-    -------
-    membership :
-        Binary matrix of label assignments.
-
-    """
-    n_nodes = len(labels)
-    return sparse.csr_matrix((np.ones(n_nodes), (np.arange(n_nodes), labels)))
 
 
 class AggregateGraph:
@@ -297,7 +278,7 @@ class GreedyModularity(Optimizer):
                     weights: np.ndarray = data[indptr[node]:indptr[node + 1]]
 
                     neighbors_clusters: np.ndarray = labels[neighbors]
-                    unique_clusters: list = list(set(neighbors_clusters.tolist()) - {node_cluster})
+                    unique_clusters: list = list(set(neighbors_clusters) - {node_cluster})
                     n_clusters: int = len(unique_clusters)
 
                     out_ratio = self.resolution * out_node_probs[node]
