@@ -11,7 +11,7 @@ from scipy import sparse
 
 def membership_matrix(labels: np.ndarray, dtype=bool) -> sparse.csr_matrix:
     """
-    Builds a n x k matrix of the label assignments, with k the number of labels.
+    Build a n x k matrix of the label assignments, with k the number of labels.
 
     Parameters
     ----------
@@ -24,6 +24,10 @@ def membership_matrix(labels: np.ndarray, dtype=bool) -> sparse.csr_matrix:
     -------
     membership :
         Binary matrix of label assignments.
+
+    Notes
+    -----
+    The inverse operation is simply ``labels = membership.indices``.
 
     """
     n_nodes = len(labels)

@@ -22,3 +22,10 @@ Louvain
 Metrics
 -------
 .. autofunction:: sknetwork.clustering.modularity
+
+Post-processing
+---------------
+.. autofunction:: sknetwork.clustering.post_processing.membership_matrix
+
+.. autofunction:: sknetwork.clustering.post_processing.reindex_clusters
+
