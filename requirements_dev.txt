@@ -6,7 +6,7 @@ flake8==3.7.8
 tox==3.14.0
 Sphinx==2.2.0
 coverage==4.5.4
-twine==1.14.0
+twine==1.15.0
 numba==0.45.1
 nbsphinx==0.4.2
 ipython==7.8.0
