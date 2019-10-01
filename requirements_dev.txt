@@ -8,7 +8,7 @@ Sphinx==2.2.0
 coverage==4.5.4
 twine==2.0.0
 numba==0.45.1
-nbsphinx==0.4.2
+nbsphinx==0.4.3
 ipython==7.8.0
 
 pytest-runner==5.1
