@@ -103,7 +103,7 @@ class RandomSurferOperator(LinearOperator):
 
 class PageRank(Algorithm):
     """
-    Computes the PageRank of each node, corresponding to its frequency of visit by a random walk.
+    Compute the PageRank of each node, corresponding to its frequency of visit by a random walk.
 
     The random walk restarts with some fixed probability. The restart distribution can be personalized by the user.
     This variant is known as Personalized PageRank.

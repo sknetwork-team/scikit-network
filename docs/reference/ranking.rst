@@ -10,12 +10,15 @@ score to each node of the graph.
 
 PageRank
 --------
-.. automodule:: sknetwork.ranking
-
 .. autoclass:: sknetwork.ranking.PageRank
     :members:
 
 Diffusion
 ---------
 .. autoclass:: sknetwork.ranking.Diffusion
+    :members:
+
+HITS
+----
+.. autoclass:: sknetwork.ranking.HITS
     :members:

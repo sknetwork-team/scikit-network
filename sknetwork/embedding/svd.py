@@ -37,6 +37,13 @@ class SVD(Algorithm):
         If ``True``, consider the regularization as relative to the total weight of the graph.
     scaling:  ``None`` or ``'multiply'`` or ``'divide'`` (default = ``'multiply'``)
         If ``'multiply'``, multiply by the singular values .
+    solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
+        Which singular value solver to use.
+
+        * ``'auto'`` call the auto_solver function.
+        * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
+        * ``'lanczos'``: power-iteration based method.
+        * :class:`SVDSolver`: custom solver.
 
     Attributes
     ----------
