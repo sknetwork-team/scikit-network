@@ -20,6 +20,7 @@ class TestPageRank(unittest.TestCase):
         self.pagerank_lsq = PageRank(solver='lsqr')
         # self.pagerank_hlk = PageRank(solver='halko')
         self.pagerank_high_damping = PageRank(damping_factor=0.99)
+        self.pagerank_fb = PageRank(fb_mode=True)
         self.bipartite = random_bipartite_graph()
 
     def test_pagerank(self):
@@ -43,6 +44,10 @@ class TestPageRank(unittest.TestCase):
         score = self.pagerank_lsq.score_
         self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0.)
 
+        self.pagerank_fb.fit(self.adjacency)
+        score = self.pagerank_fb.score_
+        self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0.)
+
         # self.pagerank_hlk.fit(self.adjacency)
         # score = self.pagerank_hlk.score_
         # self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0.)
@@ -54,5 +59,9 @@ class TestPageRank(unittest.TestCase):
     def test_bipartite(self):
         biadjacency = self.bipartite
         self.pagerank_sps.fit(biadjacency, {0: 1})
+        score = self.pagerank_sps.score_
+        self.assertEqual(len(score), 9)
+
+        self.pagerank_fb.fit(biadjacency, {0: 1})
         score = self.pagerank_sps.score_
         self.assertEqual(len(score), 9)

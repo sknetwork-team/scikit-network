@@ -62,6 +62,9 @@ class RandomSurferOperator(LinearOperator):
     personalization :
         If ``None``, the uniform distribution is used.
         Otherwise, a non-negative, non-zero vector or a dictionary must be provided.
+    fb_mode :
+        Forward-Backward mode. If ``True``, the random surfer performs two consecutive jumps, the first one follows the
+        direction of the edges, while the second one goes in the opposite direction.
 
     Attributes
     ----------
@@ -71,16 +74,27 @@ class RandomSurferOperator(LinearOperator):
         Scaled restart probability vector.
 
     """
-    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float = 0.85, personalization=None):
+    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float = 0.85, personalization=None,
+                 fb_mode: bool = False):
+        n1, n2 = adjacency.shape
+        restart_prob: np.ndarray = restart_probability(n1, personalization)
+
+        if fb_mode:
+            restart_prob = np.hstack((restart_prob, np.zeros(n2)))
+            adjacency = bipartite2undirected(adjacency)
+
         LinearOperator.__init__(self, shape=adjacency.shape, dtype=float)
         n = adjacency.shape[0]
+        damping_matrix = damping_factor * sparse.eye(n, format='csr')
+
+        if fb_mode:
+            damping_matrix.data[n1:] = 1
 
         out_degrees = adjacency.dot(np.ones(n))
         diag_out = sparse.diags(out_degrees, format='csr')
         diag_out.data = 1. / diag_out.data
-        self.a = damping_factor * adjacency.T.dot(diag_out)
 
-        restart_prob = restart_probability(n, personalization)
+        self.a = (damping_matrix.dot(diag_out).dot(adjacency)).T.tocsr()
         self.b = (np.ones(n) - damping_factor * out_degrees.astype(bool)) * restart_prob
 
     def _matvec(self, x):
@@ -100,6 +114,9 @@ class PageRank(Algorithm):
         Probability to continue the random walk.
     solver : str
         Which solver to use: 'spsolve', 'lanczos' (default), 'lsqr' or 'halko'.
+    fb_mode :
+        Forward-Backward mode. If ``True``, the random surfer performs two consecutive jumps, the first one follows the
+        direction of the edges, while the second one goes in the opposite direction.
 
     Attributes
     ----------
@@ -119,12 +136,13 @@ class PageRank(Algorithm):
     Page, L., Brin, S., Motwani, R., & Winograd, T. (1999). The PageRank citation ranking: Bringing order to the web.
     Stanford InfoLab.
     """
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos'):
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', fb_mode: bool = False):
         if damping_factor < 0 or damping_factor >= 1:
             raise ValueError('Damping factor must be between 0 and 1.')
         else:
             self.damping_factor = damping_factor
         self.solver = solver
+        self.fb_mode = fb_mode
 
         self.score_ = None
 
@@ -148,12 +166,12 @@ class PageRank(Algorithm):
         self: :class: 'PageRank'
         """
         adjacency = check_format(adjacency)
-        if not is_square(adjacency) or force_biadjacency:
+        if not self.fb_mode and (not is_square(adjacency) or force_biadjacency):
             adjacency = bipartite2undirected(adjacency)
         n: int = adjacency.shape[0]
 
         if adjacency.nnz:
-            rso = RandomSurferOperator(adjacency, self.damping_factor, personalization)
+            rso = RandomSurferOperator(adjacency, self.damping_factor, personalization, self.fb_mode)
 
             if self.solver == 'spsolve':
                 x = spsolve(sparse.eye(n, format='csr') - rso.a, rso.b)
@@ -164,7 +182,7 @@ class PageRank(Algorithm):
             else:
                 raise NotImplementedError('Other solvers are not yet available.')
 
-            x = abs(x.flatten().real)
+            x = abs(x[:n].flatten().real)
             self.score_ = x / x.sum()
 
         else:
