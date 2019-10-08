@@ -31,6 +31,10 @@ Cuts
 .. autofunction:: sknetwork.hierarchy.straight_cut
 
 
+Aggregation
+-----------
+.. autofunction:: sknetwork.hierarchy.aggregate_dendrogram
+
 
 Metrics
 -------
