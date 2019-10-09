@@ -12,7 +12,6 @@ The attribute ``.embedding_`` assigns a vector to each node of the graph.
 
 Spectral
 --------
-.. automodule:: sknetwork.embedding
 
 .. autoclass:: sknetwork.embedding.Spectral
     :members:

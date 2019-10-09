@@ -45,4 +45,13 @@ Checks
 .. autofunction:: sknetwork.utils.checks.check_random_state
 
 
+Algorithms
+----------
+
+.. autoclass:: sknetwork.utils.kmeans.KMeans
+    :members:
+
+.. autofunction:: sknetwork.utils.projection_simplex.projection_simplex
+
+
 
