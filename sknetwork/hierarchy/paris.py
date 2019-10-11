@@ -131,7 +131,7 @@ def reorder_dendrogram(dendrogram: np.ndarray) -> np.ndarray:
     dendrogram: np.ndarray
         Reordered dendrogram.
     """
-    n_nodes = np.shape(dendrogram)[0] + 1
+    n_nodes = dendrogram.shape[0] + 1
     order = np.zeros((2, n_nodes - 1), float)
     order[0] = np.arange(n_nodes - 1)
     order[1] = np.array(dendrogram)[:, 2]

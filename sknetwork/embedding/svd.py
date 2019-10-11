@@ -126,7 +126,7 @@ class SVD(Algorithm):
         regularization = self.regularization
         if regularization:
             if self.relative_regularization:
-                regularization = regularization * total_weight / n1 / n2
+                regularization = regularization * total_weight / (n1 * n2)
             adjacency = SparseLR(adjacency, [(regularization * np.ones(n1), np.ones(n2))])
 
         w_samp = check_weights(self.weights, adjacency)
