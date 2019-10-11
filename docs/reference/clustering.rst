@@ -11,12 +11,15 @@ The attribute ``.labels_``  assigns a label (cluster index) to each node of the 
 
 Louvain
 -------
-.. automodule:: sknetwork.clustering
-
 .. autoclass:: sknetwork.clustering.Louvain
     :members:
 
 .. autoclass:: sknetwork.clustering.GreedyModularity
+    :members:
+
+Spectral
+--------
+.. autoclass:: sknetwork.clustering.SpectralClustering
     :members:
 
 Metrics
