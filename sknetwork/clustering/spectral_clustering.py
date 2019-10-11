@@ -29,6 +29,8 @@ class SpectralClustering(Algorithm):
         Method for clustering, can be ``'kmeans'`` or a custom ``Algorithm``.
     embedding_algo:
         Method for embedding, can be ``'svd'``, ``'spectral'`` or a custom ``Algorithm``.
+    l2normalization:
+        If ``True``, each row of the embedding is projected onto the L2-sphere before applying the clustering algorithm.
 
     Attributes
     ----------
@@ -38,7 +40,8 @@ class SpectralClustering(Algorithm):
     """
 
     def __init__(self, n_clusters: int = 8, embedding_dimension: int = 16,
-                 clustering_algo: Union[str, Algorithm] = 'kmeans', embedding_algo: Union[str, Algorithm] = 'svd'):
+                 clustering_algo: Union[str, Algorithm] = 'kmeans', embedding_algo: Union[str, Algorithm] = 'svd',
+                 l2normalization: bool = True):
         self.n_clusters = n_clusters
         self.embedding_dimension = embedding_dimension
 
@@ -58,6 +61,8 @@ class SpectralClustering(Algorithm):
         else:
             raise ValueError('embedding algo must be either "svd", "spectral" or a custom Algorithm object.')
 
+        self.l2normalization = l2normalization
+
         self.labels_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'SpectralClustering':
@@ -75,6 +80,10 @@ class SpectralClustering(Algorithm):
         """
         adjacency = check_format(adjacency)
         self.embedding_algo.fit(adjacency)
+        if self.l2normalization:
+            norm = np.linalg.norm(self.embedding_algo.embedding_, axis=1)
+            norm[norm == 0.] = 1
+            self.embedding_algo.embedding_ /= norm[:, np.newaxis]
         self.clustering_algo.fit(self.embedding_algo.embedding_)
 
         self.labels_ = self.clustering_algo.labels_
