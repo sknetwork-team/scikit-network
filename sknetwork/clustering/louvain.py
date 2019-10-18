@@ -458,11 +458,11 @@ class Louvain(Algorithm):
         """
         adjacency = check_format(adjacency)
         n1, n2 = adjacency.shape
-        if custom_weights:
+        if custom_weights is not None:
             weights = custom_weights
         else:
             weights = self.weights
-        if custom_secondary_weights:
+        if custom_secondary_weights is not None:
             secondary_weights = custom_secondary_weights
         else:
             secondary_weights = self.secondary_weights
