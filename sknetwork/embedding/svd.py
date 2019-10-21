@@ -21,7 +21,7 @@ class SVD(Algorithm):
     """
     Graph embedding by Generalized Singular Value Decomposition.
 
-    Setting **weights** and **secondary_weights** to ``'uniform'`` leads to the standard SVD.
+    Setting **weights** and **col_weights** to ``'uniform'`` leads to the standard SVD.
 
     Parameters
     -----------
@@ -49,7 +49,7 @@ class SVD(Algorithm):
     ----------
     embedding_ : np.ndarray, shape = (n1, embedding_dimension)
         Embedding of the nodes (rows of the adjacency matrix).
-    coembedding_ : np.ndarray, shape = (n2, embedding_dimension)
+    col_embedding_ : np.ndarray, shape = (n2, embedding_dimension)
         Embedding of the feature nodes (columns of the adjacency matrix).
     singular_values_ : np.ndarray, shape = (embedding_dimension)
         Generalized singular values of the adjacency matrix (first singular value ignored).
@@ -85,7 +85,7 @@ class SVD(Algorithm):
         if scaling == 'divide':
             if weights != 'degree' or secondary_weights != 'degree':
                 warnings.warn(Warning("The scaling 'divide' is valid only with ``weights = 'degree'`` and "
-                                      "``secondary_weights = 'degree'``. It will be ignored."))
+                                      "``col_weights = 'degree'``. It will be ignored."))
 
         if solver == 'halko':
             self.solver: SVDSolver = HalkoSVD()
@@ -95,7 +95,7 @@ class SVD(Algorithm):
             self.solver = solver
 
         self.embedding_ = None
-        self.coembedding_ = None
+        self.col_embedding_ = None
         self.singular_values_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'SVD':
@@ -153,7 +153,7 @@ class SVD(Algorithm):
         index = np.argsort(-self.solver.singular_values_)
         self.singular_values_ = self.solver.singular_values_[index[1:]]
         self.embedding_ = np.sqrt(total_weight) * diag_samp.dot(self.solver.left_singular_vectors_[:, index[1:]])
-        self.coembedding_ = np.sqrt(total_weight) * diag_feat.dot(self.solver.right_singular_vectors_[:, index[1:]])
+        self.col_embedding_ = np.sqrt(total_weight) * diag_feat.dot(self.solver.right_singular_vectors_[:, index[1:]])
 
         # rescale to get barycenter property
         self.embedding_ *= self.singular_values_
@@ -165,6 +165,6 @@ class SVD(Algorithm):
                 energy_levels: np.ndarray = np.sqrt(1 - np.clip(self.singular_values_, 0, 1) ** 2)
                 energy_levels[energy_levels > 0] = 1 / energy_levels[energy_levels > 0]
                 self.embedding_ *= energy_levels
-                self.coembedding_ *= energy_levels
+                self.col_embedding_ *= energy_levels
 
         return self

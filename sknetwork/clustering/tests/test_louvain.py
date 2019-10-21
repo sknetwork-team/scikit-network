@@ -77,7 +77,7 @@ class TestLouvainClustering(unittest.TestCase):
     def test_bipartite(self):
         self.louvain.fit(self.star_wars)
         labels = self.louvain.labels_
-        feature_labels = self.louvain.secondary_labels_
+        feature_labels = self.louvain.col_labels_
         self.assertEqual(labels.shape, (4,))
         self.assertEqual(feature_labels.shape, (3,))
         if is_numba_available:

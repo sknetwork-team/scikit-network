@@ -135,7 +135,7 @@ class Spectral(Algorithm):
     ----------
     embedding_ : array, shape = (n, embedding_dimension)
         Embedding of the nodes.
-    coembedding_ : array, shape = (p, embedding_dimension)
+    col_embedding_ : array, shape = (p, embedding_dimension)
         Co-embedding of the feature nodes.
         Only relevant for an asymmetric input matrix or if **force_biadjacency** = ``True``.
     eigenvalues_ : array, shape = (embedding_dimension)
@@ -176,7 +176,7 @@ class Spectral(Algorithm):
             self.solver = solver
 
         self.embedding_ = None
-        self.coembedding_ = None
+        self.col_embedding_ = None
         self.eigenvalues_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], force_biadjacency: bool = False) -> 'Spectral':
@@ -274,7 +274,7 @@ class Spectral(Algorithm):
             else:
                 warnings.warn(Warning("The scaling must be 'multiply' or 'divide'. No scaling done."))
         if n > n1:
-            self.coembedding_ = self.embedding_[n1:]
+            self.col_embedding_ = self.embedding_[n1:]
             self.embedding_ = self.embedding_[:n1]
 
         return self

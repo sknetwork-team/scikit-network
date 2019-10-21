@@ -328,7 +328,7 @@ class Paris(Algorithm):
     weights :
             Weights of nodes.
             ``'degree'`` (default) or ``'uniform'``.
-    secondary_weights :
+    col_weights :
         Weights of secondary nodes (for bipartite graphs).
         ``None`` (default), ``'degree'`` or ``'uniform'``.
         If ``None``, taken equal to weights.
@@ -373,17 +373,17 @@ class Paris(Algorithm):
 
     """
 
-    def __init__(self, engine: str = 'default', weights: str = 'degree', secondary_weights: Union[None, str] = None,
+    def __init__(self, engine: str = 'default', weights: str = 'degree', col_weights: Union[None, str] = None,
                  force_undirected: bool = False, reorder: bool = True):
         self.weights = weights
-        self.secondary_weights = secondary_weights
+        self.col_weights = col_weights
         self.force_undirected = force_undirected
         self.engine = check_engine(engine)
         self.reorder = reorder
         self.dendrogram_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], custom_weights: Union[None, np.ndarray] = None,
-            custom_secondary_weights: Union[None, np.ndarray] = None, force_biadjacency: bool = False) -> 'Paris':
+            custom_col_weights: Union[None, np.ndarray] = None, force_biadjacency: bool = False) -> 'Paris':
         """
         Agglomerative clustering using the nearest neighbor chain.
 
@@ -393,7 +393,7 @@ class Paris(Algorithm):
             Adjacency or biadjacency matrix of the graph.
         custom_weights :
             Array of input dependent node weights.
-        custom_secondary_weights :
+        custom_col_weights :
             Array of input dependent weights of secondary nodes (for bipartite graphs).
         force_biadjacency : bool (default= ``False``)
             If ``True``, force the input matrix to be considered as a biadjacency matrix.
@@ -407,11 +407,11 @@ class Paris(Algorithm):
             weights = custom_weights
         else:
             weights = self.weights
-        if custom_secondary_weights:
-            secondary_weights = custom_secondary_weights
+        if custom_col_weights:
+            col_weights = custom_col_weights
         else:
-            secondary_weights = self.secondary_weights
-        adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, secondary_weights,
+            col_weights = self.col_weights
+        adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, col_weights,
                                                                    self.force_undirected, force_biadjacency)
         n = adjacency.shape[0]
         if n <= 1:

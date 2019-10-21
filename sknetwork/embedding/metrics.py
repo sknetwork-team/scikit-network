@@ -62,7 +62,7 @@ def linear_fit(adjacency: Union[sparse.csr_matrix, np.ndarray], embedding: np.nd
     return fit, div
 
 
-def dot_modularity(adjacency, embedding: np.ndarray, coembedding=None, resolution=1., weights='degree',
+def dot_modularity(adjacency, embedding: np.ndarray, col_embedding=None, resolution=1., weights='degree',
                    return_all: bool = False):
     """
     Quality metric of an embedding :math:`x` defined by:
@@ -79,8 +79,8 @@ def dot_modularity(adjacency, embedding: np.ndarray, coembedding=None, resolutio
         Adjacency matrix of the graph.
     embedding: np.ndarray
         Embedding of the nodes.
-    coembedding: None or np.ndarray
-        For bipartite graphs, coembedding of features.
+    col_embedding: None or np.ndarray
+        For bipartite graphs, col_embedding of features.
     resolution: float
         Resolution parameter.
     weights: ``'degree'`` or ``'uniform'``
@@ -96,14 +96,14 @@ def dot_modularity(adjacency, embedding: np.ndarray, coembedding=None, resolutio
     n_nodes, m_nodes = adjacency.shape
     total_weight: float = adjacency.data.sum()
 
-    if coembedding is None:
+    if col_embedding is None:
         if n_nodes != m_nodes:
-            raise ValueError('coembedding cannot be None for non-square adjacency matrices.')
+            raise ValueError('col_embedding cannot be None for non-square adjacency matrices.')
         else:
             normalization = np.linalg.norm(embedding) ** 2 / np.sqrt(n_nodes * m_nodes)
-            coembedding = embedding
+            col_embedding = embedding
     else:
-        normalization = np.linalg.norm(embedding.dot(coembedding.T)) / np.sqrt(n_nodes * m_nodes)
+        normalization = np.linalg.norm(embedding.dot(col_embedding.T)) / np.sqrt(n_nodes * m_nodes)
 
     if weights == 'degree':
         wou = adjacency.dot(np.ones(m_nodes)) / total_weight
@@ -114,8 +114,8 @@ def dot_modularity(adjacency, embedding: np.ndarray, coembedding=None, resolutio
     else:
         raise ValueError('weights must be degree or uniform.')
 
-    fit = (np.multiply(embedding, adjacency.dot(coembedding))).sum() / (total_weight * normalization)
-    diversity = (embedding.T.dot(wou)).dot(coembedding.T.dot(win)) / normalization
+    fit = (np.multiply(embedding, adjacency.dot(col_embedding))).sum() / (total_weight * normalization)
+    diversity = (embedding.T.dot(wou)).dot(col_embedding.T.dot(win)) / normalization
 
     if return_all:
         return fit, diversity, fit - resolution * diversity

@@ -114,7 +114,7 @@ class PageRank(Algorithm):
         Probability to continue the random walk.
     solver : str
         Which solver to use: 'spsolve', 'lanczos' (default), 'lsqr' or 'halko'.
-    fb_mode :
+    fb_mode : bool (default= ``False``)
         Forward-Backward mode. If ``True``, the random surfer performs two consecutive jumps, the first one follows the
         direction of the edges, while the second one goes in the opposite direction.
 
@@ -180,7 +180,7 @@ class PageRank(Algorithm):
             elif self.solver == 'lsqr':
                 x = lsqr(sparse.eye(n, format='csr') - rso.a, rso.b)[0]
             else:
-                raise NotImplementedError('Other solvers are not yet available.')
+                raise NotImplementedError('Solver not available.')
 
             x = abs(x[:n].flatten().real)
             self.score_ = x / x.sum()

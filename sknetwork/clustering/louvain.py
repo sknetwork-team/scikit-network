@@ -353,7 +353,7 @@ class Louvain(Algorithm):
     weights :
             Weights of nodes.
             ``'degree'`` (default), ``'uniform'``.
-    secondary_weights :
+    col_weights :
         Weights of secondary nodes (for bipartite graphs).
         ``None`` (default), ``'degree'``, ``'uniform'``.
         If ``None``, taken equal to weights.
@@ -379,7 +379,7 @@ class Louvain(Algorithm):
     ----------
     labels_ : np.ndarray
         Label of each node.
-    secondary_labels_ : np.ndarray
+    col_labels_ : np.ndarray
         Label of each secondary node (for bipartite graphs).
     iteration_count_ : int
         Total number of aggregations performed.
@@ -408,7 +408,7 @@ class Louvain(Algorithm):
     """
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
-                 weights: str = 'degree', secondary_weights: Union[None, str] = None,
+                 weights: str = 'degree', col_weights: Union[None, str] = None,
                  tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
                  force_undirected: bool = False, sorted_cluster: bool = True,
                  random_state: Optional[Union[np.random.RandomState, int]] = None,
@@ -422,7 +422,7 @@ class Louvain(Algorithm):
         else:
             raise TypeError('Algorithm must be \'auto\' or a valid algorithm.')
         self.weights = weights
-        self.secondary_weights = secondary_weights
+        self.col_weights = col_weights
         if type(max_agg_iter) != int:
             raise TypeError('The maximum number of iterations must be an integer.')
         self.agg_tol = agg_tol
@@ -432,12 +432,12 @@ class Louvain(Algorithm):
         self.sorted_cluster = sorted_cluster
         self.verbose = verbose
         self.labels_ = None
-        self.secondary_labels_ = None
+        self.col_labels_ = None
         self.iteration_count_ = None
         self.aggregate_graph_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], custom_weights: Union[None, np.ndarray] = None,
-            custom_secondary_weights: Union[None, np.ndarray] = None, force_biadjacency: bool = False) -> 'Louvain':
+            custom_col_weights: Union[None, np.ndarray] = None, force_biadjacency: bool = False) -> 'Louvain':
         """
         Clustering using chosen Optimizer.
 
@@ -446,9 +446,9 @@ class Louvain(Algorithm):
         adjacency :
             Adjacency or biadjacency matrix of the graph.
         custom_weights :
-            Array of input dependent node weights.
-        custom_secondary_weights :
-            Array of input dependent weights of secondary nodes.
+            Custom node weights (default = ``None``).
+        custom_col_weights :
+            Custom weights of secondary nodes (for bipartite graphs, default = ``None``).
         force_biadjacency :
             If ``True``, force the input matrix to be considered as a biadjacency matrix.
 
@@ -462,11 +462,11 @@ class Louvain(Algorithm):
             weights = custom_weights
         else:
             weights = self.weights
-        if custom_secondary_weights is not None:
-            secondary_weights = custom_secondary_weights
+        if custom_col_weights is not None:
+            col_weights = custom_col_weights
         else:
-            secondary_weights = self.secondary_weights
-        adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, secondary_weights,
+            col_weights = self.col_weights
+        adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, col_weights,
                                                                    self.force_undirected, force_biadjacency)
         n = adjacency.shape[0]
         nodes = np.arange(n)
@@ -510,7 +510,7 @@ class Louvain(Algorithm):
         if self.sorted_cluster:
             self.labels_ = reindex_clusters(self.labels_)
         if n > n1:
-            self.secondary_labels_ = self.labels_[n1:]
+            self.col_labels_ = self.labels_[n1:]
             self.labels_ = self.labels_[:n1]
         self.aggregate_graph_ = graph.norm_adjacency * adjacency.data.sum()
 

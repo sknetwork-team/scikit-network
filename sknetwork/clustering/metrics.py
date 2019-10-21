@@ -11,13 +11,14 @@ from typing import Union, Tuple
 import numpy as np
 from scipy import sparse
 
+from sknetwork.clustering.post_processing import membership_matrix
 from sknetwork.utils.adjacency_formats import set_adjacency_weights
 from sknetwork.utils.checks import check_format
 
 
 def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray,
-               secondary_labels: Union[None, np.ndarray] = None, weights: Union[str, np.ndarray] = 'degree',
-               secondary_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
+               col_labels: Union[None, np.ndarray] = None, weights: Union[str, np.ndarray] = 'degree',
+               col_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
                force_biadjacency: bool = False, resolution: float = 1, return_all: bool = False) \
                     -> Union[float, Tuple[float, float, float]]:
     """
@@ -55,12 +56,12 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
     labels:
         Labels of nodes, vector of size :math:`n` (or :math:`n_1` for bipartite graphs
         ).
-    secondary_labels:
+    col_labels:
         Labels of secondary nodes (for bipartite graphs), vector of size :math:`n_2`.
     weights :
         Weights of nodes.
         ``'degree'`` (default), ``'uniform'`` or custom weights.
-    secondary_weights :
+    col_weights :
         Weights of secondary nodes (for bipartite graphs).
         ``None`` (default), ``'degree'``, ``'uniform'`` or custom weights.
         If ``None``, taken equal to weights.
@@ -86,14 +87,14 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
         raise ValueError('Dimension mismatch between labels and adjacency matrix.')
 
     if n1 != n2 or force_biadjacency:
-        if secondary_labels is None:
-            raise ValueError('For a biadjacency matrix, secondary labels must be specified.')
+        if col_labels is None:
+            raise ValueError('For a biadjacency matrix, co-labels must be specified.')
         elif len(labels) != n1:
-            raise ValueError('Dimension mismatch between secondary labels and biadjacency matrix.')
+            raise ValueError('Dimension mismatch between co-labels and biadjacency matrix.')
         else:
-            labels = np.hstack((labels, secondary_labels))
+            labels = np.hstack((labels, col_labels))
 
-    adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, secondary_weights,
+    adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, col_weights,
                                                                force_undirected, force_biadjacency)
     n = adjacency.shape[0]
 
@@ -163,7 +164,7 @@ def cocitation_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], label
     if len(labels) != n1:
         raise ValueError('The number of labels must match the number of rows.')
 
-    membership = sparse.csc_matrix((np.ones(n1), (np.arange(n1), labels)), shape=(n1, labels.max() + 1))
+    membership = membership_matrix(labels)
     fit: float = ((normalized_adjacency.dot(membership)).data ** 2).sum() / total_weight
     div: float = np.linalg.norm(membership.T.dot(probs)) ** 2
     mod: float = fit - resolution * div

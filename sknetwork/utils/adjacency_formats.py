@@ -181,7 +181,7 @@ def set_adjacency_weights(adjacency: sparse.csr_matrix, weights: Union[str, np.n
 
     Returns
     -------
-        adjacency, weights, secondary_weights : Tuple[sparse.csr_matrix, np.ndarray, np.ndarray]
+        adjacency, weights, col_weights : Tuple[sparse.csr_matrix, np.ndarray, np.ndarray]
 
     """
 

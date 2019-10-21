@@ -49,7 +49,7 @@ def has_proper_shape(adjacency, algo: Union[Spectral, SVD]) -> bool:
     k = algo.embedding_dimension
     if algo.embedding_.shape != (n, k):
         return False
-    if algo.coembedding_ is not None and algo.coembedding_.shape != (m, k):
+    if algo.col_embedding_ is not None and algo.col_embedding_.shape != (m, k):
         return False
     if hasattr(algo, 'eigenvalues_') and len(algo.eigenvalues_) != k:
         return False
