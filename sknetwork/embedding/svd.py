@@ -29,7 +29,7 @@ class SVD(Algorithm):
         Dimension of the embedding.
     weights: ``'degree'`` or ``'uniform'`` (default = ``'degree'``)
         Weights of the nodes.
-    secondary_weights: ``None`` or ``'degree'`` or ``'uniform'`` (default= ``None``)
+    col_weights: ``None`` or ``'degree'`` or ``'uniform'`` (default= ``None``)
         Weights of the secondary nodes (taken equal to **weights** if ``None``).
     regularization: ``None`` or float (default= ``0.01``)
         Implicitly add edges of given weight between all pairs of nodes.
@@ -70,20 +70,20 @@ class SVD(Algorithm):
     https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf
     """
 
-    def __init__(self, embedding_dimension=2, weights='degree', secondary_weights=None,
+    def __init__(self, embedding_dimension=2, weights='degree', col_weights=None,
                  regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
                  scaling: Union[None, str] = 'multiply', solver: Union[str, SVDSolver] = 'auto'):
         self.embedding_dimension = embedding_dimension
         self.weights = weights
-        if secondary_weights is None:
-            secondary_weights = weights
-        self.secondary_weights = secondary_weights
+        if col_weights is None:
+            col_weights = weights
+        self.col_weights = col_weights
         self.regularization = regularization
         self.relative_regularization = relative_regularization
         self.scaling = scaling
 
         if scaling == 'divide':
-            if weights != 'degree' or secondary_weights != 'degree':
+            if weights != 'degree' or col_weights != 'degree':
                 warnings.warn(Warning("The scaling 'divide' is valid only with ``weights = 'degree'`` and "
                                       "``col_weights = 'degree'``. It will be ignored."))
 
@@ -130,7 +130,7 @@ class SVD(Algorithm):
             adjacency = SparseLR(adjacency, [(regularization * np.ones(n1), np.ones(n2))])
 
         w_samp = check_weights(self.weights, adjacency)
-        w_feat = check_weights(self.secondary_weights, adjacency.T)
+        w_feat = check_weights(self.col_weights, adjacency.T)
 
         # pseudo inverse square-root out-degree matrix
         diag_samp = sparse.diags(np.sqrt(w_samp), shape=(n1, n1), format='csr')
