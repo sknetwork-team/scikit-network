@@ -60,8 +60,12 @@ class TestPageRank(unittest.TestCase):
         biadjacency = self.bipartite
         self.pagerank_sps.fit(biadjacency, {0: 1})
         score = self.pagerank_sps.score_
-        self.assertEqual(len(score), 9)
+        col_score = self.pagerank_sps.col_score_
+        self.assertEqual(len(score), biadjacency.shape[0])
+        self.assertEqual(len(col_score), biadjacency.shape[1])
 
         self.pagerank_fb.fit(biadjacency, {0: 1})
         score = self.pagerank_sps.score_
-        self.assertEqual(len(score), 9)
+        col_score = self.pagerank_sps.col_score_
+        self.assertEqual(len(score), biadjacency.shape[0])
+        self.assertEqual(len(col_score), biadjacency.shape[1])

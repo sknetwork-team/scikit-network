@@ -122,6 +122,8 @@ class PageRank(Algorithm):
     ----------
     score_ : np.ndarray
         PageRank score of each node.
+    col_score_ : np.ndarray
+        Score of each column node (= temperature) for bipartite inputs.
 
     Example
     -------
@@ -145,6 +147,7 @@ class PageRank(Algorithm):
         self.fb_mode = fb_mode
 
         self.score_ = None
+        self.col_score_ = None
 
     # noinspection PyTypeChecker
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
@@ -166,25 +169,29 @@ class PageRank(Algorithm):
         self: :class: 'PageRank'
         """
         adjacency = check_format(adjacency)
+        n1: int = adjacency.shape[0]
         if not self.fb_mode and (not is_square(adjacency) or force_biadjacency):
             adjacency = bipartite2undirected(adjacency)
         n: int = adjacency.shape[0]
 
-        if adjacency.nnz:
-            rso = RandomSurferOperator(adjacency, self.damping_factor, personalization, self.fb_mode)
+        rso = RandomSurferOperator(adjacency, self.damping_factor, personalization, self.fb_mode)
 
-            if self.solver == 'spsolve':
-                x = spsolve(sparse.eye(n, format='csr') - rso.a, rso.b)
-            elif self.solver == 'lanczos':
-                _, x = sparse.linalg.eigs(rso, k=1)
-            elif self.solver == 'lsqr':
-                x = lsqr(sparse.eye(n, format='csr') - rso.a, rso.b)[0]
-            else:
-                raise NotImplementedError('Solver not available.')
-
-            x = abs(x[:n].flatten().real)
-            self.score_ = x / x.sum()
-
+        if self.solver == 'spsolve':
+            x = spsolve(sparse.eye(n, format='csr') - rso.a, rso.b)
+        elif self.solver == 'lanczos':
+            _, x = sparse.linalg.eigs(rso, k=1)
+        elif self.solver == 'lsqr':
+            x = lsqr(sparse.eye(n, format='csr') - rso.a, rso.b)[0]
         else:
-            self.score_ = np.zeros(n)
+            raise NotImplementedError('Solver not available.')
+
+        x = abs(x[:n].flatten().real)
+        score = x / x.sum()
+
+        if n1 == n:
+            self.score_ = score
+        else:
+            self.score_ = score[:n1]
+            self.col_score_ = score[n1:]
+
         return self

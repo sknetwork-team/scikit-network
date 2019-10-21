@@ -28,7 +28,9 @@ class Diffusion(Algorithm):
     Attributes
     ----------
     score_ : np.ndarray
-        Score of each node (= temperature).
+        Score of each node (= temperature). Only raw nodes in the case of bipartite inputs.
+    col_score_ : np.ndarray
+        Score of each column node (= temperature) for bipartite inputs.
 
     Example
     -------
@@ -48,6 +50,7 @@ class Diffusion(Algorithm):
         self.solver = solver
 
         self.score_ = None
+        self.col_score_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Union[dict, np.ndarray], force_biadjacency: bool = False) -> 'Diffusion':
@@ -68,38 +71,41 @@ class Diffusion(Algorithm):
         self: :class: 'Diffusion'
         """
         adjacency = check_format(adjacency)
+        n1: int = adjacency.shape[0]
         if not is_square(adjacency) or force_biadjacency:
             adjacency = bipartite2undirected(adjacency)
         n: int = adjacency.shape[0]
 
-        if adjacency.nnz:
-            b: np.ndarray = np.zeros(n)
-            border: np.ndarray = np.zeros(n)
-            if type(personalization) == dict:
-                b[list(personalization.keys())] = list(personalization.values())
-                border[list(personalization.keys())] = 1
-            elif type(personalization) == np.ndarray and len(personalization) == n:
-                b = personalization
-                border = personalization.astype(bool)
-            else:
-                raise ValueError('Personalization must be a dictionary or a vector'
-                                 ' of length equal to the number of nodes.')
-
-            diag_out: sparse.csr_matrix = sparse.diags(adjacency.dot(np.ones(n)), shape=(n, n), format='csr')
-            diag_out.data = 1 / diag_out.data
-            interior: sparse.csr_matrix = sparse.diags(1 - border, shape=(n, n), format='csr')
-            diffusion_matrix = interior.dot(diag_out.dot(adjacency))
-
-            a = sparse.eye(n, format='csr') - diffusion_matrix
-            if self.solver == 'spsolve':
-                self.score_ = spsolve(a, b)
-            elif self.solver == 'lsqr':
-                self.score_ = lsqr(a, b)[0]
-            else:
-                raise ValueError('Unknown solver.')
-            self.score_ = np.clip(self.score_, b.min(), b.max())
-
+        b: np.ndarray = np.zeros(n)
+        border: np.ndarray = np.zeros(n)
+        if type(personalization) == dict:
+            b[list(personalization.keys())] = list(personalization.values())
+            border[list(personalization.keys())] = 1
+        elif type(personalization) == np.ndarray and len(personalization) == n:
+            b = personalization
+            border = personalization.astype(bool)
         else:
-            self.score_ = np.zeros(n)
+            raise ValueError('Personalization must be a dictionary or a vector'
+                             ' of length equal to the number of nodes.')
+
+        diag_out: sparse.csr_matrix = sparse.diags(adjacency.dot(np.ones(n)), shape=(n, n), format='csr')
+        diag_out.data = 1 / diag_out.data
+        interior: sparse.csr_matrix = sparse.diags(1 - border, shape=(n, n), format='csr')
+        diffusion_matrix = interior.dot(diag_out.dot(adjacency))
+
+        a = sparse.eye(n, format='csr') - diffusion_matrix
+        if self.solver == 'spsolve':
+            score = spsolve(a, b)
+        elif self.solver == 'lsqr':
+            score = lsqr(a, b)[0]
+        else:
+            raise ValueError('Unknown solver.')
+        score = np.clip(score, np.min(b), np.max(b))
+
+        if n1 == n:
+            self.score_ = score
+        else:
+            self.score_ = score[:n1]
+            self.col_score_ = score[n1:]
 
         return self

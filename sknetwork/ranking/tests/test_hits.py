@@ -23,17 +23,17 @@ class TestHITS(unittest.TestCase):
         n = self.undirected.shape[0]
         hits.fit(self.undirected)
         self.assertEqual(len(hits.score_), n)
-        self.assertEqual(len(hits.coscore_), n)
+        self.assertEqual(len(hits.col_score_), n)
 
         n = self.directed.shape[0]
         hits.fit(self.directed)
         self.assertEqual(len(hits.score_), n)
-        self.assertEqual(len(hits.coscore_), n)
+        self.assertEqual(len(hits.col_score_), n)
 
         n, m = self.bipartite.shape
         hits.fit(self.bipartite)
         self.assertEqual(len(hits.score_), n)
-        self.assertEqual(len(hits.coscore_), m)
+        self.assertEqual(len(hits.col_score_), m)
 
     def test_hits_autmode(self):
         hits = HITS(mode='authorities')
@@ -41,15 +41,15 @@ class TestHITS(unittest.TestCase):
         n = self.undirected.shape[0]
         hits.fit(self.undirected)
         self.assertEqual(len(hits.score_), n)
-        self.assertEqual(len(hits.coscore_), n)
+        self.assertEqual(len(hits.col_score_), n)
 
         n = self.directed.shape[0]
         hits.fit(self.directed)
         self.assertEqual(len(hits.score_), n)
-        self.assertEqual(len(hits.coscore_), n)
+        self.assertEqual(len(hits.col_score_), n)
 
         n, m = self.bipartite.shape
         hits.fit(self.bipartite)
         self.assertEqual(len(hits.score_), m)
-        self.assertEqual(len(hits.coscore_), n)
+        self.assertEqual(len(hits.col_score_), n)
 

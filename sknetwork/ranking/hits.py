@@ -24,7 +24,7 @@ class HITS(Algorithm):
     ----------
     mode:
         Either ``'hubs'`` or ``'authorities'``. Which of the weights to store in the ``.score_`` attribute.
-        The other one is stored in ``.coscore_``.
+        The other one is stored in ``.col_score_``.
     solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.
 
@@ -37,7 +37,7 @@ class HITS(Algorithm):
     ----------
     score_ : np.ndarray
         Hub or authority score of each node, depending on the value of **mode**.
-    coscore_ : np.ndarray
+    col_score_ : np.ndarray
         Hub or authority score of each node, depending on the value of **mode**.
 
     Example
@@ -47,7 +47,7 @@ class HITS(Algorithm):
     >>> biadjacency: sparse.csr_matrix = star_wars_villains()
     >>> np.round(hits.fit(biadjacency).score_, 2)
     array([0.5 , 0.23, 0.69, 0.46])
-    >>> np.round(hits.coscore_, 2)
+    >>> np.round(hits.col_score_, 2)
     array([0.58, 0.47, 0.67])
 
     References
@@ -66,7 +66,7 @@ class HITS(Algorithm):
             self.solver = solver
 
         self.score_ = None
-        self.coscore_ = None
+        self.col_score_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'HITS':
         """
@@ -109,10 +109,10 @@ class HITS(Algorithm):
 
         if self.mode == 'hubs':
             self.score_ = hubs
-            self.coscore_ = autorities
+            self.col_score_ = autorities
         elif self.mode == 'authorities':
             self.score_ = autorities
-            self.coscore_ = hubs
+            self.col_score_ = hubs
         else:
             raise ValueError('Mode should be "hubs" or "authorities".')
 
