@@ -51,6 +51,9 @@ Algorithms
 .. autoclass:: sknetwork.utils.kmeans.KMeans
     :members:
 
+.. autoclass:: sknetwork.utils.kneighbors.KNeighborsTransformer
+    :members:
+
 .. autofunction:: sknetwork.utils.projection_simplex.projection_simplex
 
 

@@ -171,7 +171,7 @@ def fit_core(resolution: float, tol: float, n_nodes: int, out_node_probs: np.nda
             neighbors: np.ndarray = indices[indptr[node]:indptr[node + 1]]
             weights: np.ndarray = data[indptr[node]:indptr[node + 1]]
 
-            neighbor_clusters_weights = np.zeros(n_nodes)
+            neighbor_clusters_weights = np.zeros(n_nodes)  # replace by dictionary ?
             for i, neighbor in enumerate(neighbors):
                 neighbor_clusters_weights[labels[neighbor]] += weights[i]
 
