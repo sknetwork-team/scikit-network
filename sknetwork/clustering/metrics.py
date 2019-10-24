@@ -88,23 +88,18 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
 
     if n1 != n2 or force_biadjacency:
         if col_labels is None:
-            raise ValueError('For a biadjacency matrix, co-labels must be specified.')
+            raise ValueError('For a biadjacency matrix, col_labels must be specified.')
         elif len(labels) != n1:
-            raise ValueError('Dimension mismatch between co-labels and biadjacency matrix.')
+            raise ValueError('Dimension mismatch between col_labels and biadjacency matrix.')
         else:
             labels = np.hstack((labels, col_labels))
 
-    adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, col_weights,
-                                                               force_undirected, force_biadjacency)
-    n = adjacency.shape[0]
-
-    _, unique_labels = np.unique(labels, return_inverse=True)
-    n_clusters = len(set(unique_labels))
-
-    membership = sparse.csr_matrix((np.ones(n), (np.arange(n), unique_labels)), shape=(n, n_clusters))
+    adjacency, row_weights, col_weights = set_adjacency_weights(adjacency, weights, col_weights, force_undirected,
+                                                                force_biadjacency)
+    membership = membership_matrix(labels)
 
     fit: float = membership.multiply(adjacency.dot(membership)).data.sum() / adjacency.data.sum()
-    div: float = membership.T.dot(in_weights).dot(membership.T.dot(out_weights))
+    div: float = membership.T.dot(col_weights).dot(membership.T.dot(row_weights))
     mod: float = fit - resolution * div
     if return_all:
         return mod, fit, div
@@ -151,12 +146,12 @@ def cocitation_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], label
 
     n1, n2 = adjacency.shape
     total_weight = adjacency.data.sum()
-    probs = adjacency.dot(np.ones(n1)) / total_weight
+    probs = adjacency.dot(np.ones(n2)) / total_weight
 
-    feature_weights = adjacency.T.dot(np.ones(n2))
+    col_weights = adjacency.T.dot(np.ones(n2))
 
     # pseudo inverse square-root feature weight matrix
-    norm_diag_matrix = sparse.diags(np.sqrt(feature_weights), shape=(n2, n2), format='csr')
+    norm_diag_matrix = sparse.diags(np.sqrt(col_weights), shape=(n2, n2), format='csr')
     norm_diag_matrix.data = 1 / norm_diag_matrix.data
 
     normalized_adjacency = (adjacency.dot(norm_diag_matrix)).T.tocsr()

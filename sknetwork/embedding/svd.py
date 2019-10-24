@@ -129,17 +129,17 @@ class SVD(Algorithm):
                 regularization = regularization * total_weight / (n1 * n2)
             adjacency = SparseLR(adjacency, [(regularization * np.ones(n1), np.ones(n2))])
 
-        w_samp = check_weights(self.weights, adjacency)
-        w_feat = check_weights(self.col_weights, adjacency.T)
+        w_row = check_weights(self.weights, adjacency)
+        w_col = check_weights(self.col_weights, adjacency.T)
 
-        # pseudo inverse square-root out-degree matrix
-        diag_samp = sparse.diags(np.sqrt(w_samp), shape=(n1, n1), format='csr')
-        diag_samp.data = 1 / diag_samp.data
-        # pseudo inverse square-root in-degree matrix
-        diag_feat = sparse.diags(np.sqrt(w_feat), shape=(n2, n2), format='csr')
-        diag_feat.data = 1 / diag_feat.data
+        # pseudo inverse square-root row weights matrix
+        diag_row = sparse.diags(np.sqrt(w_row), shape=(n1, n1), format='csr')
+        diag_row.data = 1 / diag_row.data
+        # pseudo inverse square-root col weights matrix
+        diag_col = sparse.diags(np.sqrt(w_col), shape=(n2, n2), format='csr')
+        diag_col.data = 1 / diag_col.data
 
-        normalized_adj = safe_sparse_dot(diag_samp, safe_sparse_dot(adjacency, diag_feat))
+        normalized_adj = safe_sparse_dot(diag_row, safe_sparse_dot(adjacency, diag_col))
 
         # svd
         if self.embedding_dimension > min(n1, n2) - 1:
@@ -152,8 +152,8 @@ class SVD(Algorithm):
 
         index = np.argsort(-self.solver.singular_values_)
         self.singular_values_ = self.solver.singular_values_[index[1:]]
-        self.embedding_ = np.sqrt(total_weight) * diag_samp.dot(self.solver.left_singular_vectors_[:, index[1:]])
-        self.col_embedding_ = np.sqrt(total_weight) * diag_feat.dot(self.solver.right_singular_vectors_[:, index[1:]])
+        self.embedding_ = np.sqrt(total_weight) * diag_row.dot(self.solver.left_singular_vectors_[:, index[1:]])
+        self.col_embedding_ = np.sqrt(total_weight) * diag_col.dot(self.solver.right_singular_vectors_[:, index[1:]])
 
         # rescale to get barycenter property
         self.embedding_ *= self.singular_values_

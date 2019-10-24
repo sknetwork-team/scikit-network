@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on July 10, 2019
-@author: Thomas Bonald <bonald@enst.fr>
+@author: Thomas Bonald <bonald@enst.fr>, Nathan de Lara <ndelara@enst.fr>
 """
 
 import numpy as np
@@ -30,8 +30,8 @@ def membership_matrix(labels: np.ndarray, dtype=bool) -> sparse.csr_matrix:
     The inverse operation is simply ``labels = membership.indices``.
 
     """
-    n_nodes = len(labels)
-    return sparse.csr_matrix((np.ones(n_nodes), (np.arange(n_nodes), labels)), dtype=dtype)
+    n: int = len(labels)
+    return sparse.csr_matrix((np.ones(n), (np.arange(n), labels)), dtype=dtype)
 
 
 def reindex_clusters(labels: np.ndarray) -> np.ndarray:

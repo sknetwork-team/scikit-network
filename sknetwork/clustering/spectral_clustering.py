@@ -10,7 +10,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.embedding import SVD, Spectral
+from sknetwork.embedding import Spectral
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format
 from sknetwork.utils.kmeans import KMeans
@@ -25,45 +25,29 @@ class SpectralClustering(Algorithm):
         Number of desired clusters.
     embedding_dimension:
         Dimension of the embedding on which to apply the clustering.
-    clustering_algo:
-        Method for clustering, can be ``'kmeans'`` or a custom ``Algorithm``.
-    embedding_algo:
-        Method for embedding, can be ``'svd'``, ``'spectral'`` or a custom ``Algorithm``.
     l2normalization:
         If ``True``, each row of the embedding is projected onto the L2-sphere before applying the clustering algorithm.
+    co_clustering:
+        If ``True``, jointly cluster the rows and columns of bipartite graphs. Otherwise, only cluster the rows.
 
     Attributes
     ----------
     labels_:
-        Label of each node.
+        Labels the rows.
+    col_labels_:
+        Labels of the columns, on valid if ``co_clustering=True``.
 
     """
 
-    def __init__(self, n_clusters: int = 8, embedding_dimension: int = 16,
-                 clustering_algo: Union[str, Algorithm] = 'kmeans', embedding_algo: Union[str, Algorithm] = 'svd',
-                 l2normalization: bool = True):
+    def __init__(self, n_clusters: int = 8, embedding_dimension: int = 16, l2normalization: bool = True,
+                 co_clustering: bool = False):
         self.n_clusters = n_clusters
         self.embedding_dimension = embedding_dimension
-
-        if clustering_algo == 'kmeans':
-            self.clustering_algo = KMeans(n_clusters=n_clusters)
-        elif isinstance(clustering_algo, Algorithm):
-            self.clustering_algo = clustering_algo
-        else:
-            raise ValueError('clustering_algo must be either "kmeans" or a custom Algorithm object.')
-
-        if embedding_algo == 'svd':
-            self.embedding_algo: Algorithm = SVD(embedding_dimension=embedding_dimension)
-        elif embedding_algo == 'spectral':
-            self.embedding_algo: Algorithm = Spectral(embedding_dimension=embedding_dimension)
-        elif isinstance(embedding_algo, Algorithm):
-            self.embedding_algo: Algorithm = embedding_algo
-        else:
-            raise ValueError('embedding algo must be either "svd", "spectral" or a custom Algorithm object.')
-
         self.l2normalization = l2normalization
+        self.co_clustering = co_clustering
 
         self.labels_ = None
+        self.col_labels_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'SpectralClustering':
         """Apply embedding method followed by clustering to the graph.
@@ -79,13 +63,27 @@ class SpectralClustering(Algorithm):
 
         """
         adjacency = check_format(adjacency)
-        self.embedding_algo.fit(adjacency)
-        if self.l2normalization:
-            norm = np.linalg.norm(self.embedding_algo.embedding_, axis=1)
-            norm[norm == 0.] = 1
-            self.embedding_algo.embedding_ /= norm[:, np.newaxis]
-        self.clustering_algo.fit(self.embedding_algo.embedding_)
+        n1, n2 = adjacency.shape
 
-        self.labels_ = self.clustering_algo.labels_
+        spectral = Spectral(self.embedding_dimension).fit(adjacency, force_biadjacency=self.co_clustering)
+        kmeans = KMeans(self.n_clusters)
+
+        if self.co_clustering:
+            embedding = np.vstack((spectral.embedding_, spectral.col_embedding_))
+        else:
+            embedding = spectral.embedding_
+
+        if self.l2normalization:
+            norm = np.linalg.norm(embedding, axis=1)
+            norm[norm == 0.] = 1
+            embedding /= norm[:, np.newaxis]
+
+        kmeans.fit(embedding)
+
+        if self.co_clustering:
+            self.labels_ = kmeans.labels_[:n1]
+            self.col_labels_ = kmeans.labels_[n1:]
+        else:
+            self.labels_ = kmeans.labels_
 
         return self

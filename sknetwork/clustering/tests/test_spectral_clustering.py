@@ -23,17 +23,14 @@ class TestSpectralClustering(unittest.TestCase):
         self.bipartite: sparse.csr_matrix = movie_actor()
 
     def test_default_options(self):
-        sc = SpectralClustering(embedding_dimension=3, embedding_algo='spectral')
+        sc = SpectralClustering(embedding_dimension=3)
         sc.fit(self.undirected)
         self.assertEqual(sc.labels_.shape[0], self.undirected.shape[0])
 
-        sc = SpectralClustering(embedding_dimension=3, embedding_algo='svd')
-        sc.fit(self.directed)
-        self.assertEqual(sc.labels_.shape[0], self.directed.shape[0])
-
-    def test_custom_options(self):
+    def test_bipartite(self):
         n_clusters = 2
-        sc = SpectralClustering(clustering_algo=KMeans(n_clusters=n_clusters),
-                                embedding_algo=SVD(embedding_dimension=4))
+        n1, n2 = self.bipartite.shape
+        sc = SpectralClustering(embedding_dimension=3, n_clusters=n_clusters, co_clustering=True)
         sc.fit(self.bipartite)
-        self.assertEqual(len(set(sc.labels_)), n_clusters)
+        self.assertEqual(len(sc.labels_), n1)
+        self.assertEqual(len(sc.col_labels_), n2)
