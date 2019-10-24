@@ -243,9 +243,9 @@ class Spectral(Algorithm):
             self.solver.eigenvalues_ = 1 - self.solver.eigenvalues_
             # eigenvalues of the laplacian by increasing order
             index = np.argsort(self.solver.eigenvalues_)
-            self.eigenvalues_ = self.solver.eigenvalues_[index][1:]
-            self.embedding_ = self.solver.eigenvectors_[:, index][:, 1:]
-            self.embedding_ = np.array(normalizing_matrix.dot(self.embedding_))
+            eigenvalues = self.solver.eigenvalues_[index][1:]
+            embedding = self.solver.eigenvectors_[:, index][:, 1:]
+            embedding = np.array(normalizing_matrix.dot(embedding))
 
         else:
             if regularization:
@@ -256,25 +256,29 @@ class Spectral(Algorithm):
 
             self.solver.which = 'SM'
             self.solver.fit(matrix=laplacian, n_components=n_components)
-            self.eigenvalues_ = self.solver.eigenvalues_[1:]
-            self.embedding_ = self.solver.eigenvectors_[:, 1:]
+            eigenvalues = self.solver.eigenvalues_[1:]
+            embedding = self.solver.eigenvectors_[:, 1:]
 
         if self.scaling:
             if self.scaling == 'multiply':
                 if self.normalized_laplacian:
-                    self.eigenvalues_ = np.minimum(self.eigenvalues_, 1)
-                    self.embedding_ *= np.sqrt(1 - self.eigenvalues_)
+                    eigenvalues = np.minimum(eigenvalues, 1)
+                    embedding *= np.sqrt(1 - eigenvalues)
                 else:
-                    self.embedding_ *= np.sqrt(abs(self.eigenvalues_))
+                    embedding *= np.sqrt(np.clip(eigenvalues, a_min=0, a_max=np.max(eigenvalues)))
             elif self.scaling == 'divide':
-                inv_eigenvalues = np.zeros(len(self.eigenvalues_))
-                index = np.where(self.eigenvalues_ > 0)[0]
-                inv_eigenvalues[index] = 1 / self.eigenvalues_[index]
-                self.embedding_ *= np.sqrt(inv_eigenvalues)
+                inv_eigenvalues = np.zeros_like(eigenvalues)
+                index = np.where(eigenvalues > 0)[0]
+                inv_eigenvalues[index] = 1 / eigenvalues[index]
+                embedding *= np.sqrt(inv_eigenvalues)
             else:
                 warnings.warn(Warning("The scaling must be 'multiply' or 'divide'. No scaling done."))
+
         if n > n1:
-            self.col_embedding_ = self.embedding_[n1:]
-            self.embedding_ = self.embedding_[:n1]
+            self.embedding_ = embedding[:n1]
+            self.col_embedding_ = embedding[n1:]
+        else:
+            self.embedding_ = embedding
+        self.eigenvalues_ = eigenvalues
 
         return self
