@@ -10,7 +10,7 @@ from typing import Union
 from scipy import sparse
 import numpy as np
 
-from sknetwork.embedding.svd import SVD
+from sknetwork.embedding.bispectral import BiSpectral
 from sknetwork.utils.checks import check_format
 from sknetwork.utils.kneighbors import KNeighborsTransformer
 
@@ -60,10 +60,10 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
 
     elif method == 'knn':
         if normalized:
-            col_weights = 'degree'
+            gsvd = BiSpectral(embedding_dimension, weights='degree', col_weights='degree', scaling='divide')
         else:
-            col_weights = 'uniform'
-        gsvd = SVD(embedding_dimension, weights='uniform', col_weights=col_weights, scaling=None)
+            gsvd = BiSpectral(embedding_dimension, weights='degree', col_weights='uniform', scaling=None)
+
         gsvd.fit(adjacency)
         knn = KNeighborsTransformer(n_neighbors, make_undirected=True)
         knn.fit(gsvd.embedding_)

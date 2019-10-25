@@ -6,9 +6,10 @@ import unittest
 from typing import Union
 
 import numpy as np
+from scipy import sparse
 
-from sknetwork.embedding import Spectral, SVD
-from sknetwork.toy_graphs import random_graph, random_bipartite_graph, house
+from sknetwork.embedding import Spectral, BiSpectral
+from sknetwork.toy_graphs import karate_club, random_bipartite_graph, house
 
 
 def barycenter_norm(adjacency, spectral: Spectral) -> np.ndarray:
@@ -33,7 +34,7 @@ def barycenter_norm(adjacency, spectral: Spectral) -> np.ndarray:
         return np.linalg.norm(spectral.embedding_.mean(axis=0))
 
 
-def has_proper_shape(adjacency, algo: Union[Spectral, SVD]) -> bool:
+def has_proper_shape(adjacency, algo: Union[Spectral, BiSpectral]) -> bool:
     """Check if the embedding has a proper shape with respect to the input data.
 
     Parameters
@@ -68,7 +69,7 @@ class TestEmbeddings(unittest.TestCase):
         -------
 
         """
-        self.adjacency = random_graph()
+        self.adjacency: sparse.csr_matrix = karate_club()
         self.biadjacency = random_bipartite_graph()
         self.house = house()
 
@@ -78,9 +79,6 @@ class TestEmbeddings(unittest.TestCase):
         spectral.fit(self.adjacency)
         self.assertTrue(has_proper_shape(self.adjacency, spectral))
         self.assertTrue(min(spectral.eigenvalues_ >= -1e-6) and max(spectral.eigenvalues_ <= 2))
-
-        spectral.fit(self.biadjacency)
-        self.assertTrue(has_proper_shape(self.biadjacency, spectral))
 
         # test if the embedding is centered
         # without regularization
@@ -98,10 +96,6 @@ class TestEmbeddings(unittest.TestCase):
         spectral.fit(self.adjacency)
         self.assertTrue(has_proper_shape(self.adjacency, spectral))
         self.assertTrue(min(spectral.eigenvalues_ >= -1e-6) and max(spectral.eigenvalues_ <= 2))
-
-        spectral.fit(self.biadjacency)
-        self.assertTrue(has_proper_shape(self.biadjacency, spectral))
-        self.assertTrue(type(spectral.eigenvalues_) == np.ndarray and len(spectral.eigenvalues_) == 2)
 
         # test if the embedding is centered
         # without regularization
@@ -121,9 +115,6 @@ class TestEmbeddings(unittest.TestCase):
         self.assertTrue(has_proper_shape(self.adjacency, spectral))
         self.assertTrue(min(spectral.eigenvalues_ >= -1) and max(spectral.eigenvalues_ <= 1))
 
-        spectral.fit(self.biadjacency)
-        self.assertTrue(has_proper_shape(self.biadjacency, spectral))
-
         # test if the embedding is centered
         # without regularization
         spectral.regularization = None
@@ -136,14 +127,14 @@ class TestEmbeddings(unittest.TestCase):
         self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
 
     def test_svd(self):
-        svd = SVD(2, solver='lanczos')
+        svd = BiSpectral(2, solver='lanczos')
         svd.fit(self.adjacency)
         self.assertTrue(has_proper_shape(self.adjacency, svd))
 
         svd.fit(self.biadjacency)
         self.assertTrue(has_proper_shape(self.biadjacency, svd))
 
-        svd = SVD(2, solver='halko')
+        svd = BiSpectral(2, solver='halko')
         svd.fit(self.adjacency)
         self.assertTrue(has_proper_shape(self.adjacency, svd))
 

@@ -17,11 +17,17 @@ from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, check_weights
 
 
-class SVD(Algorithm):
+class BiSpectral(Algorithm):
     """
     Graph embedding by Generalized Singular Value Decomposition.
 
-    Setting **weights** and **col_weights** to ``'uniform'`` leads to the standard SVD.
+    Solves
+    :math:`\\begin{cases} AV = W_1U\\Sigma, \\\ A^TU = W_2V \\Sigma \\end{cases}`
+    where :math:`W_1, W_2` are diagonal matrices of **weights** and **col_weights**.
+
+    The embedding of the rows is :math:`X = U\\Sigma \\phi(\\Sigma)`
+    and the embedding of the columns is :math:`X = V\\phi(\\Sigma)`,
+    where :math:`\\phi(\\Sigma)` is a diagonal scaling matrix.
 
     Parameters
     -----------
@@ -29,14 +35,26 @@ class SVD(Algorithm):
         Dimension of the embedding.
     weights: ``'degree'`` or ``'uniform'`` (default = ``'degree'``)
         Weights of the nodes.
+
+        * ``'degree'``: :math:`W_1 = D`,
+        * ``'uniform'``  :math:`W_1 = I`.
+
     col_weights: ``None`` or ``'degree'`` or ``'uniform'`` (default= ``None``)
         Weights of the secondary nodes (taken equal to **weights** if ``None``).
+
+        * ``'degree'``: :math:`W_2 = F`,
+        * ``'uniform'``  :math:`W_2 = I`.
+
     regularization: ``None`` or float (default= ``0.01``)
         Implicitly add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
     scaling:  ``None`` or ``'multiply'`` or ``'divide'`` (default = ``'multiply'``)
-        If ``'multiply'``, multiply by the singular values .
+
+        * ``None``: :math:`\\phi(\\Sigma) = I`,
+        * ``'multiply'`` : :math:`\\phi(\\Sigma) = \\Sigma`,
+        * ``'divide'``  : :math:`\\phi(\\Sigma) = (\\sqrt{1 - \\Sigma^2})^{-1}`.
+
     solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.
 
@@ -58,7 +76,7 @@ class SVD(Algorithm):
     -------
     >>> from sknetwork.toy_graphs import house
     >>> adjacency = house()
-    >>> svd = SVD()
+    >>> svd = BiSpectral()
     >>> embedding = svd.fit(adjacency).embedding_
     >>> embedding.shape
     (5, 2)
@@ -98,7 +116,7 @@ class SVD(Algorithm):
         self.col_embedding_ = None
         self.singular_values_ = None
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'SVD':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiSpectral':
         """
         Computes the generalized SVD of the adjacency matrix.
 
@@ -110,7 +128,7 @@ class SVD(Algorithm):
 
         Returns
         -------
-        self: :class:`SVD`
+        self: :class:`BiSpectral`
         """
         adjacency = check_format(adjacency).asfptype()
         n1, n2 = adjacency.shape
