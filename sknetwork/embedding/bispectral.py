@@ -25,9 +25,9 @@ class BiSpectral(Algorithm):
     :math:`\\begin{cases} AV = W_1U\\Sigma, \\\ A^TU = W_2V \\Sigma \\end{cases}`
     where :math:`W_1, W_2` are diagonal matrices of **weights** and **col_weights**.
 
-    The embedding of the rows is :math:`X = U\\Sigma \\phi(\\Sigma)`
-    and the embedding of the columns is :math:`Y = V\\phi(\\Sigma)`,
-    where :math:`\\phi(\\Sigma)` is a diagonal scaling matrix.
+    The embedding of the rows is :math:`X = U \\phi(\\Sigma)`
+    and the embedding of the columns is :math:`Y = V\\psi(\\Sigma)`,
+    where :math:`\\phi(\\Sigma)` and :math:`\\psi(\\Sigma)` are diagonal scaling matrices.
 
     Parameters
     -----------
@@ -49,11 +49,12 @@ class BiSpectral(Algorithm):
         Implicitly add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
-    scaling:  ``None`` or ``'multiply'`` or ``'divide'`` (default = ``'multiply'``)
+    scaling:  ``None`` or ``'multiply'`` or ``'divide'`` or ``'barycenter'`` (default = ``'multiply'``)
 
-        * ``None``: :math:`\\phi(\\Sigma) = I`,
-        * ``'multiply'`` : :math:`\\phi(\\Sigma) = \\Sigma`,
-        * ``'divide'``  : :math:`\\phi(\\Sigma) = (\\sqrt{1 - \\Sigma^2})^{-1}`.
+        * ``None``: :math:`\\phi(\\Sigma) = \\psi(\\Sigma) = I`,
+        * ``'multiply'`` : :math:`\\phi(\\Sigma) = \\psi(\\Sigma) = \\sqrt{\\Sigma}`,
+        * ``'divide'``  : :math:`\\phi(\\Sigma)= \\psi(\\Sigma) = (\\sqrt{1 - \\Sigma^2})^{-1}`,
+        * ``'barycenter'``  : :math:`\\phi(\\Sigma)= \\Sigma, \\psi(\\Sigma) = I`
 
     solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.
@@ -76,8 +77,8 @@ class BiSpectral(Algorithm):
     -------
     >>> from sknetwork.toy_graphs import house
     >>> adjacency = house()
-    >>> svd = BiSpectral()
-    >>> embedding = svd.fit(adjacency).embedding_
+    >>> bispectral = BiSpectral()
+    >>> embedding = bispectral.fit(adjacency).embedding_
     >>> embedding.shape
     (5, 2)
 
@@ -102,6 +103,7 @@ class BiSpectral(Algorithm):
 
         if scaling == 'divide':
             if weights != 'degree' or col_weights != 'degree':
+                self.scaling = None
                 warnings.warn(Warning("The scaling 'divide' is valid only with ``weights = 'degree'`` and "
                                       "``col_weights = 'degree'``. It will be ignored."))
 
@@ -170,19 +172,21 @@ class BiSpectral(Algorithm):
 
         index = np.argsort(-self.solver.singular_values_)
         self.singular_values_ = self.solver.singular_values_[index[1:]]
-        self.embedding_ = np.sqrt(total_weight) * diag_row.dot(self.solver.left_singular_vectors_[:, index[1:]])
-        self.col_embedding_ = np.sqrt(total_weight) * diag_col.dot(self.solver.right_singular_vectors_[:, index[1:]])
-
-        # rescale to get barycenter property
-        self.embedding_ *= self.singular_values_
+        self.embedding_ = diag_row.dot(self.solver.left_singular_vectors_[:, index[1:]])
+        self.col_embedding_ = diag_col.dot(self.solver.right_singular_vectors_[:, index[1:]])
 
         if self.scaling:
             if self.scaling == 'multiply':
-                self.embedding_ *= self.singular_values_
+                self.embedding_ *= np.sqrt(self.singular_values_)
+                self.col_embedding_ *= np.sqrt(self.singular_values_)
             elif self.scaling == 'divide':
                 energy_levels: np.ndarray = np.sqrt(1 - np.clip(self.singular_values_, 0, 1) ** 2)
                 energy_levels[energy_levels > 0] = 1 / energy_levels[energy_levels > 0]
                 self.embedding_ *= energy_levels
                 self.col_embedding_ *= energy_levels
+            elif self.scaling == 'barycenter':
+                self.embedding_ *= self.singular_values_
+            else:
+                warnings.warn(Warning("The scaling must be 'multiply' or 'divide' or 'barycenter'. No scaling done."))
 
         return self
