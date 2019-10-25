@@ -14,6 +14,9 @@ Louvain
 .. autoclass:: sknetwork.clustering.Louvain
     :members:
 
+.. autoclass:: sknetwork.clustering.BiLouvain
+    :members:
+
 .. autoclass:: sknetwork.clustering.GreedyModularity
     :members:
 

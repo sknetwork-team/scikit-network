@@ -16,7 +16,7 @@ from sknetwork import njit
 from sknetwork.clustering.post_processing import membership_matrix, reindex_clusters
 from sknetwork.utils.adjacency_formats import set_adjacency_weights, directed2undirected
 from sknetwork.utils.algorithm_base_class import Algorithm
-from sknetwork.utils.checks import check_format, check_engine, check_random_state
+from sknetwork.utils.checks import check_format, check_engine, check_random_state, is_symmetric
 
 
 class AggregateGraph:
@@ -331,7 +331,7 @@ class GreedyModularity(Optimizer):
             raise ValueError('Unknown engine.')
 
 
-class Louvain(Algorithm):
+class DiLouvain(Algorithm):
     """
     Louvain algorithm for graph clustering in Python (default) and Numba.
 
@@ -366,8 +366,6 @@ class Louvain(Algorithm):
         A negative value is interpreted as no limit.
     shuffle_nodes :
         Enables node shuffling before optimization.
-    force_undirected : bool (default= ``False``)
-            If ``True``, consider the graph as undirected.
     sorted_cluster :
             If ``True``, sort labels in decreasing order of cluster size.
     random_state :
@@ -388,7 +386,7 @@ class Louvain(Algorithm):
 
     Example
     -------
-    >>> louvain = Louvain('python')
+    >>> louvain = DiLouvain('python')
     >>> adjacency = sparse.identity(3, format='csr')
     >>> louvain.fit(adjacency).labels_
     array([0, 1, 2])
@@ -410,8 +408,7 @@ class Louvain(Algorithm):
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
                  weights: str = 'degree', col_weights: Union[None, str] = None,
                  tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
-                 force_undirected: bool = False, sorted_cluster: bool = True,
-                 random_state: Optional[Union[np.random.RandomState, int]] = None,
+                 sorted_cluster: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
                  verbose: bool = False):
 
         self.random_state = check_random_state(random_state)
@@ -428,7 +425,6 @@ class Louvain(Algorithm):
         self.agg_tol = agg_tol
         self.max_agg_iter = max_agg_iter
         self.shuffle_nodes = shuffle_nodes
-        self.force_undirected = force_undirected
         self.sorted_cluster = sorted_cluster
         self.verbose = verbose
         self.labels_ = None
@@ -437,7 +433,7 @@ class Louvain(Algorithm):
         self.aggregate_graph_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], custom_weights: Union[None, np.ndarray] = None,
-            custom_col_weights: Union[None, np.ndarray] = None, force_biadjacency: bool = False) -> 'Louvain':
+            custom_col_weights: Union[None, np.ndarray] = None) -> 'DiLouvain':
         """
         Clustering using chosen Optimizer.
 
@@ -449,12 +445,10 @@ class Louvain(Algorithm):
             Custom node weights (default = ``None``).
         custom_col_weights :
             Custom weights of secondary nodes (for bipartite graphs, default = ``None``).
-        force_biadjacency :
-            If ``True``, force the input matrix to be considered as a biadjacency matrix.
 
         Returns
         -------
-        self: :class:`Louvain`
+        self: :class:`DiLouvain`
         """
         adjacency = check_format(adjacency)
         n1, n2 = adjacency.shape
@@ -467,7 +461,7 @@ class Louvain(Algorithm):
         else:
             col_weights = self.col_weights
         adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, col_weights,
-                                                                   self.force_undirected, force_biadjacency)
+                                                                   False, False)
         n = adjacency.shape[0]
         nodes = np.arange(n)
         if self.shuffle_nodes:
@@ -514,4 +508,206 @@ class Louvain(Algorithm):
             self.labels_ = self.labels_[:n1]
         self.aggregate_graph_ = graph.norm_adjacency * adjacency.data.sum()
 
+        return self
+
+
+class Louvain(Algorithm):
+    """
+    Louvain algorithm for the clustering of undirected graphs in Python (default) and Numba.
+
+    Compute the best partition of the nodes with respect to the optimization criterion
+    (default: :class:`GreedyModularity`).
+
+    Parameters
+    ----------
+    engine :
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
+    algorithm :
+        The optimization algorithm.
+        Requires a fit method.
+        Requires `score\\_`  and `labels\\_` attributes.
+
+        If ``'default'``, uses greedy modularity optimization algorithm: :class:`GreedyModularity`.
+    resolution :
+        Resolution parameter.
+    weights :
+            Weights of nodes.
+            ``'degree'`` (default), ``'uniform'``.
+    tol :
+        Minimum increase in the objective function to enter a new optimization pass.
+    agg_tol :
+        Minimum increase in the objective function to enter a new aggregation pass.
+    max_agg_iter :
+        Maximum number of aggregations.
+        A negative value is interpreted as no limit.
+    shuffle_nodes :
+        Enables node shuffling before optimization.
+    sorted_cluster :
+            If ``True``, sort labels in decreasing order of cluster size.
+    random_state :
+        Random number generator or random seed. If None, numpy.random is used.
+    verbose :
+        Verbose mode.
+
+    Attributes
+    ----------
+    labels_ : np.ndarray
+        Label of each node.
+    iteration_count_ : int
+        Total number of aggregations performed.
+    aggregate_graph_ : sparse.csr_matrix
+        Adjacency matrix of the aggregate graph at the end of the algorithm.
+
+    Example
+    -------
+    >>> louvain = Louvain('python')
+    >>> adjacency = sparse.identity(3, format='csr')
+    >>> louvain.fit(adjacency).labels_
+    array([0, 1, 2])
+
+    References
+    ----------
+    * Blondel, V. D., Guillaume, J. L., Lambiotte, R., & Lefebvre, E. (2008).
+      Fast unfolding of communities in large networks.
+      Journal of statistical mechanics: theory and experiment, 2008
+      https://arxiv.org/abs/0803.0476
+
+    """
+    def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
+                 weights: str = 'degree', tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1,
+                 shuffle_nodes: bool = False, sorted_cluster: bool = True,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
+        self.random_state = check_random_state(random_state)
+        if algorithm == 'default':
+            self.algorithm = GreedyModularity(resolution, tol, engine=check_engine(engine))
+        elif isinstance(algorithm, Optimizer):
+            self.algorithm = algorithm
+        else:
+            raise TypeError('Algorithm must be \'auto\' or a valid algorithm.')
+        self.weights = weights
+        if type(max_agg_iter) != int:
+            raise TypeError('The maximum number of iterations must be an integer.')
+        self.agg_tol = agg_tol
+        self.max_agg_iter = max_agg_iter
+        self.shuffle_nodes = shuffle_nodes
+        self.sorted_cluster = sorted_cluster
+        self.verbose = verbose
+        self.labels_ = None
+        self.iteration_count_ = None
+        self.aggregate_graph_ = None
+
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
+            custom_weights: Union[None, np.ndarray] = None) -> 'Louvain':
+        if not is_symmetric(adjacency):
+            raise ValueError('The adjacency matrix should be symmetric. Consider using sknetwork.clustering.Bilouvain'
+                             ' or sknetwork.utils.directed2undirected')
+        dil = DiLouvain(algorithm=self.algorithm,  weights=self.weights, col_weights=None, agg_tol=self.agg_tol,
+                        max_agg_iter=self.max_agg_iter, shuffle_nodes=self.shuffle_nodes,
+                        sorted_cluster=self.sorted_cluster, random_state=self.random_state, verbose=self.verbose)
+        dil.fit(adjacency, custom_weights, None)
+        self.labels_ = dil.labels_
+        self.iteration_count_ = dil.iteration_count_
+        self.aggregate_graph_ = dil.aggregate_graph_
+        return self
+
+
+class BiLouvain(Algorithm):
+    """
+        Louvain algorithm for the clustering of bipartite (or directed) graphs in Python (default) and Numba.
+
+        Compute the best partition of the nodes with respect to the optimization criterion
+        (default: :class:`GreedyModularity`).
+
+        Parameters
+        ----------
+        engine :
+            ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
+        algorithm :
+            The optimization algorithm.
+            Requires a fit method.
+            Requires `score\\_`  and `labels\\_` attributes.
+
+            If ``'default'``, uses greedy modularity optimization algorithm: :class:`GreedyModularity`.
+        resolution :
+            Resolution parameter.
+        weights :
+                Weights of nodes.
+                ``'degree'`` (default), ``'uniform'``.
+        col_weights :
+            Weights of secondary nodes (for bipartite graphs).
+            ``None`` (default), ``'degree'``, ``'uniform'``.
+            If ``None``, taken equal to weights.
+        tol :
+            Minimum increase in the objective function to enter a new optimization pass.
+        agg_tol :
+            Minimum increase in the objective function to enter a new aggregation pass.
+        max_agg_iter :
+            Maximum number of aggregations.
+            A negative value is interpreted as no limit.
+        shuffle_nodes :
+            Enables node shuffling before optimization.
+        sorted_cluster :
+                If ``True``, sort labels in decreasing order of cluster size.
+        random_state :
+            Random number generator or random seed. If None, numpy.random is used.
+        verbose :
+            Verbose mode.
+
+        Attributes
+        ----------
+        labels_ : np.ndarray
+            Label of each node.
+        col_labels_ : np.ndarray
+            Label of each secondary node (for bipartite graphs).
+        iteration_count_ : int
+            Total number of aggregations performed.
+        aggregate_graph_ : sparse.csr_matrix
+            Adjacency matrix of the aggregate graph at the end of the algorithm.
+
+        References
+        ----------
+        * Dugué, N., & Perez, A. (2015).
+          Directed Louvain: maximizing modularity in directed networks
+          (Doctoral dissertation, Université d'Orléans).
+          https://hal.archives-ouvertes.fr/hal-01231784/document
+
+        """
+    def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
+                 weights: str = 'degree', col_weights: Union[None, str] = None,
+                 tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
+                 sorted_cluster: bool = True,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None,
+                 verbose: bool = False):
+
+        self.random_state = check_random_state(random_state)
+        if algorithm == 'default':
+            self.algorithm = GreedyModularity(resolution, tol, engine=check_engine(engine))
+        elif isinstance(algorithm, Optimizer):
+            self.algorithm = algorithm
+        else:
+            raise TypeError('Algorithm must be \'auto\' or a valid algorithm.')
+        self.weights = weights
+        self.col_weights = col_weights
+        if type(max_agg_iter) != int:
+            raise TypeError('The maximum number of iterations must be an integer.')
+        self.agg_tol = agg_tol
+        self.max_agg_iter = max_agg_iter
+        self.shuffle_nodes = shuffle_nodes
+        self.sorted_cluster = sorted_cluster
+        self.verbose = verbose
+        self.labels_ = None
+        self.col_labels_ = None
+        self.iteration_count_ = None
+        self.aggregate_graph_ = None
+
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], custom_weights: Union[None, np.ndarray] = None,
+            custom_col_weights: Union[None, np.ndarray] = None) -> 'BiLouvain':
+        dil = DiLouvain(algorithm=self.algorithm, weights=self.weights, col_weights=self.col_weights,
+                        agg_tol=self.agg_tol, max_agg_iter=self.max_agg_iter, shuffle_nodes=self.shuffle_nodes,
+                        sorted_cluster=self.sorted_cluster, random_state=self.random_state, verbose=self.verbose)
+        dil.fit(adjacency, custom_weights, custom_col_weights)
+        self.labels_ = dil.labels_
+        self.col_labels_ = dil.col_labels_
+        self.iteration_count_ = dil.iteration_count_
+        self.aggregate_graph_ = dil.aggregate_graph_
         return self

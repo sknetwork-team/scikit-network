@@ -7,18 +7,21 @@ import unittest
 from scipy.sparse import identity
 
 from sknetwork import is_numba_available
-from sknetwork.clustering import Louvain, modularity
+from sknetwork.clustering import Louvain, BiLouvain, modularity
 from sknetwork.toy_graphs import random_graph, karate_club, bow_tie, painters, star_wars_villains
+from sknetwork.utils.adjacency_formats import directed2undirected
 
 
 class TestLouvainClustering(unittest.TestCase):
 
     def setUp(self):
         self.louvain = Louvain()
+        self.bilouvain = BiLouvain()
         self.louvain_high_resolution = Louvain(engine='python', resolution=2)
         self.louvain_null_resolution = Louvain(engine='python', resolution=0)
         if is_numba_available:
             self.louvain_numba = Louvain(engine='numba')
+            self.bilouvain_numba = BiLouvain(engine='numba')
         else:
             with self.assertRaises(ValueError):
                 Louvain(engine='numba')
@@ -46,7 +49,7 @@ class TestLouvainClustering(unittest.TestCase):
         self.assertEqual(self.louvain.labels_, [0])
 
     def test_random_graph(self):
-        self.louvain.fit(self.random_graph)
+        self.louvain.fit(directed2undirected(self.random_graph))
         self.assertEqual(len(self.louvain.labels_), 10)
 
     def test_undirected(self):
@@ -69,20 +72,20 @@ class TestLouvainClustering(unittest.TestCase):
         self.assertEqual(len(set(self.louvain_null_resolution.labels_)), 1)
 
     def test_directed(self):
-        self.louvain.fit(self.painters)
-        labels = self.louvain.labels_
+        self.bilouvain.fit(self.painters)
+        labels = self.bilouvain.labels_
         self.assertEqual(labels.shape, (14,))
         self.assertAlmostEqual(modularity(self.painters, labels), 0.32, 2)
 
     def test_bipartite(self):
-        self.louvain.fit(self.star_wars)
-        labels = self.louvain.labels_
-        feature_labels = self.louvain.col_labels_
+        self.bilouvain.fit(self.star_wars)
+        labels = self.bilouvain.labels_
+        feature_labels = self.bilouvain.col_labels_
         self.assertEqual(labels.shape, (4,))
         self.assertEqual(feature_labels.shape, (3,))
         if is_numba_available:
-            self.louvain_numba.fit(self.star_wars)
-            labels = self.louvain_numba.labels_
+            self.bilouvain_numba.fit(self.star_wars)
+            labels = self.bilouvain_numba.labels_
             self.assertEqual(labels.shape, (4,))
 
     def test_shuffling(self):
