@@ -9,10 +9,8 @@ import unittest
 
 from scipy import sparse
 
-from sknetwork.clustering import SpectralClustering
-from sknetwork.embedding import SVD
+from sknetwork.clustering import BiSpectralClustering, SpectralClustering
 from sknetwork.toy_graphs import karate_club, painters, movie_actor
-from sknetwork.utils import KMeans
 
 
 class TestSpectralClustering(unittest.TestCase):
@@ -27,10 +25,14 @@ class TestSpectralClustering(unittest.TestCase):
         sc.fit(self.undirected)
         self.assertEqual(sc.labels_.shape[0], self.undirected.shape[0])
 
-    def test_bipartite(self):
-        n_clusters = 2
-        n1, n2 = self.bipartite.shape
-        sc = SpectralClustering(embedding_dimension=3, n_clusters=n_clusters, co_clustering=True)
-        sc.fit(self.bipartite)
-        self.assertEqual(len(sc.labels_), n1)
-        self.assertEqual(len(sc.col_labels_), n2)
+    def test_biclustering(self):
+        bsc = BiSpectralClustering(embedding_dimension=3, joint_clustering=False)
+        bsc.fit(self.directed)
+        self.assertEqual(bsc.labels_.shape[0], self.directed.shape[0])
+        self.assertTrue(bsc.col_labels_ is None)
+
+    def test_joint_clustering(self):
+        bsc = BiSpectralClustering(embedding_dimension=3)
+        bsc.fit(self.bipartite)
+        self.assertEqual(bsc.labels_.shape[0], self.bipartite.shape[0])
+        self.assertEqual(bsc.col_labels_.shape[0], self.bipartite.shape[1])

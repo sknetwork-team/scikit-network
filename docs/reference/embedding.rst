@@ -16,10 +16,10 @@ Spectral
 .. autoclass:: sknetwork.embedding.Spectral
     :members:
 
-SVD
----
+BiSpectral
+----------
 
-.. autoclass:: sknetwork.embedding.SVD
+.. autoclass:: sknetwork.embedding.BiSpectral
     :members:
 
 Metrics

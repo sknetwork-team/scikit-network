@@ -25,6 +25,9 @@ Spectral
 .. autoclass:: sknetwork.clustering.SpectralClustering
     :members:
 
+.. autoclass:: sknetwork.clustering.BiSpectralClustering
+    :members:
+
 Metrics
 -------
 .. autofunction:: sknetwork.clustering.modularity

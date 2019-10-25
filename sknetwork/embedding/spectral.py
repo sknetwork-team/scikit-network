@@ -17,9 +17,8 @@ from scipy.sparse.linalg import LinearOperator
 
 from sknetwork.basics.structure import is_connected
 from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver
-from sknetwork.utils.adjacency_formats import set_adjacency
 from sknetwork.utils.algorithm_base_class import Algorithm
-from sknetwork.utils.checks import check_format
+from sknetwork.utils.checks import check_format, is_symmetric
 
 
 class LaplacianOperator(LinearOperator):
@@ -179,15 +178,13 @@ class Spectral(Algorithm):
         self.col_embedding_ = None
         self.eigenvalues_ = None
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], force_biadjacency: bool = False) -> 'Spectral':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Spectral':
         """Fits the model from data in adjacency_matrix
 
         Parameters
         ----------
         adjacency :
               Adjacency or biadjacency matrix of the graph.
-        force_biadjacency :
-            If ``True``, force the input matrix to be considered as a biadjacency matrix.
 
         Returns
         -------
@@ -195,8 +192,9 @@ class Spectral(Algorithm):
         """
 
         adjacency = check_format(adjacency).asfptype()
-        n1, n2 = adjacency.shape
-        adjacency = set_adjacency(adjacency, force_undirected=True, force_biadjacency=force_biadjacency)
+        if not is_symmetric(adjacency):
+            raise ValueError('The adjacency is not symmetric.'
+                             'Either convert it to a symmetric matrix or use BiSpectral.')
         n = adjacency.shape[0]
 
         if self.solver == 'auto':
@@ -265,7 +263,7 @@ class Spectral(Algorithm):
                     eigenvalues = np.minimum(eigenvalues, 1)
                     embedding *= np.sqrt(1 - eigenvalues)
                 else:
-                    embedding *= np.sqrt(np.clip(eigenvalues, a_min=0, a_max=np.max(eigenvalues)))
+                    embedding *= np.sqrt(np.clip(eigenvalues, a_min=0, a_max=None))
             elif self.scaling == 'divide':
                 inv_eigenvalues = np.zeros_like(eigenvalues)
                 index = np.where(eigenvalues > 0)[0]
@@ -274,11 +272,7 @@ class Spectral(Algorithm):
             else:
                 warnings.warn(Warning("The scaling must be 'multiply' or 'divide'. No scaling done."))
 
-        if n > n1:
-            self.embedding_ = embedding[:n1]
-            self.col_embedding_ = embedding[n1:]
-        else:
-            self.embedding_ = embedding
+        self.embedding_ = embedding
         self.eigenvalues_ = eigenvalues
 
         return self
