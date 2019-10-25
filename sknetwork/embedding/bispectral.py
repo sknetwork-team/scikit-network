@@ -26,7 +26,7 @@ class BiSpectral(Algorithm):
     where :math:`W_1, W_2` are diagonal matrices of **weights** and **col_weights**.
 
     The embedding of the rows is :math:`X = U\\Sigma \\phi(\\Sigma)`
-    and the embedding of the columns is :math:`X = V\\phi(\\Sigma)`,
+    and the embedding of the columns is :math:`Y = V\\phi(\\Sigma)`,
     where :math:`\\phi(\\Sigma)` is a diagonal scaling matrix.
 
     Parameters
