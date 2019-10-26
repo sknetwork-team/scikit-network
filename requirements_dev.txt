@@ -4,12 +4,12 @@ wheel==0.33.6
 watchdog==0.9.0
 flake8==3.7.8
 tox==3.14.0
-Sphinx==2.2.0
+Sphinx==2.2.1
 coverage==4.5.4
 twine==2.0.0
 numba==0.46.0
 nbsphinx==0.4.3
-ipython==7.8.0
+ipython==7.9.0
 
 pytest-runner==5.1
 pytest==5.2.2
