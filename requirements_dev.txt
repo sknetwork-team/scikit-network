@@ -11,6 +11,6 @@ numba==0.46.0
 nbsphinx==0.4.3
 ipython==7.9.0
 
-pytest-runner==5.1
+pytest-runner==5.2
 pytest==5.2.2
 
