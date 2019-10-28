@@ -183,6 +183,12 @@ class Spectral(Algorithm):
         else:
             self.solver = solver
 
+        if scaling == 'multiply':
+            if not normalized_laplacian:
+                self.scaling = None
+                warnings.warn(Warning("The scaling 'multiply' is valid only with ``normalized_laplacian = 'True'``. "
+                                      "It will be ignored."))
+
         self.embedding_ = None
         self.eigenvalues_ = None
         self.regularization_ = None
@@ -270,11 +276,8 @@ class Spectral(Algorithm):
 
         if self.scaling:
             if self.scaling == 'multiply':
-                if self.normalized_laplacian:
-                    eigenvalues = np.minimum(eigenvalues, 1)
-                    embedding *= np.sqrt(1 - eigenvalues)
-                else:
-                    embedding *= np.sqrt(np.clip(eigenvalues, a_min=0, a_max=None))
+                eigenvalues = np.minimum(eigenvalues, 1)
+                embedding *= np.sqrt(1 - eigenvalues)
             elif self.scaling == 'divide':
                 inv_eigenvalues = np.zeros_like(eigenvalues)
                 index = np.where(eigenvalues > 0)[0]
