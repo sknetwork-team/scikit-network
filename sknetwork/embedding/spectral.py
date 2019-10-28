@@ -189,6 +189,8 @@ class Spectral(Algorithm):
                 warnings.warn(Warning("The scaling 'multiply' is valid only with ``normalized_laplacian = 'True'``. "
                                       "It will be ignored."))
 
+        self.tol = tol
+
         self.embedding_ = None
         self.eigenvalues_ = None
         self.regularization_ = None
@@ -230,8 +232,8 @@ class Spectral(Algorithm):
                                   "This can cause errors in the computation of the embedding."))
 
         if isinstance(self.solver, HalkoEig) and not self.normalized_laplacian:
-            raise NotImplementedError('Halko solver is not yet compatible with unormalized Laplacian.'
-                                      'Please chose normalized Laplacian or force lanczos solver.')
+            raise NotImplementedError("Halko solver is not yet compatible with regular Laplacian."
+                                      "Call 'fit' with 'normalized_laplacian' = True or force lanczos solver.")
 
         weights = adjacency.dot(np.ones(n))
         regularization = self.regularization
