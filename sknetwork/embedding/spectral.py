@@ -183,11 +183,6 @@ class Spectral(Algorithm):
         else:
             self.solver = solver
 
-<<<<<<< 181044c460580020c377065669619bc25d461b4a
-=======
-        self.tol = tol
-
->>>>>>> Predict method for spectral
         self.embedding_ = None
         self.eigenvalues_ = None
         self.regularization_ = None
