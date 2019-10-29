@@ -13,9 +13,8 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork import njit, types, TypedDict
-from sknetwork.utils.adjacency_formats import set_adjacency_weights
 from sknetwork.utils.algorithm_base_class import Algorithm
-from sknetwork.utils.checks import check_engine, check_format
+from sknetwork.utils.checks import check_engine, check_format, check_probs, is_symmetric
 
 
 class AggregateGraph:
@@ -332,8 +331,6 @@ class Paris(Algorithm):
         Weights of secondary nodes (for bipartite graphs).
         ``None`` (default), ``'degree'`` or ``'uniform'``.
         If ``None``, taken equal to weights.
-    force_undirected : bool (default= ``False``)
-        If ``True``, consider the graph as undirected.
     engine : str
         ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     reorder :
@@ -374,16 +371,16 @@ class Paris(Algorithm):
     """
 
     def __init__(self, engine: str = 'default', weights: str = 'degree', col_weights: Union[None, str] = None,
-                 force_undirected: bool = False, reorder: bool = True):
+                 reorder: bool = True):
         self.weights = weights
         self.col_weights = col_weights
-        self.force_undirected = force_undirected
         self.engine = check_engine(engine)
         self.reorder = reorder
+
         self.dendrogram_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], custom_weights: Union[None, np.ndarray] = None,
-            custom_col_weights: Union[None, np.ndarray] = None, force_biadjacency: bool = False) -> 'Paris':
+            custom_col_weights: Union[None, np.ndarray] = None) -> 'Paris':
         """
         Agglomerative clustering using the nearest neighbor chain.
 
@@ -395,30 +392,36 @@ class Paris(Algorithm):
             Array of input dependent node weights.
         custom_col_weights :
             Array of input dependent weights of secondary nodes (for bipartite graphs).
-        force_biadjacency : bool (default= ``False``)
-            If ``True``, force the input matrix to be considered as a biadjacency matrix.
 
         Returns
         -------
         self: :class:`Paris`
         """
         adjacency = check_format(adjacency)
-        if custom_weights:
+        if not is_symmetric(adjacency):
+            raise ValueError('The adjacency is not symmetric.')
+
+        if custom_weights is not None:
             weights = custom_weights
         else:
             weights = self.weights
-        if custom_col_weights:
+
+        if custom_col_weights is not None:
             col_weights = custom_col_weights
         else:
             col_weights = self.col_weights
-        adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, col_weights,
-                                                                   self.force_undirected, force_biadjacency)
+            if self.col_weights is None:
+                col_weights = weights
+
+        weights = check_probs(weights, adjacency)
+        col_weights = check_probs(col_weights, adjacency.T)
+
         n = adjacency.shape[0]
         if n <= 1:
             raise ValueError('The graph must contain at least two nodes.')
 
         if self.engine == 'python':
-            aggregate_graph = AggregateGraph(adjacency + adjacency.T, out_weights, in_weights)
+            aggregate_graph = AggregateGraph(adjacency + adjacency.T, weights, col_weights)
 
             connected_components = []
             dendrogram = []
@@ -478,7 +481,7 @@ class Paris(Algorithm):
             sym_adjacency = adjacency + adjacency.T
             indices, indptr, data = sym_adjacency.indices, sym_adjacency.indptr, sym_adjacency.data
 
-            dendrogram = fit_core(n, out_weights, in_weights, data, indices, indptr)
+            dendrogram = fit_core(n, weights, col_weights, data, indices, indptr)
             dendrogram = np.array(dendrogram)
             if self.reorder:
                 dendrogram = reorder_dendrogram(dendrogram)
