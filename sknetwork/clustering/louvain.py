@@ -16,7 +16,7 @@ from sknetwork import njit
 from sknetwork.clustering.post_processing import membership_matrix, reindex_clusters
 from sknetwork.utils.adjacency_formats import bipartite2directed, directed2undirected
 from sknetwork.utils.algorithm_base_class import Algorithm
-from sknetwork.utils.checks import check_format, check_engine, check_random_state, check_probs
+from sknetwork.utils.checks import check_format, check_engine, check_random_state, check_probs, is_square
 
 
 class AggregateGraph:
@@ -434,11 +434,9 @@ class Louvain(Algorithm):
         self: :class:`Louvain`
         """
         adjacency = check_format(adjacency)
-        n1, n2 = adjacency.shape
-        if n1 != n2:
+        if not is_square(adjacency):
             raise ValueError('The adjacency is not square.')
-        else:
-            n = n1
+        n = adjacency.shape[0]
 
         weights = check_probs('degree', adjacency)
         col_weights = check_probs('degree', adjacency.T)
