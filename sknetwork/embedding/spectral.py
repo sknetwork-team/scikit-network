@@ -170,11 +170,10 @@ class Spectral(Algorithm):
         self.relative_regularization = relative_regularization
 
         self.scaling = scaling
-        if scaling == 'multiply':
-            if not normalized_laplacian:
-                self.scaling = None
-                warnings.warn(Warning("The scaling 'multiply' is valid only with ``normalized_laplacian = 'True'``. "
-                                      "It will be ignored."))
+        if scaling == 'multiply' and not normalized_laplacian:
+            self.scaling = None
+            warnings.warn(Warning("The scaling 'multiply' is valid only with ``normalized_laplacian = 'True'``. "
+                                  "It will be ignored."))
 
         if solver == 'halko':
             self.solver: EigSolver = HalkoEig(which='SM')
@@ -182,12 +181,6 @@ class Spectral(Algorithm):
             self.solver: EigSolver = LanczosEig(which='SM')
         else:
             self.solver = solver
-
-        if scaling == 'multiply':
-            if not normalized_laplacian:
-                self.scaling = None
-                warnings.warn(Warning("The scaling 'multiply' is valid only with ``normalized_laplacian = 'True'``. "
-                                      "It will be ignored."))
 
         self.tol = tol
 
@@ -336,5 +329,3 @@ class Spectral(Algorithm):
                              " Call 'fit' with 'normalized_laplacian' = True.")
 
         return embedding_vector
-
-

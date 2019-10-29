@@ -11,7 +11,6 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding import BiSpectral, Spectral
-from sknetwork.utils.adjacency_formats import bipartite2undirected
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, is_symmetric
 from sknetwork.utils.kmeans import KMeans
@@ -123,14 +122,13 @@ class BiSpectralClustering(SpectralClustering):
         adjacency = check_format(adjacency)
         n1, n2 = adjacency.shape
 
-        if self.joint_clustering:
-            adjacency = bipartite2undirected(adjacency)
-            algo = Spectral(self.embedding_dimension)
-        else:
-            algo = BiSpectral(self.embedding_dimension)
+        algo = BiSpectral(self.embedding_dimension).fit(adjacency)
 
-        algo.fit(adjacency)
-        embedding = algo.embedding_
+        if self.joint_clustering:
+            embedding = np.vstack((algo.embedding_, algo.col_embedding_))
+        else:
+            embedding = algo.embedding_
+
         if self.l2normalization:
             norm = np.linalg.norm(embedding, axis=1)
             norm[norm == 0.] = 1

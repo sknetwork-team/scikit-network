@@ -110,7 +110,7 @@ class TestEmbeddings(unittest.TestCase):
 
     def test_spectral_basic(self):
         # Spectral with lanczos solver
-        spectral = Spectral(2, normalized_laplacian=False, solver='lanczos')
+        spectral = Spectral(2, normalized_laplacian=False, scaling=None, solver='lanczos')
         spectral.fit(self.adjacency)
         self.assertTrue(has_proper_shape(self.adjacency, spectral))
         self.assertTrue(min(spectral.eigenvalues_ >= -1) and max(spectral.eigenvalues_ <= 1))
