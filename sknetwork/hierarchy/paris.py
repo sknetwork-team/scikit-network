@@ -400,7 +400,7 @@ class Paris(Algorithm):
 
         Returns
         -------
-        self: :class: 'Paris'
+        self: :class:`Paris`
         """
         adjacency = check_format(adjacency)
         if custom_weights:

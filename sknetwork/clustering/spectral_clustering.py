@@ -31,7 +31,7 @@ class SpectralClustering(Algorithm):
     Attributes
     ----------
     labels_:
-        Labels the rows.
+        Labels of the rows.
 
     """
 
@@ -52,7 +52,7 @@ class SpectralClustering(Algorithm):
 
         Returns
         -------
-        self: 'SpectralClustering'
+        self: :class:`SpectralClustering`
 
         """
         adjacency = check_format(adjacency)
@@ -94,9 +94,9 @@ class BiSpectralClustering(SpectralClustering):
     Attributes
     ----------
     labels_: np.ndarray
-        Labels the rows.
+        Labels of the rows.
     col_labels_: np.ndarray
-        Labels the columns. Only valid if ``joint_clustering=True``.
+        Labels of the columns. Only valid if ``joint_clustering=True``.
 
     """
     def __init__(self, n_clusters: int = 8, embedding_dimension: int = 16, l2normalization: bool = True,
@@ -116,7 +116,7 @@ class BiSpectralClustering(SpectralClustering):
 
         Returns
         -------
-        self: 'BiSpectralClustering'
+        self: :class:`BiSpectralClustering`
 
         """
         adjacency = check_format(adjacency)

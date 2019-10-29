@@ -20,9 +20,12 @@ Any new node resulting from a merge takes the first available index (e.g., the f
 
 Paris
 -----
-.. automodule:: sknetwork.hierarchy
-
 .. autoclass:: sknetwork.hierarchy.Paris
+    :members:
+
+SpectralWard
+------------
+.. autoclass:: sknetwork.hierarchy.SpectralWard
     :members:
 
 
