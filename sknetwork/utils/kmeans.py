@@ -68,7 +68,7 @@ class KMeans(Algorithm):
 
         Returns
         -------
-        self: 'KMeans'
+        self: :class:`KMeans`
 
         """
         centroids, labels = kmeans2(data=x, k=self.n_clusters, iter=self.n_init, thresh=self.tol, minit=self.init)

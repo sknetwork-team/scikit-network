@@ -56,5 +56,8 @@ Algorithms
 
 .. autofunction:: sknetwork.utils.projection_simplex.projection_simplex
 
+.. autoclass:: sknetwork.utils.ward.Ward
+    :members:
+
 
 

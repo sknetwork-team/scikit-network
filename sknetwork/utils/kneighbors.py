@@ -74,7 +74,7 @@ class KNeighborsTransformer(Algorithm):
         Returns
         -------
 
-        self: :class: 'KNeighborsTransformer'
+        self: :class:`KNeighborsTransformer`
 
         """
         tree = cKDTree(x, self.leaf_size)
