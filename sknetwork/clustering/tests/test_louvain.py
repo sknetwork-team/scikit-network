@@ -4,7 +4,7 @@
 
 import unittest
 
-from scipy.sparse import identity
+from scipy import sparse
 
 from sknetwork import is_numba_available
 from sknetwork.clustering import Louvain, BiLouvain, modularity
@@ -28,24 +28,17 @@ class TestLouvainClustering(unittest.TestCase):
         self.louvain_shuffle_first = Louvain(engine='python', shuffle_nodes=True, random_state=0)
         self.louvain_shuffle_second = Louvain(engine='python', shuffle_nodes=True, random_state=123)
         self.random_graph = random_graph()
-        self.karate_club = karate_club()
+        self.karate_club: sparse.csr_matrix = karate_club()
         self.bow_tie = bow_tie()
         self.painters = painters(return_labels=False)
-        self.star_wars = star_wars_villains()
+        self.star_wars: sparse.csr_matrix = star_wars_villains()
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):
-            self.louvain.fit(identity(1))
-
-        with self.assertRaises(TypeError):
-            self.louvain.fit(identity(2, format='csr'), custom_weights=1)
-
-    def test_unknown_options(self):
-        with self.assertRaises(ValueError):
-            self.louvain.fit(identity(2, format='csr'), custom_weights='unknown')
+            self.louvain.fit(sparse.identity(1))
 
     def test_single_node_graph(self):
-        self.louvain.fit(identity(1, format='csr'))
+        self.louvain.fit(sparse.identity(1, format='csr'))
         self.assertEqual(self.louvain.labels_, [0])
 
     def test_random_graph(self):
@@ -72,10 +65,17 @@ class TestLouvainClustering(unittest.TestCase):
         self.assertEqual(len(set(self.louvain_null_resolution.labels_)), 1)
 
     def test_directed(self):
-        self.bilouvain.fit(self.painters)
-        labels = self.bilouvain.labels_
+        self.louvain.fit(self.painters)
+        labels = self.louvain.labels_
         self.assertEqual(labels.shape, (14,))
         self.assertAlmostEqual(modularity(self.painters, labels), 0.32, 2)
+
+        self.bilouvain.fit(self.painters)
+        n1, n2 = self.painters.shape
+        labels = self.bilouvain.labels_
+        col_labels = self.bilouvain.col_labels_
+        self.assertEqual(labels.shape, (n1,))
+        self.assertEqual(col_labels.shape, (n2,))
 
     def test_bipartite(self):
         self.bilouvain.fit(self.star_wars)

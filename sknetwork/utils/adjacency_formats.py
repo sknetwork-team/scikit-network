@@ -120,10 +120,13 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
         raise TypeError('Input must be a scipy CSR matrix or a SparseLR object.')
 
 
-def set_adjacency(adjacency: sparse.csr_matrix, force_undirected: bool, force_biadjacency: bool) -> sparse.csr_matrix:
-    """Transform the input matrix :math:`A` to a (square) adjacency matrix, given by:
+def set_adjacency_weights(adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray],
+                          col_weights: Union[None, str, np.ndarray], force_undirected: bool,
+                          force_biadjacency: bool) -> Tuple[sparse.csr_matrix, np.ndarray, np.ndarray]:
+    """Modify adjacency and compute weights.
 
-    * :math:`\\begin{bmatrix} 0 & A \\\\ 0 & 0 \\end{bmatrix}` if :math:`A` is not square or **force_biadjacency** is ``True``
+    * :math:`\\begin{bmatrix} 0 & A \\\\ 0 & 0 \\end{bmatrix}` if :math:`A` is not square or **force_biadjacency**
+    is ``True``
 
     * :math:`\\begin{bmatrix} 0 & A \\\\ A^T & 0 \\end{bmatrix}` if in addition, **force_undirected** is ``True``
 
@@ -133,46 +136,11 @@ def set_adjacency(adjacency: sparse.csr_matrix, force_undirected: bool, force_bi
 
     Parameters
     ----------
-    adjacency:
-        Adjacency of biadjacency matrix of the graph.
-    force_undirected:
-        If ``True``, consider the graph as undirected.
-    force_biadjacency :
-        If ``True``, consider the input matrix as a biadjacency matrix.
-
-    Returns
-    -------
-    Adjacency matrix (symmetric).
-    """
-
-    n1, n2 = adjacency.shape
-
-    if n1 != n2 or force_biadjacency:
-        # bipartite graph
-        if force_undirected:
-            adjacency = bipartite2undirected(adjacency)
-        else:
-            adjacency = bipartite2directed(adjacency)
-    else:
-        # non-bipartite graph
-        if force_undirected and not is_symmetric(adjacency):
-            adjacency = directed2undirected(adjacency)
-
-    return adjacency
-
-
-def set_adjacency_weights(adjacency: sparse.csr_matrix, weights: Union[str, np.ndarray],
-                          secondary_weights: Union[None, str, np.ndarray], force_undirected: bool,
-                          force_biadjacency: bool) -> Tuple[sparse.csr_matrix, np.ndarray, np.ndarray]:
-    """Modify adjacency and compute weights.
-
-    Parameters
-    ----------
     adjacency :
         Adjacency or biadjacency matrix of the graph.
     weights :
         Weights of nodes.
-    secondary_weights :
+    col_weights :
         Weights of secondary nodes (for bipartite graphs).
     force_undirected :
         If ``True``, consider the graph as undirected.
@@ -191,23 +159,23 @@ def set_adjacency_weights(adjacency: sparse.csr_matrix, weights: Union[str, np.n
         # bipartite graph
         if force_undirected:
             adjacency = bipartite2undirected(adjacency)
-            out_weights = check_probs(weights, adjacency)
-            in_weights = out_weights
+            weights = check_probs(weights, adjacency)
+            col_weights = weights
         else:
-            if secondary_weights is None:
+            if col_weights is None:
                 if type(weights) == str:
-                    secondary_weights = weights
+                    col_weights = weights
                 else:
                     warnings.warn(Warning("Feature_weights have been set to 'degree'."))
-                    secondary_weights = 'degree'
-            out_weights = np.hstack((check_probs(weights, adjacency), np.zeros(n2)))
-            in_weights = np.hstack((np.zeros(n1), check_probs(secondary_weights, adjacency.T)))
+                    col_weights = 'degree'
+            weights = np.hstack((check_probs(weights, adjacency), np.zeros(n2)))
+            col_weights = np.hstack((np.zeros(n1), check_probs(col_weights, adjacency.T)))
             adjacency = bipartite2directed(adjacency)
     else:
         # non-bipartite graph
         if force_undirected and not is_symmetric(adjacency):
             adjacency = directed2undirected(adjacency)
-        out_weights = check_probs(weights, adjacency)
-        in_weights = check_probs(weights, adjacency.T)
+        weights = check_probs(weights, adjacency)
+        col_weights = check_probs(weights, adjacency.T)
 
-    return adjacency, out_weights, in_weights
+    return adjacency, weights, col_weights
