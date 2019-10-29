@@ -112,7 +112,7 @@ class Spectral(Algorithm):
 
     Parameters
     ----------
-    embedding_dimension : int, optional
+    embedding_dimension : int (default = 2)
         Dimension of the embedding space
     normalized_laplacian : bool (default = ``True``)
         If ``True``, use the normalized Laplacian, :math:`I - D^{-1/2} A D^{-1/2}`.
@@ -121,24 +121,25 @@ class Spectral(Algorithm):
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
     scaling : ``None`` or ``'multiply'`` or ``'divide'`` (default = ``'multiply'``)
-        If ```'multiply'``, multiply by the square-root of each eigenvalue.
-    solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver`
+        If ```'multiply'``, multiply by the square-root of each positive eigenvalue.
+    solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
         Which eigenvalue solver to use.
 
         * ``'auto'`` call the auto_solver function.
         * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
         * ``'lanczos'``: power-iteration based method.
         * :class:`EigSolver`: custom solver.
+    tol: float (default = 1e-10)
+        Skip eigenvectors of the normalized Laplacian with eigenvalues larger than 1 - tol.
 
     Attributes
     ----------
     embedding_ : array, shape = (n, embedding_dimension)
         Embedding of the nodes.
-    col_embedding_ : array, shape = (p, embedding_dimension)
-        Co-embedding of the feature nodes.
-        Only relevant for an asymmetric input matrix or if **force_biadjacency** = ``True``.
     eigenvalues_ : array, shape = (embedding_dimension)
         Eigenvalues in increasing order (first eigenvalue ignored).
+    regularization_ : ``None`` or float
+        Regularization factor added to all pairs of nodes.
 
     Example
     -------
@@ -158,15 +159,23 @@ class Spectral(Algorithm):
 
     def __init__(self, embedding_dimension: int = 2, normalized_laplacian=True,
                  regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
-                 scaling: Union[None, str] = 'multiply', solver: Union[str, EigSolver] = 'auto'):
+                 scaling: Union[None, str] = 'multiply', solver: Union[str, EigSolver] = 'auto', tol: float = 1e-10):
         self.embedding_dimension = embedding_dimension
         self.normalized_laplacian = normalized_laplacian
+
         if regularization == 0:
             self.regularization = None
         else:
             self.regularization = regularization
         self.relative_regularization = relative_regularization
+
         self.scaling = scaling
+        if scaling == 'multiply':
+            if not normalized_laplacian:
+                self.scaling = None
+                warnings.warn(Warning("The scaling 'multiply' is valid only with ``normalized_laplacian = 'True'``. "
+                                      "It will be ignored."))
+
         if solver == 'halko':
             self.solver: EigSolver = HalkoEig(which='SM')
         elif solver == 'lanczos':
@@ -180,17 +189,19 @@ class Spectral(Algorithm):
                 warnings.warn(Warning("The scaling 'multiply' is valid only with ``normalized_laplacian = 'True'``. "
                                       "It will be ignored."))
 
+        self.tol = tol
+
         self.embedding_ = None
-        self.col_embedding_ = None
         self.eigenvalues_ = None
+        self.regularization_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Spectral':
-        """Fits the model from data in adjacency_matrix
+        """Fits the model from data in adjacency.
 
         Parameters
         ----------
         adjacency :
-              Adjacency or biadjacency matrix of the graph.
+              Adjacency matrix of the graph (symmetric matrix).
 
         Returns
         -------
@@ -221,8 +232,8 @@ class Spectral(Algorithm):
                                   "This can cause errors in the computation of the embedding."))
 
         if isinstance(self.solver, HalkoEig) and not self.normalized_laplacian:
-            raise NotImplementedError('Halko solver is not yet compatible with unormalized Laplacian.'
-                                      'Please chose normalized Laplacian or force lanczos solver.')
+            raise NotImplementedError("Halko solver is not yet compatible with regular Laplacian."
+                                      "Call 'fit' with 'normalized_laplacian' = True or force lanczos solver.")
 
         weights = adjacency.dot(np.ones(n))
         regularization = self.regularization
@@ -232,8 +243,8 @@ class Spectral(Algorithm):
             weights += regularization * n
 
         if self.normalized_laplacian:
-            # Finding the largest eigenvectors of the normalized adjacency is easier for the solver than finding the
-            # smallest ones of the normalized laplacian.
+            # Finding the largest eigenvalues of the normalized adjacency is easier for the solver than finding the
+            # smallest eigenvalues of the normalized laplacian.
             normalizing_matrix = sparse.diags(np.sqrt(weights), format='csr')
             normalizing_matrix.data = 1 / normalizing_matrix.data
 
@@ -244,12 +255,14 @@ class Spectral(Algorithm):
 
             self.solver.which = 'LA'
             self.solver.fit(matrix=norm_adjacency, n_components=n_components)
-            self.solver.eigenvalues_ = 1 - self.solver.eigenvalues_
-            # eigenvalues of the laplacian by increasing order
-            index = np.argsort(self.solver.eigenvalues_)
-            eigenvalues = self.solver.eigenvalues_[index][1:]
-            embedding = self.solver.eigenvectors_[:, index][:, 1:]
-            embedding = np.array(normalizing_matrix.dot(embedding))
+            eigenvalues = 1 - self.solver.eigenvalues_
+            # eigenvalues of the Laplacian in increasing order
+            index = np.argsort(eigenvalues)
+            # skip first eigenvalue
+            eigenvalues = eigenvalues[index][1:]
+            # keep only positive eigenvectors of the normalized adjacency matrix
+            eigenvectors = self.solver.eigenvectors_[:, index][:, 1:] * (eigenvalues < 1 - self.tol)
+            embedding = np.array(normalizing_matrix.dot(eigenvectors))
 
         else:
             if regularization:
@@ -277,5 +290,51 @@ class Spectral(Algorithm):
 
         self.embedding_ = embedding
         self.eigenvalues_ = eigenvalues
+        self.regularization_ = regularization
 
         return self
+
+    def predict(self, adjacency_vector: np.ndarray) -> np.ndarray:
+        """Predicts the embedding of a new node, defined by its adjacency vector.
+
+        Parameters
+        ----------
+        adjacency_vector : array, shape (n,)
+              Adjacency vector of a node.
+
+        Returns
+        -------
+        embedding_vector : array, shape (embedding_dimension,)
+            Embedding of the node.
+        """
+        embedding = self.embedding_
+        eigenvalues = self.eigenvalues_
+
+        if embedding is None:
+            raise ValueError("This instance of Spectral embedding is not fitted yet."
+                             " Call 'fit' with appropriate arguments before using this method.")
+        else:
+            n = embedding.shape[0]
+
+        if adjacency_vector.shape[0] != n:
+            raise ValueError('The adjacency vector must be of length equal to the number of nodes.')
+        elif not np.all(adjacency_vector >= 0):
+            raise ValueError('The adjacency vector must be non-negative.')
+
+        # regularization
+        if self.regularization_:
+            adjacency_vector += self.regularization_
+
+        # projection in the embedding space
+        if self.normalized_laplacian:
+            embedding_vector = np.zeros(self.embedding_dimension)
+            index = np.where(eigenvalues < 1 - self.tol)[0]
+            embedding_vector[index] = embedding[:, index].T.dot(adjacency_vector) / np.sum(adjacency_vector)
+            embedding_vector[index] /= 1 - eigenvalues[index]
+        else:
+            raise ValueError("The predict method is not available for the spectral embedding based on the Laplacian."
+                             " Call 'fit' with 'normalized_laplacian' = True.")
+
+        return embedding_vector
+
+

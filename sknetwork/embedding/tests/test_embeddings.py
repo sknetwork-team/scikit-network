@@ -46,11 +46,11 @@ def has_proper_shape(adjacency, algo: Union[Spectral, BiSpectral]) -> bool:
     -------
 
     """
-    n, m = adjacency.shape
+    n1, n2 = adjacency.shape
     k = algo.embedding_dimension
-    if algo.embedding_.shape != (n, k):
+    if algo.embedding_.shape != (n1, k):
         return False
-    if algo.col_embedding_ is not None and algo.col_embedding_.shape != (m, k):
+    if hasattr(algo, 'col_embedding_') and algo.col_embedding_.shape != (n2, k):
         return False
     if hasattr(algo, 'eigenvalues_') and len(algo.eigenvalues_) != k:
         return False
@@ -125,6 +125,14 @@ class TestEmbeddings(unittest.TestCase):
         spectral.regularization = 0.1
         spectral.fit(self.house)
         self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
+
+    def test_predict(self):
+        spectral = Spectral(4)
+        spectral.fit(self.adjacency)
+        unit_vector = np.zeros(self.adjacency.shape[0])
+        unit_vector[0] = 1
+        error = max(abs(spectral.predict(self.adjacency.dot(unit_vector)) - spectral.embedding_[0]))
+        self.assertAlmostEqual(error, 0)
 
     def test_svd(self):
         svd = BiSpectral(2, solver='lanczos')
