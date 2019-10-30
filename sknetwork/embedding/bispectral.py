@@ -37,13 +37,13 @@ class BiSpectral(Algorithm):
         Weights of the nodes.
 
         * ``'degree'``: :math:`W_1 = D`,
-        * ``'uniform'``  :math:`W_1 = I`.
+        * ``'uniform'``:  :math:`W_1 = I`.
 
     col_weights: ``None`` or ``'degree'`` or ``'uniform'`` (default= ``None``)
         Weights of the secondary nodes (taken equal to **weights** if ``None``).
 
         * ``'degree'``: :math:`W_2 = F`,
-        * ``'uniform'``  :math:`W_2 = I`.
+        * ``'uniform'``:  :math:`W_2 = I`.
 
     regularization: ``None`` or float (default= ``0.01``)
         Implicitly add edges of given weight between all pairs of nodes.
@@ -59,7 +59,7 @@ class BiSpectral(Algorithm):
     solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.
 
-        * ``'auto'`` call the auto_solver function.
+        * ``'auto'``: call the auto_solver function.
         * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
         * ``'lanczos'``: power-iteration based method.
         * :class:`SVDSolver`: custom solver.
