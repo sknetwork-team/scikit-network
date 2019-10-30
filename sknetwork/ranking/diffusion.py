@@ -68,7 +68,7 @@ class Diffusion(Algorithm):
 
         Returns
         -------
-        self: :class: 'Diffusion'
+        self: :class:`Diffusion`
         """
         adjacency = check_format(adjacency)
         n1: int = adjacency.shape[0]

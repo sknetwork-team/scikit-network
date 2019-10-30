@@ -79,7 +79,7 @@ class HITS(Algorithm):
 
         Returns
         -------
-        self: :class: 'HITS'
+        self: :class:`HITS`
         """
         adjacency = check_format(adjacency)
 
