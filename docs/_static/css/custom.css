@@ -2,6 +2,10 @@ html  {
     background-color: #e6e6e6;
 }
 
+.wy-nav-content {
+    max-width: none;
+}
+
 body.wy-body-for-nav {
     line-height: 1.5em;
     color: #333;
