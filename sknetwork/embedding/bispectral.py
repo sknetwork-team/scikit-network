@@ -22,7 +22,7 @@ class BiSpectral(Algorithm):
     Graph embedding by Generalized Singular Value Decomposition.
 
     Solves
-    :math:`\\begin{cases} AV = W_1U\\Sigma, \\ A^TU = W_2V \\Sigma \\end{cases}`
+    :math:`\\begin{cases} AV = W_1U\\Sigma, \\\\ A^TU = W_2V \\Sigma \\end{cases}`
     where :math:`W_1, W_2` are diagonal matrices of **weights** and **col_weights**.
 
     The embedding of the rows is :math:`X = U \\phi(\\Sigma)`
