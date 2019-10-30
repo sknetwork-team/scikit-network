@@ -6,8 +6,8 @@ import unittest
 
 import numpy as np
 
-from sknetwork.ranking.pagerank import PageRank
-from sknetwork.toy_graphs import miserables, rock_paper_scissors, random_bipartite_graph
+from sknetwork.ranking.pagerank import PageRank, BiPageRank
+from sknetwork.toy_graphs import miserables, rock_paper_scissors, movie_actor
 
 
 class TestPageRank(unittest.TestCase):
@@ -15,13 +15,15 @@ class TestPageRank(unittest.TestCase):
     def setUp(self):
         self.adjacency = rock_paper_scissors()
         self.miserables = miserables()
+        self.bipartite = movie_actor()
+
         self.pagerank_sps = PageRank(solver='spsolve')
         self.pagerank_lcz = PageRank(solver='lanczos')
         self.pagerank_lsq = PageRank(solver='lsqr')
         # self.pagerank_hlk = PageRank(solver='halko')
         self.pagerank_high_damping = PageRank(damping_factor=0.99)
-        self.pagerank_fb = PageRank(fb_mode=True)
-        self.bipartite = random_bipartite_graph()
+
+        self.bipagerank = BiPageRank()
 
     def test_pagerank(self):
         ground_truth = np.ones(3) / 3
@@ -44,8 +46,8 @@ class TestPageRank(unittest.TestCase):
         score = self.pagerank_lsq.score_
         self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0.)
 
-        self.pagerank_fb.fit(self.adjacency)
-        score = self.pagerank_fb.score_
+        self.bipagerank.fit(self.adjacency)
+        score = self.bipagerank.score_
         self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0.)
 
         # self.pagerank_hlk.fit(self.adjacency)
@@ -58,14 +60,7 @@ class TestPageRank(unittest.TestCase):
 
     def test_bipartite(self):
         biadjacency = self.bipartite
-        self.pagerank_sps.fit(biadjacency, {0: 1})
-        score = self.pagerank_sps.score_
-        col_score = self.pagerank_sps.col_score_
-        self.assertEqual(len(score), biadjacency.shape[0])
-        self.assertEqual(len(col_score), biadjacency.shape[1])
 
-        self.pagerank_fb.fit(biadjacency, {0: 1})
-        score = self.pagerank_sps.score_
-        col_score = self.pagerank_sps.col_score_
+        self.bipagerank.fit(biadjacency, {0: 1})
+        score = self.bipagerank.score_
         self.assertEqual(len(score), biadjacency.shape[0])
-        self.assertEqual(len(col_score), biadjacency.shape[1])

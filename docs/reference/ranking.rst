@@ -13,6 +13,11 @@ PageRank
 .. autoclass:: sknetwork.ranking.PageRank
     :members:
 
+.. autoclass:: sknetwork.ranking.BiPageRank
+    :show-inheritance:
+    :inherited-members:
+    :members:
+
 Diffusion
 ---------
 .. autoclass:: sknetwork.ranking.Diffusion

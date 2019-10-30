@@ -14,8 +14,6 @@ Graph formats
 
 .. autofunction:: sknetwork.utils.adjacency_formats.directed2undirected
 
-.. autofunction:: sknetwork.utils.adjacency_formats.set_adjacency
-
 
 Checks
 ------

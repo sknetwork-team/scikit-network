@@ -27,28 +27,28 @@ def aggregate_dendrogram(dendrogram: np.ndarray, n_clusters: int = 2, return_cou
 
     Returns
     -------
-    dendrogram_:
+    new_dendrogram:
         Aggregated dendrogram. The nodes are reindexed from 0.
     counts:
-        Size of the subtrees corresponding to each leaf in dendrogram_.
+        Size of the subtrees corresponding to each leaf in new_dendrogram.
     """
     n_nodes: int = dendrogram.shape[0] + 1
     if n_clusters < 1 or n_clusters > n_nodes:
         raise ValueError("The number of clusters must be between 1 and the number of nodes.")
 
-    dendrogram_ = dendrogram[n_nodes - n_clusters:].copy()
-    node_indices = np.array(sorted(set(dendrogram_[:, 0]).union(set(dendrogram_[:, 1]))))
+    new_dendrogram = dendrogram[n_nodes - n_clusters:].copy()
+    node_indices = np.array(sorted(set(new_dendrogram[:, 0]).union(set(new_dendrogram[:, 1]))))
     new_index = {ix: i for i, ix in enumerate(node_indices)}
 
     for j in range(2):
-        for i in range(dendrogram_.shape[0]):
-            dendrogram_[i, j] = new_index[dendrogram_[i, j]]
+        for i in range(new_dendrogram.shape[0]):
+            new_dendrogram[i, j] = new_index[new_dendrogram[i, j]]
 
     if return_counts:
         leaves = node_indices[:n_clusters].astype(int)
         leaves_indices = leaves - n_nodes
         counts = dendrogram[leaves_indices, 3]
 
-        return dendrogram_, counts.astype(int)
+        return new_dendrogram, counts.astype(int)
     else:
-        return dendrogram_
+        return new_dendrogram
