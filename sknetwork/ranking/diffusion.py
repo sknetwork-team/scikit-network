@@ -13,7 +13,6 @@ from scipy.sparse.linalg import lsqr, spsolve
 
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, is_square
-from sknetwork.utils.adjacency_formats import bipartite2undirected
 
 
 class Diffusion(Algorithm):
@@ -53,7 +52,7 @@ class Diffusion(Algorithm):
         self.col_score_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Union[dict, np.ndarray], force_biadjacency: bool = False) -> 'Diffusion':
+            personalization: Union[dict, np.ndarray]) -> 'Diffusion':
         """
         Compute the diffusion (temperature at equilibrium).
 
@@ -63,8 +62,6 @@ class Diffusion(Algorithm):
             Adjacency or biadjacency matrix of the graph.
         personalization :
             Dictionary or vector (temperature of border nodes).
-        force_biadjacency : bool (default= ``False``)
-            If ``True``, force the input matrix to be considered as a biadjacency matrix.
 
         Returns
         -------
@@ -72,8 +69,9 @@ class Diffusion(Algorithm):
         """
         adjacency = check_format(adjacency)
         n1: int = adjacency.shape[0]
-        if not is_square(adjacency) or force_biadjacency:
-            adjacency = bipartite2undirected(adjacency)
+        if not is_square(adjacency):
+            raise ValueError('The adjacency matrix should be square. Consider using '
+                             'sknetwork.utils.adjacency_format.bipartite2undirected.')
         n: int = adjacency.shape[0]
 
         b: np.ndarray = np.zeros(n)
