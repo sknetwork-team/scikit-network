@@ -117,9 +117,12 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
 
     References
     ----------
-    Charpentier, B. & Bonald, T. (2019).  Tree Sampling Divergence: An Information-Theoretic Metric for
-    Hierarchical Graph Clustering. Proceedings of IJCAI.
-    https://hal.telecom-paristech.fr/hal-02144394/document
+    Charpentier, B. & Bonald, T. (2019).
+    `Tree Sampling Divergence: An Information-Theoretic Metric for
+    Hierarchical Graph Clustering.
+    <https://hal.telecom-paristech.fr/hal-02144394/document>`_
+    Proceedings of IJCAI.
+
     """
     adjacency = check_format(adjacency)
     adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, secondary_weights,

@@ -84,9 +84,9 @@ def randomized_range_finder(matrix: np.ndarray, size: int, n_iter: int, power_it
     Notes
     -----
     Follows Algorithm 4.3 of
-
-    Finding structure with randomness: Stochastic algorithms for constructing approximate matrix decompositions
-    Halko, et al., 2009 (arXiv:909) http://arxiv.org/pdf/0909.4061
+    `Finding structure with randomness: Stochastic algorithms for constructing approximate matrix decompositions
+    <http://arxiv.org/pdf/0909.4061>`_
+    Halko, et al., 2009 (arXiv:909)
     """
     random_state = check_random_state(random_state)
 

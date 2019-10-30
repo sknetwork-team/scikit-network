@@ -364,10 +364,9 @@ class Paris(Algorithm):
     References
     ----------
     T. Bonald, B. Charpentier, A. Galland, A. Hollocou (2018).
-    Hierarchical Graph Clustering using Node Pair Sampling.
+    `Hierarchical Graph Clustering using Node Pair Sampling.
+    <https://arxiv.org/abs/1806.01664>`_
     Workshop on Mining and Learning with Graphs.
-    https://arxiv.org/abs/1806.01664
-
     """
 
     def __init__(self, engine: str = 'default', weights: str = 'degree', col_weights: Union[None, str] = None,

@@ -84,9 +84,10 @@ class BiSpectral(Algorithm):
 
     References
     ----------
-    Abdi, H. (2007). Singular value decomposition (SVD) and generalized singular value decomposition.
+    Abdi, H. (2007).
+    `Singular value decomposition (SVD) and generalized singular value decomposition.
+    <https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf>`_
     Encyclopedia of measurement and statistics, 907-912.
-    https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf
     """
 
     def __init__(self, embedding_dimension=2, weights='degree', col_weights=None,
