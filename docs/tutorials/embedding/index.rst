@@ -5,5 +5,5 @@ Embedding
 .. toctree::
 
    spectral
-   svd
+   bispectral
 
