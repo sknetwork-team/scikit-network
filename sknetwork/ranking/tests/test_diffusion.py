@@ -39,10 +39,3 @@ class TestDiffusion(unittest.TestCase):
         self.diffusion.fit(adjacency, {0: 0, 1: 1, 2: -1})
         score = self.diffusion.score_
         self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= -1 - self.tol))
-
-    def test_bipartite(self):
-        biadjacency: sparse.csr_matrix = self.star_wars
-        self.diffusion.fit(biadjacency, {0: 0, 1: 1, 2: -1})
-        score = self.diffusion.score_
-        self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= -1 - self.tol))
-
