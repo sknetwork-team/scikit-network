@@ -12,15 +12,13 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering.post_processing import membership_matrix
-from sknetwork.utils.adjacency_formats import set_adjacency_weights
-from sknetwork.utils.checks import check_format
+from sknetwork.utils.adjacency_formats import bipartite2directed
+from sknetwork.utils.checks import check_format, check_probs, is_square
 
 
 def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray,
-               col_labels: Union[None, np.ndarray] = None, weights: Union[str, np.ndarray] = 'degree',
-               col_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
-               force_biadjacency: bool = False, resolution: float = 1, return_all: bool = False) \
-                    -> Union[float, Tuple[float, float, float]]:
+               weights: Union[str, np.ndarray] = 'degree', col_weights: Union[str, np.ndarray] = 'degree',
+               resolution: float = 1, return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
     """
     Compute the modularity of a clustering (node partition).
 
@@ -32,20 +30,13 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
     :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w^+_iw^-_j}{w^2}\\big)\\delta_{c_i,c_j}`
     for directed graphs,
 
-    :math:`Q = \\sum_{i=1}^{n_1}\\sum_{j=1}^{n_2}\\big(\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{w^1_iw^2_j}{w^2}\\big)
-    \\delta_{c^1_i,c^2_j}`
-    for bipartite graphs,
-
     where
 
     :math:`A` is the adjacency matrix (size :math:`n\\times n)`,\n
     :math:`w_i` is the weight of node :math:`i` (undirected graphs),\n
     :math:`w^+_i, w^-_i` are the out-weight and in-weight of node :math:`i` (directed graphs),\n
-    :math:`c_i` is the cluster of node :math:`i` (undirected and directed graphs),\n
-    :math:`B` is the biadjacency matrix (size :math:`n_1\\times n_2)`,\n
-    :math:`w^1_i, w^2_j` are the weights of primary node :math:`i` and secondary node :math:`j` (bipartite graphs),\n
-    :math:`c^1_i, c^2_j` are the clusters of primary node :math:`i` and secondary node :math:`j` (bipartite graphs),\n
-    :math:`w = 1^TA1` or :math:`w = 1^TB1` is the total weight,\n
+    :math:`c_i` is the cluster of node :math:`i`,\n
+    :math:`w = 1^TA1` is the total weight,\n
     :math:`\\delta` is the Kronecker symbol,\n
     :math:`\\gamma \\ge 0` is the resolution parameter.
 
@@ -54,10 +45,7 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
     adjacency:
         Adjacency or biadjacency matrix of the graph (shape :math:`n \\times n` or :math:`n_1 \\times n_2`).
     labels:
-        Labels of nodes, vector of size :math:`n` (or :math:`n_1` for bipartite graphs
-        ).
-    col_labels:
-        Labels of secondary nodes (for bipartite graphs), vector of size :math:`n_2`.
+        Labels of nodes, vector of size :math:`n` (or :math:`n_1` for bipartite graphs).
     weights :
         Weights of nodes.
         ``'degree'`` (default), ``'uniform'`` or custom weights.
@@ -65,10 +53,6 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
         Weights of secondary nodes (for bipartite graphs).
         ``None`` (default), ``'degree'``, ``'uniform'`` or custom weights.
         If ``None``, taken equal to weights.
-    force_undirected : bool (default= ``False``)
-        If ``True``, consider the graph as undirected.
-    force_biadjacency : bool (default= ``False``)
-        If ``True``, force the input matrix to be considered as a biadjacency matrix.
     resolution:
         Resolution parameter (default = 1).
     return_all:
@@ -81,25 +65,18 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
     """
 
     adjacency = check_format(adjacency)
-    n1, n2 = adjacency.shape
+    if not is_square(adjacency):
+        raise ValueError('The adjacency is not square.')
 
-    if len(labels) != n1:
+    if len(labels) != adjacency.shape[0]:
         raise ValueError('Dimension mismatch between labels and adjacency matrix.')
 
-    if n1 != n2 or force_biadjacency:
-        if col_labels is None:
-            raise ValueError('For a biadjacency matrix, col_labels must be specified.')
-        elif len(labels) != n1:
-            raise ValueError('Dimension mismatch between col_labels and biadjacency matrix.')
-        else:
-            labels = np.hstack((labels, col_labels))
-
-    adjacency, row_weights, col_weights = set_adjacency_weights(adjacency, weights, col_weights, force_undirected,
-                                                                force_biadjacency)
+    row_probs = check_probs(weights, adjacency)
+    col_probs = check_probs(col_weights, adjacency.T)
     membership = membership_matrix(labels)
 
     fit: float = membership.multiply(adjacency.dot(membership)).data.sum() / adjacency.data.sum()
-    div: float = membership.T.dot(col_weights).dot(membership.T.dot(row_weights))
+    div: float = membership.T.dot(col_probs).dot(membership.T.dot(row_probs))
     mod: float = fit - resolution * div
     if return_all:
         return mod, fit, div
@@ -107,9 +84,74 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
         return mod
 
 
-def cocitation_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray,
-                          resolution: float = 1, return_all: bool = False) \
-                    -> Union[float, Tuple[float, float, float]]:
+def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray, col_labels: np.ndarray,
+                 weights: Union[str, np.ndarray] = 'degree', col_weights: Union[str, np.ndarray] = 'degree',
+                 resolution: float = 1, return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
+    """
+    Compute the bimodularity of a clustering (node partition).
+
+    The bimodularity of a clustering is
+
+    :math:`Q = \\sum_{i=1}^{n_1}\\sum_{j=1}^{n_2}\\big(\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{w^1_iw^2_j}{w^2}\\big)
+    \\delta_{c^1_i,c^2_j}`
+    for bipartite graphs,
+
+    where
+
+    :math:`B` is the biadjacency matrix (size :math:`n_1\\times n_2)`,\n
+    :math:`w^1_i, w^2_j` are the weights of primary node :math:`i` and secondary node :math:`j` (bipartite graphs),\n
+    :math:`c^1_i, c^2_j` are the clusters of primary node :math:`i` and secondary node :math:`j` (bipartite graphs),\n
+    :math:`w = 1^TB1` is the total weight,\n
+    :math:`\\delta` is the Kronecker symbol,\n
+    :math:`\\gamma \\ge 0` is the resolution parameter.
+
+    Parameters
+    ----------
+    biadjacency:
+        Biadjacency matrix of the graph (shape :math:`n_1 \\times n_2`).
+    labels:
+        Labels of row nodes, vector of size :math:`n1`.
+    col_labels:
+        Labels of column nodes, vector of size :math:`n_2`.
+    weights :
+        Weights of nodes.
+        ``'degree'`` (default), ``'uniform'`` or custom weights.
+    col_weights :
+        Weights of column nodes.
+        ``'degree'`` (default), ``'uniform'`` or custom weights.
+    resolution:
+        Resolution parameter (default = 1).
+    return_all:
+        If ``True``, return modularity, fit, diversity.
+
+    Returns
+    -------
+    modularity : float or Tuple
+        Modularity (with fit and diversity if **return_all** = ``True``)
+    """
+
+    biadjacency = check_format(biadjacency)
+    n1, n2 = biadjacency.shape
+
+    if len(labels) != n1:
+        raise ValueError('Dimension mismatch between labels and biadjacency matrix.')
+    if len(col_labels) != n2:
+        raise ValueError('Dimension mismatch between col_labels and biadjacency matrix.')
+
+    adjacency = bipartite2directed(biadjacency)
+
+    new_weights = check_probs(weights, biadjacency)
+    new_weights = np.hstack((new_weights, np.zeros(n2)))
+    new_col_weights = check_probs(col_weights, biadjacency.T)
+    new_col_weights = np.hstack((np.zeros(n1), new_col_weights))
+
+    new_labels = np.hstack((labels, col_labels))
+
+    return modularity(adjacency, new_labels, new_weights, new_col_weights, resolution, return_all)
+
+
+def cocitation_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray, resolution: float = 1,
+                          return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
     """
     Computes the modularity of a clustering in the normalized cocitation graph.
     Does not require the explicit computation of the normalized cocitation adjacency matrix.
@@ -148,9 +190,8 @@ def cocitation_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], label
     total_weight = adjacency.data.sum()
     probs = adjacency.dot(np.ones(n2)) / total_weight
 
-    col_weights = adjacency.T.dot(np.ones(n2))
-
     # pseudo inverse square-root feature weight matrix
+    col_weights = adjacency.T.dot(np.ones(n2))
     norm_diag_matrix = sparse.diags(np.sqrt(col_weights), shape=(n2, n2), format='csr')
     norm_diag_matrix.data = 1 / norm_diag_matrix.data
 
