@@ -110,18 +110,27 @@ class Spectral(Algorithm):
     """
     Spectral embedding of a graph.
 
+    Solves the eigenvalue problem :math:`LU = U\\Lambda`, where :math:`L` is the graph Laplacian.
+
+    The embedding is :math:`X = U \\phi(\\Lambda)` where :math:`\\phi(\\Lambda)` is a diagonal scaling matrix.
+
     Parameters
     ----------
     embedding_dimension : int (default = 2)
         Dimension of the embedding space
     normalized_laplacian : bool (default = ``True``)
-        If ``True``, use the normalized Laplacian, :math:`I - D^{-1/2} A D^{-1/2}`.
+
+        * If ``True``, use the normalized Laplacian, :math:`L = I - D^{-1/2} A D^{-1/2}`.
+        * If ``False``, use the regular Laplacian, :math:`L = D - A`.
     regularization : ``None`` or float (default = ``0.01``)
         Implicitly add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
-    scaling : ``None`` or ``'multiply'`` or ``'divide'`` (default = ``'multiply'``)
-        If ```'multiply'``, multiply by the square-root of each positive eigenvalue.
+    scaling:  ``None`` or ``'multiply'`` or ``'divide'`` or ``'barycenter'`` (default = ``'multiply'``)
+
+        * ``None``: :math:`\\phi(\\Lambda) = I`,
+        * ``'multiply'`` : :math:`\\phi(\\Lambda) = \\sqrt{\\Lambda}`,
+        * ``'divide'``  : :math:`\\phi(\\Lambda)= (\\sqrt{1 - \\Lambda})^{-1}`.
     solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
         Which eigenvalue solver to use.
 
