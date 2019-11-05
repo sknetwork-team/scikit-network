@@ -24,7 +24,7 @@ BiSpectral
 
 Metrics
 -------
-.. autofunction:: sknetwork.embedding.dot_modularity
+.. autofunction:: sknetwork.embedding.cosine_modularity
 
 .. autofunction:: sknetwork.embedding.hscore
 

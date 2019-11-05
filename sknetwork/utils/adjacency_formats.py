@@ -52,7 +52,7 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
             new_tuples = [(y, x) for (x, y) in adjacency.low_rank_tuples]
             return SparseLR(directed2undirected(adjacency.sparse_mat), adjacency.low_rank_tuples + new_tuples)
         else:
-            raise ValueError('This function only works with ``weight_sum==True`` for SparseLR objects.')
+            raise ValueError('This function only works with ``weight_sum=True`` for SparseLR objects.')
     else:
         raise TypeError('Input must be a scipy CSR matrix or a SparseLR object.')
 
