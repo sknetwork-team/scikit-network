@@ -209,3 +209,28 @@ def cocitation_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], label
         return mod, fit, div
     else:
         return mod
+
+
+def nsd(labels: np.ndarray) -> float:
+    """Normalized Standard Deviation in cluster size.
+
+    The metric is normalized so that a perfectly balanced clustering yields a score of 1 while unbalanced ones yield
+    scores close to 0.
+
+    Parameters
+    ----------
+    labels:
+        Labels of nodes.
+
+    Returns
+    -------
+    nsd: float
+
+    """
+
+    n = labels.shape[0]
+    _, counts = np.unique(labels, return_counts=True)
+    k = counts.shape[0]
+    if k == 0:
+        raise ValueError('There must be at least two different clusters.')
+    return 1 - np.std(counts) / np.sqrt(n ** 2 * (k - 1) / k ** 2)

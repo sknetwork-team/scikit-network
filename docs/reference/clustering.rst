@@ -36,6 +36,8 @@ Metrics
 
 .. autofunction:: sknetwork.clustering.cocitation_modularity
 
+.. autofunction:: sknetwork.clustering.nsd
+
 Post-processing
 ---------------
 .. autofunction:: sknetwork.clustering.post_processing.membership_matrix
