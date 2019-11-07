@@ -12,7 +12,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.linalg import SparseLR, SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot
+from sknetwork.linalg import SparseLR, SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, check_weights
 
@@ -152,13 +152,8 @@ class BiSpectral(Algorithm):
 
         w_row = check_weights(self.weights, adjacency)
         w_col = check_weights(self.col_weights, adjacency.T)
-
-        # pseudo inverse square-root row weights matrix
-        diag_row = sparse.diags(np.sqrt(w_row), shape=(n1, n1), format='csr')
-        diag_row.data = 1 / diag_row.data
-        # pseudo inverse square-root col weights matrix
-        diag_col = sparse.diags(np.sqrt(w_col), shape=(n2, n2), format='csr')
-        diag_col.data = 1 / diag_col.data
+        diag_row = diag_pinv(np.sqrt(w_row))
+        diag_col = diag_pinv(np.sqrt(w_col))
 
         normalized_adj = safe_sparse_dot(diag_row, safe_sparse_dot(adjacency, diag_col))
 

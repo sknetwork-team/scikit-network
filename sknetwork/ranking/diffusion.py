@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on July 17 2019
+@author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
@@ -63,8 +64,6 @@ class Diffusion(Algorithm):
     ----------
     score_ : np.ndarray
         Score of each node (= temperature). Only raw nodes in the case of bipartite inputs.
-    col_score_ : np.ndarray
-        Score of each column node (= temperature) for bipartite inputs.
 
     Example
     -------
@@ -84,7 +83,6 @@ class Diffusion(Algorithm):
         self.solver = solver
 
         self.score_ = None
-        self.col_score_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Union[dict, np.ndarray]) -> 'Diffusion':
@@ -103,11 +101,10 @@ class Diffusion(Algorithm):
         self: :class:`Diffusion`
         """
         adjacency = check_format(adjacency)
-        n1: int = adjacency.shape[0]
+        n: int = adjacency.shape[0]
         if not is_square(adjacency):
             raise ValueError('The adjacency matrix should be square. Consider using '
                              'sknetwork.utils.adjacency_format.bipartite2undirected.')
-        n: int = adjacency.shape[0]
 
         b, border = limit_conditions(personalization, n)
         interior: sparse.csr_matrix = sparse.diags(1 - border, shape=(n, n), format='csr')
@@ -120,13 +117,7 @@ class Diffusion(Algorithm):
             score = lsqr(a, b)[0]
         else:
             raise ValueError('Unknown solver.')
-        score = np.clip(score, np.min(b), np.max(b))
-
-        if n1 == n:
-            self.score_ = score
-        else:
-            self.score_ = score[:n1]
-            self.col_score_ = score[n1:]
+        self.score_ = np.clip(score, np.min(b), np.max(b))
 
         return self
 

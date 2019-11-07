@@ -12,6 +12,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering.post_processing import membership_matrix
+from sknetwork.linalg import diag_pinv
 from sknetwork.utils.adjacency_formats import bipartite2directed
 from sknetwork.utils.checks import check_format, check_probs, is_square
 
@@ -190,12 +191,9 @@ def cocitation_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], label
     total_weight = adjacency.data.sum()
     probs = adjacency.dot(np.ones(n2)) / total_weight
 
-    # pseudo inverse square-root feature weight matrix
     col_weights = adjacency.T.dot(np.ones(n2))
-    norm_diag_matrix = sparse.diags(np.sqrt(col_weights), shape=(n2, n2), format='csr')
-    norm_diag_matrix.data = 1 / norm_diag_matrix.data
-
-    normalized_adjacency = (adjacency.dot(norm_diag_matrix)).T.tocsr()
+    col_diag = diag_pinv(np.sqrt(col_weights))
+    normalized_adjacency = (adjacency.dot(col_diag)).T.tocsr()
 
     if len(labels) != n1:
         raise ValueError('The number of labels must match the number of rows.')

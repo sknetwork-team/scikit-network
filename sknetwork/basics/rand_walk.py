@@ -10,7 +10,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.utils.checks import check_format
+from sknetwork.linalg import diag_pinv
 
 
 def transition_matrix(adjacency: Union[sparse.csr_matrix, np.ndarray]):
@@ -26,14 +26,11 @@ def transition_matrix(adjacency: Union[sparse.csr_matrix, np.ndarray]):
 
     Returns
     -------
-    P:
+    sparse.csr_matrix:
         The transition matrix.
 
     """
     adjacency = sparse.csr_matrix(adjacency)
-
     d: np.ndarray = adjacency.dot(np.ones(adjacency.shape[1]))
-    diag_out: sparse.csr_matrix = sparse.diags(d, format='csr')
-    diag_out.data = 1 / diag_out.data
 
-    return diag_out.dot(adjacency)
+    return diag_pinv(d).dot(adjacency)

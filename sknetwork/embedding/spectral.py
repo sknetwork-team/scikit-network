@@ -16,7 +16,7 @@ from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 
 from sknetwork.basics.structure import is_connected
-from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver
+from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, is_symmetric
 
@@ -247,8 +247,7 @@ class Spectral(Algorithm):
         if self.normalized_laplacian:
             # Finding the largest eigenvalues of the normalized adjacency is easier for the solver than finding the
             # smallest eigenvalues of the normalized laplacian.
-            normalizing_matrix = sparse.diags(np.sqrt(weights), format='csr')
-            normalizing_matrix.data = 1 / normalizing_matrix.data
+            normalizing_matrix = diag_pinv(np.sqrt(weights))
 
             if regularization:
                 norm_adjacency = NormalizedAdjacencyOperator(adjacency, regularization)
