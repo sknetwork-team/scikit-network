@@ -26,7 +26,3 @@ Metrics
 -------
 .. autofunction:: sknetwork.embedding.cosine_modularity
 
-.. autofunction:: sknetwork.embedding.hscore
-
-
-

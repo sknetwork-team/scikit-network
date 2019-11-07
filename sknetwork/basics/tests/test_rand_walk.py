@@ -18,3 +18,7 @@ class TestRandomWalk(unittest.TestCase):
         trans_matrix = transition_matrix(self.adjacency)
         delta = self.adjacency - trans_matrix.todense()
         self.assertEqual(0, np.linalg.norm(delta))
+
+        trans_matrix = transition_matrix(self.adjacency.T)
+        delta = self.adjacency.T - trans_matrix.todense()
+        self.assertEqual(0, np.linalg.norm(delta))

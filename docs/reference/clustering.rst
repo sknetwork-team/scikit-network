@@ -15,6 +15,7 @@ Louvain
     :members:
 
 .. autoclass:: sknetwork.clustering.BiLouvain
+    :show-inheritance:
     :members:
 
 .. autoclass:: sknetwork.clustering.GreedyModularity

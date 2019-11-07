@@ -12,6 +12,7 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import eigs, LinearOperator, lsqr, spsolve
 
+from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_square
 from sknetwork.utils.adjacency_formats import bipartite2undirected
@@ -85,16 +86,13 @@ class RandomSurferOperator(LinearOperator):
 
         LinearOperator.__init__(self, shape=adjacency.shape, dtype=float)
         n = adjacency.shape[0]
-        damping_matrix = damping_factor * sparse.eye(n, format='csr')
+        out_degrees = adjacency.dot(np.ones(n))
 
+        damping_matrix = damping_factor * sparse.eye(n, format='csr')
         if fb_mode:
             damping_matrix.data[n1:] = 1
 
-        out_degrees = adjacency.dot(np.ones(n))
-        diag_out = sparse.diags(out_degrees, format='csr')
-        diag_out.data = 1. / diag_out.data
-
-        self.a = (damping_matrix.dot(diag_out).dot(adjacency)).T.tocsr()
+        self.a = (damping_matrix.dot(transition_matrix(adjacency))).T.tocsr()
         self.b = (np.ones(n) - damping_factor * out_degrees.astype(bool)) * restart_prob
 
     def _matvec(self, x):

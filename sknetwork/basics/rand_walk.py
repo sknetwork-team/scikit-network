@@ -30,7 +30,7 @@ def transition_matrix(adjacency: Union[sparse.csr_matrix, np.ndarray]):
         The transition matrix.
 
     """
-    adjacency = check_format(adjacency)
+    adjacency = sparse.csr_matrix(adjacency)
 
     d: np.ndarray = adjacency.dot(np.ones(adjacency.shape[1]))
     diag_out: sparse.csr_matrix = sparse.diags(d, format='csr')

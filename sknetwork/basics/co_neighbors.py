@@ -10,6 +10,7 @@ from typing import Union
 from scipy import sparse
 import numpy as np
 
+from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.embedding.bispectral import BiSpectral
 from sknetwork.utils.checks import check_format
 from sknetwork.utils.kneighbors import KNeighborsTransformer
@@ -31,9 +32,9 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
         If ``True``, F is the diagonal in-degree matrix :math:`F = \\text{diag}(A^T1)`.
         Otherwise, F is the identity matrix.
     method:
-        Either 'exact' or 'knn'. If 'exact' the output is computed with matrix multiplication.
+        Either ``'exact'`` or ``'knn'``. If 'exact' the output is computed with matrix multiplication.
         However, the density can be much higher than in the input graph and this can trigger Memory errors.
-        If 'knn', the co-neighborhood is approximated through KNN-search in an appropriate spectral embedding space.
+        If ``'knn'``, the co-neighborhood is approximated through KNN-search in an appropriate spectral embedding space.
     n_neighbors:
         Number of neighbors for the KNN search. Only useful if ``method='knn'``.
     embedding_dimension:
@@ -46,17 +47,13 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
 
     """
     adjacency = check_format(adjacency)
-    n1, n2 = adjacency.shape
 
     if method == 'exact':
-        # pseudo inverse weight matrix
         if normalized:
-            col_weights: np.ndarray = adjacency.T.dot(np.ones(n1))
-            diag_feat = sparse.diags(col_weights, shape=(n2, n2), format='csr')
-            diag_feat.data = 1 / diag_feat.data
+            forward = transition_matrix(adjacency.T)
         else:
-            diag_feat = sparse.eye(n2, format='csr')
-        return adjacency.dot(diag_feat).dot(adjacency.T)
+            forward = adjacency.T
+        return adjacency.dot(forward)
 
     elif method == 'knn':
         if normalized:

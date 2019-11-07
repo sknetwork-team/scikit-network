@@ -23,6 +23,9 @@ Diffusion
 .. autoclass:: sknetwork.ranking.Diffusion
     :members:
 
+.. autoclass:: sknetwork.ranking.BiDiffusion
+    :members:
+
 HITS
 ----
 .. autoclass:: sknetwork.ranking.HITS
