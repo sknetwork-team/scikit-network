@@ -46,7 +46,9 @@ def safe_sparse_dot(a, b):
 
 def randomized_range_finder(matrix: np.ndarray, size: int, n_iter: int, power_iteration_normalizer='auto',
                             random_state=None, return_all: bool = False) -> [np.ndarray, tuple]:
-    """Computes an orthonormal matrix whose range approximates the range of the input matrix.
+    """Compute an orthonormal matrix :math:`Q`, whose range approximates the range of the input matrix.
+
+    :math:`A \\approx QQ^*A`.
 
     Parameters
     ----------
@@ -167,7 +169,7 @@ def svd_flip(u, v, u_based_decision=True):
 
 def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='auto', transpose='auto',
                    power_iteration_normalizer: Union[str, None] = 'auto', flip_sign: bool = True, random_state=None):
-    """Computes a truncated randomized SVD
+    """Truncated randomized SVD
 
         Parameters
         ----------
@@ -275,7 +277,7 @@ def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='a
 
 def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 10, n_iter='auto',
                    power_iteration_normalizer: Union[str, None] = 'auto', random_state=None, one_pass: bool = False):
-    """Computes a randomized eigenvalue decomposition.
+    """Randomized eigenvalue decomposition.
 
     Parameters
     ----------
