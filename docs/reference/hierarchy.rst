@@ -28,6 +28,9 @@ SpectralWard
 .. autoclass:: sknetwork.hierarchy.SpectralWard
     :members:
 
+.. autoclass:: sknetwork.hierarchy.BiSpectralWard
+    :members:
+
 
 Cuts
 ----
