@@ -69,8 +69,7 @@ class MultiRank(Algorithm):
 
         Returns
         -------
-        self:
-            :class:`MultiRank`
+        self: :class:`MultiRank`
 
         """
         if self.bipartite:
@@ -87,6 +86,8 @@ class MultiRank(Algorithm):
             for key, val in seeds.items():
                 tmp[key] = val
             seeds = tmp
+        else:
+            raise TypeError('"seeds" must be a dictionary or a one-dimensional array.')
 
         unique_labels: np.ndarray = np.unique(seeds[seeds >= 0])
         n_labels: int = len(unique_labels)
@@ -116,9 +117,6 @@ class MultiRank(Algorithm):
 
 class BiMultiRank(MultiRank):
     """Semi-Supervised clustering based on personalized PageRank for bipartite graphs.
-
-    Notes
-    -----
     See :class:`sknetwork.ranking.BiPageRank`
     """
 

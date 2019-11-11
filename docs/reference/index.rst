@@ -11,6 +11,7 @@ Reference
     hierarchy
     embedding
     ranking
+    classification
     linalg
     basics
     loader

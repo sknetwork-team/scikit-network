@@ -17,4 +17,5 @@ MultiRank
 
 .. autoclass:: sknetwork.soft_cluster.BiMultiRank
     :show-inheritance:
+    :inherited-members:
     :members:
