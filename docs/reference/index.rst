@@ -7,6 +7,7 @@ Reference
 
     introduction
     clustering
+    soft_cluster
     hierarchy
     embedding
     ranking
