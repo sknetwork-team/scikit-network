@@ -58,7 +58,7 @@ def shortest_path(adjacency: sparse.csr_matrix, method: str = 'auto', directed: 
     if parallelize:
         if method == 'FW':
             raise ValueError('The Floyd-Warshall algorithm cannot be used with parallel computations.')
-        if not indices:
+        if indices is None:
             indices = np.arange(adjacency.shape[0])
         local_function = partial(sparse.csgraph.shortest_path,
                                  adjacency, method, directed, return_predecessors, unweighted, overwrite)
