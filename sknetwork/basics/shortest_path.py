@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Jul 24, 2019
+Created on November 12, 2019
+@author: Quentin Lutz <qlutz@enst.fr>
 """
 
+from functools import partial
+from multiprocessing import Pool
 from typing import Optional
 
 import numpy as np
@@ -12,7 +15,8 @@ from scipy import sparse
 
 def shortest_path(adjacency: sparse.csr_matrix, method: str = 'auto', directed: bool = True,
                   return_predecessors: bool = False, unweighted: bool = False,
-                  overwrite: bool = False, indices: Optional[np.ndarray] = None):
+                  overwrite: bool = False, indices: Optional[np.ndarray] = None,
+                  parallelize: bool = False, n_jobs: Optional[int] = None):
     """Compute the shortest paths in the graph.
 
     Based on SciPy (scipy.sparse.csgraph.shortest_path)
@@ -34,6 +38,11 @@ def shortest_path(adjacency: sparse.csr_matrix, method: str = 'auto', directed: 
         If ``True`` and ``method == 'FW'``, overwrites the given adjacency
     indices:
         If specified, only compute the paths for the points at the given indices. Will not work with ``method =='FW'``.
+    parallelize:
+        If ``True``, uses parallel single-source computations. Will not work with ``method =='FW'``.
+    n_jobs:
+        If ``parallelize == True``, denotes the number of workers to use. If ``None``, the maximum number of workers is
+        used.
 
     Returns
     -------
@@ -46,5 +55,21 @@ def shortest_path(adjacency: sparse.csr_matrix, method: str = 'auto', directed: 
         each entry ``predecessors[i, j]`` gives the index of the previous node in the path from point ``i`` to point
         ``j``. If no path exists between point ``i`` and ``j``, then ``predecessors[i, j] = -9999``.
     """
-    return sparse.csgraph.shortest_path(adjacency, method, directed,
-                                        return_predecessors, unweighted, overwrite, indices)
+    if parallelize:
+        if method == 'FW':
+            raise ValueError('The Floyd-Warshall algorithm cannot be used with parallel computations.')
+        if not indices:
+            indices = np.arange(adjacency.shape[0])
+        local_function = partial(sparse.csgraph.shortest_path,
+                                 adjacency, method, directed, return_predecessors, unweighted, overwrite)
+        with Pool(n_jobs) as pool:
+            res = pool.map(local_function, indices)
+        if return_predecessors:
+            paths = [el[0] for el in res]
+            predecessors = [el[1] for el in res]
+            return np.vstack(paths), np.vstack(predecessors)
+        else:
+            return np.vstack(res)
+    else:
+        return sparse.csgraph.shortest_path(adjacency, method, directed,
+                                            return_predecessors, unweighted, overwrite, indices)
