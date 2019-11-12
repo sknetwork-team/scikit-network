@@ -92,7 +92,7 @@ class MultiRank(Algorithm):
         unique_labels: np.ndarray = np.unique(seeds[seeds >= 0])
         n_labels: int = len(unique_labels)
         if n_labels < 2:
-            raise ValueError('There must be at least to distinct labels.')
+            raise ValueError('There must be at least two distinct labels.')
         membership = np.zeros((n, n_labels))
 
         for i, label in enumerate(unique_labels):

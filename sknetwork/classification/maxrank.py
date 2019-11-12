@@ -59,7 +59,7 @@ class MaxRank(Algorithm):
         self.labels_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'MaxRank':
-        """Compute personalized PageRank using each given labels as seed set.
+        """Compute personalized PageRank using each given label as a seed set.
 
         Parameters
         ----------
@@ -68,7 +68,7 @@ class MaxRank(Algorithm):
         seeds: Dict or ndarray,
             If dict, ``(key, val)`` indicates that node ``key`` has label ``val``.
             If ndarray, ``seeds[i] = val`` indicates that node ``i`` has label ``val``.
-            Negative values are treated has no label.
+            Negative values are treated as no label.
 
         Returns
         -------
