@@ -100,7 +100,7 @@ def random_bipartite_graph():
     return adjacency
 
 
-def karate_club(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, np.ndarray], sparse.csr_matrix]:
+def karate_club(return_labels_true: bool = False) -> Union[Tuple[sparse.csr_matrix, np.ndarray], sparse.csr_matrix]:
     """
     Zachary's Karate Club Graph
 
@@ -108,8 +108,8 @@ def karate_club(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, n
 
     Parameters
     ----------
-    return_labels: bool
-        If True, returns the labels of the nodes.
+    return_labels_true: bool
+        If True, returns the ground truth for the node clustering.
     Returns
     -------
     adjacency: sparse.csr_matrix
@@ -130,7 +130,7 @@ def karate_club(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, n
          33, 33, 32, 33, 32, 33, 25, 27, 29, 32, 33, 25, 27, 31, 31, 29, 33,
          33, 31, 33, 32, 33, 32, 33, 32, 33, 33])
     adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(34, 34))
-    if return_labels:
+    if return_labels_true:
         labels = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                            0, 0, 0])
         return adjacency + adjacency.T, labels

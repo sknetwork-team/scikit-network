@@ -37,7 +37,7 @@ class MaxRank(Algorithm):
     -------
     >>> from sknetwork.toy_graphs import karate_club
     >>> maxrank = MaxRank()
-    >>> adjacency, labels_true = karate_club(return_labels=True)
+    >>> adjacency, labels_true = karate_club(return_labels_true=True)
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
     >>> labels_pred = maxrank.fit(adjacency, seeds).labels_
     >>> np.round((labels_pred == labels_true).mean(), 2)

@@ -126,3 +126,50 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
             return adjacency, labels
         else:
             return adjacency
+
+
+def parse_labels(file: str) -> list:
+    """
+    A parser for files with a single entry on each row.
+
+    Parameters
+    ----------
+    file : str
+        The path to the dataset in TSV format
+
+    Returns
+    -------
+    labels:
+        The labels on each row.
+    """
+    rows = []
+    with open(file, 'r') as f:
+        for row in f:
+            rows.append(row.strip())
+    return rows
+
+
+def parse_hierarchical_labels(file: str, depth: int, delimiter: str = '|||'):
+    """
+    A parser for files with a single entry of the form ``'String1'<delimiter>...<delimiter>'StringN'`` on each row.
+
+    Parameters
+    ----------
+    file : str
+        The path to the dataset in TSV format
+    depth: int
+        The maximum depth to look into
+    delimiter: str
+        The delimiter on each row
+
+    Returns
+    -------
+    labels:
+        A list the lists of labels on each row.
+    """
+    rows = []
+    with open(file, 'r') as f:
+        for row in f:
+            parts = row.strip().split(delimiter)
+            rows.append(parts[:min(depth, len(parts))])
+    return rows
