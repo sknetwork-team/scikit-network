@@ -19,6 +19,8 @@ class Closeness(Algorithm):
     Compute the closeness centrality of each node in a connected graph, corresponding to the average length of the
     shortest paths from that node to all the other ones.
 
+    For a directed graph, the closeness centrality is computed in terms of outgoing paths.
+
     Parameters
     ----------
     method :
