@@ -15,7 +15,7 @@ class TestShortestPath(unittest.TestCase):
 
     def test_parallel(self):
         truth = shortest_path(self.karate)
-        parallel = shortest_path(self.karate, parallelize=True)
+        parallel = shortest_path(self.karate, n_jobs=-1)
         self.assertEqual((truth == parallel).sum(), 34**2)
 
 
