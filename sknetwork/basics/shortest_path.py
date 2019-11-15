@@ -16,7 +16,7 @@ from scipy import sparse
 def shortest_path(adjacency: sparse.csr_matrix, method: str = 'auto', directed: bool = True,
                   return_predecessors: bool = False, unweighted: bool = False,
                   overwrite: bool = False, indices: Optional[np.ndarray] = None,
-                  parallelize: bool = False, n_jobs: Optional[int] = None):
+                  n_jobs: Optional[int] = None):
     """Compute the shortest paths in the graph.
 
     Based on SciPy (scipy.sparse.csgraph.shortest_path)
@@ -38,11 +38,9 @@ def shortest_path(adjacency: sparse.csr_matrix, method: str = 'auto', directed: 
         If ``True`` and ``method == 'FW'``, overwrites the given adjacency
     indices:
         If specified, only compute the paths for the points at the given indices. Will not work with ``method =='FW'``.
-    parallelize:
-        If ``True``, uses parallel single-source computations. Will not work with ``method =='FW'``.
     n_jobs:
-        If ``parallelize == True``, denotes the number of workers to use. If ``None``, the maximum number of workers is
-        used.
+        If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
+        If ``None``, no parallel computations are made.
 
     Returns
     -------
@@ -55,7 +53,9 @@ def shortest_path(adjacency: sparse.csr_matrix, method: str = 'auto', directed: 
         each entry ``predecessors[i, j]`` gives the index of the previous node in the path from point ``i`` to point
         ``j``. If no path exists between point ``i`` and ``j``, then ``predecessors[i, j] = -9999``.
     """
-    if parallelize:
+    if n_jobs is not None:
+        if n_jobs == -1:
+            n_jobs = None
         if method == 'FW':
             raise ValueError('The Floyd-Warshall algorithm cannot be used with parallel computations.')
         if indices is None:

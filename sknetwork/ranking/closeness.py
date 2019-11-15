@@ -25,10 +25,9 @@ class Closeness(Algorithm):
         Denotes if the results should be exact or approximate.
     tol:
         If ``method=='approximate'``, the allowed tolerance on each score entry.
-    parallelize:
-        Denotes if parallelization is allowed.
     n_jobs:
-        If ``parallelize==True``, the number of workers to be used.
+        If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
+        If ``None``, no parallel computations are made.
 
     Attributes
     ----------
@@ -42,12 +41,18 @@ class Closeness(Algorithm):
     >>> adjacency = rock_paper_scissors()
     >>> np.round(closeness.fit(adjacency).score_, 2)
     array([0.67, 0.67, 0.67])
+
+    References
+    ----------
+    Eppstein, D., & Wang, J. (2001, January).
+    `Fast approximation of centrality.
+    <http://jgaa.info/accepted/2004/EppsteinWang2004.8.1.pdf>`_
+    In Proceedings of the twelfth annual ACM-SIAM symposium on Discrete algorithms (pp. 228-229).
+    Society for Industrial and Applied Mathematics.
     """
-    def __init__(self, method: str = 'exact', tol: float = 1e-1,
-                 parallelize: bool = False, n_jobs: Optional[int] = None):
+    def __init__(self, method: str = 'exact', tol: float = 1e-1, n_jobs: Optional[int] = None):
         self.method = method
         self.tol = tol
-        self.parallelize = parallelize
         self.n_jobs = n_jobs
         self.score_ = None
 
@@ -63,14 +68,6 @@ class Closeness(Algorithm):
         Returns
         -------
         self: :class:`Closeness`
-
-        References
-        ----------
-        Eppstein, D., & Wang, J. (2001, January).
-        `Fast approximation of centrality.
-        <http://jgaa.info/accepted/2004/EppsteinWang2004.8.1.pdf>`_
-        In Proceedings of the twelfth annual ACM-SIAM symposium on Discrete algorithms (pp. 228-229).
-        Society for Industrial and Applied Mathematics.
         """
         adjacency = check_format(adjacency)
         n = adjacency.shape[0]
@@ -87,10 +84,7 @@ class Closeness(Algorithm):
         else:
             raise ValueError("Method should be either 'exact' or 'approximate'.")
 
-        if self.parallelize:
-            paths = shortest_path(adjacency, parallelize=True, n_jobs=self.n_jobs, indices=indices)
-        else:
-            paths = shortest_path(adjacency, indices=indices)
+        paths = shortest_path(adjacency, n_jobs=self.n_jobs, indices=indices)
 
         if paths.max() == np.inf:
             raise ValueError("The graph must be connected.")
