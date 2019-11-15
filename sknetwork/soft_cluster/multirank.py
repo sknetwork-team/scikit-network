@@ -5,10 +5,12 @@ Created on Nov, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
-from typing import Union
+from typing import Union, Optional
 
 import numpy as np
 from scipy import sparse
+from multiprocessing import Pool
+from functools import partial
 
 from sknetwork.ranking import PageRank, BiPageRank
 from sknetwork.utils.algorithm_base_class import Algorithm
@@ -46,12 +48,18 @@ class MultiRank(Algorithm):
 
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rtol: float = 1e-4,
-                 sparse_output: bool = True):
+                 sparse_output: bool = True, n_jobs: Optional[int] = None):
         self.damping_factor = damping_factor
         self.solver = solver
         self.rtol = rtol
         self.sparse_output = sparse_output
         self.bipartite = False
+        if n_jobs == -1:
+            self.n_jobs = None
+        elif n_jobs is None:
+            self.n_jobs = 1
+        else:
+            self.n_jobs = n_jobs
 
         self.membership_ = None
 
@@ -73,9 +81,9 @@ class MultiRank(Algorithm):
 
         """
         if self.bipartite:
-            pagerank = BiPageRank(self.damping_factor, self.solver)
+            local_function = partial(bipagerank, adjacency)
         else:
-            pagerank = PageRank(self.damping_factor, self.solver)
+            local_function = partial(pagerank, adjacency)
 
         n: int = adjacency.shape[0]
         if isinstance(seeds, np.ndarray):
@@ -93,16 +101,18 @@ class MultiRank(Algorithm):
         n_labels: int = len(unique_labels)
         if n_labels < 2:
             raise ValueError('There must be at least two distinct labels.')
-        membership = np.zeros((n, n_labels))
 
+        personalizations = []
         for i, label in enumerate(unique_labels):
             personalization = np.zeros(n)
             personalization[seeds == label] = 1.
-            pagerank.fit(adjacency, personalization)
-            score = pagerank.score_.copy()
-            score[score <= self.rtol / n] = 0
+            personalizations.append(personalization)
 
-            membership[:, i] = score
+        with Pool(self.n_jobs) as pool:
+            membership = np.array(pool.map(local_function, personalizations))
+
+        membership[membership <= self.rtol / n] = 0
+        membership = membership.T
 
         norm = np.sum(membership, axis=1)
         membership[norm > 0] /= norm[norm > 0, np.newaxis]
@@ -124,3 +134,11 @@ class BiMultiRank(MultiRank):
                  sparse_output: bool = True):
         MultiRank.__init__(self, damping_factor, solver, rtol, sparse_output)
         self.bipartite = True
+
+
+def pagerank(adjacency, personalization):
+    return PageRank().fit(adjacency, personalization=personalization).score_
+
+
+def bipagerank(adjacency, personalization):
+    return BiPageRank().fit(adjacency, personalization=personalization).score_
