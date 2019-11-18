@@ -11,7 +11,7 @@ from math import log
 
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, is_square
-from sknetwork.basics import shortest_path
+from sknetwork.basics import shortest_path, is_connected
 
 
 class Closeness(Algorithm):
@@ -77,6 +77,9 @@ class Closeness(Algorithm):
             raise ValueError("The adjacency is not square. Please use 'bipartite2undirected',"
                              "'bipartite2directed' or 'BiCloseness'.")
 
+        if not is_connected(adjacency):
+            raise ValueError("The graph must be connected.")
+
         if self.method == 'exact':
             nb_samples = n
             indices = np.arange(n)
@@ -87,9 +90,6 @@ class Closeness(Algorithm):
             raise ValueError("Method should be either 'exact' or 'approximate'.")
 
         paths = shortest_path(adjacency, n_jobs=self.n_jobs, indices=indices)
-
-        if paths.max() == np.inf:
-            raise ValueError("The graph must be connected.")
 
         self.score_ = ((n - 1) * nb_samples / n) / paths.T.dot(np.ones(nb_samples))
 
