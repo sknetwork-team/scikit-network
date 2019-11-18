@@ -16,10 +16,12 @@ from sknetwork.utils.checks import check_format
 
 
 def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights: Union[str, np.ndarray] = 'uniform',
-                  secondary_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
+                  col_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
                   force_biadjacency: bool = False) -> float:
     """
-    Dasgupta's cost of a hierarchy (cost metric).
+    Dasgupta's score of a hierarchy defined as 1 - Dasgupta's cost.
+
+    The higher the score, the better.
 
     Parameters
     ----------
@@ -30,7 +32,7 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights:
     weights :
         Weights of nodes.
         ``'degree'``, ``'uniform'`` (default) or custom weights.
-    secondary_weights :
+    col_weights :
         Weights of secondary nodes (for bipartite graphs).
         ``None`` (default), ``'degree'``, ``'uniform'`` or custom weights.
         If ``None``, taken equal to weights.
@@ -51,7 +53,7 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights:
 
     """
     adjacency = check_format(adjacency)
-    adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, secondary_weights,
+    adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, col_weights,
                                                                force_undirected, force_biadjacency)
     n = adjacency.shape[0]
     if n <= 1:
@@ -79,7 +81,7 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights:
         aggregate_graph.merge(node1, node2)
 
     cost: float = edge_sampling.dot(cluster_weight) / 2
-    return cost
+    return 1 - cost
 
 
 def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
@@ -88,6 +90,8 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
                              force_biadjacency: bool = False, normalized: bool = True) -> float:
     """
     Tree sampling divergence of a hierarchy (quality metric).
+
+    The higher the score, the better.
 
     Parameters
     ----------
