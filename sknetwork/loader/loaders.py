@@ -90,10 +90,10 @@ def load_vital_wikipedia(data_home: Optional[str] = None, outputs: str = 'both',
     if outputs == 'adjacency':
         output = [parse_tsv(data_path + '/en-internal-links.txt', force_length=True)]
     elif outputs == 'biadjacency':
-        output = [parse_tsv(data_path + '/en-articles-stems.txt', bipartite=True)]
+        output = [parse_tsv(data_path + '/en-articles-stems.txt', bipartite=True, force_length=True)]
     elif outputs == 'both':
         output = [parse_tsv(data_path + '/en-internal-links.txt', force_length=True),
-                  parse_tsv(data_path + '/en-articles-stems.txt', bipartite=True)]
+                  parse_tsv(data_path + '/en-articles-stems.txt', bipartite=True, force_length=True)]
     else:
         raise ValueError("Outputs must be 'adjacency', 'biadjacency' or 'both'.")
 

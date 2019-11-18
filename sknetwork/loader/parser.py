@@ -94,8 +94,12 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     if bipartite:
         labels, rows = unique(rows, return_inverse=True)
         feature_labels, cols = unique(cols, return_inverse=True)
-        n_nodes = max(labels) + 1
-        n_feature_nodes = max(feature_labels) + 1
+        if force_length:
+            n_nodes = max(labels) + 1
+            n_feature_nodes = max(feature_labels) + 1
+        else:
+            n_nodes = len(labels)
+            n_feature_nodes = len(feature_labels)
         if not weighted:
             dat = ones(n_edges, dtype=bool)
         biadjacency = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_feature_nodes))
