@@ -88,19 +88,20 @@ def load_vital_wikipedia(data_home: Optional[str] = None, outputs: str = 'both',
         remove(data_home + '/vital_wikipedia.zip')
 
     if outputs == 'adjacency':
-        output = [parse_tsv(data_path + '/en-internal-links.txt')]
+        output = [parse_tsv(data_path + '/en-internal-links.txt', force_length=True)]
     elif outputs == 'biadjacency':
         output = [parse_tsv(data_path + '/en-articles-stems.txt')]
     elif outputs == 'both':
-        output = [parse_tsv(data_path + '/en-internal-links.txt'), parse_tsv(data_path + '/en-articles-stems.txt')]
+        output = [parse_tsv(data_path + '/en-internal-links.txt', force_length=True),
+                  parse_tsv(data_path + '/en-articles-stems.txt')]
     else:
         raise ValueError("Outputs must be 'adjacency', 'biadjacency' or 'both'.")
 
-    if return_titles:
-        output.append(parse_labels(data_path + '/en-articles.txt'))
-    elif return_labels:
+    if return_labels:
         output.append(parse_labels(data_path + '/en-articles.txt'))
         output.append(parse_labels(data_path + '/en-stems.txt'))
+    elif return_titles:
+        output.append(parse_labels(data_path + '/en-articles.txt'))
     if return_labels_true:
         output.append(parse_hierarchical_labels(data_path + '/en-categories.txt', max_depth))
 

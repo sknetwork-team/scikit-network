@@ -13,10 +13,8 @@ from scipy import sparse
 
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = None,
-              labeled: bool = None, comment: str = '%#', delimiter: str = None) -> Union[sparse.csr_matrix,
-                                                                                         Tuple[sparse.csr_matrix, dict],
-                                                                                         Tuple[sparse.csr_matrix, dict,
-                                                                                               dict]]:
+              labeled: bool = None, comment: str = '%#', delimiter: str = None, force_length: bool = False)\
+                -> Union[sparse.csr_matrix, Tuple[sparse.csr_matrix, dict], Tuple[sparse.csr_matrix, dict, dict]]:
     """
     A parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
 
@@ -37,6 +35,9 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         Set of characters denoting lines to ignore.
     delimiter : str
         delimiter used in the file. None makes a guess
+    force_length : bool
+        If True and the graph nodes have numeric values, the size of the returned adjacency will be determined by the
+        maximum of those values. Does not work for bipartite graphs.
 
     Returns
     -------
@@ -107,12 +108,15 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     else:
         nodes = concatenate((rows, cols), axis=None)
         labels, new_nodes = unique(nodes, return_inverse=True)
-        n_nodes = len(labels)
+        if force_length:
+            n_nodes = max(labels) + 1
+        else:
+            n_nodes = len(labels)
         if labeled:
             rows = new_nodes[:n_edges]
             cols = new_nodes[n_edges:]
         else:
-            if not all(labels == range(len(labels))):
+            if not all(labels == range(len(labels))) and not force_length:
                 reindex = True
                 rows = new_nodes[:n_edges]
                 cols = new_nodes[n_edges:]
