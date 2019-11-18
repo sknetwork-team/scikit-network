@@ -31,6 +31,9 @@ class MultiRank(Algorithm):
     sparse_output:
         If ``True``, returns the membership as a sparse CSR matrix.
         Otherwise, returns a dense ndarray.
+    n_jobs:
+        If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
+        If ``None``, no parallel computations are made.
 
     Attributes
     ----------
