@@ -8,7 +8,7 @@ Created on Dec 5, 2018
 from csv import reader
 from typing import Tuple, Union
 
-from numpy import zeros, unique, argmax, ones, concatenate
+from numpy import zeros, unique, argmax, ones, concatenate, array
 from scipy import sparse
 
 
@@ -143,7 +143,7 @@ def parse_labels(file: str) -> list:
     Parameters
     ----------
     file : str
-        The path to the dataset in TSV format
+        The path to the dataset
 
     Returns
     -------
@@ -154,30 +154,35 @@ def parse_labels(file: str) -> list:
     with open(file, 'r') as f:
         for row in f:
             rows.append(row.strip())
-    return rows
+    return array(rows)
 
 
-def parse_hierarchical_labels(file: str, depth: int, delimiter: str = '|||'):
+def parse_hierarchical_labels(file: str, depth: int, full_path: bool = True, delimiter: str = '|||'):
     """
     A parser for files with a single entry of the form ``'String1'<delimiter>...<delimiter>'StringN'`` on each row.
 
     Parameters
     ----------
     file : str
-        The path to the dataset in TSV format
+        The path to the dataset
     depth: int
-        The maximum depth to look into
+        The maximum depth to search
+    full_path: bool
+        Denotes if only the deepest label possible should be returned or if all super categories should be considered
     delimiter: str
         The delimiter on each row
 
     Returns
     -------
     labels:
-        A list the lists of labels on each row.
+        A list of the lists of labels on each row.
     """
     rows = []
     with open(file, 'r') as f:
         for row in f:
             parts = row.strip().split(delimiter)
-            rows.append(parts[:min(depth, len(parts))])
-    return rows
+            if full_path:
+                rows.append(".".join(parts[:min(depth, len(parts))]))
+            else:
+                rows.append(parts[:min(depth, len(parts))][-1])
+    return array(rows)

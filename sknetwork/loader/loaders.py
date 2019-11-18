@@ -49,7 +49,8 @@ def clear_data_home(data_home: Optional[str] = None):
 
 
 def load_vital_wikipedia(data_home: Optional[str] = None, outputs: str = 'both', return_titles: bool = False,
-                         return_labels: bool = False, return_labels_true: bool = False, max_depth: int = 1):
+                         return_labels: bool = False, return_labels_true: bool = False, max_depth: int = 1,
+                         full_path: bool = True):
     """
     Returns a path to a storage folder depending on the dedicated environment variable and user input.
 
@@ -68,6 +69,9 @@ def load_vital_wikipedia(data_home: Optional[str] = None, outputs: str = 'both',
         Denotes if the categories of the articles should be returned
     max_depth: int
         Denotes the maximum depth to use for the categories
+    full_path: bool
+        Denotes if only the deepest label possible should be returned or if all super categories should
+        be considered (default)
 
     Returns
     -------
@@ -103,6 +107,6 @@ def load_vital_wikipedia(data_home: Optional[str] = None, outputs: str = 'both',
     elif return_titles:
         output.append(parse_labels(data_path + '/en-articles.txt'))
     if return_labels_true:
-        output.append(parse_hierarchical_labels(data_path + '/en-categories.txt', max_depth))
+        output.append(parse_hierarchical_labels(data_path + '/en-categories.txt', max_depth, full_path=full_path))
 
     return tuple(output)
