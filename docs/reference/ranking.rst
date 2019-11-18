@@ -30,3 +30,8 @@ HITS
 ----
 .. autoclass:: sknetwork.ranking.HITS
     :members:
+
+Closeness centrality
+--------------------
+.. autoclass:: sknetwork.ranking.Closeness
+    :members:

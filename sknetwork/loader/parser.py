@@ -13,10 +13,8 @@ from scipy import sparse
 
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = None,
-              labeled: bool = None, comment: str = '%#', delimiter: str = None) -> Union[sparse.csr_matrix,
-                                                                                         Tuple[sparse.csr_matrix, dict],
-                                                                                         Tuple[sparse.csr_matrix, dict,
-                                                                                               dict]]:
+              labeled: bool = None, comment: str = '%#', delimiter: str = None, force_length: bool = False)\
+                -> Union[sparse.csr_matrix, Tuple[sparse.csr_matrix, dict], Tuple[sparse.csr_matrix, dict, dict]]:
     """
     A parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
 
@@ -37,6 +35,9 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         Set of characters denoting lines to ignore.
     delimiter : str
         delimiter used in the file. None makes a guess
+    force_length : bool
+        If True and the graph nodes have numeric values, the size of the returned adjacency will be determined by the
+        maximum of those values. Does not work for bipartite graphs.
 
     Returns
     -------
@@ -93,8 +94,12 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     if bipartite:
         labels, rows = unique(rows, return_inverse=True)
         feature_labels, cols = unique(cols, return_inverse=True)
-        n_nodes = len(labels)
-        n_feature_nodes = len(feature_labels)
+        if force_length:
+            n_nodes = max(labels) + 1
+            n_feature_nodes = max(feature_labels) + 1
+        else:
+            n_nodes = len(labels)
+            n_feature_nodes = len(feature_labels)
         if not weighted:
             dat = ones(n_edges, dtype=bool)
         biadjacency = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_feature_nodes))
@@ -107,12 +112,15 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     else:
         nodes = concatenate((rows, cols), axis=None)
         labels, new_nodes = unique(nodes, return_inverse=True)
-        n_nodes = len(labels)
+        if force_length:
+            n_nodes = max(labels) + 1
+        else:
+            n_nodes = len(labels)
         if labeled:
             rows = new_nodes[:n_edges]
             cols = new_nodes[n_edges:]
         else:
-            if not all(labels == range(len(labels))):
+            if not all(labels == range(len(labels))) and not force_length:
                 reindex = True
                 rows = new_nodes[:n_edges]
                 cols = new_nodes[n_edges:]
@@ -126,3 +134,50 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
             return adjacency, labels
         else:
             return adjacency
+
+
+def parse_labels(file: str) -> list:
+    """
+    A parser for files with a single entry on each row.
+
+    Parameters
+    ----------
+    file : str
+        The path to the dataset in TSV format
+
+    Returns
+    -------
+    labels:
+        The labels on each row.
+    """
+    rows = []
+    with open(file, 'r') as f:
+        for row in f:
+            rows.append(row.strip())
+    return rows
+
+
+def parse_hierarchical_labels(file: str, depth: int, delimiter: str = '|||'):
+    """
+    A parser for files with a single entry of the form ``'String1'<delimiter>...<delimiter>'StringN'`` on each row.
+
+    Parameters
+    ----------
+    file : str
+        The path to the dataset in TSV format
+    depth: int
+        The maximum depth to look into
+    delimiter: str
+        The delimiter on each row
+
+    Returns
+    -------
+    labels:
+        A list the lists of labels on each row.
+    """
+    rows = []
+    with open(file, 'r') as f:
+        for row in f:
+            parts = row.strip().split(delimiter)
+            rows.append(parts[:min(depth, len(parts))])
+    return rows

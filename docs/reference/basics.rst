@@ -24,12 +24,12 @@ all-pairs problem):
 +================+==============================+========================================+
 | Floyd-Warshall | :math:`O(n^3)`               | All-pairs shortest path problem only   |
 +----------------+------------------------------+----------------------------------------+
-|    Dijkstra    | :math:`O(n^2 \log n + m)`    | For use on graphs                      |
+|    Dijkstra    | :math:`O(n^2 \log n + nm)`   | For use on graphs                      |
 |                |                              | with positive weights only             |
 +----------------+------------------------------+----------------------------------------+
 |  Bellman-Ford  | :math:`O(nm)`                |                                        |
 +----------------+------------------------------+ For use on graphs without              |
-|    Johnson     | :math:`O(n^2 \log n + m)`    | negative-weight cycles only            |
+|    Johnson     | :math:`O(n^2 \log n + nm)`   | negative-weight cycles only            |
 +----------------+------------------------------+----------------------------------------+
 
 Random Walk
