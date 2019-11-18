@@ -65,7 +65,7 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
         Modularity (with fit and diversity if **return_all** = ``True``)
     """
 
-    adjacency = check_format(adjacency)
+    adjacency = check_format(adjacency).astype(float)
     if not is_square(adjacency):
         raise ValueError('The adjacency is not square.')
 
@@ -131,7 +131,7 @@ def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.n
         Modularity (with fit and diversity if **return_all** = ``True``)
     """
 
-    biadjacency = check_format(biadjacency)
+    biadjacency = check_format(biadjacency).astype(float)
     n1, n2 = biadjacency.shape
 
     if len(labels) != n1:
@@ -185,7 +185,7 @@ def cocitation_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], label
        (with fit and diversity if **return_all** = ``True``).
     """
 
-    adjacency = check_format(adjacency)
+    adjacency = check_format(adjacency).astype(float)
 
     n1, n2 = adjacency.shape
     total_weight = adjacency.data.sum()
