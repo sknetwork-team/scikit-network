@@ -433,7 +433,7 @@ class Louvain(Algorithm):
         -------
         self: :class:`Louvain`
         """
-        adjacency = check_format(adjacency).astype(np.float64)
+        adjacency = check_format(adjacency)
         if not is_square(adjacency):
             raise ValueError('The adjacency is not square.')
         n = adjacency.shape[0]
@@ -575,7 +575,7 @@ class BiLouvain(Louvain):
         louvain = Louvain(algorithm=self.algorithm, agg_tol=self.agg_tol, max_agg_iter=self.max_agg_iter,
                           shuffle_nodes=self.shuffle_nodes, sorted_cluster=self.sorted_cluster,
                           random_state=self.random_state, verbose=self.verbose)
-        adjacency = check_format(adjacency).astype(np.float64)
+        adjacency = check_format(adjacency)
         n1, n2 = adjacency.shape
 
         adjacency = bipartite2directed(adjacency)
