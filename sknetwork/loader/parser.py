@@ -13,7 +13,7 @@ from scipy import sparse
 
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = None,
-              labeled: bool = None, comment: str = '%#', delimiter: str = None, force_length: bool = False)\
+              labeled: bool = None, comment: str = '%#', delimiter: str = None, reindex: bool = True)\
                 -> Union[sparse.csr_matrix, Tuple[sparse.csr_matrix, dict], Tuple[sparse.csr_matrix, dict, dict]]:
     """
     A parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
@@ -35,7 +35,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         Set of characters denoting lines to ignore.
     delimiter : str
         delimiter used in the file. None makes a guess
-    force_length : bool
+    reindex : bool
         If True and the graph nodes have numeric values, the size of the returned adjacency will be determined by the
         maximum of those values. Does not work for bipartite graphs.
 
@@ -48,7 +48,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     feature_labels : dict, optional
         Label of each feature node (for bipartite graphs).
     """
-    reindex = False
+    reindexed = False
     header_len = -1
     possible_delimiters = ['\t', ',', ' ']
     del_count = zeros(3, dtype=int)
@@ -94,7 +94,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     if bipartite:
         labels, rows = unique(rows, return_inverse=True)
         feature_labels, cols = unique(cols, return_inverse=True)
-        if force_length:
+        if not reindex:
             n_nodes = max(labels) + 1
             n_feature_nodes = max(feature_labels) + 1
         else:
@@ -112,7 +112,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     else:
         nodes = concatenate((rows, cols), axis=None)
         labels, new_nodes = unique(nodes, return_inverse=True)
-        if force_length:
+        if not reindex:
             n_nodes = max(labels) + 1
         else:
             n_nodes = len(labels)
@@ -120,8 +120,8 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
             rows = new_nodes[:n_edges]
             cols = new_nodes[n_edges:]
         else:
-            if not all(labels == range(len(labels))) and not force_length:
-                reindex = True
+            if not all(labels == range(len(labels))) and reindex:
+                reindexed = True
                 rows = new_nodes[:n_edges]
                 cols = new_nodes[n_edges:]
         if not weighted:
@@ -129,7 +129,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         adjacency = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_nodes))
         if not directed:
             adjacency += adjacency.transpose()
-        if labeled or reindex:
+        if labeled or reindexed:
             labels = {i: l for i, l in enumerate(labels)}
             return adjacency, labels
         else:
