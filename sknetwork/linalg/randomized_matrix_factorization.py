@@ -46,7 +46,7 @@ def safe_sparse_dot(a, b):
 
 def randomized_range_finder(matrix: np.ndarray, size: int, n_iter: int, power_iteration_normalizer='auto',
                             random_state=None, return_all: bool = False) \
-    -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray, np.ndarray]]:
+                            -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray, np.ndarray]]:
     """Compute an orthonormal matrix :math:`Q`, whose range approximates the range of the input matrix.
 
     :math:`A \\approx QQ^*A`.
