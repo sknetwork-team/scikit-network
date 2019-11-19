@@ -5,12 +5,13 @@ Created on November 19 2019
 @author: Quentin Lutz <qlutz@enst.fr>
 """
 from typing import Union, Optional
-from scipy import sparse
-import numpy as np
 
+import numpy as np
+from scipy import sparse
+
+from sknetwork.basics import shortest_path
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, is_square
-from sknetwork.basics import shortest_path
 
 
 class Harmonic(Algorithm):

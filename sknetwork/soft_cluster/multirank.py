@@ -5,12 +5,12 @@ Created on Nov, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
+from functools import partial
+from multiprocessing import Pool
 from typing import Union, Optional
 
 import numpy as np
 from scipy import sparse
-from multiprocessing import Pool
-from functools import partial
 
 from sknetwork.ranking import PageRank, BiPageRank
 from sknetwork.utils.algorithm_base_class import Algorithm

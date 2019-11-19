@@ -13,9 +13,9 @@ from scipy import sparse
 from scipy.sparse.linalg import eigs, LinearOperator, lsqr, spsolve
 
 from sknetwork.basics.rand_walk import transition_matrix
+from sknetwork.utils.adjacency_formats import bipartite2undirected
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_square
-from sknetwork.utils.adjacency_formats import bipartite2undirected
 
 
 def restart_probability(n: int, personalization: Union[dict, np.ndarray] = None) -> np.ndarray:

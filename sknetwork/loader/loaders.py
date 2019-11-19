@@ -6,15 +6,14 @@ Created on November 15, 2019
 This module's code is freely adapted from TorchKGE's torchkge.data.DataLoader.py code.
 """
 
-from os import environ, makedirs, remove
-from os.path import exists, expanduser, join
-from urllib.request import urlretrieve
-from typing import Optional
-
-from sknetwork.loader import parse_tsv, parse_labels, parse_hierarchical_labels
-
 import shutil
 import zipfile
+from os import environ, makedirs, remove
+from os.path import exists, expanduser, join
+from typing import Optional
+from urllib.request import urlretrieve
+
+from sknetwork.loader.parser import parse_tsv, parse_labels, parse_hierarchical_labels
 
 
 def get_data_home(data_home: Optional[str] = None):

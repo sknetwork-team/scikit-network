@@ -7,8 +7,8 @@ Created on October 2019
 
 from typing import Union
 
-from scipy import sparse
 import numpy as np
+from scipy import sparse
 
 from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.embedding.bispectral import BiSpectral

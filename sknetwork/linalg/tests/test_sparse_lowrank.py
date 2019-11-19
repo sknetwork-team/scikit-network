@@ -5,7 +5,6 @@
 import unittest
 
 import numpy as np
-from scipy import sparse
 
 from sknetwork.linalg.randomized_matrix_factorization import randomized_svd, randomized_eig
 from sknetwork.linalg.sparse_lowrank import SparseLR

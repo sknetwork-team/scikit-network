@@ -7,8 +7,8 @@ Created on October 2019
 
 import unittest
 
-from scipy import sparse
 import numpy as np
+from scipy import sparse
 
 from sknetwork.utils import KNeighborsTransformer
 

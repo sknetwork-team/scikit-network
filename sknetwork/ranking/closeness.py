@@ -4,14 +4,15 @@
 Created on November 12 2019
 @author: Quentin Lutz <qlutz@enst.fr>
 """
-from typing import Union, Optional
-from scipy import sparse
-import numpy as np
 from math import log
+from typing import Union, Optional
 
+import numpy as np
+from scipy import sparse
+
+from sknetwork.basics import shortest_path, is_connected
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, is_square
-from sknetwork.basics import shortest_path, is_connected
 
 
 class Closeness(Algorithm):

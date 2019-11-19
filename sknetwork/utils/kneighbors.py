@@ -5,9 +5,9 @@ Created on October 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
+import numpy as np
 from scipy import sparse
 from scipy.spatial import cKDTree
-import numpy as np
 
 from sknetwork.utils.adjacency_formats import directed2undirected
 from sknetwork.utils.algorithm_base_class import Algorithm

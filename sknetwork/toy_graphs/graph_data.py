@@ -7,7 +7,7 @@ Created on Nov 29, 2018
 @author: Thomas Bonald <tbonald@enst.fr>
 """
 
-from typing import Union, Tuple, Optional
+from typing import Union, Tuple
 
 import numpy as np
 from scipy import sparse

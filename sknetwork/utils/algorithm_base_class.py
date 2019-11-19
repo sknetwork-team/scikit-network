@@ -5,10 +5,6 @@ Created on Jun 28, 2019
 @author: Quentin Lutz <qlutz@enst.fr>
 """
 import inspect
-from typing import Union
-
-import numpy as np
-from scipy import sparse
 
 
 class Algorithm:
