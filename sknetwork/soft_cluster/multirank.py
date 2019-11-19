@@ -106,14 +106,21 @@ class MultiRank(Algorithm):
         if n_labels < 2:
             raise ValueError('There must be at least two distinct labels.')
 
-        personalizations = []
-        for i, label in enumerate(unique_labels):
-            personalization = np.zeros(n)
-            personalization[seeds == label] = 1.
-            personalizations.append(personalization)
-
-        with Pool(self.n_jobs) as pool:
-            membership = np.array(pool.map(local_function, personalizations))
+        if self.n_jobs is not None:
+            personalizations = []
+            for i, label in enumerate(unique_labels):
+                personalization = np.zeros(n)
+                personalization[seeds == label] = 1.
+                personalizations.append(personalization)
+            with Pool(self.n_jobs) as pool:
+                membership = np.array(pool.map(local_function, personalizations))
+        else:
+            pr = PageRank()
+            membership = np.zeros((n, n_labels))
+            for i, label in enumerate(unique_labels):
+                personalization = np.zeros(n)
+                personalization[seeds == label] = 1.
+                membership[:, i] = pr.fit(adjacency, personalization=personalization).score_
 
         membership[membership <= self.rtol / n] = 0
         membership = membership.T
