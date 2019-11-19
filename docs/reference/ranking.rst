@@ -35,3 +35,8 @@ Closeness centrality
 --------------------
 .. autoclass:: sknetwork.ranking.Closeness
     :members:
+
+Harmonic centrality
+-------------------
+.. autoclass:: sknetwork.ranking.Harmonic
+    :members:
