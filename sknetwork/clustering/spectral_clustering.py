@@ -99,6 +99,7 @@ class BiSpectralClustering(SpectralClustering):
         Labels of the columns. Only valid if ``joint_clustering=True``.
 
     """
+
     def __init__(self, n_clusters: int = 8, embedding_dimension: int = 16, l2normalization: bool = True,
                  joint_clustering: bool = True):
         SpectralClustering.__init__(self, n_clusters, embedding_dimension, l2normalization)

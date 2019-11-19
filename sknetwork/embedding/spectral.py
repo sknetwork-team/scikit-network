@@ -25,6 +25,7 @@ class LaplacianOperator(LinearOperator):
     """
     Regularized Laplacian matrix as a scipy LinearOperator.
     """
+
     def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
         LinearOperator.__init__(self, dtype=float, shape=adjacency.shape)
         self.regularization = regularization
@@ -67,6 +68,7 @@ class NormalizedAdjacencyOperator(LinearOperator):
     """
     Regularized normalized adjacency matrix as a scipy LinearOperator.
     """
+
     def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
         LinearOperator.__init__(self, dtype=float, shape=adjacency.shape)
         self.adjacency = adjacency
@@ -241,7 +243,7 @@ class Spectral(Algorithm):
         regularization = self.regularization
         if regularization:
             if self.relative_regularization:
-                regularization = regularization * weights.sum() / n**2
+                regularization = regularization * weights.sum() / n ** 2
             weights += regularization * n
 
         if self.normalized_laplacian:

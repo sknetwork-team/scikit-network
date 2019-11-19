@@ -75,7 +75,7 @@ class AggregateGraph:
         """
         sim = -float("inf")
         den = self.cluster_out_weights[node1] * self.cluster_in_weights[node2] + self.cluster_out_weights[node2] * \
-            self.cluster_in_weights[node1]
+              self.cluster_in_weights[node1]
         if den > 0:
             sim = 2 * self.neighbors[node1][node2] / den
         return sim
@@ -231,7 +231,7 @@ def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.n
                 for neighbor in neighbors[node]:
                     sim = 0
                     den = cluster_out_weights[node] * cluster_in_weights[neighbor] + cluster_out_weights[neighbor] * \
-                        cluster_in_weights[node]
+                          cluster_in_weights[node]
                     if den > 0:
                         sim = 2 * graph[ints2int(node, neighbor)] / den
                     if sim > max_sim:
@@ -250,7 +250,7 @@ def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.n
                         neighbors.append([types.int32(-1)])
                         common_neighbors = set(neighbors[node]) & set(neighbors[nearest_neighbor]) - {types.int32(node),
                                                                                                       types.int32(
-                                                                                                      nearest_neighbor)}
+                                                                                                          nearest_neighbor)}
                         for curr_node in common_neighbors:
                             graph[ints2int(new_node, curr_node)] = graph[ints2int(node, curr_node)] + graph[
                                 ints2int(nearest_neighbor, curr_node)]
@@ -289,9 +289,9 @@ def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.n
                         neighbors[nearest_neighbor] = [types.int32(-1)]
                         cluster_sizes[new_node] = cluster_sizes.pop(node) + cluster_sizes.pop(nearest_neighbor)
                         cluster_out_weights[new_node] = cluster_out_weights.pop(node) + \
-                            cluster_out_weights.pop(nearest_neighbor)
+                                                        cluster_out_weights.pop(nearest_neighbor)
                         cluster_in_weights[new_node] = cluster_in_weights.pop(node) + \
-                            cluster_in_weights.pop(nearest_neighbor)
+                                                       cluster_in_weights.pop(nearest_neighbor)
                         next_cluster += 1
                     else:
                         chain.append(nearest_neighbor_last)

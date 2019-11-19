@@ -88,6 +88,7 @@ class BiSpectralWard(SpectralWard):
         Dendrogram for the columns.
 
     """
+
     def __init__(self, embedding_dimension: int = 16, l2normalization: bool = True, col_hierarchy: bool = True):
         SpectralWard.__init__(self, embedding_dimension, l2normalization)
         self.col_hierarchy = col_hierarchy

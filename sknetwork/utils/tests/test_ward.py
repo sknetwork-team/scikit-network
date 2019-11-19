@@ -18,4 +18,4 @@ class TestKMeans(unittest.TestCase):
         self.x = np.random.randn(10, 3)
         ward = Ward()
         ward.fit(self.x)
-        self.assertEqual(ward.dendrogram_.shape, (self.x.shape[0]-1, 4))
+        self.assertEqual(ward.dendrogram_.shape, (self.x.shape[0] - 1, 4))

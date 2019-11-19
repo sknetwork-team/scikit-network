@@ -29,6 +29,7 @@ except (ImportError, DeprecationWarning) as error:
     if type(error) is DeprecationWarning:
         warnings.warn(error, DeprecationWarning)
 
+
     # noinspection PyUnusedLocal
     def njit(*args, **kwargs):
         if len(args) > 0:

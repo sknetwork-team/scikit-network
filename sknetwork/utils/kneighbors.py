@@ -51,6 +51,7 @@ class KNeighborsTransformer(Algorithm):
 
 
     """
+
     def __init__(self, n_neighbors: int = 5, make_undirected: bool = False, remove_self_loops: bool = True,
                  leaf_size: int = 16, p=2, eps: float = 0.01, n_jobs=1):
         self.n_neighbors = n_neighbors
@@ -78,10 +79,10 @@ class KNeighborsTransformer(Algorithm):
 
         """
         tree = cKDTree(x, self.leaf_size)
-        _, neighbors = tree.query(x, self.n_neighbors+1, self.eps, self.p, n_jobs=self.n_jobs)
+        _, neighbors = tree.query(x, self.n_neighbors + 1, self.eps, self.p, n_jobs=self.n_jobs)
 
         n: int = x.shape[0]
-        indptr: np.ndarray = np.arange(n+1) * (self.n_neighbors+1)
+        indptr: np.ndarray = np.arange(n + 1) * (self.n_neighbors + 1)
         indices: np.ndarray = neighbors.reshape(-1)
         data = np.ones(len(indices))
 

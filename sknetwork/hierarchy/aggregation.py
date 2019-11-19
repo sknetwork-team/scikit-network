@@ -10,7 +10,7 @@ from typing import Union, Tuple
 import numpy as np
 
 
-def aggregate_dendrogram(dendrogram: np.ndarray, n_clusters: int = 2, return_counts: bool = False)\
+def aggregate_dendrogram(dendrogram: np.ndarray, n_clusters: int = 2, return_counts: bool = False) \
                         -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
     """Aggregate a dendrogram in order to get a certain number of leaves.
     The leaves in the output dendrogram correspond to subtrees in the input one.

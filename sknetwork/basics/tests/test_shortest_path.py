@@ -16,4 +16,4 @@ class TestShortestPath(unittest.TestCase):
         karate = karate_club()
         truth = shortest_path(karate)
         parallel = shortest_path(karate, n_jobs=-1)
-        self.assertEqual(np.equal(truth, parallel).sum(), 34**2)
+        self.assertEqual(np.equal(truth, parallel).sum(), 34 ** 2)

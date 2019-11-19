@@ -25,6 +25,7 @@ class Ward(Algorithm):
     Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2(1), 86-97.
 
     """
+
     def __init__(self):
         self.dendrogram_ = None
 

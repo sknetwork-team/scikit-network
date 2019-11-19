@@ -56,6 +56,7 @@ class HITS(Algorithm):
     Journal of the ACM (JACM), 46(5), 604-632.
 
     """
+
     def __init__(self, mode: str = 'hubs', solver: Union[str, SVDSolver] = 'auto'):
         self.mode = mode
         if solver == 'halko':

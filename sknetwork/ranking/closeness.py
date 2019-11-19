@@ -53,6 +53,7 @@ class Closeness(Algorithm):
     In Proceedings of the twelfth annual ACM-SIAM symposium on Discrete algorithms (pp. 228-229).
     Society for Industrial and Applied Mathematics.
     """
+
     def __init__(self, method: str = 'exact', tol: float = 1e-1, n_jobs: Optional[int] = None):
         self.method = method
         self.tol = tol
@@ -85,7 +86,7 @@ class Closeness(Algorithm):
             nb_samples = n
             indices = np.arange(n)
         elif self.method == 'approximate':
-            nb_samples = min(int(log(n)/self.tol**2), n)
+            nb_samples = min(int(log(n) / self.tol ** 2), n)
             indices = np.random.choice(np.arange(n), nb_samples, replace=False)
         else:
             raise ValueError("Method should be either 'exact' or 'approximate'.")

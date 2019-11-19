@@ -50,6 +50,7 @@ class MaxRank(Algorithm):
     In 2010 International Conference on Advances in Social Networks Analysis and Mining (pp. 192-199). IEEE.
 
     """
+
     def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rtol: float = 1e-4):
         self.damping_factor = damping_factor
         self.solver = solver

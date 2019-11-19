@@ -19,7 +19,7 @@ class TestSpectralClustering(unittest.TestCase):
         self.undirected: sparse.csr_matrix = karate_club()
         sw = SpectralWard(embedding_dimension=3)
         sw.fit(self.undirected)
-        self.assertEqual(sw.dendrogram_.shape, (self.undirected.shape[0]-1, 4))
+        self.assertEqual(sw.dendrogram_.shape, (self.undirected.shape[0] - 1, 4))
 
     def test_bipartite(self):
         self.bipartite: sparse.csr_matrix = movie_actor(return_labels=False)

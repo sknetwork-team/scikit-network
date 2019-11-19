@@ -46,6 +46,7 @@ class Harmonic(Algorithm):
     <https://arxiv.org/pdf/cond-mat/0008357.pdf>`_
     Physica A: Statistical Mechanics and its Applications, 285(3-4), 539-546.
     """
+
     def __init__(self, n_jobs: Optional[int] = None):
         self.n_jobs = n_jobs
         self.score_ = None

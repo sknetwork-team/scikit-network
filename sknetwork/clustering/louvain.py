@@ -545,6 +545,7 @@ class BiLouvain(Louvain):
 
 
         """
+
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
                  tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
                  sorted_cluster: bool = True,
