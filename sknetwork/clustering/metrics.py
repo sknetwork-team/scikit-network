@@ -25,10 +25,10 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
 
     The modularity of a clustering is
 
-    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w_iw_j}{w^2}\\big)\\delta_{c_i,c_j}`
+    :math:`Q = \\sum_{i,j=1}^n\\left(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w_iw_j}{w^2}\\right)\\delta_{c_i,c_j}`
     for undirected graphs,
 
-    :math:`Q = \\sum_{i,j=1}^n\\big(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w^+_iw^-_j}{w^2}\\big)\\delta_{c_i,c_j}`
+    :math:`Q = \\sum_{i,j=1}^n\\left(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w^+_iw^-_j}{w^2}\\right)\\delta_{c_i,c_j}`
     for directed graphs,
 
     where
@@ -95,7 +95,7 @@ def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.n
 
     The bimodularity of a clustering is
 
-    :math:`Q = \\sum_{i=1}^{n_1}\\sum_{j=1}^{n_2}\\big(\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{w^1_iw^2_j}{w^2}\\big)
+    :math:`Q = \\sum_{i=1}^{n_1}\\sum_{j=1}^{n_2}\\left(\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{w^1_iw^2_j}{w^2}\\right)
     \\delta_{c^1_i,c^2_j}`
     for bipartite graphs,
 
@@ -160,7 +160,8 @@ def cocitation_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], label
     Computes the modularity of a clustering in the normalized cocitation graph.
     Does not require the explicit computation of the normalized cocitation adjacency matrix.
 
-    :math:`Q = \\sum_{i,j=1}^n(\\dfrac{(AF^{-1}A^T)_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2})\\delta_{c_i,c_j}`
+    :math:`Q = \\sum_{i,j=1}^n\\left(\\dfrac{(AF^{-1}A^T)_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2}\\right)
+    \\delta_{c_i,c_j}`
 
     where
 
