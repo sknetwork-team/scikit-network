@@ -60,10 +60,10 @@ def shortest_path(adjacency: sparse.csr_matrix, method: str = 'auto', directed: 
             raise ValueError('The Floyd-Warshall algorithm cannot be used with parallel computations.')
         if indices is None:
             indices = np.arange(adjacency.shape[0])
-        arguments = [(adjacency, method, directed, return_predecessors, unweighted, overwrite, [sub_ind])
-                     for sub_ind in indices]
+        local_function = partial(sparse.csgraph.shortest_path,
+                                 adjacency, method, directed, return_predecessors, unweighted, overwrite)
         with Pool(n_jobs) as pool:
-            res = pool.starmap(sparse.csgraph.shortest_path, arguments)
+            res = pool.map(local_function, indices)
         if return_predecessors:
             paths = [el[0] for el in res]
             predecessors = [el[1] for el in res]
