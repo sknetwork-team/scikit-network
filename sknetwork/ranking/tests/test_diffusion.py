@@ -11,7 +11,7 @@ from sknetwork.ranking.diffusion import Diffusion, BiDiffusion
 from sknetwork.toy_graphs import karate_club, painters, star_wars_villains
 
 
-# noinspection DuplicatedCode
+# noinspection DuplicatedCode,PyMissingOrEmptyDocstring
 class TestDiffusion(unittest.TestCase):
 
     def setUp(self):

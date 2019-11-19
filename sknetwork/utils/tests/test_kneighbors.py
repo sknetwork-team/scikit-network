@@ -9,6 +9,7 @@ import unittest
 
 import numpy as np
 from scipy import sparse
+from scipy.sparse.linalg import norm
 
 from sknetwork.utils import KNeighborsTransformer
 
@@ -23,4 +24,4 @@ class TestKNeighbors(unittest.TestCase):
         gt[0, 1] = 1
         gt[2, 3] = 1
         gt = sparse.csr_matrix(gt + gt.T)
-        self.assertAlmostEqual(sparse.linalg.norm(gt - knn.adjacency_), 0)
+        self.assertAlmostEqual(norm(gt - knn.adjacency_), 0)

@@ -10,6 +10,7 @@ from sknetwork.utils.checks import is_proba_array
 from sknetwork.utils.projection_simplex import projection_simplex
 
 
+# noinspection PyMissingOrEmptyDocstring
 class TestProjSimplex(unittest.TestCase):
 
     def setUp(self):

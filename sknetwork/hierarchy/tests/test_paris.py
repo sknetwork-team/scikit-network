@@ -16,6 +16,7 @@ from sknetwork.hierarchy import Paris, straight_cut
 from sknetwork.toy_graphs import house, karate_club
 
 
+# noinspection PyMissingOrEmptyDocstring
 class TestParis(unittest.TestCase):
 
     def setUp(self):

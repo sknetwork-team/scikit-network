@@ -22,7 +22,7 @@ def membership_matrix(labels: np.ndarray, dtype=bool) -> sparse.csr_matrix:
 
     Returns
     -------
-    membership :
+    membership : sparse.csr_matrix
         Binary matrix of label assignments.
 
     Notes
@@ -45,7 +45,7 @@ def reindex_clusters(labels: np.ndarray) -> np.ndarray:
 
     Returns
     -------
-    new_labels:
+    new_labels: np.ndarray
         new label of each node.
 
     """

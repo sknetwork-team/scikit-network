@@ -60,7 +60,7 @@ def has_proper_shape(adjacency, algo: Union[Spectral, BiSpectral]) -> bool:
     return True
 
 
-# noinspection DuplicatedCode
+# noinspection DuplicatedCode,PyMissingOrEmptyDocstring
 class TestEmbeddings(unittest.TestCase):
 
     def setUp(self):

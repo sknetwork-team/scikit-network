@@ -12,6 +12,7 @@ from sknetwork.toy_graphs import random_graph, karate_club, bow_tie, painters, s
 from sknetwork.utils.adjacency_formats import directed2undirected
 
 
+# noinspection PyMissingOrEmptyDocstring
 class TestLouvainClustering(unittest.TestCase):
 
     def setUp(self):

@@ -10,12 +10,13 @@ from sknetwork.linalg import LanczosEig, HalkoEig, SparseLR
 from sknetwork.toy_graphs import house
 
 
+# noinspection PyMissingOrEmptyDocstring
 def eigenvector_err(matrix, eigenvectors, eigenvalues):
     err = matrix.dot(eigenvectors) - eigenvectors * eigenvalues
     return np.linalg.norm(err)
 
 
-# noinspection DuplicatedCode
+# noinspection DuplicatedCode,PyMissingOrEmptyDocstring
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):

@@ -11,6 +11,7 @@ from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.toy_graphs import house, star_wars_villains
 
 
+# noinspection PyMissingOrEmptyDocstring
 class TestSparseLowRank(unittest.TestCase):
 
     def setUp(self):

@@ -9,6 +9,7 @@ from sknetwork.utils.adjacency_formats import *
 from sknetwork.utils.checks import is_symmetric
 
 
+# noinspection PyMissingOrEmptyDocstring
 class TestFormats(unittest.TestCase):
 
     def setUp(self):

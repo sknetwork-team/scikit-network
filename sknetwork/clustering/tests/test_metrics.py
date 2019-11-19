@@ -11,6 +11,7 @@ from sknetwork.clustering import modularity, bimodularity, cocitation_modularity
 from sknetwork.toy_graphs import star_wars_villains
 
 
+# noinspection PyMissingOrEmptyDocstring
 class TestClusteringMetrics(unittest.TestCase):
 
     def setUp(self):
