@@ -33,11 +33,10 @@ class Harmonic(Algorithm):
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import rock_paper_scissors
     >>> harmonic = Harmonic()
-    >>> adjacency = rock_paper_scissors()
+    >>> adjacency = sparse.identity(3).tocsr()
     >>> np.round(harmonic.fit(adjacency).score_, 2)
-    array([1.5, 1.5, 1.5])
+    array([0., 0., 0.])
 
     References
     ----------
@@ -68,9 +67,6 @@ class Harmonic(Algorithm):
         if not is_square(adjacency):
             raise ValueError("The adjacency is not square. Please use 'bipartite2undirected',"
                              "'bipartite2directed' or 'BiCloseness'.")
-
-        if not is_connected(adjacency):
-            raise ValueError("The graph must be connected.")
 
         indices = np.arange(n)
 
