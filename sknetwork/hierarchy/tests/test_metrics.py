@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.hierarchy import Paris, tree_sampling_divergence, dasgupta_cost
-from sknetwork.toy_graphs import random_graph, random_bipartite_graph, line_graph, karate_club
+from sknetwork.toy_graphs import line_graph, karate_club
 
 
 class TestMetrics(unittest.TestCase):
@@ -40,35 +40,3 @@ class TestMetrics(unittest.TestCase):
         self.assertAlmostEqual(dc, 1, 2)
         tsd = tree_sampling_divergence(adjacency, dendrogram, normalized=False)
         self.assertAlmostEqual(tsd, 0, 2)
-
-
-"""
-    def test_directed(self):
-        adjacency = self.line_graph
-        self.paris.fit(adjacency)
-        dendrogram = self.paris.dendrogram_
-        dc = dasgupta_cost(adjacency, dendrogram)
-        self.assertAlmostEqual(dc, .833, 2)
-        tsd = tree_sampling_divergence(adjacency, dendrogram, normalized=False)
-        self.assertAlmostEqual(tsd, .346, 2)
-        tsd = tree_sampling_divergence(adjacency, dendrogram)
-        self.assertAlmostEqual(tsd, .499, 2)
-
-    def test_random(self):
-        adjacency = self.random_graph
-        self.paris.fit(adjacency)
-        dendrogram = self.paris.dendrogram_
-        dc = dasgupta_cost(adjacency, dendrogram)
-        self.assertAlmostEqual(dc, 0.25, 2)
-        tsd = tree_sampling_divergence(adjacency, dendrogram)
-        self.assertAlmostEqual(tsd, 0.543, 2)
-
-    def test_bipartite(self):
-        biadjacency = self.random_bipartite_graph
-        self.paris.fit(biadjacency)
-        dendrogram = self.paris.dendrogram_
-        dc = dasgupta_cost(biadjacency, dendrogram)
-        self.assertAlmostEqual(dc, 0.342, 2)
-        tsd = tree_sampling_divergence(biadjacency, dendrogram)
-        self.assertAlmostEqual(tsd, 0.882, 2)
-"""

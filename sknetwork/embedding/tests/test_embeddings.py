@@ -12,7 +12,7 @@ from sknetwork.embedding import Spectral, BiSpectral
 from sknetwork.toy_graphs import karate_club, random_bipartite_graph, house
 
 
-def barycenter_norm(adjacency, spectral: Spectral) -> np.ndarray:
+def barycenter_norm(adjacency, spectral: Spectral) -> float:
     """Barycenter of the embedding with respect to adjacency weights.
 
     Parameters
@@ -60,17 +60,11 @@ def has_proper_shape(adjacency, algo: Union[Spectral, BiSpectral]) -> bool:
     return True
 
 
+# noinspection DuplicatedCode
 class TestEmbeddings(unittest.TestCase):
 
     def setUp(self):
-        """
-
-        Returns
-        -------
-
-        """
         self.adjacency: sparse.csr_matrix = karate_club()
-        self.biadjacency = random_bipartite_graph()
         self.house = house()
 
     def test_spectral_normalized(self):
@@ -135,6 +129,7 @@ class TestEmbeddings(unittest.TestCase):
         self.assertAlmostEqual(error, 0)
 
     def test_svd(self):
+        self.biadjacency = random_bipartite_graph()
         svd = BiSpectral(2, solver='lanczos')
         svd.fit(self.adjacency)
         self.assertTrue(has_proper_shape(self.adjacency, svd))

@@ -18,10 +18,10 @@ class TestCoNeighbors(unittest.TestCase):
 
     def test_exact(self):
         n = self.bipartite.shape[0]
-        coneigh = co_neighbors_graph(self.bipartite, method='exact')
-        self.assertEqual(coneigh.shape, (n, n))
+        co_neighbors = co_neighbors_graph(self.bipartite, method='exact')
+        self.assertEqual(co_neighbors.shape, (n, n))
 
     def test_knn(self):
         n = self.bipartite.shape[0]
-        coneigh = co_neighbors_graph(self.bipartite, method='knn')
-        self.assertEqual(coneigh.shape, (n, n))
+        co_neighbors = co_neighbors_graph(self.bipartite, method='knn')
+        self.assertEqual(co_neighbors.shape, (n, n))

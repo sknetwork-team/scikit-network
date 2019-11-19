@@ -13,7 +13,7 @@ from sknetwork.toy_graphs import star_wars_villains
 
 class TestClusteringMetrics(unittest.TestCase):
 
-    def setUp(self):
+    def test_cosine_modularity(self):
         self.graph = sparse.csr_matrix(np.array([[0, 1, 1, 1],
                                                  [1, 0, 0, 0],
                                                  [1, 0, 0, 1],
@@ -22,7 +22,6 @@ class TestClusteringMetrics(unittest.TestCase):
         self.embedding = np.ones((4, 2))
         self.features = np.ones((3, 2))
 
-    def test_cosine_modularity(self):
         self.assertAlmostEqual(cosine_modularity(self.graph, self.embedding), 0.)
         fit, div, modularity = cosine_modularity(self.graph, self.embedding, return_all=True)
         self.assertAlmostEqual(fit, 1.)

@@ -21,8 +21,8 @@ class TestSparseLowRank(unittest.TestCase):
     def test_addition(self):
         addition = self.undirected + self.undirected
         expected = SparseLR(2 * house(), [(np.ones(5), 2 * np.ones(5))])
-        err: sparse.csr_matrix = (addition.sparse_mat != expected.sparse_mat)
-        self.assertEqual(err.nnz, 0)
+        err = (addition.sparse_mat - expected.sparse_mat).count_nonzero()
+        self.assertEqual(err, 0)
         random_vector = np.random.rand(5)
         self.assertAlmostEqual(np.linalg.norm(addition.dot(random_vector) - expected.dot(random_vector)), 0)
 

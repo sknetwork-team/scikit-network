@@ -16,6 +16,7 @@ def svd_err(matrix, u, v, sigma):
     return np.linalg.norm(err)
 
 
+# noinspection DuplicatedCode
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):

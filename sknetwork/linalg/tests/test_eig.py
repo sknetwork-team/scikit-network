@@ -15,6 +15,7 @@ def eigenvector_err(matrix, eigenvectors, eigenvalues):
     return np.linalg.norm(err)
 
 
+# noinspection DuplicatedCode
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):

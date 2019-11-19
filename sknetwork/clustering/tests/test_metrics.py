@@ -19,9 +19,6 @@ class TestClusteringMetrics(unittest.TestCase):
                                                  [1, 0, 0, 1],
                                                  [1, 0, 1, 0]]))
         self.labels = np.array([0, 1, 0, 0])
-        self.star_wars_graph: sparse.csr_matrix = star_wars_villains()
-        self.villain_labels = np.array([0, 0, 1, 1])
-        self.movie_labels = np.array([0, 1, 0])
         self.unique_cluster = np.zeros(4, dtype=int)
 
     def test_modularity(self):
@@ -29,6 +26,9 @@ class TestClusteringMetrics(unittest.TestCase):
         self.assertAlmostEqual(modularity(self.graph, self.unique_cluster), 0.)
 
     def test_bimodularity(self):
+        self.star_wars_graph: sparse.csr_matrix = star_wars_villains()
+        self.villain_labels = np.array([0, 0, 1, 1])
+        self.movie_labels = np.array([0, 1, 0])
         self.assertEqual(bimodularity(self.star_wars_graph, self.villain_labels, self.movie_labels), 0.1875)
 
     def test_cocitation_modularity(self):

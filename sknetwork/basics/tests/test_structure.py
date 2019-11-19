@@ -13,12 +13,11 @@ from sknetwork.utils.adjacency_formats import bipartite2undirected
 
 class TestStructure(unittest.TestCase):
     def setUp(self):
-        self.adjacency = rock_paper_scissors()
-        self.adjacency += self.adjacency.T
         self.biadjacency = star_wars_villains()
-        self.undirected_bipartite = bipartite2undirected(self.biadjacency)
 
     def test_largest_cc(self):
+        self.adjacency = rock_paper_scissors()
+        self.adjacency += self.adjacency.T
         largest_cc, indices = largest_connected_component(self.adjacency, return_labels=True)
         self.assertAlmostEqual(np.linalg.norm(largest_cc.toarray() - np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]])), 0)
         self.assertEqual(np.linalg.norm(indices - np.array([0, 1, 2])), 0)
@@ -31,6 +30,7 @@ class TestStructure(unittest.TestCase):
         self.assertEqual(np.linalg.norm(indices[1] - np.array([0, 1, 2])), 0)
 
     def test_is_bipartite(self):
+        self.undirected_bipartite = bipartite2undirected(self.biadjacency)
         bipartite, biadjacency = is_bipartite(self.undirected_bipartite, return_biadjacency=True)
         self.assertEqual(bipartite, True)
         self.assertEqual(np.all(biadjacency.data == self.biadjacency.data), True)

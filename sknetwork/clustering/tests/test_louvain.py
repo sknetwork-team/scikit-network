@@ -17,21 +17,12 @@ class TestLouvainClustering(unittest.TestCase):
     def setUp(self):
         self.louvain = Louvain()
         self.bilouvain = BiLouvain()
-        self.louvain_high_resolution = Louvain(engine='python', resolution=2)
-        self.louvain_null_resolution = Louvain(engine='python', resolution=0)
         if is_numba_available:
             self.louvain_numba = Louvain(engine='numba')
             self.bilouvain_numba = BiLouvain(engine='numba')
         else:
             with self.assertRaises(ValueError):
                 Louvain(engine='numba')
-        self.louvain_shuffle_first = Louvain(engine='python', shuffle_nodes=True, random_state=0)
-        self.louvain_shuffle_second = Louvain(engine='python', shuffle_nodes=True, random_state=123)
-        self.random_graph = random_graph()
-        self.karate_club: sparse.csr_matrix = karate_club()
-        self.bow_tie = bow_tie()
-        self.painters = painters(return_labels=False)
-        self.star_wars: sparse.csr_matrix = star_wars_villains()
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):
@@ -42,10 +33,14 @@ class TestLouvainClustering(unittest.TestCase):
         self.assertEqual(self.louvain.labels_, [0])
 
     def test_random_graph(self):
+        self.random_graph = random_graph()
         self.louvain.fit(directed2undirected(self.random_graph))
         self.assertEqual(len(self.louvain.labels_), 10)
 
     def test_undirected(self):
+        self.louvain_high_resolution = Louvain(engine='python', resolution=2)
+        self.louvain_null_resolution = Louvain(engine='python', resolution=0)
+        self.karate_club = karate_club()
         self.louvain.fit(self.karate_club)
         labels = self.louvain.labels_
         self.assertEqual(labels.shape, (34,))
@@ -65,6 +60,8 @@ class TestLouvainClustering(unittest.TestCase):
         self.assertEqual(len(set(self.louvain_null_resolution.labels_)), 1)
 
     def test_directed(self):
+        self.painters = painters(return_labels=False)
+
         self.louvain.fit(self.painters)
         labels = self.louvain.labels_
         self.assertEqual(labels.shape, (14,))
@@ -78,6 +75,7 @@ class TestLouvainClustering(unittest.TestCase):
         self.assertEqual(col_labels.shape, (n2,))
 
     def test_bipartite(self):
+        self.star_wars: sparse.csr_matrix = star_wars_villains()
         self.bilouvain.fit(self.star_wars)
         labels = self.bilouvain.labels_
         feature_labels = self.bilouvain.col_labels_
@@ -89,6 +87,9 @@ class TestLouvainClustering(unittest.TestCase):
             self.assertEqual(labels.shape, (4,))
 
     def test_shuffling(self):
+        self.louvain_shuffle_first = Louvain(engine='python', shuffle_nodes=True, random_state=0)
+        self.louvain_shuffle_second = Louvain(engine='python', shuffle_nodes=True, random_state=123)
+        self.bow_tie = bow_tie()
         self.louvain_shuffle_first.fit(self.bow_tie)
         self.assertEqual(self.louvain_shuffle_first.labels_[1], 1)
         self.louvain_shuffle_second.fit(self.bow_tie)
