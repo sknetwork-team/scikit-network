@@ -10,9 +10,6 @@ from sknetwork.toy_graphs.graph_data import karate_club, star_wars_villains, \
 
 class TestGraphImport(unittest.TestCase):
 
-    def setUp(self):
-        pass
-
     def test_available(self):
         adjacency = karate_club()
         self.assertEqual(adjacency.shape[0], 34)

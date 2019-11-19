@@ -15,10 +15,8 @@ from sknetwork.utils import KNeighborsTransformer
 
 class TestKNeighbors(unittest.TestCase):
 
-    def setUp(self):
-        self.x = np.array([[-2, -1], [-2, 1], [2, 1], [2, -1]])
-
     def test_basics(self):
+        self.x = np.array([[-2, -1], [-2, 1], [2, 1], [2, -1]])
         knn = KNeighborsTransformer(n_neighbors=1)
         knn.fit(self.x)
         gt = np.zeros(16).reshape((4, 4))

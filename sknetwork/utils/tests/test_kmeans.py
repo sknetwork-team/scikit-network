@@ -14,10 +14,8 @@ from sknetwork.utils import KMeans
 
 class TestKMeans(unittest.TestCase):
 
-    def setUp(self):
-        self.x = np.random.randn(10, 3)
-
     def test_kmeans(self):
+        self.x = np.random.randn(10, 3)
         kmeans = KMeans(n_clusters=2)
         kmeans.fit(self.x)
         self.assertEqual(len(kmeans.labels_), self.x.shape[0])

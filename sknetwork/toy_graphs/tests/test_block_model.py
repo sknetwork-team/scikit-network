@@ -9,11 +9,9 @@ from sknetwork.toy_graphs.graph_models import block_model
 
 class TestGraphImport(unittest.TestCase):
 
-    def setUp(self):
-        pass
-
     def test_errors(self):
         with self.assertRaises(TypeError):
+            # noinspection PyTypeChecker
             block_model('foo')
 
         with self.assertRaises(ValueError):

@@ -10,6 +10,7 @@ from sknetwork.ranking.hits import HITS
 from sknetwork.toy_graphs import karate_club, painters, movie_actor
 
 
+# noinspection DuplicatedCode
 class TestHITS(unittest.TestCase):
 
     def setUp(self):
@@ -35,7 +36,7 @@ class TestHITS(unittest.TestCase):
         self.assertEqual(len(hits.score_), n)
         self.assertEqual(len(hits.col_score_), m)
 
-    def test_hits_autmode(self):
+    def test_hits_automode(self):
         hits = HITS(mode='authorities')
 
         n = self.undirected.shape[0]
@@ -52,4 +53,3 @@ class TestHITS(unittest.TestCase):
         hits.fit(self.bipartite)
         self.assertEqual(len(hits.score_), m)
         self.assertEqual(len(hits.col_score_), n)
-

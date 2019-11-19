@@ -7,7 +7,7 @@ Created on Nov 29, 2018
 @author: Thomas Bonald <tbonald@enst.fr>
 """
 
-from typing import Union, Tuple
+from typing import Union, Tuple, Optional
 
 import numpy as np
 from scipy import sparse
@@ -114,7 +114,7 @@ def karate_club(return_labels_true: bool = False) -> Union[Tuple[sparse.csr_matr
     -------
     adjacency: sparse.csr_matrix
         Adjacency matrix of the graph.
-    labels: np.ndarray
+    labels: np.ndarray, optional
         Label of each node (community in the karate club).
     """
     row = np.array(
@@ -331,9 +331,9 @@ def star_wars_villains(return_labels: bool = False) -> Union[Tuple[sparse.csr_ma
     -------
     biadjacency: sparse.csr_matrix
         Biadjacency matrix of the graph.
-    villains: dict
+    villains: dict, optional
         Names of villains (rows)
-    movies: dict
+    movies: dict, optional
         Names of movies (columns)
     """
     row = np.array([0, 0, 1, 2, 2, 2, 3, 3])
@@ -363,9 +363,9 @@ def movie_actor(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, d
     -------
     biadjacency: sparse.csr_matrix
         Biadjacency matrix of the graph.
-    movies: dict
+    movies: dict, optional
         Names of movies (rows)
-    actors: dict
+    actors: dict, optional
         Names of actors (columns)
     """
     edges = {

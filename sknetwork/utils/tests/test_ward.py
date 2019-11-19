@@ -14,10 +14,8 @@ from sknetwork.utils import Ward
 
 class TestKMeans(unittest.TestCase):
 
-    def setUp(self):
-        self.x = np.random.randn(10, 3)
-
     def test_kmeans(self):
+        self.x = np.random.randn(10, 3)
         ward = Ward()
         ward.fit(self.x)
         self.assertEqual(ward.dendrogram_.shape, (self.x.shape[0]-1, 4))
