@@ -85,9 +85,9 @@ class MultiRank(Algorithm):
 
         """
         if self.bipartite:
-            local_function = partial(bipagerank, adjacency)
+            local_function = partial(bipagerank, adjacency, self.damping_factor, self.solver)
         else:
-            local_function = partial(pagerank, adjacency)
+            local_function = partial(pagerank, adjacency, self.damping_factor, self.solver)
 
         n: int = adjacency.shape[0]
         if isinstance(seeds, np.ndarray):
@@ -114,8 +114,9 @@ class MultiRank(Algorithm):
                 personalizations.append(personalization)
             with Pool(self.n_jobs) as pool:
                 membership = np.array(pool.map(local_function, personalizations))
+            membership = membership.T
         else:
-            pr = PageRank()
+            pr = PageRank(self.damping_factor, self.solver)
             membership = np.zeros((n, n_labels))
             for i, label in enumerate(unique_labels):
                 personalization = np.zeros(n)
@@ -123,7 +124,6 @@ class MultiRank(Algorithm):
                 membership[:, i] = pr.fit(adjacency, personalization=personalization).score_
 
         membership[membership <= self.rtol / n] = 0
-        membership = membership.T
 
         norm = np.sum(membership, axis=1)
         membership[norm > 0] /= norm[norm > 0, np.newaxis]
@@ -147,9 +147,9 @@ class BiMultiRank(MultiRank):
         self.bipartite = True
 
 
-def pagerank(adjacency, personalization):
-    return PageRank().fit(adjacency, personalization=personalization).score_
+def pagerank(adjacency, damping_factor, solver, personalization):
+    return PageRank(damping_factor, solver).fit(adjacency, personalization=personalization).score_
 
 
-def bipagerank(adjacency, personalization):
-    return BiPageRank().fit(adjacency, personalization=personalization).score_
+def bipagerank(adjacency, damping_factor, solver, personalization):
+    return BiPageRank(damping_factor, solver).fit(adjacency, personalization=personalization).score_
