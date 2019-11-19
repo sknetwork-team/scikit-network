@@ -61,8 +61,10 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
 
     Returns
     -------
-    modularity : float or Tuple
-        Modularity (with fit and diversity if **return_all** = ``True``)
+    modularity : float
+    fit: float, optional
+    diversity: float, optional
+
     """
 
     adjacency = check_format(adjacency).astype(float)
@@ -127,8 +129,9 @@ def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.n
 
     Returns
     -------
-    modularity : float or Tuple
-        Modularity (with fit and diversity if **return_all** = ``True``)
+    modularity : float
+    fit: float, optional
+    diversity: float, optional
     """
 
     biadjacency = check_format(biadjacency).astype(float)
@@ -180,9 +183,9 @@ def cocitation_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], label
 
     Returns
     -------
-    modularity: float or Tuple
-       Modularity of the clustering in the normalized cocitation graph
-       (with fit and diversity if **return_all** = ``True``).
+    modularity : float
+    fit: float, optional
+    diversity: float, optional
     """
 
     adjacency = check_format(adjacency).astype(float)

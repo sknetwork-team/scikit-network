@@ -49,7 +49,9 @@ def cosine_modularity(adjacency, embedding: np.ndarray, col_embedding=None, reso
 
     Returns
     -------
-    cosine_modularity: a float or a tuple of floats.
+    modularity : float
+    fit: float, optional
+    diversity: float, optional
     """
     adjacency = check_format(adjacency)
     total_weight: float = adjacency.data.sum()

@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.hierarchy import Paris, tree_sampling_divergence, dasgupta_cost
-from sknetwork.toy_graphs import random_graph, random_bipartite_graph, line_graph, karate_club
+from sknetwork.toy_graphs import line_graph, karate_club
 
 
 class TestMetrics(unittest.TestCase):
