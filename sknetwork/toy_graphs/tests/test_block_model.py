@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # tests for graph_data.py
-# authors: Quentin Lutz <qlutz@enst.fr>
+"""authors: Quentin Lutz <qlutz@enst.fr>"""
 
 import unittest
 

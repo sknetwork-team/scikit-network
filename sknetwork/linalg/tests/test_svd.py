@@ -11,12 +11,13 @@ from sknetwork.linalg import LanczosSVD, HalkoSVD, SparseLR
 from sknetwork.toy_graphs import movie_actor
 
 
+# noinspection PyMissingOrEmptyDocstring
 def svd_err(matrix, u, v, sigma):
     err = matrix.dot(v) - u * sigma
     return np.linalg.norm(err)
 
 
-# noinspection DuplicatedCode
+# noinspection DuplicatedCode,PyMissingOrEmptyDocstring
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):

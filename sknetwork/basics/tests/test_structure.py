@@ -11,6 +11,7 @@ from sknetwork.toy_graphs import star_wars_villains, rock_paper_scissors
 from sknetwork.utils.adjacency_formats import bipartite2undirected
 
 
+# noinspection PyMissingOrEmptyDocstring
 class TestStructure(unittest.TestCase):
     def setUp(self):
         self.biadjacency = star_wars_villains()

@@ -10,7 +10,7 @@ from sknetwork.ranking.hits import HITS
 from sknetwork.toy_graphs import karate_club, painters, movie_actor
 
 
-# noinspection DuplicatedCode
+# noinspection DuplicatedCode,PyMissingOrEmptyDocstring
 class TestHITS(unittest.TestCase):
 
     def setUp(self):

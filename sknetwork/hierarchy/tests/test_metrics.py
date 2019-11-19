@@ -14,6 +14,7 @@ from sknetwork.hierarchy import Paris, tree_sampling_divergence, dasgupta_cost
 from sknetwork.toy_graphs import line_graph, karate_club
 
 
+# noinspection PyMissingOrEmptyDocstring
 class TestMetrics(unittest.TestCase):
 
     def setUp(self):

@@ -10,6 +10,7 @@ from sknetwork.ranking.pagerank import PageRank, BiPageRank
 from sknetwork.toy_graphs import rock_paper_scissors, movie_actor
 
 
+# noinspection PyMissingOrEmptyDocstring
 class TestPageRank(unittest.TestCase):
 
     def setUp(self):

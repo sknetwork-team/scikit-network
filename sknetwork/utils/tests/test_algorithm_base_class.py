@@ -10,6 +10,7 @@ from sknetwork.ranking import PageRank
 from sknetwork.utils.checks import check_engine
 
 
+# noinspection PyMissingOrEmptyDocstring
 class TestAlgo(unittest.TestCase):
 
     def setUp(self):
