@@ -6,6 +6,7 @@ import sys
 import click
 
 
+# noinspection PyUnusedLocal
 @click.command()
 def main(args=None):
     """Console script for sknetwork."""

@@ -8,7 +8,7 @@ Created on Dec 5, 2018
 from csv import reader
 from typing import Tuple, Union
 
-from numpy import zeros, unique, argmax, ones, concatenate, array
+from numpy import zeros, unique, argmax, ones, concatenate, array, ndarray
 from scipy import sparse
 
 
@@ -136,7 +136,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
             return adjacency
 
 
-def parse_labels(file: str) -> list:
+def parse_labels(file: str) -> ndarray:
     """
     A parser for files with a single entry on each row.
 

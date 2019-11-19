@@ -59,6 +59,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'scikit-network'
+# noinspection PyShadowingBuiltins
 copyright = u"2019, scikit-network"
 author = u"scikit-network team"
 

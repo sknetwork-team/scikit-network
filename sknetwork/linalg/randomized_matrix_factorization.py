@@ -6,7 +6,7 @@ Created on Oct 12 2018
 Part of this code was adapted from the scikit-learn project: https://scikit-learn.org/stable/.
 """
 
-from typing import Union
+from typing import Union, Tuple
 
 import numpy as np
 from scipy import sparse, linalg
@@ -45,7 +45,8 @@ def safe_sparse_dot(a, b):
 
 
 def randomized_range_finder(matrix: np.ndarray, size: int, n_iter: int, power_iteration_normalizer='auto',
-                            random_state=None, return_all: bool = False) -> [np.ndarray, tuple]:
+                            random_state=None, return_all: bool = False) \
+                            -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray, np.ndarray]]:
     """Compute an orthonormal matrix :math:`Q`, whose range approximates the range of the input matrix.
 
     :math:`A \\approx QQ^*A`.
@@ -79,9 +80,13 @@ def randomized_range_finder(matrix: np.ndarray, size: int, n_iter: int, power_it
 
     Returns
     -------
-    range_matrix : 2D array
+    range_matrix : np.ndarray
         matrix (size x size) projection matrix, the range of which
         approximates well the range of the input matrix.
+    random_matrix : np.ndarray, optional
+        projection matrix
+    projected_matrix : np.ndarray, optional
+        product between the data and the projection matrix
 
     Notes
     -----
@@ -319,7 +324,7 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
     random_state = check_random_state(random_state)
     n_random = n_components + n_oversamples
     n_samples, n_features = matrix.shape
-    lambda_max = None
+    lambda_max = 0.
 
     if n_samples != n_features:
         raise ValueError('The input matrix is not square.')
