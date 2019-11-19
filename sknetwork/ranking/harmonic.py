@@ -10,7 +10,7 @@ import numpy as np
 
 from sknetwork.utils.algorithm_base_class import Algorithm
 from sknetwork.utils.checks import check_format, is_square
-from sknetwork.basics import shortest_path, is_connected
+from sknetwork.basics import shortest_path
 
 
 class Harmonic(Algorithm):
