@@ -12,12 +12,12 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
+from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import SparseLR, SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv
-from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_format, check_weights
 
 
-class BiSpectral(Algorithm):
+class BiSpectral(BaseEmbedding):
     """
     Graph embedding by Generalized Singular Value Decomposition.
 
@@ -93,6 +93,8 @@ class BiSpectral(Algorithm):
     def __init__(self, embedding_dimension=2, weights='degree', col_weights=None,
                  regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
                  scaling: Union[None, str] = 'multiply', solver: Union[str, SVDSolver] = 'auto'):
+        super(BiSpectral, self).__init__()
+
         self.embedding_dimension = embedding_dimension
         self.weights = weights
         if col_weights is None:
@@ -115,7 +117,6 @@ class BiSpectral(Algorithm):
         else:
             self.solver = solver
 
-        self.embedding_ = None
         self.col_embedding_ = None
         self.singular_values_ = None
 

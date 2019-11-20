@@ -16,8 +16,8 @@ from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 
 from sknetwork.basics.structure import is_connected
+from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv
-from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_format, is_symmetric
 
 
@@ -108,7 +108,7 @@ class NormalizedAdjacencyOperator(LinearOperator):
         return self
 
 
-class Spectral(Algorithm):
+class Spectral(BaseEmbedding):
     """
     Spectral embedding of a graph.
 
@@ -171,6 +171,8 @@ class Spectral(Algorithm):
     def __init__(self, embedding_dimension: int = 2, normalized_laplacian=True,
                  regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
                  scaling: Union[None, str] = 'multiply', solver: Union[str, EigSolver] = 'auto', tol: float = 1e-10):
+        super(Spectral, self).__init__()
+
         self.embedding_dimension = embedding_dimension
         self.normalized_laplacian = normalized_laplacian
 
@@ -195,7 +197,6 @@ class Spectral(Algorithm):
 
         self.tol = tol
 
-        self.embedding_ = None
         self.eigenvalues_ = None
         self.regularization_ = None
 

@@ -13,7 +13,7 @@ from scipy import sparse
 from scipy.sparse.linalg import lsqr, spsolve
 
 from sknetwork.basics.rand_walk import transition_matrix
-from sknetwork.utils.base import Algorithm
+from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.checks import check_format, is_square
 
 
@@ -51,7 +51,7 @@ def limit_conditions(personalization: Union[np.ndarray, dict], n: int) -> Tuple:
     return b, border
 
 
-class Diffusion(Algorithm):
+class Diffusion(BaseRanking):
     """
     Computes the temperature of each node, associated with the diffusion along the edges (heat equation).
 
@@ -80,9 +80,9 @@ class Diffusion(Algorithm):
     """
 
     def __init__(self, solver: str = 'lsqr'):
-        self.solver = solver
+        super(Diffusion, self).__init__()
 
-        self.score_ = None
+        self.solver = solver
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Union[dict, np.ndarray]) -> 'Diffusion':
@@ -122,7 +122,7 @@ class Diffusion(Algorithm):
         return self
 
 
-class BiDiffusion(Algorithm):
+class BiDiffusion(BaseRanking):
     """Diffusion ranking algorithm on the normalized cocitation graph.
 
     See :class:`sknetwork.basics.co_neighbors_graph`
@@ -130,7 +130,7 @@ class BiDiffusion(Algorithm):
     """
 
     def __init__(self):
-        self.score_ = None
+        super(BiDiffusion, self).__init__()
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Union[dict, np.ndarray]) -> 'BiDiffusion':

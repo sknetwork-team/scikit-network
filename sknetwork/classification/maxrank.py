@@ -10,11 +10,11 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
+from sknetwork.classification import BaseClassifier
 from sknetwork.soft_cluster import MultiRank, BiMultiRank
-from sknetwork.utils.base import Algorithm
 
 
-class MaxRank(Algorithm):
+class MaxRank(BaseClassifier):
     """Semi-supervised node classification using multiple personalized PageRanks.
     See :class:`sknetwork.soft_cluster.MultiRank`.
 
@@ -52,12 +52,11 @@ class MaxRank(Algorithm):
     """
 
     def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rtol: float = 1e-4):
+        super(MaxRank, self).__init__()
         self.damping_factor = damping_factor
         self.solver = solver
         self.rtol = rtol
         self.bipartite = False
-
-        self.labels_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'MaxRank':
         """Compute personalized PageRank using each given label as a seed set.

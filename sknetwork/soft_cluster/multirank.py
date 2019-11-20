@@ -13,10 +13,10 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.ranking import PageRank, BiPageRank
-from sknetwork.utils.base import Algorithm
+from sknetwork.soft_cluster.base import BaseSoftCluster
 
 
-class MultiRank(Algorithm):
+class MultiRank(BaseSoftCluster):
     """Semi-Supervised clustering based on personalized PageRank.
 
     Parameters
@@ -53,6 +53,8 @@ class MultiRank(Algorithm):
 
     def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rtol: float = 1e-4,
                  sparse_output: bool = True, n_jobs: Optional[int] = None):
+        super(MultiRank, self).__init__()
+
         self.damping_factor = damping_factor
         self.solver = solver
         self.rtol = rtol
@@ -64,8 +66,6 @@ class MultiRank(Algorithm):
             self.n_jobs = 1
         else:
             self.n_jobs = n_jobs
-
-        self.membership_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'MultiRank':
         """Compute personalized PageRank using each given labels as seed set.

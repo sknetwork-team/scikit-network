@@ -13,8 +13,8 @@ from scipy import sparse
 from scipy.sparse.linalg import eigs, LinearOperator, lsqr, spsolve
 
 from sknetwork.basics.rand_walk import transition_matrix
+from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.adjacency_formats import bipartite2undirected
-from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_square
 
 
@@ -99,7 +99,7 @@ class RandomSurferOperator(LinearOperator):
         return self.a.dot(x) + self.b * x.sum()
 
 
-class PageRank(Algorithm):
+class PageRank(BaseRanking):
     """
     Compute the PageRank of each node, corresponding to its frequency of visit by a random walk.
 
@@ -132,14 +132,14 @@ class PageRank(Algorithm):
     Stanford InfoLab.
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos'):
+        super(PageRank, self).__init__()
+
         if damping_factor < 0 or damping_factor >= 1:
             raise ValueError('Damping factor must be between 0 and 1.')
         else:
             self.damping_factor = damping_factor
         self.solver = solver
         self.fb_mode = False
-
-        self.score_ = None
 
     # noinspection PyTypeChecker
     def solve(self, adjacency: Union[sparse.csr_matrix, np.ndarray],

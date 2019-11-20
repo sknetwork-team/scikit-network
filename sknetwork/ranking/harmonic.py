@@ -10,11 +10,11 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.basics import shortest_path
-from sknetwork.utils.base import Algorithm
+from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.checks import check_format, is_square
 
 
-class Harmonic(Algorithm):
+class Harmonic(BaseRanking):
     """
     Compute the harmonic centrality of each node in a connected graph, corresponding to the average inverse length of
     the shortest paths from that node to all the other ones.
@@ -48,8 +48,9 @@ class Harmonic(Algorithm):
     """
 
     def __init__(self, n_jobs: Optional[int] = None):
+        super(Harmonic, self).__init__()
+
         self.n_jobs = n_jobs
-        self.score_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Harmonic':
         """

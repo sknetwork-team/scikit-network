@@ -13,9 +13,9 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork import njit
+from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.post_processing import membership_matrix, reindex_clusters
 from sknetwork.utils.adjacency_formats import bipartite2directed, directed2undirected
-from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_format, check_engine, check_random_state, check_probs, is_square
 
 
@@ -86,7 +86,7 @@ class AggregateGraph:
         return self
 
 
-class Optimizer(Algorithm):
+class Optimizer(BaseClustering):
     """
     A generic optimization algorithm.
 
@@ -94,13 +94,11 @@ class Optimizer(Algorithm):
     ----------
     score_ : float
         Total increase of the objective function.
-    labels_ : np.ndarray
-        Cluster index of each node.
     """
 
     def __init__(self):
+        super(Optimizer, self).__init__()
         self.score_ = None
-        self.labels_ = None
 
     def fit(self, graph: AggregateGraph):
         """
@@ -331,7 +329,7 @@ class GreedyModularity(Optimizer):
             raise ValueError('Unknown engine.')
 
 
-class Louvain(Algorithm):
+class Louvain(BaseClustering):
     """
     Louvain algorithm for undirected and directed graph clustering in Python (default) and Numba.
 
@@ -400,6 +398,7 @@ class Louvain(Algorithm):
                  tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
                  sorted_cluster: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
                  verbose: bool = False):
+        super(Louvain, self).__init__()
 
         self.random_state = check_random_state(random_state)
         if algorithm == 'default':
@@ -416,7 +415,6 @@ class Louvain(Algorithm):
         self.sorted_cluster = sorted_cluster
         self.verbose = verbose
 
-        self.labels_ = None
         self.iteration_count_ = None
         self.aggregate_graph_ = None
 

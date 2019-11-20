@@ -11,11 +11,11 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.linalg import SVDSolver, HalkoSVD, LanczosSVD, auto_solver
-from sknetwork.utils.base import Algorithm
+from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.checks import check_format
 
 
-class HITS(Algorithm):
+class HITS(BaseRanking):
     """
     Compute the hub and authority weights of each node.
     For bipartite graphs, the hub score is computed on one part and the authority score on the other one.
@@ -58,6 +58,8 @@ class HITS(Algorithm):
     """
 
     def __init__(self, mode: str = 'hubs', solver: Union[str, SVDSolver] = 'auto'):
+        super(HITS, self).__init__()
+
         self.mode = mode
         if solver == 'halko':
             self.solver: SVDSolver = HalkoSVD()
@@ -66,7 +68,6 @@ class HITS(Algorithm):
         else:
             self.solver = solver
 
-        self.score_ = None
         self.col_score_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'HITS':

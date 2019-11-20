@@ -10,13 +10,13 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
+from sknetwork.clustering.base import BaseClustering
 from sknetwork.embedding import BiSpectral, Spectral
-from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_format, is_symmetric
 from sknetwork.utils.kmeans import KMeans
 
 
-class SpectralClustering(Algorithm):
+class SpectralClustering(BaseClustering):
     """Pipeline for spectral clustering.
 
     Parameters
@@ -36,11 +36,11 @@ class SpectralClustering(Algorithm):
     """
 
     def __init__(self, n_clusters: int = 8, embedding_dimension: int = 16, l2normalization: bool = True):
+        super(SpectralClustering, self).__init__()
+
         self.n_clusters = n_clusters
         self.embedding_dimension = embedding_dimension
         self.l2normalization = l2normalization
-
-        self.labels_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'SpectralClustering':
         """Apply embedding method followed by clustering to the graph.

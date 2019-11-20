@@ -13,7 +13,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork import njit, types, TypedDict
-from sknetwork.utils.base import Algorithm
+from sknetwork.hierarchy.base import BaseHierarchy
 from sknetwork.utils.checks import check_engine, check_format, check_probs, is_symmetric
 
 
@@ -74,8 +74,10 @@ class AggregateGraph:
             Similarity.
         """
         sim = -float("inf")
-        den = self.cluster_out_weights[node1] * self.cluster_in_weights[node2] + self.cluster_out_weights[node2] * \
-              self.cluster_in_weights[node1]
+        a = self.cluster_out_weights[node1] * self.cluster_in_weights[node2]
+        b = self.cluster_out_weights[node2] * self.cluster_in_weights[node1]
+        den = a + b
+
         if den > 0:
             sim = 2 * self.neighbors[node1][node2] / den
         return sim
@@ -227,44 +229,45 @@ def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.n
             node = chain.pop()
             if neighbors[node][0] != -1:
                 max_sim = -maxfloat
-                nearest_neighbor = None
+                nrst_neighbor = None
                 for neighbor in neighbors[node]:
                     sim = 0
-                    den = cluster_out_weights[node] * cluster_in_weights[neighbor] + cluster_out_weights[neighbor] * \
-                          cluster_in_weights[node]
+                    a = cluster_out_weights[node] * cluster_in_weights[neighbor]
+                    b = cluster_out_weights[neighbor] * cluster_in_weights[node]
+                    den = a + b
                     if den > 0:
                         sim = 2 * graph[ints2int(node, neighbor)] / den
                     if sim > max_sim:
-                        nearest_neighbor = neighbor
+                        nrst_neighbor = neighbor
                         max_sim = sim
                     elif sim == max_sim:
-                        nearest_neighbor = min(neighbor, nearest_neighbor)
+                        nrst_neighbor = min(neighbor, nrst_neighbor)
                 if chain:
                     nearest_neighbor_last = chain.pop()
-                    if nearest_neighbor_last == nearest_neighbor:
-                        dendrogram.append([node, nearest_neighbor, 1. / max_sim,
+                    if nearest_neighbor_last == nrst_neighbor:
+                        dendrogram.append([node, nrst_neighbor, 1. / max_sim,
                                            cluster_sizes[node]
-                                           + cluster_sizes[nearest_neighbor]])
+                                           + cluster_sizes[nrst_neighbor]])
                         # merge
                         new_node = types.int32(next_cluster)
                         neighbors.append([types.int32(-1)])
-                        common_neighbors = set(neighbors[node]) & set(neighbors[nearest_neighbor]) - {types.int32(node),
-                                                                                                      types.int32(
-                                                                                                          nearest_neighbor)}
+                        common_neighbors = set(neighbors[node]) & set(neighbors[nrst_neighbor]) - {types.int32(node),
+                                                                                                   types.int32(
+                                                                                                   nrst_neighbor)}
                         for curr_node in common_neighbors:
                             graph[ints2int(new_node, curr_node)] = graph[ints2int(node, curr_node)] + graph[
-                                ints2int(nearest_neighbor, curr_node)]
+                                ints2int(nrst_neighbor, curr_node)]
                             graph[ints2int(curr_node, new_node)] = graph.pop(ints2int(curr_node, node)) + graph.pop(
-                                ints2int(curr_node, nearest_neighbor))
+                                ints2int(curr_node, nrst_neighbor))
                             if neighbors[new_node][0] != -1:
                                 neighbors[new_node].append(curr_node)
                             else:
                                 neighbors[new_node][0] = curr_node
                             neighbors[curr_node].append(new_node)
                             neighbors[curr_node].remove(node)
-                            neighbors[curr_node].remove(nearest_neighbor)
-                        node_neighbors = set(neighbors[node]) - set(neighbors[nearest_neighbor]) - {types.int32(
-                            nearest_neighbor)}
+                            neighbors[curr_node].remove(nrst_neighbor)
+                        node_neighbors = set(neighbors[node]) - set(neighbors[nrst_neighbor]) - {types.int32(
+                            nrst_neighbor)}
                         for curr_node in node_neighbors:
                             graph[ints2int(new_node, curr_node)] = graph[ints2int(node, curr_node)]
                             graph[ints2int(curr_node, new_node)] = graph.pop(ints2int(curr_node, node))
@@ -274,32 +277,33 @@ def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.n
                                 neighbors[new_node][0] = curr_node
                             neighbors[curr_node].append(new_node)
                             neighbors[curr_node].remove(node)
-                        nearest_neighbor_neighbors = set(neighbors[nearest_neighbor]) - set(neighbors[node]) - {
+                        nearest_neighbor_neighbors = set(neighbors[nrst_neighbor]) - set(neighbors[node]) - {
                             types.int32(node)}
                         for curr_node in nearest_neighbor_neighbors:
-                            graph[ints2int(new_node, curr_node)] = graph[ints2int(nearest_neighbor, curr_node)]
-                            graph[ints2int(curr_node, new_node)] = graph.pop(ints2int(curr_node, nearest_neighbor))
+                            graph[ints2int(new_node, curr_node)] = graph[ints2int(nrst_neighbor, curr_node)]
+                            graph[ints2int(curr_node, new_node)] = graph.pop(ints2int(curr_node, nrst_neighbor))
                             if neighbors[new_node][0] != -1:
                                 neighbors[new_node].append(curr_node)
                             else:
                                 neighbors[new_node][0] = curr_node
                             neighbors[curr_node].append(new_node)
-                            neighbors[curr_node].remove(nearest_neighbor)
+                            neighbors[curr_node].remove(nrst_neighbor)
                         neighbors[node] = [types.int32(-1)]
-                        neighbors[nearest_neighbor] = [types.int32(-1)]
-                        cluster_sizes[new_node] = cluster_sizes.pop(node) + cluster_sizes.pop(nearest_neighbor)
-                        cluster_out_weights[new_node] = cluster_out_weights.pop(node) + \
-                                                        cluster_out_weights.pop(nearest_neighbor)
-                        cluster_in_weights[new_node] = cluster_in_weights.pop(node) + \
-                                                       cluster_in_weights.pop(nearest_neighbor)
+                        neighbors[nrst_neighbor] = [types.int32(-1)]
+                        cluster_sizes[new_node] = cluster_sizes.pop(node) + cluster_sizes.pop(nrst_neighbor)
+
+                        tmp = cluster_out_weights.pop(node) + cluster_out_weights.pop(nrst_neighbor)
+                        cluster_out_weights[new_node] = tmp
+                        tmp = cluster_in_weights.pop(node) + cluster_in_weights.pop(nrst_neighbor)
+                        cluster_in_weights[new_node] = tmp
                         next_cluster += 1
                     else:
                         chain.append(nearest_neighbor_last)
                         chain.append(node)
-                        chain.append(nearest_neighbor)
+                        chain.append(nrst_neighbor)
                 else:
                     chain.append(node)
-                    chain.append(nearest_neighbor)
+                    chain.append(nrst_neighbor)
             else:
                 connected_components.append((node, cluster_sizes[node]))
                 del cluster_sizes[node]
@@ -313,7 +317,7 @@ def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.n
     return dendrogram
 
 
-class Paris(Algorithm):
+class Paris(BaseHierarchy):
     """
     Agglomerative clustering algorithm that performs greedy merge of nodes based on their similarity.
 
@@ -371,12 +375,12 @@ class Paris(Algorithm):
 
     def __init__(self, engine: str = 'default', weights: str = 'degree', col_weights: Union[None, str] = None,
                  reorder: bool = True):
+        super(Paris, self).__init__()
+
         self.weights = weights
         self.col_weights = col_weights
         self.engine = check_engine(engine)
         self.reorder = reorder
-
-        self.dendrogram_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], custom_weights: Union[None, np.ndarray] = None,
             custom_col_weights: Union[None, np.ndarray] = None) -> 'Paris':

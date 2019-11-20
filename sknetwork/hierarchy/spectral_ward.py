@@ -11,11 +11,11 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding import Spectral, BiSpectral
-from sknetwork.utils.base import Algorithm
+from sknetwork.hierarchy.base import BaseHierarchy
 from sknetwork.utils.ward import Ward
 
 
-class SpectralWard(Algorithm):
+class SpectralWard(BaseHierarchy):
     """Pipeline for spectral Ward hierarchical clustering.
 
     Parameters
@@ -33,10 +33,10 @@ class SpectralWard(Algorithm):
     """
 
     def __init__(self, embedding_dimension: int = 16, l2normalization: bool = True):
+        super(SpectralWard, self).__init__()
+
         self.embedding_dimension = embedding_dimension
         self.l2normalization = l2normalization
-
-        self.dendrogram_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'SpectralWard':
         """Apply embedding method followed by hierarchical clustering to the graph.

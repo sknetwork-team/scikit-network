@@ -11,11 +11,11 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.basics import shortest_path, is_connected
-from sknetwork.utils.base import Algorithm
+from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.checks import check_format, is_square
 
 
-class Closeness(Algorithm):
+class Closeness(BaseRanking):
     """
     Compute the closeness centrality of each node in a connected graph, corresponding to the average length of the
     shortest paths from that node to all the other ones.
@@ -55,10 +55,11 @@ class Closeness(Algorithm):
     """
 
     def __init__(self, method: str = 'exact', tol: float = 1e-1, n_jobs: Optional[int] = None):
+        super(Closeness, self).__init__()
+
         self.method = method
         self.tol = tol
         self.n_jobs = n_jobs
-        self.score_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Closeness':
         """
