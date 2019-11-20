@@ -145,8 +145,8 @@ class BiMultiRank(MultiRank):
     """
 
     def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rtol: float = 1e-4,
-                 sparse_output: bool = True):
-        MultiRank.__init__(self, damping_factor, solver, rtol, sparse_output)
+                 sparse_output: bool = True, n_jobs: Optional[int] = None):
+        MultiRank.__init__(self, damping_factor, solver, rtol, sparse_output, n_jobs)
         self.bipartite = True
 
 
