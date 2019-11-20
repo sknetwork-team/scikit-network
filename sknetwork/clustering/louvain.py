@@ -15,7 +15,7 @@ from scipy import sparse
 from sknetwork import njit
 from sknetwork.clustering.post_processing import membership_matrix, reindex_clusters
 from sknetwork.utils.adjacency_formats import bipartite2directed, directed2undirected
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_format, check_engine, check_random_state, check_probs, is_square
 
 

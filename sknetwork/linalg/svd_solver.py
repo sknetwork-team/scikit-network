@@ -14,7 +14,7 @@ from scipy.sparse.linalg import svds
 
 from sknetwork.linalg.randomized_matrix_factorization import randomized_svd
 from sknetwork.linalg.sparse_lowrank import SparseLR
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.base import Algorithm
 
 
 class SVDSolver(Algorithm):

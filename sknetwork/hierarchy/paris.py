@@ -13,7 +13,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork import njit, types, TypedDict
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_engine, check_format, check_probs, is_symmetric
 
 

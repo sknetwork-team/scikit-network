@@ -13,7 +13,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.ranking import PageRank, BiPageRank
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.base import Algorithm
 
 
 class MultiRank(Algorithm):

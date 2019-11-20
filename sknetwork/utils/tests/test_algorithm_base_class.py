@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tests for algorithm_base_class.py"""
+"""tests for base.py"""
 
 import unittest
 

@@ -13,7 +13,7 @@ from scipy import sparse
 from scipy.sparse.linalg import lsqr, spsolve
 
 from sknetwork.basics.rand_walk import transition_matrix
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_format, is_square
 
 

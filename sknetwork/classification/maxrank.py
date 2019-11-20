@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.soft_cluster import MultiRank, BiMultiRank
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.base import Algorithm
 
 
 class MaxRank(Algorithm):

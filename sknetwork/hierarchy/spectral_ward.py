@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding import Spectral, BiSpectral
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.base import Algorithm
 from sknetwork.utils.ward import Ward
 
 

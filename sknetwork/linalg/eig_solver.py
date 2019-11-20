@@ -14,7 +14,7 @@ from scipy.sparse.linalg import eigsh
 
 from sknetwork.linalg.randomized_matrix_factorization import randomized_eig
 from sknetwork.linalg.sparse_lowrank import SparseLR
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.base import Algorithm
 
 
 class EigSolver(Algorithm):

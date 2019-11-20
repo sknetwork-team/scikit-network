@@ -13,7 +13,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.linalg import SparseLR, SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_format, check_weights
 
 

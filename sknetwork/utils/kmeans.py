@@ -8,7 +8,7 @@ Created on October 2019
 import numpy as np
 from scipy.cluster.vq import kmeans2
 
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.base import Algorithm
 
 
 class KMeans(Algorithm):

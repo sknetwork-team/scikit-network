@@ -17,7 +17,7 @@ from scipy.sparse.linalg import LinearOperator
 
 from sknetwork.basics.structure import is_connected
 from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_format, is_symmetric
 
 

@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.basics import shortest_path, is_connected
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_format, is_square
 
 

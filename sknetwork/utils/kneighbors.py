@@ -10,7 +10,7 @@ from scipy import sparse
 from scipy.spatial import cKDTree
 
 from sknetwork.utils.adjacency_formats import directed2undirected
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.utils.base import Algorithm
 
 
 class KNeighborsTransformer(Algorithm):
