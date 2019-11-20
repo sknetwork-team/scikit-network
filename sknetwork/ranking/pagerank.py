@@ -123,7 +123,7 @@ class PageRank(BaseRanking):
     >>> from sknetwork.toy_graphs import rock_paper_scissors
     >>> pagerank = PageRank()
     >>> adjacency = rock_paper_scissors()
-    >>> np.round(pagerank.fit(adjacency).score_, 2)
+    >>> np.round(pagerank.fit_transform(adjacency), 2)
     array([0.33, 0.33, 0.33])
 
     References

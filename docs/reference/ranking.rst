@@ -8,6 +8,11 @@ Ranking
 This module contains ranking algorithms. The attribute ``.score_`` assigns an importance
 score to each node of the graph.
 
+Base Class
+----------
+.. autoclass:: sknetwork.ranking.BaseRanking
+    :members:
+
 PageRank
 --------
 .. autoclass:: sknetwork.ranking.PageRank

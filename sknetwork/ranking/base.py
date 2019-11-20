@@ -13,3 +13,12 @@ class BaseRanking(Algorithm):
 
     def __init__(self):
         self.score_ = None
+
+    def fit(self, adjacency, **kwargs):
+        """Fit algorithm to the data."""
+        raise NotImplementedError
+
+    def fit_transform(self, adjacency, **kwargs):
+        """Fit algorithm to the data and returns the score."""
+        self.fit(adjacency, **kwargs)
+        return self.score_
