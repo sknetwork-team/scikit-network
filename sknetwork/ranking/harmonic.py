@@ -74,6 +74,7 @@ class Harmonic(Algorithm):
 
         paths = shortest_path(adjacency, n_jobs=self.n_jobs, indices=indices)
 
+        np.fill_diagonal(paths, 1)
         inv = (1 / paths)
         np.fill_diagonal(inv, 0)
 
