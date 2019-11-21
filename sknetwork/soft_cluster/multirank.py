@@ -85,9 +85,9 @@ class MultiRank(BaseSoftCluster):
 
         """
         if self.bipartite:
-            local_function = partial(bipagerank, adjacency, self.damping_factor, self.solver)
+            pr = BiPageRank(self.damping_factor, self.solver)
         else:
-            local_function = partial(pagerank, adjacency, self.damping_factor, self.solver)
+            pr = PageRank(self.damping_factor, self.solver)
 
         n: int = adjacency.shape[0]
         if isinstance(seeds, np.ndarray):
@@ -107,6 +107,7 @@ class MultiRank(BaseSoftCluster):
             raise ValueError('There must be at least two distinct labels.')
 
         if self.n_jobs != 1:
+            local_function = partial(pr.fit_transform, adjacency)
             personalizations = []
             for i, label in enumerate(unique_labels):
                 personalization = np.zeros(n)
@@ -116,10 +117,6 @@ class MultiRank(BaseSoftCluster):
                 membership = np.array(pool.map(local_function, personalizations))
             membership = membership.T
         else:
-            if self.bipartite:
-                pr = BiPageRank(self.damping_factor, self.solver)
-            else:
-                pr = PageRank(self.damping_factor, self.solver)
             membership = np.zeros((n, n_labels))
             for i, label in enumerate(unique_labels):
                 personalization = np.zeros(n)
@@ -148,11 +145,3 @@ class BiMultiRank(MultiRank):
                  sparse_output: bool = True, n_jobs: Optional[int] = None):
         MultiRank.__init__(self, damping_factor, solver, rtol, sparse_output, n_jobs)
         self.bipartite = True
-
-
-def pagerank(adjacency, damping_factor, solver, personalization):
-    return PageRank(damping_factor, solver).fit(adjacency, personalization=personalization).score_
-
-
-def bipagerank(adjacency, damping_factor, solver, personalization):
-    return BiPageRank(damping_factor, solver).fit(adjacency, personalization=personalization).score_
