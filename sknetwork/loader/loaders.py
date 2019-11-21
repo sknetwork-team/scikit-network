@@ -13,9 +13,6 @@ from os.path import exists, expanduser, join
 from typing import Optional
 from urllib.request import urlretrieve
 
-from scipy import sparse
-import numpy
-
 from sknetwork.loader.parser import parse_tsv, parse_labels, parse_hierarchical_labels
 
 
