@@ -99,6 +99,8 @@ class Optimizer(Algorithm):
 
     def __init__(self):
         super(Optimizer, self).__init__()
+
+        self.labels_ = None
         self.score_ = None
 
     def fit(self, graph: AggregateGraph):

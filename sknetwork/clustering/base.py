@@ -14,11 +14,11 @@ class BaseClustering(Algorithm):
     def __init__(self):
         self.labels_ = None
 
-    def fit(self, adjacency, *args, **kwargs):
+    def fit(self, adjacency):
         """Fit algorithm to the data."""
         raise NotImplementedError
 
-    def fit_transform(self, adjacency, *args, **kwargs):
+    def fit_transform(self, adjacency):
         """Fit algorithm to the data and returns the score."""
-        self.fit(adjacency, *args, **kwargs)
+        self.fit(adjacency)
         return self.labels_
