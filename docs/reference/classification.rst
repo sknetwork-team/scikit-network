@@ -9,6 +9,10 @@ This module contains node classification algorithms.
 
 The attribute ``.labels_``  assigns a label to each node of the graph.
 
+Base Class
+----------
+.. autoclass:: sknetwork.classification.BaseClassifier
+    :members:
 
 MultiRank
 ---------

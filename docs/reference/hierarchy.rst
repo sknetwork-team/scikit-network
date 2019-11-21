@@ -18,6 +18,12 @@ A dendrogram is an array of size :math:`(n-1) \times 4` representing the success
 Any new node resulting from a merge takes the first available index (e.g., the first merge corresponds to node :math:`n`).
 
 
+Base Class
+----------
+.. autoclass:: sknetwork.hierarchy.BaseHierarchy
+    :members:
+
+
 Paris
 -----
 .. autoclass:: sknetwork.hierarchy.Paris

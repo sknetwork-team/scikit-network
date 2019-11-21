@@ -9,6 +9,12 @@ This module contains clustering algorithms.
 
 The attribute ``.labels_``  assigns a label (cluster index) to each node of the graph.
 
+Base Class
+----------
+.. autoclass:: sknetwork.clustering.BaseClustering
+    :members:
+
+
 Louvain
 -------
 .. autoclass:: sknetwork.clustering.Louvain

@@ -9,6 +9,11 @@ This module contains graph embedding algorithms.
 
 The attribute ``.embedding_`` assigns a vector to each node of the graph.
 
+Base Class
+----------
+.. autoclass:: sknetwork.embedding.BaseEmbedding
+    :members:
+
 
 Spectral
 --------

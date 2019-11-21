@@ -34,15 +34,6 @@ class Algorithm:
         else:
             return output + ')'
 
-    def fit(self, **kwargs):
-        """Fit Algorithm to the data.
-
-        Parameters
-        ----------
-        kwargs
-
-        Returns
-        -------
-
-        """
-        return self
+    def fit(self, *args, **kwargs):
+        """Fit Algorithm to the data."""
+        raise NotImplementedError
