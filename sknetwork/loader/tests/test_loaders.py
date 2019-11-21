@@ -13,5 +13,5 @@ class TestLoader(unittest.TestCase):
     def test_wiki_vital(self):
         is_available = isdir(get_data_home() + '/vital_wikipedia')
         if is_available:
-            adjacency = load_vital_wikipedia(outputs='adjacency')[0]
+            adjacency = load_vital_wikipedia(outputs='adjacency')
             self.assertEqual(adjacency.shape[0], 10012)

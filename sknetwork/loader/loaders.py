@@ -13,6 +13,9 @@ from os.path import exists, expanduser, join
 from typing import Optional
 from urllib.request import urlretrieve
 
+from scipy import sparse
+import numpy
+
 from sknetwork.loader.parser import parse_tsv, parse_labels, parse_hierarchical_labels
 
 
@@ -63,7 +66,7 @@ def load_vital_wikipedia(data_home: Optional[str] = None, outputs: str = 'both',
     return_titles: bool
         Denotes if the titles of the articles should be returned
     return_labels: bool
-        Denotes if the titles  of the articles and the stems should be returned
+        Denotes if the titles of the articles and the stems should be returned
     return_labels_true: bool
         Denotes if the categories of the articles should be returned
     max_depth: int
@@ -74,10 +77,16 @@ def load_vital_wikipedia(data_home: Optional[str] = None, outputs: str = 'both',
 
     Returns
     -------
-    output:
-        A subset of the following, depending on the parameters that have been passed: [adjacency], [biadjacency],
-        [article_titles], [stems], [categories].
-
+    adjacency: sparse.csr_matrix, optional
+        The matrix of the hyperlinks between the articles
+    biadjacency: sparse.csr_matrix, optional
+        The matrix of the stem counts in each article
+    titles: numpy.ndarray, optional
+        The array of the article titles
+    titles: numpy.ndarray, optional
+        The array of the stems
+    categories: numpy.ndarray, optional
+        The array of the category labels
     """
     if data_home is None:
         data_home = get_data_home()
@@ -108,4 +117,7 @@ def load_vital_wikipedia(data_home: Optional[str] = None, outputs: str = 'both',
     if return_labels_true:
         output.append(parse_hierarchical_labels(data_path + '/en-categories.txt', max_depth, full_path=full_path))
 
-    return tuple(output)
+    if len(output) == 1:
+        return output[0]
+    else:
+        return tuple(output)

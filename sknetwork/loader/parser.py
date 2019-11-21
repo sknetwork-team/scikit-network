@@ -175,7 +175,7 @@ def parse_hierarchical_labels(file: str, depth: int, full_path: bool = True, del
     Returns
     -------
     labels:
-        A list of the lists of labels on each row.
+        An array of the labels.
     """
     rows = []
     with open(file, 'r') as f:
