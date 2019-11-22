@@ -14,7 +14,8 @@ from scipy import sparse
 
 from sknetwork import njit, types, TypedDict
 from sknetwork.hierarchy.base import BaseHierarchy
-from sknetwork.utils.checks import check_engine, check_format, check_probs, is_symmetric
+from sknetwork.utils.adjacency_formats import bipartite2undirected
+from sknetwork.utils.checks import check_engine, check_format, check_probs, is_square
 
 
 class AggregateGraph:
@@ -391,8 +392,9 @@ class Paris(BaseHierarchy):
         self: :class:`Paris`
         """
         adjacency = check_format(adjacency)
-        if not is_symmetric(adjacency):
-            raise ValueError('The adjacency is not symmetric.')
+        if not is_square(adjacency):
+            raise ValueError('The adjacency is not square. Use BiParis() instead.')
+        n = adjacency.shape[0]
 
         weights = self.weights
         out_weights = check_probs(weights, adjacency)
@@ -473,3 +475,80 @@ class Paris(BaseHierarchy):
 
         else:
             raise ValueError('Unknown engine.')
+
+
+class BiParis(Paris):
+    """
+    BiParis algorithm for the hierarchical clustering of bipartite graphs in Python (default) and Numba.
+
+    Parameters
+    ----------
+    weights :
+            Weights of nodes.
+            ``'degree'`` (default) or ``'uniform'``.
+    engine : str
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
+    reorder :
+            If True, reorder the dendrogram in increasing order of heights.
+
+    Attributes
+    ----------
+    dendrogram_ : numpy array of shape (total number of nodes - 1, 4)
+        Dendrogram.
+
+    Examples
+    --------
+    >>> from sknetwork.toy_graphs import house
+    >>> adjacency = house()
+    >>> paris = Paris(engine='python')
+    >>> paris.fit(adjacency).dendrogram_
+    array([[3.        , 2.        , 0.16666667, 2.        ],
+           [1.        , 0.        , 0.25      , 2.        ],
+           [6.        , 4.        , 0.3125    , 3.        ],
+           [7.        , 5.        , 0.66666667, 5.        ]])
+
+    Notes
+    -----
+    Each row of the dendrogram = :math:`i, j`, height, size of cluster :math:`i + j`.
+
+
+    See Also
+    --------
+    scipy.cluster.hierarchy.dendrogram
+
+    References
+    ----------
+    T. Bonald, B. Charpentier, A. Galland, A. Hollocou (2018).
+    `Hierarchical Graph Clustering using Node Pair Sampling.
+    <https://arxiv.org/abs/1806.01664>`_
+    Workshop on Mining and Learning with Graphs.
+    """
+
+    def __init__(self, engine: str = 'default', weights: str = 'degree', reorder: bool = True):
+        Paris.__init__(self, engine, weights, reorder)
+
+    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiParis':
+        """Applies the Paris algorithm to
+
+        :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`
+
+        where :math:`B` is the input treated as a biadjacency matrix.
+
+        Parameters
+        ----------
+        biadjacency:
+            Biadjacency matrix of the graph.
+
+        Returns
+        -------
+        self: :class:`BiParis`
+        """
+        paris = Paris()
+        biadjacency = check_format(biadjacency)
+
+        adjacency = bipartite2undirected(biadjacency)
+        paris.fit(adjacency)
+
+        self.dendrogram_ = paris.dendrogram_
+
+        return self
