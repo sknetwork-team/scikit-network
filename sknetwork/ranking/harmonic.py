@@ -54,7 +54,7 @@ class Harmonic(BaseRanking):
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Harmonic':
         """
-        Closeness centrality for connected graphs.
+        Harmonic centrality for connected graphs.
 
         Parameters
         ----------
@@ -63,13 +63,13 @@ class Harmonic(BaseRanking):
 
         Returns
         -------
-        self: :class:`Closeness`
+        self: :class:`Harmonic`
         """
         adjacency = check_format(adjacency)
         n = adjacency.shape[0]
         if not is_square(adjacency):
-            raise ValueError("The adjacency is not square. Please use 'bipartite2undirected',"
-                             "'bipartite2directed' or 'BiCloseness'.")
+            raise ValueError("The adjacency is not square. Please use 'bipartite2undirected' or "
+                             "'bipartite2directed'.")
 
         indices = np.arange(n)
 

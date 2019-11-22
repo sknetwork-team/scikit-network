@@ -77,8 +77,8 @@ class Closeness(BaseRanking):
         adjacency = check_format(adjacency)
         n = adjacency.shape[0]
         if not is_square(adjacency):
-            raise ValueError("The adjacency is not square. Please use 'bipartite2undirected',"
-                             "'bipartite2directed' or 'BiCloseness'.")
+            raise ValueError("The adjacency is not square. Please use 'bipartite2undirected' or "
+                             "'bipartite2directed'.")
 
         if not is_connected(adjacency):
             raise ValueError("The graph must be connected.")
