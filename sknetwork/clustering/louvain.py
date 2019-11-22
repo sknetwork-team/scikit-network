@@ -493,8 +493,7 @@ class Louvain(BaseClustering):
 
 
 class BiLouvain(Louvain):
-    """
-        BiLouvain algorithm for the clustering of bipartite graphs in Python (default) and Numba.
+    """BiLouvain algorithm for the clustering of bipartite graphs in Python (default) and Numba.
 
         Compute the best partition of the nodes with respect to the optimization criterion
         (default: :class:`GreedyModularity`).
@@ -544,9 +543,6 @@ class BiLouvain(Louvain):
           `Directed Louvain: maximizing modularity in directed networks
           <https://hal.archives-ouvertes.fr/hal-01231784/document>`_
           (Doctoral dissertation, Université d'Orléans).
-
-
-
         """
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
@@ -559,7 +555,7 @@ class BiLouvain(Louvain):
 
         self.col_labels_ = None
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiLouvain':
+    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiLouvain':
         """Applies the directed version of Louvain algorithm to
 
         :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}`
@@ -568,21 +564,20 @@ class BiLouvain(Louvain):
 
         Parameters
         ----------
-        adjacency:
-            Input graph, treated as a biadjacency matrix.
+        biadjacency:
+            Biadjacency matrix of the graph.
 
         Returns
         -------
         self: :class:`BiLouvain`
-
         """
         louvain = Louvain(algorithm=self.algorithm, agg_tol=self.agg_tol, max_agg_iter=self.max_agg_iter,
                           shuffle_nodes=self.shuffle_nodes, sorted_cluster=self.sorted_cluster,
                           random_state=self.random_state, verbose=self.verbose)
-        adjacency = check_format(adjacency)
-        n1, n2 = adjacency.shape
+        biadjacency = check_format(biadjacency)
+        n1, _ = biadjacency.shape
 
-        adjacency = bipartite2directed(adjacency)
+        adjacency = bipartite2directed(biadjacency)
         louvain.fit(adjacency)
 
         self.labels_ = louvain.labels_[:n1]
