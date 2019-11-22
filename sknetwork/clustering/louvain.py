@@ -438,18 +438,18 @@ class Louvain(BaseClustering):
         """
         adjacency = check_format(adjacency)
         if not is_square(adjacency):
-            raise ValueError('The adjacency is not square.')
+            raise ValueError('The adjacency is not square. Use BiLouvain() instead.')
         n = adjacency.shape[0]
 
-        weights = check_probs('degree', adjacency)
-        col_weights = check_probs('degree', adjacency.T)
+        out_weights = check_probs('degree', adjacency)
+        in_weights = check_probs('degree', adjacency.T)
 
         nodes = np.arange(n)
         if self.shuffle_nodes:
             nodes = self.random_state.permutation(nodes)
             adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
-        graph = AggregateGraph(adjacency, weights, col_weights)
+        graph = AggregateGraph(adjacency, out_weights, in_weights)
 
         membership = sparse.identity(n, format='csr')
         increase = True
