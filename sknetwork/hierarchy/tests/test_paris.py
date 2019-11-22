@@ -27,14 +27,6 @@ class TestParis(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.paris_python.fit(sparse.identity(1))
 
-        with self.assertRaises(TypeError):
-            self.paris_python.fit(sparse.identity(2, format='csr'), custom_weights=1)
-
-    # noinspection PyTypeChecker
-    def test_unknown_options(self):
-        with self.assertRaises(ValueError):
-            self.paris_python.fit(sparse.identity(2, format='csr'), custom_weights='unknown')
-
     # noinspection DuplicatedCode
     def test_house_graph(self):
         self.house_graph = house()

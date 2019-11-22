@@ -26,9 +26,9 @@ class AggregateGraph:
     adjacency :
         Adjacency matrix of the graph.
     out_weights :
-        Out-weights (summing to 1).
+        Out-weights (sums to 1).
     in_weights :
-        In-weights (summing to 1).
+        In-weights (sums to 1).
 
     Attributes
     ----------
@@ -39,9 +39,9 @@ class AggregateGraph:
     cluster_sizes : dict
         Dictionary of cluster sizes.
     cluster_out_weights : dict
-        Dictionary of cluster out-weights.
+        Dictionary of cluster out-weights (sums to 1).
     cluster_in_weights : dict
-        Dictionary of cluster in-weights.
+        Dictionary of cluster in-weights (sums to 1).
     """
 
     def __init__(self, adjacency: sparse.csr_matrix, out_weights: np.ndarray, in_weights: np.ndarray):
@@ -267,7 +267,8 @@ def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.n
                             neighbors[curr_node].remove(node)
                             neighbors[curr_node].remove(nrst_neighbor)
                         node_neighbors = set(neighbors[node]) - set(neighbors[nrst_neighbor]) - {types.int32(
-                            nrst_neighbor)}
+                            nrst_neighbor
+                        )}
                         for curr_node in node_neighbors:
                             graph[ints2int(new_node, curr_node)] = graph[ints2int(node, curr_node)]
                             graph[ints2int(curr_node, new_node)] = graph.pop(ints2int(curr_node, node))
@@ -331,10 +332,6 @@ class Paris(BaseHierarchy):
     weights :
             Weights of nodes.
             ``'degree'`` (default) or ``'uniform'``.
-    col_weights :
-        Weights of secondary nodes (for bipartite graphs).
-        ``None`` (default), ``'degree'`` or ``'uniform'``.
-        If ``None``, taken equal to weights.
     engine : str
         ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     reorder :
@@ -373,28 +370,21 @@ class Paris(BaseHierarchy):
     Workshop on Mining and Learning with Graphs.
     """
 
-    def __init__(self, engine: str = 'default', weights: str = 'degree', col_weights: Union[None, str] = None,
-                 reorder: bool = True):
+    def __init__(self, engine: str = 'default', weights: str = 'degree', reorder: bool = True):
         super(Paris, self).__init__()
 
         self.weights = weights
-        self.col_weights = col_weights
         self.engine = check_engine(engine)
         self.reorder = reorder
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], custom_weights: Union[None, np.ndarray] = None,
-            custom_col_weights: Union[None, np.ndarray] = None) -> 'Paris':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Paris':
         """
         Agglomerative clustering using the nearest neighbor chain.
 
         Parameters
         ----------
         adjacency :
-            Adjacency or biadjacency matrix of the graph.
-        custom_weights :
-            Array of input dependent node weights.
-        custom_col_weights :
-            Array of input dependent weights of secondary nodes (for bipartite graphs).
+            Adjacency matrix of the graph.
 
         Returns
         -------
@@ -404,27 +394,16 @@ class Paris(BaseHierarchy):
         if not is_symmetric(adjacency):
             raise ValueError('The adjacency is not symmetric.')
 
-        if custom_weights is not None:
-            weights = custom_weights
-        else:
-            weights = self.weights
-
-        if custom_col_weights is not None:
-            col_weights = custom_col_weights
-        else:
-            col_weights = self.col_weights
-            if self.col_weights is None:
-                col_weights = weights
-
-        weights = check_probs(weights, adjacency)
-        col_weights = check_probs(col_weights, adjacency.T)
+        weights = self.weights
+        out_weights = check_probs(weights, adjacency)
+        in_weights = check_probs(weights, adjacency.T)
 
         n = adjacency.shape[0]
         if n <= 1:
             raise ValueError('The graph must contain at least two nodes.')
 
         if self.engine == 'python':
-            aggregate_graph = AggregateGraph(adjacency + adjacency.T, weights, col_weights)
+            aggregate_graph = AggregateGraph(adjacency + adjacency.T, out_weights, in_weights)
 
             connected_components = []
             dendrogram = []
@@ -484,7 +463,7 @@ class Paris(BaseHierarchy):
             sym_adjacency = adjacency + adjacency.T
             indices, indptr, data = sym_adjacency.indices, sym_adjacency.indptr, sym_adjacency.data
 
-            dendrogram = fit_core(n, weights, col_weights, data, indices, indptr)
+            dendrogram = fit_core(n, out_weights, in_weights, data, indices, indptr)
             dendrogram = np.array(dendrogram)
             if self.reorder:
                 dendrogram = reorder_dendrogram(dendrogram)
