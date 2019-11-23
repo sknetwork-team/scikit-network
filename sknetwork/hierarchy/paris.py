@@ -479,7 +479,11 @@ class Paris(BaseHierarchy):
 
 class BiParis(Paris):
     """
-    BiParis algorithm for the hierarchical clustering of bipartite graphs in Python (default) and Numba.
+    BiParis algorithm for the hierarchical co-clustering of bipartite graphs in Python (default) and Numba.
+
+    Returns a single dendrogram.
+    Nodes are indexed from 0 to n1 + n2 - 1 with (n1, n2) the shape of the biadjacency matrix.
+    The first n1 nodes correspond to the rows of the biadjacency matrix.
 
     Parameters
     ----------
@@ -498,14 +502,16 @@ class BiParis(Paris):
 
     Examples
     --------
-    >>> from sknetwork.toy_graphs import house
-    >>> adjacency = house()
-    >>> paris = Paris(engine='python')
-    >>> paris.fit(adjacency).dendrogram_
-    array([[3.        , 2.        , 0.16666667, 2.        ],
-           [1.        , 0.        , 0.25      , 2.        ],
-           [6.        , 4.        , 0.3125    , 3.        ],
-           [7.        , 5.        , 0.66666667, 5.        ]])
+    >>> from sknetwork.toy_graphs import star_wars_villains
+    >>> biadjacency = star_wars_villains()
+    >>> biparis = BiParis(engine='python')
+    >>> biparis.fit(biadjacency).dendrogram_
+    array([[ 1.     ,  4.     ,  0.1875 ,  2.     ],
+           [ 3.     ,  5.     ,  0.25   ,  2.     ],
+           [ 6.     ,  0.     ,  0.375  ,  2.     ],
+           [ 7.     ,  2.     ,  0.75   ,  3.     ],
+           [10.     ,  9.     ,  1.09375,  5.     ],
+           [11.     ,  8.     ,  1.5    ,  7.     ]])
 
     Notes
     -----
