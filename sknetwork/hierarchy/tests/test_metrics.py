@@ -10,7 +10,7 @@ import unittest
 import numpy as np
 from scipy import sparse
 
-from sknetwork.hierarchy import Paris, tree_sampling_divergence, dasgupta_cost
+from sknetwork.hierarchy import Paris, tree_sampling_divergence, dasgupta_score
 from sknetwork.toy_graphs import line_graph, karate_club
 
 
@@ -26,7 +26,7 @@ class TestMetrics(unittest.TestCase):
         adjacency: sparse.csr_matrix = self.karate_club
         self.paris.fit(adjacency)
         dendrogram = self.paris.dendrogram_
-        dc = dasgupta_cost(adjacency, dendrogram, force_undirected=True)
+        dc = dasgupta_score(adjacency, dendrogram, force_undirected=True)
         self.assertAlmostEqual(dc, .666, 2)
         tsd = tree_sampling_divergence(adjacency, dendrogram, force_undirected=True, normalized=False)
         self.assertAlmostEqual(tsd, .717, 2)
@@ -37,7 +37,7 @@ class TestMetrics(unittest.TestCase):
         adjacency = np.eye(2)
         self.paris.fit(adjacency)
         dendrogram = self.paris.dendrogram_
-        dc = dasgupta_cost(adjacency, dendrogram)
+        dc = dasgupta_score(adjacency, dendrogram)
         self.assertAlmostEqual(dc, 1, 2)
         tsd = tree_sampling_divergence(adjacency, dendrogram, normalized=False)
         self.assertAlmostEqual(tsd, 0, 2)

@@ -16,8 +16,8 @@ from sknetwork.utils.adjacency_formats import directed2undirected
 class TestLouvainClustering(unittest.TestCase):
 
     def setUp(self):
-        self.louvain = Louvain()
-        self.bilouvain = BiLouvain()
+        self.louvain = Louvain(engine='python')
+        self.bilouvain = BiLouvain(engine='python')
         if is_numba_available:
             self.louvain_numba = Louvain(engine='numba')
             self.bilouvain_numba = BiLouvain(engine='numba')
@@ -76,14 +76,14 @@ class TestLouvainClustering(unittest.TestCase):
         self.assertEqual(col_labels.shape, (n2,))
 
     def test_bipartite(self):
-        self.star_wars: sparse.csr_matrix = star_wars_villains()
-        self.bilouvain.fit(self.star_wars)
+        star_wars_graph = star_wars_villains()
+        self.bilouvain.fit(star_wars_graph)
         labels = self.bilouvain.labels_
         feature_labels = self.bilouvain.col_labels_
         self.assertEqual(labels.shape, (4,))
         self.assertEqual(feature_labels.shape, (3,))
         if is_numba_available:
-            self.bilouvain_numba.fit(self.star_wars)
+            self.bilouvain_numba.fit(star_wars_graph)
             labels = self.bilouvain_numba.labels_
             self.assertEqual(labels.shape, (4,))
 

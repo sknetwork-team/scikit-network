@@ -15,9 +15,9 @@ from sknetwork.utils.adjacency_formats import set_adjacency_weights
 from sknetwork.utils.checks import check_format
 
 
-def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights: Union[str, np.ndarray] = 'uniform',
-                  col_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
-                  force_biadjacency: bool = False) -> float:
+def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights: Union[str, np.ndarray] = 'uniform',
+                   col_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
+                   force_biadjacency: bool = False) -> float:
     """
     Dasgupta's score of a hierarchy defined as 1 - Dasgupta's cost.
 
