@@ -58,7 +58,7 @@ import sknetwork.clustering
 import sknetwork.embedding
 import sknetwork.hierarchy
 import sknetwork.linalg
-import sknetwork.data
 import sknetwork.ranking
 import sknetwork.soft_cluster
+import sknetwork.data
 import sknetwork.utils
