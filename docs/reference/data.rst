@@ -3,7 +3,7 @@
 Data
 ####
 
-Here are various sources for synthetic and real-world data import.
+Sources and tools for importing synthetic and real-world data.
 
 Toy graphs
 **********
@@ -61,18 +61,15 @@ Random graph models
 
 .. autofunction:: sknetwork.data.block_model
 
-Loaders
+Loading
 *******
-
-Loaders for selected datasets:
 
 .. autofunction:: sknetwork.data.load_vital_wikipedia
 
-Parsers
+Parsing
 *******
 
 Some graph databases:
-
 - Konect_
 - NetRep_
 - Telegraphs_

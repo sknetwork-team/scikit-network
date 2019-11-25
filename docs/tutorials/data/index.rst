@@ -4,5 +4,5 @@ Data
 
 .. toctree::
 
-   parser
-   loader
+   parsing
+   loading

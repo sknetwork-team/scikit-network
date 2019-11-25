@@ -13,7 +13,7 @@ from os.path import exists, expanduser, join
 from typing import Optional
 from urllib.request import urlretrieve
 
-from sknetwork.data.parser import parse_tsv, parse_labels, parse_hierarchical_labels
+from sknetwork.data.parsing import parse_tsv, parse_labels, parse_hierarchical_labels
 
 
 def get_data_home(data_home: Optional[str] = None):
@@ -51,7 +51,7 @@ def load_vital_wikipedia(data_home: Optional[str] = None, outputs: str = 'both',
                          return_labels: bool = False, return_labels_true: bool = False, max_depth: int = 1,
                          full_path: bool = True):
     """
-    Returns a path to a storage folder depending on the dedicated environment variable and user input.
+    Load the Vital Wikipedia dataset. See https://graphs.telecom-paristech.fr/
 
     Parameters
     ----------
