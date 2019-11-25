@@ -33,9 +33,9 @@ class TestLouvainClustering(unittest.TestCase):
         self.louvain.fit(sparse.identity(1, format='csr'))
         self.assertEqual(self.louvain.labels_, [0])
 
-    def test_random_graph(self):
-        self.random_graph = simple_directed_graph()
-        self.louvain.fit(directed2undirected(self.random_graph))
+    def test_simple_graph(self):
+        self.simple_directed_graph = simple_directed_graph()
+        self.louvain.fit(directed2undirected(self.simple_directed_graph))
         self.assertEqual(len(self.louvain.labels_), 10)
 
     def test_undirected(self):
@@ -70,22 +70,24 @@ class TestLouvainClustering(unittest.TestCase):
 
         self.bilouvain.fit(self.painters)
         n1, n2 = self.painters.shape
-        labels = self.bilouvain.labels_
+        row_labels = self.bilouvain.row_labels_
         col_labels = self.bilouvain.col_labels_
-        self.assertEqual(labels.shape, (n1,))
+        self.assertEqual(row_labels.shape, (n1,))
         self.assertEqual(col_labels.shape, (n2,))
 
     def test_bipartite(self):
         star_wars_graph = star_wars_villains()
         self.bilouvain.fit(star_wars_graph)
-        labels = self.bilouvain.labels_
-        feature_labels = self.bilouvain.col_labels_
-        self.assertEqual(labels.shape, (4,))
-        self.assertEqual(feature_labels.shape, (3,))
+        row_labels = self.bilouvain.row_labels_
+        col_labels = self.bilouvain.col_labels_
+        self.assertEqual(row_labels.shape, (4,))
+        self.assertEqual(col_labels.shape, (3,))
         if is_numba_available:
             self.bilouvain_numba.fit(star_wars_graph)
-            labels = self.bilouvain_numba.labels_
-            self.assertEqual(labels.shape, (4,))
+            row_labels = self.bilouvain_numba.row_labels_
+            col_labels = self.bilouvain_numba.col_labels_
+            self.assertEqual(row_labels.shape, (4,))
+            self.assertEqual(col_labels.shape, (3,))
 
     def test_shuffling(self):
         self.louvain_shuffle_first = Louvain(engine='python', shuffle_nodes=True, random_state=0)

@@ -528,10 +528,12 @@ class BiLouvain(Louvain):
 
         Attributes
         ----------
-        labels_ : np.ndarray
-            Label of the rows.
+        row_labels_ : np.ndarray
+            Labels of the rows.
         col_labels_ : np.ndarray
-            Label of the columns.
+            Labels of the columns.
+        labels_ : np.ndarray
+            Labels of all nodes (concatenation of row labels and column labels).
         iteration_count_ : int
             Total number of aggregations performed.
         aggregate_graph_ : sparse.csr_matrix
@@ -553,7 +555,9 @@ class BiLouvain(Louvain):
         Louvain.__init__(self, engine, algorithm, resolution, tol, agg_tol, max_agg_iter, shuffle_nodes, sorted_cluster,
                          random_state, verbose)
 
+        self.row_labels_ = None
         self.col_labels_ = None
+        self.labels_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiLouvain':
         """Applies the directed version of Louvain algorithm to
@@ -580,8 +584,9 @@ class BiLouvain(Louvain):
         adjacency = bipartite2directed(biadjacency)
         louvain.fit(adjacency)
 
-        self.labels_ = louvain.labels_[:n1]
+        self.row_labels_ = louvain.labels_[:n1]
         self.col_labels_ = louvain.labels_[n1:]
+        self.labels_ = louvain.labels_
         self.iteration_count_ = louvain.iteration_count_
         self.aggregate_graph_ = louvain.aggregate_graph_
         return self

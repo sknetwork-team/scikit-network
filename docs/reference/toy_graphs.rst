@@ -15,7 +15,7 @@ Undirected graphs
 
 .. autofunction:: sknetwork.toy_graphs.house
 
-.. autofunction:: sknetwork.toy_graphs.simple_graph
+.. autofunction:: sknetwork.toy_graphs.simple_directed_graph
 
 Directed graphs
 ===============

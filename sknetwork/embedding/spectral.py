@@ -157,7 +157,7 @@ class Spectral(BaseEmbedding):
     >>> from sknetwork.toy_graphs import house
     >>> adjacency = house()
     >>> spectral = Spectral()
-    >>> embedding = spectral.fit(adjacency).embedding_
+    >>> embedding = spectral.fit_transform(adjacency)
     >>> embedding.shape
     (5, 2)
 
