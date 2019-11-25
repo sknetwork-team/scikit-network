@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 from scipy import sparse
 
-from sknetwork.soft_cluster import MultiRank, BiMultiRank
+from sknetwork.soft_classification import MultiRank, BiMultiRank
 from sknetwork.data import painters, movie_actor
 
 

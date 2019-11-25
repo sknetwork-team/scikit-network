@@ -1,0 +1,2 @@
+from sknetwork.soft_classification.base import BaseSoftClassify
+from sknetwork.soft_classification.multirank import MultiRank, BiMultiRank

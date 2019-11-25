@@ -13,10 +13,10 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.ranking import PageRank, BiPageRank
-from sknetwork.soft_cluster.base import BaseSoftCluster
+from sknetwork.soft_classification.base import BaseSoftClassify
 
 
-class MultiRank(BaseSoftCluster):
+class MultiRank(BaseSoftClassify):
     """Semi-Supervised clustering based on personalized PageRank.
 
     Parameters

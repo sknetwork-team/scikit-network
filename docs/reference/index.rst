@@ -7,11 +7,11 @@ Reference
 
     introduction
     clustering
-    soft_cluster
     hierarchy
     embedding
     ranking
     classification
+    soft_classification
     linalg
     basics
     data

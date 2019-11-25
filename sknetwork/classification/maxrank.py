@@ -11,12 +11,12 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.classification import BaseClassifier
-from sknetwork.soft_cluster import MultiRank, BiMultiRank
+from sknetwork.soft_classification import MultiRank, BiMultiRank
 
 
 class MaxRank(BaseClassifier):
     """Semi-supervised node classification using multiple personalized PageRanks.
-    See :class:`sknetwork.soft_cluster.MultiRank`.
+    See :class:`sknetwork.soft_classification.MultiRank`.
 
     Parameters
     ----------
@@ -97,7 +97,7 @@ class MaxRank(BaseClassifier):
 
 class BiMaxRank(MaxRank):
     """Semi-supervised node classification using multiple personalized PageRanks for bipartite graphs.
-    See :class:`sknetwork.soft_cluster.BiMultiRank`.
+    See :class:`sknetwork.soft_classification.BiMultiRank`.
 
     """
 
