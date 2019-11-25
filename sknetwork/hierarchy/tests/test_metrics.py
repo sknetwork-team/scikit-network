@@ -26,11 +26,11 @@ class TestMetrics(unittest.TestCase):
         adjacency: sparse.csr_matrix = self.karate_club
         self.paris.fit(adjacency)
         dendrogram = self.paris.dendrogram_
-        dc = dasgupta_score(adjacency, dendrogram, force_undirected=True)
+        dc = dasgupta_score(adjacency, dendrogram)
         self.assertAlmostEqual(dc, .666, 2)
-        tsd = tree_sampling_divergence(adjacency, dendrogram, force_undirected=True, normalized=False)
+        tsd = tree_sampling_divergence(adjacency, dendrogram, normalized=False)
         self.assertAlmostEqual(tsd, .717, 2)
-        tsd = tree_sampling_divergence(adjacency, dendrogram, force_undirected=True)
+        tsd = tree_sampling_divergence(adjacency, dendrogram)
         self.assertAlmostEqual(tsd, .487, 2)
 
     def test_disconnected(self):

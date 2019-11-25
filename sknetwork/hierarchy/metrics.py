@@ -5,21 +5,17 @@ Created on March 2019
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
-from typing import Union
-
 import numpy as np
 from scipy import sparse
 
 from sknetwork.hierarchy.paris import AggregateGraph
-from sknetwork.utils.adjacency_formats import set_adjacency_weights
-from sknetwork.utils.checks import check_format
+from sknetwork.utils.checks import check_format, check_probs, is_square
 
 
-def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights: Union[str, np.ndarray] = 'uniform',
-                   col_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
-                   force_biadjacency: bool = False) -> float:
+# noinspection DuplicatedCode
+def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights: str = 'uniform') -> float:
     """
-    Dasgupta's score of a hierarchy defined as 1 - Dasgupta's cost.
+    Dasgupta's score of a hierarchy, defined as 1 - Dasgupta's cost.
 
     The higher the score, the better.
 
@@ -31,20 +27,12 @@ def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights
         Dendrogram.
     weights :
         Weights of nodes.
-        ``'degree'``, ``'uniform'`` (default) or custom weights.
-    col_weights :
-        Weights of secondary nodes (for bipartite graphs).
-        ``None`` (default), ``'degree'``, ``'uniform'`` or custom weights.
-        If ``None``, taken equal to weights.
-    force_undirected :
-        If ``True``, consider the graph as undirected.
-    force_biadjacency :
-        If ``True``, force the input matrix to be considered as a biadjacency matrix.
+        ``'degree'`` or ``'uniform'`` (default).
 
     Returns
     -------
-    cost : float
-        Dasgupta's cost of the hierarchy, normalized to get a value between 0 and 1.
+    score : float
+        Dasgupta's score of the hierarchy, normalized to get a value between 0 and 1.
 
     References
     ----------
@@ -53,11 +41,15 @@ def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights
 
     """
     adjacency = check_format(adjacency)
-    adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, col_weights,
-                                                               force_undirected, force_biadjacency)
+    if not is_square(adjacency):
+        raise ValueError('The adjacency matrix is not square.')
+
     n = adjacency.shape[0]
     if n <= 1:
         raise ValueError('The graph must contain at least two nodes.')
+
+    out_weights = check_probs(weights, adjacency)
+    in_weights = check_probs(weights, adjacency.T)
 
     aggregate_graph = AggregateGraph(adjacency + adjacency.T, out_weights, in_weights)
 
@@ -84,10 +76,9 @@ def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights
     return 1 - cost
 
 
-def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarray,
-                             weights: Union[str, np.ndarray] = 'degree',
-                             secondary_weights: Union[None, str, np.ndarray] = None, force_undirected: bool = False,
-                             force_biadjacency: bool = False, normalized: bool = True) -> float:
+# noinspection DuplicatedCode
+def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights: str = 'degree',
+                             normalized: bool = True) -> float:
     """
     Tree sampling divergence of a hierarchy (quality metric).
 
@@ -101,23 +92,15 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
         Dendrogram.
     weights :
         Weights of nodes.
-        ``'degree'`` (default), ``'uniform'`` or custom weights.
-    secondary_weights :
-        Weights of secondary nodes (for bipartite graphs).
-        ``None`` (default), ``'degree'``, ``'uniform'`` or custom weights.
-        If ``None``, taken equal to weights.
-    force_undirected :
-        If ``True``, consider the graph as undirected.
-    force_biadjacency :
-        If ``True``, force the input matrix to be considered as a biadjacency matrix.
+        ``'degree'`` (default) or ``'uniform'``.
     normalized:
         If ``True``, normalized by the mutual information of the graph.
 
     Returns
     -------
-    quality : float
+    score : float
         The tree sampling divergence of the hierarchy.
-        If normalized, return a value between 0 and 1.
+        If normalized, returns a value between 0 and 1.
 
     References
     ----------
@@ -129,16 +112,22 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
 
     """
     adjacency = check_format(adjacency)
-    adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, secondary_weights,
-                                                               force_undirected, force_biadjacency)
+    if not is_square(adjacency):
+        raise ValueError('The adjacency matrix is not square.')
+
     n = adjacency.shape[0]
     if n <= 1:
         raise ValueError('The graph must contain at least two nodes.')
+
     total_weight = adjacency.data.sum()
     if total_weight <= 0:
         raise ValueError('The graph must contain at least one edge.')
 
-    adjacency = adjacency / total_weight
+    adjacency.data = adjacency.data / total_weight
+
+    out_weights = check_probs(weights, adjacency)
+    in_weights = check_probs(weights, adjacency.T)
+
     aggregate_graph = AggregateGraph(adjacency + adjacency.T, out_weights, in_weights)
 
     height = np.zeros(n - 1)
@@ -163,7 +152,7 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
         aggregate_graph.merge(node1, node2)
 
     index = np.where(edge_sampling)[0]
-    quality = edge_sampling[index].dot(np.log(edge_sampling[index] / node_sampling[index]))
+    score = edge_sampling[index].dot(np.log(edge_sampling[index] / node_sampling[index]))
     if normalized:
         inv_out_weights = sparse.diags(out_weights, shape=(n, n), format='csr')
         inv_out_weights.data = 1 / inv_out_weights.data
@@ -174,5 +163,5 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
         inv_in_weights.data = np.ones(len(inv_in_weights.data))
         edge_sampling = inv_out_weights.dot(adjacency.dot(inv_in_weights))
         mutual_information = edge_sampling.data.dot(np.log(sampling_ratio.data))
-        quality /= mutual_information
-    return quality
+        score /= mutual_information
+    return score
