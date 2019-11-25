@@ -47,14 +47,14 @@ class AggregateGraph:
 
     def __init__(self, adjacency: sparse.csr_matrix, out_weights: np.ndarray, in_weights: np.ndarray):
         n = adjacency.shape[0]
-        total_weight = adjacency.data.sum()
+        total_weight = adjacency.data.sum() / 2
 
         self.next_cluster = n
         self.neighbors = {}
         for node in range(n):
-            # normalize so that the total weight is equal to 1
+            # normalize so that the sum of edge weights is equal to 1
             # remove self-loops
-            self.neighbors[node] = {adjacency.indices[i]: 2 * adjacency.data[i] / total_weight for i in
+            self.neighbors[node] = {adjacency.indices[i]: adjacency.data[i] / total_weight for i in
                                     range(adjacency.indptr[node], adjacency.indptr[node + 1])
                                     if adjacency.indices[i] != node}
         self.cluster_sizes = {node: 1 for node in range(n)}
@@ -83,6 +83,7 @@ class AggregateGraph:
             sim = 2 * self.neighbors[node1][node2] / den
         return sim
 
+    # noinspection DuplicatedCode
     def merge(self, node1: int, node2: int) -> 'AggregateGraph':
         """Merges two nodes.
 
@@ -164,6 +165,7 @@ def ints2int(first: np.int32, second: np.int32):
     return (first << 32) | second
 
 
+# noinspection DuplicatedCode
 @njit
 def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.ndarray,
              indices: np.ndarray, indptr: np.ndarray):
@@ -190,7 +192,7 @@ def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.n
         Dendrogram.
     """
     maxfloat = 1.7976931348623157e+308
-    total_weight = data.sum()
+    total_weight = data.sum() / 2
     next_cluster = n
     graph = TypedDict.empty(
         key_type=types.int64,
@@ -356,7 +358,7 @@ class Paris(BaseHierarchy):
 
     Notes
     -----
-    Each row of the dendrogram = :math:`i, j`, height, size of cluster :math:`i + j`.
+    Each row of the dendrogram = :math:`i, j`, distance, size of cluster :math:`i + j`.
 
 
     See Also
@@ -395,17 +397,17 @@ class Paris(BaseHierarchy):
         if not is_square(adjacency):
             raise ValueError('The adjacency is not square. Use BiParis() instead.')
         n = adjacency.shape[0]
+        sym_adjacency = adjacency + adjacency.T
 
         weights = self.weights
         out_weights = check_probs(weights, adjacency)
         in_weights = check_probs(weights, adjacency.T)
 
-        n = adjacency.shape[0]
         if n <= 1:
             raise ValueError('The graph must contain at least two nodes.')
 
         if self.engine == 'python':
-            aggregate_graph = AggregateGraph(adjacency + adjacency.T, out_weights, in_weights)
+            aggregate_graph = AggregateGraph(sym_adjacency, out_weights, in_weights)
 
             connected_components = []
             dendrogram = []
@@ -462,7 +464,6 @@ class Paris(BaseHierarchy):
         elif self.engine == 'numba':
 
             n = np.int32(adjacency.shape[0])
-            sym_adjacency = adjacency + adjacency.T
             indices, indptr, data = sym_adjacency.indices, sym_adjacency.indptr, sym_adjacency.data
 
             dendrogram = fit_core(n, out_weights, in_weights, data, indices, indptr)
