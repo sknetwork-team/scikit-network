@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tests for loaders.py"""
+"""tests for loader.py"""
 
 import unittest
 import tempfile
