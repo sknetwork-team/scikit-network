@@ -3,15 +3,17 @@
 """tests for loaders.py"""
 
 import unittest
-from os.path import isdir
+import tempfile
 
-from sknetwork.loader import load_vital_wikipedia, get_data_home
+from sknetwork.loader import load_vital_wikipedia, get_data_home, clear_data_home
 
 
 class TestLoader(unittest.TestCase):
 
     def test_wiki_vital(self):
-        is_available = isdir(get_data_home() + '/vital_wikipedia')
-        if is_available:
-            adjacency = load_vital_wikipedia(outputs='adjacency')
-            self.assertEqual(adjacency.shape[0], 10012)
+        tmp_data_dir = tempfile.gettempdir() + '/vital_wikipedia'
+        clear_data_home(tmp_data_dir)
+        adjacency, _, _, _, _ = \
+            load_vital_wikipedia(return_labels=True, return_labels_true=True)
+        self.assertEqual(adjacency.shape[0], 10012)
+        clear_data_home(tmp_data_dir)
