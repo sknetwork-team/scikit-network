@@ -43,7 +43,7 @@ class Closeness(BaseRanking):
     >>> closeness = Closeness()
     >>> adjacency = rock_paper_scissors()
     >>> np.round(closeness.fit(adjacency).score_, 2)
-    array([0.67, 0.67, 0.67])
+    array([0.67, 0.66, 0.67])
 
     References
     ----------
