@@ -15,8 +15,8 @@
         :target: https://scikit-network.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-.. image:: https://codecov.io/gh/codecov/scikit-network/branch/master/graph/badge.svg
-        :target: https://codecov.io/gh/codecov/example-python
+.. image:: https://codecov.io/gh/sknetwork-team/scikit-network/branch/master/graph/badge.svg
+        :target: https://codecov.io/gh/sknetwork-team/scikit-network
 
 
 Simple and efficient tools for the analysis of large graphs.
