@@ -42,6 +42,7 @@ class SpectralClustering(BaseClustering):
         self.embedding_dimension = embedding_dimension
         self.l2normalization = l2normalization
 
+    # noinspection DuplicatedCode
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'SpectralClustering':
         """Apply embedding method followed by clustering to the graph.
 
@@ -86,49 +87,50 @@ class BiSpectralClustering(SpectralClustering):
         Dimension of the embedding on which to apply the clustering.
     l2normalization:
         If ``True``, each row of the embedding is projected onto the L2-sphere before applying the clustering algorithm.
-    joint_clustering:
-        If ``True``, jointly clusters the rows and columns of the adjacency treating the input as an undirected
-        bipartite graph.
-        Otherwise, only cluster the rows by embedding of the co-neighborhood graph.
+    co_clustering:
+        If ``True``, jointly clusters rows and columns of the biadjacency matrix.
+        Otherwise, only cluster the rows.
 
     Attributes
     ----------
-    labels_: np.ndarray
+    row_labels_: np.ndarray
         Labels of the rows.
     col_labels_: np.ndarray
-        Labels of the columns. Only valid if ``joint_clustering=True``.
-
+        Labels of the columns. Only valid if ``co_clustering=True``.
+    labels_: np.ndarray
+        Labels of rows and columns. Only valid if ``co_clustering=True``.
     """
 
     def __init__(self, n_clusters: int = 8, embedding_dimension: int = 16, l2normalization: bool = True,
-                 joint_clustering: bool = True):
+                 co_clustering: bool = True):
         SpectralClustering.__init__(self, n_clusters, embedding_dimension, l2normalization)
-        self.joint_clustering = joint_clustering
-
+        self.co_clustering = co_clustering
+        self.row_labels_ = None
         self.col_labels_ = None
+        self.labels_ = None
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiSpectralClustering':
+    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiSpectralClustering':
         """Apply embedding method followed by clustering to the graph.
 
         Parameters
         ----------
-        adjacency:
-            Adjacency matrix of the graph.
+        biadjacency:
+            Biadjacency matrix of the graph.
 
         Returns
         -------
         self: :class:`BiSpectralClustering`
 
         """
-        adjacency = check_format(adjacency)
-        n1, n2 = adjacency.shape
+        biadjacency = check_format(biadjacency)
+        n1, n2 = biadjacency.shape
 
-        algo = BiSpectral(self.embedding_dimension).fit(adjacency)
+        bispectral = BiSpectral(self.embedding_dimension).fit(biadjacency)
 
-        if self.joint_clustering:
-            embedding = np.vstack((algo.embedding_, algo.col_embedding_))
+        if self.co_clustering:
+            embedding = bispectral.embedding_
         else:
-            embedding = algo.embedding_
+            embedding = bispectral.row_embedding_
 
         if self.l2normalization:
             norm = np.linalg.norm(embedding, axis=1)
@@ -138,11 +140,13 @@ class BiSpectralClustering(SpectralClustering):
         kmeans = KMeans(self.n_clusters)
         kmeans.fit(embedding)
 
-        if self.joint_clustering:
-            self.labels_ = kmeans.labels_[:n1]
+        if self.co_clustering:
+            self.row_labels_ = kmeans.labels_[:n1]
             self.col_labels_ = kmeans.labels_[n1:]
+            self.labels_ = kmeans.labels_
 
         else:
+            self.row_labels_ = kmeans.labels_
             self.labels_ = kmeans.labels_
 
         return self

@@ -66,21 +66,23 @@ class BiSpectral(BaseEmbedding):
 
     Attributes
     ----------
-    embedding_ : np.ndarray, shape = (n1, embedding_dimension)
-        Embedding of the nodes (rows of the adjacency matrix).
+    row_embedding_ : np.ndarray, shape = (n1, embedding_dimension)
+        Embedding of the rows.
     col_embedding_ : np.ndarray, shape = (n2, embedding_dimension)
-        Embedding of the feature nodes (columns of the adjacency matrix).
+        Embedding of the columns.
+    embedding_ : np.ndarray, shape = (n1 + n2, embedding_dimension)
+        Embedding of all nodes (concatenation of the embeddings of rows and columns).
     singular_values_ : np.ndarray, shape = (embedding_dimension)
         Generalized singular values of the adjacency matrix (first singular value ignored).
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import house
-    >>> adjacency = house()
+    >>> from sknetwork.toy_graphs import simple_bipartite_graph
+    >>> biadjacency = simple_bipartite_graph()
     >>> bispectral = BiSpectral()
-    >>> embedding = bispectral.fit(adjacency).embedding_
+    >>> embedding = bispectral.fit(biadjacency).embedding_
     >>> embedding.shape
-    (5, 2)
+    (9, 2)
 
     References
     ----------
@@ -117,7 +119,9 @@ class BiSpectral(BaseEmbedding):
         else:
             self.solver = solver
 
+        self.row_embedding_ = None
         self.col_embedding_ = None
+        self.embedding_ = None
         self.singular_values_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiSpectral':
@@ -159,31 +163,32 @@ class BiSpectral(BaseEmbedding):
         normalized_adj = safe_sparse_dot(diag_row, safe_sparse_dot(adjacency, diag_col))
 
         # svd
-        if self.embedding_dimension > min(n1, n2) - 1:
-            warnings.warn(Warning("The dimension of the embedding must be less than the minimum of the number of rows "
-                                  "and columns."))
+        if self.embedding_dimension >= min(n1, n2) - 1:
             n_components = min(n1, n2) - 1
+            warnings.warn(Warning("The dimension of the embedding must be less than the number of rows "
+                                  "and the number of columns. Changed accordingly."))
         else:
             n_components = self.embedding_dimension + 1
         self.solver.fit(normalized_adj, n_components)
 
         index = np.argsort(-self.solver.singular_values_)
         self.singular_values_ = self.solver.singular_values_[index[1:]]
-        self.embedding_ = diag_row.dot(self.solver.left_singular_vectors_[:, index[1:]])
+        self.row_embedding_ = diag_row.dot(self.solver.left_singular_vectors_[:, index[1:]])
         self.col_embedding_ = diag_col.dot(self.solver.right_singular_vectors_[:, index[1:]])
 
         if self.scaling:
             if self.scaling == 'multiply':
-                self.embedding_ *= np.sqrt(self.singular_values_)
+                self.row_embedding_ *= np.sqrt(self.singular_values_)
                 self.col_embedding_ *= np.sqrt(self.singular_values_)
             elif self.scaling == 'divide':
                 energy_levels: np.ndarray = np.sqrt(1 - np.clip(self.singular_values_, 0, 1) ** 2)
                 energy_levels[energy_levels > 0] = 1 / energy_levels[energy_levels > 0]
-                self.embedding_ *= energy_levels
+                self.row_embedding_ *= energy_levels
                 self.col_embedding_ *= energy_levels
             elif self.scaling == 'barycenter':
-                self.embedding_ *= self.singular_values_
+                self.row_embedding_ *= self.singular_values_
             else:
                 warnings.warn(Warning("The scaling must be 'multiply' or 'divide' or 'barycenter'. No scaling done."))
 
+        self.embedding_ = np.vstack((self.row_embedding_, self.col_embedding_))
         return self

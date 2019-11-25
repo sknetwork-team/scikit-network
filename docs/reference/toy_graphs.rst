@@ -15,7 +15,7 @@ Undirected graphs
 
 .. autofunction:: sknetwork.toy_graphs.house
 
-.. autofunction:: sknetwork.toy_graphs.random_graph
+.. autofunction:: sknetwork.toy_graphs.simple_graph
 
 Directed graphs
 ===============
@@ -27,7 +27,7 @@ Directed graphs
 Bipartite graphs
 ================
 
-.. autofunction:: sknetwork.toy_graphs.random_bipartite_graph
+.. autofunction:: sknetwork.toy_graphs.simple_bipartite_graph
 
 Real-world data
 ---------------

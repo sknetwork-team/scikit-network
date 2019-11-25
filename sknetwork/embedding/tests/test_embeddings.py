@@ -9,7 +9,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding import Spectral, BiSpectral
-from sknetwork.toy_graphs import karate_club, random_bipartite_graph, house
+from sknetwork.toy_graphs import karate_club, simple_bipartite_graph, house
 
 
 def barycenter_norm(adjacency, spectral: Spectral) -> float:
@@ -47,8 +47,12 @@ def has_proper_shape(adjacency, algo: Union[Spectral, BiSpectral]) -> bool:
 
     """
     n1, n2 = adjacency.shape
+    if n1 != n2:
+        n = n1 + n2
+    else:
+        n = n1
     k = algo.embedding_dimension
-    if algo.embedding_.shape != (n1, k):
+    if algo.embedding_.shape != (n, k):
         return False
     if hasattr(algo, 'col_embedding_') and algo.col_embedding_.shape != (n2, k):
         return False
@@ -129,17 +133,14 @@ class TestEmbeddings(unittest.TestCase):
         self.assertAlmostEqual(error, 0)
 
     def test_svd(self):
-        self.biadjacency = random_bipartite_graph()
-        svd = BiSpectral(2, solver='lanczos')
-        svd.fit(self.adjacency)
-        self.assertTrue(has_proper_shape(self.adjacency, svd))
-
+        self.biadjacency = simple_bipartite_graph()
+        svd = BiSpectral(solver='lanczos')
         svd.fit(self.biadjacency)
         self.assertTrue(has_proper_shape(self.biadjacency, svd))
 
         svd = BiSpectral(2, solver='halko')
-        svd.fit(self.adjacency)
-        self.assertTrue(has_proper_shape(self.adjacency, svd))
+        svd.fit(self.biadjacency)
+        self.assertTrue(has_proper_shape(self.biadjacency, svd))
 
         svd.fit(self.biadjacency)
         self.assertTrue(has_proper_shape(self.biadjacency, svd))

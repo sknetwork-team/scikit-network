@@ -57,13 +57,13 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
 
     elif method == 'knn':
         if normalized:
-            gsvd = BiSpectral(embedding_dimension, weights='degree', col_weights='degree', scaling='divide')
+            bispectral = BiSpectral(embedding_dimension, weights='degree', col_weights='degree', scaling='divide')
         else:
-            gsvd = BiSpectral(embedding_dimension, weights='degree', col_weights='uniform', scaling=None)
+            bispectral = BiSpectral(embedding_dimension, weights='degree', col_weights='uniform', scaling=None)
 
-        gsvd.fit(adjacency)
+        bispectral.fit(adjacency)
         knn = KNeighborsTransformer(n_neighbors, make_undirected=True)
-        knn.fit(gsvd.embedding_)
+        knn.fit(bispectral.row_embedding_)
         return knn.adjacency_
     else:
         raise ValueError('method must be "exact" or "knn".')

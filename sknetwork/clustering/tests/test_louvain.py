@@ -8,7 +8,7 @@ from scipy import sparse
 
 from sknetwork import is_numba_available
 from sknetwork.clustering import Louvain, BiLouvain, modularity
-from sknetwork.toy_graphs import random_graph, karate_club, bow_tie, painters, star_wars_villains
+from sknetwork.toy_graphs import simple_directed_graph, karate_club, bow_tie, painters, star_wars_villains
 from sknetwork.utils.adjacency_formats import directed2undirected
 
 
@@ -34,7 +34,7 @@ class TestLouvainClustering(unittest.TestCase):
         self.assertEqual(self.louvain.labels_, [0])
 
     def test_random_graph(self):
-        self.random_graph = random_graph()
+        self.random_graph = simple_directed_graph()
         self.louvain.fit(directed2undirected(self.random_graph))
         self.assertEqual(len(self.louvain.labels_), 10)
 

@@ -64,9 +64,9 @@ def bow_tie():
     return adjacency
 
 
-def random_graph():
+def simple_directed_graph():
     """
-    Random graph
+    Simple directed graph
 
     10 nodes, 10 edges
 
@@ -82,22 +82,22 @@ def random_graph():
     return adjacency
 
 
-def random_bipartite_graph():
+def simple_bipartite_graph():
     """
-    Random bipartite graph
+    Simple bipartite graph
 
     4 x 5 nodes, 6 edges
 
     Returns
     -------
-    adjacency: sparse.csr_matrix
-        Adjacency matrix of the graph.
+    biadjacency: sparse.csr_matrix
+        Biadjacency matrix of the graph.
     """
     row = np.array([1, 1, 1, 2, 2, 3])
     col = np.array([1, 2, 3, 1, 3, 4])
     data = np.array([1, 2, 1, 2, 2, 1])
-    adjacency = sparse.csr_matrix((data, (row, col)), shape=(4, 5))
-    return adjacency
+    biadjacency = sparse.csr_matrix((data, (row, col)), shape=(4, 5))
+    return biadjacency
 
 
 def karate_club(return_labels_true: bool = False) -> Union[Tuple[sparse.csr_matrix, np.ndarray], sparse.csr_matrix]:
