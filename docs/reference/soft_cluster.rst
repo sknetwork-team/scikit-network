@@ -1,6 +1,6 @@
 .. _soft_cluster:
 
-Soft Clustering
+Soft clustering
 ***************
 
 .. currentmodule:: sknetwork

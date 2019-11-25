@@ -1,6 +1,6 @@
 .. _classification:
 
-Node Classification
+Node classification
 *******************
 
 .. currentmodule:: sknetwork
