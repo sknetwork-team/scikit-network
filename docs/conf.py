@@ -180,3 +180,4 @@ def setup(app):
 
 
 nbsphinx_execute = 'always'
+nbsphinx_kernel_name = 'python3'
