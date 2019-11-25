@@ -77,7 +77,7 @@ class BiSpectral(BaseEmbedding):
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import simple_bipartite_graph
+    >>> from sknetwork.data import simple_bipartite_graph
     >>> biadjacency = simple_bipartite_graph()
     >>> bispectral = BiSpectral()
     >>> embedding = bispectral.fit_transform(biadjacency)

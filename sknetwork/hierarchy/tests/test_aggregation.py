@@ -9,7 +9,7 @@ import unittest
 
 from sknetwork.hierarchy import Paris
 from sknetwork.hierarchy import aggregate_dendrogram
-from sknetwork.toy_graphs import karate_club
+from sknetwork.data import karate_club
 
 
 class TestMetrics(unittest.TestCase):

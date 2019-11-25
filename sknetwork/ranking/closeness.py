@@ -39,7 +39,7 @@ class Closeness(BaseRanking):
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import rock_paper_scissors
+    >>> from sknetwork.data import rock_paper_scissors
     >>> closeness = Closeness()
     >>> adjacency = rock_paper_scissors()
     >>> np.round(closeness.fit(adjacency).score_, 2)

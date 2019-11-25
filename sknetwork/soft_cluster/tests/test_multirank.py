@@ -8,7 +8,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.soft_cluster import MultiRank, BiMultiRank
-from sknetwork.toy_graphs import painters, movie_actor
+from sknetwork.data import painters, movie_actor
 
 
 # noinspection DuplicatedCode

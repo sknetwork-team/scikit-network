@@ -8,7 +8,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding.metrics import cosine_modularity
-from sknetwork.toy_graphs import star_wars_villains
+from sknetwork.data import star_wars_villains
 
 
 class TestClusteringMetrics(unittest.TestCase):

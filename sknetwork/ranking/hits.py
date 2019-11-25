@@ -42,7 +42,7 @@ class HITS(BaseRanking):
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import star_wars_villains
+    >>> from sknetwork.data import star_wars_villains
     >>> hits = HITS()
     >>> biadjacency: sparse.csr_matrix = star_wars_villains()
     >>> np.round(hits.fit(biadjacency).score_, 2)

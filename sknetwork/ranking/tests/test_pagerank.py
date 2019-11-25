@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 
 from sknetwork.ranking.pagerank import PageRank, BiPageRank
-from sknetwork.toy_graphs import rock_paper_scissors, movie_actor
+from sknetwork.data import rock_paper_scissors, movie_actor
 
 
 # noinspection PyMissingOrEmptyDocstring

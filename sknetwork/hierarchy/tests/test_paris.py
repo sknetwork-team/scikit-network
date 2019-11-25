@@ -13,7 +13,7 @@ from scipy import sparse
 
 from sknetwork import is_numba_available
 from sknetwork.hierarchy import Paris, BiParis, straight_cut
-from sknetwork.toy_graphs import house, karate_club, star_wars_villains
+from sknetwork.data import house, karate_club, star_wars_villains
 
 
 # noinspection PyMissingOrEmptyDocstring

@@ -8,7 +8,7 @@ Created on October 2019
 import unittest
 
 from sknetwork.basics import co_neighbors_graph
-from sknetwork.toy_graphs import movie_actor
+from sknetwork.data import movie_actor
 
 
 # noinspection PyMissingOrEmptyDocstring

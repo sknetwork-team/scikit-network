@@ -7,7 +7,7 @@ import unittest
 from scipy import sparse
 
 from sknetwork.ranking.hits import HITS
-from sknetwork.toy_graphs import karate_club, painters, movie_actor
+from sknetwork.data import karate_club, painters, movie_actor
 
 
 # noinspection DuplicatedCode,PyMissingOrEmptyDocstring

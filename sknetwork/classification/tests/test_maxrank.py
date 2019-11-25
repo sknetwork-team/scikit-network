@@ -8,7 +8,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.classification import MaxRank, BiMaxRank
-from sknetwork.toy_graphs import painters, movie_actor
+from sknetwork.data import painters, movie_actor
 
 
 # noinspection DuplicatedCode

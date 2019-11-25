@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 
 from sknetwork.linalg import LanczosEig, HalkoEig, SparseLR
-from sknetwork.toy_graphs import house
+from sknetwork.data import house
 
 
 # noinspection PyMissingOrEmptyDocstring

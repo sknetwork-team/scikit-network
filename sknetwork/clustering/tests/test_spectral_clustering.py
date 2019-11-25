@@ -10,7 +10,7 @@ import unittest
 from scipy import sparse
 
 from sknetwork.clustering import BiSpectralClustering, SpectralClustering
-from sknetwork.toy_graphs import karate_club, painters, movie_actor
+from sknetwork.data import karate_club, painters, movie_actor
 
 
 class TestSpectralClustering(unittest.TestCase):

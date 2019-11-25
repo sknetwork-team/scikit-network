@@ -8,7 +8,7 @@ from scipy import sparse
 
 from sknetwork import is_numba_available
 from sknetwork.clustering import Louvain, BiLouvain, modularity
-from sknetwork.toy_graphs import simple_directed_graph, karate_club, bow_tie, painters, star_wars_villains
+from sknetwork.data import simple_directed_graph, karate_club, bow_tie, painters, star_wars_villains
 from sknetwork.utils.adjacency_formats import directed2undirected
 
 

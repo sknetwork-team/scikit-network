@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.hierarchy import Paris, tree_sampling_divergence, dasgupta_score
-from sknetwork.toy_graphs import line_graph, karate_club
+from sknetwork.data import line_graph, karate_club
 
 
 # noinspection PyMissingOrEmptyDocstring

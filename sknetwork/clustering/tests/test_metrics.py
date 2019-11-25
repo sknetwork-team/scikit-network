@@ -8,7 +8,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering import modularity, bimodularity, cocitation_modularity, nsd
-from sknetwork.toy_graphs import star_wars_villains
+from sknetwork.data import star_wars_villains
 
 
 # noinspection PyMissingOrEmptyDocstring

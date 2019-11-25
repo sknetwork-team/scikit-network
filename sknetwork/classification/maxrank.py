@@ -35,7 +35,7 @@ class MaxRank(BaseClassifier):
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import karate_club
+    >>> from sknetwork.data import karate_club
     >>> maxrank = MaxRank()
     >>> adjacency, labels_true = karate_club(return_labels_true=True)
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}

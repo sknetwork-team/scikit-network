@@ -14,6 +14,5 @@ Reference
     classification
     linalg
     basics
-    loader
-    toy_graphs
+    data
     utils

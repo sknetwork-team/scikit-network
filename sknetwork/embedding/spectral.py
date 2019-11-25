@@ -154,7 +154,7 @@ class Spectral(BaseEmbedding):
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import house
+    >>> from sknetwork.data import house
     >>> adjacency = house()
     >>> spectral = Spectral()
     >>> embedding = spectral.fit_transform(adjacency)

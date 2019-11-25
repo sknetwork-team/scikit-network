@@ -4,7 +4,7 @@
 
 import unittest
 
-from sknetwork.toy_graphs import star_wars_villains, rock_paper_scissors, house
+from sknetwork.data import star_wars_villains, rock_paper_scissors, house
 from sknetwork.utils.adjacency_formats import *
 from sknetwork.utils.checks import is_symmetric
 

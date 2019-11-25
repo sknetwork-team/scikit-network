@@ -8,7 +8,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.linalg import LanczosSVD, HalkoSVD, SparseLR
-from sknetwork.toy_graphs import movie_actor
+from sknetwork.data import movie_actor
 
 
 # noinspection PyMissingOrEmptyDocstring

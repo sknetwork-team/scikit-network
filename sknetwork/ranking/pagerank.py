@@ -120,7 +120,7 @@ class PageRank(BaseRanking):
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import rock_paper_scissors
+    >>> from sknetwork.data import rock_paper_scissors
     >>> pagerank = PageRank()
     >>> adjacency = rock_paper_scissors()
     >>> np.round(pagerank.fit_transform(adjacency), 2)
@@ -219,7 +219,7 @@ class BiPageRank(PageRank):
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import star_wars_villains
+    >>> from sknetwork.data import star_wars_villains
     >>> bipagerank = BiPageRank()
     >>> biadjacency: sparse.csr_matrix = star_wars_villains()
     >>> biadjacency.shape

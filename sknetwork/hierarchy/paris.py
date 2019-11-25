@@ -347,7 +347,7 @@ class Paris(BaseHierarchy):
 
     Examples
     --------
-    >>> from sknetwork.toy_graphs import house
+    >>> from sknetwork.data import house
     >>> adjacency = house()
     >>> paris = Paris(engine='python')
     >>> paris.fit(adjacency).dendrogram_
@@ -503,7 +503,7 @@ class BiParis(Paris):
 
     Examples
     --------
-    >>> from sknetwork.toy_graphs import star_wars_villains
+    >>> from sknetwork.data import star_wars_villains
     >>> biadjacency = star_wars_villains()
     >>> biparis = BiParis(engine='python')
     >>> biparis.fit(biadjacency).dendrogram_

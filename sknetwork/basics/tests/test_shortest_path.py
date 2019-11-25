@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 
 from sknetwork.basics import shortest_path
-from sknetwork.toy_graphs import karate_club
+from sknetwork.data import karate_club
 
 
 class TestShortestPath(unittest.TestCase):

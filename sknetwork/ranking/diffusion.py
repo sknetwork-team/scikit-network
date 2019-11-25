@@ -67,7 +67,7 @@ class Diffusion(BaseRanking):
 
     Example
     -------
-    >>> from sknetwork.toy_graphs import house
+    >>> from sknetwork.data import house
     >>> diffusion = Diffusion(solver='spsolve')
     >>> adjacency = house()
     >>> personalization = {0: 0, 1: 1}

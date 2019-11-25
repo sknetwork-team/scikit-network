@@ -9,7 +9,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding import Spectral, BiSpectral
-from sknetwork.toy_graphs import karate_club, simple_bipartite_graph, house
+from sknetwork.data import karate_club, simple_bipartite_graph, house
 
 
 def barycenter_norm(adjacency, spectral: Spectral) -> float:
