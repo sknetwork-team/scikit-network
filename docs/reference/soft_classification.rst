@@ -12,7 +12,7 @@ The attribute ``.membership_``  assigns a membership probability vector to each 
 
 Base Class
 ----------
-.. autoclass:: sknetwork.soft_classification.BaseSoftClassify
+.. autoclass:: sknetwork.soft_classification.BaseSoftClassifier
     :members:
 
 

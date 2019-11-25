@@ -9,7 +9,7 @@ from abc import ABC
 from sknetwork.utils.base import Algorithm
 
 
-class BaseSoftClassify(Algorithm, ABC):
+class BaseSoftClassifier(Algorithm, ABC):
     """Base class for soft clustering algorithms."""
 
     def __init__(self):
