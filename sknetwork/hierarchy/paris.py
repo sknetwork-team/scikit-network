@@ -506,12 +506,12 @@ class BiParis(Paris):
     >>> biadjacency = star_wars_villains()
     >>> biparis = BiParis(engine='python')
     >>> biparis.fit(biadjacency).dendrogram_
-    array([[ 1.     ,  4.     ,  0.1875 ,  2.     ],
-           [ 3.     ,  5.     ,  0.25   ,  2.     ],
-           [ 6.     ,  0.     ,  0.375  ,  2.     ],
-           [ 7.     ,  2.     ,  0.75   ,  3.     ],
-           [10.     ,  9.     ,  1.09375,  5.     ],
-           [11.     ,  8.     ,  1.5    ,  7.     ]])
+    array([[ 1.      ,  4.      ,  0.09375 ,  2.      ],
+           [ 3.      ,  5.      ,  0.125   ,  2.      ],
+           [ 6.      ,  0.      ,  0.1875  ,  2.      ],
+           [ 7.      ,  2.      ,  0.375   ,  3.      ],
+           [10.      ,  9.      ,  0.546875,  5.      ],
+           [11.      ,  8.      ,  0.75    ,  7.      ]])
 
     Notes
     -----
@@ -549,7 +549,7 @@ class BiParis(Paris):
         -------
         self: :class:`BiParis`
         """
-        paris = Paris()
+        paris = Paris(engine=self.engine, weights=self.weights, reorder=self.reorder)
         biadjacency = check_format(biadjacency)
 
         adjacency = bipartite2undirected(biadjacency)
