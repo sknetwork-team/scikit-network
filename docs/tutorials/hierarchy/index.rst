@@ -5,4 +5,4 @@ Hierarchical clustering
 .. toctree::
 
    paris
-   ward
+   spectral_ward
