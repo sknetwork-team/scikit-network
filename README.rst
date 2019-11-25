@@ -15,9 +15,8 @@
         :target: https://scikit-network.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-.. image:: https://pyup.io/repos/github/sknetwork-team/scikit-network/shield.svg
-        :target: https://pyup.io/repos/github/sknetwork-team/scikit-network/
-        :alt: Updates
+.. image:: https://codecov.io/gh/codecov/example-python/branch/master/graph/badge.svg
+        :target: https://codecov.io/gh/codecov/example-python
 
 
 Simple and efficient tools for the analysis of large graphs.
