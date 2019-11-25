@@ -5,3 +5,4 @@ Loader
 .. toctree::
 
    parser
+   loaders

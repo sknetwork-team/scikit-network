@@ -181,3 +181,7 @@ def setup(app):
 
 nbsphinx_execute = 'always'
 nbsphinx_kernel_name = 'python3'
+nbsphinx_execute_arguments = [
+    "--InlineBackend.figure_formats={'svg', 'pdf'}",
+    "--InlineBackend.rc={'figure.dpi': 96}",
+]
