@@ -3,7 +3,9 @@ language: python
 python:
 - 3.7
 - 3.6
-install: pip install -U tox-travis
+install:
+  - pip install -U tox-travis
+  - pip install --user codecov
 script: tox
 deploy:
   provider: pypi
@@ -15,3 +17,5 @@ deploy:
     tags: true
     repo: sknetwork-team/scikit-network
     python: 3.6
+after_success:
+  - codecov
