@@ -15,7 +15,7 @@
         :target: https://scikit-network.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-.. image:: https://codecov.io/gh/codecov/example-python/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/codecov/scikit-network/branch/master/graph/badge.svg
         :target: https://codecov.io/gh/codecov/example-python
 
 
