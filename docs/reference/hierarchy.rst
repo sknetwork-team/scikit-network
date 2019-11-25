@@ -29,8 +29,8 @@ Paris
 .. autoclass:: sknetwork.hierarchy.Paris
     :members:
 
-SpectralWard
-------------
+Spectral
+---------
 .. autoclass:: sknetwork.hierarchy.SpectralWard
     :members:
 
