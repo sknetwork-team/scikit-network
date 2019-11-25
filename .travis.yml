@@ -5,7 +5,7 @@ python:
 - 3.6
 install:
   - pip install -U tox-travis
-  - pip install --user codecov
+  - conda install -c conda-forge codecov
 script: tox
 deploy:
   provider: pypi
