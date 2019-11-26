@@ -62,7 +62,7 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
             bispectral = BiSpectral(embedding_dimension, weights='degree', col_weights='uniform', scaling=None)
 
         bispectral.fit(adjacency)
-        knn = KNeighborsTransformer(n_neighbors, make_undirected=True)
+        knn = KNeighborsTransformer(n_neighbors, undirected=True)
         knn.fit(bispectral.row_embedding_)
         return knn.adjacency_
     else:
