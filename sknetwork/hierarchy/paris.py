@@ -168,7 +168,7 @@ def ints2int(first: np.int32, second: np.int32):
 # noinspection DuplicatedCode
 @njit
 def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.ndarray,
-             indices: np.ndarray, indptr: np.ndarray):
+             indices: np.ndarray, indptr: np.ndarray):  # pragma: no cover
     """
 
     Parameters

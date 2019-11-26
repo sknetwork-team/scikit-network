@@ -123,7 +123,7 @@ class Optimizer(Algorithm):
 @njit
 def fit_core(resolution: float, tol: float, n_nodes: int, out_node_probs: np.ndarray,
              in_node_probs: np.ndarray, self_loops: np.ndarray, data: np.ndarray, indices: np.ndarray,
-             indptr: np.ndarray) -> (np.ndarray, float):
+             indptr: np.ndarray) -> (np.ndarray, float):  # pragma: no cover
     """
     Fit the clusters to the objective function.
 
