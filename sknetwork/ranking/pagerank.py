@@ -228,5 +228,5 @@ class BiPageRank(PageRank):
     4
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos'):
-        PageRank.__init__(self, damping_factor, solver)
+        super(BiPageRank, self).__init__(damping_factor, solver)
         self.fb_mode = True
