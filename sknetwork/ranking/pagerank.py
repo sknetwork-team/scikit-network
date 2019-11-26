@@ -115,7 +115,7 @@ class PageRank(BaseRanking):
 
     Attributes
     ----------
-    score_ : np.ndarray
+    scores_ : np.ndarray
         PageRank score of each node.
 
     Example
@@ -197,8 +197,8 @@ class PageRank(BaseRanking):
             raise ValueError("The adjacency is not square. Please use 'bipartite2undirected',"
                              "'bipartite2directed' or 'BiPageRank.")
 
-        score = self.solve(adjacency, personalization)
-        self.score_ = score[:n1] / score[:n1].sum()
+        scores = self.solve(adjacency, personalization)
+        self.scores_ = scores[:n1] / scores[:n1].sum()
 
         return self
 
@@ -224,7 +224,7 @@ class BiPageRank(PageRank):
     >>> biadjacency: sparse.csr_matrix = star_wars_villains()
     >>> biadjacency.shape
     (4, 3)
-    >>> len(bipagerank.fit(biadjacency).score_)
+    >>> len(bipagerank.fit(biadjacency).scores_)
     4
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos'):

@@ -23,8 +23,8 @@ class HITS(BaseRanking):
     Parameters
     ----------
     mode:
-        Either ``'hubs'`` or ``'authorities'``. Which of the weights to store in the ``.score_`` attribute.
-        The other one is stored in ``.col_score_``.
+        Either ``'hubs'`` or ``'authorities'``. Which of the weights to store in the ``.scores_`` attribute.
+        The other one is stored in ``.col_scores_``.
     solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.
 
@@ -35,9 +35,9 @@ class HITS(BaseRanking):
 
     Attributes
     ----------
-    score_ : np.ndarray
+    scores_ : np.ndarray
         Hub or authority score of each node, depending on the value of **mode**.
-    col_score_ : np.ndarray
+    col_scores_ : np.ndarray
         Hub or authority score of each node, depending on the value of **mode**.
 
     Example
@@ -45,9 +45,9 @@ class HITS(BaseRanking):
     >>> from sknetwork.data import star_wars_villains
     >>> hits = HITS()
     >>> biadjacency: sparse.csr_matrix = star_wars_villains()
-    >>> np.round(hits.fit(biadjacency).score_, 2)
+    >>> np.round(hits.fit(biadjacency).scores_, 2)
     array([0.5 , 0.23, 0.69, 0.46])
-    >>> np.round(hits.col_score_, 2)
+    >>> np.round(hits.col_scores_, 2)
     array([0.58, 0.47, 0.67])
 
     References
@@ -68,7 +68,7 @@ class HITS(BaseRanking):
         else:
             self.solver = solver
 
-        self.col_score_ = None
+        self.col_scores_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'HITS':
         """
@@ -94,10 +94,10 @@ class HITS(BaseRanking):
 
         self.solver.fit(adjacency, 1)
         hubs: np.ndarray = self.solver.left_singular_vectors_.reshape(-1)
-        autorities: np.ndarray = self.solver.right_singular_vectors_.reshape(-1)
+        authorities: np.ndarray = self.solver.right_singular_vectors_.reshape(-1)
 
         h_pos, h_neg = (hubs > 0).sum(), (hubs < 0).sum()
-        a_pos, a_neg = (autorities > 0).sum(), (autorities < 0).sum()
+        a_pos, a_neg = (authorities > 0).sum(), (authorities < 0).sum()
 
         if h_pos > h_neg:
             hubs = np.clip(hubs, a_min=0., a_max=None)
@@ -105,16 +105,16 @@ class HITS(BaseRanking):
             hubs = np.clip(-hubs, a_min=0., a_max=None)
 
         if a_pos > a_neg:
-            autorities = np.clip(autorities, a_min=0., a_max=None)
+            authorities = np.clip(authorities, a_min=0., a_max=None)
         else:
-            autorities = np.clip(-autorities, a_min=0., a_max=None)
+            authorities = np.clip(-authorities, a_min=0., a_max=None)
 
         if self.mode == 'hubs':
-            self.score_ = hubs
-            self.col_score_ = autorities
+            self.scores_ = hubs
+            self.col_scores_ = authorities
         elif self.mode == 'authorities':
-            self.score_ = autorities
-            self.col_score_ = hubs
+            self.scores_ = authorities
+            self.col_scores_ = hubs
         else:
             raise ValueError('Mode should be "hubs" or "authorities".')
 

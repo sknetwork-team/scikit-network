@@ -62,7 +62,7 @@ class Diffusion(BaseRanking):
 
     Attributes
     ----------
-    score_ : np.ndarray
+    scores_ : np.ndarray
         Score of each node (= temperature). Only raw nodes in the case of bipartite inputs.
 
     Example
@@ -71,7 +71,7 @@ class Diffusion(BaseRanking):
     >>> diffusion = Diffusion(solver='spsolve')
     >>> adjacency = house()
     >>> personalization = {0: 0, 1: 1}
-    >>> np.round(diffusion.fit(adjacency, personalization).score_, 2)
+    >>> np.round(diffusion.fit(adjacency, personalization).scores_, 2)
     array([0.  , 1.  , 0.86, 0.71, 0.57])
 
     References
@@ -112,12 +112,12 @@ class Diffusion(BaseRanking):
 
         a = sparse.eye(n, format='csr') - diffusion_matrix
         if self.solver == 'spsolve':
-            score = spsolve(a, b)
+            scores = spsolve(a, b)
         elif self.solver == 'lsqr':
-            score = lsqr(a, b)[0]
+            scores = lsqr(a, b)[0]
         else:
             raise ValueError('Unknown solver.')
-        self.score_ = np.clip(score, np.min(b), np.max(b))
+        self.scores_ = np.clip(scores, np.min(b), np.max(b))
 
         return self
 
@@ -153,7 +153,7 @@ class BiDiffusion(BaseRanking):
 
         b, border = limit_conditions(personalization, n1)
         interior: sparse.csr_matrix = sparse.diags(1 - border, format='csr')
-        bckward: sparse.csr_matrix = interior.dot(transition_matrix(biadjacency))
+        backward: sparse.csr_matrix = interior.dot(transition_matrix(biadjacency))
         forward: sparse.csr_matrix = transition_matrix(biadjacency.T)
 
         def mv(x: np.ndarray) -> np.ndarray:
@@ -169,7 +169,7 @@ class BiDiffusion(BaseRanking):
             matrix-vector product
 
             """
-            return x - bckward.dot(forward.dot(x))
+            return x - backward.dot(forward.dot(x))
 
         def rmv(x: np.ndarray) -> np.ndarray:
             """Matrix vector multiplication for transposed BiDiffusion operator.
@@ -184,12 +184,12 @@ class BiDiffusion(BaseRanking):
             matrix-vector product
 
             """
-            return x - forward.T.dot(bckward.T.dot(x))
+            return x - forward.T.dot(backward.T.dot(x))
 
         # noinspection PyArgumentList
         a = sparse.linalg.LinearOperator(dtype=float, shape=(n1, n1), matvec=mv, rmatvec=rmv)
         # noinspection PyTypeChecker
-        score = lsqr(a, b)[0]
-        self.score_ = np.clip(score, np.min(b), np.max(b))
+        scores = lsqr(a, b)[0]
+        self.scores_ = np.clip(scores, np.min(b), np.max(b))
 
         return self

@@ -13,9 +13,9 @@ class BaseRanking(Algorithm, ABC):
     """Base class for ranking algorithms."""
 
     def __init__(self):
-        self.score_ = None
+        self.scores_ = None
 
     def fit_transform(self, *args, **kwargs):
-        """Fit algorithm to the data and returns the score."""
+        """Fit algorithm to the data and returns the score of each node."""
         self.fit(*args, **kwargs)
-        return self.score_
+        return self.scores_

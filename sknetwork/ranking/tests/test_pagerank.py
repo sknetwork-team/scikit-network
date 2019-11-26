@@ -22,7 +22,7 @@ class TestPageRank(unittest.TestCase):
 
         self.pagerank_sps = PageRank(solver='spsolve')
         self.pagerank_sps.fit(self.adjacency)
-        score = self.pagerank_sps.score_
+        score = self.pagerank_sps.scores_
         self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0.)
 
         self.pagerank_sps.fit(self.adjacency, personalization=np.array([0, 1, 0]))
@@ -30,25 +30,25 @@ class TestPageRank(unittest.TestCase):
 
         self.pagerank_high_damping = PageRank(damping_factor=0.99)
         self.pagerank_high_damping.fit(self.adjacency)
-        score = self.pagerank_high_damping.score_
+        score = self.pagerank_high_damping.scores_
         self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0., places=1)
 
         self.pagerank_lcz = PageRank(solver='lanczos')
         self.pagerank_lcz.fit(self.adjacency)
-        score = self.pagerank_lcz.score_
+        score = self.pagerank_lcz.scores_
         self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0.)
 
         self.pagerank_lsq = PageRank(solver='lsqr')
         self.pagerank_lsq.fit(self.adjacency)
-        score = self.pagerank_lsq.score_
+        score = self.pagerank_lsq.scores_
         self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0.)
 
         self.bipagerank.fit(self.adjacency)
-        score = self.bipagerank.score_
+        score = self.bipagerank.scores_
         self.assertAlmostEqual(np.linalg.norm(score - ground_truth), 0.)
 
     def test_bipartite(self):
         biadjacency = movie_actor()
         self.bipagerank.fit(biadjacency, {0: 1})
-        score = self.bipagerank.score_
+        score = self.bipagerank.scores_
         self.assertEqual(len(score), biadjacency.shape[0])

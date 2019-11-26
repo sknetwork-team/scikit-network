@@ -29,14 +29,14 @@ class Harmonic(BaseRanking):
 
     Attributes
     ----------
-    score_ : np.ndarray
+    scores_ : np.ndarray
         Harmonic centrality of each node.
 
     Example
     -------
     >>> harmonic = Harmonic()
     >>> adjacency = sparse.identity(3).tocsr()
-    >>> np.round(harmonic.fit(adjacency).score_, 2)
+    >>> np.round(harmonic.fit(adjacency).scores_, 2)
     array([0., 0., 0.])
 
     References
@@ -79,6 +79,6 @@ class Harmonic(BaseRanking):
         inv = (1 / paths)
         np.fill_diagonal(inv, 0)
 
-        self.score_ = inv.dot(np.ones(n))
+        self.scores_ = inv.dot(np.ones(n))
 
         return self

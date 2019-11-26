@@ -34,7 +34,7 @@ class Closeness(BaseRanking):
 
     Attributes
     ----------
-    score_ : np.ndarray
+    scores_ : np.ndarray
         Closeness centrality of each node.
 
     Example
@@ -42,7 +42,7 @@ class Closeness(BaseRanking):
     >>> from sknetwork.data import rock_paper_scissors
     >>> closeness = Closeness()
     >>> adjacency = rock_paper_scissors()
-    >>> np.round(closeness.fit(adjacency).score_, 2)
+    >>> np.round(closeness.fit(adjacency).scores_, 2)
     array([0.67, 0.67, 0.67])
 
     References
@@ -94,6 +94,6 @@ class Closeness(BaseRanking):
 
         paths = shortest_path(adjacency, n_jobs=self.n_jobs, indices=indices)
 
-        self.score_ = ((n - 1) * nb_samples / n) / paths.T.dot(np.ones(nb_samples))
+        self.scores_ = ((n - 1) * nb_samples / n) / paths.T.dot(np.ones(nb_samples))
 
         return self
