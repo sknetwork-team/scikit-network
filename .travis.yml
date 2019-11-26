@@ -6,6 +6,9 @@ python:
 install:
   - pip install -U tox-travis
   - pip install coverage
+env:
+  - SKNETWORK_DISABLE_NUMBA=false
+  - SKNETWORK_DISABLE_NUMBA=true
 script:
   - tox
 deploy:

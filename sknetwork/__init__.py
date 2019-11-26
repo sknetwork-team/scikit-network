@@ -6,12 +6,16 @@ __author__ = """scikit-network team"""
 __email__ = "bonald@enst.fr"
 __version__ = '0.10.1'
 
+import os
 import warnings
 
 import numpy as np
 
 warnings.filterwarnings("default", category=DeprecationWarning)
 try:
+    if os.environ.get('SKNETWORK_DISABLE_NUMBA') == 'true':
+        raise ImportError('Will not use Numba.')
+
     # noinspection PyUnresolvedReferences,PyPackageRequirements
     from numba import __version__ as numba_version
 
@@ -28,7 +32,6 @@ except (ImportError, DeprecationWarning) as error:
     numba_version = ''
     if type(error) is DeprecationWarning:
         warnings.warn(error, DeprecationWarning)
-
 
     # noinspection PyUnusedLocal
     def njit(*args, **kwargs):
