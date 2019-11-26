@@ -5,7 +5,7 @@ Soft classification
 
 .. currentmodule:: sknetwork
 
-This module contains regression algorithms.
+This module contains soft classification algorithms.
 
 The attribute ``.membership_``  assigns a membership probability vector to each node of the graph.
 
