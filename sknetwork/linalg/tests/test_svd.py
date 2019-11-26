@@ -49,7 +49,7 @@ class TestSolvers(unittest.TestCase):
         self.assertAlmostEqual(svd_err(self.slr, solver.left_singular_vectors_, solver.right_singular_vectors_,
                                        solver.singular_values_), 0)
 
-    def compare_solvers(self):
+    def test_compare_solvers(self):
         lanczos = LanczosSVD()
         halko = HalkoSVD()
 
