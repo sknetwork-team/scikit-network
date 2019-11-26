@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 
 from sknetwork.linalg import LanczosEig, HalkoEig, SparseLR
-from sknetwork.data import house
+from sknetwork.data import miserables, karate_club
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -20,7 +20,7 @@ def eigenvector_err(matrix, eigenvectors, eigenvalues):
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):
-        self.adjacency = house()
+        self.adjacency = miserables()
         n = self.adjacency.shape[0]
         x = np.random.random(n)
         self.slr = SparseLR(self.adjacency, [(x, x)])
@@ -35,10 +35,11 @@ class TestSolvers(unittest.TestCase):
         self.assertEqual(len(solver.eigenvalues_), 2)
         self.assertAlmostEqual(eigenvector_err(self.slr, solver.eigenvectors_, solver.eigenvalues_), 0)
 
+        karate = karate_club()
         solver = LanczosEig('SM')
-        solver.fit(self.adjacency, 2)
+        solver.fit(karate, 2)
         self.assertEqual(len(solver.eigenvalues_), 2)
-        self.assertAlmostEqual(eigenvector_err(self.adjacency, solver.eigenvectors_, solver.eigenvalues_), 0)
+        self.assertAlmostEqual(eigenvector_err(karate, solver.eigenvectors_, solver.eigenvalues_), 0)
 
     def test_halko(self):
         solver = HalkoEig('LM')
@@ -55,20 +56,9 @@ class TestSolvers(unittest.TestCase):
         self.assertEqual(len(solver.eigenvalues_), 2)
         # self.assertAlmostEqual(eigenvector_err(self.adjacency, solver.eigenvectors_, solver.eigenvalues_), 0)
 
-    def compare_solvers(self):
+    def test_compare_solvers(self):
         lanczos = LanczosEig('LM')
         halko = HalkoEig('LM')
-
-        lanczos.fit(self.adjacency, 2)
-        halko.fit(self.adjacency, 2)
-        self.assertAlmostEqual(np.linalg.norm(lanczos.eigenvalues_ - halko.eigenvalues_), 0.)
-
-        lanczos.fit(self.slr, 2)
-        halko.fit(self.slr, 2)
-        self.assertAlmostEqual(np.linalg.norm(lanczos.eigenvalues_ - halko.eigenvalues_), 0.)
-
-        lanczos = LanczosEig('SM')
-        halko = HalkoEig('SM')
 
         lanczos.fit(self.adjacency, 2)
         halko.fit(self.adjacency, 2)
