@@ -48,10 +48,11 @@ def clear_data_home(data_home: Optional[str] = None):
 
 
 def load_vital_wikipedia(data_home: Optional[str] = None, outputs: str = 'both', return_titles: bool = False,
-                         return_labels: bool = False, return_labels_true: bool = False, max_depth: int = 1,
+                         return_labels: bool = False, return_categories: bool = False, max_depth: int = 1,
                          full_path: bool = True):
     """
-    Load the Vital Wikipedia dataset. See https://graphs.telecom-paristech.fr/
+    Loads the Vital Wikipedia dataset. See https://graphs.telecom-paristech.fr/
+    Data returned in this order (depending on the selection): adjacency, biadjacency, titles, stems, categories.
 
     Parameters
     ----------
@@ -61,11 +62,11 @@ def load_vital_wikipedia(data_home: Optional[str] = None, outputs: str = 'both',
         Defines what should be returned. Possible options are 'adjacency' for the adjacency of hyperlinks of the various
         Wikipedia articles, 'biadjacency' for the count matrix of the stems or 'both' for both.
     return_titles: bool
-        Denotes if the titles of the articles should be returned
+        If ``True``, returns the titles of the articles
     return_labels: bool
-        Denotes if the titles of the articles and the stems should be returned
-    return_labels_true: bool
-        Denotes if the categories of the articles should be returned
+        If ``True``, returns the titles of the articles and the stems of the summary
+    return_categories: bool
+        If ``True``, returns the categories of the articles
     max_depth: int
         Denotes the maximum depth to use for the categories
     full_path: bool
@@ -77,13 +78,13 @@ def load_vital_wikipedia(data_home: Optional[str] = None, outputs: str = 'both',
     adjacency: sparse.csr_matrix, optional
         The matrix of the hyperlinks between the articles
     biadjacency: sparse.csr_matrix, optional
-        The matrix of the stem counts in each article
+        The matrix of the stem counts in each summary of article
     titles: numpy.ndarray, optional
         The array of the article titles
-    titles: numpy.ndarray, optional
+    stems: numpy.ndarray, optional
         The array of the stems
     categories: numpy.ndarray, optional
-        The array of the category labels
+        The array of the categories
     """
     if data_home is None:
         data_home = get_data_home()
@@ -111,7 +112,7 @@ def load_vital_wikipedia(data_home: Optional[str] = None, outputs: str = 'both',
         output.append(parse_labels(data_path + '/en-stems.txt'))
     elif return_titles:
         output.append(parse_labels(data_path + '/en-articles.txt'))
-    if return_labels_true:
+    if return_categories:
         output.append(parse_hierarchical_labels(data_path + '/en-categories.txt', max_depth, full_path=full_path))
 
     if len(output) == 1:

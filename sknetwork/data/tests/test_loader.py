@@ -5,7 +5,7 @@
 import unittest
 import tempfile
 
-from sknetwork.data import load_vital_wikipedia, get_data_home, clear_data_home
+from sknetwork.data import load_vital_wikipedia, clear_data_home
 
 
 class TestLoader(unittest.TestCase):
@@ -14,6 +14,6 @@ class TestLoader(unittest.TestCase):
         tmp_data_dir = tempfile.gettempdir() + '/vital_wikipedia'
         clear_data_home(tmp_data_dir)
         adjacency, _, _, _, _ = \
-            load_vital_wikipedia(return_labels=True, return_labels_true=True)
+            load_vital_wikipedia(return_labels=True, return_categories=True)
         self.assertEqual(adjacency.shape[0], 10012)
         clear_data_home(tmp_data_dir)
