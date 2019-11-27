@@ -49,7 +49,7 @@ class TestSolvers(unittest.TestCase):
 
         solver.fit(self.slr, 2)
         self.assertEqual(len(solver.eigenvalues_), 2)
-        self.assertAlmostEqual(eigenvector_err(self.slr, solver.eigenvectors_, solver.eigenvalues_), 0)
+        self.assertAlmostEqual(eigenvector_err(self.slr, solver.eigenvectors_, solver.eigenvalues_), 0, 6)
 
         solver = HalkoEig('SM')
         solver.fit(self.adjacency, 2)
