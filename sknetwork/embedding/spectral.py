@@ -326,14 +326,15 @@ class Spectral(BaseEmbedding):
             raise ValueError('The adjacency vector must be non-negative.')
 
         # regularization
+        reg_adjacency_vector = adjacency_vector.copy()
         if self.regularization_:
-            adjacency_vector += self.regularization_
+            reg_adjacency_vector += self.regularization_
 
         # projection in the embedding space
         if self.normalized_laplacian:
             embedding_vector = np.zeros(self.embedding_dimension)
             index = np.where(eigenvalues < 1 - self.tol)[0]
-            embedding_vector[index] = embedding[:, index].T.dot(adjacency_vector) / np.sum(adjacency_vector)
+            embedding_vector[index] = embedding[:, index].T.dot(reg_adjacency_vector) / np.sum(reg_adjacency_vector)
             embedding_vector[index] /= 1 - eigenvalues[index]
         else:
             raise ValueError("The predict method is not available for the spectral embedding based on the Laplacian."
