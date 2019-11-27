@@ -14,7 +14,7 @@ from sknetwork.linalg import diag_pinv
 
 
 def transition_matrix(adjacency: Union[sparse.csr_matrix, np.ndarray]):
-    """Compute
+    """Compute the transition matrix of the random walk :
 
     :math:`P = D^+A`,
 
@@ -22,12 +22,13 @@ def transition_matrix(adjacency: Union[sparse.csr_matrix, np.ndarray]):
 
     Parameters
     ----------
-    adjacency
+    adjacency :
+        Adjacency or biadjacency matrix.
 
     Returns
     -------
     sparse.csr_matrix:
-        The transition matrix.
+        Transition matrix.
 
     """
     adjacency = sparse.csr_matrix(adjacency)

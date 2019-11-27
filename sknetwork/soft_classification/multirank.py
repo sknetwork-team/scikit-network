@@ -121,7 +121,7 @@ class MultiRank(BaseSoftClassifier):
             for i, label in enumerate(unique_labels):
                 personalization = np.zeros(n)
                 personalization[seeds == label] = 1.
-                membership[:, i] = pr.fit(adjacency, personalization=personalization).scores_
+                membership[:, i] = pr.fit_transform(adjacency, personalization=personalization)[:n]
 
         membership[membership <= self.rtol / n] = 0
 

@@ -63,7 +63,7 @@ class Diffusion(BaseRanking):
     Attributes
     ----------
     scores_ : np.ndarray
-        Score of each node (= temperature). Only raw nodes in the case of bipartite inputs.
+        Score of each node (= temperature).
 
     Example
     -------
@@ -103,8 +103,7 @@ class Diffusion(BaseRanking):
         adjacency = check_format(adjacency)
         n: int = adjacency.shape[0]
         if not is_square(adjacency):
-            raise ValueError('The adjacency matrix should be square. Consider using '
-                             'sknetwork.utils.adjacency_format.bipartite2undirected.')
+            raise ValueError('The adjacency matrix should be square. See BiDiffusion.')
 
         b, border = limit_conditions(personalization, n)
         interior: sparse.csr_matrix = sparse.diags(1 - border, shape=(n, n), format='csr')
@@ -122,15 +121,41 @@ class Diffusion(BaseRanking):
         return self
 
 
-class BiDiffusion(BaseRanking):
-    """Diffusion ranking algorithm on the normalized cocitation graph.
+class BiDiffusion(Diffusion):
+    """Compute the temperature of each node of a bipartite graph,
+    associated with the diffusion along the edges (heat equation).
 
-    See :class:`sknetwork.basics.co_neighbors_graph`
+    Parameters
+    ----------
+    solver : str
+        Which solver to use: 'spsolve' or 'lsqr' (default).
 
+    Attributes
+    ----------
+    row_scores_ : np.ndarray
+        Scores of rows.
+    col_scores_ : np.ndarray
+        Scores of columns.
+    scores_ : np.ndarray
+        Scores of all nodes (concatenation of scores of rows and scores of columns).
+
+    Example
+    -------
+    >>> from sknetwork.data import star_wars_villains
+    >>> bidiffusion = BiDiffusion()
+    >>> biadjacency: sparse.csr_matrix = star_wars_villains()
+    >>> biadjacency.shape
+    (4, 3)
+    >>> len(bidiffusion.fit_transform(biadjacency, {0:1, 1:-1}))
+    7
     """
 
-    def __init__(self):
-        super(BiDiffusion, self).__init__()
+    def __init__(self, solver: str = 'lsqr'):
+        Diffusion.__init__(self, solver)
+
+        self.row_scores_ = None
+        self.col_scores_ = None
+        self.scores_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Union[dict, np.ndarray]) -> 'BiDiffusion':
@@ -190,6 +215,8 @@ class BiDiffusion(BaseRanking):
         a = sparse.linalg.LinearOperator(dtype=float, shape=(n1, n1), matvec=mv, rmatvec=rmv)
         # noinspection PyTypeChecker
         scores = lsqr(a, b)[0]
-        self.scores_ = np.clip(scores, np.min(b), np.max(b))
+        self.row_scores_ = np.clip(scores, np.min(b), np.max(b))
+        self.col_scores_ = transition_matrix(biadjacency.T).dot(self.row_scores_)
+        self.scores_ = np.concatenate((self.row_scores_, self.col_scores_))
 
         return self

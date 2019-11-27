@@ -46,7 +46,8 @@ def restart_probability(n: int, personalization: Union[dict, np.ndarray] = None)
            and has_nonnegative_entries(personalization) and np.sum(personalization):
             restart_prob = personalization.astype(float) / np.sum(personalization)
         else:
-            raise ValueError('Personalization must be None or a non-negative, non-null vector or a dictionary.')
+            raise ValueError('Personalization must be None or a non-negative, non-null vector '
+                             'or a dictionary with positive values.')
     return restart_prob
 
 
@@ -112,6 +113,8 @@ class PageRank(BaseRanking):
         Probability to continue the random walk.
     solver : str
         Which solver to use: 'spsolve', 'lanczos' (default), 'lsqr' or 'halko'.
+    fb_mode : bool
+        If ``True``, use the forward-backward mode.
 
     Attributes
     ----------
@@ -131,7 +134,7 @@ class PageRank(BaseRanking):
     Page, L., Brin, S., Motwani, R., & Winograd, T. (1999). The PageRank citation ranking: Bringing order to the web.
     Stanford InfoLab.
     """
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos'):
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', fb_mode: bool = False):
         super(PageRank, self).__init__()
 
         if damping_factor < 0 or damping_factor >= 1:
@@ -139,7 +142,7 @@ class PageRank(BaseRanking):
         else:
             self.damping_factor = damping_factor
         self.solver = solver
-        self.fb_mode = False
+        self.fb_mode = fb_mode
 
     # noinspection PyTypeChecker
     def solve(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
@@ -148,8 +151,10 @@ class PageRank(BaseRanking):
 
         Parameters
         ----------
-        adjacency
-        personalization
+        adjacency :
+            Adjacency matrix.
+        personalization :
+            Weights for restart distribution.
 
         Returns
         -------
@@ -181,7 +186,7 @@ class PageRank(BaseRanking):
         Parameters
         ----------
         adjacency :
-            Adjacency or biadjacency matrix of the graph.
+            Adjacency matrix.
         personalization :
             If ``None``, the uniform distribution is used.
             Otherwise, a non-negative, non-zero vector or a dictionary must be provided.
@@ -194,8 +199,7 @@ class PageRank(BaseRanking):
         adjacency = check_format(adjacency)
         n1, n2 = adjacency.shape
         if not self.fb_mode and not is_square(adjacency):
-            raise ValueError("The adjacency is not square. Please use 'bipartite2undirected',"
-                             "'bipartite2directed' or 'BiPageRank.")
+            raise ValueError("The adjacency is not square. See BiPageRank.")
 
         scores = self.solve(adjacency, personalization)
         self.scores_ = scores[:n1] / scores[:n1].sum()
@@ -205,10 +209,8 @@ class PageRank(BaseRanking):
 
 class BiPageRank(PageRank):
     """
-    Compute the PageRank of each node in part 1,
-    corresponding to its frequency of visit by a two hops random walk in the bipartite graph.
-
-    The random walk restarts with some fixed probability. The restart distribution can be personalized by the user.
+    Compute the PageRank of each node through a two-hop random walk in the bipartite graph.
+    The random walk restarts with some fixed probability. The restart distribution can be personalized.
 
     Parameters
     ----------
@@ -217,6 +219,15 @@ class BiPageRank(PageRank):
     solver : str
         Which solver to use: 'spsolve', 'lanczos' (default), 'lsqr' or 'halko'.
 
+    Attributes
+    ----------
+    row_scores_ : np.ndarray
+        PageRank score of each row.
+    col_scores_ : np.ndarray
+        PageRank score of each col.
+    scores_ : np.ndarray
+        PageRank score of each node (concatenation of row scores and col scores).
+
     Example
     -------
     >>> from sknetwork.data import star_wars_villains
@@ -224,9 +235,36 @@ class BiPageRank(PageRank):
     >>> biadjacency: sparse.csr_matrix = star_wars_villains()
     >>> biadjacency.shape
     (4, 3)
-    >>> len(bipagerank.fit(biadjacency).scores_)
-    4
+    >>> len(bipagerank.fit_transform(biadjacency))
+    7
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos'):
-        super(BiPageRank, self).__init__(damping_factor, solver)
-        self.fb_mode = True
+        PageRank.__init__(self, damping_factor, solver)
+
+        self.row_scores_ = None
+        self.col_scores_ = None
+        self.scores_ = None
+
+    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
+            personalization: Optional[Union[dict, np.ndarray]] = None) -> 'BiPageRank':
+        """Applies the PageRank algorithm in forward-backward mode.
+
+        Parameters
+        ----------
+        biadjacency:
+            Biadjacency matrix of the graph, of shape (n1, n2).
+        personalization :
+            If ``None``, the uniform distribution is used.
+            Otherwise, a non-negative, non-zero vector of size n1 or a dictionary must be provided.
+        Returns
+        -------
+        self: :class:`BiPageRank`
+        """
+        pagerank = PageRank(damping_factor=self.damping_factor, solver=self.solver, fb_mode=True)
+        biadjacency = check_format(biadjacency)
+        n1, _ = biadjacency.shape
+        self.row_scores_ = pagerank.solve(biadjacency, personalization)[:n1]
+        self.col_scores_ = transition_matrix(biadjacency).T.dot(self.row_scores_)
+        self.scores_ = np.concatenate((self.row_scores_, self.col_scores_))
+
+        return self
