@@ -11,7 +11,7 @@ from sknetwork.utils.checks import has_nonnegative_entries, has_positive_entries
 
 
 # noinspection PyMissingOrEmptyDocstring
-class TestFormats(unittest.TestCase):
+class TestChecks(unittest.TestCase):
 
     def setUp(self):
         self.adjacency = rock_paper_scissors()

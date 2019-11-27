@@ -21,10 +21,8 @@ class TestMaxRank(unittest.TestCase):
         self.adj_array_seeds = adj_array_seeds
         self.adj_dict_seeds = {0: 0, 1: 1}
         mr = MaxRank()
-        mr.fit(self.adjacency, self.adj_array_seeds)
-        labels1 = mr.labels_.copy()
-        mr.fit(self.adjacency, self.adj_dict_seeds)
-        labels2 = mr.labels_.copy()
+        labels1 = mr.fit_transform(self.adjacency, self.adj_array_seeds)
+        labels2 = mr.fit_transform(self.adjacency, self.adj_dict_seeds)
         self.assertTrue(np.allclose(labels1, labels2))
         self.assertEqual(labels2.shape[0], self.adjacency.shape[0])
 

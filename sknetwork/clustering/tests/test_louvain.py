@@ -30,8 +30,7 @@ class TestLouvainClustering(unittest.TestCase):
             self.louvain.fit(sparse.identity(1))
 
     def test_single_node_graph(self):
-        self.louvain.fit(sparse.identity(1, format='csr'))
-        self.assertEqual(self.louvain.labels_, [0])
+        self.assertEqual(self.louvain.fit_transform(sparse.identity(1, format='csr')), [0])
 
     def test_simple_graph(self):
         self.simple_directed_graph = simple_directed_graph()
