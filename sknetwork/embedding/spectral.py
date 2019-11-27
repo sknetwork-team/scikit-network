@@ -326,7 +326,7 @@ class Spectral(BaseEmbedding):
             raise ValueError('The adjacency vector must be non-negative.')
 
         # regularization
-        reg_adjacency_vector = adjacency_vector.copy()
+        reg_adjacency_vector = adjacency_vector.astype(float)
         if self.regularization_:
             reg_adjacency_vector += self.regularization_
 
