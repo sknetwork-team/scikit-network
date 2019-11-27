@@ -15,7 +15,7 @@ class BaseClustering(Algorithm, ABC):
     def __init__(self):
         self.labels_ = None
 
-    def fit_transform(self, adjacency):
-        """Fit algorithm to the data and returns the labels."""
-        self.fit(adjacency)
+    def fit_transform(self, *args, **kwargs):
+        """Fit algorithm to the data and return the labels. Uses the same inputs as this class ``fit`` method."""
+        self.fit(*args, **kwargs)
         return self.labels_

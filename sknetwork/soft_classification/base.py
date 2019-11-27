@@ -16,6 +16,7 @@ class BaseSoftClassifier(Algorithm, ABC):
         self.membership_ = None
 
     def fit_transform(self, *args, **kwargs):
-        """Fit algorithm to the data and returns the membership matrix."""
+        """Fit algorithm to the data and return the membership matrix.
+        Uses the same inputs as this class ``fit`` method."""
         self.fit(*args, **kwargs)
         return self.membership_
