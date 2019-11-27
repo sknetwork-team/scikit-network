@@ -19,6 +19,7 @@ Welcome to scikit-network's documentation!
    tutorials/hierarchy/index
    tutorials/embedding/index
    tutorials/ranking/index
+   tutorials/classification/index
    tutorials/data/index
 
 .. toctree::
