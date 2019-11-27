@@ -16,6 +16,7 @@ class BaseRanking(Algorithm, ABC):
         self.scores_ = None
 
     def fit_transform(self, *args, **kwargs):
-        """Fit algorithm to the data and returns the score of each node."""
+        """Fit algorithm to the data and return the score of each node.
+        Uses the same inputs as this class ``fit`` method."""
         self.fit(*args, **kwargs)
         return self.scores_
