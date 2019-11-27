@@ -5,10 +5,11 @@
 import unittest
 
 import numpy as np
+from scipy import sparse
 
 from sknetwork.basics.structure import largest_connected_component, is_bipartite
 from sknetwork.data import star_wars_villains, rock_paper_scissors
-from sknetwork.utils.adjacency_formats import bipartite2undirected
+from sknetwork.utils.adjacency_formats import bipartite2undirected, directed2undirected
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -35,3 +36,19 @@ class TestStructure(unittest.TestCase):
         bipartite, biadjacency = is_bipartite(self.undirected_bipartite, return_biadjacency=True)
         self.assertEqual(bipartite, True)
         self.assertEqual(np.all(biadjacency.data == self.biadjacency.data), True)
+        bipartite = is_bipartite(self.undirected_bipartite)
+        self.assertEqual(bipartite, True)
+
+        self.not_bipartite = sparse.identity(2, format='csr')
+        bipartite, biadjacency = is_bipartite(self.not_bipartite, return_biadjacency=True)
+        self.assertEqual(bipartite, False)
+        self.assertIsNone(biadjacency)
+        bipartite = is_bipartite(self.not_bipartite)
+        self.assertEqual(bipartite, False)
+
+        self.not_bipartite = directed2undirected(rock_paper_scissors())
+        bipartite, biadjacency = is_bipartite(self.not_bipartite, return_biadjacency=True)
+        self.assertEqual(bipartite, False)
+        self.assertIsNone(biadjacency)
+        bipartite = is_bipartite(self.not_bipartite)
+        self.assertEqual(bipartite, False)
