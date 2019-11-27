@@ -100,7 +100,7 @@ def simple_bipartite_graph():
     return biadjacency
 
 
-def karate_club(return_labels_true: bool = False) -> Union[Tuple[sparse.csr_matrix, np.ndarray], sparse.csr_matrix]:
+def karate_club(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, np.ndarray], sparse.csr_matrix]:
     """
     Zachary's Karate Club Graph
 
@@ -108,8 +108,8 @@ def karate_club(return_labels_true: bool = False) -> Union[Tuple[sparse.csr_matr
 
     Parameters
     ----------
-    return_labels_true: bool
-        If True, returns the ground truth for the node clustering.
+    return_labels:
+        If ``True``, returns the ground-truth labels (subgroup of the Karate Club).
     Returns
     -------
     adjacency: sparse.csr_matrix
@@ -130,7 +130,7 @@ def karate_club(return_labels_true: bool = False) -> Union[Tuple[sparse.csr_matr
          33, 33, 32, 33, 32, 33, 25, 27, 29, 32, 33, 25, 27, 31, 31, 29, 33,
          33, 31, 33, 32, 33, 32, 33, 32, 33, 33])
     adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(34, 34))
-    if return_labels_true:
+    if return_labels:
         labels = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                            0, 0, 0])
         return adjacency + adjacency.T, labels
@@ -154,12 +154,16 @@ def rock_paper_scissors():
     return sparse.csr_matrix(np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]]))
 
 
-def miserables(return_labels=False) -> Union[sparse.csr_matrix, Tuple[sparse.csr_matrix, dict]]:
+def miserables(return_labels: bool = False) -> Union[sparse.csr_matrix, Tuple[sparse.csr_matrix, dict]]:
     """
     Co-occurrence graph of the characters in Les Miserables (by Victor Hugo).
 
     77 nodes, 508 edges
 
+    Parameters
+    ----------
+    return_labels:
+        If ``True``, returns the names of the characters.
     Returns
     -------
     adjacency: sparse.csr_matrix
@@ -324,8 +328,8 @@ def star_wars_villains(return_labels: bool = False) -> Union[Tuple[sparse.csr_ma
 
     Parameters
     ----------
-    return_labels: bool
-        If True, returns the labels of the nodes as dictionaries.
+    return_labels:
+        If ``True``, returns the labels of the nodes.
 
     Returns
     -------
@@ -356,8 +360,8 @@ def movie_actor(return_labels: bool = False) -> Union[Tuple[sparse.csr_matrix, d
 
     Parameters
     ----------
-    return_labels: bool
-        If True, returns the labels of the nodes as dictionaries.
+    return_labels:
+        If ``True``, returns the titles of the movies and the names of the actors.
 
     Returns
     -------
@@ -440,8 +444,8 @@ def painters(return_labels: bool = False) -> Union[sparse.csr_matrix, Tuple[spar
 
     Parameters
     ----------
-    return_labels: bool
-        Whether to return the names of the nodes as a dictionary.
+    return_labels:
+        If ``True``, returns the names of painters.
 
     Returns
     -------
