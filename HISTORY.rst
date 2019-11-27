@@ -2,6 +2,17 @@
 History
 =======
 
+0.11.0 (2019-11-28)
+-------------------
+
+* sknetwork: new API for bipartite inputs
+* new module: Soft node classification
+* new module: Node classification
+* clustering: Spectral Clustering
+* ranking: new algorithms
+* utils: Feature-wise K-neighbors
+* hierarchy: Spectral Ward
+
 0.10.1 (2019-08-26)
 -------------------
 
