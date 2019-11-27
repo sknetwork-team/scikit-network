@@ -22,11 +22,11 @@ def has_nonnegative_entries(entry: Union[sparse.csr_matrix, np.ndarray]) -> bool
         return np.all(entry >= 0)
 
 
-def has_positive_entries(entry: Union[sparse.csr_matrix, np.ndarray]) -> bool:
+def has_positive_entries(entry: np.ndarray) -> bool:
     """Checks whether the array has positive entries.
     """
-    if type(entry) == sparse.csr_matrix:
-        return np.all(entry.data > 0)
+    if type(entry) != np.ndarray:
+        raise TypeError('Entry must be a dense NumPy array.')
     else:
         return np.all(entry > 0)
 
