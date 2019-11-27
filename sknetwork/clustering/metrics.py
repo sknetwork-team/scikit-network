@@ -25,17 +25,17 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
 
     The modularity of a clustering is
 
-    :math:`Q = \\sum_{i,j=1}^n\\left(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w_iw_j}{w^2}\\right)\\delta_{c_i,c_j}`
+    :math:`Q = \\sum_{i,j}\\left(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2}\\right)\\delta_{c_i,c_j}`
     for undirected graphs,
 
-    :math:`Q = \\sum_{i,j=1}^n\\left(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w^+_iw^-_j}{w^2}\\right)\\delta_{c_i,c_j}`
+    :math:`Q = \\sum_{i,j}\\left(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{d^+_id^-_j}{w^2}\\right)\\delta_{c_i,c_j}`
     for directed graphs,
 
     where
 
     :math:`A` is the adjacency matrix (size :math:`n\\times n)`,\n
-    :math:`w_i` is the weight of node :math:`i` (undirected graphs),\n
-    :math:`w^+_i, w^-_i` are the out-weight and in-weight of node :math:`i` (directed graphs),\n
+    :math:`d_i` is the weight of node :math:`i` (undirected graphs),\n
+    :math:`d^+_i, d^-_i` are the out-weight and in-weight of node :math:`i` (directed graphs),\n
     :math:`c_i` is the cluster of node :math:`i`,\n
     :math:`w = 1^TA1` is the total weight,\n
     :math:`\\delta` is the Kronecker symbol,\n
@@ -95,15 +95,14 @@ def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.n
 
     The bimodularity of a clustering is
 
-    :math:`Q = \\sum_{i=1}^{n_1}\\sum_{j=1}^{n_2}\\left(\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{w^1_iw^2_j}{w^2}\\right)
-    \\delta_{c^1_i,c^2_j}`
-    for bipartite graphs,
+    :math:`Q = \\sum_{i}\\sum_{j}\\left(\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{d_if_j}{w^2}\\right)
+    \\delta_{c_i,c_j}`
 
     where
 
     :math:`B` is the biadjacency matrix (size :math:`n_1\\times n_2)`,\n
-    :math:`w^1_i, w^2_j` are the weights of primary node :math:`i` and secondary node :math:`j` (bipartite graphs),\n
-    :math:`c^1_i, c^2_j` are the clusters of primary node :math:`i` and secondary node :math:`j` (bipartite graphs),\n
+    :math:`d_i, f_j` are the weights of sample node :math:`i` (row) and feature node :math:`j` (column),\n
+    :math:`c_i, c_j` are the clusters of sample node :math:`i` (row) and feature node :math:`j` (column),\n
     :math:`w = 1^TB1` is the total weight,\n
     :math:`\\delta` is the Kronecker symbol,\n
     :math:`\\gamma \\ge 0` is the resolution parameter.
@@ -160,7 +159,7 @@ def cocitation_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], label
     Computes the modularity of a clustering in the normalized cocitation graph.
     Does not require the explicit computation of the normalized cocitation adjacency matrix.
 
-    :math:`Q = \\sum_{i,j=1}^n\\left(\\dfrac{(AF^{-1}A^T)_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2}\\right)
+    :math:`Q = \\sum_{i,j}\\left(\\dfrac{(AF^{-1}A^T)_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2}\\right)
     \\delta_{c_i,c_j}`
 
     where
