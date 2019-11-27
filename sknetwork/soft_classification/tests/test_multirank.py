@@ -22,10 +22,8 @@ class TestMultiRank(unittest.TestCase):
         self.adj_dict_seeds = {0: 0, 1: 1}
 
         mr = MultiRank(sparse_output=False)
-        mr.fit(self.adjacency, self.adj_array_seeds)
-        membership1 = mr.membership_.copy()
-        mr.fit(self.adjacency, self.adj_dict_seeds)
-        membership2 = mr.membership_.copy()
+        membership1 = mr.fit_transform(self.adjacency, self.adj_array_seeds)
+        membership2 = mr.fit_transform(self.adjacency, self.adj_dict_seeds)
         self.assertTrue(np.allclose(membership1, membership2))
         self.assertEqual(membership2.shape, (self.adjacency.shape[0], 2))
 

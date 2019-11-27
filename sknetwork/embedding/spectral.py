@@ -42,9 +42,6 @@ class LaplacianOperator(LinearOperator):
 
         return prod
 
-    def _transpose(self):
-        return self
-
     def astype(self, dtype: Union[str, np.dtype]):
         """Change dtype of the object.
 

@@ -38,11 +38,6 @@ except (ImportError, DeprecationWarning) as error:
         if len(args) > 0:
             if callable(args[0]):
                 return args[0]
-        else:
-            def __wrapper__(func):
-                return func
-
-            return __wrapper__
 
 
     prange = range

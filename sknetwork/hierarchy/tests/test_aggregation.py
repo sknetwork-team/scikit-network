@@ -17,8 +17,7 @@ class TestMetrics(unittest.TestCase):
     def test_aggregation(self):
         self.adjacency = karate_club()
         paris = Paris()
-        paris.fit(self.adjacency)
-        self.dendrogram = paris.dendrogram_
+        self.dendrogram = paris.fit_transform(self.adjacency)
 
         n_clusters = 5
         dendrogram_, counts = aggregate_dendrogram(self.dendrogram, n_clusters, return_counts=True)

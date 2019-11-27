@@ -115,7 +115,7 @@ class TestEmbeddings(unittest.TestCase):
 
         # test if the embedding is centered
         # without regularization
-        spectral.regularization = None
+        spectral = Spectral(2, normalized_laplacian=False, scaling=None, solver='lanczos', regularization=0)
         spectral.fit(self.house)
         self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
 
@@ -123,6 +123,12 @@ class TestEmbeddings(unittest.TestCase):
         spectral.regularization = 0.1
         spectral.fit(self.house)
         self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
+
+    def test_spectral_divide_scaling(self):
+        spectral = Spectral(2, scaling='divide')
+        spectral.regularization = None
+        spectral.fit(self.house)
+        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0, 7)
 
     def test_predict(self):
         spectral = Spectral(4)
