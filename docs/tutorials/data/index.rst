@@ -1,8 +1,9 @@
 Data
-******
+****
 
 
 .. toctree::
 
-   parsing
-   loading
+    parsing
+    loading
+    knn
