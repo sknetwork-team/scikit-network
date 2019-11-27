@@ -151,5 +151,3 @@ class TestEmbeddings(unittest.TestCase):
         svd = BiSpectral(2, scaling='barycenter')
         svd.fit(self.biadjacency)
         self.assertTrue(has_proper_shape(self.biadjacency, svd))
-
-
