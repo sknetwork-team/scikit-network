@@ -21,6 +21,7 @@ class TestSolvers(unittest.TestCase):
 
     def setUp(self):
         self.adjacency = miserables()
+        self.random_state = np.random.RandomState(123)
         n = self.adjacency.shape[0]
         x = np.random.random(n)
         self.slr = SparseLR(self.adjacency, [(x, x)])
@@ -42,7 +43,7 @@ class TestSolvers(unittest.TestCase):
         self.assertAlmostEqual(eigenvector_err(karate, solver.eigenvectors_, solver.eigenvalues_), 0)
 
     def test_halko(self):
-        solver = HalkoEig('LM')
+        solver = HalkoEig('LM', random_state=self.random_state)
         solver.fit(self.adjacency, 2)
         self.assertEqual(len(solver.eigenvalues_), 2)
         self.assertAlmostEqual(eigenvector_err(self.adjacency, solver.eigenvectors_, solver.eigenvalues_), 0)
@@ -51,14 +52,14 @@ class TestSolvers(unittest.TestCase):
         self.assertEqual(len(solver.eigenvalues_), 2)
         self.assertAlmostEqual(eigenvector_err(self.slr, solver.eigenvectors_, solver.eigenvalues_), 0)
 
-        solver = HalkoEig('SM')
+        solver = HalkoEig('SM', random_state=self.random_state)
         solver.fit(self.adjacency, 2)
         self.assertEqual(len(solver.eigenvalues_), 2)
         # self.assertAlmostEqual(eigenvector_err(self.adjacency, solver.eigenvectors_, solver.eigenvalues_), 0)
 
     def test_compare_solvers(self):
         lanczos = LanczosEig('LM')
-        halko = HalkoEig('LM')
+        halko = HalkoEig('LM', random_state=self.random_state)
 
         lanczos.fit(self.adjacency, 2)
         halko.fit(self.adjacency, 2)
