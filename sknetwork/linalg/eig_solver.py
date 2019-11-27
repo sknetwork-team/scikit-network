@@ -15,6 +15,7 @@ from scipy.sparse.linalg import eigsh
 from sknetwork.linalg.randomized_matrix_factorization import randomized_eig
 from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.utils.base import Algorithm
+from sknetwork.utils.checks import check_random_state
 
 
 class EigSolver(Algorithm):
@@ -137,7 +138,7 @@ class HalkoEig(EigSolver):
         See :meth:`randomized_range_finder`
     power_iteration_normalizer: ``'auto'`` (default), ``'QR'``, ``'LU'``, ``None``
         See :meth:`randomized_range_finder`
-    random_state: int, RandomState instance or None, optional (default=None)
+    random_state: Optional[Union[int, RandomState]], optional
         See :meth:`randomized_range_finder`
     one_pass: bool (default=False)
         whether to use algorithm 5.6 instead of 5.3. 5.6 requires less access to the original matrix,
@@ -151,7 +152,7 @@ class HalkoEig(EigSolver):
         self.n_oversamples = n_oversamples
         self.n_iter = n_iter
         self.power_iteration_normalizer = power_iteration_normalizer
-        self.random_state = random_state
+        self.random_state = check_random_state(random_state)
         self.one_pass = one_pass
 
     def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator, SparseLR], n_components: int):
