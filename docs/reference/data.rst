@@ -3,7 +3,7 @@
 Data
 ####
 
-Sources and tools for importing synthetic and real-world data.
+Sources and tools for importing synthetic and real data.
 
 Toy graphs
 **********
