@@ -4,7 +4,7 @@
 
 __author__ = """scikit-network team"""
 __email__ = "bonald@enst.fr"
-__version__ = '0.10.1'
+__version__ = '0.11.0'
 
 import os
 import warnings
