@@ -4,22 +4,24 @@
 
 import unittest
 
-from sknetwork.toy_graphs import star_wars_villains, rock_paper_scissors, house
+from sknetwork.data import star_wars_villains, rock_paper_scissors, house
 from sknetwork.utils.adjacency_formats import *
 from sknetwork.utils.checks import is_symmetric
 
 
+# noinspection PyMissingOrEmptyDocstring
 class TestFormats(unittest.TestCase):
 
     def setUp(self):
-        self.adjacency = rock_paper_scissors()
         self.biadjacency = star_wars_villains(return_labels=False)
-        self.house = house()
 
     def test_dir2undir(self):
+        self.adjacency = rock_paper_scissors()
         undirected_graph = directed2undirected(self.adjacency)
         self.assertEqual(undirected_graph.shape, self.adjacency.shape)
         self.assertTrue(is_symmetric(undirected_graph))
+
+        self.house = house()
         error = 0.5 * directed2undirected(self.house) - self.house
         self.assertEqual(error.nnz, 0)
 

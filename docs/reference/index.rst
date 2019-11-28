@@ -10,8 +10,9 @@ Reference
     hierarchy
     embedding
     ranking
+    classification
+    soft_classification
     linalg
     basics
-    loader
-    toy_graphs
+    data
     utils

@@ -9,25 +9,21 @@ This module contains graph embedding algorithms.
 
 The attribute ``.embedding_`` assigns a vector to each node of the graph.
 
-
 Spectral
 --------
-.. automodule:: sknetwork.embedding
 
 .. autoclass:: sknetwork.embedding.Spectral
+    :inherited-members:
     :members:
 
-SVD
----
+BiSpectral
+----------
 
-.. autoclass:: sknetwork.embedding.SVD
+.. autoclass:: sknetwork.embedding.BiSpectral
+    :inherited-members:
     :members:
 
 Metrics
 -------
-.. autofunction:: sknetwork.embedding.dot_modularity
-
-.. autofunction:: sknetwork.embedding.hscore
-
-
+.. autofunction:: sknetwork.embedding.cosine_modularity
 

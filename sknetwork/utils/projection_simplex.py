@@ -36,10 +36,9 @@ def projection_simplex(array: np.ndarray, scale: float = 1) -> np.ndarray:
     References
     ----------
     Duchi, J., Shalev-Shwartz, S., Singer, Y., & Chandra, T. (2008, July).
-    Efficient projections onto the l 1-ball for learning in high dimensions.
+    `Efficient projections onto the l 1-ball for learning in high dimensions.
+    <http://machinelearning.org/archive/icml2008/papers/361.pdf>`_
     In Proceedings of the 25th international conference on Machine learning (pp. 272-279). ACM.
-    http://machinelearning.org/archive/icml2008/papers/361.pdf
-
     """
     if len(array.shape) == 1:
         array = array.reshape(1, array.shape[0])

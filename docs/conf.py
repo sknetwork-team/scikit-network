@@ -59,6 +59,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'scikit-network'
+# noinspection PyShadowingBuiltins
 copyright = u"2019, scikit-network"
 author = u"scikit-network team"
 
@@ -176,3 +177,11 @@ texinfo_documents = [
 
 def setup(app):
     app.add_stylesheet('css/custom.css')
+
+
+nbsphinx_execute = 'always'
+nbsphinx_kernel_name = 'python3'
+nbsphinx_execute_arguments = [
+    "--InlineBackend.figure_formats={'svg', 'pdf'}",
+    "--InlineBackend.rc={'figure.dpi': 96}",
+]

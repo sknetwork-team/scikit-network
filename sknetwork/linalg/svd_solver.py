@@ -12,9 +12,9 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import svds
 
-from sknetwork.linalg import SparseLR
 from sknetwork.linalg.randomized_matrix_factorization import randomized_svd
-from sknetwork.utils.algorithm_base_class import Algorithm
+from sknetwork.linalg.sparse_lowrank import SparseLR
+from sknetwork.utils.base import Algorithm
 
 
 class SVDSolver(Algorithm):

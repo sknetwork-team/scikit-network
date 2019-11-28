@@ -36,3 +36,8 @@ Randomized methods
 .. autofunction:: sknetwork.linalg.randomized_svd
 
 .. autofunction:: sknetwork.linalg.randomized_eig
+
+Miscellaneous
+-------------
+
+.. autofunction:: sknetwork.linalg.diag_pinv

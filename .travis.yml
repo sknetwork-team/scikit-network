@@ -3,8 +3,14 @@ language: python
 python:
 - 3.7
 - 3.6
-install: pip install -U tox-travis
-script: tox
+install:
+  - pip install -U tox-travis
+  - pip install coverage
+env:
+  - SKNETWORK_DISABLE_NUMBA=false
+  - SKNETWORK_DISABLE_NUMBA=true
+script:
+  - tox
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
@@ -15,3 +21,5 @@ deploy:
     tags: true
     repo: sknetwork-team/scikit-network
     python: 3.6
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

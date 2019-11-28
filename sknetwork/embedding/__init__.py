@@ -1,3 +1,4 @@
-from sknetwork.embedding.metrics import linear_fit, dot_modularity, hscore
+from sknetwork.embedding.base import BaseEmbedding
+from sknetwork.embedding.bispectral import BiSpectral
+from sknetwork.embedding.metrics import cosine_modularity
 from sknetwork.embedding.spectral import Spectral
-from sknetwork.embedding.svd import SVD

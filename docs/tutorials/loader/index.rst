@@ -1,7 +1,0 @@
-Loader
-******
-
-
-.. toctree::
-
-   parser

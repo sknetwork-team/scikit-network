@@ -13,9 +13,9 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork import njit, types, TypedDict
-from sknetwork.utils.adjacency_formats import set_adjacency_weights
-from sknetwork.utils.algorithm_base_class import Algorithm
-from sknetwork.utils.checks import check_engine, check_format
+from sknetwork.hierarchy.base import BaseHierarchy
+from sknetwork.utils.adjacency_formats import bipartite2undirected
+from sknetwork.utils.checks import check_engine, check_format, check_probs, is_square
 
 
 class AggregateGraph:
@@ -27,9 +27,9 @@ class AggregateGraph:
     adjacency :
         Adjacency matrix of the graph.
     out_weights :
-        Out-weights (summing to 1).
+        Out-weights (sums to 1).
     in_weights :
-        In-weights (summing to 1).
+        In-weights (sums to 1).
 
     Attributes
     ----------
@@ -40,21 +40,21 @@ class AggregateGraph:
     cluster_sizes : dict
         Dictionary of cluster sizes.
     cluster_out_weights : dict
-        Dictionary of cluster out-weights.
+        Dictionary of cluster out-weights (sums to 1).
     cluster_in_weights : dict
-        Dictionary of cluster in-weights.
+        Dictionary of cluster in-weights (sums to 1).
     """
 
     def __init__(self, adjacency: sparse.csr_matrix, out_weights: np.ndarray, in_weights: np.ndarray):
         n = adjacency.shape[0]
-        total_weight = adjacency.data.sum()
+        total_weight = adjacency.data.sum() / 2
 
         self.next_cluster = n
         self.neighbors = {}
         for node in range(n):
-            # normalize so that the total weight is equal to 1
+            # normalize so that the sum of edge weights is equal to 1
             # remove self-loops
-            self.neighbors[node] = {adjacency.indices[i]: 2 * adjacency.data[i] / total_weight for i in
+            self.neighbors[node] = {adjacency.indices[i]: adjacency.data[i] / total_weight for i in
                                     range(adjacency.indptr[node], adjacency.indptr[node + 1])
                                     if adjacency.indices[i] != node}
         self.cluster_sizes = {node: 1 for node in range(n)}
@@ -75,12 +75,15 @@ class AggregateGraph:
             Similarity.
         """
         sim = -float("inf")
-        den = self.cluster_out_weights[node1] * self.cluster_in_weights[node2] + self.cluster_out_weights[node2] * \
-            self.cluster_in_weights[node1]
+        a = self.cluster_out_weights[node1] * self.cluster_in_weights[node2]
+        b = self.cluster_out_weights[node2] * self.cluster_in_weights[node1]
+        den = a + b
+
         if den > 0:
             sim = 2 * self.neighbors[node1][node2] / den
         return sim
 
+    # noinspection DuplicatedCode
     def merge(self, node1: int, node2: int) -> 'AggregateGraph':
         """Merges two nodes.
 
@@ -131,7 +134,7 @@ def reorder_dendrogram(dendrogram: np.ndarray) -> np.ndarray:
     dendrogram: np.ndarray
         Reordered dendrogram.
     """
-    n_nodes = np.shape(dendrogram)[0] + 1
+    n_nodes = dendrogram.shape[0] + 1
     order = np.zeros((2, n_nodes - 1), float)
     order[0] = np.arange(n_nodes - 1)
     order[1] = np.array(dendrogram)[:, 2]
@@ -162,9 +165,10 @@ def ints2int(first: np.int32, second: np.int32):
     return (first << 32) | second
 
 
+# noinspection DuplicatedCode
 @njit
 def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.ndarray,
-             indices: np.ndarray, indptr: np.ndarray):
+             indices: np.ndarray, indptr: np.ndarray):  # pragma: no cover
     """
 
     Parameters
@@ -188,7 +192,7 @@ def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.n
         Dendrogram.
     """
     maxfloat = 1.7976931348623157e+308
-    total_weight = data.sum()
+    total_weight = data.sum() / 2
     next_cluster = n
     graph = TypedDict.empty(
         key_type=types.int64,
@@ -228,44 +232,46 @@ def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.n
             node = chain.pop()
             if neighbors[node][0] != -1:
                 max_sim = -maxfloat
-                nearest_neighbor = None
+                nrst_neighbor = None
                 for neighbor in neighbors[node]:
                     sim = 0
-                    den = cluster_out_weights[node] * cluster_in_weights[neighbor] + cluster_out_weights[neighbor] * \
-                        cluster_in_weights[node]
+                    a = cluster_out_weights[node] * cluster_in_weights[neighbor]
+                    b = cluster_out_weights[neighbor] * cluster_in_weights[node]
+                    den = a + b
                     if den > 0:
                         sim = 2 * graph[ints2int(node, neighbor)] / den
                     if sim > max_sim:
-                        nearest_neighbor = neighbor
+                        nrst_neighbor = neighbor
                         max_sim = sim
                     elif sim == max_sim:
-                        nearest_neighbor = min(neighbor, nearest_neighbor)
+                        nrst_neighbor = min(neighbor, nrst_neighbor)
                 if chain:
                     nearest_neighbor_last = chain.pop()
-                    if nearest_neighbor_last == nearest_neighbor:
-                        dendrogram.append([node, nearest_neighbor, 1. / max_sim,
+                    if nearest_neighbor_last == nrst_neighbor:
+                        dendrogram.append([node, nrst_neighbor, 1. / max_sim,
                                            cluster_sizes[node]
-                                           + cluster_sizes[nearest_neighbor]])
+                                           + cluster_sizes[nrst_neighbor]])
                         # merge
                         new_node = types.int32(next_cluster)
                         neighbors.append([types.int32(-1)])
-                        common_neighbors = set(neighbors[node]) & set(neighbors[nearest_neighbor]) - {types.int32(node),
-                                                                                                      types.int32(
-                                                                                                      nearest_neighbor)}
+                        common_neighbors = set(neighbors[node]) & set(neighbors[nrst_neighbor]) - {types.int32(node),
+                                                                                                   types.int32(
+                                                                                                   nrst_neighbor)}
                         for curr_node in common_neighbors:
                             graph[ints2int(new_node, curr_node)] = graph[ints2int(node, curr_node)] + graph[
-                                ints2int(nearest_neighbor, curr_node)]
+                                ints2int(nrst_neighbor, curr_node)]
                             graph[ints2int(curr_node, new_node)] = graph.pop(ints2int(curr_node, node)) + graph.pop(
-                                ints2int(curr_node, nearest_neighbor))
+                                ints2int(curr_node, nrst_neighbor))
                             if neighbors[new_node][0] != -1:
                                 neighbors[new_node].append(curr_node)
                             else:
                                 neighbors[new_node][0] = curr_node
                             neighbors[curr_node].append(new_node)
                             neighbors[curr_node].remove(node)
-                            neighbors[curr_node].remove(nearest_neighbor)
-                        node_neighbors = set(neighbors[node]) - set(neighbors[nearest_neighbor]) - {types.int32(
-                            nearest_neighbor)}
+                            neighbors[curr_node].remove(nrst_neighbor)
+                        node_neighbors = set(neighbors[node]) - set(neighbors[nrst_neighbor]) - {types.int32(
+                            nrst_neighbor
+                        )}
                         for curr_node in node_neighbors:
                             graph[ints2int(new_node, curr_node)] = graph[ints2int(node, curr_node)]
                             graph[ints2int(curr_node, new_node)] = graph.pop(ints2int(curr_node, node))
@@ -275,32 +281,33 @@ def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.n
                                 neighbors[new_node][0] = curr_node
                             neighbors[curr_node].append(new_node)
                             neighbors[curr_node].remove(node)
-                        nearest_neighbor_neighbors = set(neighbors[nearest_neighbor]) - set(neighbors[node]) - {
+                        nearest_neighbor_neighbors = set(neighbors[nrst_neighbor]) - set(neighbors[node]) - {
                             types.int32(node)}
                         for curr_node in nearest_neighbor_neighbors:
-                            graph[ints2int(new_node, curr_node)] = graph[ints2int(nearest_neighbor, curr_node)]
-                            graph[ints2int(curr_node, new_node)] = graph.pop(ints2int(curr_node, nearest_neighbor))
+                            graph[ints2int(new_node, curr_node)] = graph[ints2int(nrst_neighbor, curr_node)]
+                            graph[ints2int(curr_node, new_node)] = graph.pop(ints2int(curr_node, nrst_neighbor))
                             if neighbors[new_node][0] != -1:
                                 neighbors[new_node].append(curr_node)
                             else:
                                 neighbors[new_node][0] = curr_node
                             neighbors[curr_node].append(new_node)
-                            neighbors[curr_node].remove(nearest_neighbor)
+                            neighbors[curr_node].remove(nrst_neighbor)
                         neighbors[node] = [types.int32(-1)]
-                        neighbors[nearest_neighbor] = [types.int32(-1)]
-                        cluster_sizes[new_node] = cluster_sizes.pop(node) + cluster_sizes.pop(nearest_neighbor)
-                        cluster_out_weights[new_node] = cluster_out_weights.pop(node) + \
-                            cluster_out_weights.pop(nearest_neighbor)
-                        cluster_in_weights[new_node] = cluster_in_weights.pop(node) + \
-                            cluster_in_weights.pop(nearest_neighbor)
+                        neighbors[nrst_neighbor] = [types.int32(-1)]
+                        cluster_sizes[new_node] = cluster_sizes.pop(node) + cluster_sizes.pop(nrst_neighbor)
+
+                        tmp = cluster_out_weights.pop(node) + cluster_out_weights.pop(nrst_neighbor)
+                        cluster_out_weights[new_node] = tmp
+                        tmp = cluster_in_weights.pop(node) + cluster_in_weights.pop(nrst_neighbor)
+                        cluster_in_weights[new_node] = tmp
                         next_cluster += 1
                     else:
                         chain.append(nearest_neighbor_last)
                         chain.append(node)
-                        chain.append(nearest_neighbor)
+                        chain.append(nrst_neighbor)
                 else:
                     chain.append(node)
-                    chain.append(nearest_neighbor)
+                    chain.append(nrst_neighbor)
             else:
                 connected_components.append((node, cluster_sizes[node]))
                 del cluster_sizes[node]
@@ -314,7 +321,7 @@ def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.n
     return dendrogram
 
 
-class Paris(Algorithm):
+class Paris(BaseHierarchy):
     """
     Agglomerative clustering algorithm that performs greedy merge of nodes based on their similarity.
 
@@ -328,12 +335,6 @@ class Paris(Algorithm):
     weights :
             Weights of nodes.
             ``'degree'`` (default) or ``'uniform'``.
-    secondary_weights :
-        Weights of secondary nodes (for bipartite graphs).
-        ``None`` (default), ``'degree'`` or ``'uniform'``.
-        If ``None``, taken equal to weights.
-    force_undirected : bool (default= ``False``)
-        If ``True``, consider the graph as undirected.
     engine : str
         ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     reorder :
@@ -346,7 +347,7 @@ class Paris(Algorithm):
 
     Examples
     --------
-    >>> from sknetwork.toy_graphs import house
+    >>> from sknetwork.data import house
     >>> adjacency = house()
     >>> paris = Paris(engine='python')
     >>> paris.fit(adjacency).dendrogram_
@@ -357,7 +358,7 @@ class Paris(Algorithm):
 
     Notes
     -----
-    Each row of the dendrogram = :math:`i, j`, height, size of cluster :math:`i + j`.
+    Each row of the dendrogram = :math:`i, j`, distance, size of cluster :math:`i + j`.
 
 
     See Also
@@ -367,58 +368,46 @@ class Paris(Algorithm):
     References
     ----------
     T. Bonald, B. Charpentier, A. Galland, A. Hollocou (2018).
-    Hierarchical Graph Clustering using Node Pair Sampling.
+    `Hierarchical Graph Clustering using Node Pair Sampling.
+    <https://arxiv.org/abs/1806.01664>`_
     Workshop on Mining and Learning with Graphs.
-    https://arxiv.org/abs/1806.01664
-
     """
 
-    def __init__(self, engine: str = 'default', weights: str = 'degree', secondary_weights: Union[None, str] = None,
-                 force_undirected: bool = False, reorder: bool = True):
+    def __init__(self, engine: str = 'default', weights: str = 'degree', reorder: bool = True):
+        super(Paris, self).__init__()
+
         self.weights = weights
-        self.secondary_weights = secondary_weights
-        self.force_undirected = force_undirected
         self.engine = check_engine(engine)
         self.reorder = reorder
-        self.dendrogram_ = None
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], custom_weights: Union[None, np.ndarray] = None,
-            custom_secondary_weights: Union[None, np.ndarray] = None, force_biadjacency: bool = False) -> 'Paris':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Paris':
         """
         Agglomerative clustering using the nearest neighbor chain.
 
         Parameters
         ----------
         adjacency :
-            Adjacency or biadjacency matrix of the graph.
-        custom_weights :
-            Array of input dependent node weights.
-        custom_secondary_weights :
-            Array of input dependent weights of secondary nodes (for bipartite graphs).
-        force_biadjacency : bool (default= ``False``)
-            If ``True``, force the input matrix to be considered as a biadjacency matrix.
+            Adjacency matrix of the graph.
 
         Returns
         -------
-        self: :class: 'Paris'
+        self: :class:`Paris`
         """
         adjacency = check_format(adjacency)
-        if custom_weights:
-            weights = custom_weights
-        else:
-            weights = self.weights
-        if custom_secondary_weights:
-            secondary_weights = custom_secondary_weights
-        else:
-            secondary_weights = self.secondary_weights
-        adjacency, out_weights, in_weights = set_adjacency_weights(adjacency, weights, secondary_weights,
-                                                                   self.force_undirected, force_biadjacency)
+        if not is_square(adjacency):
+            raise ValueError('The adjacency matrix is not square. Use BiParis() instead.')
         n = adjacency.shape[0]
+        sym_adjacency = adjacency + adjacency.T
+
+        weights = self.weights
+        out_weights = check_probs(weights, adjacency)
+        in_weights = check_probs(weights, adjacency.T)
+
         if n <= 1:
             raise ValueError('The graph must contain at least two nodes.')
 
         if self.engine == 'python':
-            aggregate_graph = AggregateGraph(adjacency + adjacency.T, out_weights, in_weights)
+            aggregate_graph = AggregateGraph(sym_adjacency, out_weights, in_weights)
 
             connected_components = []
             dendrogram = []
@@ -475,7 +464,6 @@ class Paris(Algorithm):
         elif self.engine == 'numba':
 
             n = np.int32(adjacency.shape[0])
-            sym_adjacency = adjacency + adjacency.T
             indices, indptr, data = sym_adjacency.indices, sym_adjacency.indptr, sym_adjacency.data
 
             dendrogram = fit_core(n, out_weights, in_weights, data, indices, indptr)
@@ -488,3 +476,86 @@ class Paris(Algorithm):
 
         else:
             raise ValueError('Unknown engine.')
+
+
+class BiParis(Paris):
+    """
+    BiParis algorithm for the hierarchical co-clustering of bipartite graphs in Python (default) and Numba.
+
+    Returns a single dendrogram.
+    Nodes are indexed from 0 to n1 + n2 - 1 with (n1, n2) the shape of the biadjacency matrix.
+    The first n1 nodes correspond to the rows of the biadjacency matrix.
+
+    Parameters
+    ----------
+    weights :
+            Weights of nodes.
+            ``'degree'`` (default) or ``'uniform'``.
+    engine : str
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
+    reorder :
+            If True, reorder the dendrogram in increasing order of heights.
+
+    Attributes
+    ----------
+    dendrogram_ : numpy array of shape (total number of nodes - 1, 4)
+        Dendrogram.
+
+    Examples
+    --------
+    >>> from sknetwork.data import star_wars_villains
+    >>> biadjacency = star_wars_villains()
+    >>> biparis = BiParis(engine='python')
+    >>> biparis.fit(biadjacency).dendrogram_
+    array([[ 1.      ,  4.      ,  0.09375 ,  2.      ],
+           [ 3.      ,  5.      ,  0.125   ,  2.      ],
+           [ 6.      ,  0.      ,  0.1875  ,  2.      ],
+           [ 7.      ,  2.      ,  0.375   ,  3.      ],
+           [10.      ,  9.      ,  0.546875,  5.      ],
+           [11.      ,  8.      ,  0.75    ,  7.      ]])
+
+    Notes
+    -----
+    Each row of the dendrogram = :math:`i, j`, height, size of cluster :math:`i + j`.
+
+
+    See Also
+    --------
+    scipy.cluster.hierarchy.dendrogram
+
+    References
+    ----------
+    T. Bonald, B. Charpentier, A. Galland, A. Hollocou (2018).
+    `Hierarchical Graph Clustering using Node Pair Sampling.
+    <https://arxiv.org/abs/1806.01664>`_
+    Workshop on Mining and Learning with Graphs.
+    """
+
+    def __init__(self, engine: str = 'default', weights: str = 'degree', reorder: bool = True):
+        Paris.__init__(self, engine, weights, reorder)
+
+    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiParis':
+        """Applies the Paris algorithm to
+
+        :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`
+
+        where :math:`B` is the input treated as a biadjacency matrix.
+
+        Parameters
+        ----------
+        biadjacency:
+            Biadjacency matrix of the graph.
+
+        Returns
+        -------
+        self: :class:`BiParis`
+        """
+        paris = Paris(engine=self.engine, weights=self.weights, reorder=self.reorder)
+        biadjacency = check_format(biadjacency)
+
+        adjacency = bipartite2undirected(biadjacency)
+        paris.fit(adjacency)
+
+        self.dendrogram_ = paris.dendrogram_
+
+        return self

@@ -110,8 +110,6 @@ ENV/
 # Pypi
 /dist
 
-# datasets folder
-data/
 
 \.DS_Store
 

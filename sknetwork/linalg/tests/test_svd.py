@@ -8,14 +8,16 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.linalg import LanczosSVD, HalkoSVD, SparseLR
-from sknetwork.toy_graphs import movie_actor
+from sknetwork.data import movie_actor
 
 
+# noinspection PyMissingOrEmptyDocstring
 def svd_err(matrix, u, v, sigma):
     err = matrix.dot(v) - u * sigma
     return np.linalg.norm(err)
 
 
+# noinspection DuplicatedCode,PyMissingOrEmptyDocstring
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):
@@ -47,7 +49,7 @@ class TestSolvers(unittest.TestCase):
         self.assertAlmostEqual(svd_err(self.slr, solver.left_singular_vectors_, solver.right_singular_vectors_,
                                        solver.singular_values_), 0)
 
-    def compare_solvers(self):
+    def test_compare_solvers(self):
         lanczos = LanczosSVD()
         halko = HalkoSVD()
 

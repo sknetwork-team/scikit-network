@@ -12,18 +12,16 @@ from sknetwork.linalg.randomized_matrix_factorization import randomized_eig, ran
 
 class TestClusteringMetrics(unittest.TestCase):
 
-    def setUp(self):
-        self.sym_matrix = sparse.csr_matrix(np.array([[0, 1, 1, 1],
-                                                      [1, 0, 0, 0],
-                                                      [1, 0, 0, 1],
-                                                      [1, 0, 1, 0]]))
-
     def test_eig(self):
         eigenvalues, eigenvectors = randomized_eig(sparse.identity(5, format='csr'), 2)
         self.assertTrue(np.allclose(eigenvalues, np.array([1., 1.])))
         self.assertTrue(eigenvectors.shape == (5, 2))
 
     def test_svd(self):
+        self.sym_matrix = sparse.csr_matrix(np.array([[0, 1, 1, 1],
+                                                      [1, 0, 0, 0],
+                                                      [1, 0, 0, 1],
+                                                      [1, 0, 1, 0]]))
         left_singular_vectors, singular_values, _ = randomized_svd(sparse.identity(5, format='csr'), 2)
         self.assertTrue(np.allclose(singular_values, np.array([1., 1.])))
         self.assertTrue(left_singular_vectors.shape == (5, 2))

@@ -20,9 +20,18 @@ Any new node resulting from a merge takes the first available index (e.g., the f
 
 Paris
 -----
-.. automodule:: sknetwork.hierarchy
-
 .. autoclass:: sknetwork.hierarchy.Paris
+    :inherited-members:
+    :members:
+
+Spectral
+---------
+.. autoclass:: sknetwork.hierarchy.SpectralWard
+    :inherited-members:
+    :members:
+
+.. autoclass:: sknetwork.hierarchy.BiSpectralWard
+    :inherited-members:
     :members:
 
 
@@ -31,10 +40,14 @@ Cuts
 .. autofunction:: sknetwork.hierarchy.straight_cut
 
 
+Aggregation
+-----------
+.. autofunction:: sknetwork.hierarchy.aggregate_dendrogram
+
 
 Metrics
 -------
-.. autofunction:: sknetwork.hierarchy.dasgupta_cost
+.. autofunction:: sknetwork.hierarchy.dasgupta_score
 
 .. autofunction:: sknetwork.hierarchy.tree_sampling_divergence
 

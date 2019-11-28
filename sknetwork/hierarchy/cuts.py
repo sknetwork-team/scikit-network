@@ -28,7 +28,7 @@ def straight_cut(dendrogram: np.ndarray, n_clusters: int = 2, sorted_clusters: b
     labels : np.ndarray
         Cluster index of each node.
     """
-    n_nodes = np.shape(dendrogram)[0] + 1
+    n_nodes = dendrogram.shape[0] + 1
     if n_clusters < 1 or n_clusters > n_nodes:
         raise ValueError("The number of clusters must be between 1 and the number of nodes.")
 

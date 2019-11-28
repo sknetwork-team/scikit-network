@@ -24,13 +24,18 @@ all-pairs problem):
 +================+==============================+========================================+
 | Floyd-Warshall | :math:`O(n^3)`               | All-pairs shortest path problem only   |
 +----------------+------------------------------+----------------------------------------+
-|    Dijkstra    | :math:`O(n^2 \log n + m)`    | For use on graphs                      |
+|    Dijkstra    | :math:`O(n^2 \log n + nm)`   | For use on graphs                      |
 |                |                              | with positive weights only             |
 +----------------+------------------------------+----------------------------------------+
 |  Bellman-Ford  | :math:`O(nm)`                |                                        |
 +----------------+------------------------------+ For use on graphs without              |
-|    Johnson     | :math:`O(n^2 \log n + m)`    | negative-weight cycles only            |
+|    Johnson     | :math:`O(n^2 \log n + nm)`   | negative-weight cycles only            |
 +----------------+------------------------------+----------------------------------------+
+
+Random Walk
+-----------
+
+.. autofunction:: sknetwork.basics.transition_matrix
 
 
 Searches
@@ -44,6 +49,7 @@ Searches
 
 Structure
 ---------
+
 .. autofunction:: sknetwork.basics.is_connected
 
 .. autofunction:: sknetwork.basics.connected_components
@@ -51,6 +57,12 @@ Structure
 .. autofunction:: sknetwork.basics.largest_connected_component
 
 .. autofunction:: sknetwork.basics.is_bipartite
+
+
+Co-Neighborhood
+---------------
+
+.. autofunction:: sknetwork.basics.co_neighbors_graph
 
 
 .. _SciPy: https://docs.scipy.org/doc/scipy/reference/sparse.csgraph.html
