@@ -14,7 +14,10 @@ pin: True
 # default: empty, the default branch on GitHub
 branch: develop
 
-
+# update schedule
+# default: empty
+# allowed: "every day", "every week", ..
+schedule: "every day"
 
 # search for requirement files
 # default: True
