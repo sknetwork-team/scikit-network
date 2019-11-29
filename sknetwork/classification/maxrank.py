@@ -39,7 +39,7 @@ class MaxRank(BaseClassifier):
     >>> maxrank = MaxRank()
     >>> adjacency, labels_true = karate_club(return_labels=True)
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = maxrank.fit(adjacency, seeds).labels_
+    >>> labels_pred = maxrank.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.97
 

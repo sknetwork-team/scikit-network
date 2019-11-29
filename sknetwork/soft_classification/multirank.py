@@ -43,6 +43,16 @@ class MultiRank(BaseSoftClassifier):
         the k-th column of the membership corresponds to the k-th label in ascending order.
         The rows are normalized to sum to 1.
 
+    Example
+    -------
+    >>> from sknetwork.data import karate_club
+    >>> multirank = MultiRank()
+    >>> adjacency, labels_true = karate_club(return_labels=True)
+    >>> seeds = {0: labels_true[0], 33: labels_true[33]}
+    >>> membership_ = multirank.fit_transform(adjacency, seeds)
+    >>> membership_.shape
+    (34, 2)
+
     References
     ----------
     Lin, F., & Cohen, W. W. (2010, August). `Semi-supervised classification of network data using very few labels.
