@@ -25,9 +25,9 @@ class MultiRank(BaseSoftClassifier):
         Damping factor for personalized PageRank.
     solver:
         Which solver to use for PageRank.
-    rtol:
+    rel_tol:
         Relative tolerance parameter.
-        Values lower than rtol / n_nodes in each personalized PageRank are set to 0.
+        Values lower than rel_tol / n_nodes in each personalized PageRank are set to 0.
     sparse_output:
         If ``True``, returns the membership as a sparse CSR matrix.
         Otherwise, returns a dense ndarray.
@@ -51,13 +51,13 @@ class MultiRank(BaseSoftClassifier):
 
     """
 
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rtol: float = 1e-4,
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rel_tol: float = 1e-4,
                  sparse_output: bool = True, n_jobs: Optional[int] = None):
         super(MultiRank, self).__init__()
 
         self.damping_factor = damping_factor
         self.solver = solver
-        self.rtol = rtol
+        self.rel_tol = rel_tol
         self.sparse_output = sparse_output
         self.bipartite = False
         if n_jobs == -1:
@@ -123,7 +123,7 @@ class MultiRank(BaseSoftClassifier):
                 personalization[seeds == label] = 1.
                 membership[:, i] = pr.fit_transform(adjacency, personalization=personalization)[:n]
 
-        membership[membership <= self.rtol / n] = 0
+        membership[membership <= self.rel_tol / n] = 0
 
         norm = np.sum(membership, axis=1)
         membership[norm > 0] /= norm[norm > 0, np.newaxis]
@@ -141,7 +141,7 @@ class BiMultiRank(MultiRank):
     See :class:`sknetwork.ranking.BiPageRank`
     """
 
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rtol: float = 1e-4,
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rel_tol: float = 1e-4,
                  sparse_output: bool = True, n_jobs: Optional[int] = None):
-        MultiRank.__init__(self, damping_factor, solver, rtol, sparse_output, n_jobs)
+        MultiRank.__init__(self, damping_factor, solver, rel_tol, sparse_output, n_jobs)
         self.bipartite = True

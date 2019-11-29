@@ -26,7 +26,7 @@ class MaxRank(BaseClassifier):
         Which solver to use for PageRank.
     rtol:
         Relative tolerance parameter.
-        Values lower than rtol / n_nodes in each personalized PageRank are set to 0.
+        Values lower than rel_tol / n_nodes in each personalized PageRank are set to 0.
 
     Attributes
     ----------
