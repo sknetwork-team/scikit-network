@@ -56,7 +56,6 @@ class MaxRank(BaseClassifier):
         self.damping_factor = damping_factor
         self.solver = solver
         self.rtol = rtol
-        self.bipartite = False
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'MaxRank':
         """Compute personalized PageRank using each given label as a seed set.
@@ -75,7 +74,7 @@ class MaxRank(BaseClassifier):
         self: :class:`MaxRank`
 
         """
-        if self.bipartite:
+        if isinstance(self, BiMaxRank):
             multirank = BiMultiRank(self.damping_factor, self.solver, self.rtol, sparse_output=False)
         else:
             multirank = MultiRank(self.damping_factor, self.solver, self.rtol, sparse_output=False)
@@ -103,4 +102,3 @@ class BiMaxRank(MaxRank):
 
     def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rtol: float = 1e-4):
         MaxRank.__init__(self, damping_factor, solver, rtol)
-        self.bipartite = True

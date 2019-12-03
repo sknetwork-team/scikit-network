@@ -69,7 +69,6 @@ class MultiRank(BaseSoftClassifier):
         self.solver = solver
         self.rel_tol = rel_tol
         self.sparse_output = sparse_output
-        self.bipartite = False
         if n_jobs == -1:
             self.n_jobs = None
         elif n_jobs is None:
@@ -94,7 +93,7 @@ class MultiRank(BaseSoftClassifier):
         self: :class:`MultiRank`
 
         """
-        if self.bipartite:
+        if isinstance(self, BiMultiRank):
             pr = BiPageRank(self.damping_factor, self.solver)
         else:
             pr = PageRank(self.damping_factor, self.solver)
@@ -154,4 +153,3 @@ class BiMultiRank(MultiRank):
     def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rel_tol: float = 1e-4,
                  sparse_output: bool = True, n_jobs: Optional[int] = None):
         MultiRank.__init__(self, damping_factor, solver, rel_tol, sparse_output, n_jobs)
-        self.bipartite = True
