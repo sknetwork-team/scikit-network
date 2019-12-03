@@ -74,8 +74,8 @@ def get_vital_wikipedia(data_home: Optional[str] = None):
 
 def load_vital_wikipedia_links(data_home: Optional[str] = None, max_depth: int = 1, full_path: bool = True):
     """
-    Loads the hyperlinks of the Vital Wikipedia dataset. See https://graphs.telecom-paristech.fr/
-    Data returned in this order (depending on the selection): adjacency, biadjacency, titles, stems, categories.
+    Loads the hyperlinks of the `Vital Wikipedia
+    <https://graphs.telecom-paristech.fr/Home_page.html#vitalwiki-section>`_ dataset.
 
     Parameters
     ----------
@@ -109,8 +109,8 @@ def load_vital_wikipedia_links(data_home: Optional[str] = None, max_depth: int =
 
 def load_vital_wikipedia_text(data_home: Optional[str] = None, max_depth: int = 1, full_path: bool = True):
     """
-    Loads the stems of the Vital Wikipedia dataset. See https://graphs.telecom-paristech.fr/
-    Data returned in this order (depending on the selection): adjacency, biadjacency, titles, stems, categories.
+    Loads the stems of the `Vital Wikipedia
+    <https://graphs.telecom-paristech.fr/Home_page.html#vitalwiki-section>`_ dataset.
 
     Parameters
     ----------
