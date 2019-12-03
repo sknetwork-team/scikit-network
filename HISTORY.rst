@@ -2,6 +2,11 @@
 History
 =======
 
+Next version
+------------
+
+* Added VerboseMixin for verbosity features
+
 0.11.0 (2019-11-28)
 -------------------
 
