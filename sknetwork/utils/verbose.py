@@ -19,6 +19,9 @@ class Log:
             print(*args)
         self.log += ' '.join(map(str, args)) + '\n'
 
+    def __str__(self):
+        return self.log
+
 
 class VerboseMixin:
     """
