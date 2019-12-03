@@ -19,7 +19,7 @@ class Log:
             print(*args)
         self.log += ' '.join(map(str, args)) + '\n'
 
-    def __str__(self):
+    def __repr__(self):
         return self.log
 
 
