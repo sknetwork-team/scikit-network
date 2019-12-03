@@ -89,8 +89,9 @@ def load_vital_wikipedia_links(data_home: Optional[str] = None, max_depth: int =
 
     Returns
     -------
-    data: 'Bunch'
+    data: :class:`Bunch`
         An object with the following attributes:
+
          * `adjacency`: the adjacency matrix of the hyperlink graph in CSR format
          * `names`: the titles of the articles
          * `target_names`: the categories of the articles as specified with `max_depth` and `full_path`
@@ -124,13 +125,15 @@ def load_vital_wikipedia_text(data_home: Optional[str] = None, max_depth: int = 
 
     Returns
     -------
-    data: 'Bunch'
+    data: :class:`Bunch`
         An object with the following attributes:
+
          * `biadjacency`: the biadjacency matrix of the stems in CSR format
          * `feature_names`: the array of the stems
          * `names`: the titles of the articles
          * `target_names`: the categories of the articles as specified with `max_depth` and `full_path`
          * `target`: the index for `target_names`
+
     """
     data_path = get_vital_wikipedia(data_home)
 

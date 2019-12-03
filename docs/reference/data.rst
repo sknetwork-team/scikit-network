@@ -72,9 +72,10 @@ Parsing
 *******
 
 Some graph databases:
-- Konect_
-- NetRep_
-- Telegraphs_
+
+ - Konect_
+ - NetRep_
+ - Telegraphs_
 
 .. currentmodule:: sknetwork
 
