@@ -68,6 +68,8 @@ Loading
 
 .. autofunction:: sknetwork.data.load_vital_wikipedia_text
 
+.. autofunction:: sknetwork.data.load_konect_dataset
+
 Parsing
 *******
 
