@@ -64,9 +64,9 @@ Random graph models
 Loading
 *******
 
-.. autofunction:: sknetwork.data.load_vital_wikipedia_links
+.. autofunction:: sknetwork.data.load_wikilinks_dataset
 
-.. autofunction:: sknetwork.data.load_vital_wikipedia_text
+.. autofunction:: sknetwork.data.load_konect_dataset
 
 Parsing
 *******
