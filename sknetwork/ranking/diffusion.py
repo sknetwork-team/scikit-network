@@ -10,11 +10,11 @@ from typing import Union, Tuple
 
 import numpy as np
 from scipy import sparse
-from scipy.sparse.linalg import lsqr, spsolve
-
+from scipy.sparse.linalg import bicgstab
 from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.checks import check_format, is_square
+from sknetwork.utils.verbose import VerboseMixin
 
 
 def limit_conditions(personalization: Union[np.ndarray, dict], n: int) -> Tuple:
@@ -43,22 +43,26 @@ def limit_conditions(personalization: Union[np.ndarray, dict], n: int) -> Tuple:
         border[list(personalization.keys())] = 1
     elif type(personalization) == np.ndarray and len(personalization) == n:
         b = personalization
-        border = personalization.astype(bool)
+        border = (personalization != 0)
     else:
         raise ValueError('Personalization must be a dictionary or a vector'
                          ' of length equal to the number of nodes.')
 
-    return b, border
+    return b.astype(float), border.astype(bool)
 
 
-class Diffusion(BaseRanking):
+class Diffusion(BaseRanking, VerboseMixin):
     """
     Computes the temperature of each node, associated with the diffusion along the edges (heat equation).
 
     Parameters
     ----------
-    solver : str
-        Which solver to use: 'spsolve' or 'lsqr' (default).
+    verbose: bool
+        Verbose mode.
+    n_iter: int
+        If ``n_iter > 0``, the algorithm will emulate the diffusion for n_iter steps.
+        If ``n_iter <= 0``, the algorithm will use BIConjugate Gradient STABilized iteration
+        to solve the Dirichlet problem.
 
     Attributes
     ----------
@@ -68,21 +72,31 @@ class Diffusion(BaseRanking):
     Example
     -------
     >>> from sknetwork.data import house
-    >>> diffusion = Diffusion(solver='spsolve')
+    >>> diffusion = Diffusion()
     >>> adjacency = house()
-    >>> personalization = {0: 0, 1: 1}
-    >>> np.round(diffusion.fit(adjacency, personalization).scores_, 2)
-    array([0.  , 1.  , 0.86, 0.71, 0.57])
+    >>> personalization = {4: -1, 1: 1}
+    >>> np.round(diffusion.fit_transform(adjacency, personalization), 2)
+    array([ 0.  ,  1.  ,  0.33, -0.33, -1.  ])
 
     References
     ----------
     Chung, F. (2007). The heat kernel as the pagerank of a graph. Proceedings of the National Academy of Sciences.
     """
 
-    def __init__(self, solver: str = 'lsqr'):
+    def __init__(self, verbose: bool = False, n_iter: int = 0):
         super(Diffusion, self).__init__()
+        VerboseMixin.__init__(self, verbose)
 
-        self.solver = solver
+        self.n_iter = n_iter
+
+    def bicgstab_verbosity(self, info: int):
+        """Fill log with scipy info."""
+        if info == 0:
+            self.log.print('Successful exit.')
+        elif info > 0:
+            self.log.print('Convergence to tolerance not achieved.')
+        else:
+            self.log.print('Illegal input or breakdown.')
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Union[dict, np.ndarray]) -> 'Diffusion':
@@ -106,29 +120,27 @@ class Diffusion(BaseRanking):
             raise ValueError('The adjacency matrix should be square. See BiDiffusion.')
 
         b, border = limit_conditions(personalization, n)
-        interior: sparse.csr_matrix = sparse.diags(1 - border, shape=(n, n), format='csr')
+        interior: sparse.csr_matrix = sparse.diags(~border, shape=(n, n), format='csr', dtype=float)
         diffusion_matrix = interior.dot(transition_matrix(adjacency))
 
-        a = sparse.eye(n, format='csr') - diffusion_matrix
-        if self.solver == 'spsolve':
-            scores = spsolve(a, b)
-        elif self.solver == 'lsqr':
-            scores = lsqr(a, b)[0]
-        else:
-            raise ValueError('Unknown solver.')
-        self.scores_ = np.clip(scores, np.min(b), np.max(b))
+        if self.n_iter > 0:
+            scores = b.copy()
+            for i in range(self.n_iter):
+                scores = diffusion_matrix.dot(scores)
+                scores[border] = b[border]
 
+        else:
+            a = sparse.eye(n, format='csr', dtype=float) - diffusion_matrix
+            scores, info = bicgstab(a, b, atol=0.)
+            self.bicgstab_verbosity(info)
+
+        self.scores_ = np.clip(scores, np.min(b), np.max(b))
         return self
 
 
 class BiDiffusion(Diffusion):
     """Compute the temperature of each node of a bipartite graph,
     associated with the diffusion along the edges (heat equation).
-
-    Parameters
-    ----------
-    solver : str
-        Which solver to use: 'spsolve' or 'lsqr' (default).
 
     Attributes
     ----------
@@ -150,12 +162,11 @@ class BiDiffusion(Diffusion):
     7
     """
 
-    def __init__(self, solver: str = 'lsqr'):
-        Diffusion.__init__(self, solver)
+    def __init__(self, verbose: bool = False, n_iter: int = 0):
+        super(BiDiffusion, self).__init__(verbose, n_iter)
 
         self.row_scores_ = None
         self.col_scores_ = None
-        self.scores_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Union[dict, np.ndarray]) -> 'BiDiffusion':
@@ -181,40 +192,50 @@ class BiDiffusion(Diffusion):
         backward: sparse.csr_matrix = interior.dot(transition_matrix(biadjacency))
         forward: sparse.csr_matrix = transition_matrix(biadjacency.T)
 
-        def mv(x: np.ndarray) -> np.ndarray:
-            """Matrix vector multiplication for BiDiffusion operator.
+        if self.n_iter > 0:
+            scores = b.copy()
+            for i in range(self.n_iter):
+                scores = backward.dot(forward.dot(scores))
+                scores[border] = b[border]
 
-            Parameters
-            ----------
-            x:
-                vector
+        else:
 
-            Returns
-            -------
-            matrix-vector product
+            def mv(x: np.ndarray) -> np.ndarray:
+                """Matrix vector multiplication for BiDiffusion operator.
 
-            """
-            return x - backward.dot(forward.dot(x))
+                Parameters
+                ----------
+                x:
+                    vector
 
-        def rmv(x: np.ndarray) -> np.ndarray:
-            """Matrix vector multiplication for transposed BiDiffusion operator.
+                Returns
+                -------
+                matrix-vector product
 
-            Parameters
-            ----------
-            x:
-                vector
+                """
+                return x - backward.dot(forward.dot(x))
 
-            Returns
-            -------
-            matrix-vector product
+            def rmv(x: np.ndarray) -> np.ndarray:
+                """Matrix vector multiplication for transposed BiDiffusion operator.
 
-            """
-            return x - forward.T.dot(backward.T.dot(x))
+                Parameters
+                ----------
+                x:
+                    vector
 
-        # noinspection PyArgumentList
-        a = sparse.linalg.LinearOperator(dtype=float, shape=(n1, n1), matvec=mv, rmatvec=rmv)
-        # noinspection PyTypeChecker
-        scores = lsqr(a, b)[0]
+                Returns
+                -------
+                matrix-vector product
+
+                """
+                return x - forward.T.dot(backward.T.dot(x))
+
+            # noinspection PyArgumentList
+            a = sparse.linalg.LinearOperator(dtype=float, shape=(n1, n1), matvec=mv, rmatvec=rmv)
+            # noinspection PyTypeChecker
+            scores, info = bicgstab(a, b, atol=0.)
+            self.bicgstab_verbosity(info)
+
         self.row_scores_ = np.clip(scores, np.min(b), np.max(b))
         self.col_scores_ = transition_matrix(biadjacency.T).dot(self.row_scores_)
         self.scores_ = np.concatenate((self.row_scores_, self.col_scores_))
