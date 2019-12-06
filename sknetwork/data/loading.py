@@ -12,6 +12,7 @@ import zipfile
 from os import environ, makedirs, remove, listdir
 from os.path import exists, expanduser, join
 from typing import Optional
+from urllib.error import HTTPError
 from urllib.request import urlretrieve
 
 import numpy as np
@@ -52,99 +53,65 @@ def clear_data_home(data_home: Optional[str] = None):
     shutil.rmtree(data_home)
 
 
-def get_vital_wikipedia(data_home: Optional[str] = None):
+def load_wikilinks_dataset(dataset_name: str, data_home: Optional[str] = None,
+                           max_depth: int = 1, full_path: bool = True):
     """
-    Downloads the Vital Wikipedia dataset if needed.
+    Loads the stems of the `Vital Wikipedia
+    <https://graphs.telecom-paristech.fr/Home_page.html#wikilinks-section>`_ dataset.
 
     Parameters
     ----------
+    dataset_name: str
+        The name of the dataset (no capital letters, all spaces replaced with underscores)
     data_home: str
         The folder to be used for dataset storage
+    max_depth: int
+        Denotes the maximum depth to use for the categories (if relevant)
+    full_path: bool
+        Denotes if only the deepest label possible should be returned or if all super categories should
+        be considered (if relevant)
+
+    Returns
+    -------
+    data: :class:`Bunch`
+        An object with some of the following attributes (depending on the dataset):
+
+         * `adjacency`: the adjacency matrix of the graph in CSR format
+         * `biadjacency`: the biadjacency matrix of the graph in CSR format
+         * `feature_names`: the array of the names for the features
+         * `names`: the titles of the articles
+         * `target_names`: the categories of the articles as specified with `max_depth` and `full_path`
+         * `target`: the index for `target_names`
+
     """
     if data_home is None:
         data_home = get_data_home()
-    data_path = data_home + '/vital_wikipedia'
+    data_path = data_home + '/' + dataset_name + '/'
     if not exists(data_path):
         makedirs(data_path, exist_ok=True)
-        urlretrieve("https://graphs.telecom-paristech.fr/datasets/vital_wikipedia.zip",
-                    data_home + '/vital_wikipedia.zip')
-        with zipfile.ZipFile(data_home + '/vital_wikipedia.zip', 'r') as zip_ref:
-            zip_ref.extractall(data_home)
-        remove(data_home + '/vital_wikipedia.zip')
-    return data_path
-
-
-def load_vital_wikipedia_links(data_home: Optional[str] = None, max_depth: int = 1, full_path: bool = True):
-    """
-    Loads the hyperlinks of the `Vital Wikipedia
-    <https://graphs.telecom-paristech.fr/Home_page.html#vitalwiki-section>`_ dataset.
-
-    Parameters
-    ----------
-    data_home: str
-        The folder to be used for dataset storage
-    max_depth: int
-        Denotes the maximum depth to use for the categories
-    full_path: bool
-        Denotes if only the deepest label possible should be returned or if all super categories should
-        be considered (default)
-
-    Returns
-    -------
-    data: :class:`Bunch`
-        An object with the following attributes:
-
-         * `adjacency`: the adjacency matrix of the hyperlink graph in CSR format
-         * `names`: the titles of the articles
-         * `target_names`: the categories of the articles as specified with `max_depth` and `full_path`
-         * `target`: the index for `target_names`
-    """
-    data_path = get_vital_wikipedia(data_home)
+        try:
+            urlretrieve("https://graphs.telecom-paristech.fr/datasets/" + dataset_name + '.tar.gz',
+                        data_home + '/' + dataset_name + '.tar.gz')
+        except HTTPError:
+            raise ValueError('Invalid dataset ' + dataset_name)
+        with tarfile.open(data_home + '/' + dataset_name + '.tar.gz', 'r:gz') as tar_ref:
+            tar_ref.extractall(data_home)
+        remove(data_home + '/' + dataset_name + '.tar.gz')
 
     data = Bunch()
-    data.adjacency = parse_tsv(data_path + '/en-internal-links.txt', directed=True, reindex=False)
-    data.names = parse_labels(data_path + '/en-articles.txt')
-    data.target_names = parse_hierarchical_labels(data_path + '/en-categories.txt', max_depth, full_path=full_path)
-    _, data.target = np.unique(data.target_names, return_inverse=True)
+    files = [file for file in listdir(data_path)]
 
-    return data
-
-
-def load_vital_wikipedia_text(data_home: Optional[str] = None, max_depth: int = 1, full_path: bool = True):
-    """
-    Loads the stems of the `Vital Wikipedia
-    <https://graphs.telecom-paristech.fr/Home_page.html#vitalwiki-section>`_ dataset.
-
-    Parameters
-    ----------
-    data_home: str
-        The folder to be used for dataset storage
-    max_depth: int
-        Denotes the maximum depth to use for the categories
-    full_path: bool
-        Denotes if only the deepest label possible should be returned or if all super categories should
-        be considered (default)
-
-    Returns
-    -------
-    data: :class:`Bunch`
-        An object with the following attributes:
-
-         * `biadjacency`: the biadjacency matrix of the stems in CSR format
-         * `feature_names`: the array of the stems
-         * `names`: the titles of the articles
-         * `target_names`: the categories of the articles as specified with `max_depth` and `full_path`
-         * `target`: the index for `target_names`
-
-    """
-    data_path = get_vital_wikipedia(data_home)
-
-    data = Bunch()
-    data.biadjacency = parse_tsv(data_path + '/en-articles-stems.txt', bipartite=True, reindex=False)
-    data.feature_names = parse_labels(data_path + '/en-stems.txt')
-    data.names = parse_labels(data_path + '/en-articles.txt')
-    data.target_names = parse_hierarchical_labels(data_path + '/en-categories.txt', max_depth, full_path=full_path)
-    _, data.target = np.unique(data.target_names, return_inverse=True)
+    if 'adjacency.txt' in files:
+        data.adjacency = parse_tsv(data_path + '/adjacency.txt', directed=True, reindex=False)
+    if 'biadjacency.txt' in files:
+        data.biadjacency = parse_tsv(data_path + '/biadjacency.txt', bipartite=True, reindex=False)
+    if 'names.txt' in files:
+        data.names = parse_labels(data_path + '/names.txt')
+    if 'feature_names.txt' in files:
+        data.feature_names = parse_labels(data_path + '/feature_names.txt')
+    if 'categories.txt' in files:
+        data.target_names = parse_hierarchical_labels(data_path + '/categories.txt', max_depth, full_path=full_path)
+        _, data.target = np.unique(data.target_names, return_inverse=True)
 
     return data
 
@@ -180,8 +147,8 @@ def load_konect_dataset(dataset_name: str, data_home: Optional[str] = None):
         try:
             urlretrieve('http://konect.uni-koblenz.de/downloads/tsv/' + dataset_name + '.tar.bz2',
                         data_home + '/' + dataset_name + '.tar.bz2')
-        except urllib.error.HTTPError:
-            raise ValueError('Invalid dataset.')
+        except HTTPError:
+            raise ValueError('Invalid dataset ' + dataset_name)
         with tarfile.open(data_home + '/' + dataset_name + '.tar.bz2', 'r:bz2') as tar_ref:
             tar_ref.extractall(data_home)
         remove(data_home + '/' + dataset_name + '.tar.bz2')
