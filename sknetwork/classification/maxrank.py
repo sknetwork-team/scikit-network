@@ -5,7 +5,7 @@ Created on Nov, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
-from typing import Union
+from typing import Union, Optional
 
 import numpy as np
 from scipy import sparse
@@ -24,9 +24,9 @@ class MaxRank(BaseClassifier):
         Damping factor for personalized PageRank.
     solver:
         Which solver to use for PageRank.
-    rtol:
-        Relative tolerance parameter.
-        Values lower than rel_tol / n_nodes in each personalized PageRank are set to 0.
+    n_jobs:
+        If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
+        If ``None``, no parallel computations are made.
 
     Attributes
     ----------
@@ -51,11 +51,11 @@ class MaxRank(BaseClassifier):
 
     """
 
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rtol: float = 1e-4):
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', n_jobs: Optional[int] = None):
         super(MaxRank, self).__init__()
         self.damping_factor = damping_factor
         self.solver = solver
-        self.rtol = rtol
+        self.n_jobs = n_jobs
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'MaxRank':
         """Compute personalized PageRank using each given label as a seed set.
@@ -75,9 +75,9 @@ class MaxRank(BaseClassifier):
 
         """
         if isinstance(self, BiMaxRank):
-            multirank = BiMultiRank(self.damping_factor, self.solver, self.rtol, sparse_output=False)
+            multirank = BiMultiRank(self.damping_factor, self.solver, self.n_jobs)
         else:
-            multirank = MultiRank(self.damping_factor, self.solver, self.rtol, sparse_output=False)
+            multirank = MultiRank(self.damping_factor, self.solver, self.n_jobs)
 
         if isinstance(seeds, np.ndarray):
             unique_labels = np.unique(seeds[seeds >= 0])
@@ -100,5 +100,5 @@ class BiMaxRank(MaxRank):
 
     """
 
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rtol: float = 1e-4):
-        MaxRank.__init__(self, damping_factor, solver, rtol)
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', n_jobs: Optional[int] = None):
+        MaxRank.__init__(self, damping_factor, solver, n_jobs)

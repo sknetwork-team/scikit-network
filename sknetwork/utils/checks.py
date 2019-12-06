@@ -184,3 +184,42 @@ def check_random_state(random_state: Optional[Union[np.random.RandomState, int]]
         return random_state
     else:
         raise TypeError('To specify a random state, pass the seed (as an int) or a NumPy random state object.')
+
+
+def check_seeds(seeds: Union[np.ndarray, dict], adjacency):
+    """Check the format of seeds for semi-supervised algorithms."""
+
+    n: int = adjacency.shape[0]
+    if isinstance(seeds, np.ndarray):
+        if seeds.shape[0] != n:
+            raise ValueError('Dimensions mismatch between adjacency and seeds vector.')
+    elif isinstance(seeds, dict):
+        tmp = -np.ones(n)
+        for key, val in seeds.items():
+            tmp[key] = val
+        seeds = tmp
+    else:
+        raise TypeError('"seeds" must be a dictionary or a one-dimensional array.')
+    return seeds
+
+
+def check_labels(labels: np.ndarray):
+    """Check labels of the seeds for semi-supervised algorithms."""
+
+    classes: np.ndarray = np.unique(labels[labels >= 0])
+    n_classes: int = len(classes)
+
+    if n_classes < 2:
+        raise ValueError('There must be at least two distinct labels.')
+    else:
+        return classes, n_classes
+
+
+def check_n_jobs(n_jobs: Optional[int] = None):
+    """Parse the ``n_jobs`` parameter for multiprocessing."""
+    if n_jobs == -1:
+        return None
+    elif n_jobs is None:
+        return 1
+    else:
+        return n_jobs

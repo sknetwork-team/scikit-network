@@ -20,7 +20,7 @@ class TestMaxRank(unittest.TestCase):
         adj_array_seeds[:2] = np.arange(2)
         self.adj_array_seeds = adj_array_seeds
         self.adj_dict_seeds = {0: 0, 1: 1}
-        mr = MaxRank()
+        mr = MaxRank(solver='lsqr')
         labels1 = mr.fit_transform(self.adjacency, self.adj_array_seeds)
         labels2 = mr.fit_transform(self.adjacency, self.adj_dict_seeds)
         self.assertTrue(np.allclose(labels1, labels2))
