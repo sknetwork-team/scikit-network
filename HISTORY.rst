@@ -6,6 +6,7 @@ Next version
 ------------
 
 * Added VerboseMixin for verbosity features
+* Added Loaders for WikiLinks & Konect databases
 
 0.11.0 (2019-11-28)
 -------------------
