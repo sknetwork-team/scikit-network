@@ -89,15 +89,6 @@ class Diffusion(BaseRanking, VerboseMixin):
 
         self.n_iter = n_iter
 
-    def bicgstab_verbosity(self, info: int):
-        """Fill log with scipy info."""
-        if info == 0:
-            self.log.print('Successful exit.')
-        elif info > 0:
-            self.log.print('Convergence to tolerance not achieved.')
-        else:
-            self.log.print('Illegal input or breakdown.')
-
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Union[dict, np.ndarray]) -> 'Diffusion':
         """
@@ -132,7 +123,7 @@ class Diffusion(BaseRanking, VerboseMixin):
         else:
             a = sparse.eye(n, format='csr', dtype=float) - diffusion_matrix
             scores, info = bicgstab(a, b, atol=0.)
-            self.bicgstab_verbosity(info)
+            self.scipy_solver_info(info)
 
         self.scores_ = np.clip(scores, np.min(b), np.max(b))
         return self
@@ -234,7 +225,7 @@ class BiDiffusion(Diffusion):
             a = sparse.linalg.LinearOperator(dtype=float, shape=(n1, n1), matvec=mv, rmatvec=rmv)
             # noinspection PyTypeChecker
             scores, info = bicgstab(a, b, atol=0.)
-            self.bicgstab_verbosity(info)
+            self.scipy_solver_info(info)
 
         self.row_scores_ = np.clip(scores, np.min(b), np.max(b))
         self.col_scores_ = transition_matrix(biadjacency.T).dot(self.row_scores_)

@@ -20,7 +20,7 @@ class TestPageRank(unittest.TestCase):
         ground_truth = np.ones(3) / 3
         self.adjacency = rock_paper_scissors()
 
-        self.pagerank_sps = PageRank(solver='spsolve')
+        self.pagerank_sps = PageRank(solver='bicgstab')
         self.pagerank_sps.fit(self.adjacency)
         scores = self.pagerank_sps.scores_
         self.assertAlmostEqual(np.linalg.norm(scores - ground_truth), 0.)
