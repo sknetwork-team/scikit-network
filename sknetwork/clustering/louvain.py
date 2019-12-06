@@ -439,7 +439,7 @@ class Louvain(BaseClustering, VerboseMixin):
         """
         adjacency = check_format(adjacency)
         if not is_square(adjacency):
-            raise ValueError('The adjacency is not square. Use BiLouvain() instead.')
+            raise ValueError('The adjacency matrix is not square. Use BiLouvain() instead.')
         n = adjacency.shape[0]
 
         out_weights = check_probs('degree', adjacency)
