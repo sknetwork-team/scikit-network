@@ -89,8 +89,7 @@ class MultiDiff(BaseSoftClassifier):
         n: int = adjacency.shape[0]
         personalizations = []
         for label in classes:
-            personalization = np.zeros(n)
-            personalization[seeds_labels == label] = 1.
+            personalization = np.array(seeds_labels == label).astype(int)
             ix = np.logical_and(seeds_labels != label, seeds_labels >= 0)
             personalization[ix] = -1
             personalizations.append(personalization)

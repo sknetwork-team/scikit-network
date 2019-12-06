@@ -91,8 +91,7 @@ class MultiRank(BaseSoftClassifier):
         n: int = adjacency.shape[0]
         personalizations = []
         for label in classes:
-            personalization = np.zeros(n)
-            personalization[seeds_labels == label] = 1.
+            personalization = np.array(seeds_labels == label).astype(int)
             personalizations.append(personalization)
 
         if self.n_jobs != 1:
