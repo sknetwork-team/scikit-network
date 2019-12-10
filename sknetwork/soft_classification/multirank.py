@@ -25,9 +25,9 @@ class MultiRank(BaseSoftClassifier):
         Damping factor for personalized PageRank.
     solver:
         Which solver to use for PageRank.
-    rtol:
+    rel_tol:
         Relative tolerance parameter.
-        Values lower than rtol / n_nodes in each personalized PageRank are set to 0.
+        Values lower than rel_tol / n_nodes in each personalized PageRank are set to 0.
     sparse_output:
         If ``True``, returns the membership as a sparse CSR matrix.
         Otherwise, returns a dense ndarray.
@@ -43,6 +43,16 @@ class MultiRank(BaseSoftClassifier):
         the k-th column of the membership corresponds to the k-th label in ascending order.
         The rows are normalized to sum to 1.
 
+    Example
+    -------
+    >>> from sknetwork.data import karate_club
+    >>> multirank = MultiRank()
+    >>> adjacency, labels_true = karate_club(return_labels=True)
+    >>> seeds = {0: labels_true[0], 33: labels_true[33]}
+    >>> membership_ = multirank.fit_transform(adjacency, seeds)
+    >>> membership_.shape
+    (34, 2)
+
     References
     ----------
     Lin, F., & Cohen, W. W. (2010, August). `Semi-supervised classification of network data using very few labels.
@@ -51,15 +61,14 @@ class MultiRank(BaseSoftClassifier):
 
     """
 
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rtol: float = 1e-4,
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rel_tol: float = 1e-4,
                  sparse_output: bool = True, n_jobs: Optional[int] = None):
         super(MultiRank, self).__init__()
 
         self.damping_factor = damping_factor
         self.solver = solver
-        self.rtol = rtol
+        self.rel_tol = rel_tol
         self.sparse_output = sparse_output
-        self.bipartite = False
         if n_jobs == -1:
             self.n_jobs = None
         elif n_jobs is None:
@@ -84,7 +93,7 @@ class MultiRank(BaseSoftClassifier):
         self: :class:`MultiRank`
 
         """
-        if self.bipartite:
+        if isinstance(self, BiMultiRank):
             pr = BiPageRank(self.damping_factor, self.solver)
         else:
             pr = PageRank(self.damping_factor, self.solver)
@@ -123,7 +132,7 @@ class MultiRank(BaseSoftClassifier):
                 personalization[seeds == label] = 1.
                 membership[:, i] = pr.fit_transform(adjacency, personalization=personalization)[:n]
 
-        membership[membership <= self.rtol / n] = 0
+        membership[membership <= self.rel_tol / n] = 0
 
         norm = np.sum(membership, axis=1)
         membership[norm > 0] /= norm[norm > 0, np.newaxis]
@@ -141,7 +150,6 @@ class BiMultiRank(MultiRank):
     See :class:`sknetwork.ranking.BiPageRank`
     """
 
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rtol: float = 1e-4,
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rel_tol: float = 1e-4,
                  sparse_output: bool = True, n_jobs: Optional[int] = None):
-        MultiRank.__init__(self, damping_factor, solver, rtol, sparse_output, n_jobs)
-        self.bipartite = True
+        MultiRank.__init__(self, damping_factor, solver, rel_tol, sparse_output, n_jobs)

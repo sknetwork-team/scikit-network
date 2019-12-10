@@ -18,6 +18,7 @@ from sknetwork.clustering.post_processing import membership_matrix, reindex_clus
 from sknetwork.utils.adjacency_formats import bipartite2directed, directed2undirected
 from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_format, check_engine, check_random_state, check_probs, is_square
+from sknetwork.utils.verbose import VerboseMixin
 
 
 class AggregateGraph:
@@ -334,7 +335,7 @@ class GreedyModularity(Optimizer):
             raise ValueError('Unknown engine.')
 
 
-class Louvain(BaseClustering):
+class Louvain(BaseClustering, VerboseMixin):
     """
     Louvain algorithm for undirected and directed graph clustering in Python (default) and Numba.
 
@@ -404,6 +405,7 @@ class Louvain(BaseClustering):
                  sorted_cluster: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
                  verbose: bool = False):
         super(Louvain, self).__init__()
+        VerboseMixin.__init__(self, verbose)
 
         self.random_state = check_random_state(random_state)
         if algorithm == 'default':
@@ -418,7 +420,6 @@ class Louvain(BaseClustering):
         self.max_agg_iter = max_agg_iter
         self.shuffle_nodes = shuffle_nodes
         self.sorted_cluster = sorted_cluster
-        self.verbose = verbose
 
         self.iteration_count_ = None
         self.aggregate_graph_ = None
@@ -438,7 +439,7 @@ class Louvain(BaseClustering):
         """
         adjacency = check_format(adjacency)
         if not is_square(adjacency):
-            raise ValueError('The adjacency is not square. Use BiLouvain() instead.')
+            raise ValueError('The adjacency matrix is not square. Use BiLouvain() instead.')
         n = adjacency.shape[0]
 
         out_weights = check_probs('degree', adjacency)
@@ -454,8 +455,7 @@ class Louvain(BaseClustering):
         membership = sparse.identity(n, format='csr')
         increase = True
         iteration_count = 0
-        if self.verbose:
-            print("Starting with", graph.n_nodes, "nodes.")
+        self.log.print("Starting with", graph.n_nodes, "nodes.")
         while increase:
             iteration_count += 1
 
@@ -470,9 +470,8 @@ class Louvain(BaseClustering):
 
                 if graph.n_nodes == 1:
                     break
-            if self.verbose:
-                print("Iteration", iteration_count, "completed with", graph.n_nodes, "clusters and ",
-                      self.algorithm.score_, "increment.")
+            self.log.print("Iteration", iteration_count, "completed with", graph.n_nodes, "clusters and ",
+                           self.algorithm.score_, "increment.")
             if iteration_count == self.max_agg_iter:
                 break
 
@@ -577,7 +576,7 @@ class BiLouvain(Louvain):
         """
         louvain = Louvain(algorithm=self.algorithm, agg_tol=self.agg_tol, max_agg_iter=self.max_agg_iter,
                           shuffle_nodes=self.shuffle_nodes, sorted_cluster=self.sorted_cluster,
-                          random_state=self.random_state, verbose=self.verbose)
+                          random_state=self.random_state, verbose=self.log.verbose)
         biadjacency = check_format(biadjacency)
         n1, _ = biadjacency.shape
 

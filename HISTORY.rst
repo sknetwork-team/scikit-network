@@ -2,6 +2,12 @@
 History
 =======
 
+0.12.0 (2019-12-10)
+-------------------
+
+* Added VerboseMixin for verbosity features
+* Added Loaders for WikiLinks & Konect databases
+
 0.11.0 (2019-11-28)
 -------------------
 

@@ -26,7 +26,7 @@ class MaxRank(BaseClassifier):
         Which solver to use for PageRank.
     rtol:
         Relative tolerance parameter.
-        Values lower than rtol / n_nodes in each personalized PageRank are set to 0.
+        Values lower than rel_tol / n_nodes in each personalized PageRank are set to 0.
 
     Attributes
     ----------
@@ -39,7 +39,7 @@ class MaxRank(BaseClassifier):
     >>> maxrank = MaxRank()
     >>> adjacency, labels_true = karate_club(return_labels=True)
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = maxrank.fit(adjacency, seeds).labels_
+    >>> labels_pred = maxrank.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.97
 
@@ -56,7 +56,6 @@ class MaxRank(BaseClassifier):
         self.damping_factor = damping_factor
         self.solver = solver
         self.rtol = rtol
-        self.bipartite = False
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'MaxRank':
         """Compute personalized PageRank using each given label as a seed set.
@@ -75,7 +74,7 @@ class MaxRank(BaseClassifier):
         self: :class:`MaxRank`
 
         """
-        if self.bipartite:
+        if isinstance(self, BiMaxRank):
             multirank = BiMultiRank(self.damping_factor, self.solver, self.rtol, sparse_output=False)
         else:
             multirank = MultiRank(self.damping_factor, self.solver, self.rtol, sparse_output=False)
@@ -103,4 +102,3 @@ class BiMaxRank(MaxRank):
 
     def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', rtol: float = 1e-4):
         MaxRank.__init__(self, damping_factor, solver, rtol)
-        self.bipartite = True

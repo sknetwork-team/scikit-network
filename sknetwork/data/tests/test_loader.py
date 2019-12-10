@@ -5,18 +5,23 @@
 import unittest
 import tempfile
 
-from sknetwork.data import load_vital_wikipedia, clear_data_home
+from sknetwork.data import load_wikilinks_dataset, load_konect_dataset, clear_data_home
 
 
 class TestLoader(unittest.TestCase):
 
-    def test_wiki_vital(self):
-        tmp_data_dir = tempfile.gettempdir() + '/vital_wikipedia'
+    def test_wikilinks(self):
+        tmp_data_dir = tempfile.gettempdir() + '/stub'
         clear_data_home(tmp_data_dir)
-        adjacency, _, _, _, _ = \
-            load_vital_wikipedia(return_labels=True, return_categories=True)
-        adjacency_bis, _ = load_vital_wikipedia(outputs='adjacency', return_titles=True)
-        adjacency_ter = load_vital_wikipedia(outputs='adjacency')
-        self.assertTrue((adjacency.data == adjacency_bis.data).all())
-        self.assertTrue((adjacency.data == adjacency_ter.data).all())
+        data = load_wikilinks_dataset('stub', tmp_data_dir)
+        self.assertEqual(data.biadjacency.shape[0], 1)
+        self.assertEqual(data.names.shape[0], 2)
+        clear_data_home(tmp_data_dir)
+
+    def test_konect(self):
+        tmp_data_dir = tempfile.gettempdir() + '/moreno_crime'
+        clear_data_home(tmp_data_dir)
+        data = load_konect_dataset('moreno_crime', tmp_data_dir)
+        self.assertEqual(data.biadjacency.shape[0], 829)
+        self.assertEqual(data.name.shape[0], 829)
         clear_data_home(tmp_data_dir)

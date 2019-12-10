@@ -6,14 +6,16 @@ Created on Dec 5, 2018
 """
 
 from csv import reader
-from typing import Tuple, Union
+from typing import Tuple, Union, Optional
 
 from numpy import zeros, unique, argmax, ones, concatenate, array, ndarray
 from scipy import sparse
 
+from sknetwork.utils import Bunch
 
-def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = None,
-              labeled: bool = None, comment: str = '%#', delimiter: str = None, reindex: bool = True)\
+
+def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
+              labeled: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True)\
                 -> Union[sparse.csr_matrix, Tuple[sparse.csr_matrix, dict], Tuple[sparse.csr_matrix, dict, dict]]:
     """
     A parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
@@ -26,9 +28,9 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         If False, considers the graph as undirected.
     bipartite : bool
         If True, returns a biadjacency matrix of shape (n, p).
-    weighted : Union[NoneType, bool]
+    weighted : Optional[bool]
         Retrieves the weights in the third field of the file. None makes a guess based on the first lines.
-    labeled : Union[NoneType, bool]
+    labeled : Optional[bool]
         Retrieves the names given to the nodes and renumbers them. Returns an additional array. None makes a guess
         based on the first lines.
     comment : str
@@ -64,6 +66,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
                     del_count[i] += 1
             lines.append(row.rstrip())
             row = f.readline()
+        lines = [line for line in lines if line != '']
         guess_delimiter = possible_delimiters[int(argmax(del_count))]
         guess_weighted = bool(min([line.count(guess_delimiter) for line in lines]) - 1)
         guess_labeled = not all([all([el.strip().isdigit() for el in line.split(guess_delimiter)][0:2]) for line
@@ -103,7 +106,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         if not weighted:
             dat = ones(n_edges, dtype=bool)
         biadjacency = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_feature_nodes))
-        if labeled:
+        if labeled or reindex:
             labels = {i: l for i, l in enumerate(labels)}
             feature_labels = {i: l for i, l in enumerate(feature_labels)}
             return biadjacency, labels, feature_labels
@@ -186,3 +189,26 @@ def parse_hierarchical_labels(file: str, depth: int, full_path: bool = True, del
             else:
                 rows.append(parts[:min(depth, len(parts))][-1])
     return array(rows)
+
+
+def parse_header(file: str):
+    directed, bipartite, weighted = False, False, True
+    with open(file) as f:
+        row = f.readline()
+        if 'bip' in row:
+            bipartite = True
+        if 'unweighted' in row:
+            weighted = False
+        if 'asym' in row:
+            directed = True
+    return directed, bipartite, weighted
+
+
+def parse_metadata(file: str, delimiter: str = ': ') -> 'Bunch':
+    metadata = Bunch()
+    with open(file) as f:
+        for row in f:
+            parts = row.split(delimiter)
+            key, value = parts[0], ': '.join(parts[1:]).strip('\n')
+            metadata[key] = value
+    return metadata
