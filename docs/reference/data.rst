@@ -71,11 +71,7 @@ Loading
 Parsing
 *******
 
-Some graph databases:
-
- - Konect_
- - NetRep_
- - Telegraphs_
+You can find some datasets on NetRep_.
 
 .. currentmodule:: sknetwork
 
@@ -83,9 +79,5 @@ Some graph databases:
 
 .. autofunction:: sknetwork.data.parse_labels
 
-.. _Konect: http://konect.uni-koblenz.de/
-
 .. _NetRep: http://networkrepository.com/
-
-.. _Telegraphs: https://graphs.telecom-paristech.fr/Home_page.html#vitalwiki-section
 

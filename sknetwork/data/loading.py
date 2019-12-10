@@ -56,8 +56,8 @@ def clear_data_home(data_home: Optional[str] = None):
 def load_wikilinks_dataset(dataset_name: str, data_home: Optional[str] = None,
                            max_depth: int = 1, full_path: bool = True):
     """
-    Loads the stems of the `Vital Wikipedia
-    <https://graphs.telecom-paristech.fr/Home_page.html#wikilinks-section>`_ dataset.
+    Loads a dataset from the `WikiLinks database
+    <https://graphs.telecom-paristech.fr/Home_page.html#wikilinks-section>`_.
 
     Parameters
     ----------
