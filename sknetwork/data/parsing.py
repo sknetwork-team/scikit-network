@@ -66,6 +66,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
                     del_count[i] += 1
             lines.append(row.rstrip())
             row = f.readline()
+        lines = [line for line in lines if line != '']
         guess_delimiter = possible_delimiters[int(argmax(del_count))]
         guess_weighted = bool(min([line.count(guess_delimiter) for line in lines]) - 1)
         guess_labeled = not all([all([el.strip().isdigit() for el in line.split(guess_delimiter)][0:2]) for line

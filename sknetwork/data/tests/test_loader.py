@@ -10,12 +10,12 @@ from sknetwork.data import load_wikilinks_dataset, load_konect_dataset, clear_da
 
 class TestLoader(unittest.TestCase):
 
-    def test_wiki_vital(self):
-        tmp_data_dir = tempfile.gettempdir() + '/vital_wikipedia'
+    def test_wikilinks(self):
+        tmp_data_dir = tempfile.gettempdir() + '/stub'
         clear_data_home(tmp_data_dir)
-        data = load_wikilinks_dataset('vital_wikipedia', tmp_data_dir)
-        self.assertEqual(data.biadjacency.shape[0], 10012)
-        self.assertEqual(data.names.shape[0], 10012)
+        data = load_wikilinks_dataset('stub', tmp_data_dir)
+        self.assertEqual(data.biadjacency.shape[0], 1)
+        self.assertEqual(data.names.shape[0], 2)
         clear_data_home(tmp_data_dir)
 
     def test_konect(self):

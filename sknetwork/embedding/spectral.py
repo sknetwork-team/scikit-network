@@ -18,7 +18,7 @@ from scipy.sparse.linalg import LinearOperator
 from sknetwork.basics.structure import is_connected
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv
-from sknetwork.utils.checks import check_format, is_symmetric
+from sknetwork.utils.checks import check_format, is_square, is_symmetric
 
 
 class LaplacianOperator(LinearOperator):
@@ -211,9 +211,14 @@ class Spectral(BaseEmbedding):
         """
 
         adjacency = check_format(adjacency).asfptype()
+
+        if not is_square(adjacency):
+            raise ValueError('The adjacency matrix is not square. See BiSpectral.')
+
         if not is_symmetric(adjacency):
-            raise ValueError('The adjacency is not symmetric.'
+            raise ValueError('The adjacency matrix is not symmetric.'
                              'Either convert it to a symmetric matrix or use BiSpectral.')
+
         n = adjacency.shape[0]
 
         if self.solver == 'auto':
