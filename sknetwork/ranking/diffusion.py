@@ -6,6 +6,7 @@ Created on July 17 2019
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
+import warnings
 from typing import Union, Tuple
 
 import numpy as np
@@ -24,6 +25,7 @@ def limit_conditions(personalization: Union[np.ndarray, dict], n: int) -> Tuple:
     ----------
     personalization:
         Array or dictionary indicating the fixed temperatures in the graph.
+        In order to avoid ambiguities, temperatures must be non-negative.
     n:
         Number of nodes in the graph.
 
@@ -36,18 +38,26 @@ def limit_conditions(personalization: Union[np.ndarray, dict], n: int) -> Tuple:
 
     """
 
-    b: np.ndarray = np.zeros(n)
-    border: np.ndarray = np.zeros(n)
     if type(personalization) == dict:
-        b[list(personalization.keys())] = list(personalization.values())
-        border[list(personalization.keys())] = 1
+        keys = np.array(list(personalization.keys()))
+        vals = np.array(list(personalization.values()))
+        if np.min(vals) < 0:
+            warnings.warn(Warning("Negative temperatures will be ignored"))
+
+        ix = (vals >= 0)
+        keys = keys[ix]
+        vals = vals[ix]
+
+        b = -np.ones(n)
+        b[keys] = vals
+
     elif type(personalization) == np.ndarray and len(personalization) == n:
         b = personalization
-        border = (personalization != 0)
     else:
         raise ValueError('Personalization must be a dictionary or a vector'
                          ' of length equal to the number of nodes.')
 
+    border = (b >= 0)
     return b.astype(float), border.astype(bool)
 
 
@@ -74,9 +84,9 @@ class Diffusion(BaseRanking, VerboseMixin):
     >>> from sknetwork.data import house
     >>> diffusion = Diffusion()
     >>> adjacency = house()
-    >>> personalization = {4: -1, 1: 1}
+    >>> personalization = {4: 0.25, 1: 1}
     >>> np.round(diffusion.fit_transform(adjacency, personalization), 2)
-    array([ 0.  ,  1.  ,  0.33, -0.33, -1.  ])
+    array([0.62, 1.  , 0.75, 0.5 , 0.25])
 
     References
     ----------
@@ -114,18 +124,22 @@ class Diffusion(BaseRanking, VerboseMixin):
         interior: sparse.csr_matrix = sparse.diags(~border, shape=(n, n), format='csr', dtype=float)
         diffusion_matrix = interior.dot(transition_matrix(adjacency))
 
+        x0 = np.zeros(n)
+        ix = (b >= 0)
+        x0[ix] = b[ix]
+
         if self.n_iter > 0:
-            scores = b.copy()
+            scores = x0
             for i in range(self.n_iter):
                 scores = diffusion_matrix.dot(scores)
                 scores[border] = b[border]
 
         else:
             a = sparse.eye(n, format='csr', dtype=float) - diffusion_matrix
-            scores, info = bicgstab(a, b, atol=0.)
+            scores, info = bicgstab(a, x0, atol=0., x0=x0)
             self.scipy_solver_info(info)
 
-        self.scores_ = np.clip(scores, np.min(b), np.max(b))
+        self.scores_ = np.clip(scores, np.min(b[ix]), np.max(b))
         return self
 
 
@@ -183,8 +197,12 @@ class BiDiffusion(Diffusion):
         backward: sparse.csr_matrix = interior.dot(transition_matrix(biadjacency))
         forward: sparse.csr_matrix = transition_matrix(biadjacency.T)
 
+        x0 = np.zeros(n1)
+        ix = (b >= 0)
+        x0[ix] = b[ix]
+
         if self.n_iter > 0:
-            scores = b.copy()
+            scores = x0
             for i in range(self.n_iter):
                 scores = backward.dot(forward.dot(scores))
                 scores[border] = b[border]
@@ -224,7 +242,7 @@ class BiDiffusion(Diffusion):
             # noinspection PyArgumentList
             a = sparse.linalg.LinearOperator(dtype=float, shape=(n1, n1), matvec=mv, rmatvec=rmv)
             # noinspection PyTypeChecker
-            scores, info = bicgstab(a, b, atol=0.)
+            scores, info = bicgstab(a, x0, atol=0., x0=x0)
             self.scipy_solver_info(info)
 
         self.row_scores_ = np.clip(scores, np.min(b), np.max(b))

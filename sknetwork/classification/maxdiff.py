@@ -39,7 +39,7 @@ class MaxDiff(BaseClassifier):
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
     >>> labels_pred = maxdiff.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
-    0.88
+    0.97
 
     References
     ----------
@@ -49,10 +49,11 @@ class MaxDiff(BaseClassifier):
 
     """
 
-    def __init__(self, verbose: bool = False, n_iter: int = 0, n_jobs: Optional[int] = None):
+    def __init__(self, verbose: bool = False, n_iter: int = 0, scaling=None, n_jobs: Optional[int] = None):
         super(MaxDiff, self).__init__()
         self.verbose = verbose
         self.n_iter = n_iter
+        self.scaling = scaling
         self.n_jobs = n_jobs
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'MaxDiff':
@@ -73,9 +74,9 @@ class MaxDiff(BaseClassifier):
 
         """
         if isinstance(self, BiMaxDiff):
-            multidiff = BiMultiDiff(self.verbose, self.n_iter, self.n_jobs)
+            multidiff = BiMultiDiff(self.verbose, self.n_iter, self.scaling, self.n_jobs)
         else:
-            multidiff = MultiDiff(self.verbose, self.n_iter, self.n_jobs)
+            multidiff = MultiDiff(self.verbose, self.n_iter, self.scaling, self.n_jobs)
 
         seeds_labels = check_seeds(seeds, adjacency)
         classes, n_classes = check_labels(seeds_labels)
@@ -94,5 +95,5 @@ class BiMaxDiff(MaxDiff):
 
     """
 
-    def __init__(self, verbose: bool = False, n_iter: int = 0, n_jobs: Optional[int] = None):
-        super(BiMaxDiff, self).__init__(verbose, n_iter, n_jobs)
+    def __init__(self, verbose: bool = False, n_iter: int = 0, scaling=None, n_jobs: Optional[int] = None):
+        super(BiMaxDiff, self).__init__(verbose, n_iter, scaling, n_jobs)
