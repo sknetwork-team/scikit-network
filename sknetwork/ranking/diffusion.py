@@ -58,6 +58,7 @@ def limit_conditions(personalization: Union[np.ndarray, dict], n: int) -> Tuple:
                          ' of length equal to the number of nodes.')
 
     border = (b >= 0)
+    b[~border] = 0
     return b.astype(float), border.astype(bool)
 
 
@@ -124,9 +125,8 @@ class Diffusion(BaseRanking, VerboseMixin):
         interior: sparse.csr_matrix = sparse.diags(~border, shape=(n, n), format='csr', dtype=float)
         diffusion_matrix = interior.dot(transition_matrix(adjacency))
 
-        x0 = np.zeros(n)
-        ix = (b >= 0)
-        x0[ix] = b[ix]
+        x0 = b[border].mean() * np.ones(n)
+        x0[border] = b[border]
 
         if self.n_iter > 0:
             scores = x0
@@ -136,10 +136,10 @@ class Diffusion(BaseRanking, VerboseMixin):
 
         else:
             a = sparse.eye(n, format='csr', dtype=float) - diffusion_matrix
-            scores, info = bicgstab(a, x0, atol=0., x0=x0)
+            scores, info = bicgstab(a, b, atol=0., x0=x0)
             self.scipy_solver_info(info)
 
-        self.scores_ = np.clip(scores, np.min(b[ix]), np.max(b))
+        self.scores_ = np.clip(scores, np.min(b[border]), np.max(b))
         return self
 
 

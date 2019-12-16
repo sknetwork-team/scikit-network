@@ -122,7 +122,8 @@ class MultiDiff(BaseSoftClassifier):
 
             membership /= abs(np.sum(flows, axis=0))
 
-        membership /= membership.sum(axis=1)[:, np.newaxis]
+        norms = membership.sum(axis=1)[:, np.newaxis]
+        membership /= norms
 
         self.membership_ = membership
         return self
