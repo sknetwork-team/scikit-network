@@ -120,7 +120,7 @@ class MultiDiff(BaseSoftClassifier):
                 ix = (personalizations[i] != 1)
                 flows[ix, i] = 0
 
-            membership /= np.sum(flows, axis=0)
+            membership /= abs(np.sum(flows, axis=0))
 
         membership /= membership.sum(axis=1)[:, np.newaxis]
 
