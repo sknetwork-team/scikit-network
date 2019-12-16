@@ -16,9 +16,10 @@ from scipy.cluster.vq import whiten
 from sknetwork.ranking import Diffusion, BiDiffusion
 from sknetwork.soft_classification.base import BaseSoftClassifier
 from sknetwork.utils.checks import check_seeds, check_labels, check_n_jobs
+from sknetwork.utils.verbose import VerboseMixin
 
 
-class MultiDiff(BaseSoftClassifier):
+class MultiDiff(BaseSoftClassifier, VerboseMixin):
     """Semi-Supervised classification based on graph diffusion.
 
     Parameters
@@ -55,6 +56,7 @@ class MultiDiff(BaseSoftClassifier):
 
     def __init__(self, verbose: bool = False, n_iter: int = 0, scaling=None, n_jobs: Optional[int] = None):
         super(MultiDiff, self).__init__()
+        VerboseMixin.__init__(self, verbose)
 
         self.verbose = verbose
         self.n_iter = n_iter
@@ -122,8 +124,11 @@ class MultiDiff(BaseSoftClassifier):
 
             membership /= abs(np.sum(flows, axis=0))
 
-        norms = membership.sum(axis=1)[:, np.newaxis]
-        membership /= norms
+        norms = membership.sum(axis=1)
+        ix = np.argwhere(norms == 0).ravel()
+        if len(ix) > 0:
+            self.log.print('Nodes ', ix, ' have a null membership.')
+        membership[~ix] /= norms[~ix, np.newaxis]
 
         self.membership_ = membership
         return self
