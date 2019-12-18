@@ -14,8 +14,7 @@ from sknetwork import is_numba_available
 
 
 def has_nonnegative_entries(entry: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """Checks whether the array has non negative entries.
-    """
+    """Check whether the array has non negative entries."""
     if type(entry) == sparse.csr_matrix:
         return np.all(entry.data >= 0)
     else:
@@ -23,8 +22,7 @@ def has_nonnegative_entries(entry: Union[sparse.csr_matrix, np.ndarray]) -> bool
 
 
 def has_positive_entries(entry: np.ndarray) -> bool:
-    """Checks whether the array has positive entries.
-    """
+    """Check whether the array has positive entries."""
     if type(entry) != np.ndarray:
         raise TypeError('Entry must be a dense NumPy array.')
     else:
@@ -32,8 +30,7 @@ def has_positive_entries(entry: np.ndarray) -> bool:
 
 
 def is_proba_array(entry: np.ndarray) -> bool:
-    """Checks whether each line of the array has non negative entries which sum to 1.
-    """
+    """Check whether each line of the array has non negative entries which sum to 1."""
     if len(entry.shape) == 1:
         return has_nonnegative_entries(entry) and np.isclose(entry.sum(), 1)
     elif len(entry.shape) == 2:
@@ -45,14 +42,12 @@ def is_proba_array(entry: np.ndarray) -> bool:
 
 
 def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """Checks whether the matrix is square.
-    """
+    """Check whether the matrix is square."""
     return adjacency.shape[0] == adjacency.shape[1]
 
 
 def is_symmetric(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1e-10) -> bool:
-    """Checks whether the matrix is symmetric.
-    """
+    """Check whether the matrix is symmetric."""
     sym_error = adjacency - adjacency.T
     return np.all(np.abs(sym_error.data) <= tol)
 
@@ -115,8 +110,7 @@ def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_
 
 
 def check_is_proba(entry: Union[float, int]):
-    """Checks whether the number is non-negative and less than or equal to 1.
-    """
+    """Checks whether the number is non-negative and less than or equal to 1."""
     if type(entry) not in [float, int]:
         raise TypeError('Probabilities must be floats (or ints if 0 or 1).')
     if entry < 0 or entry > 1:
@@ -174,8 +168,7 @@ def check_probs(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_m
 
 
 def check_random_state(random_state: Optional[Union[np.random.RandomState, int]]):
-    """Checks whether the argument is a seed or a NumPy random state. If None, numpy.random is used by default.
-    """
+    """Checks whether the argument is a seed or a NumPy random state. If None, numpy.random is used by default."""
     if random_state is None or random_state is np.random:
         return np.random
     elif type(random_state) == int:
