@@ -113,8 +113,12 @@ class PageRank(BaseRanking):
         Probability to continue the random walk.
     solver : str
         Which solver to use: 'spsolve', 'lanczos' (default), 'lsqr' or 'halko'.
+        Otherwise, the random walk is emulated for a certain number of iterations.
     fb_mode : bool
         If ``True``, use the forward-backward mode.
+    n_iter : int
+        If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
+        ``n_iter`` iterations.
 
     Attributes
     ----------
@@ -134,7 +138,8 @@ class PageRank(BaseRanking):
     Page, L., Brin, S., Motwani, R., & Winograd, T. (1999). The PageRank citation ranking: Bringing order to the web.
     Stanford InfoLab.
     """
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', fb_mode: bool = False):
+    def __init__(self, damping_factor: float = 0.85, solver: Union[str, None] = 'lanczos', fb_mode: bool = False,
+                 n_iter: int = 10):
         super(PageRank, self).__init__()
 
         if damping_factor < 0 or damping_factor >= 1:
@@ -143,39 +148,7 @@ class PageRank(BaseRanking):
             self.damping_factor = damping_factor
         self.solver = solver
         self.fb_mode = fb_mode
-
-    # noinspection PyTypeChecker
-    def solve(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-              personalization: Optional[Union[dict, np.ndarray]] = None):
-        """Pagerank vector for a given adjacency and personalization.
-
-        Parameters
-        ----------
-        adjacency :
-            Adjacency matrix.
-        personalization :
-            Weights for restart distribution.
-
-        Returns
-        -------
-        score: np.ndarray
-            Pagerank of the rows.
-
-        """
-        rso = RandomSurferOperator(adjacency, self.damping_factor, personalization, self.fb_mode)
-        n: int = rso.shape[0]
-
-        if self.solver == 'spsolve':
-            x = spsolve(sparse.eye(n, format='csr') - rso.a, rso.b)
-        elif self.solver == 'lanczos':
-            _, x = sparse.linalg.eigs(rso, k=1)
-        elif self.solver == 'lsqr':
-            x = lsqr(sparse.eye(n, format='csr') - rso.a, rso.b)[0]
-        else:
-            raise NotImplementedError('Solver not available.')
-
-        x = abs(x[:n].flatten().real)
-        return x
+        self.n_iter = n_iter
 
     # noinspection PyTypeChecker
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
@@ -201,7 +174,21 @@ class PageRank(BaseRanking):
         if not self.fb_mode and not is_square(adjacency):
             raise ValueError("The adjacency is not square. See BiPageRank.")
 
-        scores = self.solve(adjacency, personalization)
+        rso = RandomSurferOperator(adjacency, self.damping_factor, personalization, self.fb_mode)
+        n: int = rso.shape[0]
+
+        if self.solver == 'spsolve':
+            x = spsolve(sparse.eye(n, format='csr') - rso.a, rso.b)
+        elif self.solver == 'lanczos':
+            _, x = sparse.linalg.eigs(rso, k=1)
+        elif self.solver == 'lsqr':
+            x = lsqr(sparse.eye(n, format='csr') - rso.a, rso.b)[0]
+        else:
+            x = rso.b
+            for i in range(self.n_iter):
+                x = rso.dot(x)
+
+        scores = abs(x[:n].flatten().real)
         self.scores_ = scores[:n1] / scores[:n1].sum()
 
         return self
@@ -238,8 +225,8 @@ class BiPageRank(PageRank):
     >>> len(bipagerank.fit_transform(biadjacency))
     7
     """
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos'):
-        PageRank.__init__(self, damping_factor, solver)
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', n_iter: int = 10):
+        PageRank.__init__(self, damping_factor, solver, n_iter=n_iter)
 
         self.row_scores_ = None
         self.col_scores_ = None
@@ -263,7 +250,7 @@ class BiPageRank(PageRank):
         pagerank = PageRank(damping_factor=self.damping_factor, solver=self.solver, fb_mode=True)
         biadjacency = check_format(biadjacency)
         n1, _ = biadjacency.shape
-        self.row_scores_ = pagerank.solve(biadjacency, personalization)[:n1]
+        self.row_scores_ = pagerank.fit_transform(biadjacency, personalization)[:n1]
         self.col_scores_ = transition_matrix(biadjacency).T.dot(self.row_scores_)
         self.scores_ = np.concatenate((self.row_scores_, self.col_scores_))
 
