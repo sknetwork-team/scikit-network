@@ -6,6 +6,7 @@ Created on November 15, 2019
 This module's code is freely adapted from TorchKGE's torchkge.data.DataLoader.py code.
 """
 
+import pickle
 import tarfile
 import shutil
 import zipfile
@@ -125,7 +126,7 @@ def load_wikilinks_dataset(dataset_name: str, data_home: Optional[str] = None,
     return data
 
 
-def load_konect_dataset(dataset_name: str, data_home: Optional[str] = None):
+def load_konect_dataset(dataset_name: str, data_home: Optional[str] = None, auto_numpy_bundle: bool = True):
     """
     Loads a dataset from the `Konect database
     <http://konect.uni-koblenz.de>`_.
@@ -137,6 +138,9 @@ def load_konect_dataset(dataset_name: str, data_home: Optional[str] = None):
         name is ``'actor-movie'``).
     data_home: str
         The folder to be used for dataset storage
+    auto_numpy_bundle: bool
+        Denotes if the dataset should be stored in its default format (False) or using Numpy files for faster subsequent
+        access to the dataset (True).
 
     Returns
     -------
@@ -161,6 +165,8 @@ def load_konect_dataset(dataset_name: str, data_home: Optional[str] = None):
         with tarfile.open(data_home + '/' + dataset_name + '.tar.bz2', 'r:bz2') as tar_ref:
             tar_ref.extractall(data_home)
         remove(data_home + '/' + dataset_name + '.tar.bz2')
+    elif exists(data_path + '/' + dataset_name + '_bundle'):
+        return load_from_numpy_bundle(dataset_name + '_bundle', data_path)
 
     data = Bunch()
     files = [file for file in listdir(data_path) if dataset_name in file]
@@ -185,4 +191,66 @@ def load_konect_dataset(dataset_name: str, data_home: Optional[str] = None):
             attribute_name = file.split('.')[-1]
             data[attribute_name] = parse_labels(data_path + file)
 
+    if auto_numpy_bundle:
+        save_to_numpy_bundle(data, dataset_name + '_bundle', data_path)
+
     return data
+
+
+def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[str] = None):
+    """
+    Saves a Bunch to a collection of Numpy and Pickle files for faster subsequent loads.
+
+    Parameters
+    ----------
+    data: Bunch
+        The data to save
+    bundle_name: str
+        The name to be used for the bundle folder
+    data_home: str
+        The folder to be used for dataset storage
+    """
+    data_path = data_home + bundle_name
+    makedirs(data_path, exist_ok=True)
+    for attribute in data:
+        if type(data[attribute]) == sparse.csr_matrix:
+            sparse.save_npz(data_path + '/' + attribute, data[attribute])
+        elif type(data[attribute]) == np.ndarray:
+            np.save(data_path + '/' + attribute, data[attribute])
+        elif type(data[attribute]) == Bunch:
+            pickle.dump(data[attribute], open(data_path + '/' + attribute + '.p', 'wb'))
+        else:
+            raise TypeError('Unsupported data attribute type '+str(type(data[attribute])) + '.')
+
+
+def load_from_numpy_bundle(bundle_name: str, data_home: Optional[str] = None):
+    """
+    Loads a Bunch from a collection of Numpy and Pickle files (inverse function of ``save_to_numpy_bundle``).
+
+    Parameters
+    ----------
+    bundle_name: str
+        The name used for the bundle folder
+    data_home: str
+        The folder used for dataset storage
+
+    Returns
+    -------
+    data: Bunch
+        The original data
+    """
+    data_path = data_home + bundle_name
+    if not exists(data_path):
+        raise FileNotFoundError('No bundle at ' + data_path)
+    else:
+        files = listdir(data_path)
+        data = Bunch()
+        for file in files:
+            file_name, file_extension = file.split('.')
+            if file_extension == 'npz':
+                data[file_name] = sparse.load_npz(data_path + '/' + file)
+            elif file_extension == 'npy':
+                data[file_name] = np.load(data_path + '/' + file)
+            elif file_extension == 'p':
+                data[file_name] = pickle.load(open(data_path + '/' + file, 'rb'))
+        return data

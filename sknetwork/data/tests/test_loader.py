@@ -24,4 +24,7 @@ class TestLoader(unittest.TestCase):
         data = load_konect_dataset('moreno_crime', tmp_data_dir)
         self.assertEqual(data.biadjacency.shape[0], 829)
         self.assertEqual(data.name.shape[0], 829)
+        data = load_konect_dataset('moreno_crime', tmp_data_dir)
+        self.assertEqual(data.biadjacency.shape[0], 829)
+        self.assertEqual(data.name.shape[0], 829)
         clear_data_home(tmp_data_dir)
