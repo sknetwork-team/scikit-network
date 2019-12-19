@@ -16,6 +16,7 @@ from urllib.error import HTTPError
 from urllib.request import urlretrieve
 
 import numpy as np
+from scipy import sparse
 
 from sknetwork.basics import is_bipartite
 from sknetwork.data.parsing import parse_tsv, parse_labels, parse_hierarchical_labels, parse_header, parse_metadata
@@ -62,7 +63,7 @@ def load_wikilinks_dataset(dataset_name: str, data_home: Optional[str] = None,
     Parameters
     ----------
     dataset_name: str
-        The name of the dataset (no capital letters, all spaces replaced with underscores)
+        The name of the dataset (all lowcase). Currently, 'wikivitals' and 'wikihumans' are available.
     data_home: str
         The folder to be used for dataset storage
     max_depth: int
@@ -90,27 +91,35 @@ def load_wikilinks_dataset(dataset_name: str, data_home: Optional[str] = None,
     if not exists(data_path):
         makedirs(data_path, exist_ok=True)
         try:
-            urlretrieve("https://graphs.telecom-paristech.fr/datasets/" + dataset_name + '.tar.gz',
-                        data_home + '/' + dataset_name + '.tar.gz')
+            urlretrieve("https://graphs.telecom-paristech.fr/npz_datasets/" + dataset_name + '_npz.tar.gz',
+                        data_home + '/' + dataset_name + '_npz.tar.gz')
         except HTTPError:
             raise ValueError('Invalid dataset ' + dataset_name)
-        with tarfile.open(data_home + '/' + dataset_name + '.tar.gz', 'r:gz') as tar_ref:
+        with tarfile.open(data_home + '/' + dataset_name + '_npz.tar.gz', 'r:gz') as tar_ref:
             tar_ref.extractall(data_home)
-        remove(data_home + '/' + dataset_name + '.tar.gz')
+        remove(data_home + '/' + dataset_name + '_npz.tar.gz')
 
     data = Bunch()
     files = [file for file in listdir(data_path)]
 
-    if 'adjacency.txt' in files:
-        data.adjacency = parse_tsv(data_path + '/adjacency.txt', directed=True, reindex=False)
-    if 'biadjacency.txt' in files:
-        data.biadjacency = parse_tsv(data_path + '/biadjacency.txt', bipartite=True, reindex=False)
-    if 'names.txt' in files:
-        data.names = parse_labels(data_path + '/names.txt')
-    if 'feature_names.txt' in files:
-        data.feature_names = parse_labels(data_path + '/feature_names.txt')
-    if 'categories.txt' in files:
-        data.target_names = parse_hierarchical_labels(data_path + '/categories.txt', max_depth, full_path=full_path)
+    if 'adjacency.npz' in files:
+        data.adjacency = sparse.load_npz(data_path + '/adjacency.npz')
+    if 'biadjacency.npz' in files:
+        data.biadjacency = sparse.load_npz(data_path + '/biadjacency.npz')
+    if 'names.npy' in files:
+        data.names = np.load(data_path + '/names.npy')
+    if 'feature_names.npy' in files:
+        data.feature_names = np.load(data_path + '/feature_names.npy')
+    if 'target_names.npy' in files:
+        tmp_target_names = np.load(data_path + '/target_names.npy')
+        tags = []
+        for tag in tmp_target_names:
+            parts = tag.strip().split('.')
+            if full_path:
+                tags.append(".".join(parts[:min(max_depth, len(parts))]))
+            else:
+                tags.append(parts[:min(max_depth, len(parts))][-1])
+        data.target_names = np.array(tags)
         _, data.target = np.unique(data.target_names, return_inverse=True)
 
     return data
