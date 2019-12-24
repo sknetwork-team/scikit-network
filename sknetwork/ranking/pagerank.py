@@ -146,7 +146,13 @@ class PageRank(BaseRanking, VerboseMixin):
     damping_factor : float
         Probability to continue the random walk.
     solver : str
-        Which solver to use: 'bicgstab', 'lanczos', 'lsqr'.
+        Which solver to use: 'spsolve', 'lanczos' (default), 'lsqr' or 'halko'.
+        Otherwise, the random walk is emulated for a certain number of iterations.
+    fb_mode : bool
+        If ``True``, use the forward-backward mode.
+    n_iter : int
+        If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
+        ``n_iter`` iterations.
 
     Attributes
     ----------
@@ -166,7 +172,8 @@ class PageRank(BaseRanking, VerboseMixin):
     Page, L., Brin, S., Motwani, R., & Winograd, T. (1999). The PageRank citation ranking: Bringing order to the web.
     Stanford InfoLab.
     """
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', verbose: bool = False):
+    def __init__(self, damping_factor: float = 0.85, solver: Union[str, None] = 'lanczos', fb_mode: bool = False,
+                 n_iter: int = 10):
         super(PageRank, self).__init__()
 
         if damping_factor < 0 or damping_factor >= 1:
@@ -174,7 +181,8 @@ class PageRank(BaseRanking, VerboseMixin):
         else:
             self.damping_factor = damping_factor
         self.solver = solver
-        self.verbose = verbose
+        self.fb_mode = fb_mode
+        self.n_iter = n_iter
 
     # noinspection PyTypeChecker
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
@@ -199,9 +207,22 @@ class PageRank(BaseRanking, VerboseMixin):
         if not is_square(adjacency):
             raise ValueError("The adjacency is not square. See BiPageRank.")
 
-        rso = RandomSurferOperator(adjacency, self.damping_factor, personalization, False, self.verbose)
-        scores = rso.solve(self.solver)
-        self.scores_ = scores / scores.sum()
+        rso = RandomSurferOperator(adjacency, self.damping_factor, personalization, self.fb_mode)
+        n: int = rso.shape[0]
+
+        if self.solver == 'spsolve':
+            x = spsolve(sparse.eye(n, format='csr') - rso.a, rso.b)
+        elif self.solver == 'lanczos':
+            _, x = sparse.linalg.eigs(rso, k=1)
+        elif self.solver == 'lsqr':
+            x = lsqr(sparse.eye(n, format='csr') - rso.a, rso.b)[0]
+        else:
+            x = rso.b
+            for i in range(self.n_iter):
+                x = rso.dot(x)
+
+        scores = abs(x[:n].flatten().real)
+        self.scores_ = scores[:n1] / scores[:n1].sum()
 
         return self
 
@@ -237,8 +258,8 @@ class BiPageRank(PageRank):
     >>> len(bipagerank.fit_transform(biadjacency))
     7
     """
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'bicgstab', verbose: bool = False):
-        super(BiPageRank, self).__init__(damping_factor, solver, verbose)
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', n_iter: int = 10):
+        PageRank.__init__(self, damping_factor, solver, n_iter=n_iter)
 
         self.row_scores_ = None
         self.col_scores_ = None
@@ -260,9 +281,8 @@ class BiPageRank(PageRank):
         """
 
         biadjacency = check_format(biadjacency)
-        rso = RandomSurferOperator(biadjacency, self.damping_factor, personalization, True, self.verbose)
-
-        self.row_scores_ = rso.solve(self.solver)[:biadjacency.shape[0]]
+        n1, _ = biadjacency.shape
+        self.row_scores_ = pagerank.fit_transform(biadjacency, personalization)[:n1]
         self.col_scores_ = transition_matrix(biadjacency).T.dot(self.row_scores_)
         self.scores_ = np.concatenate((self.row_scores_, self.col_scores_))
 
