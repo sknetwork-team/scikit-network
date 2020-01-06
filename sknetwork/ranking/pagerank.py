@@ -220,6 +220,7 @@ class PageRank(BaseRanking, VerboseMixin):
             x = rso.b
             for i in range(self.n_iter):
                 x = rso.dot(x)
+                x /= x.sum()
 
         scores = abs(x[:n].flatten().real)
         self.scores_ = scores[:n1] / scores[:n1].sum()
