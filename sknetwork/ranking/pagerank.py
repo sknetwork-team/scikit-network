@@ -103,13 +103,16 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
         return self.a.dot(x) + self.b * x.sum()
 
     # noinspection PyTypeChecker
-    def solve(self, solver: str = 'lanczos'):
+    def solve(self, solver: str = 'lanczos', n_iter: int = 10):
         """Pagerank vector for a given adjacency and personalization.
 
         Parameters
         ----------
         solver: str
             Which method to use to solve the Pagerank problem. Can be 'lanczos', 'lsqr' or 'bicgstab'.
+        n_iter : int
+        If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
+        ``n_iter`` iterations.
 
         Returns
         -------
@@ -128,10 +131,13 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
         elif solver == 'lsqr':
             x = lsqr(sparse.eye(n, format='csr') - self.a, self.b)[0]
         else:
-            raise NotImplementedError('Solver not available.')
+            x = self.b
+            for i in range(n_iter):
+                x = self.dot(x)
+                x /= x.sum()
 
-        x = abs(x[:n].flatten().real)
-        return x
+        x = abs(x.flatten().real)
+        return x / x.sum()
 
 
 class PageRank(BaseRanking, VerboseMixin):
@@ -148,8 +154,6 @@ class PageRank(BaseRanking, VerboseMixin):
     solver : str
         Which solver to use: 'spsolve', 'lanczos' (default), 'lsqr' or 'halko'.
         Otherwise, the random walk is emulated for a certain number of iterations.
-    fb_mode : bool
-        If ``True``, use the forward-backward mode.
     n_iter : int
         If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
         ``n_iter`` iterations.
@@ -172,8 +176,7 @@ class PageRank(BaseRanking, VerboseMixin):
     Page, L., Brin, S., Motwani, R., & Winograd, T. (1999). The PageRank citation ranking: Bringing order to the web.
     Stanford InfoLab.
     """
-    def __init__(self, damping_factor: float = 0.85, solver: Union[str, None] = 'lanczos', fb_mode: bool = False,
-                 n_iter: int = 10):
+    def __init__(self, damping_factor: float = 0.85, solver: Union[str, None] = 'lanczos', n_iter: int = 10):
         super(PageRank, self).__init__()
 
         if damping_factor < 0 or damping_factor >= 1:
@@ -181,7 +184,6 @@ class PageRank(BaseRanking, VerboseMixin):
         else:
             self.damping_factor = damping_factor
         self.solver = solver
-        self.fb_mode = fb_mode
         self.n_iter = n_iter
 
     # noinspection PyTypeChecker
@@ -207,23 +209,8 @@ class PageRank(BaseRanking, VerboseMixin):
         if not is_square(adjacency):
             raise ValueError("The adjacency is not square. See BiPageRank.")
 
-        rso = RandomSurferOperator(adjacency, self.damping_factor, personalization, self.fb_mode)
-        n: int = rso.shape[0]
-
-        if self.solver == 'spsolve':
-            x = spsolve(sparse.eye(n, format='csr') - rso.a, rso.b)
-        elif self.solver == 'lanczos':
-            _, x = sparse.linalg.eigs(rso, k=1)
-        elif self.solver == 'lsqr':
-            x = lsqr(sparse.eye(n, format='csr') - rso.a, rso.b)[0]
-        else:
-            x = rso.b
-            for i in range(self.n_iter):
-                x = rso.dot(x)
-                x /= x.sum()
-
-        scores = abs(x[:n].flatten().real)
-        self.scores_ = scores[:n1] / scores[:n1].sum()
+        rso = RandomSurferOperator(adjacency, self.damping_factor, personalization, False)
+        self.scores_ = rso.solve(self.solver, self.n_iter)
 
         return self
 
@@ -267,24 +254,26 @@ class BiPageRank(PageRank):
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Optional[Union[dict, np.ndarray]] = None) -> 'BiPageRank':
-        """Applies the PageRank algorithm in forward-backward mode.
+        """
+        Two hops PageRank with restart.
 
         Parameters
         ----------
-        biadjacency:
-            Biadjacency matrix of the graph, of shape (n1, n2).
+        biadjacency :
+            Adjacency matrix.
         personalization :
             If ``None``, the uniform distribution is used.
-            Otherwise, a non-negative, non-zero vector of size n1 or a dictionary must be provided.
+            Otherwise, a non-negative, non-zero vector or a dictionary must be provided.
+
         Returns
         -------
         self: :class:`BiPageRank`
         """
 
-        biadjacency = check_format(biadjacency)
-        n1, _ = biadjacency.shape
-        self.row_scores_ = pagerank.fit_transform(biadjacency, personalization)[:n1]
-        self.col_scores_ = transition_matrix(biadjacency).T.dot(self.row_scores_)
+        rso = RandomSurferOperator(biadjacency, self.damping_factor, personalization, True)
+        self.row_scores_ = rso.solve(self.solver, self.n_iter)[:biadjacency.shape[0]]
+        self.col_scores_ = transition_matrix(biadjacency.T).dot(self.row_scores_)
+        self.col_scores_ /= self.col_scores_.sum()
         self.scores_ = np.concatenate((self.row_scores_, self.col_scores_))
 
         return self

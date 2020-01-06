@@ -163,7 +163,7 @@ class BiDiffusion(Diffusion):
     >>> biadjacency: sparse.csr_matrix = star_wars_villains()
     >>> biadjacency.shape
     (4, 3)
-    >>> len(bidiffusion.fit_transform(biadjacency, {0:1, 1:-1}))
+    >>> len(bidiffusion.fit_transform(biadjacency, {0: 1, 1: 0}))
     7
     """
 

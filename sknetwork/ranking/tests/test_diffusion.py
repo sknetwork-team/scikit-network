@@ -32,20 +32,20 @@ class TestDiffusion(unittest.TestCase):
         self.karate_club = karate_club()
         adjacency: sparse.csr_matrix = karate_club()
 
-        self.diffusion.fit(adjacency, {0: 0, 1: 1, 2: -1})
+        self.diffusion.fit(adjacency, {0: 0, 1: 1, 2: 0.5})
         score = self.diffusion.scores_
-        self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= -1 - self.tol))
+        self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= 0 - self.tol))
 
-        self.naive_diff.fit(adjacency, {0: 0, 1: 1, 2: -1})
+        self.naive_diff.fit(adjacency, {0: 0, 1: 1, 2: 0.5})
         score = self.diffusion.scores_
-        self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= -1 - self.tol))
+        self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= 0 - self.tol))
 
     def test_directed(self):
         self.painters = painters(return_labels=False)
         adjacency: sparse.csr_matrix = self.painters
-        self.diffusion.fit(adjacency, {0: 0, 1: 1, 2: -1})
+        self.diffusion.fit(adjacency, {0: 0, 1: 1, 2: 0.5})
         score = self.diffusion.scores_
-        self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= -1 - self.tol))
+        self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= 0 - self.tol))
 
     def test_bidiffusion(self):
         bidiffusion = BiDiffusion()
