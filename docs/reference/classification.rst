@@ -19,3 +19,14 @@ MaxRank
     :show-inheritance:
     :inherited-members:
     :members:
+
+MaxDiff
+-------
+.. autoclass:: sknetwork.classification.MaxDiff
+    :inherited-members:
+    :members:
+
+.. autoclass:: sknetwork.classification.BiMaxDiff
+    :show-inheritance:
+    :inherited-members:
+    :members:

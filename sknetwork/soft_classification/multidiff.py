@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Nov, 2019
+Created on Dec, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
@@ -12,20 +12,23 @@ from typing import Union, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork.ranking import PageRank, BiPageRank
+from sknetwork.ranking import Diffusion, BiDiffusion
 from sknetwork.soft_classification.base import BaseSoftClassifier
 from sknetwork.utils.checks import check_seeds, check_labels, check_n_jobs
+from sknetwork.utils.verbose import VerboseMixin
 
 
-class MultiRank(BaseSoftClassifier):
-    """Semi-Supervised classification based on personalized PageRank.
+class MultiDiff(BaseSoftClassifier, VerboseMixin):
+    """Semi-Supervised classification based on graph diffusion.
 
     Parameters
     ----------
-    damping_factor:
-        Damping factor for personalized PageRank.
-    solver:
-        Which solver to use for PageRank.
+    verbose: bool
+        Verbose mode.
+    n_iter: int
+        If ``n_iter > 0``, the algorithm will emulate the diffusion for n_iter steps.
+        If ``n_iter <= 0``, the algorithm will use BIConjugate Gradient STABilized iteration
+        to solve the Dirichlet problem.
     n_jobs:
         If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
         If ``None``, no parallel computations are made.
@@ -41,30 +44,26 @@ class MultiRank(BaseSoftClassifier):
     Example
     -------
     >>> from sknetwork.data import karate_club
-    >>> multirank = MultiRank()
+    >>> multidiff = MultiDiff()
     >>> adjacency, labels_true = karate_club(return_labels=True)
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> membership_ = multirank.fit_transform(adjacency, seeds)
+    >>> membership_ = multidiff.fit_transform(adjacency, seeds)
     >>> membership_.shape
     (34, 2)
 
-    References
-    ----------
-    Lin, F., & Cohen, W. W. (2010, August). `Semi-supervised classification of network data using very few labels.
-    <https://lti.cs.cmu.edu/sites/default/files/research/reports/2009/cmulti09017.pdf>`_
-    In 2010 International Conference on Advances in Social Networks Analysis and Mining (pp. 192-199). IEEE.
-
     """
 
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', n_jobs: Optional[int] = None):
-        super(MultiRank, self).__init__()
+    def __init__(self, verbose: bool = False, n_iter: int = 0, n_jobs: Optional[int] = None):
+        super(MultiDiff, self).__init__()
+        VerboseMixin.__init__(self, verbose)
 
-        self.damping_factor = damping_factor
-        self.solver = solver
+        self.verbose = verbose
+        self.n_iter = n_iter
         self.n_jobs = check_n_jobs(n_jobs)
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'MultiRank':
-        """Compute personalized PageRank using each given labels as seed set.
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'MultiDiff':
+        """Compute multiple diffusions in a 1-vs-all mode. One class is the hot seeds
+        while all the others are cold seeds.
 
         Parameters
         ----------
@@ -77,13 +76,14 @@ class MultiRank(BaseSoftClassifier):
 
         Returns
         -------
-        self: :class:`MultiRank`
+        self: :class:`MultiDiff`
 
         """
-        if isinstance(self, BiMultiRank):
-            pr = BiPageRank(self.damping_factor, self.solver)
+
+        if isinstance(self, BiMultiDiff):
+            diffusion = BiDiffusion(self.verbose, self.n_iter)
         else:
-            pr = PageRank(self.damping_factor, self.solver)
+            diffusion = Diffusion(self.verbose, self.n_iter)
 
         seeds_labels = check_seeds(seeds, adjacency)
         classes, n_classes = check_labels(seeds_labels)
@@ -91,30 +91,38 @@ class MultiRank(BaseSoftClassifier):
         n: int = adjacency.shape[0]
         personalizations = []
         for label in classes:
-            personalization = np.array(seeds_labels == label).astype(int)
+            personalization = -np.ones(n)
+            personalization[seeds_labels == label] = 1
+            ix = np.logical_and(seeds_labels != label, seeds_labels >= 0)
+            personalization[ix] = 0
             personalizations.append(personalization)
 
         if self.n_jobs != 1:
-            local_function = partial(pr.fit_transform, adjacency)
+            local_function = partial(diffusion.fit_transform, adjacency)
             with Pool(self.n_jobs) as pool:
                 membership = np.array(pool.map(local_function, personalizations))
             membership = membership.T
         else:
             membership = np.zeros((n, n_classes))
             for i in range(n_classes):
-                membership[:, i] = pr.fit_transform(adjacency, personalization=personalizations[i])[:n]
+                membership[:, i] = diffusion.fit_transform(adjacency, personalization=personalizations[i])[:n]
 
-        norm = np.sum(membership, axis=1)
-        membership[norm > 0] /= norm[norm > 0, np.newaxis]
+        membership -= np.mean(membership, axis=0)
+        membership = np.exp(membership)
+
+        norms = membership.sum(axis=1)
+        ix = np.argwhere(norms == 0).ravel()
+        if len(ix) > 0:
+            self.log.print('Nodes ', ix, ' have a null membership.')
+        membership[~ix] /= norms[~ix, np.newaxis]
 
         self.membership_ = membership
         return self
 
 
-class BiMultiRank(MultiRank):
-    """Semi-Supervised clustering based on personalized PageRank for bipartite graphs.
-    See :class:`sknetwork.ranking.BiPageRank`
+class BiMultiDiff(MultiDiff):
+    """Semi-Supervised classification based on graph diffusion for bipartite graphs.
     """
 
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', n_jobs: Optional[int] = None):
-        super(BiMultiRank, self).__init__(damping_factor, solver, n_jobs)
+    def __init__(self, verbose: bool = False, n_iter: int = 0, n_jobs: Optional[int] = None):
+        super(BiMultiDiff, self).__init__(verbose, n_iter, n_jobs)

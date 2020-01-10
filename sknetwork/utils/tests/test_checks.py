@@ -4,10 +4,11 @@
 
 import unittest
 
-from sknetwork.data import star_wars_villains, rock_paper_scissors, house
+from sknetwork.data import rock_paper_scissors
 from sknetwork.utils.adjacency_formats import *
 from sknetwork.utils.checks import has_nonnegative_entries, has_positive_entries,\
-    is_proba_array, make_weights, check_engine, check_is_proba, check_weights, check_random_state
+    is_proba_array, make_weights, check_engine, check_is_proba, check_weights,\
+    check_random_state, check_seeds, check_labels, check_n_jobs
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -68,3 +69,25 @@ class TestChecks(unittest.TestCase):
         with self.assertRaises(TypeError):
             # noinspection PyTypeChecker
             check_random_state('junk')
+
+    def test_check_seeds(self):
+        adj_array_seeds = -np.ones(self.adjacency.shape[0])
+        adj_array_seeds[:2] = np.arange(2)
+        adj_dict_seeds = {0: 0, 1: 1}
+        tmp1 = check_seeds(adj_array_seeds, self.adjacency)
+        tmp2 = check_seeds(adj_dict_seeds, self.adjacency)
+        self.assertTrue(np.allclose(tmp1, tmp2))
+
+    def test_check_labels(self):
+        with self.assertRaises(ValueError):
+            check_labels(np.ones(3))
+        labels = np.ones(5)
+        labels[0] = 0
+        classes, n_classes = check_labels(labels)
+        self.assertTrue(np.equal(classes, np.arange(2)).all())
+        self.assertEqual(n_classes, 2)
+
+    def test_check_n_jobs(self):
+        self.assertEqual(check_n_jobs(None), 1)
+        self.assertEqual(check_n_jobs(-1), None)
+        self.assertEqual(check_n_jobs(8), 8)

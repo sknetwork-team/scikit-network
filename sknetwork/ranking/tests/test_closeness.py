@@ -15,7 +15,7 @@ from sknetwork.data.graph_data import house
 class TestDiffusion(unittest.TestCase):
 
     def test_approximate(self):
-        self.closeness = Closeness(method='approximate')
+        self.closeness = Closeness(method='approximate', n_jobs=-1)
         scores = self.closeness.fit_transform(house())
         self.assertEqual((np.round(scores, 2) == [0.67, 0.8, 0.67, 0.67, 0.8]).sum(), 5)
 
