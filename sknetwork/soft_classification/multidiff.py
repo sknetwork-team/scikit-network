@@ -11,7 +11,6 @@ from typing import Union, Optional
 
 import numpy as np
 from scipy import sparse
-from scipy.cluster.vq import whiten
 
 from sknetwork.ranking import Diffusion, BiDiffusion
 from sknetwork.soft_classification.base import BaseSoftClassifier
@@ -54,13 +53,12 @@ class MultiDiff(BaseSoftClassifier, VerboseMixin):
 
     """
 
-    def __init__(self, verbose: bool = False, n_iter: int = 0, scaling=None, n_jobs: Optional[int] = None):
+    def __init__(self, verbose: bool = False, n_iter: int = 0, n_jobs: Optional[int] = None):
         super(MultiDiff, self).__init__()
         VerboseMixin.__init__(self, verbose)
 
         self.verbose = verbose
         self.n_iter = n_iter
-        self.scaling = scaling
         self.n_jobs = check_n_jobs(n_jobs)
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'MultiDiff':
@@ -109,20 +107,8 @@ class MultiDiff(BaseSoftClassifier, VerboseMixin):
             for i in range(n_classes):
                 membership[:, i] = diffusion.fit_transform(adjacency, personalization=personalizations[i])[:n]
 
-        if self.scaling == 'normal':
-            membership -= np.mean(membership, axis=0)
-            membership = whiten(membership)
-            membership = np.exp(membership)
-
-        elif self.scaling == 'flow':
-            laplacian = sparse.diags(adjacency.dot(np.ones(adjacency.shape[1])), format='csr') - adjacency
-            flows = laplacian.dot(membership)
-
-            for i in range(n_classes):
-                ix = (personalizations[i] != 1)
-                flows[ix, i] = 0
-
-            membership /= abs(np.sum(flows, axis=0))
+        membership -= np.mean(membership, axis=0)
+        membership = np.exp(membership)
 
         norms = membership.sum(axis=1)
         ix = np.argwhere(norms == 0).ravel()
@@ -138,5 +124,5 @@ class BiMultiDiff(MultiDiff):
     """Semi-Supervised classification based on graph diffusion for bipartite graphs.
     """
 
-    def __init__(self, verbose: bool = False, n_iter: int = 0, scaling=None, n_jobs: Optional[int] = None):
-        super(BiMultiDiff, self).__init__(verbose, n_iter, scaling, n_jobs)
+    def __init__(self, verbose: bool = False, n_iter: int = 0, n_jobs: Optional[int] = None):
+        super(BiMultiDiff, self).__init__(verbose, n_iter, n_jobs)
