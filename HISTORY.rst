@@ -2,6 +2,12 @@
 History
 =======
 
+Next version
+------------
+
+* Added heat kernel based node classifier
+* Updated loaders for WikiLinks
+
 0.12.0 (2019-12-10)
 -------------------
 
