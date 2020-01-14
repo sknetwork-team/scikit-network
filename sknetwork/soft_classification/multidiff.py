@@ -53,12 +53,16 @@ class MultiDiff(BaseSoftClassifier, VerboseMixin):
 
     """
 
-    def __init__(self, verbose: bool = False, n_iter: int = 0, n_jobs: Optional[int] = None):
+    def __init__(self, verbose: bool = False, n_iter: int = 0, shift: bool = True, scale: bool = False,
+                 cold_sources: bool = True, n_jobs: Optional[int] = None):
         super(MultiDiff, self).__init__()
         VerboseMixin.__init__(self, verbose)
 
         self.verbose = verbose
         self.n_iter = n_iter
+        self.shift = shift
+        self.scale = scale
+        self.cold_sources = cold_sources
         self.n_jobs = check_n_jobs(n_jobs)
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'MultiDiff':
@@ -93,8 +97,9 @@ class MultiDiff(BaseSoftClassifier, VerboseMixin):
         for label in classes:
             personalization = -np.ones(n)
             personalization[seeds_labels == label] = 1
-            ix = np.logical_and(seeds_labels != label, seeds_labels >= 0)
-            personalization[ix] = 0
+            if self.cold_sources:
+                ix = np.logical_and(seeds_labels != label, seeds_labels >= 0)
+                personalization[ix] = 0
             personalizations.append(personalization)
 
         if self.n_jobs != 1:
@@ -107,8 +112,13 @@ class MultiDiff(BaseSoftClassifier, VerboseMixin):
             for i in range(n_classes):
                 membership[:, i] = diffusion.fit_transform(adjacency, personalization=personalizations[i])[:n]
 
-        membership -= np.mean(membership, axis=0)
-        membership = np.exp(membership)
+        if self.cold_sources:
+            if self.shift:
+                membership -= np.mean(membership, axis=0)
+                membership = np.exp(membership)
+            if self.scale:
+                norms = membership.sum(axis=0)
+                membership /= norms
 
         norms = membership.sum(axis=1)
         ix = np.argwhere(norms == 0).ravel()
@@ -124,5 +134,6 @@ class BiMultiDiff(MultiDiff):
     """Semi-Supervised classification based on graph diffusion for bipartite graphs.
     """
 
-    def __init__(self, verbose: bool = False, n_iter: int = 0, n_jobs: Optional[int] = None):
-        super(BiMultiDiff, self).__init__(verbose, n_iter, n_jobs)
+    def __init__(self, verbose: bool = False, n_iter: int = 0, shift: bool = True, scale: bool = False,
+                 cold_sources: bool = True, n_jobs: Optional[int] = None):
+        super(BiMultiDiff, self).__init__(verbose, n_iter, shift, scale, cold_sources, n_jobs)

@@ -122,10 +122,15 @@ class Diffusion(BaseRanking, VerboseMixin):
             raise ValueError('The adjacency matrix should be square. See BiDiffusion.')
 
         b, border = limit_conditions(personalization, n)
+        tmin, tmax = np.min(b[border]), np.max(b)
+
         interior: sparse.csr_matrix = sparse.diags(~border, shape=(n, n), format='csr', dtype=float)
         diffusion_matrix = interior.dot(transition_matrix(adjacency))
 
-        x0 = b[border].mean() * np.ones(n)
+        if tmin != tmax:
+            x0 = b[border].mean() * np.ones(n)
+        else:
+            x0 = np.zeros(n)
         x0[border] = b[border]
 
         if self.n_iter > 0:
@@ -139,7 +144,10 @@ class Diffusion(BaseRanking, VerboseMixin):
             scores, info = bicgstab(a, b, atol=0., x0=x0)
             self.scipy_solver_info(info)
 
-        self.scores_ = np.clip(scores, np.min(b[border]), np.max(b))
+        if tmin != tmax:
+            self.scores_ = np.clip(scores, tmin, tmax)
+        else:
+            self.scores_ = scores
         return self
 
 
