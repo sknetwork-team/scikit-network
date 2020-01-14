@@ -115,10 +115,12 @@ class MultiDiff(BaseSoftClassifier, VerboseMixin):
         if self.cold_sources:
             if self.shift:
                 membership -= np.mean(membership, axis=0)
-                membership = np.exp(membership)
+
             if self.scale:
                 norms = membership.sum(axis=0)
                 membership /= norms
+
+        membership = np.exp(membership)
 
         norms = membership.sum(axis=1)
         ix = np.argwhere(norms == 0).ravel()

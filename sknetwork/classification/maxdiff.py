@@ -77,9 +77,9 @@ class MaxDiff(BaseClassifier):
 
         """
         if isinstance(self, BiMaxDiff):
-            multidiff = BiMultiDiff(self.verbose, self.n_iter, self.cold_sources, self.shift, self.scale, self.n_jobs)
+            multidiff = BiMultiDiff(self.verbose, self.n_iter, self.shift, self.scale, self.cold_sources, self.n_jobs)
         else:
-            multidiff = MultiDiff(self.verbose, self.n_iter, self.cold_sources, self.shift, self.scale, self.n_jobs)
+            multidiff = MultiDiff(self.verbose, self.n_iter, self.shift, self.scale, self.cold_sources, self.n_jobs)
 
         seeds_labels = check_seeds(seeds, adjacency)
         classes, n_classes = check_labels(seeds_labels)
