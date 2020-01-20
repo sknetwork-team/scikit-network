@@ -37,7 +37,7 @@ class SparseLR(LinearOperator):
     def __init__(self, sparse_mat: Union[sparse.csr_matrix, sparse.csc_matrix], low_rank_tuples: list, dtype=float):
         self.sparse_mat = sparse_mat.tocsr().astype(dtype)
         self.low_rank_tuples = []
-        LinearOperator.__init__(self, dtype=dtype, shape=self.sparse_mat.shape)
+        super(SparseLR, self).__init__(dtype=dtype, shape=self.sparse_mat.shape)
 
         for x, y in low_rank_tuples:
             if x.shape == (self.shape[0],) and y.shape == (self.shape[1],):

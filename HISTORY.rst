@@ -2,6 +2,13 @@
 History
 =======
 
+0.12.1 (2020-01-20)
+-------------------
+
+* Added heat kernel based node classifier
+* Updated loaders for WikiLinks
+* Fixed file-related issues for Windows
+
 0.12.0 (2019-12-10)
 -------------------
 

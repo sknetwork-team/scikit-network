@@ -20,7 +20,7 @@ class TestAlgo(unittest.TestCase):
         self.engine = check_engine('default')
 
     def test_reprs(self):
-        self.assertEqual(str(self.pagerank), "PageRank(damping_factor=0.85, solver='lanczos', fb_mode=False)")
+        self.assertEqual(str(self.pagerank), "PageRank(damping_factor=0.85, solver='lanczos', n_iter=10)")
         self.assertEqual(str(self.paris), "Paris(engine='{}', weights='degree', reorder=True)".format(self.engine))
         self.assertEqual(str(self.louvain), "Louvain(algorithm=GreedyModularity(resolution=1, tol=0, engine='{}'), "
                                             "agg_tol=0.001, max_agg_iter=-1, shuffle_nodes=False, "

@@ -13,43 +13,45 @@ from sknetwork.data import rock_paper_scissors, movie_actor
 # noinspection PyMissingOrEmptyDocstring
 class TestPageRank(unittest.TestCase):
 
-    def setUp(self):
-        self.bipagerank = BiPageRank()
-
     def test_pagerank(self):
         ground_truth = np.ones(3) / 3
-        self.adjacency = rock_paper_scissors()
+        adjacency = rock_paper_scissors()
 
-        self.pagerank_sps = PageRank(solver='spsolve')
-        self.pagerank_sps.fit(self.adjacency)
-        scores = self.pagerank_sps.scores_
+        pagerank_sps = PageRank(solver='spsolve')
+        pagerank_sps.fit(adjacency)
+        scores = pagerank_sps.scores_
         self.assertAlmostEqual(np.linalg.norm(scores - ground_truth), 0.)
 
-        self.pagerank_sps.fit(self.adjacency, personalization=np.array([0, 1, 0]))
-        self.pagerank_sps.fit(self.adjacency, personalization={1: 1})
+        pagerank_sps.fit(adjacency, personalization=np.array([0, 1, 0]))
+        pagerank_sps.fit(adjacency, personalization={1: 1})
 
-        self.pagerank_high_damping = PageRank(damping_factor=0.99)
-        self.pagerank_high_damping.fit(self.adjacency)
-        scores = self.pagerank_high_damping.scores_
+        pagerank_high_damping = PageRank(damping_factor=0.99)
+        pagerank_high_damping.fit(adjacency)
+        scores = pagerank_high_damping.scores_
         self.assertAlmostEqual(np.linalg.norm(scores - ground_truth), 0., places=1)
 
-        self.pagerank_lcz = PageRank(solver='lanczos')
-        self.pagerank_lcz.fit(self.adjacency)
-        scores = self.pagerank_lcz.scores_
+        pagerank_lcz = PageRank(solver='lanczos')
+        pagerank_lcz.fit(adjacency)
+        scores = pagerank_lcz.scores_
         self.assertAlmostEqual(np.linalg.norm(scores - ground_truth), 0.)
 
-        self.pagerank_lsq = PageRank(solver='lsqr')
-        self.pagerank_lsq.fit(self.adjacency)
-        scores = self.pagerank_lsq.scores_
+        pagerank_lsq = PageRank(solver='lsqr')
+        pagerank_lsq.fit(adjacency)
+        scores = pagerank_lsq.scores_
         self.assertAlmostEqual(np.linalg.norm(scores - ground_truth), 0.)
+
+        pagerank_naive = PageRank(solver=None)
+        pagerank_naive.fit(adjacency)
 
     def test_bipartite(self):
+        bipagerank = BiPageRank()
         biadjacency = movie_actor()
         n1, n2 = biadjacency.shape
-        self.bipagerank.fit(biadjacency, {0: 1})
-        row_scores = self.bipagerank.row_scores_
+
+        bipagerank.fit(biadjacency, {0: 1})
+        row_scores = bipagerank.row_scores_
         self.assertEqual(len(row_scores), n1)
-        col_scores = self.bipagerank.col_scores_
+        col_scores = bipagerank.col_scores_
         self.assertEqual(len(col_scores), n2)
-        scores = self.bipagerank.scores_
+        scores = bipagerank.scores_
         self.assertEqual(len(scores), n1 + n2)

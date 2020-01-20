@@ -20,3 +20,14 @@ MultiRank
     :show-inheritance:
     :inherited-members:
     :members:
+
+MultiDiff
+---------
+.. autoclass:: sknetwork.soft_classification.MultiDiff
+    :inherited-members:
+    :members:
+
+.. autoclass:: sknetwork.soft_classification.BiMultiDiff
+    :show-inheritance:
+    :inherited-members:
+    :members:

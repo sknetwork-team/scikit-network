@@ -29,3 +29,12 @@ class VerboseMixin:
     """
     def __init__(self, verbose: bool = False):
         self.log = Log(verbose)
+
+    def scipy_solver_info(self, info: int):
+        """Fill log with scipy info."""
+        if info == 0:
+            self.log.print('Successful exit.')
+        elif info > 0:
+            self.log.print('Convergence to tolerance not achieved.')
+        else:
+            self.log.print('Illegal input or breakdown.')
