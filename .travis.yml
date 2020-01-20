@@ -21,6 +21,6 @@ deploy:
     tags: true
     repo: sknetwork-team/scikit-network
     python: 3.6
-    env: $SKNETWORK_DISABLE_NUMBA=true
+    env: SKNETWORK_DISABLE_NUMBA=true
 after_success:
   - codecov
