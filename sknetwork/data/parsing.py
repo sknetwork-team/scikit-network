@@ -56,7 +56,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     del_count = zeros(3, dtype=int)
     lines = []
     row = comment
-    with open(file) as f:
+    with open(file, 'r', encoding='utf-8') as f:
         while row[0] in comment:
             row = f.readline()
             header_len += 1
@@ -79,7 +79,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         delimiter = guess_delimiter
 
     rows, cols, dat = [], [], []
-    with open(file, 'r') as f:
+    with open(file, 'r', encoding='utf-8') as f:
         for i in range(header_len):
             f.readline()
         csv_reader = reader(f, delimiter=delimiter)
@@ -154,7 +154,7 @@ def parse_labels(file: str) -> ndarray:
         The labels on each row.
     """
     rows = []
-    with open(file, 'r') as f:
+    with open(file, 'r', encoding='utf-8') as f:
         for row in f:
             rows.append(row.strip())
     return array(rows)
@@ -181,7 +181,7 @@ def parse_hierarchical_labels(file: str, depth: int, full_path: bool = True, del
         An array of the labels.
     """
     rows = []
-    with open(file, 'r') as f:
+    with open(file, 'r', encoding='utf-8') as f:
         for row in f:
             parts = row.strip().split(delimiter)
             if full_path:
@@ -193,7 +193,7 @@ def parse_hierarchical_labels(file: str, depth: int, full_path: bool = True, del
 
 def parse_header(file: str):
     directed, bipartite, weighted = False, False, True
-    with open(file) as f:
+    with open(file, 'r', encoding='utf-8') as f:
         row = f.readline()
         if 'bip' in row:
             bipartite = True
@@ -206,7 +206,7 @@ def parse_header(file: str):
 
 def parse_metadata(file: str, delimiter: str = ': ') -> 'Bunch':
     metadata = Bunch()
-    with open(file) as f:
+    with open(file, 'r', encoding='utf-8') as f:
         for row in f:
             parts = row.split(delimiter)
             key, value = parts[0], ': '.join(parts[1:]).strip('\n')
