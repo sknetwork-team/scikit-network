@@ -8,7 +8,7 @@ Sphinx==2.3.1
 coverage==5.0.3
 twine==3.1.1
 numba>=0.47.0
-nbsphinx==0.5.0
+nbsphinx==0.5.1
 ipython==7.10.1
 jupyter_client==5.3.4
 ipykernel==5.1.3
