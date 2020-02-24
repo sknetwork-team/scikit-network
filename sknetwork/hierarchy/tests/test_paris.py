@@ -12,7 +12,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork import is_numba_available
-from sknetwork.hierarchy import Paris, BiParis, straight_cut
+from sknetwork.hierarchy import Paris, BiParis, straight_cut, balanced_cut
 from sknetwork.data import house, karate_club, star_wars_villains
 
 
@@ -52,6 +52,8 @@ class TestParis(unittest.TestCase):
         self.assertEqual(self.paris.dendrogram_.shape[0], 33)
         labels = straight_cut(self.paris.dendrogram_)
         self.assertEqual(np.max(labels), 1)
+        labels = balanced_cut(self.paris.dendrogram_, max_cluster_size=10)
+        self.assertEqual(len(set(labels)), 5)
 
     def test_bipartite(self):
         star_wars_graph = star_wars_villains()
