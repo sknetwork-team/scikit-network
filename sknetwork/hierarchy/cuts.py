@@ -76,7 +76,7 @@ def balanced_cut(dendrogram: np.ndarray, max_cluster_size: int = 2, sorted_clust
         right = int(dendrogram[t][1])
         if left in cluster and right in cluster and len(cluster[left]) + len(cluster[right]) <= max_cluster_size:
             cluster[n_nodes + t] = cluster.pop(left) + cluster.pop(right)
-            
+
     clusters = list(cluster.values())
     if sorted_clusters:
         clusters = sorted(clusters, key=len, reverse=True)
