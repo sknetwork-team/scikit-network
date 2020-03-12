@@ -34,31 +34,27 @@ def barycenter_norm(adjacency, spectral: Spectral) -> float:
         return np.linalg.norm(spectral.embedding_.mean(axis=0))
 
 
-def has_proper_shape(adjacency, algo: Union[Spectral, BiSpectral]) -> bool:
+def has_proper_shape(adjacency: Union[sparse.csr_matrix, np.ndarray], algorithm: Union[Spectral, BiSpectral]) -> bool:
     """Check if the embedding has a proper shape with respect to the input data.
 
     Parameters
     ----------
-    adjacency
-    algo
+    adjacency: Adjacency matrix
+    algorithm: Embedding
 
     Returns
     -------
-
+    bool
     """
     n1, n2 = adjacency.shape
-    if n1 != n2:
-        n = n1 + n2
-    else:
-        n = n1
-    k = algo.embedding_dimension
-    if algo.embedding_.shape != (n, k):
+    k = algorithm.n_components
+    if algorithm.embedding_.shape != (n1, k):
         return False
-    if hasattr(algo, 'col_embedding_') and algo.col_embedding_.shape != (n2, k):
+    if hasattr(algorithm, 'embedding_col_') and algorithm.embedding_col_.shape != (n2, k):
         return False
-    if hasattr(algo, 'eigenvalues_') and len(algo.eigenvalues_) != k:
+    if hasattr(algorithm, 'eigenvalues_') and len(algorithm.eigenvalues_) != k:
         return False
-    if hasattr(algo, 'singular_values_') and len(algo.singular_values_) != k:
+    if hasattr(algorithm, 'singular_values_') and len(algorithm.singular_values_) != k:
         return False
 
     return True
@@ -80,6 +76,7 @@ class TestEmbeddings(unittest.TestCase):
 
         # test if the embedding is centered
         # without regularization
+        spectral.normalize = False
         spectral.regularization = None
         spectral.fit(self.house)
         self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
@@ -97,25 +94,25 @@ class TestEmbeddings(unittest.TestCase):
 
         # test if the embedding is centered
         # without regularization
+        spectral.normalize = False
         spectral.regularization = None
-        spectral.fit(self.house)
-        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
+        spectral.fit(self.adjacency)
+        self.assertAlmostEqual(barycenter_norm(self.adjacency, spectral), 0)
 
         # with regularization
         spectral.regularization = 0.1
-        spectral.fit(self.house)
-        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0, places=2)
+        spectral.fit(self.adjacency)
+        self.assertAlmostEqual(barycenter_norm(self.adjacency, spectral), 0, places=2)
 
     def test_spectral_basic(self):
         # Spectral with lanczos solver
-        spectral = Spectral(2, normalized_laplacian=False, scaling=None, solver='lanczos')
+        spectral = Spectral(2, normalized_laplacian=False, barycenter=False, normalize=False, solver='lanczos')
         spectral.fit(self.adjacency)
         self.assertTrue(has_proper_shape(self.adjacency, spectral))
-        self.assertTrue(min(spectral.eigenvalues_ >= -1) and max(spectral.eigenvalues_ <= 1))
+        self.assertTrue(min(spectral.eigenvalues_ >= 0) and max(spectral.eigenvalues_ <= 1))
 
         # test if the embedding is centered
         # without regularization
-        spectral = Spectral(2, normalized_laplacian=False, scaling=None, solver='lanczos', regularization=0)
         spectral.fit(self.house)
         self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
 
@@ -124,18 +121,18 @@ class TestEmbeddings(unittest.TestCase):
         spectral.fit(self.house)
         self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
 
-    def test_spectral_divide_scaling(self):
-        spectral = Spectral(2, scaling='divide')
+    def test_spectral_equalize(self):
+        spectral = Spectral(2, equalize=True, barycenter=False, normalize=False)
         spectral.regularization = None
         spectral.fit(self.house)
-        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0, 7)
+        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
 
     def test_predict(self):
         spectral = Spectral(4)
         spectral.fit(self.adjacency)
         unit_vector = np.zeros(self.adjacency.shape[0])
         unit_vector[0] = 1
-        error = max(abs(spectral.predict(self.adjacency.dot(unit_vector)) - spectral.embedding_[0]))
+        error = np.sum(np.abs(spectral.predict(self.adjacency.dot(unit_vector)) - spectral.embedding_[0]))
         self.assertAlmostEqual(error, 0)
 
     def test_svd(self):

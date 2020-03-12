@@ -23,7 +23,7 @@ class BiSpectral(BaseEmbedding):
 
     Solves
     :math:`\\begin{cases} AV = W_1U\\Sigma, \\\\ A^TU = W_2V \\Sigma \\end{cases}`
-    where :math:`W_1, W_2` are diagonal matrices of **weights** and **col_weights**.
+    where :math:`W_1, W_2` are diagonal matrices of **weights** and **weights_col**.
 
     The embedding of the rows is :math:`X = U \\phi(\\Sigma)`
     and the embedding of the columns is :math:`Y = V\\psi(\\Sigma)`,
@@ -31,7 +31,7 @@ class BiSpectral(BaseEmbedding):
 
     Parameters
     -----------
-    embedding_dimension: int
+    n_components: int
         Dimension of the embedding.
     weights: ``'degree'`` or ``'uniform'`` (default = ``'degree'``)
         Weights of the nodes.
@@ -39,7 +39,7 @@ class BiSpectral(BaseEmbedding):
         * ``'degree'``: :math:`W_1 = D`,
         * ``'uniform'``:  :math:`W_1 = I`.
 
-    col_weights: ``None`` or ``'degree'`` or ``'uniform'`` (default= ``None``)
+    weights_col: ``None`` or ``'degree'`` or ``'uniform'`` (default= ``None``)
         Weights of the secondary nodes (taken equal to **weights** if ``None``).
 
         * ``'degree'``: :math:`W_2 = F`,
@@ -66,13 +66,13 @@ class BiSpectral(BaseEmbedding):
 
     Attributes
     ----------
-    row_embedding_ : np.ndarray, shape = (n1, embedding_dimension)
+    embedding_row_ : np.ndarray, shape = (n1, n_components)
         Embedding of the rows.
-    col_embedding_ : np.ndarray, shape = (n2, embedding_dimension)
+    embedding_col_ : np.ndarray, shape = (n2, n_components)
         Embedding of the columns.
-    embedding_ : np.ndarray, shape = (n1 + n2, embedding_dimension)
+    embedding_ : np.ndarray, shape = (n1, n_components)
         Embedding of all nodes (concatenation of the embeddings of rows and columns).
-    singular_values_ : np.ndarray, shape = (embedding_dimension)
+    singular_values_ : np.ndarray, shape = (n_components)
         Generalized singular values of the adjacency matrix (first singular value ignored).
 
     Example
@@ -82,7 +82,7 @@ class BiSpectral(BaseEmbedding):
     >>> bispectral = BiSpectral()
     >>> embedding = bispectral.fit_transform(biadjacency)
     >>> embedding.shape
-    (9, 2)
+    (4, 2)
 
     References
     ----------
@@ -92,25 +92,25 @@ class BiSpectral(BaseEmbedding):
     Encyclopedia of measurement and statistics, 907-912.
     """
 
-    def __init__(self, embedding_dimension=2, weights='degree', col_weights=None,
+    def __init__(self, n_components=2, weights='degree', weights_col=None,
                  regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
                  scaling: Union[None, str] = 'multiply', solver: Union[str, SVDSolver] = 'auto'):
         super(BiSpectral, self).__init__()
 
-        self.embedding_dimension = embedding_dimension
+        self.n_components = n_components
         self.weights = weights
-        if col_weights is None:
-            col_weights = weights
-        self.col_weights = col_weights
+        if weights_col is None:
+            weights_col = weights
+        self.col_weights = weights_col
         self.regularization = regularization
         self.relative_regularization = relative_regularization
         self.scaling = scaling
 
         if scaling == 'divide':
-            if weights != 'degree' or col_weights != 'degree':
+            if weights != 'degree' or weights_col != 'degree':
                 self.scaling = None
                 warnings.warn(Warning("The scaling 'divide' is valid only with ``weights = 'degree'`` and "
-                                      "``col_weights = 'degree'``. It will be ignored."))
+                                      "``weights_col = 'degree'``. It will be ignored."))
 
         if solver == 'halko':
             self.solver: SVDSolver = HalkoSVD()
@@ -119,8 +119,8 @@ class BiSpectral(BaseEmbedding):
         else:
             self.solver = solver
 
-        self.row_embedding_ = None
-        self.col_embedding_ = None
+        self.embedding_row_ = None
+        self.embedding_col_ = None
         self.embedding_ = None
         self.singular_values_ = None
 
@@ -163,32 +163,32 @@ class BiSpectral(BaseEmbedding):
         normalized_adj = safe_sparse_dot(diag_row, safe_sparse_dot(adjacency, diag_col))
 
         # svd
-        if self.embedding_dimension >= min(n1, n2) - 1:
+        if self.n_components >= min(n1, n2) - 1:
             n_components = min(n1, n2) - 1
             warnings.warn(Warning("The dimension of the embedding must be less than the number of rows "
                                   "and the number of columns. Changed accordingly."))
         else:
-            n_components = self.embedding_dimension + 1
+            n_components = self.n_components + 1
         self.solver.fit(normalized_adj, n_components)
 
         index = np.argsort(-self.solver.singular_values_)
         self.singular_values_ = self.solver.singular_values_[index[1:]]
-        self.row_embedding_ = diag_row.dot(self.solver.left_singular_vectors_[:, index[1:]])
-        self.col_embedding_ = diag_col.dot(self.solver.right_singular_vectors_[:, index[1:]])
+        self.embedding_row_ = diag_row.dot(self.solver.left_singular_vectors_[:, index[1:]])
+        self.embedding_col_ = diag_col.dot(self.solver.right_singular_vectors_[:, index[1:]])
 
         if self.scaling:
             if self.scaling == 'multiply':
-                self.row_embedding_ *= np.sqrt(self.singular_values_)
-                self.col_embedding_ *= np.sqrt(self.singular_values_)
+                self.embedding_row_ *= np.sqrt(self.singular_values_)
+                self.embedding_col_ *= np.sqrt(self.singular_values_)
             elif self.scaling == 'divide':
                 energy_levels: np.ndarray = np.sqrt(1 - np.clip(self.singular_values_, 0, 1) ** 2)
                 energy_levels[energy_levels > 0] = 1 / energy_levels[energy_levels > 0]
-                self.row_embedding_ *= energy_levels
-                self.col_embedding_ *= energy_levels
+                self.embedding_row_ *= energy_levels
+                self.embedding_col_ *= energy_levels
             elif self.scaling == 'barycenter':
-                self.row_embedding_ *= self.singular_values_
+                self.embedding_row_ *= self.singular_values_
             else:
                 warnings.warn(Warning("The scaling must be 'multiply' or 'divide' or 'barycenter'. No scaling done."))
 
-        self.embedding_ = np.vstack((self.row_embedding_, self.col_embedding_))
+        self.embedding_ = self.embedding_row_
         return self

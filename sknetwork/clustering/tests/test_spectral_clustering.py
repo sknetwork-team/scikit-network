@@ -35,4 +35,3 @@ class TestSpectralClustering(unittest.TestCase):
         bispectral_clustering.fit(self.bipartite)
         self.assertEqual(bispectral_clustering.row_labels_.shape[0], n1)
         self.assertEqual(bispectral_clustering.col_labels_.shape[0], n2)
-        self.assertEqual(bispectral_clustering.labels_.shape[0], n1 + n2)

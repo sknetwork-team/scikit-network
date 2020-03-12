@@ -2,10 +2,8 @@
 # coding: utf-8
 """
 Created on Thu Sep 13 2018
-
-Authors:
-Thomas Bonald <thomas.bonald@telecom-paristech.fr>
-Nathan De Lara <nathan.delara@telecom-paristech.fr>
+@author: Nathan de Lara <ndelara@enst.fr>
+@author: Thomas Bonald <bonald@enst.fr>
 """
 
 import warnings
@@ -72,16 +70,16 @@ class NormalizedAdjacencyOperator(LinearOperator):
         self.regularization = regularization
 
         n = self.adjacency.shape[0]
-        self.sqrt_weights = np.sqrt(self.adjacency.dot(np.ones(n)) + self.regularization * n)
+        self.weights_sqrt = np.sqrt(self.adjacency.dot(np.ones(n)) + self.regularization * n)
 
     def _matvec(self, matrix: np.ndarray):
-        matrix = (matrix.T / self.sqrt_weights).T
+        matrix = (matrix.T / self.weights_sqrt).T
         prod = self.adjacency.dot(matrix)
         if len(matrix.shape) == 2:
             prod += self.regularization * np.tile(matrix.sum(axis=0), (self.shape[0], 1))
         else:
             prod += self.regularization * matrix.sum()
-        return (prod.T / self.sqrt_weights).T
+        return (prod.T / self.weights_sqrt).T
 
     def _transpose(self):
         return self
@@ -100,52 +98,55 @@ class NormalizedAdjacencyOperator(LinearOperator):
         """
         self.dtype = np.dtype(dtype)
         self.adjacency = self.adjacency.astype(self.dtype)
-        self.sqrt_weights = self.sqrt_weights.astype(self.dtype)
+        self.weights_sqrt = self.weights_sqrt.astype(self.dtype)
 
         return self
 
 
 class Spectral(BaseEmbedding):
     """
-    Spectral embedding of a graph.
-
-    Solves the eigenvalue problem :math:`LU = U\\Lambda`, where :math:`L` is the graph Laplacian.
-
-    The embedding is :math:`X = U \\phi(\\Lambda)` where :math:`\\phi(\\Lambda)` is a diagonal scaling matrix.
+    Spectral embedding of the graph, using the spectral decomposition of the Laplacian matrix :math:`L = D - A`.
+    Eigenvectors are considered in increasing order of eigenvalues, skipping the first eigenvector.
+    The graph must be undirected (see BiSpectral for directed graphs and bipartite graphs).
 
     Parameters
     ----------
-    embedding_dimension : int (default = 2)
-        Dimension of the embedding space
+    n_components : int (default = 2)
+        Dimension of the embedding space.
     normalized_laplacian : bool (default = ``True``)
 
-        * If ``True``, use the normalized Laplacian, :math:`L = I - D^{-1/2} A D^{-1/2}`.
-        * If ``False``, use the regular Laplacian, :math:`L = D - A`.
-    regularization : ``None`` or float (default = ``0.01``)
-        Implicitly add edges of given weight between all pairs of nodes.
-    relative_regularization : bool (default = ``True``)
-        If ``True``, consider the regularization as relative to the total weight of the graph.
-    scaling:  ``None`` or ``'multiply'`` or ``'divide'`` or ``'barycenter'`` (default = ``'multiply'``)
+        * If ``True``, solves the eigenvalue problem :math:`LU = DU \\Lambda`.
+        * If ``False``, solves the eigenvalue problem :math:`LU = U \\Lambda`.
 
-        * ``None``: :math:`\\phi(\\Lambda) = I`,
-        * ``'multiply'`` : :math:`\\phi(\\Lambda) = \\sqrt{\\Lambda}`,
-        * ``'divide'``  : :math:`\\phi(\\Lambda)= (\\sqrt{1 - \\Lambda})^{-1}`.
-    solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
+    regularization : ``None`` or float (default = ``0.01``)
+        Adds edges of given weight between all pairs of nodes.
+    relative_regularization : bool (default = ``True``)
+        If ``True``, considers the regularization as relative to the total weight of the graph.
+    equalize : bool (default = ``False``)
+        If ``True``, equalizes the energy levels of the corresponding physical system, i.e., uses
+        :math:`U \\Lambda^{- \\frac 1 2}`. Requires regularization if the graph is not connected.
+    barycenter : bool (default = ``True``)
+        If ``True``, uses the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
+        with :math:`P = D^{-1}A`.
+    normalize : bool (default = ``True``)
+        If ``True``, normalizes the embedding so that each vector has norm 1 in the embedding space, i.e.,
+        each vector lies on the unit sphere.
+    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
         Which eigenvalue solver to use.
 
         * ``'auto'`` call the auto_solver function.
         * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
         * ``'lanczos'``: power-iteration based method.
         * :class:`EigSolver`: custom solver.
-    tol: float (default = 1e-10)
-        Skip eigenvectors of the normalized Laplacian with eigenvalues larger than 1 - tol.
 
     Attributes
     ----------
-    embedding_ : array, shape = (n, embedding_dimension)
+    embedding_ : array, shape = (n, n_components)
         Embedding of the nodes.
-    eigenvalues_ : array, shape = (embedding_dimension)
+    eigenvalues_ : array, shape = (n_components)
         Eigenvalues in increasing order (first eigenvalue ignored).
+    eigenvectors_ : array, shape = (n, n_components)
+        Corresponding eigenvectors.
     regularization_ : ``None`` or float
         Regularization factor added to all pairs of nodes.
 
@@ -162,15 +163,15 @@ class Spectral(BaseEmbedding):
     ----------
     Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
     Neural computation.
-
     """
 
-    def __init__(self, embedding_dimension: int = 2, normalized_laplacian=True,
+    def __init__(self, n_components: int = 2, normalized_laplacian=True,
                  regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
-                 scaling: Union[None, str] = 'multiply', solver: Union[str, EigSolver] = 'auto', tol: float = 1e-10):
+                 equalize: bool = False, barycenter: bool = True, normalize: bool = True,
+                 solver: Union[str, EigSolver] = 'auto'):
         super(Spectral, self).__init__()
 
-        self.embedding_dimension = embedding_dimension
+        self.n_components = n_components
         self.normalized_laplacian = normalized_laplacian
 
         if regularization == 0:
@@ -179,11 +180,9 @@ class Spectral(BaseEmbedding):
             self.regularization = regularization
         self.relative_regularization = relative_regularization
 
-        self.scaling = scaling
-        if scaling == 'multiply' and not normalized_laplacian:
-            self.scaling = None
-            warnings.warn(Warning("The scaling 'multiply' is valid only with ``normalized_laplacian = 'True'``. "
-                                  "It will be ignored."))
+        self.equalize = equalize
+        self.barycenter = barycenter
+        self.normalize = normalize
 
         if solver == 'halko':
             self.solver: EigSolver = HalkoEig(which='SM')
@@ -192,13 +191,12 @@ class Spectral(BaseEmbedding):
         else:
             self.solver = solver
 
-        self.tol = tol
-
         self.eigenvalues_ = None
+        self.eigenvectors_ = None
         self.regularization_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Spectral':
-        """Fits the model from data in adjacency.
+        """Computes the graph embedding.
 
         Parameters
         ----------
@@ -213,7 +211,7 @@ class Spectral(BaseEmbedding):
         adjacency = check_format(adjacency).asfptype()
 
         if not is_square(adjacency):
-            raise ValueError('The adjacency matrix is not square. See BiSpectral.')
+            raise ValueError('The adjacency matrix is not square. See BiSpectral for biadjacency matrices.')
 
         if not is_symmetric(adjacency):
             raise ValueError('The adjacency matrix is not symmetric.'
@@ -228,15 +226,15 @@ class Spectral(BaseEmbedding):
             else:
                 self.solver: EigSolver = HalkoEig()
 
-        if self.embedding_dimension > n - 2:
+        if self.n_components > n - 2:
             warnings.warn(Warning("The dimension of the embedding must be less than the number of nodes - 1."))
             n_components = n - 2
         else:
-            n_components = self.embedding_dimension + 1
+            n_components = self.n_components + 1
 
-        if (self.regularization is None or self.regularization == 0.) and not is_connected(adjacency):
-            warnings.warn(Warning("The graph is not connected and low-rank regularization is not active."
-                                  "This can cause errors in the computation of the embedding."))
+        if self.equalize and (self.regularization is None or self.regularization == 0.) and not is_connected(adjacency):
+            raise ValueError("The option 'equalize' is valid only if the graph is connected or with regularization."
+                             "Call 'fit' either with 'equalize' = False or positive 'regularization'.")
 
         if isinstance(self.solver, HalkoEig) and not self.normalized_laplacian:
             raise NotImplementedError("Halko solver is not yet compatible with regular Laplacian."
@@ -252,50 +250,56 @@ class Spectral(BaseEmbedding):
         if self.normalized_laplacian:
             # Finding the largest eigenvalues of the normalized adjacency is easier for the solver than finding the
             # smallest eigenvalues of the normalized laplacian.
-            normalizing_matrix = diag_pinv(np.sqrt(weights))
+            weights_inv_sqrt_diag = diag_pinv(np.sqrt(weights))
 
             if regularization:
                 norm_adjacency = NormalizedAdjacencyOperator(adjacency, regularization)
             else:
-                norm_adjacency = normalizing_matrix.dot(adjacency.dot(normalizing_matrix))
+                norm_adjacency = weights_inv_sqrt_diag.dot(adjacency.dot(weights_inv_sqrt_diag))
 
             self.solver.which = 'LA'
             self.solver.fit(matrix=norm_adjacency, n_components=n_components)
             eigenvalues = 1 - self.solver.eigenvalues_
             # eigenvalues of the Laplacian in increasing order
-            index = np.argsort(eigenvalues)
+            index = np.argsort(eigenvalues)[1:]
             # skip first eigenvalue
-            eigenvalues = eigenvalues[index][1:]
-            # keep only positive eigenvectors of the normalized adjacency matrix
-            eigenvectors = self.solver.eigenvectors_[:, index][:, 1:] * (eigenvalues < 1 - self.tol)
-            embedding = np.array(normalizing_matrix.dot(eigenvectors))
+            eigenvalues = eigenvalues[index]
+            # eigenvectors of the Laplacian, skip first eigenvector
+            eigenvectors = np.array(weights_inv_sqrt_diag.dot(self.solver.eigenvectors_[:, index]))
 
         else:
             if regularization:
                 laplacian = LaplacianOperator(adjacency, regularization)
             else:
-                weight_matrix = sparse.diags(weights, format='csr')
-                laplacian = weight_matrix - adjacency
+                weight_diag = sparse.diags(weights, format='csr')
+                laplacian = weight_diag - adjacency
 
             self.solver.which = 'SM'
             self.solver.fit(matrix=laplacian, n_components=n_components)
             eigenvalues = self.solver.eigenvalues_[1:]
-            embedding = self.solver.eigenvectors_[:, 1:]
+            eigenvectors = self.solver.eigenvectors_[:, 1:]
 
-        if self.scaling:
-            if self.scaling == 'multiply':
-                eigenvalues = np.minimum(eigenvalues, 1)
-                embedding *= np.sqrt(1 - eigenvalues)
-            elif self.scaling == 'divide':
-                inv_eigenvalues = np.zeros_like(eigenvalues)
-                index = np.where(eigenvalues > 0)[0]
-                inv_eigenvalues[index] = 1 / eigenvalues[index]
-                embedding *= np.sqrt(inv_eigenvalues)
-            else:
-                warnings.warn(Warning("The scaling must be 'multiply' or 'divide'. No scaling done."))
+        embedding = eigenvectors.copy()
+
+        if self.equalize:
+            eigenvalues_sqrt_inv_diag = diag_pinv(np.sqrt(eigenvalues))
+            embedding = eigenvalues_sqrt_inv_diag.dot(embedding.T).T
+
+        if self.barycenter:
+            eigenvalues_diag = sparse.diags(eigenvalues)
+            subtract = eigenvalues_diag.dot(embedding.T).T
+            if not self.normalized_laplacian:
+                weights_inv_diag = diag_pinv(weights)
+                subtract = weights_inv_diag.dot(subtract)
+            embedding -= subtract
+
+        if self.normalize:
+            norms_inv_diag = diag_pinv(np.linalg.norm(embedding, axis=1))
+            embedding = norms_inv_diag.dot(embedding)
 
         self.embedding_ = embedding
         self.eigenvalues_ = eigenvalues
+        self.eigenvectors_ = eigenvectors
         self.regularization_ = regularization
 
         return self
@@ -306,21 +310,21 @@ class Spectral(BaseEmbedding):
         Parameters
         ----------
         adjacency_vector : array, shape (n,)
-              Adjacency vector of a node.
+            Adjacency vector of a node.
 
         Returns
         -------
-        embedding_vector : array, shape (embedding_dimension,)
+        embedding_vector : array, shape (n_components,)
             Embedding of the node.
         """
-        embedding = self.embedding_
+        eigenvectors = self.eigenvectors_
         eigenvalues = self.eigenvalues_
 
-        if embedding is None:
+        if eigenvectors is None:
             raise ValueError("This instance of Spectral embedding is not fitted yet."
                              " Call 'fit' with appropriate arguments before using this method.")
         else:
-            n = embedding.shape[0]
+            n = eigenvectors.shape[0]
 
         if adjacency_vector.shape[0] != n:
             raise ValueError('The adjacency vector must be of length equal to the number of nodes.')
@@ -328,18 +332,29 @@ class Spectral(BaseEmbedding):
             raise ValueError('The adjacency vector must be non-negative.')
 
         # regularization
-        reg_adjacency_vector = adjacency_vector.astype(float)
+        adjacency_vector_reg = adjacency_vector.astype(float)
         if self.regularization_:
-            reg_adjacency_vector += self.regularization_
+            adjacency_vector_reg += self.regularization_
 
         # projection in the embedding space
-        if self.normalized_laplacian:
-            embedding_vector = np.zeros(self.embedding_dimension)
-            index = np.where(eigenvalues < 1 - self.tol)[0]
-            embedding_vector[index] = embedding[:, index].T.dot(reg_adjacency_vector) / np.sum(reg_adjacency_vector)
-            embedding_vector[index] /= 1 - eigenvalues[index]
-        else:
-            raise ValueError("The predict method is not available for the spectral embedding based on the Laplacian."
-                             " Call 'fit' with 'normalized_laplacian' = True.")
+        average_vector = adjacency_vector_reg / np.sum(adjacency_vector_reg)
+        embedding_vector = average_vector.reshape(1, -1).dot(eigenvectors).ravel()
+
+        if not self.barycenter:
+            if self.normalized_laplacian:
+                factors = 1 - eigenvalues
+            else:
+                factors = 1 - eigenvalues / np.sum(adjacency_vector_reg)
+            factors_inv_diag = diag_pinv(factors)
+            embedding_vector = factors_inv_diag.dot(embedding_vector)
+
+        if self.equalize:
+            eigenvalues_sqrt_inv_diag = diag_pinv(np.sqrt(eigenvalues))
+            embedding_vector = eigenvalues_sqrt_inv_diag.dot(embedding_vector)
+
+        if self.normalize:
+            norm = np.linalg.norm(embedding_vector)
+            if norm > 0:
+                embedding_vector /= norm
 
         return embedding_vector

@@ -185,7 +185,7 @@ def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='a
         n_oversamples : int (default=10)
             Additional number of random vectors to sample the range of M so as
             to ensure proper conditioning. The total number of random vectors
-            used to find the range of M is embedding_dimension + n_oversamples. Smaller
+            used to find the range of M is n_components + n_oversamples. Smaller
             number can improve speed but can negatively impact the quality of
             approximation of singular vectors and singular values.
         n_iter : int or 'auto' (default is 'auto')

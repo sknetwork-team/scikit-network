@@ -9,7 +9,6 @@ This module's code is freely adapted from TorchKGE's torchkge.data.DataLoader.py
 import pickle
 import tarfile
 import shutil
-import zipfile
 from os import environ, makedirs, remove, listdir
 from os.path import exists, expanduser, join
 from typing import Optional
@@ -19,8 +18,7 @@ from urllib.request import urlretrieve
 import numpy as np
 from scipy import sparse
 
-from sknetwork.basics import is_bipartite
-from sknetwork.data.parsing import parse_tsv, parse_labels, parse_hierarchical_labels, parse_header, parse_metadata
+from sknetwork.data.parsing import parse_tsv, parse_labels, parse_header, parse_metadata
 from sknetwork.utils import Bunch
 
 

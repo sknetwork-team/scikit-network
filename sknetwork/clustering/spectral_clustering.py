@@ -128,9 +128,9 @@ class BiSpectralClustering(SpectralClustering):
         bispectral = BiSpectral(self.embedding_dimension).fit(biadjacency)
 
         if self.co_clustering:
-            embedding = bispectral.embedding_
+            embedding = np.vstack((bispectral.embedding_row_, bispectral.embedding_col_))
         else:
-            embedding = bispectral.row_embedding_
+            embedding = bispectral.embedding_row_
 
         if self.l2normalization:
             norm = np.linalg.norm(embedding, axis=1)
