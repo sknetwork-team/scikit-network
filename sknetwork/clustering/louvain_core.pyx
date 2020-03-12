@@ -1,6 +1,6 @@
 cimport numpy as np
 import numpy as np
-
+from libcpp.set cimport set
 cimport cython
 
 ctypedef np.int_t int_type_t
@@ -45,87 +45,82 @@ def fit_core(float_type_t resolution,float_type_t tol,int_type_t n_nodes,np.floa
     cdef int increase = 1
     cdef int has_candidates = 0
 
-    cdef int[:] labels = np.arange(n_nodes, dtype=np.intc)
-    cdef np.float_t[:] neighbor_clusters_weights = np.zeros(n_nodes, dtype=np.float)
+    cdef np.ndarray[int, ndim=1] labels = np.arange(n_nodes, dtype=np.intc)
+    cdef np.float_t[:] neighbor_clusters_weights = out_node_probs.copy()
     cdef np.float_t[:] out_clusters_weights = out_node_probs.copy()
     cdef np.float_t[:] in_clusters_weights = in_node_probs.copy()
     cdef int[:] neighbors
     cdef np.float_t[:] weights
-    cdef int[:] labels_neighbors
-    cdef int[:] unique_clusters
+    cdef set[int] unique_clusters = {0}
 
-    cdef float total_increase = 0
-    cdef float pass_increase
-    cdef float exit_delta
-    cdef float best_delta
-    cdef float local_delta
+    cdef float increase_pass
+    cdef float increase_total = 0
     cdef float delta
-    cdef float out_ratio
-    cdef float in_ratio
+    cdef float delta_best
+    cdef float delta_exit
+    cdef float delta_local
+    cdef float ratio_in
+    cdef float ratio_out
 
-    cdef int node_cluster
-    cdef int best_cluster
     cdef int cluster
-    cdef int node
+    cdef int cluster_best
+    cdef int cluster_node
     cdef int i
+    cdef int label
     cdef int n_neighbors
+    cdef int node
 
     while increase == 1:
         increase = 0
-        pass_increase = 0
+        increase_pass = 0
 
         for node in range(n_nodes):
             has_candidates = 0
-            node_cluster = labels[node]
+            cluster_node = labels[node]
             neighbors = indices[indptr[node]:indptr[node + 1]]
+            n_neighbors = neighbors.shape[0]
             weights = data[indptr[node]:indptr[node + 1]]
-            n_neighbors = len(neighbors)
-            labels_neighbors = np.zeros(n_neighbors, dtype=np.intc)
-
-            for i in range(n_nodes):
-                neighbor_clusters_weights[i] = 0
-            for i in range(len(neighbors)):
-                if labels[neighbors[i]] != node_cluster:
-                    has_candidates = 1
-                neighbor_clusters_weights[labels[neighbors[i]]] += weights[i]
-                labels_neighbors[i] = labels[neighbors[i]]
-
-            unique_clusters = np.unique(labels_neighbors)
 
 
-            if has_candidates == 1:
-                out_ratio = resolution * out_node_probs[node]
-                in_ratio = resolution * in_node_probs[node]
-                exit_delta = 2 * (neighbor_clusters_weights[node_cluster] - self_loops[node])
-                exit_delta -= out_ratio * (in_clusters_weights[node_cluster] - in_node_probs[node])
-                exit_delta -= in_ratio * (out_clusters_weights[node_cluster] - out_node_probs[node])
+            neighbor_clusters_weights[:] = 0
 
-                best_delta = 0
-                best_cluster = node_cluster
-                neighbor_clusters_weights[node_cluster] = 0
+            unique_clusters.clear()
+            for i in range(n_neighbors):
+                label = labels[neighbors[i]]
+                neighbor_clusters_weights[label] += weights[i]
+                unique_clusters.insert(label)
 
+            unique_clusters.erase(cluster_node)
 
-                for i in range(len(unique_clusters)):
-                    cluster = unique_clusters[i]
-                    if cluster != node_cluster:
-                        delta = 2 * neighbor_clusters_weights[cluster]
-                        delta -= out_ratio * in_clusters_weights[cluster]
-                        delta -= in_ratio * out_clusters_weights[cluster]
+            if not unique_clusters.empty():
+                ratio_out = resolution * out_node_probs[node]
+                ratio_in = resolution * in_node_probs[node]
+                delta_exit = 2 * (neighbor_clusters_weights[cluster_node] - self_loops[node])
+                delta_exit -= ratio_out * (in_clusters_weights[cluster_node] - in_node_probs[node])
+                delta_exit -= ratio_in * (out_clusters_weights[cluster_node] - out_node_probs[node])
 
-                        local_delta = delta - exit_delta
-                        if local_delta > best_delta:
-                            best_delta = local_delta
-                            best_cluster = cluster
+                delta_best = 0
+                cluster_best = cluster_node
 
-                if best_delta > 0:
-                    pass_increase += best_delta
-                    out_clusters_weights[node_cluster] -= out_node_probs[node]
-                    in_clusters_weights[node_cluster] -= in_node_probs[node]
-                    out_clusters_weights[best_cluster] += out_node_probs[node]
-                    in_clusters_weights[best_cluster] += in_node_probs[node]
-                    labels[node] = best_cluster
+                for cluster in unique_clusters:
+                    delta = 2 * neighbor_clusters_weights[cluster]
+                    delta -= ratio_out * in_clusters_weights[cluster]
+                    delta -= ratio_in * out_clusters_weights[cluster]
 
-        total_increase += pass_increase
-        if pass_increase > tol:
+                    delta_local = delta - delta_exit
+                    if delta_local > delta_best:
+                        delta_best = delta_local
+                        cluster_best = cluster
+
+                if delta_best > 0:
+                    increase_pass += delta_best
+                    out_clusters_weights[cluster_node] -= out_node_probs[node]
+                    in_clusters_weights[cluster_node] -= in_node_probs[node]
+                    out_clusters_weights[cluster_best] += out_node_probs[node]
+                    in_clusters_weights[cluster_best] += in_node_probs[node]
+                    labels[node] = cluster_best
+
+        increase_total += increase_pass
+        if increase_pass > tol:
             increase = 1
-    return labels, total_increase
+    return labels, increase_total
