@@ -14,6 +14,7 @@ from scipy import sparse
 
 from sknetwork import njit
 from sknetwork.clustering.base import BaseClustering
+from sknetwork.clustering.louvain_core import fit_core
 from sknetwork.clustering.post_processing import membership_matrix, reindex_clusters
 from sknetwork.utils.adjacency_formats import bipartite2directed, directed2undirected
 from sknetwork.utils.base import Algorithm
@@ -120,100 +121,6 @@ class Optimizer(Algorithm):
          """
         return self
 
-
-@njit
-def fit_core(resolution: float, tol: float, n_nodes: int, out_node_probs: np.ndarray,
-             in_node_probs: np.ndarray, self_loops: np.ndarray, data: np.ndarray, indices: np.ndarray,
-             indptr: np.ndarray) -> (np.ndarray, float):  # pragma: no cover
-    """
-    Fit the clusters to the objective function.
-
-    Parameters
-    ----------
-    resolution :
-        Resolution parameter (positive).
-    tol :
-        Minimum increase in modularity to enter a new optimization pass.
-    n_nodes :
-        Number of nodes.
-    out_node_probs :
-        Distribution of node weights based on their out-edges (sums to 1).
-    in_node_probs :
-        Distribution of node weights based on their in-edges (sums to 1).
-    self_loops :
-        Weights of self loops.
-    data :
-        CSR format data array of the normalized adjacency matrix.
-    indices :
-        CSR format index array of the normalized adjacency matrix.
-    indptr :
-        CSR format index pointer array of the normalized adjacency matrix.
-
-    Returns
-    -------
-    labels :
-        Cluster index of each node.
-    total_increase :
-        Score of the clustering (total increase in modularity).
-    """
-    increase: bool = True
-    total_increase: float = 0
-
-    labels: np.ndarray = np.arange(n_nodes)
-    out_clusters_weights: np.ndarray = out_node_probs.copy()
-    in_clusters_weights: np.ndarray = in_node_probs.copy()
-
-    nodes = np.arange(n_nodes)
-    while increase:
-        increase = False
-        pass_increase: float = 0
-
-        for node in nodes:
-            node_cluster = labels[node]
-            neighbors: np.ndarray = indices[indptr[node]:indptr[node + 1]]
-            weights: np.ndarray = data[indptr[node]:indptr[node + 1]]
-
-            neighbor_clusters_weights = np.zeros(n_nodes)  # replace by dictionary ?
-            for i, neighbor in enumerate(neighbors):
-                neighbor_clusters_weights[labels[neighbor]] += weights[i]
-
-            unique_clusters = set(labels[neighbors])
-            unique_clusters.discard(node_cluster)
-
-            out_ratio = resolution * out_node_probs[node]
-            in_ratio = resolution * in_node_probs[node]
-            if len(unique_clusters):
-                exit_delta: float = 2 * (neighbor_clusters_weights[node_cluster] - self_loops[node])
-                exit_delta -= out_ratio * (in_clusters_weights[node_cluster] - in_node_probs[node])
-                exit_delta -= in_ratio * (out_clusters_weights[node_cluster] - out_node_probs[node])
-
-                best_delta: float = 0
-                best_cluster = node_cluster
-
-                for cluster in unique_clusters:
-                    delta: float = 2 * neighbor_clusters_weights[cluster]
-                    delta -= out_ratio * in_clusters_weights[cluster]
-                    delta -= in_ratio * out_clusters_weights[cluster]
-
-                    local_delta = delta - exit_delta
-                    if local_delta > best_delta:
-                        best_delta = local_delta
-                        best_cluster = cluster
-
-                if best_delta > 0:
-                    pass_increase += best_delta
-                    out_clusters_weights[node_cluster] -= out_node_probs[node]
-                    in_clusters_weights[node_cluster] -= in_node_probs[node]
-                    out_clusters_weights[best_cluster] += out_node_probs[node]
-                    in_clusters_weights[best_cluster] += in_node_probs[node]
-                    labels[node] = best_cluster
-
-        total_increase += pass_increase
-        if pass_increase > tol:
-            increase = True
-    return labels, total_increase
-
-
 class GreedyModularity(Optimizer):
     """
     A greedy modularity optimizer.
@@ -252,7 +159,6 @@ class GreedyModularity(Optimizer):
         -------
         self : :class:`Optimizer`
         """
-
         out_node_probs = graph.out_probs
         in_node_probs = graph.in_probs
 
@@ -265,6 +171,7 @@ class GreedyModularity(Optimizer):
         data: np.ndarray = adjacency.data
 
         if self.engine == 'python':
+            print("I'm Python")
             increase: bool = True
             total_increase: float = 0.
             labels: np.ndarray = np.arange(graph.n_nodes)
@@ -589,3 +496,14 @@ class BiLouvain(Louvain):
         self.iteration_count_ = louvain.iteration_count_
         self.aggregate_graph_ = louvain.aggregate_graph_
         return self
+
+
+def test_louvain():
+    from sknetwork.data import load_wikilinks_dataset
+    from sknetwork.clustering import modularity
+    from time import time
+    vitals = load_wikilinks_dataset('wikivitals').adjacency
+    l = Louvain()
+    dep = time()
+    l.fit(vitals)
+    return time() - dep, modularity(vitals, l.labels_)

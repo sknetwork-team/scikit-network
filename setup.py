@@ -3,7 +3,12 @@
 
 """The setup script."""
 
-from setuptools import setup, find_packages
+
+from setuptools import find_packages
+from Cython.Build import cythonize
+from distutils.core import setup, Extension
+
+import numpy
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -47,4 +52,9 @@ setup(
     url='https://github.com/sknetwork-team/scikit-network',
     version='0.12.1',
     zip_safe=False,
+)
+
+setup(
+    ext_modules=cythonize("sknetwork/clustering/louvain_core.pyx", annotate=True),
+    include_dirs=[numpy.get_include()]
 )
