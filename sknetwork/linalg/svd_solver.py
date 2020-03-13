@@ -12,7 +12,7 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import svds
 
-from sknetwork.linalg.randomized_matrix_factorization import randomized_svd
+from sknetwork.linalg.randomized_methods import randomized_svd
 from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.utils.base import Algorithm
 
@@ -23,17 +23,17 @@ class SVDSolver(Algorithm):
 
     Attributes
     ----------
-    left_singular_vectors_: np.ndarray
+    singular_vectors_left_: np.ndarray
         Two-dimensional array, each column is a left singular vector of the input.
-    right_singular_vectors_: np.ndarray
+    singular_vectors_right_: np.ndarray
         Two-dimensional array, each column is a right singular vector of the input.
     singular_values_: np.ndarray
         Singular values.
     """
 
     def __init__(self):
-        self.left_singular_vectors_ = None
-        self.right_singular_vectors_ = None
+        self.singular_vectors_left_ = None
+        self.singular_vectors_right_ = None
         self.singular_values_ = None
 
     def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator, SparseLR], n_components: int):
@@ -59,9 +59,9 @@ class LanczosSVD(SVDSolver):
 
     Attributes
     ----------
-    left_singular_vectors_: np.ndarray
+    singular_vectors_left_: np.ndarray
         Two-dimensional array, each column is a left singular vector of the input.
-    right_singular_vectors_: np.ndarray
+    singular_vectors_right_: np.ndarray
         Two-dimensional array, each column is a right singular vector of the input.
     singular_values_: np.ndarray
         Singular values.
@@ -91,8 +91,8 @@ class LanczosSVD(SVDSolver):
         u, s, vt = svds(matrix.astype(np.float), n_components)
         # order the singular values by decreasing order
         index = np.argsort(s)[::-1]
-        self.left_singular_vectors_ = u[:, index]
-        self.right_singular_vectors_ = vt.T[:, index]
+        self.singular_vectors_left_ = u[:, index]
+        self.singular_vectors_right_ = vt.T[:, index]
         self.singular_values_ = s[index]
 
         return self
@@ -129,9 +129,9 @@ class HalkoSVD(SVDSolver):
 
     Attributes
     ----------
-    left_singular_vectors_: np.ndarray
+    singular_vectors_left_: np.ndarray
         Two-dimensional array, each column is a left singular vector of the input.
-    right_singular_vectors_: np.ndarray
+    singular_vectors_right_: np.ndarray
         Two-dimensional array, each column is a right singular vector of the input.
     singular_values_: np.ndarray
         Singular values.
@@ -164,8 +164,8 @@ class HalkoSVD(SVDSolver):
         """
         u, s, vt = randomized_svd(matrix, n_components, self.n_oversamples, self.n_iter, self.transpose,
                                   self.power_iteration_normalizer, self.flip_sign, self.random_state)
-        self.left_singular_vectors_ = u
-        self.right_singular_vectors_ = vt.T
+        self.singular_vectors_left_ = u
+        self.singular_vectors_right_ = vt.T
         self.singular_values_ = s
 
         return self

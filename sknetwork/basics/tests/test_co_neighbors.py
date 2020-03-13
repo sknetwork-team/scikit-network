@@ -21,12 +21,12 @@ class TestCoNeighbors(unittest.TestCase):
         n = self.bipartite.shape[0]
         co_neighbors = co_neighbors_graph(self.bipartite, method='exact')
         self.assertEqual(co_neighbors.shape, (n, n))
-        co_neighbors = co_neighbors_graph(self.bipartite, method='exact', normalized=False)
+        co_neighbors = co_neighbors_graph(self.bipartite, method='exact', normalize=False)
         self.assertEqual(co_neighbors.shape, (n, n))
 
     def test_knn(self):
         n = self.bipartite.shape[0]
         co_neighbors = co_neighbors_graph(self.bipartite, method='knn')
         self.assertEqual(co_neighbors.shape, (n, n))
-        co_neighbors = co_neighbors_graph(self.bipartite, method='knn', normalized=False)
+        co_neighbors = co_neighbors_graph(self.bipartite, method='knn', normalize=False)
         self.assertEqual(co_neighbors.shape, (n, n))

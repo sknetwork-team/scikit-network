@@ -93,8 +93,8 @@ class HITS(BaseRanking):
                 self.solver: SVDSolver = HalkoSVD()
 
         self.solver.fit(adjacency, 1)
-        hubs: np.ndarray = self.solver.left_singular_vectors_.reshape(-1)
-        authorities: np.ndarray = self.solver.right_singular_vectors_.reshape(-1)
+        hubs: np.ndarray = self.solver.singular_vectors_left_.reshape(-1)
+        authorities: np.ndarray = self.solver.singular_vectors_right_.reshape(-1)
 
         h_pos, h_neg = (hubs > 0).sum(), (hubs < 0).sum()
         a_pos, a_neg = (authorities > 0).sum(), (authorities < 0).sum()

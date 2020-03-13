@@ -15,7 +15,7 @@ from scipy import sparse
 from sknetwork import njit
 from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.post_processing import membership_matrix, reindex_clusters
-from sknetwork.utils.adjacency_formats import bipartite2directed, directed2undirected
+from sknetwork.utils.formats import bipartite2directed, directed2undirected
 from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_format, check_engine, check_random_state, check_probs, is_square
 from sknetwork.utils.verbose import VerboseMixin
@@ -341,7 +341,7 @@ class Louvain(BaseClustering, VerboseMixin):
 
     Compute the best partition of the nodes with respect to the optimization criterion
     (default: :class:`GreedyModularity`).
-    
+
     The graph can be directed or undirected.
 
     Parameters
@@ -384,8 +384,7 @@ class Louvain(BaseClustering, VerboseMixin):
     Example
     -------
     >>> louvain = Louvain('python')
-    >>> adjacency = sparse.identity(3, format='csr')
-    >>> louvain.fit(adjacency).labels_
+    >>> louvain.fit_transform(np.ones((3,3)))
     array([0, 1, 2])
 
     References
@@ -529,16 +528,22 @@ class BiLouvain(Louvain):
 
         Attributes
         ----------
-        row_labels_ : np.ndarray
-            Labels of the rows.
-        col_labels_ : np.ndarray
-            Labels of the columns.
         labels_ : np.ndarray
-            Labels of all nodes (concatenation of row labels and column labels).
+            Labels of the rows.
+        labels_row_ : np.ndarray
+            Labels of the rows (copy of labels_)
+        labels_col_ : np.ndarray
+            Labels of the columns.
         iteration_count_ : int
             Total number of aggregations performed.
-        aggregate_graph_ : sparse.csr_matrix
+        adjacency_aggregate_ : sparse.csr_matrix
             Adjacency matrix of the aggregate graph at the end of the algorithm.
+
+        Example
+        -------
+        >>> bilouvain = BiLouvain('python')
+        >>> bilouvain.fit_transform(np.ones((4,3)))
+        array([0, 1, 2, 3])
 
         References
         ----------
@@ -556,16 +561,16 @@ class BiLouvain(Louvain):
         Louvain.__init__(self, engine, algorithm, resolution, tol, agg_tol, max_agg_iter, shuffle_nodes, sorted_cluster,
                          random_state, verbose)
 
-        self.row_labels_ = None
-        self.col_labels_ = None
         self.labels_ = None
+        self.labels_row_ = None
+        self.labels_col_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiLouvain':
-        """Applies the directed version of Louvain algorithm to
+        """Applies the Louvain algorithm to the corresponding directed graph, with adjacency matrix:
 
         :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}`
 
-        where :math:`B` is the input treated as a biadjacency matrix.
+        where :math:`B` is the input (biadjacency matrix).
 
         Parameters
         ----------
@@ -585,9 +590,9 @@ class BiLouvain(Louvain):
         adjacency = bipartite2directed(biadjacency)
         louvain.fit(adjacency)
 
-        self.row_labels_ = louvain.labels_[:n1]
-        self.col_labels_ = louvain.labels_[n1:]
-        self.labels_ = louvain.labels_
+        self.labels_ = louvain.labels_[:n1]
+        self.labels_row_ = self.labels_
+        self.labels_col_ = louvain.labels_[n1:]
         self.iteration_count_ = louvain.iteration_count_
-        self.aggregate_graph_ = louvain.adjacency_aggregate_
+        self.adjacency_aggregate_ = louvain.adjacency_aggregate_
         return self

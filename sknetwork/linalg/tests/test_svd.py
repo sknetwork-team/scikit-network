@@ -29,24 +29,24 @@ class TestSolvers(unittest.TestCase):
         solver = LanczosSVD()
         solver.fit(self.biadjacency, 2)
         self.assertEqual(len(solver.singular_values_), 2)
-        self.assertAlmostEqual(svd_err(self.biadjacency, solver.left_singular_vectors_, solver.right_singular_vectors_,
+        self.assertAlmostEqual(svd_err(self.biadjacency, solver.singular_vectors_left_, solver.singular_vectors_right_,
                                        solver.singular_values_), 0)
 
         solver.fit(self.slr, 2)
         self.assertEqual(len(solver.singular_values_), 2)
-        self.assertAlmostEqual(svd_err(self.slr, solver.left_singular_vectors_, solver.right_singular_vectors_,
+        self.assertAlmostEqual(svd_err(self.slr, solver.singular_vectors_left_, solver.singular_vectors_right_,
                                        solver.singular_values_), 0)
 
     def test_halko(self):
         solver = HalkoSVD()
         solver.fit(self.biadjacency, 2)
         self.assertEqual(len(solver.singular_values_), 2)
-        self.assertAlmostEqual(svd_err(self.biadjacency, solver.left_singular_vectors_, solver.right_singular_vectors_,
+        self.assertAlmostEqual(svd_err(self.biadjacency, solver.singular_vectors_left_, solver.singular_vectors_right_,
                                        solver.singular_values_), 0)
 
         solver.fit(self.slr, 2)
         self.assertEqual(len(solver.singular_values_), 2)
-        self.assertAlmostEqual(svd_err(self.slr, solver.left_singular_vectors_, solver.right_singular_vectors_,
+        self.assertAlmostEqual(svd_err(self.slr, solver.singular_vectors_left_, solver.singular_vectors_right_,
                                        solver.singular_values_), 0)
 
     def test_compare_solvers(self):

@@ -13,7 +13,7 @@ from scipy import sparse
 
 from sknetwork.clustering.post_processing import membership_matrix
 from sknetwork.linalg import diag_pinv
-from sknetwork.utils.adjacency_formats import bipartite2directed
+from sknetwork.utils.formats import bipartite2directed
 from sknetwork.utils.checks import check_format, check_probs, is_square
 
 

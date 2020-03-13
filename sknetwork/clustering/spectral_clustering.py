@@ -23,10 +23,10 @@ class SpectralClustering(BaseClustering):
     ----------
     n_clusters:
         Number of desired clusters.
-    embedding_dimension:
+    n_components:
         Dimension of the embedding on which to apply the clustering.
-    l2normalization:
-        If ``True``, each row of the embedding is projected onto the L2-sphere before applying the clustering algorithm.
+    normalize:
+        If ``True``, each row of the embedding is projected onto the unit sphere before clustering.
 
     Attributes
     ----------
@@ -35,12 +35,12 @@ class SpectralClustering(BaseClustering):
 
     """
 
-    def __init__(self, n_clusters: int = 8, embedding_dimension: int = 16, l2normalization: bool = True):
+    def __init__(self, n_clusters: int = 8, n_components: int = 16, normalize: bool = True):
         super(SpectralClustering, self).__init__()
 
         self.n_clusters = n_clusters
-        self.embedding_dimension = embedding_dimension
-        self.l2normalization = l2normalization
+        self.n_components = n_components
+        self.normalize = normalize
 
     # noinspection DuplicatedCode
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'SpectralClustering':
@@ -60,10 +60,10 @@ class SpectralClustering(BaseClustering):
         if not is_symmetric(adjacency):
             raise ValueError('The adjacency is not symmetric.')
 
-        spectral = Spectral(self.embedding_dimension).fit(adjacency)
+        spectral = Spectral(self.n_components).fit(adjacency)
         embedding = spectral.embedding_
 
-        if self.l2normalization:
+        if self.normalize:
             norm = np.linalg.norm(embedding, axis=1)
             norm[norm == 0.] = 1
             embedding /= norm[:, np.newaxis]
@@ -77,37 +77,37 @@ class SpectralClustering(BaseClustering):
 
 
 class BiSpectralClustering(SpectralClustering):
-    """Pipeline for spectral biclustering.
+    """KMeans clustering.
 
     Parameters
     ----------
     n_clusters:
-        Number of desired clusters.
-    embedding_dimension:
-        Dimension of the embedding on which to apply the clustering.
-    l2normalization:
-        If ``True``, each row of the embedding is projected onto the L2-sphere before applying the clustering algorithm.
-    co_clustering:
+        Number of clusters.
+    n_components:
+        Dimension of the embedding.
+    normalize:
+        If ``True``, embed the nodes on the unit sphere.
+    co_cluster:
         If ``True``, jointly clusters rows and columns of the biadjacency matrix.
         Otherwise, only cluster the rows.
 
     Attributes
     ----------
-    row_labels_: np.ndarray
-        Labels of the rows.
-    col_labels_: np.ndarray
-        Labels of the columns. Only valid if ``co_clustering=True``.
     labels_: np.ndarray
-        Labels of rows and columns. Only valid if ``co_clustering=True``.
+        Labels of the rows.
+    labels_row_: np.ndarray
+        Labels of the rows (copy of labels_).
+    labels_col_: np.ndarray
+        Labels of the columns. Only valid if ``co_cluster=True``.
     """
 
-    def __init__(self, n_clusters: int = 8, embedding_dimension: int = 16, l2normalization: bool = True,
-                 co_clustering: bool = True):
-        SpectralClustering.__init__(self, n_clusters, embedding_dimension, l2normalization)
-        self.co_clustering = co_clustering
-        self.row_labels_ = None
-        self.col_labels_ = None
+    def __init__(self, n_clusters: int = 8, n_components: int = 16, normalize: bool = True,
+                 co_cluster: bool = True):
+        SpectralClustering.__init__(self, n_clusters, n_components, normalize)
+        self.co_cluster = co_cluster
         self.labels_ = None
+        self.labels_row_ = None
+        self.labels_col_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiSpectralClustering':
         """Apply embedding method followed by clustering to the graph.
@@ -125,28 +125,23 @@ class BiSpectralClustering(SpectralClustering):
         biadjacency = check_format(biadjacency)
         n1, n2 = biadjacency.shape
 
-        bispectral = BiSpectral(self.embedding_dimension).fit(biadjacency)
+        bispectral = BiSpectral(self.n_components, normalize=self.normalize).fit(biadjacency)
 
-        if self.co_clustering:
+        if self.co_cluster:
             embedding = np.vstack((bispectral.embedding_row_, bispectral.embedding_col_))
         else:
             embedding = bispectral.embedding_row_
 
-        if self.l2normalization:
-            norm = np.linalg.norm(embedding, axis=1)
-            norm[norm == 0.] = 1
-            embedding /= norm[:, np.newaxis]
-
         kmeans = KMeans(self.n_clusters)
         kmeans.fit(embedding)
 
-        if self.co_clustering:
-            self.row_labels_ = kmeans.labels_[:n1]
-            self.col_labels_ = kmeans.labels_[n1:]
-            self.labels_ = kmeans.labels_
+        if self.co_cluster:
+            self.labels_ = kmeans.labels_[:n1]
+            self.labels_row_ = kmeans.labels_[:n1]
+            self.labels_col_ = kmeans.labels_[n1:]
 
         else:
-            self.row_labels_ = kmeans.labels_
             self.labels_ = kmeans.labels_
+            self.labels_row_ = kmeans.labels_
 
         return self

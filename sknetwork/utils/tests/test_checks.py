@@ -5,7 +5,7 @@
 import unittest
 
 from sknetwork.data import rock_paper_scissors
-from sknetwork.utils.adjacency_formats import *
+from sknetwork.utils.formats import *
 from sknetwork.utils.checks import has_nonnegative_entries, has_positive_entries,\
     is_proba_array, make_weights, check_engine, check_is_proba, check_weights,\
     check_random_state, check_seeds, check_labels, check_n_jobs

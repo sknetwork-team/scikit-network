@@ -9,7 +9,7 @@ from scipy import sparse
 from sknetwork import is_numba_available
 from sknetwork.clustering import Louvain, BiLouvain, modularity
 from sknetwork.data import simple_directed_graph, karate_club, bow_tie, painters, star_wars_villains
-from sknetwork.utils.adjacency_formats import directed2undirected
+from sknetwork.utils.formats import directed2undirected
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -69,24 +69,24 @@ class TestLouvainClustering(unittest.TestCase):
 
         self.bilouvain.fit(self.painters)
         n1, n2 = self.painters.shape
-        row_labels = self.bilouvain.row_labels_
-        col_labels = self.bilouvain.col_labels_
-        self.assertEqual(row_labels.shape, (n1,))
-        self.assertEqual(col_labels.shape, (n2,))
+        labels_row = self.bilouvain.labels_row_
+        labels_col = self.bilouvain.labels_col_
+        self.assertEqual(labels_row.shape, (n1,))
+        self.assertEqual(labels_col.shape, (n2,))
 
     def test_bipartite(self):
         star_wars_graph = star_wars_villains()
         self.bilouvain.fit(star_wars_graph)
-        row_labels = self.bilouvain.row_labels_
-        col_labels = self.bilouvain.col_labels_
-        self.assertEqual(row_labels.shape, (4,))
-        self.assertEqual(col_labels.shape, (3,))
+        labels_row = self.bilouvain.labels_row_
+        labels_col = self.bilouvain.labels_col_
+        self.assertEqual(labels_row.shape, (4,))
+        self.assertEqual(labels_col.shape, (3,))
         if is_numba_available:
             self.bilouvain_numba.fit(star_wars_graph)
-            row_labels = self.bilouvain_numba.row_labels_
-            col_labels = self.bilouvain_numba.col_labels_
-            self.assertEqual(row_labels.shape, (4,))
-            self.assertEqual(col_labels.shape, (3,))
+            labels_row = self.bilouvain_numba.labels_row_
+            labels_col = self.bilouvain_numba.labels_col_
+            self.assertEqual(labels_row.shape, (4,))
+            self.assertEqual(labels_col.shape, (3,))
 
     def test_shuffling(self):
         self.louvain_shuffle_first = Louvain(engine='python', shuffle_nodes=True, random_state=0)

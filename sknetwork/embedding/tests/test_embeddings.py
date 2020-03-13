@@ -130,21 +130,34 @@ class TestEmbeddings(unittest.TestCase):
     def test_predict(self):
         spectral = Spectral(4)
         spectral.fit(self.adjacency)
-        unit_vector = np.zeros(self.adjacency.shape[0])
-        unit_vector[0] = 1
-        error = np.sum(np.abs(spectral.predict(self.adjacency.dot(unit_vector)) - spectral.embedding_[0]))
+        # single node
+        error = np.sum(np.abs(spectral.predict(self.adjacency[0]) - spectral.embedding_[0]))
+        self.assertAlmostEqual(error, 0)
+        # all nodes
+        error = np.sum(np.abs(spectral.predict(self.adjacency) - spectral.embedding_))
         self.assertAlmostEqual(error, 0)
 
-    def test_svd(self):
+    def test_bispectral(self):
         self.biadjacency = simple_bipartite_graph()
-        svd = BiSpectral(solver='lanczos')
-        svd.fit(self.biadjacency)
-        self.assertTrue(has_proper_shape(self.biadjacency, svd))
+        bispectral = BiSpectral(solver='lanczos')
+        bispectral.fit(self.biadjacency)
+        self.assertTrue(has_proper_shape(self.biadjacency, bispectral))
 
-        svd = BiSpectral(2, solver='halko')
-        svd.fit(self.biadjacency)
-        self.assertTrue(has_proper_shape(self.biadjacency, svd))
+        bispectral = BiSpectral(2, solver='halko')
+        bispectral.fit(self.biadjacency)
+        self.assertTrue(has_proper_shape(self.biadjacency, bispectral))
 
-        svd = BiSpectral(2, scaling='barycenter')
-        svd.fit(self.biadjacency)
-        self.assertTrue(has_proper_shape(self.biadjacency, svd))
+        bispectral = BiSpectral(2, normalized_laplacian=False)
+        bispectral.fit(self.biadjacency)
+        self.assertTrue(has_proper_shape(self.biadjacency, bispectral))
+
+    def test_bispectral_predict(self):
+        self.biadjacency = simple_bipartite_graph()
+        bispectral = BiSpectral(3)
+        bispectral.fit(self.biadjacency)
+        # single node
+        error = np.sum(np.abs(bispectral.predict(self.biadjacency[0]) - bispectral.embedding_[0]))
+        self.assertAlmostEqual(error, 0)
+        # all nodes
+        error = np.sum(np.abs(bispectral.predict(self.biadjacency) - bispectral.embedding_))
+        self.assertAlmostEqual(error, 0)

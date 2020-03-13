@@ -11,7 +11,7 @@ from typing import Tuple, Optional, Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.utils.adjacency_formats import bipartite2undirected
+from sknetwork.utils.formats import bipartite2undirected
 from sknetwork.utils.checks import is_symmetric, is_square, check_format
 
 
