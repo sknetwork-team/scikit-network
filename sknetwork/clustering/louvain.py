@@ -171,7 +171,6 @@ class GreedyModularity(Optimizer):
         data: np.ndarray = adjacency.data
 
         if self.engine == 'python':
-            print("I'm Python")
             increase: bool = True
             total_increase: float = 0.
             labels: np.ndarray = np.arange(graph.n_nodes)

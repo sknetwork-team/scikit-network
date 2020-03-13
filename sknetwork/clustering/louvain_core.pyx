@@ -47,13 +47,12 @@ def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.f
     cdef int increase = 1
     cdef int has_candidates = 0
 
-    #cdef int[:] labels = np.arange(n_nodes, dtype=np.intc)
     cdef vector[int] labels
     cdef vector[float] neighbor_clusters_weights
-    cdef np.float_t[:] ou_clusters_weights = ou_node_probs.copy()
-    cdef np.float_t[:] in_clusters_weights = in_node_probs.copy()
-    cdef int[:] neighbors
-    cdef np.float_t[:] weights
+    cdef vector[float] ou_clusters_weights
+    cdef vector[float] in_clusters_weights
+    cdef vector[int] neighbors
+    cdef vector[float] weights
     cdef set[int] unique_clusters = ()
 
     cdef float increase_pass
@@ -73,11 +72,15 @@ def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.f
     cdef int i
     cdef int label
     cdef int n_neighbors
+    cdef int neighbor
     cdef int node
+    cdef int start
 
     for i in range(n_nodes):
         labels.push_back(i)
         neighbor_clusters_weights.push_back(0.)
+        ou_clusters_weights.push_back(ou_node_probs[i])
+        in_clusters_weights.push_back(in_node_probs[i])
 
     while increase == 1:
         increase = 0
@@ -86,12 +89,18 @@ def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.f
         for node in range(n_nodes):
             has_candidates = 0
             cluster_node = labels[node]
-            neighbors = indices[indptr[node]:indptr[node + 1]]
-            n_neighbors = neighbors.shape[0]
-            weights = data[indptr[node]:indptr[node + 1]]
 
+            neighbors.clear()
+            weights.clear()
+            start = indptr[node]
+            n_neighbors = indptr[node + 1] - start
+
+            neighbor_clusters_weights[labels[node]] = 0
             for i in range(n_neighbors):
-                label = labels[neighbors[i]]
+                neighbor = indices[start + i]
+                neighbors.push_back(neighbor)
+                weights.push_back(data[start + i])
+                label = labels[neighbor]
                 neighbor_clusters_weights[label] = 0
 
             unique_clusters.clear()
