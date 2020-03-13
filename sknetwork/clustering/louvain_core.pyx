@@ -1,5 +1,6 @@
-cimport numpy as np
 import numpy as np
+cimport numpy as np
+
 from libcpp.set cimport set
 cimport cython
 
@@ -8,8 +9,8 @@ ctypedef np.float_t float_type_t
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def fit_core(float_type_t resolution,float_type_t tol,int_type_t n_nodes,np.float_t[:] out_node_probs,
-             np.float_t[:] in_node_probs,np.float_t[:] self_loops,np.float_t[:] data,int[:] indices,
+def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.float_t[:] ou_node_probs,
+             np.float_t[:] in_node_probs, np.float_t[:] self_loops, np.float_t[:] data, int[:] indices,
              int[:] indptr):  # pragma: no cover
     """
     Fit the clusters to the objective function.
@@ -22,7 +23,7 @@ def fit_core(float_type_t resolution,float_type_t tol,int_type_t n_nodes,np.floa
         Minimum increase in modularity to enter a new optimization pass.
     n_nodes :
         Number of nodes.
-    out_node_probs :
+    ou_node_probs :
         Distribution of node weights based on their out-edges (sums to 1).
     in_node_probs :
         Distribution of node weights based on their in-edges (sums to 1).
@@ -45,13 +46,13 @@ def fit_core(float_type_t resolution,float_type_t tol,int_type_t n_nodes,np.floa
     cdef int increase = 1
     cdef int has_candidates = 0
 
-    cdef np.ndarray[int, ndim=1] labels = np.arange(n_nodes, dtype=np.intc)
-    cdef np.float_t[:] neighbor_clusters_weights = out_node_probs.copy()
-    cdef np.float_t[:] out_clusters_weights = out_node_probs.copy()
+    cdef int[:] labels = np.arange(n_nodes, dtype=np.intc)
+    cdef np.float_t[:] neighbor_clusters_weights = ou_node_probs.copy()
+    cdef np.float_t[:] ou_clusters_weights = ou_node_probs.copy()
     cdef np.float_t[:] in_clusters_weights = in_node_probs.copy()
     cdef int[:] neighbors
     cdef np.float_t[:] weights
-    cdef set[int] unique_clusters = {0}
+    cdef set[int] unique_clusters = ()
 
     cdef float increase_pass
     cdef float increase_total = 0
@@ -59,8 +60,10 @@ def fit_core(float_type_t resolution,float_type_t tol,int_type_t n_nodes,np.floa
     cdef float delta_best
     cdef float delta_exit
     cdef float delta_local
+    cdef float node_prob_in
+    cdef float node_prob_ou
     cdef float ratio_in
-    cdef float ratio_out
+    cdef float ratio_ou
 
     cdef int cluster
     cdef int cluster_best
@@ -93,19 +96,22 @@ def fit_core(float_type_t resolution,float_type_t tol,int_type_t n_nodes,np.floa
             unique_clusters.erase(cluster_node)
 
             if not unique_clusters.empty():
-                ratio_out = resolution * out_node_probs[node]
-                ratio_in = resolution * in_node_probs[node]
+                node_prob_ou = ou_node_probs[node]
+                node_prob_in = in_node_probs[node]
+                ratio_ou = resolution * node_prob_ou
+                ratio_in = resolution * node_prob_in
+
                 delta_exit = 2 * (neighbor_clusters_weights[cluster_node] - self_loops[node])
-                delta_exit -= ratio_out * (in_clusters_weights[cluster_node] - in_node_probs[node])
-                delta_exit -= ratio_in * (out_clusters_weights[cluster_node] - out_node_probs[node])
+                delta_exit -= ratio_ou * (in_clusters_weights[cluster_node] - node_prob_in)
+                delta_exit -= ratio_in * (ou_clusters_weights[cluster_node] - node_prob_ou)
 
                 delta_best = 0
                 cluster_best = cluster_node
 
                 for cluster in unique_clusters:
                     delta = 2 * neighbor_clusters_weights[cluster]
-                    delta -= ratio_out * in_clusters_weights[cluster]
-                    delta -= ratio_in * out_clusters_weights[cluster]
+                    delta -= ratio_ou * in_clusters_weights[cluster]
+                    delta -= ratio_in * ou_clusters_weights[cluster]
 
                     delta_local = delta - delta_exit
                     if delta_local > delta_best:
@@ -114,10 +120,10 @@ def fit_core(float_type_t resolution,float_type_t tol,int_type_t n_nodes,np.floa
 
                 if delta_best > 0:
                     increase_pass += delta_best
-                    out_clusters_weights[cluster_node] -= out_node_probs[node]
-                    in_clusters_weights[cluster_node] -= in_node_probs[node]
-                    out_clusters_weights[cluster_best] += out_node_probs[node]
-                    in_clusters_weights[cluster_best] += in_node_probs[node]
+                    ou_clusters_weights[cluster_node] -= node_prob_ou
+                    in_clusters_weights[cluster_node] -= node_prob_in
+                    ou_clusters_weights[cluster_best] += node_prob_ou
+                    in_clusters_weights[cluster_best] += node_prob_in
                     labels[node] = cluster_best
 
         increase_total += increase_pass
