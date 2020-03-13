@@ -18,5 +18,5 @@ codecov==2.0.16
 sphinx-rtd-theme==0.4.3
 
 pytest-runner==5.2
-pytest==5.3.5
+pytest==5.4.0
 pytest-cov==2.8.1
