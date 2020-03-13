@@ -7,7 +7,7 @@ Created on July 17 2019
 """
 
 import warnings
-from typing import Union, Tuple
+from typing import Union, Tuple, Optional
 
 import numpy as np
 from scipy import sparse
@@ -101,7 +101,7 @@ class Diffusion(BaseRanking, VerboseMixin):
         self.n_iter = n_iter
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Union[dict, np.ndarray]) -> 'Diffusion':
+            personalization: Union[dict, np.ndarray], x0: Optional=None) -> 'Diffusion':
         """
         Compute the diffusion (temperature at equilibrium).
 
@@ -111,6 +111,8 @@ class Diffusion(BaseRanking, VerboseMixin):
             Adjacency or biadjacency matrix of the graph.
         personalization :
             Dictionary or vector (temperature of border nodes).
+        x0 :
+            Initial state of the temperatures.
 
         Returns
         -------
@@ -127,11 +129,12 @@ class Diffusion(BaseRanking, VerboseMixin):
         interior: sparse.csr_matrix = sparse.diags(~border, shape=(n, n), format='csr', dtype=float)
         diffusion_matrix = interior.dot(transition_matrix(adjacency))
 
-        if tmin != tmax:
-            x0 = b[border].mean() * np.ones(n)
-        else:
-            x0 = np.zeros(n)
-        x0[border] = b[border]
+        if x0 is None:
+            if tmin != tmax:
+                x0 = b[border].mean() * np.ones(n)
+            else:
+                x0 = np.zeros(n)
+            x0[border] = b[border]
 
         if self.n_iter > 0:
             scores = x0
@@ -182,7 +185,7 @@ class BiDiffusion(Diffusion):
         self.col_scores_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Union[dict, np.ndarray]) -> 'BiDiffusion':
+            personalization: Union[dict, np.ndarray], x0: Optional=None) -> 'BiDiffusion':
         """
         Compute the diffusion (temperature at equilibrium).
 
@@ -192,6 +195,8 @@ class BiDiffusion(Diffusion):
             Adjacency or biadjacency matrix of the graph.
         personalization :
             Dictionary or vector (temperature of border nodes).
+        x0 :
+            Initial state of the temperatures.
 
         Returns
         -------

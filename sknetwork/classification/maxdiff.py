@@ -49,13 +49,12 @@ class MaxDiff(BaseClassifier):
 
     """
 
-    def __init__(self, verbose: bool = False, n_iter: int = 10, shift: bool = True, scale: bool = False,
-                 cold_sources: bool = True, n_jobs: Optional[int] = None):
+    def __init__(self, verbose: bool = False, n_iter: int = 10, shift: bool = True, cold_sources: bool = True,
+                 n_jobs: Optional[int] = None):
         super(MaxDiff, self).__init__()
         self.verbose = verbose
         self.n_iter = n_iter
         self.shift = shift
-        self.scale = scale
         self.cold_sources = cold_sources
         self.n_jobs = n_jobs
 
@@ -77,9 +76,9 @@ class MaxDiff(BaseClassifier):
 
         """
         if isinstance(self, BiMaxDiff):
-            multidiff = BiMultiDiff(self.verbose, self.n_iter, self.shift, self.scale, self.cold_sources, self.n_jobs)
+            multidiff = BiMultiDiff(self.verbose, self.n_iter, self.shift, self.cold_sources, self.n_jobs)
         else:
-            multidiff = MultiDiff(self.verbose, self.n_iter, self.shift, self.scale, self.cold_sources, self.n_jobs)
+            multidiff = MultiDiff(self.verbose, self.n_iter, self.shift, self.cold_sources, self.n_jobs)
 
         seeds_labels = check_seeds(seeds, adjacency)
         classes, n_classes = check_labels(seeds_labels)
@@ -98,6 +97,6 @@ class BiMaxDiff(MaxDiff):
 
     """
 
-    def __init__(self, verbose: bool = False, n_iter: int = 0, shift: bool = True, scale: bool = False,
-                 cold_sources: bool = True, n_jobs: Optional[int] = None):
-        super(BiMaxDiff, self).__init__(verbose, n_iter, shift, scale, cold_sources, n_jobs)
+    def __init__(self, verbose: bool = False, n_iter: int = 0, shift: bool = True, cold_sources: bool = True,
+                 n_jobs: Optional[int] = None):
+        super(BiMaxDiff, self).__init__(verbose, n_iter, shift, cold_sources, n_jobs)
