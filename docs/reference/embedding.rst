@@ -16,8 +16,12 @@ Spectral
     :inherited-members:
     :members:
 
-GSVD
+SVD
 ----------
+
+.. autoclass:: sknetwork.embedding.SVD
+    :inherited-members:
+    :members:
 
 .. autoclass:: sknetwork.embedding.GSVD
     :inherited-members:
