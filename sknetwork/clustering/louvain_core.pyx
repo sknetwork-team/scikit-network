@@ -2,6 +2,7 @@ import numpy as np
 cimport numpy as np
 
 from libcpp.set cimport set
+from libcpp.vector cimport vector
 cimport cython
 
 ctypedef np.int_t int_type_t
@@ -46,8 +47,9 @@ def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.f
     cdef int increase = 1
     cdef int has_candidates = 0
 
-    cdef int[:] labels = np.arange(n_nodes, dtype=np.intc)
-    cdef np.float_t[:] neighbor_clusters_weights = ou_node_probs.copy()
+    #cdef int[:] labels = np.arange(n_nodes, dtype=np.intc)
+    cdef vector[int] labels
+    cdef vector[float] neighbor_clusters_weights
     cdef np.float_t[:] ou_clusters_weights = ou_node_probs.copy()
     cdef np.float_t[:] in_clusters_weights = in_node_probs.copy()
     cdef int[:] neighbors
@@ -73,6 +75,10 @@ def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.f
     cdef int n_neighbors
     cdef int node
 
+    for i in range(n_nodes):
+        labels.push_back(i)
+        neighbor_clusters_weights.push_back(0.)
+
     while increase == 1:
         increase = 0
         increase_pass = 0
@@ -84,8 +90,9 @@ def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.f
             n_neighbors = neighbors.shape[0]
             weights = data[indptr[node]:indptr[node + 1]]
 
-
-            neighbor_clusters_weights[:] = 0
+            for i in range(n_neighbors):
+                label = labels[neighbors[i]]
+                neighbor_clusters_weights[label] = 0
 
             unique_clusters.clear()
             for i in range(n_neighbors):
