@@ -165,11 +165,10 @@ class PageRank(BaseRanking, VerboseMixin):
 
     Example
     -------
-    >>> from sknetwork.data import rock_paper_scissors
     >>> pagerank = PageRank()
-    >>> adjacency = rock_paper_scissors()
-    >>> np.round(pagerank.fit_transform(adjacency), 2)
-    array([0.33, 0.33, 0.33])
+    >>> adjacency = np.ones((4,4))
+    >>> pagerank.fit_transform(adjacency)
+    array([0.25, 0.25, 0.25, 0.25])
 
     References
     ----------
@@ -229,28 +228,26 @@ class BiPageRank(PageRank):
 
     Attributes
     ----------
-    row_scores_ : np.ndarray
+    scores_row_ : np.ndarray
         PageRank score of each row.
-    col_scores_ : np.ndarray
+    scores_col_ : np.ndarray
         PageRank score of each col.
     scores_ : np.ndarray
-        PageRank score of each node (concatenation of row scores and col scores).
+        PageRank score of each row (copy of 'scores_row_').
 
     Example
     -------
-    >>> from sknetwork.data import star_wars_villains
     >>> bipagerank = BiPageRank()
-    >>> biadjacency: sparse.csr_matrix = star_wars_villains()
-    >>> biadjacency.shape
-    (4, 3)
-    >>> len(bipagerank.fit_transform(biadjacency))
-    7
+    >>> biadjacency = np.ones((4,3))
+    >>> bipagerank.fit_transform(biadjacency)
+    array([0.25, 0.25, 0.25, 0.25])
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', n_iter: int = 10):
         PageRank.__init__(self, damping_factor, solver, n_iter=n_iter)
 
-        self.row_scores_ = None
-        self.col_scores_ = None
+        self.scores_row_ = None
+        self.scores_col_ = None
+        self.scores_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Optional[Union[dict, np.ndarray]] = None) -> 'BiPageRank':
@@ -270,10 +267,12 @@ class BiPageRank(PageRank):
         self: :class:`BiPageRank`
         """
 
+        biadjacency = check_format(biadjacency)
         rso = RandomSurferOperator(biadjacency, self.damping_factor, personalization, True)
-        self.row_scores_ = rso.solve(self.solver, self.n_iter)[:biadjacency.shape[0]]
-        self.col_scores_ = transition_matrix(biadjacency.T).dot(self.row_scores_)
-        self.col_scores_ /= self.col_scores_.sum()
-        self.scores_ = np.concatenate((self.row_scores_, self.col_scores_))
+        self.scores_row_ = rso.solve(self.solver, self.n_iter)[:biadjacency.shape[0]]
+        self.scores_col_ = transition_matrix(biadjacency.T).dot(self.scores_row_)
+        self.scores_row_ /= self.scores_row_.sum()
+        self.scores_col_ /= self.scores_col_.sum()
+        self.scores_ = self.scores_row_
 
         return self

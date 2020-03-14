@@ -49,9 +49,9 @@ class TestPageRank(unittest.TestCase):
         n1, n2 = biadjacency.shape
 
         bipagerank.fit(biadjacency, {0: 1})
-        row_scores = bipagerank.row_scores_
+        row_scores = bipagerank.scores_row_
         self.assertEqual(len(row_scores), n1)
-        col_scores = bipagerank.col_scores_
+        col_scores = bipagerank.scores_col_
         self.assertEqual(len(col_scores), n2)
         scores = bipagerank.scores_
-        self.assertEqual(len(scores), n1 + n2)
+        self.assertEqual(len(scores), n1)
