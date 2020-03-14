@@ -476,7 +476,7 @@ class BiSpectral(Spectral):
 
         return self
 
-    def predict(self, adjacency_vectors: np.ndarray) -> np.ndarray:
+    def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """Predicts the embedding of new rows, defined by their adjacency vectors.
 
         Parameters

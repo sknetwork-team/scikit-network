@@ -25,7 +25,7 @@ History
 * clustering: Spectral Clustering
 * ranking: new algorithms
 * utils: K-neighbors
-* hierarchy: Spectral Ward
+* hierarchy: Spectral WardDense
 * data: loader (Vital Wikipedia)
 
 0.10.1 (2019-08-26)

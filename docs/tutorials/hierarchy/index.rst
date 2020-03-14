@@ -1,8 +1,8 @@
-Hierarchical clustering
-***********************
+Hierarchy
+*********
 
 
 .. toctree::
 
    paris
-   spectral_ward
+   ward

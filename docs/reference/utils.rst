@@ -30,7 +30,7 @@ Algorithms
 
 .. autofunction:: sknetwork.utils.projection_simplex.projection_simplex
 
-.. autoclass:: sknetwork.utils.ward.Ward
+.. autoclass:: sknetwork.utils.ward.WardDense
     :members:
 
 

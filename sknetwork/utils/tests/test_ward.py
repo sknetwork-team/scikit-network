@@ -9,13 +9,13 @@ import unittest
 
 import numpy as np
 
-from sknetwork.utils import Ward
+from sknetwork.utils import WardDense
 
 
 class TestKMeans(unittest.TestCase):
 
     def test_kmeans(self):
         self.x = np.random.randn(10, 3)
-        ward = Ward()
+        ward = WardDense()
         ward.fit(self.x)
         self.assertEqual(ward.dendrogram_.shape, (self.x.shape[0] - 1, 4))
