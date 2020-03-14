@@ -165,11 +165,10 @@ class PageRank(BaseRanking, VerboseMixin):
 
     Example
     -------
-    >>> from sknetwork.data import rock_paper_scissors
     >>> pagerank = PageRank()
-    >>> adjacency = rock_paper_scissors()
-    >>> np.round(pagerank.fit_transform(adjacency), 2)
-    array([0.33, 0.33, 0.33])
+    >>> adjacency = np.ones((4,4))
+    >>> pagerank.fit_transform(adjacency)
+    array([0.25, 0.25, 0.25, 0.25])
 
     References
     ----------
@@ -234,17 +233,14 @@ class BiPageRank(PageRank):
     scores_col_ : np.ndarray
         PageRank score of each col.
     scores_ : np.ndarray
-        PageRank score of each node (concatenation of row scores and col scores).
+        PageRank score of each row (copy of 'scores_row_').
 
     Example
     -------
-    >>> from sknetwork.data import star_wars_villains
     >>> bipagerank = BiPageRank()
-    >>> biadjacency: sparse.csr_matrix = star_wars_villains()
-    >>> biadjacency.shape
-    (4, 3)
-    >>> len(bipagerank.fit_transform(biadjacency))
-    4
+    >>> biadjacency = np.ones((4,3))
+    >>> bipagerank.fit_transform(biadjacency)
+    array([0.25, 0.25, 0.25, 0.25])
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10):
         PageRank.__init__(self, damping_factor, solver, n_iter=n_iter)
@@ -270,6 +266,7 @@ class BiPageRank(PageRank):
         self: :class:`BiPageRank`
         """
 
+        biadjacency = check_format(biadjacency)
         rso = RandomSurferOperator(biadjacency, self.damping_factor, personalization, True)
         self.scores_row_ = rso.solve(self.solver, self.n_iter)[:biadjacency.shape[0]]
         self.scores_col_ = transition_matrix(biadjacency.T).dot(self.scores_row_)
