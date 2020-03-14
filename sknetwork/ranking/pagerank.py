@@ -273,6 +273,7 @@ class BiPageRank(PageRank):
         rso = RandomSurferOperator(biadjacency, self.damping_factor, personalization, True)
         self.scores_row_ = rso.solve(self.solver, self.n_iter)[:biadjacency.shape[0]]
         self.scores_col_ = transition_matrix(biadjacency.T).dot(self.scores_row_)
+        self.scores_row_ /= self.scores_row_.sum()
         self.scores_col_ /= self.scores_col_.sum()
         self.scores_ = self.scores_row_
 
