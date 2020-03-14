@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tests for adjacency_formats.py"""
+"""tests for formats.py"""
 
 import unittest
 
 from sknetwork.data import star_wars_villains, rock_paper_scissors, house
-from sknetwork.utils.adjacency_formats import *
+from sknetwork.utils.formats import *
 from sknetwork.utils.checks import is_symmetric
 
 

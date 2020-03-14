@@ -5,7 +5,7 @@ python:
 - 3.6
 install:
   - pip install -U tox-travis
-  - pip install coverage
+  - pip install codecov
 env:
   - SKNETWORK_DISABLE_NUMBA=false
   - SKNETWORK_DISABLE_NUMBA=true
@@ -21,6 +21,6 @@ deploy:
     tags: true
     repo: sknetwork-team/scikit-network
     python: 3.6
-    env: $SKNETWORK_DISABLE_NUMBA=true
+    env: SKNETWORK_DISABLE_NUMBA=true
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - codecov

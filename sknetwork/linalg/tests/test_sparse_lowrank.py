@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 
-from sknetwork.linalg.randomized_matrix_factorization import randomized_svd, randomized_eig
+from sknetwork.linalg.randomized_methods import randomized_svd, randomized_eig
 from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.data import house, star_wars_villains
 

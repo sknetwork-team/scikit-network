@@ -11,7 +11,7 @@ from scipy import sparse
 from scipy.spatial import cKDTree
 
 from sknetwork import njit, prange
-from sknetwork.utils.adjacency_formats import directed2undirected
+from sknetwork.utils.formats import directed2undirected
 from sknetwork.utils.base import Algorithm
 
 

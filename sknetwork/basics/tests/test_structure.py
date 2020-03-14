@@ -9,7 +9,7 @@ from scipy import sparse
 
 from sknetwork.basics.structure import largest_connected_component, is_bipartite
 from sknetwork.data import star_wars_villains, rock_paper_scissors
-from sknetwork.utils.adjacency_formats import bipartite2undirected, directed2undirected
+from sknetwork.utils.formats import bipartite2undirected, directed2undirected
 
 
 # noinspection PyMissingOrEmptyDocstring

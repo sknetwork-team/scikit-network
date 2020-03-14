@@ -14,7 +14,7 @@ from scipy import sparse
 
 from sknetwork import njit, types, TypedDict
 from sknetwork.hierarchy.base import BaseHierarchy
-from sknetwork.utils.adjacency_formats import bipartite2undirected
+from sknetwork.utils.formats import bipartite2undirected
 from sknetwork.utils.checks import check_engine, check_format, check_probs, is_square
 
 

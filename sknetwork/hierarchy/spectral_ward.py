@@ -117,8 +117,8 @@ class BiSpectralWard(SpectralWard):
 
         """
         bispectral = BiSpectral(self.embedding_dimension).fit(biadjacency)
-        row_embedding = bispectral.row_embedding_
-        col_embedding = bispectral.col_embedding_
+        row_embedding = bispectral.embedding_row_
+        col_embedding = bispectral.embedding_col_
 
         if self.l2normalization:
             norm = np.linalg.norm(row_embedding, axis=1)

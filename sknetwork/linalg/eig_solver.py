@@ -12,7 +12,7 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import eigsh
 
-from sknetwork.linalg.randomized_matrix_factorization import randomized_eig
+from sknetwork.linalg.randomized_methods import randomized_eig
 from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_random_state
