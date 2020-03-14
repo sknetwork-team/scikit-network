@@ -11,8 +11,8 @@ from scipy.cluster.hierarchy import ward
 from sknetwork.utils.base import Algorithm
 
 
-class Ward(Algorithm):
-    """Standard Ward hierarchical clustering based on SciPy.
+class WardDense(Algorithm):
+    """Hierarchical clustering by the Ward method based on SciPy.
 
     Attributes
     ----------
@@ -29,7 +29,7 @@ class Ward(Algorithm):
     def __init__(self):
         self.dendrogram_ = None
 
-    def fit(self, x: np.ndarray) -> 'Ward':
+    def fit(self, x: np.ndarray) -> 'WardDense':
         """Apply algorithm to a dense matrix.
 
         Parameters
@@ -39,7 +39,7 @@ class Ward(Algorithm):
 
         Returns
         -------
-        self: :class:`Ward`
+        self: :class:`WardDense`
 
         """
         self.dendrogram_ = ward(x)

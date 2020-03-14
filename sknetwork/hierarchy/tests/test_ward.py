@@ -17,13 +17,14 @@ class TestWard(unittest.TestCase):
 
     def test_default_options(self):
         self.adjacency: sparse.csr_matrix = karate_club()
-        spectral_ward = Ward(embedding_dimension=3)
-        spectral_ward.fit(self.adjacency)
-        self.assertEqual(spectral_ward.dendrogram_.shape, (self.adjacency.shape[0] - 1, 4))
+        dendrogram = Ward().fit_transform(self.adjacency)
+        self.assertEqual(dendrogram.shape, (self.adjacency.shape[0] - 1, 4))
 
     def test_bipartite(self):
         self.bipartite: sparse.csr_matrix = movie_actor(return_labels=False)
-        bispectral_ward = BiWard(embedding_dimension=3, cluster_col=True)
-        bispectral_ward.fit(self.bipartite)
-        self.assertEqual(bispectral_ward.dendrogram_row_.shape, (self.bipartite.shape[0] - 1, 4))
-        self.assertEqual(bispectral_ward.dendrogram_col_.shape, (self.bipartite.shape[1] - 1, 4))
+        biward = BiWard(cluster_col=True, cluster_both=True)
+        biward.fit(self.bipartite)
+        n1, n2 = self.bipartite.shape
+        self.assertEqual(biward.dendrogram_row_.shape, (n1 - 1, 4))
+        self.assertEqual(biward.dendrogram_col_.shape, (n2 - 1, 4))
+        self.assertEqual(biward.dendrogram_both_.shape, (n1 + n2 - 1, 4))

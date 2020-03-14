@@ -1,7 +1,7 @@
 .. _hierarchy:
 
-Hierarchical clustering
-***********************
+Hierarchy
+*********
 
 .. currentmodule:: sknetwork
 
@@ -24,13 +24,13 @@ Paris
     :inherited-members:
     :members:
 
-Spectral
----------
-.. autoclass:: sknetwork.hierarchy.SpectralWard
+Ward
+----
+.. autoclass:: sknetwork.hierarchy.Ward
     :inherited-members:
     :members:
 
-.. autoclass:: sknetwork.hierarchy.BiSpectralWard
+.. autoclass:: sknetwork.hierarchy.BiWard
     :inherited-members:
     :members:
 

@@ -22,7 +22,7 @@ class Ward(BaseHierarchy):
     Parameters
     ----------
     embedding_method:
-        Embedding method.
+        Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
 
     Attributes
     ----------
@@ -59,16 +59,13 @@ class Ward(BaseHierarchy):
         return self
 
 
-class BiWard(Ward):
+class BiWard(BaseHierarchy):
     """Hierarchical clustering for bipartite graphs by the Ward method.
 
     Parameters
     ----------
-    embedding_dimension:
-        Dimension of the embedding on which to apply the hierarchical clustering.
-    l2normalization:
-        If ``True``, each row of the embedding (and col_embedding) is projected onto the L2-sphere
-        before hierarchical clustering.
+    embedding_method:
+        Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
     cluster_row:
         If ``True``, returns a dendrogram for the rows.
     cluster_col:
@@ -82,23 +79,28 @@ class BiWard(Ward):
         Dendrogram for the rows.
     dendrogram_col_:
         Dendrogram for the columns.
+    dendrogram_both_:
+        Dendrogram for both rows and columns.
     dendrogram_:
-        Dendrogram (all nodes).
-
+        Dendrogram for the rows (copy of 'dendrogram_row_').
     """
 
-    def __init__(self, embedding_dimension: int = 16, l2normalization: bool = True, cluster_row: bool = True,
+    def __init__(self, embedding_method: BaseEmbedding = GSVD(10), cluster_row: bool = True,
                  cluster_col: bool = False, cluster_both: bool = False):
-        Ward.__init__(self, embedding_dimension, l2normalization)
+        super(BiWard, self).__init__()
+
+        self.embedding_method = embedding_method
         self.cluster_row = cluster_row
         self.cluster_col = cluster_col
         self.cluster_both = cluster_both
+
         self.dendrogram_row_ = None
         self.dendrogram_col_ = None
+        self.dendrogram_both_ = None
         self.dendrogram_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiWard':
-        """Apply embedding method followed by hierarchical clustering to the graph.
+        """Applies the embedding method followed by the Ward algorithm.
 
         Parameters
         ----------
@@ -110,20 +112,13 @@ class BiWard(Ward):
         self: :class:`BiWard`
 
         """
-        bispectral = BiSpectral(self.embedding_dimension).fit(biadjacency)
-        embedding_row = bispectral.embedding_row_
-        embedding_col = bispectral.embedding_col_
-
-        if self.l2normalization:
-            norm = np.linalg.norm(embedding_row, axis=1)
-            norm[norm == 0.] = 1
-            embedding_row /= norm[:, np.newaxis]
-
-            norm = np.linalg.norm(embedding_col, axis=1)
-            norm[norm == 0.] = 1
-            embedding_col /= norm[:, np.newaxis]
+        method = self.embedding_method
+        method.fit(biadjacency)
+        embedding_row = method.embedding_row_
+        embedding_col = method.embedding_col_
 
         ward = WardDense()
+
         if self.cluster_row:
             ward.fit(embedding_row)
             self.dendrogram_row_ = ward.dendrogram_
@@ -134,6 +129,8 @@ class BiWard(Ward):
 
         if self.cluster_both:
             ward.fit(np.vstack((embedding_row, embedding_col)))
-            self.dendrogram_ = ward.dendrogram_
+            self.dendrogram_both_ = ward.dendrogram_
+
+        self.dendrogram_ = self.dendrogram_row_
 
         return self

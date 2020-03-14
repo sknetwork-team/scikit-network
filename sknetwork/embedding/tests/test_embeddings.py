@@ -50,8 +50,6 @@ def has_proper_shape(adjacency: Union[sparse.csr_matrix, np.ndarray], algorithm:
     k = algorithm.n_components
     if algorithm.embedding_.shape != (n1, k):
         return False
-    if hasattr(algorithm, 'embedding_col_') and algorithm.embedding_col_.shape != (n2, k):
-        return False
     if hasattr(algorithm, 'eigenvalues_') and len(algorithm.eigenvalues_) != k:
         return False
     if hasattr(algorithm, 'singular_values_') and len(algorithm.singular_values_) != k:
@@ -131,10 +129,10 @@ class TestEmbeddings(unittest.TestCase):
         spectral = Spectral(4)
         spectral.fit(self.adjacency)
         # single node
-        error = np.sum(np.abs(spectral.predict(self.adjacency[0]) - spectral.embedding_[0]))
+        error: float = np.abs(spectral.predict(self.adjacency[0]) - spectral.embedding_[0]).sum()
         self.assertAlmostEqual(error, 0)
         # all nodes
-        error = np.sum(np.abs(spectral.predict(self.adjacency) - spectral.embedding_))
+        error: float = np.abs(spectral.predict(self.adjacency) - spectral.embedding_).sum()
         self.assertAlmostEqual(error, 0)
 
     def test_bispectral(self):
@@ -156,8 +154,8 @@ class TestEmbeddings(unittest.TestCase):
         bispectral = BiSpectral(3)
         bispectral.fit(self.biadjacency)
         # single node
-        error = np.sum(np.abs(bispectral.predict(self.biadjacency[0]) - bispectral.embedding_[0]))
+        error: float = np.abs(bispectral.predict(self.biadjacency[0]) - bispectral.embedding_[0]).sum()
         self.assertAlmostEqual(error, 0)
         # all nodes
-        error = np.sum(np.abs(bispectral.predict(self.biadjacency) - bispectral.embedding_))
+        error: float = np.abs(bispectral.predict(self.biadjacency) - bispectral.embedding_).sum()
         self.assertAlmostEqual(error, 0)
