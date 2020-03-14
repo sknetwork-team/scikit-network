@@ -111,8 +111,8 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
         solver: str
             Which method to use to solve the Pagerank problem. Can be 'lanczos', 'lsqr' or 'bicgstab'.
         n_iter : int
-        If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
-        ``n_iter`` iterations.
+            If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk
+            for ``n_iter`` iterations.
 
         Returns
         -------
@@ -152,7 +152,7 @@ class PageRank(BaseRanking, VerboseMixin):
     damping_factor : float
         Probability to continue the random walk.
     solver : str
-        Which solver to use: 'spsolve', 'lanczos' (default), 'lsqr' or 'halko'.
+        Which solver to use: 'bicgstab', 'lanczos' (default), 'lsqr'.
         Otherwise, the random walk is emulated for a certain number of iterations.
     n_iter : int
         If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
@@ -229,9 +229,9 @@ class BiPageRank(PageRank):
 
     Attributes
     ----------
-    row_scores_ : np.ndarray
+    scores_row_ : np.ndarray
         PageRank score of each row.
-    col_scores_ : np.ndarray
+    scores_col_ : np.ndarray
         PageRank score of each col.
     scores_ : np.ndarray
         PageRank score of each node (concatenation of row scores and col scores).
@@ -244,13 +244,13 @@ class BiPageRank(PageRank):
     >>> biadjacency.shape
     (4, 3)
     >>> len(bipagerank.fit_transform(biadjacency))
-    7
+    4
     """
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', n_iter: int = 10):
+    def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10):
         PageRank.__init__(self, damping_factor, solver, n_iter=n_iter)
 
-        self.row_scores_ = None
-        self.col_scores_ = None
+        self.scores_row_ = None
+        self.scores_col_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Optional[Union[dict, np.ndarray]] = None) -> 'BiPageRank':
@@ -271,9 +271,9 @@ class BiPageRank(PageRank):
         """
 
         rso = RandomSurferOperator(biadjacency, self.damping_factor, personalization, True)
-        self.row_scores_ = rso.solve(self.solver, self.n_iter)[:biadjacency.shape[0]]
-        self.col_scores_ = transition_matrix(biadjacency.T).dot(self.row_scores_)
-        self.col_scores_ /= self.col_scores_.sum()
-        self.scores_ = np.concatenate((self.row_scores_, self.col_scores_))
+        self.scores_row_ = rso.solve(self.solver, self.n_iter)[:biadjacency.shape[0]]
+        self.scores_col_ = transition_matrix(biadjacency.T).dot(self.scores_row_)
+        self.scores_col_ /= self.scores_col_.sum()
+        self.scores_ = self.scores_row_
 
         return self

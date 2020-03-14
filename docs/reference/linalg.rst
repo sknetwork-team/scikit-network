@@ -31,7 +31,7 @@ Solvers
 Randomized methods
 ------------------
 
-.. autofunction:: sknetwork.linalg.randomized_matrix_factorization.randomized_range_finder
+.. autofunction:: sknetwork.linalg.randomized_methods.randomized_range_finder
 
 .. autofunction:: sknetwork.linalg.randomized_svd
 

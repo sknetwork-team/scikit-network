@@ -28,11 +28,6 @@ class SpectralClustering(BaseClustering):
     normalize:
         If ``True``, each row of the embedding is projected onto the unit sphere before clustering.
 
-    Attributes
-    ----------
-    labels_:
-        Labels of the rows.
-
     """
 
     def __init__(self, n_clusters: int = 8, n_components: int = 16, normalize: bool = True):
@@ -93,8 +88,6 @@ class BiSpectralClustering(SpectralClustering):
 
     Attributes
     ----------
-    labels_: np.ndarray
-        Labels of the rows.
     labels_row_: np.ndarray
         Labels of the rows (copy of labels_).
     labels_col_: np.ndarray

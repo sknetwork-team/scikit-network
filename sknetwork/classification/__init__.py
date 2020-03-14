@@ -1,3 +1,2 @@
 from sknetwork.classification.base import BaseClassifier
-from sknetwork.classification.maxdiff import MaxDiff, BiMaxDiff
-from sknetwork.classification.maxrank import MaxRank, BiMaxRank
+from sknetwork.classification.rank_clf import BiMaxDiff, BiMaxRank, MaxDiff, MaxRank

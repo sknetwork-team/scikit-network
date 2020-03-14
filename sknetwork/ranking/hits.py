@@ -24,7 +24,7 @@ class HITS(BaseRanking):
     ----------
     mode:
         Either ``'hubs'`` or ``'authorities'``. Which of the weights to store in the ``.scores_`` attribute.
-        The other one is stored in ``.col_scores_``.
+        The other one is stored in ``.scores_col_``.
     solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.
 
@@ -37,7 +37,7 @@ class HITS(BaseRanking):
     ----------
     scores_ : np.ndarray
         Hub or authority score of each node, depending on the value of **mode**.
-    col_scores_ : np.ndarray
+    scores_col_ : np.ndarray
         Hub or authority score of each node, depending on the value of **mode**.
 
     Example
@@ -47,7 +47,7 @@ class HITS(BaseRanking):
     >>> biadjacency: sparse.csr_matrix = star_wars_villains()
     >>> np.round(hits.fit(biadjacency).scores_, 2)
     array([0.5 , 0.23, 0.69, 0.46])
-    >>> np.round(hits.col_scores_, 2)
+    >>> np.round(hits.scores_col_, 2)
     array([0.58, 0.47, 0.67])
 
     References
@@ -68,7 +68,7 @@ class HITS(BaseRanking):
         else:
             self.solver = solver
 
-        self.col_scores_ = None
+        self.scores_col_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'HITS':
         """
@@ -111,10 +111,10 @@ class HITS(BaseRanking):
 
         if self.mode == 'hubs':
             self.scores_ = hubs
-            self.col_scores_ = authorities
+            self.scores_col_ = authorities
         elif self.mode == 'authorities':
             self.scores_ = authorities
-            self.col_scores_ = hubs
+            self.scores_col_ = hubs
         else:
             raise ValueError('Mode should be "hubs" or "authorities".')
 

@@ -374,8 +374,6 @@ class Louvain(BaseClustering, VerboseMixin):
 
     Attributes
     ----------
-    labels_ : np.ndarray
-        Label of each node.
     iteration_count_ : int
         Total number of aggregations performed.
     adjacency_aggregate_ : sparse.csr_matrix
@@ -528,8 +526,6 @@ class BiLouvain(Louvain):
 
         Attributes
         ----------
-        labels_ : np.ndarray
-            Labels of the rows.
         labels_row_ : np.ndarray
             Labels of the rows (copy of labels_)
         labels_col_ : np.ndarray
