@@ -11,7 +11,6 @@ Reference
     embedding
     ranking
     classification
-    soft_classification
     linalg
     basics
     data

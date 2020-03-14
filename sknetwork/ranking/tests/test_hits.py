@@ -24,17 +24,12 @@ class TestHITS(unittest.TestCase):
         n = self.undirected.shape[0]
         hits.fit(self.undirected)
         self.assertEqual(len(hits.scores_), n)
-        self.assertEqual(len(hits.scores_row_), n)
         self.assertEqual(len(hits.scores_col_), n)
 
         n = self.directed.shape[0]
         hits.fit(self.directed)
         self.assertEqual(len(hits.scores_), n)
-        self.assertEqual(len(hits.scores_row_), n)
         self.assertEqual(len(hits.scores_col_), n)
 
         n1, n2 = self.bipartite.shape
         hits.fit(self.bipartite)
-        self.assertEqual(len(hits.scores_), n1)
-        self.assertEqual(len(hits.scores_row_), n1)
-        self.assertEqual(len(hits.scores_col_), n2)

@@ -111,8 +111,8 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
         solver: str
             Which method to use to solve the Pagerank problem. Can be 'lanczos', 'lsqr' or 'bicgstab'.
         n_iter : int
-        If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
-        ``n_iter`` iterations.
+            If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk
+            for ``n_iter`` iterations.
 
         Returns
         -------
@@ -152,7 +152,7 @@ class PageRank(BaseRanking, VerboseMixin):
     damping_factor : float
         Probability to continue the random walk.
     solver : str
-        Which solver to use: 'spsolve', 'lanczos' (default), 'lsqr' or 'halko'.
+        Which solver to use: 'bicgstab', 'lanczos' (default), 'lsqr'.
         Otherwise, the random walk is emulated for a certain number of iterations.
     n_iter : int
         If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
@@ -242,12 +242,11 @@ class BiPageRank(PageRank):
     >>> bipagerank.fit_transform(biadjacency)
     array([0.25, 0.25, 0.25, 0.25])
     """
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'lanczos', n_iter: int = 10):
+    def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10):
         PageRank.__init__(self, damping_factor, solver, n_iter=n_iter)
 
         self.scores_row_ = None
         self.scores_col_ = None
-        self.scores_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Optional[Union[dict, np.ndarray]] = None) -> 'BiPageRank':

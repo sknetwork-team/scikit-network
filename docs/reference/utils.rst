@@ -8,11 +8,11 @@ Utils
 Graph formats
 -------------
 
-.. autofunction:: sknetwork.utils.adjacency_formats.bipartite2directed
+.. autofunction:: sknetwork.utils.formats.bipartite2directed
 
-.. autofunction:: sknetwork.utils.adjacency_formats.bipartite2undirected
+.. autofunction:: sknetwork.utils.formats.bipartite2undirected
 
-.. autofunction:: sknetwork.utils.adjacency_formats.directed2undirected
+.. autofunction:: sknetwork.utils.formats.directed2undirected
 
 
 Checks

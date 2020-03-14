@@ -7,7 +7,7 @@ Created on July 17 2019
 """
 
 import warnings
-from typing import Union, Tuple
+from typing import Union, Tuple, Optional
 
 import numpy as np
 from scipy import sparse
@@ -68,12 +68,12 @@ class Diffusion(BaseRanking, VerboseMixin):
 
     Parameters
     ----------
-    verbose: bool
-        Verbose mode.
     n_iter: int
         If ``n_iter > 0``, the algorithm will emulate the diffusion for n_iter steps.
         If ``n_iter <= 0``, the algorithm will use BIConjugate Gradient STABilized iteration
         to solve the Dirichlet problem.
+    verbose: bool
+        Verbose mode.
 
     Attributes
     ----------
@@ -94,14 +94,14 @@ class Diffusion(BaseRanking, VerboseMixin):
     Chung, F. (2007). The heat kernel as the pagerank of a graph. Proceedings of the National Academy of Sciences.
     """
 
-    def __init__(self, verbose: bool = False, n_iter: int = 0):
+    def __init__(self, n_iter: int = 0, verbose: bool = False):
         super(Diffusion, self).__init__()
         VerboseMixin.__init__(self, verbose)
 
         self.n_iter = n_iter
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Union[dict, np.ndarray]) -> 'Diffusion':
+            personalization: Union[dict, np.ndarray], x0: Optional = None) -> 'Diffusion':
         """
         Compute the diffusion (temperature at equilibrium).
 
@@ -111,6 +111,8 @@ class Diffusion(BaseRanking, VerboseMixin):
             Adjacency or biadjacency matrix of the graph.
         personalization :
             Dictionary or vector (temperature of border nodes).
+        x0 :
+            Initial state of the temperatures.
 
         Returns
         -------
@@ -122,11 +124,17 @@ class Diffusion(BaseRanking, VerboseMixin):
             raise ValueError('The adjacency matrix should be square. See BiDiffusion.')
 
         b, border = limit_conditions(personalization, n)
+        tmin, tmax = np.min(b[border]), np.max(b)
+
         interior: sparse.csr_matrix = sparse.diags(~border, shape=(n, n), format='csr', dtype=float)
         diffusion_matrix = interior.dot(transition_matrix(adjacency))
 
-        x0 = b[border].mean() * np.ones(n)
-        x0[border] = b[border]
+        if x0 is None:
+            if tmin != tmax:
+                x0 = b[border].mean() * np.ones(n)
+            else:
+                x0 = np.zeros(n)
+            x0[border] = b[border]
 
         if self.n_iter > 0:
             scores = x0
@@ -139,7 +147,10 @@ class Diffusion(BaseRanking, VerboseMixin):
             scores, info = bicgstab(a, b, atol=0., x0=x0)
             self.scipy_solver_info(info)
 
-        self.scores_ = np.clip(scores, np.min(b[border]), np.max(b))
+        if tmin != tmax:
+            self.scores_ = np.clip(scores, tmin, tmax)
+        else:
+            self.scores_ = scores
         return self
 
 
@@ -149,9 +160,9 @@ class BiDiffusion(Diffusion):
 
     Attributes
     ----------
-    row_scores_ : np.ndarray
+    scores_row_ : np.ndarray
         Scores of rows.
-    col_scores_ : np.ndarray
+    scores_col_ : np.ndarray
         Scores of columns.
     scores_ : np.ndarray
         Scores of all nodes (concatenation of scores of rows and scores of columns).
@@ -164,17 +175,17 @@ class BiDiffusion(Diffusion):
     >>> biadjacency.shape
     (4, 3)
     >>> len(bidiffusion.fit_transform(biadjacency, {0: 1, 1: 0}))
-    7
+    4
     """
 
-    def __init__(self, verbose: bool = False, n_iter: int = 0):
+    def __init__(self, n_iter: int = 0, verbose: bool = False):
         super(BiDiffusion, self).__init__(verbose, n_iter)
 
-        self.row_scores_ = None
-        self.col_scores_ = None
+        self.scores_row_ = None
+        self.scores_col_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Union[dict, np.ndarray]) -> 'BiDiffusion':
+            personalization: Union[dict, np.ndarray], x0: Optional = None) -> 'BiDiffusion':
         """
         Compute the diffusion (temperature at equilibrium).
 
@@ -184,6 +195,8 @@ class BiDiffusion(Diffusion):
             Adjacency or biadjacency matrix of the graph.
         personalization :
             Dictionary or vector (temperature of border nodes).
+        x0 :
+            Initial state of the temperatures.
 
         Returns
         -------
@@ -245,8 +258,8 @@ class BiDiffusion(Diffusion):
             scores, info = bicgstab(a, x0, atol=0., x0=x0)
             self.scipy_solver_info(info)
 
-        self.row_scores_ = np.clip(scores, np.min(b), np.max(b))
-        self.col_scores_ = transition_matrix(biadjacency.T).dot(self.row_scores_)
-        self.scores_ = np.concatenate((self.row_scores_, self.col_scores_))
+        self.scores_row_ = np.clip(scores, np.min(b), np.max(b))
+        self.scores_col_ = transition_matrix(biadjacency.T).dot(self.scores_row_)
+        self.scores_ = self.scores_row_
 
         return self

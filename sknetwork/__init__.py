@@ -57,6 +57,5 @@ import sknetwork.embedding
 import sknetwork.hierarchy
 import sknetwork.linalg
 import sknetwork.ranking
-import sknetwork.soft_classification
 import sknetwork.data
 import sknetwork.utils
