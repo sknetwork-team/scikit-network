@@ -65,6 +65,16 @@ class BiMaxRank(RankClassifier):
         If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
         ``n_iter`` iterations.
 
+    Example
+    -------
+    >>> from sknetwork.data import karate_club
+    >>> clf = BiMaxRank()
+    >>> adjacency, labels_true = karate_club(return_labels=True)
+    >>> seeds = {0: labels_true[0], 33: labels_true[33]}
+    >>> labels_pred = clf.fit_transform(adjacency, seeds)
+    >>> np.round(np.mean(labels_pred == labels_true), 2)
+    0.94
+
     """
 
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10,

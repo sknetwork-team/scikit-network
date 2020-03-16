@@ -11,6 +11,7 @@ import numpy as np
 
 from sknetwork.classification.rank_clf import RankClassifier
 from sknetwork.ranking import BiDiffusion, Diffusion
+from sknetwork.utils.checks import check_labels
 
 
 class MaxDiff(RankClassifier):
@@ -44,6 +45,51 @@ class MaxDiff(RankClassifier):
         algorithm = Diffusion(n_iter, verbose)
         super(MaxDiff, self).__init__(algorithm, n_jobs, verbose)
 
+    @staticmethod
+    def process_seeds(seeds_labels):
+        """Make one-vs-all seed labels from seeds.
+
+        Parameters
+        ----------
+        seeds_labels
+
+        Returns
+        -------
+        personalizations: list
+            Personalization vectors.
+
+        """
+
+        personalizations = []
+        classes, _ = check_labels(seeds_labels)
+
+        for label in classes:
+            personalization = -np.ones(seeds_labels.shape[0])
+            personalization[seeds_labels == label] = 1
+            ix = np.logical_and(seeds_labels != label, seeds_labels >= 0)
+            personalization[ix] = 0
+            personalizations.append(personalization)
+
+        return personalizations
+
+    @staticmethod
+    def process_membership(membership: np.ndarray):
+        """Post-processing of the membership matrix.
+
+        Parameters
+        ----------
+        membership
+            (n x k) matrix of membership.
+
+        Returns
+        -------
+        membership: np.ndarray
+
+        """
+        membership -= np.mean(membership, axis=0)
+        membership = np.exp(membership)
+        return membership
+
 
 class BiMaxDiff(MaxDiff):
     """Semi-supervised node classification using multiple diffusions.
@@ -58,12 +104,12 @@ class BiMaxDiff(MaxDiff):
     Example
     -------
     >>> from sknetwork.data import karate_club
-    >>> maxdiff = MaxDiff()
+    >>> clf = BiMaxDiff()
     >>> adjacency, labels_true = karate_club(return_labels=True)
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = maxdiff.fit_transform(adjacency, seeds)
+    >>> labels_pred = clf.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
-    0.97
+    0.94
 
     References
     ----------

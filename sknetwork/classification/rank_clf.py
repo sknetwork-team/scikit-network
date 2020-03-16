@@ -13,7 +13,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.classification import BaseClassifier
-from sknetwork.ranking import BaseRanking, Diffusion
+from sknetwork.ranking import BaseRanking
 from sknetwork.utils.checks import check_seeds, check_labels
 from sknetwork.utils.verbose import VerboseMixin
 
@@ -41,6 +41,46 @@ class RankClassifier(BaseClassifier, VerboseMixin):
 
         self.membership_ = None
 
+    @staticmethod
+    def process_seeds(seeds_labels: np.ndarray) -> list:
+        """Make one-vs-all seed labels from seeds.
+
+        Parameters
+        ----------
+        seeds_labels
+
+        Returns
+        -------
+        personalizations
+            List of personalization vectors.
+
+        """
+
+        personalizations = []
+        classes, _ = check_labels(seeds_labels)
+
+        for label in classes:
+            personalization = np.array(seeds_labels == label).astype(int)
+            personalizations.append(personalization)
+
+        return personalizations
+
+    @staticmethod
+    def process_membership(membership: np.ndarray) -> np.ndarray:
+        """Post-processing of the membership matrix.
+
+        Parameters
+        ----------
+        membership
+            (n x k) matrix of membership.
+
+        Returns
+        -------
+        membership: np.ndarray
+
+        """
+        return membership
+
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]):
         """
 
@@ -57,18 +97,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         classes, n_classes = check_labels(seeds_labels)
         n: int = adjacency.shape[0]
 
-        personalizations = []
-        if isinstance(self.algorithm, Diffusion):
-            for label in classes:
-                personalization = -np.ones(n)
-                personalization[seeds_labels == label] = 1
-                ix = np.logical_and(seeds_labels != label, seeds_labels >= 0)
-                personalization[ix] = 0
-                personalizations.append(personalization)
-        else:
-            for label in classes:
-                personalization = np.array(seeds_labels == label).astype(int)
-                personalizations.append(personalization)
+        personalizations = self.process_seeds(seeds_labels)
 
         if self.n_jobs != 1:
             local_function = partial(self.algorithm.fit_transform, adjacency)
@@ -80,9 +109,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
             for i in range(n_classes):
                 membership[:, i] = self.algorithm.fit_transform(adjacency, personalization=personalizations[i])[:n]
 
-        if isinstance(self.algorithm, Diffusion):
-            membership -= np.mean(membership, axis=0)
-            membership = np.exp(membership)
+        membership = self.process_membership(membership)
 
         norms = membership.sum(axis=1)
         ix = np.argwhere(norms == 0).ravel()
