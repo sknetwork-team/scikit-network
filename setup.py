@@ -59,5 +59,5 @@ setup(
                           "sknetwork/utils/knn1d.pyx"],
                           annotate=True),
     include_dirs=[numpy.get_include()],
-    extra_compile_args=["-std=c++11"], install_requires=['numpy', 'scipy', 'Cython']
+    extra_compile_args=["-std=c++11"], install_requires=['numpy', 'scipy', 'cython']
 )
