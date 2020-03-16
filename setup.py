@@ -55,7 +55,9 @@ setup(
 )
 
 setup(
-    ext_modules=cythonize("sknetwork/clustering/louvain_core.pyx", annotate=True, language="c++"),
+    ext_modules=cythonize(["sknetwork/clustering/louvain_core.pyx",
+                          "sknetwork/utils/knn1d.pyx"],
+                          annotate=True),
     include_dirs=[numpy.get_include()],
-    extra_compile_args=["-std=c++11"],
+    extra_compile_args=["-std=c++11"], install_requires=['numpy', 'scipy', 'cython']
 )

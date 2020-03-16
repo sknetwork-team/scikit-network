@@ -12,7 +12,6 @@ from typing import Union, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork import njit
 from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.louvain_core import fit_core
 from sknetwork.clustering.post_processing import membership_matrix, reindex_clusters
@@ -120,6 +119,7 @@ class Optimizer(Algorithm):
 
          """
         return self
+
 
 class GreedyModularity(Optimizer):
     """
@@ -502,7 +502,7 @@ def test_louvain():
     from sknetwork.clustering import modularity
     from time import time
     vitals = load_wikilinks_dataset('wikivitals').adjacency
-    l = Louvain()
+    louvain = Louvain()
     dep = time()
-    l.fit(vitals)
-    return time() - dep, modularity(vitals, l.labels_)
+    louvain.fit(vitals)
+    return time() - dep, modularity(vitals, louvain.labels_)

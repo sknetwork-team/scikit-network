@@ -10,9 +10,9 @@ import numpy as np
 from scipy import sparse
 from scipy.spatial import cKDTree
 
-from sknetwork import njit, prange
 from sknetwork.utils.adjacency_formats import directed2undirected
 from sknetwork.utils.base import Algorithm
+from sknetwork.utils.knn1d import knn1d
 
 
 class BaseTransformer(Algorithm, ABC):
@@ -128,40 +128,6 @@ class KNeighborsTransformer(BaseTransformer):
         return self
 
 
-@njit
-def knn1d(x: np.ndarray, n_neighbors: int) -> list:
-    """K nearest neighbors search for 1-dimensional arrays.
-
-    Parameters
-    ----------
-    x: np.ndarray
-        1-d data
-    n_neighbors: int
-        Number of neighbors to return.
-    Returns
-    -------
-    list
-        List of nearest neighbors tuples (i, j).
-
-    """
-    sorted_ix = np.argsort(x)
-    edgelist = []
-
-    n: int = x.shape[0]
-    for i in prange(n):
-        ix = sorted_ix[i]
-        low: int = max(0, i - n_neighbors)
-        hgh: int = min(n - 1, i + n_neighbors + 1)
-        candidates = sorted_ix[low:hgh]
-
-        deltas = np.abs(x[candidates] - x[ix])
-        sorted_candidates = candidates[np.argsort(deltas)]
-        sorted_candidates = sorted_candidates[:n_neighbors+1]
-        edgelist.extend([(ix, neigh) for neigh in sorted_candidates if neigh != ix])
-
-    return edgelist
-
-
 class FWKNeighborsTransformer(BaseTransformer):
     """Feature-wise K nearest neighbors transformer.
 
@@ -200,13 +166,15 @@ class FWKNeighborsTransformer(BaseTransformer):
 
         """
 
-        edgelist = []
+        row_ind, col_ind = [], []
         for j in range(x.shape[1]):
-            edgelist += knn1d(x[:, j], self.n_neighbors)
-        edges = np.array(edgelist)
-        data = np.ones(edges.shape[0])
-        row_ind = edges[:, 0]
-        col_ind = edges[:, 1]
+            row, col = knn1d(x[:, j].astype(float), self.n_neighbors)
+            row_ind += row
+            col_ind += col
+
+        data = np.ones(len(row_ind))
+        row_ind = np.array(row_ind)
+        col_ind = np.array(col_ind)
 
         self.adjacency_ = sparse.csr_matrix((data, (row_ind, col_ind)))
         self.make_undirected()
