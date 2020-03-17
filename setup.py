@@ -18,7 +18,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = ['Click>=6.0', 'numpy', 'scipy']
 
-setup_requirements = ['pytest-runner', ]
+setup_requirements = ['pytest-runner', 'cython']
 
 test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
