@@ -16,9 +16,9 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', 'numpy', 'scipy', 'cython']
+requirements = ['Click>=6.0', 'numpy', 'scipy']
 
-setup_requirements = ['pytest-runner', 'cython']
+setup_requirements = ['pytest-runner']
 
 test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 

@@ -6,7 +6,7 @@ python:
 install:
   - pip install -U tox-travis
   - pip install codecov
-  - pip install -q numpy Cython
+  - pip install numpy Cython
   - python setup.py develop
 env:
   - SKNETWORK_DISABLE_NUMBA=false
