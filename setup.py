@@ -16,7 +16,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', 'numpy', 'scipy']
+requirements = ['Click>=6.0', 'numpy', 'scipy', 'cython']
 
 setup_requirements = ['pytest-runner', 'cython']
 
@@ -52,12 +52,9 @@ setup(
     url='https://github.com/sknetwork-team/scikit-network',
     version='0.12.1',
     zip_safe=False,
-)
-
-setup(
     ext_modules=cythonize(["sknetwork/clustering/louvain_core.pyx",
                           "sknetwork/utils/knn1d.pyx"],
                           annotate=True),
     include_dirs=[numpy.get_include()],
-    extra_compile_args=["-std=c++11"], install_requires=['numpy', 'scipy', 'cython']
+    extra_compile_args=["-std=c++11"],
 )
