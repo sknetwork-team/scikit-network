@@ -7,6 +7,7 @@
 from setuptools import find_packages
 from Cython.Build import cythonize
 from distutils.core import setup
+import os
 
 import numpy
 
@@ -15,6 +16,8 @@ with open('README.rst') as readme_file:
 
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
+
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 requirements = ['Click>=6.0', 'numpy', 'scipy', 'cython']
 
@@ -52,8 +55,8 @@ setup(
     url='https://github.com/sknetwork-team/scikit-network',
     version='0.12.1',
     zip_safe=False,
-    ext_modules=cythonize(["sknetwork/clustering/louvain_core.pyx",
-                          "sknetwork/utils/knn1d.pyx"],
+    ext_modules=cythonize([os.path.join(ROOT_DIR, "sknetwork/clustering/louvain_core.pyx"),
+                          os.path.join(ROOT_DIR, "sknetwork/utils/knn1d.pyx")],
                           annotate=True),
     include_dirs=[numpy.get_include()],
     extra_compile_args=["-std=c++11"],
