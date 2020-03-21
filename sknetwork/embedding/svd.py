@@ -104,6 +104,21 @@ class SVD(BaseEmbedding):
         self.singular_vectors_left_ = None
         self.singular_vectors_right_ = None
 
+    @staticmethod
+    def weight_matrices(adjacency):
+        """
+
+        Parameters
+        ----------
+        adjacency
+
+        Returns
+        -------
+
+        """
+        n1, n2 = adjacency.shape
+        return sparse.eye(n1, format='csr'), sparse.eye(n2, format='csr')
+
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'SVD':
         """
         Computes the SVD of the adjacency or biadjacency matrix.
@@ -135,14 +150,16 @@ class SVD(BaseEmbedding):
             else:
                 self.solver: SVDSolver = HalkoSVD()
 
+        diag_row, diag_col = self.weight_matrices(adjacency)
+
         regularization = self.regularization
         if regularization:
             if self.relative_regularization:
                 regularization = regularization * np.sum(adjacency.data) / (n1 * n2)
             adjacency_reg = SparseLR(adjacency, [(regularization * np.ones(n1), np.ones(n2))])
-            self.solver.fit(adjacency_reg, n_components)
+            self.solver.fit(safe_sparse_dot(diag_row, safe_sparse_dot(adjacency_reg, diag_col)), n_components)
         else:
-            self.solver.fit(adjacency, n_components)
+            self.solver.fit(safe_sparse_dot(diag_row, safe_sparse_dot(adjacency, diag_col)), n_components)
 
         singular_values = self.solver.singular_values_
         index = np.argsort(-singular_values)
@@ -151,8 +168,11 @@ class SVD(BaseEmbedding):
         singular_vectors_right = self.solver.singular_vectors_right_[:, index]
         singular_left_diag = sparse.diags(np.power(singular_values, 1 - self.singular_right))
         singular_right_diag = sparse.diags(np.power(singular_values, self.singular_right))
-        embedding_row = singular_left_diag.dot(singular_vectors_left.T).T
-        embedding_col = singular_right_diag.dot(singular_vectors_right.T).T
+
+        embedding_row = diag_row.dot(singular_vectors_left)
+        embedding_col = diag_col.dot(singular_vectors_right)
+        embedding_row = singular_left_diag.dot(embedding_row.T).T
+        embedding_col = singular_right_diag.dot(embedding_col.T).T
 
         if self.normalize:
             embedding_row = diag_pinv(np.linalg.norm(embedding_row, axis=1)).dot(embedding_row)
@@ -168,7 +188,7 @@ class SVD(BaseEmbedding):
         return self
 
 
-class GSVD(BaseEmbedding):
+class GSVD(SVD):
     """Graph embedding by Generalized Singular Value Decomposition of the adjacency or biadjacency matrix :math:`A`.
     This is equivalent to the Singular Value Decomposition of the matrix :math:`D_1^{- \\alpha_1}AD_2^{- \\alpha_2}`
     where :math:`D_1, D_2` are the diagonal matrices of row weights and columns weights, respectively, and
@@ -206,21 +226,6 @@ class GSVD(BaseEmbedding):
         * ``'lanczos'``: power-iteration based method.
         * :class:`SVDSolver`: custom solver.
 
-    Attributes
-    ----------
-    embedding_ : np.ndarray, shape = (n1, n_components)
-        Embedding of the rows.
-    embedding_row_ : np.ndarray, shape = (n1, n_components)
-        Embedding of the rows (copy of 'embedding_').
-    embedding_col_ : np.ndarray, shape = (n2, n_components)
-        Embedding of the columns.
-    singular_values_ : np.ndarray, shape = (n_components)
-        Singular values.
-    singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
-        Left singular vectors.
-    singular_vectors_right_ : np.ndarray, shape = (n_col, n_components)
-        Right singular vectors.
-
     Example
     -------
     >>> gsvd = GSVD()
@@ -239,100 +244,25 @@ class GSVD(BaseEmbedding):
     def __init__(self, n_components=2, regularization: Union[None, float] = None, relative_regularization: bool = True,
                  factor_row: float = 0.5, factor_col: float = 0.5, singular_right: float = 0., normalize: bool = True,
                  solver: Union[str, SVDSolver] = 'auto'):
-        super(GSVD, self).__init__()
-
-        self.n_components = n_components
-        if regularization == 0:
-            self.regularization = None
-        else:
-            self.regularization = regularization
-        self.relative_regularization = relative_regularization
+        super(GSVD, self).__init__(n_components, regularization, relative_regularization, singular_right, normalize,
+                                   solver)
         self.factor_row = factor_row
         self.factor_col = factor_col
-        self.singular_right = singular_right
-        self.normalize = normalize
 
-        if solver == 'halko':
-            self.solver: SVDSolver = HalkoSVD()
-        elif solver == 'lanczos':
-            self.solver: SVDSolver = LanczosSVD()
-        else:
-            self.solver = solver
-
-        self.embedding_ = None
-        self.embedding_row_ = None
-        self.embedding_col_ = None
-        self.singular_values_ = None
-        self.singular_vectors_left_ = None
-        self.singular_vectors_right_ = None
-
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'GSVD':
+    def weight_matrices(self, adjacency):
         """
-        Computes the GSVD of the adjacency or biadjacency matrix.
 
         Parameters
         ----------
-        adjacency: array-like, shape = (n1, n2)
-            Adjacency matrix, where n1 = n2 is the number of nodes for a standard graph,
-            n1, n2 are the number of nodes in each part for a bipartite graph.
+        adjacency
 
         Returns
         -------
-        self: :class:`GSVD`
+
         """
-        adjacency = check_format(adjacency).asfptype()
         n1, n2 = adjacency.shape
-
-        if self.n_components >= min(n1, n2) - 1:
-            n_components = min(n1, n2) - 1
-            warnings.warn(Warning("The dimension of the embedding must be less than the number of rows "
-                                  "and the number of columns. Changed accordingly."))
-        else:
-            n_components = self.n_components
-
-        if self.solver == 'auto':
-            solver = auto_solver(adjacency.nnz)
-            if solver == 'lanczos':
-                self.solver: SVDSolver = LanczosSVD()
-            else:
-                self.solver: SVDSolver = HalkoSVD()
-
         weights_row = adjacency.dot(np.ones(n2))
         weights_col = adjacency.T.dot(np.ones(n1))
         diag_row = diag_pinv(np.power(weights_row, self.factor_row))
         diag_col = diag_pinv(np.power(weights_col, self.factor_col))
-
-        regularization = self.regularization
-        if regularization:
-            if self.relative_regularization:
-                regularization = regularization * np.sum(adjacency.data) / (n1 * n2)
-            adjacency_reg = SparseLR(adjacency, [(regularization * np.ones(n1), np.ones(n2))])
-            self.solver.fit(safe_sparse_dot(diag_row, safe_sparse_dot(adjacency_reg, diag_col)), n_components)
-        else:
-            self.solver.fit(safe_sparse_dot(diag_row, safe_sparse_dot(adjacency, diag_col)), n_components)
-
-        singular_values = self.solver.singular_values_
-        index = np.argsort(-singular_values)
-        singular_values = singular_values[index]
-        singular_vectors_left = self.solver.singular_vectors_left_[:, index]
-        singular_vectors_right = self.solver.singular_vectors_right_[:, index]
-        singular_left_diag = sparse.diags(np.power(singular_values, 1 - self.singular_right))
-        singular_right_diag = sparse.diags(np.power(singular_values, self.singular_right))
-        embedding_row = diag_row.dot(singular_vectors_left)
-        embedding_col = diag_col.dot(singular_vectors_right)
-        embedding_row = singular_left_diag.dot(embedding_row.T).T
-        embedding_col = singular_right_diag.dot(embedding_col.T).T
-
-        if self.normalize:
-            embedding_row = diag_pinv(np.linalg.norm(embedding_row, axis=1)).dot(embedding_row)
-            embedding_col = diag_pinv(np.linalg.norm(embedding_col, axis=1)).dot(embedding_col)
-
-        self.embedding_row_ = embedding_row
-        self.embedding_col_ = embedding_col
-        self.embedding_ = embedding_row
-        self.singular_values_ = singular_values
-        self.singular_vectors_left_ = singular_vectors_left
-        self.singular_vectors_right_ = singular_vectors_right
-
-        return self
-
+        return diag_row, diag_col
