@@ -81,17 +81,19 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         """
         return membership
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]):
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'RankClassifier':
         """
 
         Parameters
         ----------
-        adjacency
-        seeds
+        adjacency:
+            Adjacency matrix of the graph.
+        seeds:
+            Labeled seed nodes. Can be a dict {node: label} or an array where "-1" means not labeled.
 
         Returns
         -------
-
+        self: :class:`RankClassifier`
         """
         seeds_labels = check_seeds(seeds, adjacency)
         classes, n_classes = check_labels(seeds_labels)

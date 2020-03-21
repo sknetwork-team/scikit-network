@@ -30,3 +30,10 @@ MaxDiff
     :show-inheritance:
     :inherited-members:
     :members:
+
+KNN
+---
+.. autoclass:: sknetwork.classification.KNN
+    :inherited-members:
+    :members:
+

@@ -91,9 +91,9 @@ class SVD(BaseEmbedding):
         self.singular_right = singular_right
         self.normalize = normalize
         if solver == 'halko':
-            self.solver: EigSolver = HalkoEig(which='SM')
+            self.solver: SVDSolver = HalkoSVD()
         elif solver == 'lanczos':
-            self.solver: EigSolver = LanczosEig(which='SM')
+            self.solver: SVDSolver = LanczosSVD()
         else:
             self.solver = solver
 
