@@ -49,8 +49,18 @@ def reindex_clusters(labels: np.ndarray) -> np.ndarray:
         new label of each node.
 
     """
+    _, labels = np.unique(labels, return_inverse=True)
     unique_values, counts = np.unique(labels, return_counts=True)
     sorted_values = unique_values[np.argsort(-counts)]
-    new_index = {l: i for i, l in enumerate(sorted_values)}
-    new_labels = np.array([new_index[label] for label in labels])
+    _, new_index = np.unique(sorted_values, return_index=True)
+    new_labels = new_index[labels.astype(int)]
     return new_labels
+
+
+def test_runtime(n):
+    from time import time
+    labels = np.random.choice(100, n)
+    t0 = time()
+    reindex_clusters(labels)
+    delta = time() - t0
+    return delta
