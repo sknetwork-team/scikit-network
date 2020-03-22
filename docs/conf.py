@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#
+"""configuration file"""
 # sknetwork documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  9 13:47:02 2017.
 #
@@ -178,6 +178,7 @@ collapse_navigation = True
 
 
 def setup(app):
+    """???"""
     app.add_css_file('css/custom.css')
 
 

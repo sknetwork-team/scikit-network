@@ -13,6 +13,7 @@ from sknetwork.data import rock_paper_scissors
 class TestSearch(unittest.TestCase):
 
     def setUp(self) -> None:
+        """Load graph for tests."""
         self.rock_paper_scissors = rock_paper_scissors()
 
     def test_bfs(self):
@@ -22,4 +23,3 @@ class TestSearch(unittest.TestCase):
     def test_dfs(self):
         self.assertTrue((depth_first_search(
             self.rock_paper_scissors, 0, return_predecessors=False) == np.array([0, 1, 2])).all())
-

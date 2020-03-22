@@ -1,3 +1,4 @@
+"""hierarchy module"""
 from sknetwork.hierarchy.aggregation import aggregate_dendrogram
 from sknetwork.hierarchy.base import BaseHierarchy
 from sknetwork.hierarchy.cuts import straight_cut, balanced_cut

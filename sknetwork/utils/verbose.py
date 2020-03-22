@@ -15,6 +15,7 @@ class Log:
         self.log = ''
 
     def print(self, *args):
+        """Fill log with text."""
         if self.verbose:
             print(*args)
         self.log += ' '.join(map(str, args)) + '\n'

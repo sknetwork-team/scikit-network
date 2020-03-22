@@ -1,3 +1,4 @@
+"""linalg module"""
 from sknetwork.linalg.auto_mode import auto_solver
 from sknetwork.linalg.diag_pinv import diag_pinv
 from sknetwork.linalg.eig_solver import EigSolver, LanczosEig, HalkoEig

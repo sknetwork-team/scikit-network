@@ -1,3 +1,4 @@
+"""ranking module"""
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.ranking.closeness import Closeness
 from sknetwork.ranking.diffusion import Diffusion, BiDiffusion

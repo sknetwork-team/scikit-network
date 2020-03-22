@@ -1,3 +1,4 @@
+"""clustering module"""
 from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.louvain import Louvain, BiLouvain, GreedyModularity, Optimizer
 from sknetwork.clustering.metrics import modularity, bimodularity, cocitation_modularity, nsd

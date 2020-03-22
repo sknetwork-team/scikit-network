@@ -179,7 +179,7 @@ class BiDiffusion(Diffusion):
     """
 
     def __init__(self, n_iter: int = 0, verbose: bool = False):
-        super(BiDiffusion, self).__init__(verbose, n_iter)
+        super(BiDiffusion, self).__init__(n_iter, verbose)
 
         self.scores_row_ = None
         self.scores_col_ = None

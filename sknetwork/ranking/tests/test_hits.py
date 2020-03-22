@@ -33,3 +33,5 @@ class TestHITS(unittest.TestCase):
 
         n1, n2 = self.bipartite.shape
         hits.fit(self.bipartite)
+        self.assertEqual(len(hits.scores_), n1)
+        self.assertEqual(len(hits.scores_col_), n2)

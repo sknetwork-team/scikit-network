@@ -192,6 +192,7 @@ def parse_hierarchical_labels(file: str, depth: int, full_path: bool = True, del
 
 
 def parse_header(file: str):
+    """Check if the graph is directed, bipartite, weighted."""
     directed, bipartite, weighted = False, False, True
     with open(file, 'r', encoding='utf-8') as f:
         row = f.readline()
@@ -205,6 +206,7 @@ def parse_header(file: str):
 
 
 def parse_metadata(file: str, delimiter: str = ': ') -> 'Bunch':
+    """Extract metadata from the file."""
     metadata = Bunch()
     with open(file, 'r', encoding='utf-8') as f:
         for row in f:

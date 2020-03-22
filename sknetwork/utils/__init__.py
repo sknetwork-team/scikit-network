@@ -1,3 +1,4 @@
+"""utils module"""
 from sknetwork.utils.formats import *
 from sknetwork.utils.kmeans import KMeans
 from sknetwork.utils.kneighbors import KNeighborsTransformer, FWKNeighborsTransformer

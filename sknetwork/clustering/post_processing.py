@@ -52,5 +52,5 @@ def reindex_clusters(labels: np.ndarray) -> np.ndarray:
     unique_values, counts = np.unique(labels, return_counts=True)
     sorted_values = unique_values[np.argsort(-counts)]
     new_index = {l: i for i, l in enumerate(sorted_values)}
-    new_labels = np.array([new_index[l] for l in labels])
+    new_labels = np.array([new_index[label] for label in labels])
     return new_labels

@@ -1,3 +1,4 @@
+"""basics module"""
 from sknetwork.basics.co_neighbors import co_neighbors_graph
 from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.basics.search import depth_first_search, breadth_first_search
