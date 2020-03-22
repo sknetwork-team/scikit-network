@@ -19,5 +19,5 @@ class TestLouvainClustering(unittest.TestCase):
         self.assertTrue(np.array_equal(truth, output))
 
         labels = np.array([0, 0, 5, 2, 2, 2])
-        output = reindex_clusters(labels)
+        output = reindex_clusters(labels, assume_range=False)
         self.assertTrue(np.array_equal(truth, output))

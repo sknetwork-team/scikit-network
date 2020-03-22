@@ -34,7 +34,7 @@ def membership_matrix(labels: np.ndarray, dtype=bool) -> sparse.csr_matrix:
     return sparse.csr_matrix((np.ones(n), (np.arange(n), labels)), dtype=dtype)
 
 
-def reindex_clusters(labels: np.ndarray) -> np.ndarray:
+def reindex_clusters(labels: np.ndarray, assume_range: bool = True) -> np.ndarray:
     """
     Reindex clusters in decreasing order of size.
 
@@ -42,14 +42,16 @@ def reindex_clusters(labels: np.ndarray) -> np.ndarray:
     ----------
     labels:
         label of each node.
-
+    assume_range:
+        If True, the labels are assumed to be between 0 and k-1, this leads to faster computation.
     Returns
     -------
     new_labels: np.ndarray
         new label of each node.
 
     """
-    _, labels = np.unique(labels, return_inverse=True)
+    if not assume_range:
+        _, labels = np.unique(labels, return_inverse=True)
     unique_values, counts = np.unique(labels, return_counts=True)
     sorted_values = unique_values[np.argsort(-counts)]
     _, new_index = np.unique(sorted_values, return_index=True)
