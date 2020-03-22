@@ -109,6 +109,6 @@ class KNN(BaseClassifier):
         labels = np.zeros(adjacency.shape[0])
         labels[ix_train] = seeds_labels[ix_train]
         labels[ix_test] = np.argmax(membership, axis=1)
-        self.labels_ = np.array([classes[int(val)] for val in labels]).astype(int)
+        self.labels_ = classes[labels.astype(int)]
 
         return self
