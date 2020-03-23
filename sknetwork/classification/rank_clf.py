@@ -120,7 +120,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         membership[~ix] /= norms[~ix, np.newaxis]
 
         labels = np.argmax(membership, axis=1)
-        self.labels_ = classes[labels.astype(int)]
+        self.labels_ = classes[labels.astype(int)].astype(int)
         self.membership_ = membership
 
         return self
