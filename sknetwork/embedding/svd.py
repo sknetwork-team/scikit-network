@@ -29,7 +29,7 @@ class SVD(BaseEmbedding):
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
     singular_right : float (default = 0.)
-        Parameter :math:`\\alpha` applied to the singular values on right singular vectors.
+        Power :math:`\\alpha` applied to the singular values on right singular vectors.
         The embedding of rows and columns are respectively :math:`U \\Sigma^{1-\\alpha}` and
         :math:`V \\Sigma^\\alpha` where:
 
@@ -53,7 +53,7 @@ class SVD(BaseEmbedding):
     embedding_ : np.ndarray, shape = (n1, n_components)
         Embedding of the rows.
     embedding_row_ : np.ndarray, shape = (n1, n_components)
-        Embedding of the rows (copy of 'embedding_').
+        Embedding of the rows (copy of **embedding_**).
     embedding_col_ : np.ndarray, shape = (n2, n_components)
         Embedding of the columns.
     singular_values_ : np.ndarray, shape = (n_components)
@@ -209,7 +209,7 @@ class GSVD(SVD):
     singular_right : float (default = 0.)
         Parameter :math:`\\alpha` applied to the singular values on right singular vectors.
         The embedding of rows and columns are respectively :math:`D_1^{- \\alpha_1}U \\Sigma^{1-\\alpha}` and
-        :math:`D_2^{- \\alpha_1}V \\Sigma^\\alpha` where:
+        :math:`D_2^{- \\alpha_2}V \\Sigma^\\alpha` where:
 
         * :math:`U` is the matrix of left singular vectors, shape (n_row, n_components)
         * :math:`V` is the matrix of right singular vectors, shape (n_col, n_components)

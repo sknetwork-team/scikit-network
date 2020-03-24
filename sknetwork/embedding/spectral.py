@@ -112,7 +112,7 @@ class Spectral(BaseEmbedding):
     Spectral embedding of graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`.
     Eigenvectors are considered in increasing order of eigenvalues, skipping the first eigenvector.
 
-    The graph must be undirected (see BiSpectral for directed graphs and bipartite graphs).
+    The graph must be undirected (see :class:`BiSpectral` for directed graphs and bipartite graphs).
 
     Parameters
     ----------
@@ -368,8 +368,9 @@ class Spectral(BaseEmbedding):
 
 class BiSpectral(Spectral):
     """
-    Spectral embedding of bipartite graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`.
-    Eigenvectors are considered in increasing order of eigenvalues, skipping the first eigenvector.
+    Spectral embedding of bipartite graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`
+    with :math:`A` the adjacency matrix of the graph. Eigenvectors are considered in increasing order of eigenvalues,
+    skipping the first eigenvector.
 
     Parameters
     ----------
@@ -406,7 +407,7 @@ class BiSpectral(Spectral):
     embedding_ : array, shape = (n_row, n_components)
         Embedding of the rows.
     embedding_row_ : array, shape = (n_row, n_components)
-        Embedding of the rows (copy of embedding_).
+        Embedding of the rows (copy of **embedding_**).
     embedding_col_ : array, shape = (n_col, n_components)
         Embedding of the columns.
     eigenvalues_ : array, shape = (n_components)
