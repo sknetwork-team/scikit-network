@@ -27,4 +27,4 @@ class TestWard(unittest.TestCase):
         n1, n2 = self.bipartite.shape
         self.assertEqual(biward.dendrogram_row_.shape, (n1 - 1, 4))
         self.assertEqual(biward.dendrogram_col_.shape, (n2 - 1, 4))
-        self.assertEqual(biward.dendrogram_both_.shape, (n1 + n2 - 1, 4))
+        self.assertEqual(biward.dendrogram_full_.shape, (n1 + n2 - 1, 4))

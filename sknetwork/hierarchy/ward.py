@@ -67,22 +67,22 @@ class BiWard(BaseHierarchy):
     embedding_method:
         Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
     cluster_row:
-        If ``True``, returns a dendrogram for the rows.
+        If ``True``, returns a dendrogram for the rows (default = ``True``).
     cluster_col:
-        If ``True``, returns a dendrogram for the columns.
+        If ``True``, returns a dendrogram for the columns (default = ``False``).
     cluster_both:
-        If ``True``, also returns a dendrogram for all nodes (co-clustering rows + columns).
+        If ``True``, also returns a dendrogram for all nodes (co-clustering rows + columns, default = ``False``).
 
     Attributes
     ----------
-    dendrogram_row_:
+    dendrogram_:
         Dendrogram for the rows.
+    dendrogram_row_:
+        Dendrogram for the rows (copy of **dendrogram_**).
     dendrogram_col_:
         Dendrogram for the columns.
-    dendrogram_both_:
-        Dendrogram for both rows and columns.
-    dendrogram_:
-        Dendrogram for the rows (copy of 'dendrogram_row_').
+    dendrogram_full_:
+        Dendrogram for both rows and columns, indexed in this order.
     """
 
     def __init__(self, embedding_method: BaseEmbedding = GSVD(10), cluster_row: bool = True,
@@ -96,7 +96,7 @@ class BiWard(BaseHierarchy):
 
         self.dendrogram_row_ = None
         self.dendrogram_col_ = None
-        self.dendrogram_both_ = None
+        self.dendrogram_full_ = None
         self.dendrogram_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiWard':
@@ -129,7 +129,7 @@ class BiWard(BaseHierarchy):
 
         if self.cluster_both:
             ward.fit(np.vstack((embedding_row, embedding_col)))
-            self.dendrogram_both_ = ward.dendrogram_
+            self.dendrogram_full_ = ward.dendrogram_
 
         self.dendrogram_ = self.dendrogram_row_
 
