@@ -13,7 +13,7 @@ from scipy import sparse
 from sknetwork.clustering.base import BaseClustering
 from sknetwork.embedding import BiSpectral, Spectral
 from sknetwork.utils.checks import check_format, is_symmetric
-from sknetwork.utils.kmeans import KMeans
+from sknetwork.utils.kmeans import KMeansDense
 
 
 class SpectralClustering(BaseClustering):
@@ -63,7 +63,7 @@ class SpectralClustering(BaseClustering):
             norm[norm == 0.] = 1
             embedding /= norm[:, np.newaxis]
 
-        kmeans = KMeans(self.n_clusters)
+        kmeans = KMeansDense(self.n_clusters)
         kmeans.fit(embedding)
 
         self.labels_ = kmeans.labels_
@@ -72,7 +72,7 @@ class SpectralClustering(BaseClustering):
 
 
 class BiSpectralClustering(SpectralClustering):
-    """KMeans clustering.
+    """KMeansDense clustering.
 
     Parameters
     ----------
@@ -125,7 +125,7 @@ class BiSpectralClustering(SpectralClustering):
         else:
             embedding = bispectral.embedding_row_
 
-        kmeans = KMeans(self.n_clusters)
+        kmeans = KMeansDense(self.n_clusters)
         kmeans.fit(embedding)
 
         if self.co_cluster:

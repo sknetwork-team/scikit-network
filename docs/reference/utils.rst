@@ -25,7 +25,7 @@ Checks
 Algorithms
 ----------
 
-.. autoclass:: sknetwork.utils.kmeans.KMeans
+.. autoclass:: sknetwork.utils.kmeans.KMeansDense
     :members:
 
 .. autofunction:: sknetwork.utils.projection_simplex.projection_simplex

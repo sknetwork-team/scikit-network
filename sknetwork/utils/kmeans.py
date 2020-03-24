@@ -11,8 +11,8 @@ from scipy.cluster.vq import kmeans2
 from sknetwork.utils.base import Algorithm
 
 
-class KMeans(Algorithm):
-    """Standard KMeans clustering based on SciPy function ``kmeans2``.
+class KMeansDense(Algorithm):
+    """Standard KMeansDense clustering based on SciPy function ``kmeans2``.
 
     Parameters
     ----------
@@ -58,7 +58,7 @@ class KMeans(Algorithm):
         self.labels_ = None
         self.cluster_centers_ = None
 
-    def fit(self, x: np.ndarray) -> 'KMeans':
+    def fit(self, x: np.ndarray) -> 'KMeansDense':
         """Apply KMeans algorithm to the data.
 
         Parameters
@@ -68,7 +68,7 @@ class KMeans(Algorithm):
 
         Returns
         -------
-        self: :class:`KMeans`
+        self: :class:`KMeansDense`
 
         """
         centroids, labels = kmeans2(data=x, k=self.n_clusters, iter=self.n_init, thresh=self.tol, minit=self.init)

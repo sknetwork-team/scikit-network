@@ -45,30 +45,24 @@ Undirected graphs
 * :math:`A` is the adjacency matrix of the graph (dimension :math:`n\times n`)
 * :math:`d = A1` is the vector of node weights (node degrees if the matrix :math:`A` is binary)
 * :math:`D = \text{diag}(d)` the diagonal matrix of node weights
-* :math:`L = D - A` is the Laplacian matrix of the graph
-* :math:`P = D^{-1}A` is the transition matrix of the random walk in the graph (for positive node weights)
 * :math:`w = 1^T A1` is the total weight of the graph (total weight of nodes)
 
 Directed graphs
 ^^^^^^^^^^^^^^^
 
 * :math:`A` is the adjacency matrix of the graph (dimension :math:`n\times n`)
-* :math:`d^+ = A1` is the vector of node out-weights (node out-degrees if the matrix :math:`A` is binary)
-* :math:`D^+ = \text{diag}(d^+)` is the diagonal matrix of node out-weights
-* :math:`P^+= {D^+}^{-1}A` is the transition matrix of the random walk in the graph (for positive node out-weights)
-* :math:`d^- = A1` is the vector of node in-weights (node in-degrees if the matrix :math:`A` is binary)
-* :math:`D^- = \text{diag}(d^-)` is the diagonal matrix of node in-weights
-* :math:`P^-= {D^-}^{-1}A` is the transition matrix of the random walk in reverse direction (for positive node in-weights)
+* :math:`d^+ = A1` and :math:`d^- = A^T1` are the vectors of out-weights and in-weights of nodes
+(out-degrees and in-degrees if the matrix :math:`A` is binary)
+* :math:`D^- = \text{diag}(d^+)` and :math:`D^- = \text{diag}(d^-)` are the diagonal matrices of out-weights and
+in-weights
 * :math:`w = 1^T A1` is the total weight of the graph (total weight of edges)
 
 Bipartite graphs
 ^^^^^^^^^^^^^^^^
 
-* :math:`B` denotes the biadjacency matrix of the graph (dimension :math:`n_1\times n_2`); rows and columns are viewed as samples and features
-* :math:`d = B1` is the vector of sample weights (rows)
-* :math:`D = \text{diag}(d)` is the diagonal matrix of sample weights
-* :math:`f = B^T1` is the vector of feature weights (columns)
-* :math:`F = \text{diag}(f)` the diagonal matrix of feature weights
+* :math:`B` is the biadjacency matrix of the graph (dimension :math:`n_1\times n_2`)
+* :math:`d_1 = B1` and :math:`d_2 = B^T1` are the vectors of weights (rows and columns)
+* :math:`D_1 = \text{diag}(d_1)` and :math:`D_2 = \text{diag}(d_2)` are the diagonal matrices of weights.
 * :math:`w = 1^T B1` is the total weight of the graph (total weight of edges)
 
 Notes
