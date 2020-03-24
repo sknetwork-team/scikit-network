@@ -24,6 +24,10 @@ Paris
     :inherited-members:
     :members:
 
+.. autoclass:: sknetwork.hierarchy.BiParis
+    :inherited-members:
+    :members:
+
 Ward
 ----
 .. autoclass:: sknetwork.hierarchy.Ward
