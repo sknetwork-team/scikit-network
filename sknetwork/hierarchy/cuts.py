@@ -96,8 +96,8 @@ def cut_balanced(dendrogram: np.ndarray, max_cluster_size: int = 2, sort_cluster
     -------
     labels : np.ndarray
         Label of each node.
-    return_dendrogram :
-        If ``True``, returns the dendrogram formed by the clusters up to the root.
+    dendrogram_new : np.ndarray
+        Dendrogram starting from clusters (leaves = clusters).
     """
     if len(dendrogram.shape) != 2 or dendrogram.shape[1] != 4:
         raise ValueError("Check the shape of the dendrogram.")
