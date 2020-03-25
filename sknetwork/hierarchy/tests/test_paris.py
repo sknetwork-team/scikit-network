@@ -29,14 +29,11 @@ class TestParis(unittest.TestCase):
             with self.assertRaises(ValueError):
                 Paris(engine='numba')
 
-        self.adjacency: sparse.csr_matrix = karate_club()
-        self.adjacency_: sparse.csr_matrix = painters()
-        self.biadjacency: sparse.csr_matrix = movie_actor()
-
     def test_undirected(self):
+        adjacency = karate_club()
         for paris in self.paris:
-            dendrogram = paris.fit_transform(self.adjacency)
-            n = self.adjacency.shape[0]
+            dendrogram = paris.fit_transform(adjacency)
+            n = adjacency.shape[0]
             self.assertEqual(dendrogram.shape, (n - 1, 4))
             labels = straight_cut(dendrogram, sorted_clusters=True)
             self.assertEqual(len(set(labels)), 2)
@@ -44,9 +41,10 @@ class TestParis(unittest.TestCase):
             self.assertEqual(len(set(labels)), 5)
 
     def test_directed(self):
+        adjacency = painters()
         for paris in self.paris:
-            dendrogram = paris.fit_transform(self.adjacency_)
-            n = self.adjacency_.shape[0]
+            dendrogram = paris.fit_transform(adjacency)
+            n = adjacency.shape[0]
             self.assertEqual(dendrogram.shape, (n - 1, 4))
             labels = straight_cut(dendrogram, sorted_clusters=True)
             self.assertEqual(len(set(labels)), 2)
@@ -54,9 +52,10 @@ class TestParis(unittest.TestCase):
             self.assertEqual(len(set(labels)), 2)
 
     def test_bipartite(self):
+        biadjacency = movie_actor()
         for biparis in self.biparis:
-            biparis.fit(self.biadjacency)
-            n1, n2 = self.biadjacency.shape
+            biparis.fit(biadjacency)
+            n1, n2 = biadjacency.shape
             self.assertEqual(biparis.dendrogram_.shape, (n1 - 1, 4))
             self.assertEqual(biparis.dendrogram_row_.shape, (n1 - 1, 4))
             self.assertEqual(biparis.dendrogram_col_.shape, (n2 - 1, 4))
@@ -70,8 +69,9 @@ class TestParis(unittest.TestCase):
 
     def test_options(self):
         paris = Paris(weights='uniform')
-        dendrogram = paris.fit_transform(self.adjacency)
-        n = self.adjacency.shape[0]
+        adjacency = karate_club()
+        dendrogram = paris.fit_transform(adjacency)
+        n = adjacency.shape[0]
         self.assertEqual(dendrogram.shape, (n - 1, 4))
 
     # noinspection PyTypeChecker
