@@ -228,12 +228,13 @@ class BiPageRank(PageRank):
 
     Attributes
     ----------
-    scores_row_ : np.ndarray
-        PageRank score of each row.
-    scores_col_ : np.ndarray
-        PageRank score of each col.
     scores_ : np.ndarray
-        PageRank score of each row (copy of 'scores_row_').
+        PageRank score of each row.
+    scores_row_ : np.ndarray
+        PageRank score of each row (copy of **scores_**).
+    scores_col_ : np.ndarray
+        PageRank score of each column.
+
 
     Example
     -------

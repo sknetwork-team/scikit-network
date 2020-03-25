@@ -88,8 +88,10 @@ class BiSpectralClustering(SpectralClustering):
 
     Attributes
     ----------
+    labels_: np.ndarray
+        Labels of the rows.
     labels_row_: np.ndarray
-        Labels of the rows (copy of labels_).
+        Labels of the rows (copy of **labels_**).
     labels_col_: np.ndarray
         Labels of the columns. Only valid if ``co_cluster=True``.
     """

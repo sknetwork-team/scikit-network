@@ -526,8 +526,10 @@ class BiLouvain(Louvain):
 
         Attributes
         ----------
+        labels_ : np.ndarray
+            Labels of the rows.
         labels_row_ : np.ndarray
-            Labels of the rows (copy of labels_)
+            Labels of the rows (copy of **labels_**).
         labels_col_ : np.ndarray
             Labels of the columns.
         iteration_count_ : int

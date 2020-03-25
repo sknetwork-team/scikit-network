@@ -12,7 +12,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork import is_numba_available
-from sknetwork.hierarchy import Paris, BiParis, straight_cut, balanced_cut
+from sknetwork.hierarchy import Paris, BiParis
 from sknetwork.data import karate_club, painters, movie_actor
 
 
@@ -35,10 +35,6 @@ class TestParis(unittest.TestCase):
             dendrogram = paris.fit_transform(adjacency)
             n = adjacency.shape[0]
             self.assertEqual(dendrogram.shape, (n - 1, 4))
-            labels = straight_cut(dendrogram, sorted_clusters=True)
-            self.assertEqual(len(set(labels)), 2)
-            labels = balanced_cut(dendrogram, max_cluster_size=10)
-            self.assertEqual(len(set(labels)), 5)
 
     def test_directed(self):
         adjacency = painters()
@@ -46,10 +42,6 @@ class TestParis(unittest.TestCase):
             dendrogram = paris.fit_transform(adjacency)
             n = adjacency.shape[0]
             self.assertEqual(dendrogram.shape, (n - 1, 4))
-            labels = straight_cut(dendrogram, sorted_clusters=True)
-            self.assertEqual(len(set(labels)), 2)
-            labels = balanced_cut(dendrogram, max_cluster_size=10)
-            self.assertEqual(len(set(labels)), 2)
 
     def test_bipartite(self):
         biadjacency = movie_actor()
@@ -75,7 +67,7 @@ class TestParis(unittest.TestCase):
         self.assertEqual(dendrogram.shape, (n - 1, 4))
 
     # noinspection PyTypeChecker
-    def test_unknown_types(self):
+    def test_input(self):
         with self.assertRaises(TypeError):
             for paris in self.paris:
                 paris.fit(sparse.identity(1))

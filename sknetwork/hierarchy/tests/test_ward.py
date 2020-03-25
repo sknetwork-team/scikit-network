@@ -7,9 +7,10 @@ Created on October 2019
 
 import unittest
 
+import numpy as np
 from scipy import sparse
 
-from sknetwork.hierarchy import Ward, BiWard, straight_cut, balanced_cut
+from sknetwork.hierarchy import Ward, BiWard
 from sknetwork.embedding import Spectral
 from sknetwork.data import karate_club, painters, movie_actor
 
@@ -24,10 +25,6 @@ class TestWard(unittest.TestCase):
         adjacency = karate_club()
         dendrogram = self.ward.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))
-        labels = straight_cut(dendrogram, sorted_clusters=True)
-        self.assertEqual(len(set(labels)), 2)
-        labels = balanced_cut(dendrogram, max_cluster_size=10)
-        self.assertEqual(len(set(labels)), 6)
 
     def test_directed(self):
         adjacency = painters()
@@ -43,6 +40,11 @@ class TestWard(unittest.TestCase):
         self.assertEqual(self.biward.dendrogram_col_.shape, (n2 - 1, 4))
         self.assertEqual(self.biward.dendrogram_full_.shape, (n1 + n2 - 1, 4))
 
+    def test_disconnected(self):
+        adjacency = np.eye(10)
+        dendrogram = self.ward.fit_transform(adjacency)
+        self.assertEqual(dendrogram.shape, (9, 4))
+
     def test_options(self):
         adjacency = karate_club()
         ward = Ward(embedding_method=Spectral())
@@ -50,6 +52,6 @@ class TestWard(unittest.TestCase):
         self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))
 
     # noinspection PyTypeChecker
-    def test_unknown_types(self):
+    def test_input(self):
         with self.assertRaises(TypeError):
             self.ward.fit(sparse.identity(1))

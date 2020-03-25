@@ -32,12 +32,12 @@ class HITS(BaseRanking):
 
     Attributes
     ----------
-    scores_row_ : np.ndarray
+    scores_ : np.ndarray
         Hub score of each row.
+    scores_row_ : np.ndarray
+        Hub score of each row (copy of **scores_row_**).
     scores_col_ : np.ndarray
         Authority score of each column.
-    scores_ : np.ndarray
-        Hub score of each row (copy of 'scores_row_').
 
     Example
     -------

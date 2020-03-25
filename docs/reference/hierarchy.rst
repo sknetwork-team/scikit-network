@@ -41,12 +41,9 @@ Ward
 
 Cuts
 ----
-.. autofunction:: sknetwork.hierarchy.straight_cut
+.. autofunction:: sknetwork.hierarchy.cut_straight
 
-
-Aggregation
------------
-.. autofunction:: sknetwork.hierarchy.aggregate_dendrogram
+.. autofunction:: sknetwork.hierarchy.cut_balanced
 
 
 Metrics
