@@ -60,7 +60,7 @@ class Ward(BaseHierarchy):
 
 
 class BiWard(BaseHierarchy):
-    """Hierarchical clustering for bipartite graphs by the Ward method.
+    """Hierarchical clustering of bipartite graphs by the Ward method.
 
     Parameters
     ----------
@@ -71,7 +71,7 @@ class BiWard(BaseHierarchy):
     cluster_col:
         If ``True``, returns a dendrogram for the columns (default = ``False``).
     cluster_both:
-        If ``True``, also returns a dendrogram for all nodes (co-clustering rows + columns, default = ``False``).
+        If ``True``, returns a dendrogram for all nodes (co-clustering rows + columns, default = ``False``).
 
     Attributes
     ----------

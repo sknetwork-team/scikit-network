@@ -478,46 +478,97 @@ class Paris(BaseHierarchy):
             raise ValueError('Unknown engine.')
 
 
+def split_dendrogram(dendrogram: np.ndarray, shape: tuple):
+    """
+    Split the dendrogram of a bipartite graph into 2 dendrograms, one for each part.
+
+    Parameters
+    ----------
+    dendrogram :
+        Dendrogram of the bipartite graph.
+    shape :
+        Shape of the biadjacency matrix.
+    Returns
+    -------
+    dendrogram_row :
+        Dendrogram for the rows.
+    dendrogram_col :
+        Dendrogram for the columns.
+    """
+    n1, n2 = shape
+    dendrogram_row = []
+    dendrogram_col = []
+    id_row_new = n1
+    id_col_new = n2
+    size_row = {i: 1 for i in range(n1)}
+    size_col = {i + n1: 1 for i in range(n2)}
+    id_row = {i: i for i in range(n1)}
+    id_col = {i + n1: i for i in range(n2)}
+    for t in range(n1 + n2 - 1):
+        i = dendrogram[t, 0]
+        j = dendrogram[t, 1]
+
+        if i in id_row and j in id_row:
+            size_row[n1 + n2 + t] = size_row.pop(i) + size_row.pop(j)
+            id_row[n1 + n2 + t] = id_row_new
+            dendrogram_row.append([id_row.pop(i), id_row.pop(j), dendrogram[t, 2], size_row[n1 + n2 + t]])
+            id_row_new += 1
+        elif i in id_row:
+            size_row[n1 + n2 + t] = size_row.pop(i)
+            id_row[n1 + n2 + t] = id_row.pop(i)
+        elif j in id_row:
+            size_row[n1 + n2 + t] = size_row.pop(j)
+            id_row[n1 + n2 + t] = id_row.pop(j)
+
+        if i in id_col and j in id_col:
+            size_col[n1 + n2 + t] = size_col.pop(i) + size_col.pop(j)
+            id_col[n1 + n2 + t] = id_col_new
+            dendrogram_col.append([id_col.pop(i), id_col.pop(j), dendrogram[t, 2], size_col[n1 + n2 + t]])
+            id_col_new += 1
+        elif i in id_col:
+            size_col[n1 + n2 + t] = size_col.pop(i)
+            id_col[n1 + n2 + t] = id_col.pop(i)
+        elif j in id_col:
+            size_col[n1 + n2 + t] = size_col.pop(j)
+            id_col[n1 + n2 + t] = id_col.pop(j)
+    return np.array(dendrogram_row), np.array(dendrogram_col)
+
+
 class BiParis(Paris):
     """
-    BiParis algorithm for the hierarchical co-clustering of bipartite graphs in Python (default) and Numba.
-
-    Returns a single dendrogram.
-    Nodes are indexed from 0 to n1 + n2 - 1 with (n1, n2) the shape of the biadjacency matrix.
-    The first n1 nodes correspond to the rows of the biadjacency matrix.
+    Hierarchical clustering of bipartite graphs by the Paris method.
 
     Parameters
     ----------
     weights :
-            Weights of nodes.
-            ``'degree'`` (default) or ``'uniform'``.
+        Weights of nodes.
+        ``'degree'`` (default) or ``'uniform'``.
     engine : str
-        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if **numba** is available.
     reorder :
             If True, reorder the dendrogram in increasing order of heights.
-
     Attributes
     ----------
-    dendrogram_ : numpy array of shape (total number of nodes - 1, 4)
-        Dendrogram.
+    dendrogram_:
+        Dendrogram for the rows.
+    dendrogram_row_:
+        Dendrogram for the rows (copy of **dendrogram_**).
+    dendrogram_col_:
+        Dendrogram for the columns.
+    dendrogram_full_:
+        Dendrogram for both rows and columns, indexed in this order.
 
     Examples
     --------
     >>> from sknetwork.data import star_wars_villains
     >>> biadjacency = star_wars_villains()
     >>> biparis = BiParis(engine='python')
-    >>> biparis.fit(biadjacency).dendrogram_
-    array([[ 1.      ,  4.      ,  0.09375 ,  2.      ],
-           [ 3.      ,  5.      ,  0.125   ,  2.      ],
-           [ 6.      ,  0.      ,  0.1875  ,  2.      ],
-           [ 7.      ,  2.      ,  0.375   ,  3.      ],
-           [10.      ,  9.      ,  0.546875,  5.      ],
-           [11.      ,  8.      ,  0.75    ,  7.      ]])
+    >>> biparis.fit_transform(biadjacency).shape
+    (3, 4)
 
     Notes
     -----
-    Each row of the dendrogram = :math:`i, j`, height, size of cluster :math:`i + j`.
-
+    Each row of the dendrogram = :math:`i, j`, height, size of cluster.
 
     See Also
     --------
@@ -533,6 +584,10 @@ class BiParis(Paris):
 
     def __init__(self, engine: str = 'default', weights: str = 'degree', reorder: bool = True):
         Paris.__init__(self, engine, weights, reorder)
+
+        self.dendrogram_row_ = None
+        self.dendrogram_col_ = None
+        self.dendrogram_full_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiParis':
         """Applies the Paris algorithm to
@@ -554,8 +609,12 @@ class BiParis(Paris):
         biadjacency = check_format(biadjacency)
 
         adjacency = bipartite2undirected(biadjacency)
-        paris.fit(adjacency)
+        dendrogram = paris.fit_transform(adjacency)
+        dendrogram_row, dendrogram_col = split_dendrogram(dendrogram, biadjacency.shape)
 
-        self.dendrogram_ = paris.dendrogram_
+        self.dendrogram_ = dendrogram_row
+        self.dendrogram_row_ = dendrogram_row
+        self.dendrogram_col_ = dendrogram_col
+        self.dendrogram_full_ = dendrogram
 
         return self
