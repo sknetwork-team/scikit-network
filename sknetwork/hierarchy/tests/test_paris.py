@@ -30,7 +30,7 @@ class TestParis(unittest.TestCase):
                 Paris(engine='numba')
 
         self.adjacency: sparse.csr_matrix = karate_club()
-        self.adjacency_directed: sparse.csr_matrix = painters()
+        self.adjacency_: sparse.csr_matrix = painters()
         self.biadjacency: sparse.csr_matrix = movie_actor()
 
     def test_undirected(self):
@@ -43,6 +43,16 @@ class TestParis(unittest.TestCase):
             labels = balanced_cut(dendrogram, max_cluster_size=10)
             self.assertEqual(len(set(labels)), 5)
 
+    def test_directed(self):
+        for paris in self.paris:
+            dendrogram = paris.fit_transform(self.adjacency_)
+            n = self.adjacency_.shape[0]
+            self.assertEqual(dendrogram.shape, (n - 1, 4))
+            labels = straight_cut(dendrogram, sorted_clusters=True)
+            self.assertEqual(len(set(labels)), 2)
+            labels = balanced_cut(dendrogram, max_cluster_size=10)
+            self.assertEqual(len(set(labels)), 2)
+
     def test_bipartite(self):
         for biparis in self.biparis:
             biparis.fit(self.biadjacency)
@@ -54,7 +64,7 @@ class TestParis(unittest.TestCase):
 
     def test_disconnected(self):
         adjacency = np.eye(10)
-        paris = Paris(engine = 'python')
+        paris = Paris(engine='python')
         dendrogram = paris.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (9, 4))
 
