@@ -9,7 +9,7 @@ This module's code is freely adapted from TorchKGE's torchkge.data.DataLoader.py
 import pickle
 import tarfile
 import shutil
-from os import environ, makedirs, remove, listdir
+from os import environ, makedirs, remove, listdir, rmdir
 from os.path import exists, expanduser, join
 from typing import Optional
 from urllib.error import HTTPError
@@ -93,7 +93,9 @@ def load_wikilinks_dataset(dataset_name: str, data_home: Optional[str] = None,
             urlretrieve("https://graphs.telecom-paristech.fr/npz_datasets/" + dataset_name + '_npz.tar.gz',
                         data_home + '/' + dataset_name + '_npz.tar.gz')
         except HTTPError:
-            raise ValueError('Invalid dataset ' + dataset_name)
+            rmdir(data_home + '/' + dataset_name)
+            raise ValueError('Invalid dataset ' + dataset_name + '.'
+                             + "\nPossible datasets are 'wikivitals' and 'wikihumans'.")
         with tarfile.open(data_home + '/' + dataset_name + '_npz.tar.gz', 'r:gz') as tar_ref:
             tar_ref.extractall(data_home)
         remove(data_home + '/' + dataset_name + '_npz.tar.gz')
@@ -118,8 +120,8 @@ def load_wikilinks_dataset(dataset_name: str, data_home: Optional[str] = None,
                 tags.append(".".join(parts[:min(max_depth, len(parts))]))
             else:
                 tags.append(parts[:min(max_depth, len(parts))][-1])
-        data.target_names = np.array(tags)
-        _, data.target = np.unique(data.target_names, return_inverse=True)
+        tags = np.array(tags)
+        data.target_names, data.target = np.unique(tags, return_inverse=True)
 
     return data
 
@@ -158,11 +160,15 @@ def load_konect_dataset(dataset_name: str, data_home: Optional[str] = None, auto
         try:
             urlretrieve('http://konect.uni-koblenz.de/downloads/tsv/' + dataset_name + '.tar.bz2',
                         data_home + '/' + dataset_name + '.tar.bz2')
-        except HTTPError:
-            raise ValueError('Invalid dataset ' + dataset_name)
-        with tarfile.open(data_home + '/' + dataset_name + '.tar.bz2', 'r:bz2') as tar_ref:
-            tar_ref.extractall(data_home)
-        remove(data_home + '/' + dataset_name + '.tar.bz2')
+            with tarfile.open(data_home + '/' + dataset_name + '.tar.bz2', 'r:bz2') as tar_ref:
+                tar_ref.extractall(data_home)
+        except (HTTPError, tarfile.ReadError):
+            rmdir(data_home + '/' + dataset_name)
+            raise ValueError('Invalid dataset ' + dataset_name + '.'
+                             + "\nExamples include 'actor-movie' and 'ego-facebook'."
+                             + "\n See 'http://konect.uni-koblenz.de' for the full list.")
+        finally:
+            remove(data_home + '/' + dataset_name + '.tar.bz2')
     elif exists(data_path + '/' + dataset_name + '_bundle'):
         return load_from_numpy_bundle(dataset_name + '_bundle', data_path)
 
