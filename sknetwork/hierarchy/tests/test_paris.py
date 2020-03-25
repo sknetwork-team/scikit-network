@@ -8,6 +8,7 @@ Created on March 2019
 
 import unittest
 
+import numpy as np
 from scipy import sparse
 
 from sknetwork import is_numba_available
@@ -50,6 +51,12 @@ class TestParis(unittest.TestCase):
             self.assertEqual(biparis.dendrogram_row_.shape, (n1 - 1, 4))
             self.assertEqual(biparis.dendrogram_col_.shape, (n2 - 1, 4))
             self.assertEqual(biparis.dendrogram_full_.shape, (n1 + n2 - 1, 4))
+
+    def test_disconnected(self):
+        adjacency = np.eye(10)
+        paris = Paris(engine = 'python')
+        dendrogram = paris.fit_transform(adjacency)
+        self.assertEqual(dendrogram.shape, (9, 4))
 
     def test_options(self):
         paris = Paris(weights='uniform')
