@@ -11,28 +11,6 @@ from sknetwork.embedding import Spectral, BiSpectral, SVD, GSVD
 from sknetwork.data import karate_club, painters, movie_actor
 
 
-def barycenter_norm(adjacency, spectral: Spectral) -> float:
-    """Barycenter of the embedding with respect to adjacency weights.
-
-    Parameters
-    ----------
-    adjacency
-    spectral
-
-    Returns
-    -------
-    barycenter
-
-    """
-    if spectral.normalized_laplacian:
-        weights = adjacency.dot(np.ones(adjacency.shape[1]))
-        if spectral.regularization:
-            weights += spectral.regularization * adjacency.shape[1]
-        return np.linalg.norm(spectral.embedding_.T.dot(weights)) / weights.sum()
-    else:
-        return np.linalg.norm(spectral.embedding_.mean(axis=0))
-
-
 # noinspection PyMissingOrEmptyDocstring
 class TestEmbeddings(unittest.TestCase):
 
@@ -82,6 +60,34 @@ class TestEmbeddings(unittest.TestCase):
         for method in self.methods:
             embedding = method.fit_transform(adjacency)
             self.assertEqual(embedding.shape, (10, 2))
+
+    def test_spectral_options(self):
+        adjacency = karate_club()
+        n = adjacency.shape[0]
+        k = 5
+
+        # regular Laplacian
+        spectral = Spectral(k, normalized_laplacian=False, barycenter=False, normalize=False)
+        embedding = spectral.fit_transform(adjacency)
+        self.assertAlmostEqual(np.linalg.norm(embedding.mean(axis=0)), 0)
+        error = np.abs(spectral.predict(adjacency[1]) - embedding[1]).sum()
+        self.assertAlmostEqual(error, 0)
+
+        # normalized Laplacian
+        spectral = Spectral(k,  barycenter=False, normalize=False)
+        embedding = spectral.fit_transform(adjacency)
+        weights = adjacency.dot(np.ones(n)) + n * spectral.regularization_
+        self.assertAlmostEqual(np.linalg.norm(embedding.T.dot(weights)), 0)
+        error = np.abs(spectral.predict(adjacency[:4]) - embedding[:4]).sum()
+        self.assertAlmostEqual(error, 0)
+
+        # solver
+        spectral = Spectral(k, solver='lanczos')
+        embedding = spectral.fit_transform(adjacency)
+        self.assertEqual(embedding.shape, (n, k))
+        spectral = Spectral(k, solver='halko')
+        embedding = spectral.fit_transform(adjacency)
+        self.assertEqual(embedding.shape, (n, k))
 
     # noinspection PyTypeChecker
     def test_input(self):
