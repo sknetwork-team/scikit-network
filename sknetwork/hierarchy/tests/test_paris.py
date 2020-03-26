@@ -31,9 +31,9 @@ class TestParis(unittest.TestCase):
 
     def test_undirected(self):
         adjacency = karate_club()
+        n = adjacency.shape[0]
         for paris in self.paris:
             dendrogram = paris.fit_transform(adjacency)
-            n = adjacency.shape[0]
             self.assertEqual(dendrogram.shape, (n - 1, 4))
 
     def test_directed(self):
@@ -68,6 +68,7 @@ class TestParis(unittest.TestCase):
 
     # noinspection PyTypeChecker
     def test_input(self):
-        with self.assertRaises(TypeError):
-            for paris in self.paris:
-                paris.fit(sparse.identity(1))
+        for paris in self.paris:
+            with self.assertRaises(TypeError):
+                paris.fit(sparse.identity(5))
+                
