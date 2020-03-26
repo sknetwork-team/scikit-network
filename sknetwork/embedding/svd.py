@@ -120,25 +120,6 @@ class GSVD(BaseEmbedding):
         self.regularization_ = None
         self.weights_col_ = None
 
-    def weight_matrices(self, adjacency):
-        """
-
-        Parameters
-        ----------
-        adjacency
-
-        Returns
-        -------
-
-        """
-        n1, n2 = adjacency.shape
-        weights_row = adjacency.dot(np.ones(n2))
-        weights_col = adjacency.T.dot(np.ones(n1))
-        diag_row = diag_pinv(np.power(weights_row, self.factor_row))
-        diag_col = diag_pinv(np.power(weights_col, self.factor_col))
-        self.weights_col_ = weights_col
-        return diag_row, diag_col
-
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'GSVD':
         """
         Compute the GSVD of the adjacency or biadjacency matrix.
@@ -175,11 +156,14 @@ class GSVD(BaseEmbedding):
             if self.relative_regularization:
                 regularization = regularization * np.sum(adjacency.data) / (n1 * n2)
             adjacency_reg = SparseLR(adjacency, [(regularization * np.ones(n1), np.ones(n2))])
-            diag_row, diag_col = self.weight_matrices(adjacency_reg)
-            self.solver.fit(safe_sparse_dot(diag_row, safe_sparse_dot(adjacency_reg, diag_col)), n_components)
         else:
-            diag_row, diag_col = self.weight_matrices(adjacency)
-            self.solver.fit(safe_sparse_dot(diag_row, safe_sparse_dot(adjacency, diag_col)), n_components)
+            adjacency_reg = adjacency
+
+        weights_row = adjacency_reg.dot(np.ones(n2))
+        weights_col = adjacency_reg.T.dot(np.ones(n1))
+        diag_row = diag_pinv(np.power(weights_row, self.factor_row))
+        diag_col = diag_pinv(np.power(weights_col, self.factor_col))
+        self.solver.fit(safe_sparse_dot(diag_row, safe_sparse_dot(adjacency_reg, diag_col)), n_components)
 
         singular_values = self.solver.singular_values_
         index = np.argsort(-singular_values)
@@ -205,7 +189,8 @@ class GSVD(BaseEmbedding):
         self.singular_vectors_left_ = singular_vectors_left
         self.singular_vectors_right_ = singular_vectors_right
         self.regularization_ = regularization
-
+        self.weights_col_ = weights_col
+        
         return self
 
     def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
