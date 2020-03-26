@@ -17,8 +17,7 @@ from sknetwork.utils.checks import check_format, check_probs, is_square
 
 def cosine_modularity(adjacency, embedding: np.ndarray, col_embedding=None, resolution=1., weights='degree',
                       return_all: bool = False):
-    """
-    Quality metric of an embedding :math:`x` defined by:
+    """Quality metric of an embedding :math:`x` defined by:
 
     :math:`Q = \\sum_{ij}\\left(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w_iw'_j}{w^2}\\right)
     \\left(\\dfrac{1 + \\pi(x_i)^T\\pi(x_j)}{2}\\right)`

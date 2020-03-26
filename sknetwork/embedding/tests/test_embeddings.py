@@ -3,13 +3,12 @@
 """tests for embeddings"""
 
 import unittest
-from typing import Union
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.embedding import Spectral, BiSpectral
-from sknetwork.data import karate_club, simple_bipartite_graph, house
+from sknetwork.embedding import Spectral, BiSpectral, SVD, GSVD
+from sknetwork.data import karate_club, painters, movie_actor
 
 
 def barycenter_norm(adjacency, spectral: Spectral) -> float:
@@ -34,128 +33,58 @@ def barycenter_norm(adjacency, spectral: Spectral) -> float:
         return np.linalg.norm(spectral.embedding_.mean(axis=0))
 
 
-def has_proper_shape(adjacency: Union[sparse.csr_matrix, np.ndarray], algorithm: Union[Spectral, BiSpectral]) -> bool:
-    """Check if the embedding has a proper shape with respect to the input data.
-
-    Parameters
-    ----------
-    adjacency: Adjacency matrix
-    algorithm: Embedding
-
-    Returns
-    -------
-    bool
-    """
-    n1, n2 = adjacency.shape
-    k = algorithm.n_components
-    if algorithm.embedding_.shape != (n1, k):
-        return False
-    if hasattr(algorithm, 'eigenvalues_') and len(algorithm.eigenvalues_) != k:
-        return False
-    if hasattr(algorithm, 'singular_values_') and len(algorithm.singular_values_) != k:
-        return False
-
-    return True
-
-
-# noinspection DuplicatedCode,PyMissingOrEmptyDocstring
+# noinspection PyMissingOrEmptyDocstring
 class TestEmbeddings(unittest.TestCase):
 
     def setUp(self):
-        self.adjacency: sparse.csr_matrix = karate_club()
-        self.house = house()
+        self.methods = [Spectral(), SVD(), GSVD()]
+        self.bimethods = [BiSpectral(), SVD(), GSVD()]
 
-    def test_spectral_normalized(self):
-        # Spectral with lanczos solver
-        spectral = Spectral(2, normalized_laplacian=True, solver='lanczos')
-        spectral.fit(self.adjacency)
-        self.assertTrue(has_proper_shape(self.adjacency, spectral))
-        self.assertTrue(min(spectral.eigenvalues_ >= -1e-6) and max(spectral.eigenvalues_ <= 2))
+    def test_undirected(self):
+        adjacency = karate_club()
+        n = adjacency.shape[0]
+        for method in self.methods:
+            embedding = method.fit_transform(adjacency)
+            self.assertEqual(embedding.shape, (n, 2))
+            error = np.abs(method.predict(adjacency[0]) - method.embedding_[0]).sum()
+            self.assertAlmostEqual(error, 0)
+            error = np.abs(method.predict(adjacency) - method.embedding_).sum()
+            self.assertAlmostEqual(error, 0)
 
-        # test if the embedding is centered
-        # without regularization
-        spectral.normalize = False
-        spectral.regularization = None
-        spectral.fit(self.house)
-        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
+    def test_directed(self):
+        adjacency = painters()
+        n = adjacency.shape[0]
+        for method in self.bimethods:
+            method.fit(adjacency)
+            self.assertEqual(method.embedding_.shape, (n, 2))
+            self.assertEqual(method.embedding_row_.shape, (n, 2))
+            self.assertEqual(method.embedding_col_.shape, (n, 2))
+            error = np.abs(method.predict(adjacency[0]) - method.embedding_[0]).sum()
+            self.assertAlmostEqual(error, 0)
+            error = np.abs(method.predict(adjacency) - method.embedding_).sum()
+            self.assertAlmostEqual(error, 0)
 
-        # with regularization
-        spectral.regularization = 0.1
-        spectral.fit(self.house)
-        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0, places=2)
+    def test_bipartite(self):
+        biadjacency = movie_actor()
+        n1, n2 = biadjacency.shape
+        for method in self.bimethods:
+            method.fit(biadjacency)
+            self.assertEqual(method.embedding_.shape, (n1, 2))
+            self.assertEqual(method.embedding_row_.shape, (n1, 2))
+            self.assertEqual(method.embedding_col_.shape, (n2, 2))
+            error = np.abs(method.predict(biadjacency[0]) - method.embedding_[0]).sum()
+            self.assertAlmostEqual(error, 0)
+            error = np.abs(method.predict(biadjacency) - method.embedding_).sum()
+            self.assertAlmostEqual(error, 0)
 
-        # Spectral with halko solver
-        spectral = Spectral(2, normalized_laplacian=True, solver='halko')
-        spectral.fit(self.adjacency)
-        self.assertTrue(has_proper_shape(self.adjacency, spectral))
-        self.assertTrue(min(spectral.eigenvalues_ >= -1e-6) and max(spectral.eigenvalues_ <= 2))
+    def test_disconnected(self):
+        adjacency = np.eye(10)
+        for method in self.methods:
+            embedding = method.fit_transform(adjacency)
+            self.assertEqual(embedding.shape, (10, 2))
 
-        # test if the embedding is centered
-        # without regularization
-        spectral.normalize = False
-        spectral.regularization = None
-        spectral.fit(self.adjacency)
-        self.assertAlmostEqual(barycenter_norm(self.adjacency, spectral), 0)
-
-        # with regularization
-        spectral.regularization = 0.1
-        spectral.fit(self.adjacency)
-        self.assertAlmostEqual(barycenter_norm(self.adjacency, spectral), 0, places=2)
-
-    def test_spectral_basic(self):
-        # Spectral with lanczos solver
-        spectral = Spectral(2, normalized_laplacian=False, barycenter=False, normalize=False, solver='lanczos')
-        spectral.fit(self.adjacency)
-        self.assertTrue(has_proper_shape(self.adjacency, spectral))
-        self.assertTrue(min(spectral.eigenvalues_ >= 0) and max(spectral.eigenvalues_ <= 1))
-
-        # test if the embedding is centered
-        # without regularization
-        spectral.fit(self.house)
-        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
-
-        # with regularization
-        spectral.regularization = 0.1
-        spectral.fit(self.house)
-        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
-
-    def test_spectral_equalize(self):
-        spectral = Spectral(2, equalize=True, barycenter=False, normalize=False)
-        spectral.regularization = None
-        spectral.fit(self.house)
-        self.assertAlmostEqual(barycenter_norm(self.house, spectral), 0)
-
-    def test_predict(self):
-        spectral = Spectral(4)
-        spectral.fit(self.adjacency)
-        # single node
-        error: float = np.abs(spectral.predict(self.adjacency[0]) - spectral.embedding_[0]).sum()
-        self.assertAlmostEqual(error, 0)
-        # all nodes
-        error: float = np.abs(spectral.predict(self.adjacency) - spectral.embedding_).sum()
-        self.assertAlmostEqual(error, 0)
-
-    def test_bispectral(self):
-        self.biadjacency = simple_bipartite_graph()
-        bispectral = BiSpectral(solver='lanczos')
-        bispectral.fit(self.biadjacency)
-        self.assertTrue(has_proper_shape(self.biadjacency, bispectral))
-
-        bispectral = BiSpectral(2, solver='halko')
-        bispectral.fit(self.biadjacency)
-        self.assertTrue(has_proper_shape(self.biadjacency, bispectral))
-
-        bispectral = BiSpectral(2, normalized_laplacian=False)
-        bispectral.fit(self.biadjacency)
-        self.assertTrue(has_proper_shape(self.biadjacency, bispectral))
-
-    def test_bispectral_predict(self):
-        self.biadjacency = simple_bipartite_graph()
-        bispectral = BiSpectral(3)
-        bispectral.fit(self.biadjacency)
-        # single node
-        error: float = np.abs(bispectral.predict(self.biadjacency[0]) - bispectral.embedding_[0]).sum()
-        self.assertAlmostEqual(error, 0)
-        # all nodes
-        error: float = np.abs(bispectral.predict(self.biadjacency) - bispectral.embedding_).sum()
-        self.assertAlmostEqual(error, 0)
+    # noinspection PyTypeChecker
+    def test_input(self):
+        for method in self.methods:
+            with self.assertRaises(TypeError):
+                method.fit(sparse.identity(5))

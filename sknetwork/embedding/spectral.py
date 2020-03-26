@@ -64,8 +64,7 @@ class LaplacianOperator(LinearOperator):
 
 
 class NormalizedAdjacencyOperator(LinearOperator):
-    """
-    Regularized normalized adjacency matrix as a scipy LinearOperator.
+    """Regularized normalized adjacency matrix as a scipy LinearOperator.
     """
 
     def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
@@ -120,21 +119,21 @@ class Spectral(BaseEmbedding):
         Dimension of the embedding space.
     normalized_laplacian : bool (default = ``True``)
 
-        * If ``True``, solves the eigenvalue problem :math:`LU = DU \\Lambda`.
-        * If ``False``, solves the eigenvalue problem :math:`LU = U \\Lambda`.
+        * If ``True``, solve the eigenvalue problem :math:`LU = DU \\Lambda`.
+        * If ``False``, solve the eigenvalue problem :math:`LU = U \\Lambda`.
 
     regularization : ``None`` or float (default = ``0.01``)
-        Adds edges of given weight between all pairs of nodes.
+        Add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
-        If ``True``, considers the regularization as relative to the total weight of the graph.
+        If ``True``, consider the regularization as relative to the total weight of the graph.
     equalize : bool (default = ``False``)
-        If ``True``, equalizes the energy levels of the corresponding physical system, i.e., uses
-        :math:`U \\Lambda^{- \\frac 1 2}`. Requires regularization if the graph is not connected.
+        If ``True``, equalize the energy levels of the corresponding physical system, i.e., use
+        :math:`U \\Lambda^{- \\frac 1 2}`. Require regularization if the graph is not connected.
     barycenter : bool (default = ``True``)
-        If ``True``, uses the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
-        with :math:`P = D^{-1}A`.
+        If ``True``, use the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
+        with :math:`P = D^{-1}A`. Otherwise, use :math:`U`.
     normalize : bool (default = ``True``)
-        If ``True``, normalizes the embedding so that each vector has norm 1 in the embedding space, i.e.,
+        If ``True``, normalize the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
         Which eigenvalue solver to use.
@@ -199,7 +198,7 @@ class Spectral(BaseEmbedding):
         self.regularization_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Spectral':
-        """Computes the graph embedding.
+        """Compute the graph embedding.
 
         Parameters
         ----------
@@ -303,7 +302,7 @@ class Spectral(BaseEmbedding):
         return self
 
     def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
-        """Predicts the embedding of new nodes, defined by their adjacency vectors.
+        """Predict the embedding of new nodes, defined by their adjacency vectors.
 
         Parameters
         ----------
@@ -378,21 +377,21 @@ class BiSpectral(Spectral):
         Dimension of the embedding space.
     normalized_laplacian : bool (default = ``True``)
 
-        * If ``True``, solves the eigenvalue problem :math:`LU = DU \\Lambda`.
-        * If ``False``, solves the eigenvalue problem :math:`LU = U \\Lambda`.
+        * If ``True``, solve the eigenvalue problem :math:`LU = DU \\Lambda`.
+        * If ``False``, solve the eigenvalue problem :math:`LU = U \\Lambda`.
 
     regularization : ``None`` or float (default = ``0.01``)
-        Adds edges of given weight between all pairs of nodes.
+        Add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
-        If ``True``, considers the regularization as relative to the total weight of the graph.
+        If ``True``, consider the regularization as relative to the total weight of the graph.
     equalize : bool (default = ``False``)
-        If ``True``, equalizes the energy levels of the corresponding physical system, i.e., uses
+        If ``True``, equalize the energy levels of the corresponding physical system, i.e., use
         :math:`U \\Lambda^{- \\frac 1 2}`. Requires regularization if the graph is not connected.
     barycenter : bool (default = ``True``)
-        If ``True``, uses the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
-        with :math:`P = D^{-1}A`.
+        If ``True``, use the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
+        with :math:`P = D^{-1}A`. Otherwise use :math:`U`.
     normalize : bool (default = ``True``)
-        If ``True``, normalizes the embedding so that each vector has norm 1 in the embedding space, i.e.,
+        If ``True``, normalize the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
         Which eigenvalue solver to use.
@@ -478,7 +477,7 @@ class BiSpectral(Spectral):
         return self
 
     def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
-        """Predicts the embedding of new rows, defined by their adjacency vectors.
+        """Predict the embedding of new rows, defined by their adjacency vectors.
 
         Parameters
         ----------

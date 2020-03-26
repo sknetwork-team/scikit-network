@@ -71,4 +71,4 @@ class TestParis(unittest.TestCase):
         for paris in self.paris:
             with self.assertRaises(TypeError):
                 paris.fit(sparse.identity(5))
-                
+
