@@ -190,7 +190,7 @@ class GSVD(BaseEmbedding):
         self.singular_vectors_right_ = singular_vectors_right
         self.regularization_ = regularization
         self.weights_col_ = weights_col
-        
+
         return self
 
     def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:

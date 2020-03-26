@@ -41,9 +41,10 @@ class TestWard(unittest.TestCase):
         self.assertEqual(self.biward.dendrogram_full_.shape, (n1 + n2 - 1, 4))
 
     def test_disconnected(self):
-        adjacency = np.eye(10)
+        n = 20
+        adjacency = np.eye(n)
         dendrogram = self.ward.fit_transform(adjacency)
-        self.assertEqual(dendrogram.shape, (9, 4))
+        self.assertEqual(dendrogram.shape, (n - 1, 4))
 
     def test_options(self):
         adjacency = karate_club()
