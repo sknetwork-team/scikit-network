@@ -16,6 +16,6 @@ class BaseHierarchy(Algorithm, ABC):
         self.dendrogram_ = None
 
     def fit_transform(self, *args, **kwargs):
-        """Fit algorithm to the data and return the dendrogram. Uses the same inputs as this class ``fit`` method."""
+        """Fits algorithm to the data and returns the dendrogram. Uses the same inputs as this class ``fit`` method."""
         self.fit(*args, **kwargs)
         return self.dendrogram_
