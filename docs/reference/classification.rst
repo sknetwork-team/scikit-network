@@ -31,9 +31,9 @@ MaxDiff
     :inherited-members:
     :members:
 
-KNN
+KNNDense
 ---
-.. autoclass:: sknetwork.classification.KNN
+.. autoclass:: sknetwork.classification.KNNDense
     :inherited-members:
     :members:
 

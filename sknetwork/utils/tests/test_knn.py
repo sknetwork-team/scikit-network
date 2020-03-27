@@ -11,14 +11,14 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import norm
 
-from sknetwork.utils import KNN, PKNN
+from sknetwork.utils import KNNDense, PKNNDense
 
 
 class TestKNN(unittest.TestCase):
 
     def test_basics(self):
         x = np.array([[-2, -1], [-2, 1], [2, 1], [2, -1]])
-        knn = KNN(n_neighbors=1)
+        knn = KNNDense(n_neighbors=1)
         knn.fit(x)
         gt = np.zeros(16).reshape((4, 4))
         gt[0, 1] = 1
@@ -28,6 +28,6 @@ class TestKNN(unittest.TestCase):
 
     def test_pknn(self):
         x = np.array([(0, 4), (1, 0), (2, 1), (3, 2), (4, 3)])
-        pknn = PKNN(n_neighbors=1)
+        pknn = PKNNDense(n_neighbors=1)
         adj = pknn.fit_transform(x)
         self.assertEqual(adj.shape, (5, 5))

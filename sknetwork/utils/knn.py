@@ -47,7 +47,7 @@ class BaseTransformer(Algorithm, ABC):
         return self
 
 
-class KNN(BaseTransformer):
+class KNNDense(BaseTransformer):
     """Extract adjacency from vector data through k-nearest-neighbor search with KD-Tree.
 
     Parameters
@@ -85,7 +85,7 @@ class KNN(BaseTransformer):
 
     def __init__(self, n_neighbors: int = 5, undirected: bool = False, leaf_size: int = 16, p=2, eps: float = 0.01,
                  n_jobs=1):
-        super(KNN, self).__init__(undirected)
+        super(KNNDense, self).__init__(undirected)
 
         self.n_neighbors = n_neighbors
         self.leaf_size = leaf_size
@@ -93,7 +93,7 @@ class KNN(BaseTransformer):
         self.eps = eps
         self.n_jobs = n_jobs
 
-    def fit(self, x: np.ndarray) -> 'KNN':
+    def fit(self, x: np.ndarray) -> 'KNNDense':
         """
 
         Parameters
@@ -104,7 +104,7 @@ class KNN(BaseTransformer):
         Returns
         -------
 
-        self : :class:`KNN`
+        self : :class:`KNNDense`
 
         """
         tree = cKDTree(x, self.leaf_size)
@@ -156,9 +156,9 @@ def knn1d(x: np.ndarray, n_neighbors: int) -> list:
     return edgelist
 
 
-class PKNN(BaseTransformer):
+class PKNNDense(BaseTransformer):
     """Extract adjacency from vector data through parallel k-nearest-neighbor search.
-    KNN is applied independently on each column of the input matrix.
+    KNNDense is applied independently on each column of the input matrix.
 
     Parameters
     ----------
@@ -175,11 +175,11 @@ class PKNN(BaseTransformer):
     """
 
     def __init__(self, n_neighbors: int = 1, undirected: bool = False):
-        super(PKNN, self).__init__(undirected)
+        super(PKNNDense, self).__init__(undirected)
 
         self.n_neighbors = n_neighbors
 
-    def fit(self, x: np.ndarray) -> 'PKNN':
+    def fit(self, x: np.ndarray) -> 'PKNNDense':
         """
 
         Parameters
@@ -190,7 +190,7 @@ class PKNN(BaseTransformer):
         Returns
         -------
 
-        self: :class:`PKNN`
+        self: :class:`PKNNDense`
 
         """
 

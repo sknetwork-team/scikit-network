@@ -37,10 +37,10 @@ Algorithms
 Nearest-neighbors
 -----------------
 
-.. autoclass:: sknetwork.utils.knn.KNN
+.. autoclass:: sknetwork.utils.knn.KNNDense
     :members:
 
-.. autoclass:: sknetwork.utils.knn.PKNN
+.. autoclass:: sknetwork.utils.knn.PKNNDense
     :members:
 
 

@@ -44,10 +44,10 @@ class KNN(BaseClassifier):
     Example
     -------
     >>> from sknetwork.data import karate_club
-    >>> clf = KNN(n_neighbors=1)
+    >>> knn = KNN(n_neighbors=1)
     >>> adjacency, labels_true = karate_club(return_labels=True)
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = clf.fit_transform(adjacency, seeds)
+    >>> labels_pred = knn.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.91
 

@@ -13,7 +13,7 @@ from scipy import sparse
 from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.embedding.spectral import BiSpectral
 from sknetwork.utils.checks import check_format
-from sknetwork.utils.knn import KNN
+from sknetwork.utils.knn import KNNDense
 
 
 def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normalize: bool = True, method='knn',
@@ -34,9 +34,9 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
     method:
         Either ``'exact'`` or ``'knn'``. If 'exact' the output is computed with matrix multiplication.
         However, the density can be much higher than in the input graph and this can trigger Memory errors.
-        If ``'knn'``, the co-neighborhood is approximated through KNN-search in an appropriate spectral embedding space.
+        If ``'knn'``, the co-neighborhood is approximated through KNNDense-search in an appropriate spectral embedding space.
     n_neighbors:
-        Number of neighbors for the KNN search. Only useful if ``method='knn'``.
+        Number of neighbors for the KNNDense search. Only useful if ``method='knn'``.
     n_components:
         Dimension of the embedding space. Only useful if ``method='knn'``.
 
@@ -58,7 +58,7 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
     elif method == 'knn':
         bispectral = BiSpectral(n_components, normalized_laplacian=normalize)
         bispectral.fit(adjacency)
-        knn = KNN(n_neighbors, undirected=True)
+        knn = KNNDense(n_neighbors, undirected=True)
         knn.fit(bispectral.embedding_row_)
         return knn.adjacency_
     else:
