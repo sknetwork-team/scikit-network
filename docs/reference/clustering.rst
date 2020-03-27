@@ -25,13 +25,13 @@ Louvain
     :inherited-members:
     :members:
 
-Spectral
---------
-.. autoclass:: sknetwork.clustering.SpectralClustering
+KMeans
+------
+.. autoclass:: sknetwork.clustering.KMeans
     :inherited-members:
     :members:
 
-.. autoclass:: sknetwork.clustering.BiSpectralClustering
+.. autoclass:: sknetwork.clustering.BiKMeans
     :inherited-members:
     :members:
 

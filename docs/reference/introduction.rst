@@ -51,10 +51,8 @@ Directed graphs
 ^^^^^^^^^^^^^^^
 
 * :math:`A` is the adjacency matrix of the graph (dimension :math:`n\times n`)
-* :math:`d^+ = A1` and :math:`d^- = A^T1` are the vectors of out-weights and in-weights of nodes (out-degrees and
-in-degrees if the matrix :math:`A` is binary)
-* :math:`D^- = \text{diag}(d^+)` and :math:`D^- = \text{diag}(d^-)` are the diagonal matrices of out-weights and
-in-weights
+* :math:`d^+ = A1` and :math:`d^- = A^T1` are the vectors of out-weights and in-weights of nodes (out-degrees and in-degrees if the matrix :math:`A` is binary)
+* :math:`D^- = \text{diag}(d^+)` and :math:`D^- = \text{diag}(d^-)` are the diagonal matrices of out-weights and in-weights
 * :math:`w = 1^T A1` is the total weight of the graph (total weight of edges)
 
 Bipartite graphs

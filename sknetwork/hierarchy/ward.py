@@ -21,13 +21,16 @@ class Ward(BaseHierarchy):
 
     Parameters
     ----------
-    embedding_method:
+    embedding_method :
         Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
 
-    Attributes
+    References
     ----------
-    dendrogram_:
-        Dendrogram.
+    * Ward, J. H., Jr. (1963). Hierarchical grouping to optimize an objective function.
+    Journal of the American Statistical Association, 58, 236–244.
+
+    * Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
+    Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2(1), 86-97.
 
     """
 
@@ -42,7 +45,7 @@ class Ward(BaseHierarchy):
 
         Parameters
         ----------
-        adjacency:
+        adjacency :
             Adjacency matrix of the graph.
 
         Returns
@@ -64,30 +67,42 @@ class BiWard(BaseHierarchy):
 
     Parameters
     ----------
-    embedding_method:
+    embedding_method :
         Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
-    cluster_row:
-        If ``True``, returns a dendrogram for the rows (default = ``True``).
-    cluster_col:
-        If ``True``, returns a dendrogram for the columns (default = ``False``).
-    cluster_both:
-        If ``True``, returns a dendrogram for all nodes (co-clustering rows + columns, default = ``False``).
+    cluster_row :
+        If ``True``, return a dendrogram for the rows (default = ``True``).
+    cluster_col :
+        If ``True``, return a dendrogram for the columns (default = ``False``).
+    cluster_both :
+        If ``True``, return a dendrogram for all nodes (co-clustering rows + columns, default = ``False``).
 
     Attributes
     ----------
-    dendrogram_:
+    dendrogram_ :
         Dendrogram for the rows.
-    dendrogram_row_:
+    dendrogram_row_ :
         Dendrogram for the rows (copy of **dendrogram_**).
-    dendrogram_col_:
+    dendrogram_col_ :
         Dendrogram for the columns.
-    dendrogram_full_:
+    dendrogram_full_ :
         Dendrogram for both rows and columns, indexed in this order.
+
+    References
+    ----------
+    * Ward, J. H., Jr. (1963). Hierarchical grouping to optimize an objective function.
+    Journal of the American Statistical Association, 58, 236–244.
+
+    * Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
+    Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2(1), 86-97.
+
     """
 
     def __init__(self, embedding_method: BaseEmbedding = GSVD(10), cluster_row: bool = True,
                  cluster_col: bool = False, cluster_both: bool = False):
         super(BiWard, self).__init__()
+
+        if not hasattr(embedding_method, 'embedding_col_'):
+            raise ValueError('The embedding method is not valid for bipartite graphs.')
 
         self.embedding_method = embedding_method
         self.cluster_row = cluster_row

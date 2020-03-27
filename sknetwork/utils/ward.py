@@ -21,7 +21,10 @@ class WardDense(Algorithm):
 
     References
     ----------
-    Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
+    * Ward, J. H., Jr. (1963). Hierarchical grouping to optimize an objective function.
+    Journal of the American Statistical Association, 58, 236–244.
+
+    * Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
     Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2(1), 86-97.
 
     """

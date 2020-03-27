@@ -338,7 +338,7 @@ class Paris(BaseHierarchy):
     engine : str
         ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     reorder :
-            If True, reorder the dendrogram in increasing order of heights.
+            If ``True``, reorder the dendrogram in increasing order of heights.
 
     Attributes
     ----------
@@ -546,16 +546,16 @@ class BiParis(Paris):
     engine : str
         ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if **numba** is available.
     reorder :
-            If True, reorder the dendrogram in increasing order of heights.
+            If ``True``, reorder the dendrogram in increasing order of heights.
     Attributes
     ----------
-    dendrogram_:
+    dendrogram_ :
         Dendrogram for the rows.
-    dendrogram_row_:
+    dendrogram_row_ :
         Dendrogram for the rows (copy of **dendrogram_**).
-    dendrogram_col_:
+    dendrogram_col_ :
         Dendrogram for the columns.
-    dendrogram_full_:
+    dendrogram_full_ :
         Dendrogram for both rows and columns, indexed in this order.
 
     Examples
