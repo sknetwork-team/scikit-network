@@ -9,8 +9,6 @@ This module contains well-known algorithms for shortest path computation, struct
 
 Most algorithms are adapted from SciPy_.
 
-.. automodule:: sknetwork.basics
-
 Shortest paths
 --------------
 
