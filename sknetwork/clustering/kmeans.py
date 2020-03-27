@@ -11,6 +11,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering.base import BaseClustering
+from sknetwork.clustering.post_processing import reindex_clusters
 from sknetwork.embedding import BaseEmbedding, GSVD
 from sknetwork.utils.kmeans import KMeansDense
 
@@ -24,13 +25,16 @@ class KMeans(BaseClustering):
         Number of desired clusters.
     embedding_method:
         Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
+    sort_cluster :
+            If ``True``, sort labels in decreasing order of cluster size.
     """
 
-    def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10)):
+    def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10), sort_cluster: bool = True):
         super(KMeans, self).__init__()
 
         self.n_clusters = n_clusters
         self.embedding_method = embedding_method
+        self.sort_cluster = sort_cluster
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'KMeans':
         """Apply embedding method followed by K-means.
@@ -49,7 +53,10 @@ class KMeans(BaseClustering):
         kmeans = KMeansDense(self.n_clusters)
         kmeans.fit(embedding)
 
-        self.labels_ = kmeans.labels_
+        if self.sort_cluster:
+            self.labels_ = reindex_clusters(kmeans.labels_)
+        else:
+            self.labels_ = kmeans.labels_
 
         return self
 
@@ -76,8 +83,7 @@ class BiKMeans(KMeans):
         Labels of the columns. Only valid if **cluster_both** = `True`.
     """
 
-    def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10), cluster_col: bool = False,
-                 cluster_both: bool = False):
+    def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10), cluster_both: bool = False):
         KMeans.__init__(self, n_clusters, embedding_method)
 
         if not hasattr(embedding_method, 'embedding_col_'):
@@ -115,12 +121,17 @@ class BiKMeans(KMeans):
         kmeans = KMeansDense(self.n_clusters)
         kmeans.fit(embedding)
 
-        if self.cluster_both:
-            self.labels_ = kmeans.labels_[:n1]
-            self.labels_row_ = kmeans.labels_[:n1]
-            self.labels_col_ = kmeans.labels_[n1:]
+        if self.sort_cluster:
+            labels = reindex_clusters(kmeans.labels_)
         else:
-            self.labels_ = kmeans.labels_
-            self.labels_row_ = kmeans.labels_
+            labels = kmeans.labels_
+
+        if self.cluster_both:
+            self.labels_ = labels[:n1]
+            self.labels_row_ = labels[:n1]
+            self.labels_col_ = labels[n1:]
+        else:
+            self.labels_ = labels
+            self.labels_row_ = labels
 
         return self

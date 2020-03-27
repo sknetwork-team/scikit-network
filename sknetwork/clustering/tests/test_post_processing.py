@@ -9,7 +9,7 @@ import numpy as np
 from sknetwork.clustering import reindex_clusters
 
 
-class TestLouvainClustering(unittest.TestCase):
+class TestClusteringPostProcessing(unittest.TestCase):
 
     def test_reindex_clusters(self):
         truth = np.array([1, 1, 2, 0, 0, 0])

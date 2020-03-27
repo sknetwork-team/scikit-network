@@ -365,7 +365,7 @@ class Louvain(BaseClustering, VerboseMixin):
         A negative value is interpreted as no limit.
     shuffle_nodes :
         Enables node shuffling before optimization.
-    sorted_cluster :
+    sort_cluster :
             If ``True``, sort labels in decreasing order of cluster size.
     random_state :
         Random number generator or random seed. If None, numpy.random is used.
@@ -401,7 +401,7 @@ class Louvain(BaseClustering, VerboseMixin):
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
                  tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
-                 sorted_cluster: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
+                 sort_cluster: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
                  verbose: bool = False):
         super(Louvain, self).__init__()
         VerboseMixin.__init__(self, verbose)
@@ -418,7 +418,7 @@ class Louvain(BaseClustering, VerboseMixin):
         self.agg_tol = agg_tol
         self.max_agg_iter = max_agg_iter
         self.shuffle_nodes = shuffle_nodes
-        self.sorted_cluster = sorted_cluster
+        self.sort_cluster = sort_cluster
 
         self.iteration_count_ = None
         self.adjacency_aggregate_ = None
@@ -463,9 +463,9 @@ class Louvain(BaseClustering, VerboseMixin):
             if self.algorithm.score_ <= self.agg_tol:
                 increase = False
             else:
-                agg_membership = membership_matrix(self.algorithm.labels_)
-                membership = membership.dot(agg_membership)
-                graph.aggregate(agg_membership)
+                membership_agg = membership_matrix(self.algorithm.labels_)
+                membership = membership.dot(membership_agg)
+                graph.aggregate(membership_agg)
 
                 if graph.n_nodes == 1:
                     break
@@ -474,7 +474,7 @@ class Louvain(BaseClustering, VerboseMixin):
             if iteration_count == self.max_agg_iter:
                 break
 
-        if self.sorted_cluster:
+        if self.sort_cluster:
             labels = reindex_clusters(membership.indices)
         else:
             labels = membership.indices
@@ -517,7 +517,7 @@ class BiLouvain(Louvain):
             A negative value is interpreted as no limit.
         shuffle_nodes :
             Enables node shuffling before optimization.
-        sorted_cluster :
+        sort_cluster :
                 If ``True``, sort labels in decreasing order of cluster size.
         random_state :
             Random number generator or random seed. If None, numpy.random is used.
@@ -553,10 +553,10 @@ class BiLouvain(Louvain):
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
                  tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
-                 sorted_cluster: bool = True,
+                 sort_cluster: bool = True,
                  random_state: Optional[Union[np.random.RandomState, int]] = None,
                  verbose: bool = False):
-        Louvain.__init__(self, engine, algorithm, resolution, tol, agg_tol, max_agg_iter, shuffle_nodes, sorted_cluster,
+        Louvain.__init__(self, engine, algorithm, resolution, tol, agg_tol, max_agg_iter, shuffle_nodes, sort_cluster,
                          random_state, verbose)
 
         self.labels_ = None
@@ -580,7 +580,7 @@ class BiLouvain(Louvain):
         self: :class:`BiLouvain`
         """
         louvain = Louvain(algorithm=self.algorithm, agg_tol=self.agg_tol, max_agg_iter=self.max_agg_iter,
-                          shuffle_nodes=self.shuffle_nodes, sorted_cluster=self.sorted_cluster,
+                          shuffle_nodes=self.shuffle_nodes, sort_cluster=self.sort_cluster,
                           random_state=self.random_state, verbose=self.log.verbose)
         biadjacency = check_format(biadjacency)
         n1, _ = biadjacency.shape
