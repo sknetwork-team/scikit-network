@@ -6,4 +6,3 @@ Data
 
     parsing
     loading
-    knn

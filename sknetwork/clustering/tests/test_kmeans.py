@@ -7,6 +7,7 @@ Created on October 2019
 
 import unittest
 
+import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering import BiKMeans, KMeans
@@ -32,14 +33,15 @@ class TestKMeans(unittest.TestCase):
 
     def test_bipartite(self):
         biadjacency = movie_actor()
-        labels = self.bikmeans.fit_transform(biadjacency)
-        self.assertEqual(len(set(labels)), 7)
+        self.bikmeans.fit(biadjacency)
+        labels = np.hstack((self.bikmeans.labels_row_, self.bikmeans.labels_col_))
+        self.assertEqual(len(set(labels)), 8)
 
     def test_disconnected(self):
         adjacency = sparse.identity(2, format='csr')
         self.kmeans.n_clusters = 2
         labels = self.kmeans.fit_transform(adjacency)
-        self.assertEqual(len(set(labels)), 1)
+        self.assertEqual(len(labels), 2)
         adjacency = sparse.identity(10, format='csr')
         self.kmeans.n_clusters = 5
         labels = self.kmeans.fit_transform(adjacency)

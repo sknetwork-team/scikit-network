@@ -33,7 +33,7 @@ class BaseTransformer(Algorithm, ABC):
 
         Returns
         -------
-        adjacency: sparse.csr_matrix
+        adjacency : sparse.csr_matrix
 
         """
         self.fit(x)
@@ -47,35 +47,32 @@ class BaseTransformer(Algorithm, ABC):
         return self
 
 
-class KNeighborsTransformer(BaseTransformer):
-    """Extract adjacency from vector data through KNN search with KD-Tree.
+class KNN(BaseTransformer):
+    """Extract adjacency from vector data through k-nearest-neighbor search with KD-Tree.
 
     Parameters
     ----------
-    n_neighbors:
-        Number of neighbors for each sample in the transformed sparse graph. As each sample is its own neighbor,
-        one extra neighbor will be computed such that the sparse graph contains (n_neighbors + 1) neighbors.
-    undirected:
+    n_neighbors :
+        Number of neighbors for each sample in the transformed sparse graph.
+    undirected :
         As the nearest neighbor relationship is not symmetric, the graph is directed by default.
         Setting this parameter to ``True`` forces the algorithm to return undirected graphs.
-    remove_self_loops:
-        If ``True`` the diagonal of the adjacency is set to 0.
-    leaf_size:
+    leaf_size :
         Leaf size passed to KDTree.
         This can affect the speed of the construction and query, as well as the memory required to store the tree.
-    p:
+    p :
         Which Minkowski p-norm to use. 1 is the sum-of-absolute-values “Manhattan” distance,
         2 is the usual Euclidean distance infinity is the maximum-coordinate-difference distance.
         A finite large p may cause a ValueError if overflow can occur.
-    eps:
+    eps :
         Return approximate nearest neighbors; the k-th returned value is guaranteed to be no further than (1+eps) times
         the distance to the real k-th nearest neighbor.
-    n_jobs:
+    n_jobs :
         Number of jobs to schedule for parallel processing. If -1 is given all processors are used.
 
     Attributes
     ----------
-    adjacency_:
+    adjacency_ :
         Adjacency matrix of the computed graph.
 
     References
@@ -86,29 +83,28 @@ class KNeighborsTransformer(BaseTransformer):
 
     """
 
-    def __init__(self, n_neighbors: int = 5, undirected: bool = False, remove_self_loops: bool = True,
-                 leaf_size: int = 16, p=2, eps: float = 0.01, n_jobs=1):
-        super(KNeighborsTransformer, self).__init__(undirected)
+    def __init__(self, n_neighbors: int = 5, undirected: bool = False, leaf_size: int = 16, p=2, eps: float = 0.01,
+                 n_jobs=1):
+        super(KNN, self).__init__(undirected)
 
         self.n_neighbors = n_neighbors
-        self.remove_self_loops = remove_self_loops
         self.leaf_size = leaf_size
         self.p = p
         self.eps = eps
         self.n_jobs = n_jobs
 
-    def fit(self, x: np.ndarray) -> 'KNeighborsTransformer':
+    def fit(self, x: np.ndarray) -> 'KNN':
         """
 
         Parameters
         ----------
-        x:
+        x :
             Data to transform into adjacency.
 
         Returns
         -------
 
-        self: :class:`KNeighborsTransformer`
+        self : :class:`KNN`
 
         """
         tree = cKDTree(x, self.leaf_size)
@@ -121,9 +117,7 @@ class KNeighborsTransformer(BaseTransformer):
 
         self.adjacency_ = sparse.csr_matrix((data, indices, indptr))
         self.make_undirected()
-
-        if self.remove_self_loops:
-            self.adjacency_.setdiag(0)
+        self.adjacency_.setdiag(0)
 
         return self
 
@@ -134,13 +128,13 @@ def knn1d(x: np.ndarray, n_neighbors: int) -> list:
 
     Parameters
     ----------
-    x: np.ndarray
+    x : np.ndarray
         1-d data
-    n_neighbors: int
+    n_neighbors : int
         Number of neighbors to return.
     Returns
     -------
-    list
+    list :
         List of nearest neighbors tuples (i, j).
 
     """
@@ -162,15 +156,15 @@ def knn1d(x: np.ndarray, n_neighbors: int) -> list:
     return edgelist
 
 
-class FWKNeighborsTransformer(BaseTransformer):
-    """Feature-wise K nearest neighbors transformer.
+class PKNN(BaseTransformer):
+    """Extract adjacency from vector data through parallel k-nearest-neighbor search.
+    KNN is applied independently on each column of the input matrix.
 
     Parameters
     ----------
-    n_neighbors:
-        Number of feature-wise neighbors for each sample in the transformed sparse graph. As each sample is its own
-        nearest neighbor with respect to each feature, it is omitted in the construction of the graph.
-    undirected:
+    n_neighbors :
+        Number of neighbors per dimension.
+    undirected :
         As the nearest neighbor relationship is not symmetric, the graph is directed by default.
         Setting this parameter to ``True`` forces the algorithm to return undirected graphs.
 
@@ -181,11 +175,11 @@ class FWKNeighborsTransformer(BaseTransformer):
     """
 
     def __init__(self, n_neighbors: int = 1, undirected: bool = False):
-        super(FWKNeighborsTransformer, self).__init__(undirected)
+        super(PKNN, self).__init__(undirected)
 
         self.n_neighbors = n_neighbors
 
-    def fit(self, x: np.ndarray) -> 'FWKNeighborsTransformer':
+    def fit(self, x: np.ndarray) -> 'PKNN':
         """
 
         Parameters
@@ -196,7 +190,7 @@ class FWKNeighborsTransformer(BaseTransformer):
         Returns
         -------
 
-        self: :class:`FWKNeighborsTransformer`
+        self: :class:`PKNN`
 
         """
 
@@ -205,10 +199,10 @@ class FWKNeighborsTransformer(BaseTransformer):
             edgelist += knn1d(x[:, j], self.n_neighbors)
         edges = np.array(edgelist)
         data = np.ones(edges.shape[0])
-        row_ind = edges[:, 0]
-        col_ind = edges[:, 1]
+        row = edges[:, 0]
+        col = edges[:, 1]
 
-        self.adjacency_ = sparse.csr_matrix((data, (row_ind, col_ind)))
+        self.adjacency_ = sparse.csr_matrix((data, (row, col)))
         self.make_undirected()
 
         return self

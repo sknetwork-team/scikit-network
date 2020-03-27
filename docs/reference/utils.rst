@@ -34,15 +34,13 @@ Algorithms
     :members:
 
 
-Transformers
-------------
-.. autoclass:: sknetwork.utils.kneighbors.BaseTransformer
+Nearest-neighbors
+-----------------
+
+.. autoclass:: sknetwork.utils.knn.KNN
     :members:
 
-.. autoclass:: sknetwork.utils.kneighbors.KNeighborsTransformer
-    :members:
-
-.. autoclass:: sknetwork.utils.kneighbors.FWKNeighborsTransformer
+.. autoclass:: sknetwork.utils.knn.PKNN
     :members:
 
 

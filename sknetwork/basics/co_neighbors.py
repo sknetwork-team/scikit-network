@@ -13,7 +13,7 @@ from scipy import sparse
 from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.embedding.spectral import BiSpectral
 from sknetwork.utils.checks import check_format
-from sknetwork.utils.kneighbors import KNeighborsTransformer
+from sknetwork.utils.knn import KNN
 
 
 def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normalize: bool = True, method='knn',
@@ -58,7 +58,7 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
     elif method == 'knn':
         bispectral = BiSpectral(n_components, normalized_laplacian=normalize)
         bispectral.fit(adjacency)
-        knn = KNeighborsTransformer(n_neighbors, undirected=True)
+        knn = KNN(n_neighbors, undirected=True)
         knn.fit(bispectral.embedding_row_)
         return knn.adjacency_
     else:
