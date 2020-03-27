@@ -49,6 +49,9 @@ class KMeans(BaseClustering):
         self: :class:`KMeans`
 
         """
+        if self.n_clusters > adjacency.shape[0]:
+            raise ValueError('The number of clusters exceeds the number of nodes.')
+
         embedding = self.embedding_method.fit_transform(adjacency)
         kmeans = KMeansDense(self.n_clusters)
         kmeans.fit(embedding)
@@ -109,6 +112,9 @@ class BiKMeans(KMeans):
 
         """
         n1, n2 = biadjacency.shape
+
+        if self.n_clusters > n1:
+            raise ValueError('The number of clusters exceeds the number of rows.')
 
         method = self.embedding_method
         method.fit(biadjacency)
