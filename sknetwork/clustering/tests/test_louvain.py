@@ -4,12 +4,12 @@
 
 import unittest
 
+import numpy as np
 from scipy import sparse
 
 from sknetwork import is_numba_available
 from sknetwork.clustering import Louvain, BiLouvain, modularity
-from sknetwork.data import simple_directed_graph, karate_club, bow_tie, painters, star_wars_villains
-from sknetwork.utils.formats import directed2undirected
+from sknetwork.data import karate_club, painters, movie_actor, bow_tie
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -25,74 +25,63 @@ class TestLouvainClustering(unittest.TestCase):
             with self.assertRaises(ValueError):
                 Louvain(engine='numba')
 
-    def test_unknown_types(self):
-        with self.assertRaises(TypeError):
-            self.louvain.fit(sparse.identity(1))
-
-    def test_single_node_graph(self):
-        self.assertEqual(self.louvain.fit_transform(sparse.identity(1, format='csr')), [0])
-
-    def test_simple_graph(self):
-        self.simple_directed_graph = simple_directed_graph()
-        self.louvain.fit(directed2undirected(self.simple_directed_graph))
-        self.assertEqual(len(self.louvain.labels_), 10)
-
     def test_undirected(self):
-        self.louvain_high_resolution = Louvain(engine='python', resolution=2)
-        self.louvain_null_resolution = Louvain(engine='python', resolution=0)
-        self.karate_club = karate_club()
-        self.louvain.fit(self.karate_club)
-        labels = self.louvain.labels_
+        adjacency = karate_club()
+        labels = self.louvain.fit_transform(adjacency)
         self.assertEqual(labels.shape, (34,))
-        self.assertAlmostEqual(modularity(self.karate_club, labels), 0.42, 2)
+        self.assertAlmostEqual(modularity(adjacency, labels), 0.42, 2)
         if is_numba_available:
-            self.louvain_numba.fit(self.karate_club)
-            labels = self.louvain_numba.labels_
+            labels = self.louvain_numba.fit_transform(adjacency)
             self.assertEqual(labels.shape, (34,))
-            self.assertAlmostEqual(modularity(self.karate_club, labels), 0.42, 2)
-        self.louvain_high_resolution.fit(self.karate_club)
-        labels = self.louvain_high_resolution.labels_
-        self.assertEqual(labels.shape, (34,))
-        self.assertAlmostEqual(modularity(self.karate_club, labels), 0.34, 2)
-        self.louvain_null_resolution.fit(self.karate_club)
-        labels = self.louvain_null_resolution.labels_
-        self.assertEqual(labels.shape, (34,))
-        self.assertEqual(len(set(self.louvain_null_resolution.labels_)), 1)
+            self.assertAlmostEqual(modularity(adjacency, labels), 0.42, 2)
 
     def test_directed(self):
-        self.painters = painters(return_labels=False)
-
-        self.louvain.fit(self.painters)
-        labels = self.louvain.labels_
+        adjacency = painters()
+        labels = self.louvain.fit_transform(adjacency)
         self.assertEqual(labels.shape, (14,))
-        self.assertAlmostEqual(modularity(self.painters, labels), 0.32, 2)
+        self.assertAlmostEqual(modularity(adjacency, labels), 0.32, 2)
 
-        self.bilouvain.fit(self.painters)
-        n1, n2 = self.painters.shape
+    def test_bipartite(self):
+        biadjacency = movie_actor()
+        n1, n2 = biadjacency.shape
+        self.bilouvain.fit(biadjacency)
         labels_row = self.bilouvain.labels_row_
         labels_col = self.bilouvain.labels_col_
         self.assertEqual(labels_row.shape, (n1,))
         self.assertEqual(labels_col.shape, (n2,))
-
-    def test_bipartite(self):
-        star_wars_graph = star_wars_villains()
-        self.bilouvain.fit(star_wars_graph)
-        labels_row = self.bilouvain.labels_row_
-        labels_col = self.bilouvain.labels_col_
-        self.assertEqual(labels_row.shape, (4,))
-        self.assertEqual(labels_col.shape, (3,))
         if is_numba_available:
-            self.bilouvain_numba.fit(star_wars_graph)
+            self.bilouvain_numba.fit(biadjacency)
             labels_row = self.bilouvain_numba.labels_row_
             labels_col = self.bilouvain_numba.labels_col_
-            self.assertEqual(labels_row.shape, (4,))
-            self.assertEqual(labels_col.shape, (3,))
+            self.assertEqual(labels_row.shape, (n1,))
+            self.assertEqual(labels_col.shape, (n2,))
 
-    def test_shuffling(self):
-        self.louvain_shuffle_first = Louvain(engine='python', shuffle_nodes=True, random_state=0)
-        self.louvain_shuffle_second = Louvain(engine='python', shuffle_nodes=True, random_state=123)
-        self.bow_tie = bow_tie()
-        self.louvain_shuffle_first.fit(self.bow_tie)
-        self.assertEqual(self.louvain_shuffle_first.labels_[1], 1)
-        self.louvain_shuffle_second.fit(self.bow_tie)
-        self.assertEqual(self.louvain_shuffle_second.labels_[1], 1)
+    def test_disconnected(self):
+        adjacency = sparse.identity(1, format='csr')
+        labels = self.louvain.fit_transform(adjacency)
+        self.assertEqual(labels, [0])
+        adjacency = sparse.identity(10, format='csr')
+        labels = self.louvain.fit_transform(adjacency)
+        self.assertTrue(np.array_equal(labels, np.arange(10)))
+
+    def test_options(self):
+        adjacency = karate_club()
+
+        # resolution
+        louvain = Louvain(engine='python', resolution=2)
+        labels = louvain.fit_transform(adjacency)
+        self.assertEqual(len(set(labels)), 7)
+
+        # tolerance
+        louvain = Louvain(engine='python', resolution=2, agg_tol=0.1)
+        labels = louvain.fit_transform(adjacency)
+        self.assertEqual(len(set(labels)), 12)
+
+        # shuffling
+        louvain = Louvain(engine='python', resolution=2, shuffle_nodes=True, random_state=42)
+        labels = louvain.fit_transform(adjacency)
+        self.assertEqual(len(set(labels)), 9)
+
+    def test_unknown_types(self):
+        with self.assertRaises(TypeError):
+            self.louvain.fit(sparse.identity(10))

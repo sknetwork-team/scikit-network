@@ -7,7 +7,6 @@ Created on October 2019
 
 import unittest
 
-
 from sknetwork.clustering import BiKMeans, KMeans
 from sknetwork.data import karate_club, painters, movie_actor
 
@@ -19,4 +18,18 @@ class TestKMeans(unittest.TestCase):
         kmeans = KMeans(n_clusters=2)
         labels = kmeans.fit_transform(adjacency)
         self.assertEqual(len(set(labels)), 2)
+
+    def test_directed(self):
+        adjacency = painters()
+        kmeans = KMeans(n_clusters=2)
+        labels = kmeans.fit_transform(adjacency)
+        self.assertEqual(len(set(labels)), 2)
+
+    def test_bipartite(self):
+        biadjacency = movie_actor()
+        bikmeans = BiKMeans(n_clusters=2, cluster_both=True)
+        bikmeans.fit(biadjacency)
+        labels = bikmeans.labels_
+        self.assertEqual(len(set(labels)), 2)
+
 
