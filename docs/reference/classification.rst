@@ -9,9 +9,15 @@ This module contains node classification algorithms.
 
 The attribute ``.labels_``  assigns a label to each node of the graph.
 
+RankClassifier
+--------------
+.. autoclass:: sknetwork.classification.rank_clf.RankClassifier
+    :show-inheritance:
+
 MaxRank
 -------
 .. autoclass:: sknetwork.classification.MaxRank
+    :show-inheritance:
     :inherited-members:
     :members:
 
@@ -23,6 +29,7 @@ MaxRank
 MaxDiff
 -------
 .. autoclass:: sknetwork.classification.MaxDiff
+    :show-inheritance:
     :inherited-members:
     :members:
 
@@ -31,9 +38,9 @@ MaxDiff
     :inherited-members:
     :members:
 
-KNNDense
+KNN
 ---
-.. autoclass:: sknetwork.classification.KNNDense
+.. autoclass:: sknetwork.classification.KNN
     :inherited-members:
     :members:
 

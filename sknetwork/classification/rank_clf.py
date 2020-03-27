@@ -23,11 +23,18 @@ class RankClassifier(BaseClassifier, VerboseMixin):
 
     Parameters
     ----------
-    algorithm:
+    algorithm :
         Which ranking algorithm to use.
-    n_jobs:
+    n_jobs :
         If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
         If ``None``, no parallel computations are made.
+    verbose :
+        Verbose mode.
+
+    Attributes
+    ----------
+    membership_ : np.ndarray
+        Array of membership probabilities between each node and each class.
 
     """
 
