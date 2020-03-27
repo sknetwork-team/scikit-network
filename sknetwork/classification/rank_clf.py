@@ -120,10 +120,10 @@ class RankClassifier(BaseClassifier, VerboseMixin):
 
         membership = self.process_membership(membership)
 
-        norms = membership.sum(axis=1)
-        ix = np.argwhere(norms == 0).ravel()
-        if len(ix) > 0:
-            self.log.print('Nodes ', ix, ' have a null membership.')
+        norms = np.linalg.norm(membership, ord=1, axis=1)
+        ix = (norms == 0)
+        if ix.sum() > 0:
+            self.log.print('Some nodes have a null membership.')
         membership[~ix] /= norms[~ix, np.newaxis]
 
         labels = np.argmax(membership, axis=1)
