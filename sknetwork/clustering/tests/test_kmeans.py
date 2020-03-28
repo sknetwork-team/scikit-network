@@ -38,10 +38,6 @@ class TestKMeans(unittest.TestCase):
         self.assertEqual(len(set(labels)), 8)
 
     def test_disconnected(self):
-        adjacency = sparse.identity(2, format='csr')
-        self.kmeans.n_clusters = 2
-        labels = self.kmeans.fit_transform(adjacency)
-        self.assertEqual(len(labels), 2)
         adjacency = sparse.identity(10, format='csr')
         self.kmeans.n_clusters = 5
         labels = self.kmeans.fit_transform(adjacency)

@@ -9,11 +9,11 @@ from typing import Optional
 
 import numpy as np
 
-from sknetwork.classification.rank_clf import RankClassifier
+from sknetwork.classification.base_rank import RankClassifier
 from sknetwork.ranking import BiPageRank, PageRank
 
 
-class MaxRank(RankClassifier):
+class PageRankClassifier(RankClassifier):
     """Semi-supervised node classification using multiple personalized PageRanks.
 
     Parameters
@@ -30,7 +30,7 @@ class MaxRank(RankClassifier):
     Example
     -------
     >>> from sknetwork.data import karate_club
-    >>> maxrank = MaxRank()
+    >>> maxrank = PageRankClassifier()
     >>> adjacency, labels_true = karate_club(return_labels=True)
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
     >>> labels_pred = maxrank.fit_transform(adjacency, seeds)
@@ -48,10 +48,10 @@ class MaxRank(RankClassifier):
     def __init__(self, damping_factor: float = 0.85, solver: str = 'bicgstab', n_iter: int = 10,
                  n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = PageRank(damping_factor, solver, n_iter)
-        super(MaxRank, self).__init__(algorithm, n_jobs, verbose)
+        super(PageRankClassifier, self).__init__(algorithm, n_jobs, verbose)
 
 
-class BiMaxRank(RankClassifier):
+class BiPageRankClassifier(RankClassifier):
     """Semi-supervised node classification using multiple personalized PageRanks for bipartite graphs.
 
     Parameters
@@ -68,7 +68,7 @@ class BiMaxRank(RankClassifier):
     Example
     -------
     >>> from sknetwork.data import karate_club
-    >>> clf = BiMaxRank()
+    >>> clf = BiPageRankClassifier()
     >>> adjacency, labels_true = karate_club(return_labels=True)
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
     >>> labels_pred = clf.fit_transform(adjacency, seeds)
@@ -80,4 +80,4 @@ class BiMaxRank(RankClassifier):
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10,
                  n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = BiPageRank(damping_factor, solver, n_iter)
-        super(BiMaxRank, self).__init__(algorithm, n_jobs, verbose)
+        super(BiPageRankClassifier, self).__init__(algorithm, n_jobs, verbose)

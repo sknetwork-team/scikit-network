@@ -187,10 +187,9 @@ def check_seeds(seeds: Union[np.ndarray, dict], adjacency):
         if seeds.shape[0] != n:
             raise ValueError('Dimensions mismatch between adjacency and seeds vector.')
     elif isinstance(seeds, dict):
-        tmp = -np.ones(n)
-        for key, val in seeds.items():
-            tmp[key] = val
-        seeds = tmp
+        keys, values = np.array(list(seeds.keys())), np.array(list(seeds.values()))
+        seeds = -np.ones(n, dtype=int)
+        seeds[keys] = values
     else:
         raise TypeError('"seeds" must be a dictionary or a one-dimensional array.')
     return seeds

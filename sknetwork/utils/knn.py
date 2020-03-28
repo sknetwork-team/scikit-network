@@ -156,9 +156,9 @@ def knn1d(x: np.ndarray, n_neighbors: int) -> list:
     return edgelist
 
 
-class PKNNDense(BaseTransformer):
+class PNNDense(BaseTransformer):
     """Extract adjacency from vector data through parallel k-nearest-neighbor search.
-    KNNDense is applied independently on each column of the input matrix.
+    KNN is applied independently on each column of the input matrix.
 
     Parameters
     ----------
@@ -175,11 +175,11 @@ class PKNNDense(BaseTransformer):
     """
 
     def __init__(self, n_neighbors: int = 1, undirected: bool = False):
-        super(PKNNDense, self).__init__(undirected)
+        super(PNNDense, self).__init__(undirected)
 
         self.n_neighbors = n_neighbors
 
-    def fit(self, x: np.ndarray) -> 'PKNNDense':
+    def fit(self, x: np.ndarray) -> 'PNNDense':
         """
 
         Parameters
@@ -190,7 +190,7 @@ class PKNNDense(BaseTransformer):
         Returns
         -------
 
-        self: :class:`PKNNDense`
+        self: :class:`PNNDense`
 
         """
 

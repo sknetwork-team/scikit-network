@@ -27,3 +27,21 @@ def diag_pinv(weights: np.ndarray) -> sparse.csr_matrix:
     diag: sparse.csr_matrix = sparse.diags(weights, format='csr')
     diag.data = 1 / diag.data
     return diag
+
+
+def normalize(matrix: sparse.csr_matrix) -> sparse.csr_matrix:
+    """Normalize a matrix so that rows sum to 1 (or 0).
+
+    Parameters
+    ----------
+    matrix :
+        Input matrix.
+
+    Returns
+    -------
+    New matrix.
+
+    """
+    diag = diag_pinv(matrix.dot(np.ones(matrix.shape[1])))
+    return diag.dot(matrix)
+

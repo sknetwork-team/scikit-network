@@ -40,7 +40,7 @@ Nearest-neighbors
 .. autoclass:: sknetwork.utils.knn.KNNDense
     :members:
 
-.. autoclass:: sknetwork.utils.knn.PKNNDense
+.. autoclass:: sknetwork.utils.knn.PNNDense
     :members:
 
 

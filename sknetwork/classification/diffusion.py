@@ -9,7 +9,7 @@ from typing import Optional
 
 import numpy as np
 
-from sknetwork.classification.rank_clf import RankClassifier
+from sknetwork.classification.base_rank import RankClassifier
 from sknetwork.ranking import BiDiffusion, Diffusion
 from sknetwork.utils.checks import check_labels
 

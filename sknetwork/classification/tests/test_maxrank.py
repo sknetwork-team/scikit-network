@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Tests for MaxRank"""
+"""Tests for PageRankClassifier"""
 
 import unittest
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.classification import MaxRank, BiMaxRank
+from sknetwork.classification import PageRankClassifier, BiPageRankClassifier
 from sknetwork.data import painters, movie_actor
 
 
@@ -20,7 +20,7 @@ class TestMaxRank(unittest.TestCase):
         adj_array_seeds[:2] = np.arange(2)
         adj_dict_seeds = {0: 0, 1: 1}
 
-        mr = MaxRank(solver='lsqr')
+        mr = PageRankClassifier(solver='lsqr')
         labels1 = mr.fit_transform(adjacency, adj_array_seeds)
         labels2 = mr.fit_transform(adjacency, adj_dict_seeds)
         self.assertTrue(np.allclose(labels1, labels2))
@@ -32,7 +32,7 @@ class TestMaxRank(unittest.TestCase):
         biadj_array_seeds[:2] = np.arange(2)
         biadj_dict_seeds = {0: 0, 1: 1}
 
-        bmr = BiMaxRank()
+        bmr = BiPageRankClassifier()
         labels1 = bmr.fit_transform(biadjacency, biadj_array_seeds)
         labels2 = bmr.fit_transform(biadjacency, biadj_dict_seeds)
         self.assertTrue(np.allclose(labels1, labels2))

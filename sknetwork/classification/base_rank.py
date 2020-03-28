@@ -96,7 +96,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         adjacency:
             Adjacency matrix of the graph.
         seeds:
-            Labeled seed nodes. Can be a dict {node: label} or an array where "-1" means not labeled.
+            Seed nodes. Can be a dict {node: label} or an array where "-1" means no label.
 
         Returns
         -------
@@ -126,8 +126,8 @@ class RankClassifier(BaseClassifier, VerboseMixin):
             self.log.print('Some nodes have a null membership.')
         membership[~ix] /= norms[~ix, np.newaxis]
 
-        labels = np.argmax(membership, axis=1)
-        self.labels_ = classes[labels.astype(int)].astype(int)
+        labels = np.argmax(membership, axis=1).astype(int)
+        self.labels_ = classes[labels].astype(int)
         self.membership_ = membership
 
         return self
