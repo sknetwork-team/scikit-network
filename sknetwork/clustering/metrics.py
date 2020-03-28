@@ -11,7 +11,7 @@ from typing import Union, Tuple
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering.post_processing import membership_matrix
+from sknetwork.clustering.postprocess import membership_matrix
 from sknetwork.linalg import diag_pinv
 from sknetwork.utils.formats import bipartite2directed
 from sknetwork.utils.checks import check_format, check_probs, is_square

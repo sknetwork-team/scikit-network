@@ -45,13 +45,32 @@ class TestKMeans(unittest.TestCase):
 
     def test_options(self):
         adjacency = karate_club()
+
+        # embedding
         kmeans = KMeans(embedding_method=Spectral())
         labels = kmeans.fit_transform(adjacency)
         self.assertTrue(len(set(labels)), 8)
-        adjacency = movie_actor()
-        kmeans = KMeans(embedding_method=BiSpectral())
+
+        # aggregate graph
+        kmeans = KMeans(return_graph=True)
         labels = kmeans.fit_transform(adjacency)
+        n_labels = len(set(labels))
+        self.assertEqual(kmeans.adjacency_.shape, (n_labels, n_labels))
+
+    def test_options_bipartite(self):
+        biadjacency = movie_actor()
+
+        # embedding
+        bikmeans = BiKMeans(embedding_method=BiSpectral())
+        labels = bikmeans.fit_transform(biadjacency)
         self.assertTrue(len(set(labels)), 8)
+
+        # aggregate graph
+        bikmeans = BiKMeans(cluster_both=True, return_graph=True)
+        bikmeans.fit(biadjacency)
+        n_labels_row = len(set(bikmeans.labels_row_))
+        n_labels_col = len(set(bikmeans.labels_col_))
+        self.assertEqual(bikmeans.biadjacency_.shape, (n_labels_row, n_labels_col))
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):

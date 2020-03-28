@@ -18,7 +18,7 @@ class BaseEmbedding(Algorithm, ABC):
         self.embedding_col_ = None
 
     def fit_transform(self, *args, **kwargs):
-        """Fits to data and returns the embedding of the rows.
-        Uses the same inputs as the ``fit`` method."""
+        """Fit to data and returns the embedding of the rows.
+        Use the same inputs as the ``fit`` method."""
         self.fit(*args, **kwargs)
         return self.embedding_

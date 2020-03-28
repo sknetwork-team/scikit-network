@@ -9,7 +9,7 @@ from scipy import sparse
 
 from sknetwork import is_numba_available
 from sknetwork.clustering import Louvain, BiLouvain, modularity
-from sknetwork.data import karate_club, painters, movie_actor, bow_tie
+from sknetwork.data import karate_club, painters, movie_actor
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -73,7 +73,7 @@ class TestLouvainClustering(unittest.TestCase):
         self.assertEqual(len(set(labels)), 7)
 
         # tolerance
-        louvain = Louvain(engine='python', resolution=2, agg_tol=0.1)
+        louvain = Louvain(engine='python', resolution=2, tol_aggregation=0.1)
         labels = louvain.fit_transform(adjacency)
         self.assertEqual(len(set(labels)), 12)
 
@@ -81,6 +81,12 @@ class TestLouvainClustering(unittest.TestCase):
         louvain = Louvain(engine='python', resolution=2, shuffle_nodes=True, random_state=42)
         labels = louvain.fit_transform(adjacency)
         self.assertEqual(len(set(labels)), 9)
+
+        # aggregate graph
+        louvain = Louvain(engine='python', return_graph=True)
+        labels = louvain.fit_transform(adjacency)
+        n_labels = len(set(labels))
+        self.assertEqual(louvain.adjacency_.shape, (n_labels, n_labels))
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):

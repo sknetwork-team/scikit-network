@@ -14,7 +14,7 @@ from scipy import sparse
 
 from sknetwork import njit
 from sknetwork.clustering.base import BaseClustering
-from sknetwork.clustering.post_processing import membership_matrix, reindex_clusters
+from sknetwork.clustering.postprocess import membership_matrix, reindex_clusters
 from sknetwork.utils.formats import bipartite2directed, directed2undirected
 from sknetwork.utils.base import Algorithm
 from sknetwork.utils.checks import check_format, check_engine, check_random_state, check_probs, is_square
@@ -358,15 +358,17 @@ class Louvain(BaseClustering, VerboseMixin):
         Resolution parameter.
     tol :
         Minimum increase in the objective function to enter a new optimization pass.
-    agg_tol :
+    tol_aggregation :
         Minimum increase in the objective function to enter a new aggregation pass.
-    max_agg_iter :
+    count_aggregations_max :
         Maximum number of aggregations.
         A negative value is interpreted as no limit.
     shuffle_nodes :
         Enables node shuffling before optimization.
-    sort_cluster :
+    sort_clusters :
             If ``True``, sort labels in decreasing order of cluster size.
+    return_graph :
+            If ``True``, return the adjacency matrix of the graph between clusters.
     random_state :
         Random number generator or random seed. If None, numpy.random is used.
     verbose :
@@ -374,10 +376,12 @@ class Louvain(BaseClustering, VerboseMixin):
 
     Attributes
     ----------
-    iteration_count_ : int
+    labels_ : np.ndarray
+        Label of each node.
+    count_aggregations_ : int
         Total number of aggregations performed.
-    adjacency_aggregate_ : sparse.csr_matrix
-        Adjacency matrix of the aggregate graph at the end of the algorithm.
+    adjacency_ : sparse.csr_matrix
+        Adjacency matrix between clusters.
 
     Example
     -------
@@ -400,9 +404,9 @@ class Louvain(BaseClustering, VerboseMixin):
     """
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
-                 tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
-                 sort_cluster: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
-                 verbose: bool = False):
+                 tol: float = 1e-3, tol_aggregation: float = 1e-3, count_aggregations_max: int = -1,
+                 shuffle_nodes: bool = False, sort_clusters: bool = True, return_graph: bool = False,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
         super(Louvain, self).__init__()
         VerboseMixin.__init__(self, verbose)
 
@@ -413,15 +417,16 @@ class Louvain(BaseClustering, VerboseMixin):
             self.algorithm = algorithm
         else:
             raise TypeError('Algorithm must be \'auto\' or a valid algorithm.')
-        if type(max_agg_iter) != int:
+        if type(count_aggregations_max) != int:
             raise TypeError('The maximum number of iterations must be an integer.')
-        self.agg_tol = agg_tol
-        self.max_agg_iter = max_agg_iter
+        self.tol_aggregation = tol_aggregation
+        self.count_aggregations_max = count_aggregations_max
         self.shuffle_nodes = shuffle_nodes
-        self.sort_cluster = sort_cluster
+        self.sort_clusters = sort_clusters
+        self.return_graph = return_graph
 
-        self.iteration_count_ = None
-        self.adjacency_aggregate_ = None
+        self.count_aggregations_ = None
+        self.adjacency_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Louvain':
         """
@@ -453,14 +458,14 @@ class Louvain(BaseClustering, VerboseMixin):
 
         membership = sparse.identity(n, format='csr')
         increase = True
-        iteration_count = 0
+        count_aggregations = 0
         self.log.print("Starting with", graph.n_nodes, "nodes.")
         while increase:
-            iteration_count += 1
+            count_aggregations += 1
 
             self.algorithm.fit(graph)
 
-            if self.algorithm.score_ <= self.agg_tol:
+            if self.algorithm.score_ <= self.tol_aggregation:
                 increase = False
             else:
                 membership_agg = membership_matrix(self.algorithm.labels_)
@@ -469,12 +474,12 @@ class Louvain(BaseClustering, VerboseMixin):
 
                 if graph.n_nodes == 1:
                     break
-            self.log.print("Iteration", iteration_count, "completed with", graph.n_nodes, "clusters and ",
+            self.log.print("Aggregation", count_aggregations, "completed with", graph.n_nodes, "clusters and ",
                            self.algorithm.score_, "increment.")
-            if iteration_count == self.max_agg_iter:
+            if count_aggregations == self.count_aggregations_max:
                 break
 
-        if self.sort_cluster:
+        if self.sort_clusters:
             labels = reindex_clusters(membership.indices)
         else:
             labels = membership.indices
@@ -484,8 +489,10 @@ class Louvain(BaseClustering, VerboseMixin):
             labels = labels[reverse]
 
         self.labels_ = labels
-        self.iteration_count_ = iteration_count
-        self.adjacency_aggregate_ = graph.adjacency_norm * adjacency.data.sum()
+        self.count_aggregations_ = count_aggregations
+        if self.return_graph:
+            membership = membership_matrix(labels)
+            self.adjacency_ = membership.T.dot(adjacency.dot(membership))
 
         return self
 
@@ -510,15 +517,17 @@ class BiLouvain(Louvain):
             Resolution parameter.
         tol :
             Minimum increase in the objective function to enter a new optimization pass.
-        agg_tol :
+        tol_aggregation :
             Minimum increase in the objective function to enter a new aggregation pass.
-        max_agg_iter :
+        count_aggregations_max :
             Maximum number of aggregations.
             A negative value is interpreted as no limit.
         shuffle_nodes :
             Enables node shuffling before optimization.
-        sort_cluster :
+        sort_clusters :
                 If ``True``, sort labels in decreasing order of cluster size.
+        return_graph :
+            If ``True``, return the biadjacency matrix of the graph between clusters.
         random_state :
             Random number generator or random seed. If None, numpy.random is used.
         verbose :
@@ -532,10 +541,10 @@ class BiLouvain(Louvain):
             Labels of the rows (copy of **labels_**).
         labels_col_ : np.ndarray
             Labels of the columns.
-        iteration_count_ : int
+        count_aggregations_ : int
             Total number of aggregations performed.
-        adjacency_aggregate_ : sparse.csr_matrix
-            Adjacency matrix of the aggregate graph at the end of the algorithm.
+        biadjacency_ : sparse.csr_matrix
+            Biadjacency matrix of the aggregate graph between clusters.
 
         Example
         -------
@@ -552,16 +561,18 @@ class BiLouvain(Louvain):
         """
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
-                 tol: float = 1e-3, agg_tol: float = 1e-3, max_agg_iter: int = -1, shuffle_nodes: bool = False,
-                 sort_cluster: bool = True,
+                 tol: float = 1e-3, tol_aggregation: float = 1e-3, count_aggregations_max: int = -1,
+                 shuffle_nodes: bool = False, sort_clusters: bool = True, return_graph: bool = False,
                  random_state: Optional[Union[np.random.RandomState, int]] = None,
                  verbose: bool = False):
-        Louvain.__init__(self, engine, algorithm, resolution, tol, agg_tol, max_agg_iter, shuffle_nodes, sort_cluster,
-                         random_state, verbose)
+        Louvain.__init__(self, engine, algorithm, resolution, tol, tol_aggregation, count_aggregations_max,
+                         shuffle_nodes, sort_clusters, return_graph, random_state, verbose)
 
         self.labels_ = None
         self.labels_row_ = None
         self.labels_col_ = None
+
+        self.biadjacency_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiLouvain':
         """Applies the Louvain algorithm to the corresponding directed graph, with adjacency matrix:
@@ -579,9 +590,10 @@ class BiLouvain(Louvain):
         -------
         self: :class:`BiLouvain`
         """
-        louvain = Louvain(algorithm=self.algorithm, agg_tol=self.agg_tol, max_agg_iter=self.max_agg_iter,
-                          shuffle_nodes=self.shuffle_nodes, sort_cluster=self.sort_cluster,
-                          random_state=self.random_state, verbose=self.log.verbose)
+        louvain = Louvain(algorithm=self.algorithm, tol_aggregation=self.tol_aggregation,
+                          count_aggregations_max=self.count_aggregations_max,
+                          shuffle_nodes=self.shuffle_nodes, sort_clusters=self.sort_clusters,
+                          return_graph=self.return_graph, random_state=self.random_state, verbose=self.log.verbose)
         biadjacency = check_format(biadjacency)
         n1, _ = biadjacency.shape
 
@@ -589,8 +601,10 @@ class BiLouvain(Louvain):
         louvain.fit(adjacency)
 
         self.labels_ = louvain.labels_[:n1]
-        self.labels_row_ = self.labels_
+        self.labels_row_ = louvain.labels_[:n1]
         self.labels_col_ = louvain.labels_[n1:]
-        self.iteration_count_ = louvain.iteration_count_
-        self.adjacency_aggregate_ = louvain.adjacency_aggregate_
+        self.count_aggregations_ = louvain.count_aggregations_
+        if self.return_graph:
+            self.biadjacency_ = louvain.adjacency_[:n1][n1:]
+
         return self

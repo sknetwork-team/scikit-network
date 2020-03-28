@@ -7,7 +7,7 @@ Clustering
 
 This module contains clustering algorithms.
 
-The attribute ``.labels_``  assigns a label (cluster index) to each node of the graph.
+The attribute ``labels_``  assigns a label (cluster index) to each node of the graph.
 
 
 Louvain
