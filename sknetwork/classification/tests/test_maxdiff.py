@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Tests for MaxDiff"""
+"""Tests for DiffusionClassifier"""
 
 import unittest
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.classification import MaxDiff, BiMaxDiff
+from sknetwork.classification import DiffusionClassifier, BiDiffusionClassifier
 from sknetwork.data import painters, movie_actor
 
 
@@ -20,7 +20,7 @@ class TestMaxDiff(unittest.TestCase):
         adj_array_seeds[:2] = np.arange(2)
         adj_dict_seeds = {0: 0, 1: 1}
 
-        md = MaxDiff()
+        md = DiffusionClassifier()
         labels1 = md.fit_transform(adjacency, adj_array_seeds)
         labels2 = md.fit_transform(adjacency, adj_dict_seeds)
         self.assertTrue(np.allclose(labels1, labels2))
@@ -32,7 +32,7 @@ class TestMaxDiff(unittest.TestCase):
         biadj_array_seeds[:2] = np.arange(2)
         biadj_dict_seeds = {0: 0, 1: 1}
 
-        bmd = BiMaxDiff()
+        bmd = BiDiffusionClassifier()
         labels1 = bmd.fit_transform(biadjacency, biadj_array_seeds)
         labels2 = bmd.fit_transform(biadjacency, biadj_dict_seeds)
         self.assertTrue(np.allclose(labels1, labels2))

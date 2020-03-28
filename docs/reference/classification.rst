@@ -23,12 +23,12 @@ PageRank
 
 Diffusion
 ---------
-.. autoclass:: sknetwork.classification.MaxDiff
+.. autoclass:: sknetwork.classification.DiffusionClassifier
     :show-inheritance:
     :inherited-members:
     :members:
 
-.. autoclass:: sknetwork.classification.BiMaxDiff
+.. autoclass:: sknetwork.classification.BiDiffusionClassifier
     :show-inheritance:
     :inherited-members:
     :members:

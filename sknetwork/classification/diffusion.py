@@ -14,7 +14,7 @@ from sknetwork.ranking import BiDiffusion, Diffusion
 from sknetwork.utils.checks import check_labels
 
 
-class MaxDiff(RankClassifier):
+class DiffusionClassifier(RankClassifier):
     """Semi-supervised node classification using multiple diffusions.
 
     Parameters
@@ -27,10 +27,10 @@ class MaxDiff(RankClassifier):
     Example
     -------
     >>> from sknetwork.data import karate_club
-    >>> maxdiff = MaxDiff()
+    >>> diff = DiffusionClassifier()
     >>> adjacency, labels_true = karate_club(return_labels=True)
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = maxdiff.fit_transform(adjacency, seeds)
+    >>> labels_pred = diff.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.97
 
@@ -43,7 +43,7 @@ class MaxDiff(RankClassifier):
     """
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = Diffusion(n_iter, verbose)
-        super(MaxDiff, self).__init__(algorithm, n_jobs, verbose)
+        super(DiffusionClassifier, self).__init__(algorithm, n_jobs, verbose)
 
     @staticmethod
     def process_seeds(seeds_labels):
@@ -91,7 +91,7 @@ class MaxDiff(RankClassifier):
         return membership
 
 
-class BiMaxDiff(MaxDiff):
+class BiDiffusionClassifier(DiffusionClassifier):
     """Semi-supervised node classification using multiple diffusions.
 
     Parameters
@@ -104,10 +104,10 @@ class BiMaxDiff(MaxDiff):
     Example
     -------
     >>> from sknetwork.data import karate_club
-    >>> clf = BiMaxDiff()
+    >>> bidiff = BiDiffusionClassifier()
     >>> adjacency, labels_true = karate_club(return_labels=True)
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = clf.fit_transform(adjacency, seeds)
+    >>> labels_pred = bidiff.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.94
 
