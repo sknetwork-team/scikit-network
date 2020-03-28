@@ -25,8 +25,8 @@ Louvain
     :inherited-members:
     :members:
 
-KMeans
-------
+K-Means
+-------
 .. autoclass:: sknetwork.clustering.KMeans
     :inherited-members:
     :members:

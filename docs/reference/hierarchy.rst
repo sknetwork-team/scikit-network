@@ -36,17 +36,16 @@ Ward
     :inherited-members:
     :members:
 
+Metrics
+-------
+.. autofunction:: sknetwork.hierarchy.dasgupta_score
+
+.. autofunction:: sknetwork.hierarchy.tree_sampling_divergence
+
 
 Cuts
 ----
 .. autofunction:: sknetwork.hierarchy.cut_straight
 
 .. autofunction:: sknetwork.hierarchy.cut_balanced
-
-
-Metrics
--------
-.. autofunction:: sknetwork.hierarchy.dasgupta_score
-
-.. autofunction:: sknetwork.hierarchy.tree_sampling_divergence
 

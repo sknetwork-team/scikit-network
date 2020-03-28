@@ -358,7 +358,7 @@ class Paris(BaseHierarchy):
 
     Notes
     -----
-    Each row of the dendrogram = :math:`i, j`, distance, size of cluster :math:`i + j`.
+    Each row of the dendrogram = :math:`i, j`, height, size of cluster :math:`i + j`.
 
 
     See Also

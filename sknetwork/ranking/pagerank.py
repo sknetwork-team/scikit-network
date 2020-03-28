@@ -216,8 +216,8 @@ class PageRank(BaseRanking, VerboseMixin):
 
 class BiPageRank(PageRank):
     """
-    Compute the PageRank of each node through a two-hop random walk in the bipartite graph.
-    The random walk restarts with some fixed probability. The restart distribution can be personalized.
+    Compute the PageRank of each node through a random walk in the bipartite graph.
+    The random walk restarts with some fixed probability at even times. The restart distribution can be personalized.
 
     Parameters
     ----------

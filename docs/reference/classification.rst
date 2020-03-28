@@ -29,8 +29,8 @@ Diffusion
     :inherited-members:
     :members:
 
-KNN
----
+Nearest neighbors
+-----------------
 .. autoclass:: sknetwork.classification.KNN
     :inherited-members:
     :members:

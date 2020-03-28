@@ -85,9 +85,9 @@ class Diffusion(BaseRanking, VerboseMixin):
     >>> from sknetwork.data import house
     >>> diffusion = Diffusion()
     >>> adjacency = house()
-    >>> personalization = {4: 0.25, 1: 1}
+    >>> personalization = {0: 0, 1: 1}
     >>> np.round(diffusion.fit_transform(adjacency, personalization), 2)
-    array([0.62, 1.  , 0.75, 0.5 , 0.25])
+    array([0.  , 1.  , 0.86, 0.71, 0.57])
 
     References
     ----------
@@ -160,12 +160,12 @@ class BiDiffusion(Diffusion):
 
     Attributes
     ----------
-    scores_row_ : np.ndarray
+    scores_ : np.ndarray
         Scores of rows.
+    scores_row_ : np.ndarray
+        Scores of rows (copy of **scores_**).
     scores_col_ : np.ndarray
         Scores of columns.
-    scores_ : np.ndarray
-        Scores of all nodes (concatenation of scores of rows and scores of columns).
 
     Example
     -------
