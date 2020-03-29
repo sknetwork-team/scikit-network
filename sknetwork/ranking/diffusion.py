@@ -145,7 +145,7 @@ class Diffusion(BaseRanking, VerboseMixin):
         else:
             a = sparse.eye(n, format='csr', dtype=float) - diffusion_matrix
             scores, info = bicgstab(a, b, atol=0., x0=x0)
-            self.scipy_solver_info(info)
+            self._scipy_solver_info(info)
 
         if tmin != tmax:
             self.scores_ = np.clip(scores, tmin, tmax)
@@ -256,7 +256,7 @@ class BiDiffusion(Diffusion):
             a = sparse.linalg.LinearOperator(dtype=float, shape=(n1, n1), matvec=mv, rmatvec=rmv)
             # noinspection PyTypeChecker
             scores, info = bicgstab(a, x0, atol=0., x0=x0)
-            self.scipy_solver_info(info)
+            self._scipy_solver_info(info)
 
         self.scores_row_ = np.clip(scores, np.min(b), np.max(b))
         self.scores_col_ = transition_matrix(biadjacency.T).dot(self.scores_row_)

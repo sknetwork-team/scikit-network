@@ -125,7 +125,7 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
 
         if solver == 'bicgstab':
             x, info = bicgstab(sparse.eye(n, format='csr') - self.a, self.b, atol=0.)
-            self.scipy_solver_info(info)
+            self._scipy_solver_info(info)
         elif solver == 'lanczos':
             _, x = sparse.linalg.eigs(self, k=1)
         elif solver == 'lsqr':
