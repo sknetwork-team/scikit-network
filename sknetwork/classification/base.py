@@ -16,6 +16,6 @@ class BaseClassifier(Algorithm, ABC):
         self.labels_ = None
 
     def fit_transform(self, *args, **kwargs):
-        """Fit algorithm to the data and return the labels. Uses the same inputs as the ``fit`` method."""
+        """Fit algorithm to the data and return the labels. Use the same inputs as the ``fit`` method."""
         self.fit(*args, **kwargs)
         return self.labels_

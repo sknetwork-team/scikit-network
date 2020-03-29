@@ -27,6 +27,13 @@ class PageRankClassifier(RankClassifier):
         If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
         ``n_iter`` iterations.
 
+    Attributes
+    ----------
+    labels_ : np.ndarray
+        Label of each node (hard classification).
+    membership_ : sparse.csr_matrix
+        Membership matrix (soft classification, columns = labels).
+
     Example
     -------
     >>> from sknetwork.data import karate_club
@@ -50,6 +57,9 @@ class PageRankClassifier(RankClassifier):
         algorithm = PageRank(damping_factor, solver, n_iter)
         super(PageRankClassifier, self).__init__(algorithm, n_jobs, verbose)
 
+        self.labels_ = None
+        self.membership_ = None
+
 
 class BiPageRankClassifier(RankClassifier):
     """Node classification for bipartite graphs by multiple personalized PageRanks .
@@ -65,6 +75,13 @@ class BiPageRankClassifier(RankClassifier):
         If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
         ``n_iter`` iterations.
 
+    Attributes
+    ----------
+    labels_ : np.ndarray
+        Label of each node (hard classification).
+    membership_ : sparse.csr_matrix
+        Membership matrix (soft classification, columns = labels).
+
     Example
     -------
     >>> from sknetwork.data import star_wars_villains
@@ -79,3 +96,6 @@ class BiPageRankClassifier(RankClassifier):
                  n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = BiPageRank(damping_factor, solver, n_iter)
         super(BiPageRankClassifier, self).__init__(algorithm, n_jobs, verbose)
+
+        self.labels_ = None
+        self.membership_ = None

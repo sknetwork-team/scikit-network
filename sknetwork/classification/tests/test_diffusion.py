@@ -12,9 +12,9 @@ from sknetwork.data import painters, movie_actor
 
 
 # noinspection DuplicatedCode
-class TestMaxDiff(unittest.TestCase):
+class TestDiffusionClassifier(unittest.TestCase):
 
-    def test_maxrdiff(self):
+    def test_undirected(self):
         adjacency: sparse.csr_matrix = painters()
         adj_array_seeds = -np.ones(adjacency.shape[0])
         adj_array_seeds[:2] = np.arange(2)
@@ -26,7 +26,7 @@ class TestMaxDiff(unittest.TestCase):
         self.assertTrue(np.allclose(labels1, labels2))
         self.assertEqual(labels2.shape[0], adjacency.shape[0])
 
-    def test_bimaxdiff(self):
+    def test_bipartite(self):
         biadjacency: sparse.csr_matrix = movie_actor()
         biadj_array_seeds = -np.ones(biadjacency.shape[0])
         biadj_array_seeds[:2] = np.arange(2)

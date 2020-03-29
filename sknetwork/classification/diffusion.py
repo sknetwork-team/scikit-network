@@ -23,6 +23,12 @@ class DiffusionClassifier(RankClassifier):
         If ``n_iter > 0``, the algorithm will emulate the diffusion for n_iter steps.
         If ``n_iter <= 0``, the algorithm will use BIConjugate Gradient STABilized iteration
         to solve the Dirichlet problem.
+    Attributes
+    ----------
+    labels_ : np.ndarray
+        Label of each node (hard classification).
+    membership_ : sparse.csr_matrix
+        Membership matrix (soft classification, columns = labels).
 
     Example
     -------
@@ -44,6 +50,9 @@ class DiffusionClassifier(RankClassifier):
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = Diffusion(n_iter, verbose)
         super(DiffusionClassifier, self).__init__(algorithm, n_jobs, verbose)
+
+        self.labels_ = None
+        self.membership_ = None
 
     @staticmethod
     def _process_seeds(seeds_labels, temperature_max: float = 5):
@@ -102,6 +111,13 @@ class BiDiffusionClassifier(DiffusionClassifier):
         If ``n_iter <= 0``, the algorithm will use BIConjugate Gradient STABilized iteration
         to solve the Dirichlet problem.
 
+    Attributes
+    ----------
+    labels_ : np.ndarray
+        Label of each node (hard classification).
+    membership_ : sparse.csr_matrix
+        Membership matrix (soft classification, columns = labels).
+
     Example
     -------
     >>> from sknetwork.data import star_wars_villains
@@ -121,3 +137,6 @@ class BiDiffusionClassifier(DiffusionClassifier):
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = BiDiffusion(n_iter, verbose)
         RankClassifier.__init__(self, algorithm, n_jobs, verbose)
+
+        self.labels_ = None
+        self.membership_ = None

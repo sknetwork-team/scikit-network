@@ -90,7 +90,7 @@ class KNN(BaseClassifier):
         self: :class:`KNN`
         """
         n = adjacency.shape[0]
-        labels = check_seeds(seeds, adjacency)
+        labels = check_seeds(seeds, adjacency).astype(int)
         index_seed = np.argwhere(labels >= 0).ravel()
         index_test = np.argwhere(labels < 0).ravel()
         labels_seed = labels[index_seed]
