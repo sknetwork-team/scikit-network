@@ -50,7 +50,7 @@ class KNN(BaseClassifier):
     labels_ : np.ndarray
         Label of each node.
     membership_ : sparse.csr_matrix
-        Membership matrix.
+        Membership matrix (columns = labels).
 
     Example
     -------

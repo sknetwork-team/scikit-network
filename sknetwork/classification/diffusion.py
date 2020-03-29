@@ -46,13 +46,14 @@ class DiffusionClassifier(RankClassifier):
         super(DiffusionClassifier, self).__init__(algorithm, n_jobs, verbose)
 
     @staticmethod
-    def _process_seeds(seeds_labels):
+    def _process_seeds(seeds_labels, temperature_max: float = 5):
         """Make one-vs-all seed labels from seeds.
 
         Parameters
         ----------
-        seeds_labels
+        seeds_labels :
 
+        temperature_max
         Returns
         -------
         personalizations: list
@@ -65,7 +66,7 @@ class DiffusionClassifier(RankClassifier):
 
         for label in classes:
             personalization = -np.ones(seeds_labels.shape[0])
-            personalization[seeds_labels == label] = 1
+            personalization[seeds_labels == label] = temperature_max
             ix = np.logical_and(seeds_labels != label, seeds_labels >= 0)
             personalization[ix] = 0
             personalizations.append(personalization)
@@ -73,22 +74,22 @@ class DiffusionClassifier(RankClassifier):
         return personalizations
 
     @staticmethod
-    def _process_membership(membership: np.ndarray):
-        """Post-processing of the membership matrix.
+    def _process_scores(scores: np.ndarray):
+        """Post-processing of the score matrix.
 
         Parameters
         ----------
-        membership
-            (n x k) matrix of membership.
+        scores
+            (n x k) matrix of scores.
 
         Returns
         -------
-        membership: np.ndarray
+        scores: np.ndarray
 
         """
-        membership -= np.mean(membership, axis=0)
-        membership = np.exp(membership)
-        return membership
+        scores -= np.mean(scores, axis=0)
+        scores = np.exp(scores)
+        return scores
 
 
 class BiDiffusionClassifier(DiffusionClassifier):

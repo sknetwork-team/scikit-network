@@ -33,8 +33,8 @@ class RankClassifier(BaseClassifier, VerboseMixin):
 
     Attributes
     ----------
-    membership_ : np.ndarray
-        Membership matrix.
+    membership_ : sparse.csr_matrix
+        Membership matrix (labels = columns).
     """
 
     def __init__(self, algorithm: BaseRanking, n_jobs: Optional[int] = None, verbose: bool = False):
@@ -72,20 +72,20 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         return personalizations
 
     @staticmethod
-    def _process_membership(membership: np.ndarray) -> np.ndarray:
+    def _process_scores(scores: np.ndarray) -> np.ndarray:
         """Post-processing of the membership matrix.
 
         Parameters
         ----------
-        membership
-            (n x k) matrix of membership.
+        scores
+            (n x k) matrix of scores.
 
         Returns
         -------
-        membership: np.ndarray
+        scores: np.ndarray
 
         """
-        return membership
+        return scores
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'RankClassifier':
         """
@@ -101,7 +101,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         -------
         self: :class:`RankClassifier`
         """
-        seeds_labels = check_seeds(seeds, adjacency)
+        seeds_labels = check_seeds(seeds, adjacency).astype(int)
         classes, n_classes = check_labels(seeds_labels)
         n = adjacency.shape[0]
 
@@ -110,23 +110,26 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         if self.n_jobs != 1:
             local_function = partial(self.algorithm.fit_transform, adjacency)
             with Pool(self.n_jobs) as pool:
-                membership = np.array(pool.map(local_function, personalizations))
-            membership = membership.T
+                scores = np.array(pool.map(local_function, personalizations))
+            scores = scores.T
         else:
-            membership = np.zeros((n, n_classes))
+            scores = np.zeros((n, n_classes))
             for i in range(n_classes):
-                membership[:, i] = self.algorithm.fit_transform(adjacency, personalization=personalizations[i])[:n]
+                scores[:, i] = self.algorithm.fit_transform(adjacency, personalization=personalizations[i])[:n]
 
-        membership = self._process_membership(membership)
+        scores = self._process_scores(scores)
 
-        norms = np.linalg.norm(membership, ord=1, axis=1)
-        ix = (norms == 0)
+        sums = np.sum(scores, axis=1)
+        ix = (sums == 0)
         if ix.sum() > 0:
-            self.log.print('Some nodes have a null membership.')
-        membership[~ix] /= norms[~ix, np.newaxis]
+            self.log.print('Some nodes have no label.')
+        scores[~ix] /= sums[~ix, np.newaxis]
 
-        labels = np.argmax(membership, axis=1).astype(int)
-        self.labels_ = classes[labels].astype(int)
-        self.membership_ = membership
+        membership = sparse.coo_matrix(scores)
+        membership.col = classes[membership.col]
+
+        labels = np.argmax(scores, axis=1)
+        self.labels_ = classes[labels]
+        self.membership_ = sparse.csr_matrix(membership, shape=(n, np.max(seeds_labels)))
 
         return self
