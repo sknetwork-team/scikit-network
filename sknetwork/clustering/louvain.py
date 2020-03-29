@@ -360,7 +360,7 @@ class Louvain(BaseClustering, VerboseMixin):
         Minimum increase in the objective function to enter a new optimization pass.
     tol_aggregation :
         Minimum increase in the objective function to enter a new aggregation pass.
-    count_aggregations_max :
+    n_aggregations :
         Maximum number of aggregations.
         A negative value is interpreted as no limit.
     shuffle_nodes :
@@ -402,7 +402,7 @@ class Louvain(BaseClustering, VerboseMixin):
     """
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
-                 tol: float = 1e-3, tol_aggregation: float = 1e-3, count_aggregations_max: int = -1,
+                 tol: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
                  shuffle_nodes: bool = False, sort_clusters: bool = True, return_graph: bool = False,
                  random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
         super(Louvain, self).__init__()
@@ -415,10 +415,10 @@ class Louvain(BaseClustering, VerboseMixin):
             self.algorithm = algorithm
         else:
             raise TypeError('Algorithm must be \'auto\' or a valid algorithm.')
-        if type(count_aggregations_max) != int:
+        if type(n_aggregations) != int:
             raise TypeError('The maximum number of iterations must be an integer.')
         self.tol_aggregation = tol_aggregation
-        self.count_aggregations_max = count_aggregations_max
+        self.n_aggregations = n_aggregations
         self.shuffle_nodes = shuffle_nodes
         self.sort_clusters = sort_clusters
         self.return_graph = return_graph
@@ -473,7 +473,7 @@ class Louvain(BaseClustering, VerboseMixin):
                     break
             self.log.print("Aggregation", count_aggregations, "completed with", graph.n_nodes, "clusters and ",
                            self.algorithm.score_, "increment.")
-            if count_aggregations == self.count_aggregations_max:
+            if count_aggregations == self.n_aggregations:
                 break
 
         if self.sort_clusters:
@@ -515,7 +515,7 @@ class BiLouvain(Louvain):
             Minimum increase in the objective function to enter a new optimization pass.
         tol_aggregation :
             Minimum increase in the objective function to enter a new aggregation pass.
-        count_aggregations_max :
+        n_aggregations :
             Maximum number of aggregations.
             A negative value is interpreted as no limit.
         shuffle_nodes :
@@ -555,11 +555,11 @@ class BiLouvain(Louvain):
         """
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
-                 tol: float = 1e-3, tol_aggregation: float = 1e-3, count_aggregations_max: int = -1,
+                 tol: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
                  shuffle_nodes: bool = False, sort_clusters: bool = True, return_graph: bool = False,
                  random_state: Optional[Union[np.random.RandomState, int]] = None,
                  verbose: bool = False):
-        Louvain.__init__(self, engine, algorithm, resolution, tol, tol_aggregation, count_aggregations_max,
+        Louvain.__init__(self, engine, algorithm, resolution, tol, tol_aggregation, n_aggregations,
                          shuffle_nodes, sort_clusters, return_graph, random_state, verbose)
 
         self.labels_ = None
@@ -585,7 +585,7 @@ class BiLouvain(Louvain):
         self: :class:`BiLouvain`
         """
         louvain = Louvain(algorithm=self.algorithm, tol_aggregation=self.tol_aggregation,
-                          count_aggregations_max=self.count_aggregations_max,
+                          n_aggregations=self.n_aggregations,
                           shuffle_nodes=self.shuffle_nodes, sort_clusters=self.sort_clusters,
                           return_graph=self.return_graph, random_state=self.random_state, verbose=self.log.verbose)
         biadjacency = check_format(biadjacency)
