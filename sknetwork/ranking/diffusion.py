@@ -42,7 +42,7 @@ def limit_conditions(personalization: Union[np.ndarray, dict], n: int) -> Tuple:
         keys = np.array(list(personalization.keys()))
         vals = np.array(list(personalization.values()))
         if np.min(vals) < 0:
-            warnings.warn(Warning("Negative temperatures will be ignored"))
+            warnings.warn(Warning("Negative temperatures will be ignored."))
 
         ix = (vals >= 0)
         keys = keys[ix]
@@ -85,9 +85,9 @@ class Diffusion(BaseRanking, VerboseMixin):
     >>> from sknetwork.data import house
     >>> diffusion = Diffusion()
     >>> adjacency = house()
-    >>> personalization = {0: 0, 1: 1}
+    >>> personalization = {0: 1, 2: 0}
     >>> np.round(diffusion.fit_transform(adjacency, personalization), 2)
-    array([0.  , 1.  , 0.86, 0.71, 0.57])
+    array([1.  , 0.54, 0.  , 0.31, 0.62])
 
     References
     ----------
@@ -101,18 +101,18 @@ class Diffusion(BaseRanking, VerboseMixin):
         self.n_iter = n_iter
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Union[dict, np.ndarray], x0: Optional = None) -> 'Diffusion':
+            personalization: Union[dict, np.ndarray], initial_state: Optional = None) -> 'Diffusion':
         """
         Compute the diffusion (temperature at equilibrium).
 
         Parameters
         ----------
         adjacency :
-            Adjacency or biadjacency matrix of the graph.
+            Adjacency matrix of the graph.
         personalization :
-            Dictionary or vector (temperature of border nodes).
-        x0 :
-            Initial state of the temperatures.
+            Temperatures of border nodes (dictionary or vector). Negative temperatures ignored.
+        initial_state :
+            Initial state of temperatures.
 
         Returns
         -------
@@ -129,15 +129,15 @@ class Diffusion(BaseRanking, VerboseMixin):
         interior: sparse.csr_matrix = sparse.diags(~border, shape=(n, n), format='csr', dtype=float)
         diffusion_matrix = interior.dot(transition_matrix(adjacency))
 
-        if x0 is None:
+        if initial_state is None:
             if tmin != tmax:
-                x0 = b[border].mean() * np.ones(n)
+                initial_state = b[border].mean() * np.ones(n)
             else:
-                x0 = np.zeros(n)
-            x0[border] = b[border]
+                initial_state = np.zeros(n)
+            initial_state[border] = b[border]
 
         if self.n_iter > 0:
-            scores = x0
+            scores = initial_state
             for i in range(self.n_iter):
                 scores = diffusion_matrix.dot(scores)
                 scores[border] = b[border]
@@ -171,11 +171,10 @@ class BiDiffusion(Diffusion):
     -------
     >>> from sknetwork.data import star_wars_villains
     >>> bidiffusion = BiDiffusion()
-    >>> biadjacency: sparse.csr_matrix = star_wars_villains()
-    >>> biadjacency.shape
-    (4, 3)
-    >>> len(bidiffusion.fit_transform(biadjacency, {0: 1, 1: 0}))
-    4
+    >>> biadjacency = star_wars_villains()
+    >>> personalization = {0: 1, 2: 0}
+    >>> np.round(bidiffusion.fit_transform(biadjacency, personalization), 2)
+    array([1.  , 0.5 , 0.  , 0.29])
     """
 
     def __init__(self, n_iter: int = 0, verbose: bool = False):
@@ -185,18 +184,18 @@ class BiDiffusion(Diffusion):
         self.scores_col_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Union[dict, np.ndarray], x0: Optional = None) -> 'BiDiffusion':
+            personalization: Union[dict, np.ndarray], initial_state: Optional = None) -> 'BiDiffusion':
         """
         Compute the diffusion (temperature at equilibrium).
 
         Parameters
         ----------
         biadjacency :
-            Adjacency or biadjacency matrix of the graph.
+            Biadjacency matrix, shape (n1, n2).
         personalization :
-            Dictionary or vector (temperature of border nodes).
-        x0 :
-            Initial state of the temperatures.
+            Temperatures of border nodes (dictionary or vector of size n1). Negative temperatures ignored.
+        initial_state :
+            Initial state of temperatures.
 
         Returns
         -------
@@ -210,12 +209,12 @@ class BiDiffusion(Diffusion):
         backward: sparse.csr_matrix = interior.dot(transition_matrix(biadjacency))
         forward: sparse.csr_matrix = transition_matrix(biadjacency.T)
 
-        x0 = np.zeros(n1)
+        initial_state = np.zeros(n1)
         ix = (b >= 0)
-        x0[ix] = b[ix]
+        initial_state[ix] = b[ix]
 
         if self.n_iter > 0:
-            scores = x0
+            scores = initial_state
             for i in range(self.n_iter):
                 scores = backward.dot(forward.dot(scores))
                 scores[border] = b[border]

@@ -165,10 +165,12 @@ class PageRank(BaseRanking, VerboseMixin):
 
     Example
     -------
+    >>> from sknetwork.data import house
     >>> pagerank = PageRank()
-    >>> adjacency = np.ones((4,4))
-    >>> pagerank.fit_transform(adjacency)
-    array([0.25, 0.25, 0.25, 0.25])
+    >>> adjacency = house()
+    >>> personalization = {0: 1}
+    >>> np.round(pagerank.fit_transform(adjacency, personalization), 2)
+    array([0.29, 0.24, 0.12, 0.12, 0.24])
 
     References
     ----------
@@ -188,8 +190,7 @@ class PageRank(BaseRanking, VerboseMixin):
     # noinspection PyTypeChecker
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Optional[Union[dict, np.ndarray]] = None) -> 'PageRank':
-        """
-        Standard PageRank with restart.
+        """Fit algorithm to data.
 
         Parameters
         ----------
@@ -215,8 +216,7 @@ class PageRank(BaseRanking, VerboseMixin):
 
 
 class BiPageRank(PageRank):
-    """
-    Compute the PageRank of each node through a random walk in the bipartite graph.
+    """Compute the PageRank of each node through a random walk in the bipartite graph.
     The random walk restarts with some fixed probability at even times. The restart distribution can be personalized.
 
     Parameters
@@ -238,10 +238,12 @@ class BiPageRank(PageRank):
 
     Example
     -------
+    >>> from sknetwork.data import star_wars_villains
     >>> bipagerank = BiPageRank()
-    >>> biadjacency = np.ones((4,3))
-    >>> bipagerank.fit_transform(biadjacency)
-    array([0.25, 0.25, 0.25, 0.25])
+    >>> biadjacency = star_wars_villains()
+    >>> personalization = {0: 1}
+    >>> np.round(bipagerank.fit_transform(biadjacency, personalization), 2)
+    array([0.42, 0.11, 0.29, 0.18])
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10):
         PageRank.__init__(self, damping_factor, solver, n_iter=n_iter)
@@ -251,16 +253,15 @@ class BiPageRank(PageRank):
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             personalization: Optional[Union[dict, np.ndarray]] = None) -> 'BiPageRank':
-        """
-        Two hops PageRank with restart.
+        """Fit algorithm to data.
 
         Parameters
         ----------
         biadjacency :
-            Adjacency matrix.
+            Biadjacency matrix, shape (n1, n2).
         personalization :
-            If ``None``, the uniform distribution is used.
-            Otherwise, a non-negative, non-zero vector or a dictionary must be provided.
+            If ``None``, the uniform distribution over is used.
+            Otherwise, a non-negative, non-zero vector of size n1 or a dictionary must be provided.
 
         Returns
         -------

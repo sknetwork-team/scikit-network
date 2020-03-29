@@ -14,7 +14,7 @@ from sknetwork.ranking import BiPageRank, PageRank
 
 
 class PageRankClassifier(RankClassifier):
-    """Semi-supervised node classification using multiple personalized PageRanks.
+    """Node classification by multiple personalized PageRanks.
 
     Parameters
     ----------
@@ -30,10 +30,10 @@ class PageRankClassifier(RankClassifier):
     Example
     -------
     >>> from sknetwork.data import karate_club
-    >>> maxrank = PageRankClassifier()
+    >>> pagerank = PageRankClassifier()
     >>> adjacency, labels_true = karate_club(return_labels=True)
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = maxrank.fit_transform(adjacency, seeds)
+    >>> labels_pred = pagerank.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.97
 
@@ -52,7 +52,7 @@ class PageRankClassifier(RankClassifier):
 
 
 class BiPageRankClassifier(RankClassifier):
-    """Semi-supervised node classification using multiple personalized PageRanks for bipartite graphs.
+    """Node classification for bipartite graphs by multiple personalized PageRanks .
 
     Parameters
     ----------
@@ -67,14 +67,12 @@ class BiPageRankClassifier(RankClassifier):
 
     Example
     -------
-    >>> from sknetwork.data import karate_club
-    >>> clf = BiPageRankClassifier()
-    >>> adjacency, labels_true = karate_club(return_labels=True)
-    >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = clf.fit_transform(adjacency, seeds)
-    >>> np.round(np.mean(labels_pred == labels_true), 2)
-    0.94
-
+    >>> from sknetwork.data import star_wars_villains
+    >>> bipagerank = BiPageRankClassifier()
+    >>> biadjacency = star_wars_villains()
+    >>> seeds = {0: 1, 2: 0}
+    >>> bipagerank.fit_transform(biadjacency, seeds)
+    array([1, 1, 0, 0])
     """
 
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10,

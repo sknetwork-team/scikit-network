@@ -34,8 +34,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
     Attributes
     ----------
     membership_ : np.ndarray
-        Array of membership probabilities between each node and each class.
-
+        Membership matrix.
     """
 
     def __init__(self, algorithm: BaseRanking, n_jobs: Optional[int] = None, verbose: bool = False):
@@ -96,7 +95,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         adjacency:
             Adjacency matrix of the graph.
         seeds:
-            Seed nodes. Can be a dict {node: label} or an array where "-1" means no label.
+            Seed nodes (labels as dictionary or array; negative values ignored).
 
         Returns
         -------
@@ -104,7 +103,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         """
         seeds_labels = check_seeds(seeds, adjacency)
         classes, n_classes = check_labels(seeds_labels)
-        n: int = adjacency.shape[0]
+        n = adjacency.shape[0]
 
         personalizations = self.process_seeds(seeds_labels)
 

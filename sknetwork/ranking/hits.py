@@ -16,8 +16,7 @@ from sknetwork.utils.checks import check_format
 
 
 class HITS(BaseRanking):
-    """
-    Compute the hub and authority scores of each node.
+    """Compute the hub and authority scores of each node.
     For bipartite graphs, the hub score is computed on rows and the authority score on columns.
 
     Parameters
