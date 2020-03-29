@@ -66,7 +66,7 @@ class AggregateGraph:
 
         Returns
         -------
-        The aggregated graph.
+        Aggregate graph.
         """
         if type(membership_row) == np.ndarray:
             membership_row = membership_matrix(membership_row)
@@ -378,8 +378,6 @@ class Louvain(BaseClustering, VerboseMixin):
     ----------
     labels_ : np.ndarray
         Label of each node.
-    count_aggregations_ : int
-        Total number of aggregations performed.
     adjacency_ : sparse.csr_matrix
         Adjacency matrix between clusters.
 
@@ -425,7 +423,6 @@ class Louvain(BaseClustering, VerboseMixin):
         self.sort_clusters = sort_clusters
         self.return_graph = return_graph
 
-        self.count_aggregations_ = None
         self.adjacency_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Louvain':
@@ -489,7 +486,6 @@ class Louvain(BaseClustering, VerboseMixin):
             labels = labels[reverse]
 
         self.labels_ = labels
-        self.count_aggregations_ = count_aggregations
         if self.return_graph:
             membership = membership_matrix(labels)
             self.adjacency_ = membership.T.dot(adjacency.dot(membership))
@@ -541,8 +537,6 @@ class BiLouvain(Louvain):
             Labels of the rows (copy of **labels_**).
         labels_col_ : np.ndarray
             Labels of the columns.
-        count_aggregations_ : int
-            Total number of aggregations performed.
         biadjacency_ : sparse.csr_matrix
             Biadjacency matrix of the aggregate graph between clusters.
 
@@ -603,7 +597,6 @@ class BiLouvain(Louvain):
         self.labels_ = louvain.labels_[:n1]
         self.labels_row_ = louvain.labels_[:n1]
         self.labels_col_ = louvain.labels_[n1:]
-        self.count_aggregations_ = louvain.count_aggregations_
         if self.return_graph:
             self.biadjacency_ = louvain.adjacency_[:n1][n1:]
 
