@@ -130,6 +130,6 @@ class RankClassifier(BaseClassifier, VerboseMixin):
 
         labels = np.argmax(scores, axis=1)
         self.labels_ = classes[labels]
-        self.membership_ = sparse.csr_matrix(membership, shape=(n, np.max(seeds_labels)))
+        self.membership_ = sparse.csr_matrix(membership, shape=(n, np.max(seeds_labels) + 1))
 
         return self
