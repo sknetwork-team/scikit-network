@@ -15,7 +15,7 @@ from sknetwork.utils.checks import check_labels
 
 
 class DiffusionClassifier(RankClassifier):
-    """Semi-supervised node classification using multiple diffusions.
+    """Node classification using multiple diffusions.
 
     Parameters
     ----------
@@ -46,7 +46,7 @@ class DiffusionClassifier(RankClassifier):
         super(DiffusionClassifier, self).__init__(algorithm, n_jobs, verbose)
 
     @staticmethod
-    def process_seeds(seeds_labels):
+    def _process_seeds(seeds_labels):
         """Make one-vs-all seed labels from seeds.
 
         Parameters
@@ -73,7 +73,7 @@ class DiffusionClassifier(RankClassifier):
         return personalizations
 
     @staticmethod
-    def process_membership(membership: np.ndarray):
+    def _process_membership(membership: np.ndarray):
         """Post-processing of the membership matrix.
 
         Parameters
@@ -92,7 +92,7 @@ class DiffusionClassifier(RankClassifier):
 
 
 class BiDiffusionClassifier(DiffusionClassifier):
-    """Semi-supervised node classification using multiple diffusions.
+    """Node classification using multiple diffusions.
 
     Parameters
     ----------

@@ -48,7 +48,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         self.membership_ = None
 
     @staticmethod
-    def process_seeds(seeds_labels: np.ndarray) -> list:
+    def _process_seeds(seeds_labels: np.ndarray) -> list:
         """Make one-vs-all seed labels from seeds.
 
         Parameters
@@ -72,7 +72,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         return personalizations
 
     @staticmethod
-    def process_membership(membership: np.ndarray) -> np.ndarray:
+    def _process_membership(membership: np.ndarray) -> np.ndarray:
         """Post-processing of the membership matrix.
 
         Parameters
@@ -105,7 +105,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         classes, n_classes = check_labels(seeds_labels)
         n = adjacency.shape[0]
 
-        personalizations = self.process_seeds(seeds_labels)
+        personalizations = self._process_seeds(seeds_labels)
 
         if self.n_jobs != 1:
             local_function = partial(self.algorithm.fit_transform, adjacency)
@@ -117,7 +117,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
             for i in range(n_classes):
                 membership[:, i] = self.algorithm.fit_transform(adjacency, personalization=personalizations[i])[:n]
 
-        membership = self.process_membership(membership)
+        membership = self._process_membership(membership)
 
         norms = np.linalg.norm(membership, ord=1, axis=1)
         ix = (norms == 0)
