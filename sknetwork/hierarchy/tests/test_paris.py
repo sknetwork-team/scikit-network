@@ -10,7 +10,7 @@ import unittest
 
 from sknetwork import is_numba_available
 from sknetwork.hierarchy import Paris, BiParis
-from sknetwork.data.basic import *
+from sknetwork.data.test_graphs import *
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -27,21 +27,21 @@ class TestParis(unittest.TestCase):
                 Paris(engine='numba')
 
     def test_undirected(self):
-        adjacency = Small().adjacency
+        adjacency = Simple().adjacency
         n = adjacency.shape[0]
         for paris in self.paris:
             dendrogram = paris.fit_transform(adjacency)
             self.assertEqual(dendrogram.shape, (n - 1, 4))
 
     def test_directed(self):
-        adjacency = DiSmall().adjacency
+        adjacency = DiSimple().adjacency
         for paris in self.paris:
             dendrogram = paris.fit_transform(adjacency)
             n = adjacency.shape[0]
             self.assertEqual(dendrogram.shape, (n - 1, 4))
 
     def test_bipartite(self):
-        biadjacency = BiSmall().biadjacency
+        biadjacency = BiSimple().biadjacency
         for biparis in self.biparis:
             biparis.fit(biadjacency)
             n1, n2 = biadjacency.shape
@@ -51,14 +51,14 @@ class TestParis(unittest.TestCase):
             self.assertEqual(biparis.dendrogram_full_.shape, (n1 + n2 - 1, 4))
 
     def test_disconnected(self):
-        adjacency = SmallDisconnected().adjacency
+        adjacency = DisSimple().adjacency
         paris = Paris(engine='python')
         dendrogram = paris.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (9, 4))
 
     def test_options(self):
         paris = Paris(weights='uniform')
-        adjacency = Small().adjacency
+        adjacency = Simple().adjacency
         dendrogram = paris.fit_transform(adjacency)
         n = adjacency.shape[0]
         self.assertEqual(dendrogram.shape, (n - 1, 4))

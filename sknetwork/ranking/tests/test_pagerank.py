@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 
 from sknetwork.ranking.pagerank import PageRank, BiPageRank
-from sknetwork.data.basic import *
+from sknetwork.data.test_graphs import *
 from sknetwork.data.models import CycleDirected
 
 
@@ -46,7 +46,7 @@ class TestPageRank(unittest.TestCase):
 
     def test_bipartite(self):
         bipagerank = BiPageRank()
-        biadjacency = BiSmall().biadjacency
+        biadjacency = BiSimple().biadjacency
         n1, n2 = biadjacency.shape
 
         bipagerank.fit(biadjacency, {0: 1})

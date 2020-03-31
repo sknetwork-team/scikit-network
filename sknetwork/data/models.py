@@ -11,7 +11,7 @@ from typing import Union, Tuple, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork.data import BaseGraph
+from sknetwork.data import Graph
 from sknetwork.utils.check import check_is_proba, check_random_state
 
 
@@ -93,7 +93,7 @@ def block_model(clusters: Union[np.ndarray, int], shape: Optional[Tuple[int, int
     return sparse.csr_matrix(mat), ground_truth_features, ground_truth_samples
 
 
-class Line(BaseGraph):
+class Line(Graph):
     """Line of n nodes (undirected).
 
     Parameters
@@ -114,7 +114,7 @@ class Line(BaseGraph):
         self.pos = np.array((x, y)).T
 
 
-class LineDirected(BaseGraph):
+class LineDirected(Graph):
     """Line of n nodes (undirected).
 
     Parameters
@@ -135,7 +135,7 @@ class LineDirected(BaseGraph):
         self.pos = np.array((x, y)).T
 
 
-class Cycle(BaseGraph):
+class Cycle(Graph):
     """Cycle of n nodes (undirected).
 
     Parameters
@@ -157,7 +157,7 @@ class Cycle(BaseGraph):
         self.pos = np.array((x, y)).T
 
 
-class CycleDirected(BaseGraph):
+class CycleDirected(Graph):
     """Cycle of n nodes (directed).
 
     Parameters

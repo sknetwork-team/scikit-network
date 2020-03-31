@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# tests for toys.py
+# tests for test_graphs.py
 """
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Nathan de Lara <ndelara@enst.fr>
@@ -8,23 +8,23 @@
 
 import unittest
 
-from sknetwork.data.basic import *
+from sknetwork.data.test_graphs import *
 
 
-class TestToys(unittest.TestCase):
+class TestTestGraphs(unittest.TestCase):
 
     def test_undirected(self):
-        graph = Small()
+        graph = Simple()
         self.assertEqual(graph.adjacency.shape, (10, 10))
-        graph = SmallDisconnected()
+        graph = DisSimple()
         self.assertEqual(graph.adjacency.shape, (10, 10))
 
     def test_directed(self):
-        graph = DiSmall()
+        graph = DiSimple()
         self.assertEqual(graph.adjacency.shape, (10, 10))
 
     def test_bipartite(self):
-        graph = BiSmall()
+        graph = BiSimple()
         self.assertEqual(graph.biadjacency.shape, (4, 5))
-        graph = BiSmallDisconnected()
+        graph = BiDisSimple()
         self.assertEqual(graph.biadjacency.shape, (4, 5))

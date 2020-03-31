@@ -8,7 +8,7 @@ Created on October 2019
 import unittest
 
 from sknetwork.clustering import BiKMeans, KMeans
-from sknetwork.data.basic import *
+from sknetwork.data.test_graphs import *
 from sknetwork.data import KarateClub, MovieActor
 from sknetwork.embedding import BiSpectral, Spectral
 
@@ -20,23 +20,23 @@ class TestKMeans(unittest.TestCase):
         self.bikmeans = BiKMeans(n_clusters=3, cluster_both=True)
 
     def test_undirected(self):
-        adjacency = Small().adjacency
+        adjacency = Simple().adjacency
         labels = self.kmeans.fit_transform(adjacency)
         self.assertEqual(len(set(labels)), 3)
 
     def test_directed(self):
-        adjacency = DiSmall().adjacency
+        adjacency = DiSimple().adjacency
         labels = self.kmeans.fit_transform(adjacency)
         self.assertEqual(len(set(labels)), 3)
 
     def test_bipartite(self):
-        biadjacency = BiSmall().biadjacency
+        biadjacency = BiSimple().biadjacency
         self.bikmeans.fit(biadjacency)
         labels = np.hstack((self.bikmeans.labels_row_, self.bikmeans.labels_col_))
         self.assertEqual(len(set(labels)), 3)
 
     def test_disconnected(self):
-        adjacency = SmallDisconnected().adjacency
+        adjacency = DisSimple().adjacency
         self.kmeans.n_clusters = 5
         labels = self.kmeans.fit_transform(adjacency)
         self.assertTrue(len(set(labels)), 5)

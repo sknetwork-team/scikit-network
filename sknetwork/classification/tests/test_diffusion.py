@@ -8,14 +8,14 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.classification import DiffusionClassifier, BiDiffusionClassifier
-from sknetwork.data.basic import *
+from sknetwork.data.test_graphs import *
 
 
 # noinspection DuplicatedCode
 class TestDiffusionClassifier(unittest.TestCase):
 
     def test_undirected(self):
-        adjacency = Small().adjacency
+        adjacency = Simple().adjacency
         adj_array_seeds = -np.ones(adjacency.shape[0])
         adj_array_seeds[:2] = np.arange(2)
         adj_dict_seeds = {0: 0, 1: 1}
@@ -27,7 +27,7 @@ class TestDiffusionClassifier(unittest.TestCase):
         self.assertEqual(labels2.shape[0], adjacency.shape[0])
 
     def test_bipartite(self):
-        biadjacency = BiSmall().biadjacency
+        biadjacency = BiSimple().biadjacency
         biadj_array_seeds = -np.ones(biadjacency.shape[0])
         biadj_array_seeds[:2] = np.arange(2)
         biadj_dict_seeds = {0: 0, 1: 1}

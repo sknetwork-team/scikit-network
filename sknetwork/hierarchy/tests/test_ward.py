@@ -9,7 +9,7 @@ import unittest
 
 from sknetwork.hierarchy import Ward, BiWard
 from sknetwork.embedding import GSVD, Spectral
-from sknetwork.data.basic import *
+from sknetwork.data.test_graphs import *
 
 
 class TestWard(unittest.TestCase):
@@ -19,17 +19,17 @@ class TestWard(unittest.TestCase):
         self.biward = BiWard(embedding_method=GSVD(3), cluster_col=True, cluster_both=True)
 
     def test_undirected(self):
-        adjacency = Small().adjacency
+        adjacency = Simple().adjacency
         dendrogram = self.ward.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))
 
     def test_directed(self):
-        adjacency = DiSmall().adjacency
+        adjacency = DiSimple().adjacency
         dendrogram = self.ward.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))
 
     def test_bipartite(self):
-        biadjacency = BiSmall().biadjacency
+        biadjacency = BiSimple().biadjacency
         self.biward.fit(biadjacency)
         n1, n2 = biadjacency.shape
         self.assertEqual(self.biward.dendrogram_.shape, (n1 - 1, 4))
@@ -38,12 +38,12 @@ class TestWard(unittest.TestCase):
         self.assertEqual(self.biward.dendrogram_full_.shape, (n1 + n2 - 1, 4))
 
     def test_disconnected(self):
-        adjacency = SmallDisconnected().adjacency
+        adjacency = DisSimple().adjacency
         dendrogram = self.ward.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))
 
     def test_options(self):
-        adjacency = Small().adjacency
+        adjacency = Simple().adjacency
         ward = Ward(embedding_method=Spectral(3))
         dendrogram = ward.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))

@@ -10,7 +10,7 @@ Graphs
 
 .. currentmodule:: sknetwork
 
-.. autoclass:: sknetwork.data.BaseGraph
+.. autoclass:: sknetwork.data.Graph
     :inherited-members:
     :members:
 

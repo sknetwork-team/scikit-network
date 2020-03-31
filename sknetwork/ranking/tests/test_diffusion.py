@@ -8,7 +8,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.ranking.diffusion import Diffusion, BiDiffusion
-from sknetwork.data.basic import *
+from sknetwork.data.test_graphs import *
 
 
 # noinspection DuplicatedCode,PyMissingOrEmptyDocstring
@@ -29,7 +29,7 @@ class TestDiffusion(unittest.TestCase):
         self.assertEqual(self.diffusion.scores_, [1])
 
     def test_undirected(self):
-        adjacency = Small().adjacency
+        adjacency = Simple().adjacency
 
         self.diffusion.fit(adjacency, {0: 0, 1: 1, 2: 0.5})
         score = self.diffusion.scores_
@@ -40,14 +40,14 @@ class TestDiffusion(unittest.TestCase):
         self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= 0 - self.tol))
 
     def test_directed(self):
-        adjacency = DiSmall().adjacency
+        adjacency = DiSimple().adjacency
         self.diffusion.fit(adjacency, {0: 0, 1: 1, 2: 0.5})
         score = self.diffusion.scores_
         self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= 0 - self.tol))
 
     def test_bidiffusion(self):
         bidiffusion = BiDiffusion()
-        biadjacency = BiSmall().biadjacency
+        biadjacency = BiSimple().biadjacency
         bidiffusion.fit(biadjacency, {0: 1})
         score = bidiffusion.scores_
         self.assertTrue(np.all(score <= 1) and np.all(score >= 0))

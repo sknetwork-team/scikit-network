@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# tests for toys.py
+# tests for toy_graphs.py
 """authors: Quentin Lutz <qlutz@enst.fr>"""
 
 import unittest

@@ -10,11 +10,10 @@ Created on Nov 29, 2018
 import numpy as np
 from scipy import sparse
 
-from sknetwork.data.base import BaseGraph
-from sknetwork.data.base_bipartite import BaseBiGraph
+from sknetwork.data.base import Graph, BiGraph
 
 
-class House(BaseGraph):
+class House(Graph):
     """House graph (undirected).
     5 nodes, 6 edges.
     No label.
@@ -32,7 +31,7 @@ class House(BaseGraph):
         self.pos = np.vstack((x, y)).T
 
 
-class BowTie(BaseGraph):
+class BowTie(Graph):
     """Bow tie graph (undirected).
     5 nodes, 6 edges
     No label.
@@ -50,7 +49,7 @@ class BowTie(BaseGraph):
         self.pos = np.vstack((x, y)).T
 
 
-class KarateClub(BaseGraph):
+class KarateClub(Graph):
     """Karate club graph.
     Undirected graph.
     34 nodes, 78 edges.
@@ -94,7 +93,7 @@ class KarateClub(BaseGraph):
         self.pos = np.vstack((x, y)).T
 
 
-class Miserables(BaseGraph):
+class Miserables(Graph):
     """Co-occurrence graph of the characters in the novel Les Miserables by Victor Hugo (undirected graph).
     77 nodes, 508 edges
     No label.
@@ -179,7 +178,7 @@ class Miserables(BaseGraph):
         self.pos = np.vstack((x, y)).T
 
 
-class Painters(BaseGraph):
+class Painters(Graph):
     """Graph of links between some famous painters on Wikipedia (directed).
     14 nodes, 50 edges.
     Names of painters.
@@ -213,7 +212,7 @@ class Painters(BaseGraph):
         self.pos = np.stack((x, y)).T
 
 
-class StarWars(BaseBiGraph):
+class StarWars(BiGraph):
     """Bipartite graph connecting some Star Wars villains to the movies in which they appear.
     7 nodes (4 villains, 3 movies), 8 edges.
     Names of villains and movies.
@@ -234,7 +233,7 @@ class StarWars(BaseBiGraph):
         self.pos_col, self.pos_row = self._get_position(self)
 
 
-class MovieActor(BaseBiGraph):
+class MovieActor(BiGraph):
     """Bipartite graph connecting movies to some actors starring in them.
     31 nodes (15 movies, 16 actors), 41 edges.
     Names of movies (rows) and actors (columns).
@@ -246,7 +245,7 @@ class MovieActor(BaseBiGraph):
             [0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 4, 4, 5, 5, 6,
              6, 6, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 11,
              12, 12, 12, 13, 13, 14, 14])
-        col  = np.array(
+        col = np.array(
             [0, 1, 2, 1, 2, 3, 3, 4, 5, 8, 4, 6, 0, 6, 4, 7, 4,
              7, 8, 3, 8, 9, 10, 11, 12, 15, 0, 11, 12, 9, 10, 5, 9, 13,
              1, 9, 15, 12, 14, 11, 14])

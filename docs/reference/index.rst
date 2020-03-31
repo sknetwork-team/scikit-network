@@ -6,6 +6,7 @@ Reference
 .. toctree::
 
     introduction
+    data
     clustering
     hierarchy
     embedding
@@ -13,5 +14,4 @@ Reference
     classification
     linalg
     basics
-    data
     utils

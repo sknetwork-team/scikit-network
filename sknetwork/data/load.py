@@ -19,6 +19,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.data.parse import parse_tsv, parse_labels, parse_header, parse_metadata
+from sknetwork.data import Graph, BiGraph
 from sknetwork.utils import Bunch
 
 
@@ -54,35 +55,25 @@ def clear_data_home(data_home: Optional[str] = None):
 
 
 def load_wikilinks(dataset_name: str, data_home: Optional[str] = None,
-                   max_depth: int = 1, full_path: bool = True):
-    """
-    Loads a dataset from the `WikiLinks database
+                   max_depth: int = 1, full_label: bool = True):
+    """Load a dataset from the `WikiLinks database
     <https://graphs.telecom-paristech.fr/Home_page.html#wikilinks-section>`_.
 
     Parameters
     ----------
-    dataset_name: str
+    dataset_name : str
         The name of the dataset (all lowcase). Currently, 'wikivitals' and 'wikihumans' are available.
-    data_home: str
-        The folder to be used for dataset storage
-    max_depth: int
-        Denotes the maximum depth to use for the categories (if relevant)
-    full_path: bool
-        Denotes if only the deepest label possible should be returned or if all super categories should
-        be considered (if relevant)
+    data_home : str
+        The folder to be used for dataset storage.
+    max_depth : int
+        Maximum depth to use for the labels (if relevant).
+    full_label : bool
+        If ``True``, return the full name of the label, at maximum depth;
+        otherwise, return only the deepest name in the hierarchy.
 
     Returns
     -------
-    data: :class:`Bunch`
-        An object with some of the following attributes (depending on the dataset):
-
-         * `adjacency`: the adjacency matrix of the graph in CSR format
-         * `biadjacency`: the biadjacency matrix of the graph in CSR format
-         * `feature_names`: the array of the names for the features
-         * `names`: the titles of the articles
-         * `target_names`: the categories of the articles as specified with `max_depth` and `full_path`
-         * `target`: the index for `target_names`
-
+    graph: :class:`Graph` or :class:`BiGraph`
     """
     if data_home is None:
         data_home = get_data_home()
@@ -100,35 +91,41 @@ def load_wikilinks(dataset_name: str, data_home: Optional[str] = None,
             tar_ref.extractall(data_home)
         remove(data_home + '/' + dataset_name + '_npz.tar.gz')
 
-    data = Bunch()
+    graph = None
     files = [file for file in listdir(data_path)]
 
     if 'adjacency.npz' in files:
-        data.adjacency = sparse.load_npz(data_path + '/adjacency.npz')
-    if 'biadjacency.npz' in files:
-        data.biadjacency = sparse.load_npz(data_path + '/biadjacency.npz')
+        graph = Graph()
+        graph.adjacency = sparse.load_npz(data_path + '/adjacency.npz')
+    elif 'biadjacency.npz' in files:
+        graph = BiGraph()
+        graph.biadjacency = sparse.load_npz(data_path + '/biadjacency.npz')
+        if 'feature_names.npy' in files:
+            graph.names_col = np.load(data_path + '/feature_names.npy')
+    else:
+        return graph
     if 'names.npy' in files:
-        data.names = np.load(data_path + '/names.npy')
-    if 'feature_names.npy' in files:
-        data.feature_names = np.load(data_path + '/feature_names.npy')
+        graph.names = np.load(data_path + '/names.npy')
+        if isinstance(graph, BiGraph):
+            graph.names_row = graph.names
     if 'target_names.npy' in files:
-        tmp_target_names = np.load(data_path + '/target_names.npy')
+        target_names = np.load(data_path + '/target_names.npy')
         tags = []
-        for tag in tmp_target_names:
+        for tag in target_names:
             parts = tag.strip().split('.')
-            if full_path:
+            if full_label:
                 tags.append(".".join(parts[:min(max_depth, len(parts))]))
             else:
                 tags.append(parts[:min(max_depth, len(parts))][-1])
         tags = np.array(tags)
-        data.target_names, data.target = np.unique(tags, return_inverse=True)
+        names_label, graph.labels = np.unique(tags, return_inverse=True)
+        graph.labels_name = {i: name for i, name in enumerate(names_label)}
 
-    return data
+    return graph
 
 
 def load_konect(dataset_name: str, data_home: Optional[str] = None, auto_numpy_bundle: bool = True):
-    """
-    Loads a dataset from the `Konect database
+    """Load a dataset from the `Konect database
     <http://konect.uni-koblenz.de>`_.
 
     Parameters
@@ -139,8 +136,8 @@ def load_konect(dataset_name: str, data_home: Optional[str] = None, auto_numpy_b
     data_home: str
         The folder to be used for dataset storage
     auto_numpy_bundle: bool
-        Denotes if the dataset should be stored in its default format (False) or using Numpy files for faster subsequent
-        access to the dataset (True).
+        Denotes if the dataset should be stored in its default format (False) or using Numpy files for faster
+        subsequent access to the dataset (True).
 
     Returns
     -------

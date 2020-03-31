@@ -7,7 +7,7 @@ import unittest
 from scipy import sparse
 
 from sknetwork.ranking.hits import HITS
-from sknetwork.data.basic import *
+from sknetwork.data.test_graphs import *
 
 
 # noinspection DuplicatedCode,PyMissingOrEmptyDocstring
@@ -16,19 +16,19 @@ class TestHITS(unittest.TestCase):
     def test_hits(self):
         hits = HITS()
 
-        adjacency = Small().adjacency
+        adjacency = Simple().adjacency
         n = adjacency.shape[0]
         hits.fit(adjacency)
         self.assertEqual(len(hits.scores_), n)
         self.assertEqual(len(hits.scores_col_), n)
 
-        adjacency = DiSmall().adjacency
+        adjacency = DiSimple().adjacency
         n = adjacency.shape[0]
         hits.fit(adjacency)
         self.assertEqual(len(hits.scores_), n)
         self.assertEqual(len(hits.scores_col_), n)
 
-        biadjacency = BiSmall().biadjacency
+        biadjacency = BiSimple().biadjacency
         n1, n2 = biadjacency.shape
         hits.fit(biadjacency)
         self.assertEqual(len(hits.scores_), n1)

@@ -6,7 +6,7 @@ import unittest
 
 from sknetwork import is_numba_available
 from sknetwork.clustering import Louvain, BiLouvain, modularity
-from sknetwork.data.basic import *
+from sknetwork.data.test_graphs import *
 from sknetwork.data import KarateClub
 
 
@@ -24,7 +24,7 @@ class TestLouvainClustering(unittest.TestCase):
                 Louvain(engine='numba')
 
     def test_undirected(self):
-        adjacency = Small().adjacency
+        adjacency = Simple().adjacency
         labels = self.louvain.fit_transform(adjacency)
         self.assertEqual(labels.shape, (10,))
         self.assertAlmostEqual(modularity(adjacency, labels), 0.503, 2)
@@ -34,13 +34,13 @@ class TestLouvainClustering(unittest.TestCase):
             self.assertAlmostEqual(modularity(adjacency, labels), 0.503, 2)
 
     def test_directed(self):
-        adjacency = DiSmall().adjacency
+        adjacency = DiSimple().adjacency
         labels = self.louvain.fit_transform(adjacency)
         self.assertEqual(labels.shape, (10,))
         self.assertAlmostEqual(modularity(adjacency, labels), 0.548, 2)
 
     def test_bipartite(self):
-        biadjacency = BiSmall().biadjacency
+        biadjacency = BiSimple().biadjacency
         n1, n2 = biadjacency.shape
         self.bilouvain.fit(biadjacency)
         labels_row = self.bilouvain.labels_row_

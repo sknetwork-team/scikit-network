@@ -5,14 +5,14 @@
 import unittest
 
 from sknetwork.classification import KNN
-from sknetwork.data.basic import *
+from sknetwork.data.test_graphs import *
 
 
 # noinspection DuplicatedCode
 class TestKNN(unittest.TestCase):
 
     def test_undirected(self):
-        adjacency = Small().adjacency
+        adjacency = Simple().adjacency
         adj_array_seeds = -np.ones(adjacency.shape[0])
         adj_array_seeds[:2] = np.arange(2)
         adj_dict_seeds = {0: 0, 1: 1}

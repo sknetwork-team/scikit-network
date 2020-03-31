@@ -5,7 +5,7 @@
 import unittest
 
 from sknetwork.embedding import Spectral, BiSpectral, SVD, GSVD
-from sknetwork.data.basic import *
+from sknetwork.data.test_graphs import *
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -16,7 +16,7 @@ class TestEmbeddings(unittest.TestCase):
         self.bimethods = [BiSpectral(), SVD(), GSVD()]
 
     def test_undirected(self):
-        adjacency = Small().adjacency
+        adjacency = Simple().adjacency
         n = adjacency.shape[0]
         for method in self.methods:
             embedding = method.fit_transform(adjacency)
@@ -27,7 +27,7 @@ class TestEmbeddings(unittest.TestCase):
             #self.assertAlmostEqual(error, 0)
 
     def test_directed(self):
-        adjacency = DiSmall().adjacency
+        adjacency = DiSimple().adjacency
         n = adjacency.shape[0]
         for method in self.bimethods:
             method.fit(adjacency)
@@ -40,7 +40,7 @@ class TestEmbeddings(unittest.TestCase):
             #self.assertAlmostEqual(error, 0)
 
     def test_bipartite(self):
-        biadjacency = BiSmall().biadjacency
+        biadjacency = BiSimple().biadjacency
         n1, n2 = biadjacency.shape
         for method in self.bimethods:
             method.fit(biadjacency)
@@ -59,7 +59,7 @@ class TestEmbeddings(unittest.TestCase):
             self.assertEqual(embedding.shape, (10, 2))
 
     def test_spectral_options(self):
-        adjacency = Small().adjacency
+        adjacency = Simple().adjacency
         n = adjacency.shape[0]
         k = 5
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# tests for toys.py
+# tests for toy_graphs.py
 """
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Nathan de Lara <ndelara@enst.fr>
@@ -8,7 +8,7 @@
 
 import unittest
 
-from sknetwork.data.toys import House, BowTie, KarateClub, Miserables, Painters, StarWars, MovieActor
+from sknetwork.data.toy_graphs import House, BowTie, KarateClub, Miserables, Painters, StarWars, MovieActor
 
 
 class TestToys(unittest.TestCase):

@@ -6,7 +6,7 @@ import unittest
 
 from sknetwork.embedding import GSVD
 from sknetwork.embedding.metrics import cosine_modularity
-from sknetwork.data.basic import *
+from sknetwork.data.test_graphs import *
 
 
 class TestClusteringMetrics(unittest.TestCase):
@@ -15,7 +15,7 @@ class TestClusteringMetrics(unittest.TestCase):
         self.method = GSVD(3, solver='lanczos')
 
     def test_undirected(self):
-        adjacency = SmallDisconnected().adjacency
+        adjacency = DisSimple().adjacency
         embedding = self.method.fit_transform(adjacency)
         fit, div, modularity = cosine_modularity(adjacency, embedding, return_all=True)
         self.assertAlmostEqual(modularity, 0.07, 2)
@@ -23,7 +23,7 @@ class TestClusteringMetrics(unittest.TestCase):
         self.assertAlmostEqual(div, 0.826, 2)
 
     def test_directed(self):
-        adjacency = DiSmall().adjacency
+        adjacency = DiSimple().adjacency
         embedding = self.method.fit_transform(adjacency)
         fit, div, modularity = cosine_modularity(adjacency, embedding, return_all=True)
         self.assertAlmostEqual(modularity, 0.16, 1)
@@ -31,7 +31,7 @@ class TestClusteringMetrics(unittest.TestCase):
         self.assertAlmostEqual(div, 0.55, 1)
 
     def test_bipartite(self):
-        biadjacency = BiSmall().biadjacency
+        biadjacency = BiSimple().biadjacency
         embedding = self.method.fit_transform(biadjacency)
         embedding_col = self.method.embedding_col_
         fit, div, modularity = cosine_modularity(biadjacency, embedding, embedding_col, return_all=True)

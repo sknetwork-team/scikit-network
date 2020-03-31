@@ -10,18 +10,17 @@ Created on Nov 29, 2018
 import numpy as np
 from scipy import sparse
 
-from sknetwork.data.base import BaseGraph
-from sknetwork.data.base_bipartite import BaseBiGraph
+from sknetwork.data.base import Graph, BiGraph
 
 
-class Small(BaseGraph):
-    """Small graph (undirected), used for testing.
+class Simple(Graph):
+    """Simple graph (undirected), used for testing.
     10 nodes, 10 edges.
     No label.
     """
 
     def __init__(self):
-        super(Small, self).__init__()
+        super(Simple, self).__init__()
 
         row = np.array([0, 1, 3, 2, 6, 6, 6, 7, 8, 9])
         col = np.array([1, 3, 2, 5, 4, 5, 7, 9, 9, 9])
@@ -30,14 +29,14 @@ class Small(BaseGraph):
         self.adjacency = adjacency + adjacency.T
 
 
-class DiSmall(BaseGraph):
-    """Small graph (directed), used for testing.
+class DiSimple(Graph):
+    """Simple graph (directed), used for testing.
     10 nodes, 10 edges
     No label.
     """
 
     def __init__(self):
-        super(DiSmall, self).__init__()
+        super(DiSimple, self).__init__()
 
         row = np.array([0, 1, 3, 4, 6, 6, 6, 7, 8, 9])
         col = np.array([1, 3, 2, 5, 4, 5, 7, 9, 9, 9])
@@ -46,14 +45,14 @@ class DiSmall(BaseGraph):
         self.adjacency = adjacency
 
 
-class BiSmall(BaseBiGraph):
-    """Small graph (bipartite), used for testing.
+class BiSimple(BiGraph):
+    """Simple graph (bipartite), used for testing.
     4 + 5 nodes, 6 edges.
     No label.
     """
 
     def __init__(self):
-        super(BiSmall, self).__init__()
+        super(BiSimple, self).__init__()
 
         row = np.array([0, 1, 1, 2, 2, 3])
         col = np.array([1, 2, 3, 1, 0, 4])
@@ -62,14 +61,14 @@ class BiSmall(BaseBiGraph):
         self.biadjacency = biadjacency
 
 
-class SmallDisconnected(BaseGraph):
-    """Small graph (undirected), used for testing.
+class DisSimple(Graph):
+    """Simple disconnected graph (undirected), used for testing.
     10 nodes, 10 edges.
     No label.
     """
 
     def __init__(self):
-        super(SmallDisconnected, self).__init__()
+        super(DisSimple, self).__init__()
 
         row = np.array([1, 2, 3, 4, 6, 6, 6, 7, 8, 9])
         col = np.array([1, 3, 2, 5, 4, 5, 7, 9, 9, 9])
@@ -78,14 +77,14 @@ class SmallDisconnected(BaseGraph):
         self.adjacency = adjacency + adjacency.T
 
 
-class BiSmallDisconnected(BaseBiGraph):
-    """Small graph (bipartite), used for testing.
+class BiDisSimple(BiGraph):
+    """Simple disconnected graph (bipartite), used for testing.
     4 + 5 nodes, 6 edges.
     No label.
     """
 
     def __init__(self):
-        super(BiSmallDisconnected, self).__init__()
+        super(BiDisSimple, self).__init__()
 
         row = np.array([1, 1, 1, 2, 2, 3])
         col = np.array([1, 2, 3, 1, 3, 4])

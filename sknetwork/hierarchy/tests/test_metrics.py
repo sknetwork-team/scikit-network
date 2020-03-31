@@ -8,7 +8,7 @@ Created on March 2019
 import unittest
 
 from sknetwork.hierarchy import Paris, tree_sampling_divergence, dasgupta_score
-from sknetwork.data.basic import *
+from sknetwork.data.test_graphs import *
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -18,25 +18,25 @@ class TestMetrics(unittest.TestCase):
         self.paris = Paris(engine='python')
 
     def test_undirected(self):
-        adjacency = Small().adjacency
+        adjacency = Simple().adjacency
         dendrogram = self.paris.fit_transform(adjacency)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.697, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.605, 2)
 
     def test_directed(self):
-        adjacency = DiSmall().adjacency
+        adjacency = DiSimple().adjacency
         dendrogram = self.paris.fit_transform(adjacency)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.711, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.613, 2)
 
     def test_disconnected(self):
-        adjacency = SmallDisconnected().adjacency
+        adjacency = DisSimple().adjacency
         dendrogram = self.paris.fit_transform(adjacency)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.752, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.627, 2)
 
     def test_options(self):
-        adjacency = Small().adjacency
+        adjacency = Simple().adjacency
         dendrogram = self.paris.fit_transform(adjacency)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram, weights='degree'), 0.698, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram, weights='uniform'), 0.436, 2)
