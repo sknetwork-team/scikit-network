@@ -27,7 +27,7 @@ def block_model(clusters: Union[np.ndarray, int], shape: Optional[Tuple[int, int
          or an int denoting the number of clusters). If an ``int`` is passed, ``shape`` must be given and
          the clusters are identical in shape.
     shape : Optional[Tuple[int]]
-        The size of the adjacency to obtain (might be rectangular for a biadjacency matrix).
+        The size of the adjacency or biadjacency matrix.
     inner_prob : float
         Intra-cluster connection probability.
     outer_prob : float
@@ -40,7 +40,7 @@ def block_model(clusters: Union[np.ndarray, int], shape: Optional[Tuple[int, int
     Returns
     -------
     adjacency or graph : Union[sparse.csr_matrix, Bunch]
-        Adjacency matrix or graph with metadata (labels).
+        Adjacency / biadjacency matrix or graph with metadata (labels).
     """
     check_is_proba(inner_prob)
     check_is_proba(outer_prob)

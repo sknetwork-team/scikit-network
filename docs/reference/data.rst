@@ -8,15 +8,9 @@ Sources and tools for importing data.
 Toy graphs
 **********
 
-Synthetic data
---------------
-
 .. autofunction:: sknetwork.data.house
 
 .. autofunction:: sknetwork.data.bow_tie
-
-Real-world data
----------------
 
 .. autofunction:: sknetwork.data.karate_club
 

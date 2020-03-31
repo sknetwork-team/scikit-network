@@ -97,11 +97,11 @@ class BiWard(BaseHierarchy):
 
     Examples
     --------
-    >>> from sknetwork.data import star_wars
+    >>> from sknetwork.data import movie_actor
     >>> biward = BiWard()
-    >>> biadjacency = star_wars()
+    >>> biadjacency = movie_actor()
     >>> biward.fit_transform(biadjacency).shape
-    (3, 4)
+    (14, 4)
 
     References
     ----------

@@ -76,10 +76,10 @@ class GSVD(BaseEmbedding):
 
     Example
     -------
-    >>> gsvd = GSVD()
-    >>> embedding = gsvd.fit_transform(np.ones((5,4)))
+    >>> gsvd = GSVD(3)
+    >>> embedding = gsvd.fit_transform(np.ones((6,4)))
     >>> embedding.shape
-    (5, 2)
+    (6, 3)
 
     References
     ----------
@@ -307,10 +307,10 @@ class SVD(GSVD):
 
     Example
     -------
-    >>> svd = SVD()
-    >>> embedding = svd.fit_transform(np.ones((5,4)))
+    >>> svd = SVD(3)
+    >>> embedding = svd.fit_transform(np.ones((6,5)))
     >>> embedding.shape
-    (5, 2)
+    (6, 3)
 
     References
     ----------

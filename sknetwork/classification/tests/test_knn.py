@@ -17,7 +17,7 @@ class TestKNN(unittest.TestCase):
         adj_array_seeds[:2] = np.arange(2)
         adj_dict_seeds = {0: 0, 1: 1}
 
-        knn = KNN()
+        knn = KNN(n_neighbors=2)
         labels1 = knn.fit_transform(adjacency, adj_array_seeds)
         labels2 = knn.fit_transform(adjacency, adj_dict_seeds)
         self.assertTrue(np.allclose(labels1, labels2))

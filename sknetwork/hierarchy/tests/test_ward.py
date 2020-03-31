@@ -16,7 +16,7 @@ class TestWard(unittest.TestCase):
 
     def setUp(self):
         self.ward = Ward(embedding_method=GSVD(3))
-        self.biward = BiWard(embedding_method=GSVD(3), cluster_col=True, cluster_both=True)
+        self.biward = BiWard(embedding_method=GSVD(2), cluster_col=True, cluster_both=True)
 
     def test_undirected(self):
         adjacency = test_graph()
