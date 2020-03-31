@@ -14,8 +14,8 @@ from scipy import sparse
 
 from sknetwork import njit, types, TypedDict
 from sknetwork.hierarchy.base import BaseHierarchy
-from sknetwork.utils.formats import bipartite2undirected
-from sknetwork.utils.checks import check_engine, check_format, check_probs, is_square
+from sknetwork.utils.format import bipartite2undirected
+from sknetwork.utils.check import check_engine, check_format, check_probs, is_square
 
 
 class AggregateGraph:
@@ -347,10 +347,10 @@ class Paris(BaseHierarchy):
 
     Examples
     --------
-    >>> from sknetwork.data import house
-    >>> adjacency = house()
+    >>> from sknetwork.data import House
     >>> paris = Paris(engine='python')
-    >>> paris.fit(adjacency).dendrogram_
+    >>> adjacency = House().adjacency
+    >>> paris.fit_transform(adjacency)
     array([[3.        , 2.        , 0.16666667, 2.        ],
            [1.        , 0.        , 0.25      , 2.        ],
            [6.        , 4.        , 0.3125    , 3.        ],
@@ -560,9 +560,9 @@ class BiParis(Paris):
 
     Examples
     --------
-    >>> from sknetwork.data import star_wars_villains
-    >>> biadjacency = star_wars_villains()
+    >>> from sknetwork.data import StarWars
     >>> biparis = BiParis(engine='python')
+    >>> biadjacency = StarWars().biadjacency
     >>> biparis.fit_transform(biadjacency).shape
     (3, 4)
 

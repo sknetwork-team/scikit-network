@@ -8,17 +8,17 @@ Utils
 Graph formats
 -------------
 
-.. autofunction:: sknetwork.utils.formats.bipartite2directed
+.. autofunction:: sknetwork.utils.format.bipartite2directed
 
-.. autofunction:: sknetwork.utils.formats.bipartite2undirected
+.. autofunction:: sknetwork.utils.format.bipartite2undirected
 
-.. autofunction:: sknetwork.utils.formats.directed2undirected
+.. autofunction:: sknetwork.utils.format.directed2undirected
 
 
 Checks
 ------
 
-.. automodule:: sknetwork.utils.checks
+.. automodule:: sknetwork.utils.check
     :members:
 
 
@@ -28,7 +28,7 @@ Algorithms
 .. autoclass:: sknetwork.utils.kmeans.KMeansDense
     :members:
 
-.. autofunction:: sknetwork.utils.projection_simplex.projection_simplex
+.. autofunction:: sknetwork.utils.simplex.projection_simplex
 
 .. autoclass:: sknetwork.utils.ward.WardDense
     :members:

@@ -11,7 +11,8 @@ from typing import Union, Tuple, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork.utils.checks import check_is_proba, check_random_state
+from sknetwork.data import BaseGraph
+from sknetwork.utils.check import check_is_proba, check_random_state
 
 
 def block_model(clusters: Union[np.ndarray, int], shape: Optional[Tuple[int, int]] = None, inner_prob: float = .2,
@@ -90,3 +91,90 @@ def block_model(clusters: Union[np.ndarray, int], shape: Optional[Tuple[int, int
             mat[row, (random_state.rand(n_cols) < mask)] = True
 
     return sparse.csr_matrix(mat), ground_truth_features, ground_truth_samples
+
+
+class Line(BaseGraph):
+    """Line of n nodes (undirected).
+
+    Parameters
+    ----------
+    n :
+        Number of nodes.
+    """
+    def __init__(self, n: int = 3):
+        super(Line, self).__init__()
+
+        row = np.arange(n - 1)
+        col = np.arange(1, n)
+        adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(n, n))
+        x = np.arange(n)
+        y = np.zeros(n)
+
+        self.adjacency = adjacency + adjacency.T
+        self.pos = np.array((x, y)).T
+
+
+class LineDirected(BaseGraph):
+    """Line of n nodes (undirected).
+
+    Parameters
+    ----------
+    n :
+        Number of nodes.
+    """
+    def __init__(self, n: int = 3):
+        super(LineDirected, self).__init__()
+
+        row = np.arange(n - 1)
+        col = np.arange(1, n)
+        adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(n, n))
+        x = np.arange(n)
+        y = np.zeros(n)
+
+        self.adjacency = adjacency
+        self.pos = np.array((x, y)).T
+
+
+class Cycle(BaseGraph):
+    """Cycle of n nodes (undirected).
+
+    Parameters
+    ----------
+    n :
+        Number of nodes.
+    """
+    def __init__(self, n: int = 3):
+        super(Cycle, self).__init__()
+
+        row = np.arange(n)
+        col = np.array(list(np.arange(1, n)) + [0])
+        adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(n, n))
+        t = 2 * 3.14 * np.arange(n).astype(float) / n
+        x = np.cos(t)
+        y = np.sin(t)
+
+        self.adjacency = adjacency + adjacency.T
+        self.pos = np.array((x, y)).T
+
+
+class CycleDirected(BaseGraph):
+    """Cycle of n nodes (directed).
+
+    Parameters
+    ----------
+    n :
+        Number of nodes.
+    """
+
+    def __init__(self, n: int = 3):
+        super(CycleDirected, self).__init__()
+
+        row = np.arange(n)
+        col = np.array(list(np.arange(1, n)) + [0])
+        adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(n, n))
+        t = 2 * 3.14 * np.arange(n).astype(float) / n
+        x = np.cos(t)
+        y = np.sin(t)
+
+        self.adjacency = adjacency
+        self.pos = np.array((x, y)).T

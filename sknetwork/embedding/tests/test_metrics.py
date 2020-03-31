@@ -4,30 +4,37 @@
 
 import unittest
 
-import numpy as np
-from scipy import sparse
-
+from sknetwork.embedding import GSVD
 from sknetwork.embedding.metrics import cosine_modularity
-from sknetwork.data import star_wars_villains
+from sknetwork.data.basic import *
 
 
 class TestClusteringMetrics(unittest.TestCase):
 
-    def test_cosine_modularity(self):
-        self.graph = sparse.csr_matrix(np.array([[0, 1, 1, 1],
-                                                 [1, 0, 0, 0],
-                                                 [1, 0, 0, 1],
-                                                 [1, 0, 1, 0]]))
-        self.bipartite: sparse.csr_matrix = star_wars_villains()
-        self.embedding = np.ones((4, 2))
-        self.features = np.ones((3, 2))
+    def setUp(self):
+        self.method = GSVD(3, solver='lanczos')
 
-        self.assertAlmostEqual(cosine_modularity(self.graph, self.embedding), 0.)
-        fit, div, modularity = cosine_modularity(self.graph, self.embedding, return_all=True)
-        self.assertAlmostEqual(fit, 1.)
-        self.assertAlmostEqual(div, 1.)
+    def test_undirected(self):
+        adjacency = SmallDisconnected().adjacency
+        embedding = self.method.fit_transform(adjacency)
+        fit, div, modularity = cosine_modularity(adjacency, embedding, return_all=True)
+        self.assertAlmostEqual(modularity, 0.07, 2)
+        self.assertAlmostEqual(fit, 0.894, 2)
+        self.assertAlmostEqual(div, 0.826, 2)
 
-        self.assertAlmostEqual(cosine_modularity(self.bipartite, self.embedding, self.features), 0.)
-        fit, div, modularity = cosine_modularity(self.bipartite, self.embedding, self.features, return_all=True)
-        self.assertAlmostEqual(fit, 1.)
-        self.assertAlmostEqual(div, 1.)
+    def test_directed(self):
+        adjacency = DiSmall().adjacency
+        embedding = self.method.fit_transform(adjacency)
+        fit, div, modularity = cosine_modularity(adjacency, embedding, return_all=True)
+        self.assertAlmostEqual(modularity, 0.16, 1)
+        self.assertAlmostEqual(fit, 0.71, 1)
+        self.assertAlmostEqual(div, 0.55, 1)
+
+    def test_bipartite(self):
+        biadjacency = BiSmall().biadjacency
+        embedding = self.method.fit_transform(biadjacency)
+        embedding_col = self.method.embedding_col_
+        fit, div, modularity = cosine_modularity(biadjacency, embedding, embedding_col, return_all=True)
+        self.assertAlmostEqual(modularity, 0.302, 2)
+        self.assertAlmostEqual(fit, 1., 2)
+        self.assertAlmostEqual(div, 0.697, 2)

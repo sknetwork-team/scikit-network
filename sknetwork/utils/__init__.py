@@ -1,8 +1,8 @@
 """utils module"""
-from sknetwork.utils.formats import *
+from sknetwork.utils.format import *
 from sknetwork.utils.kmeans import KMeansDense
 from sknetwork.utils.knn import KNNDense, PNNDense
-from sknetwork.utils.projection_simplex import projection_simplex
+from sknetwork.utils.simplex import projection_simplex
 from sknetwork.utils.ward import WardDense
 
 

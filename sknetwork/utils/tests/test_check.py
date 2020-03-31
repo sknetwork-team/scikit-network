@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tests for checks.py"""
+"""tests for check.py"""
 
 import unittest
 
-from sknetwork.data import rock_paper_scissors
-from sknetwork.utils.formats import *
-from sknetwork.utils.checks import has_nonnegative_entries, has_positive_entries,\
+from sknetwork.data import CycleDirected
+from sknetwork.utils.format import *
+from sknetwork.utils.check import has_nonnegative_entries, has_positive_entries,\
     is_proba_array, make_weights, check_engine, check_is_proba, check_weights,\
     check_random_state, check_seeds, check_labels, check_n_jobs
 
@@ -15,7 +15,7 @@ from sknetwork.utils.checks import has_nonnegative_entries, has_positive_entries
 class TestChecks(unittest.TestCase):
 
     def setUp(self):
-        self.adjacency = rock_paper_scissors()
+        self.adjacency = CycleDirected(3).adjacency
         self.dense_mat = np.identity(3)
 
     def test_non_negative_entries(self):

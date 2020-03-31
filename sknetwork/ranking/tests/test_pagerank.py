@@ -7,15 +7,16 @@ import unittest
 import numpy as np
 
 from sknetwork.ranking.pagerank import PageRank, BiPageRank
-from sknetwork.data import rock_paper_scissors, movie_actor
+from sknetwork.data.basic import *
+from sknetwork.data.models import CycleDirected
 
 
 # noinspection PyMissingOrEmptyDocstring
 class TestPageRank(unittest.TestCase):
 
-    def test_pagerank(self):
+    def test_directed(self):
+        adjacency = CycleDirected(3).adjacency
         ground_truth = np.ones(3) / 3
-        adjacency = rock_paper_scissors()
 
         pagerank_sps = PageRank(solver='spsolve')
         pagerank_sps.fit(adjacency)
@@ -45,7 +46,7 @@ class TestPageRank(unittest.TestCase):
 
     def test_bipartite(self):
         bipagerank = BiPageRank()
-        biadjacency = movie_actor()
+        biadjacency = BiSmall().biadjacency
         n1, n2 = biadjacency.shape
 
         bipagerank.fit(biadjacency, {0: 1})

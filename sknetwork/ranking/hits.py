@@ -12,7 +12,7 @@ from scipy import sparse
 
 from sknetwork.linalg import SVDSolver, HalkoSVD, LanczosSVD, auto_solver
 from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.checks import check_format
+from sknetwork.utils.check import check_format
 
 
 class HITS(BaseRanking):

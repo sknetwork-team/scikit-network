@@ -38,8 +38,8 @@ class KMeans(BaseClustering):
 
     Example
     -------
-    >>> from sknetwork.data import karate_club
-    >>> adjacency = karate_club()
+    >>> from sknetwork.data import KarateClub
+    >>> adjacency = KarateClub().adjacency
     >>> kmeans = KMeans(n_clusters=3)
     >>> len(set(kmeans.fit_transform(adjacency)))
     3
@@ -115,6 +115,14 @@ class BiKMeans(KMeans):
         Labels of the columns. Only valid if **cluster_both** = `True`.
     biadjacency_ : sparse.csr_matrix
         Biadjacency matrix of the graph between clusters. Only valid if **return_graph** = `True`.
+
+    Example
+    -------
+    >>> from sknetwork.data import MovieActor
+    >>> biadjacency = MovieActor().biadjacency
+    >>> bikmeans = BiKMeans(n_clusters=3)
+    >>> len(set(bikmeans.fit_transform(biadjacency)))
+    3
     """
 
     def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10), cluster_both: bool = False,

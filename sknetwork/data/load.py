@@ -18,7 +18,7 @@ from urllib.request import urlretrieve
 import numpy as np
 from scipy import sparse
 
-from sknetwork.data.parsing import parse_tsv, parse_labels, parse_header, parse_metadata
+from sknetwork.data.parse import parse_tsv, parse_labels, parse_header, parse_metadata
 from sknetwork.utils import Bunch
 
 
@@ -53,8 +53,8 @@ def clear_data_home(data_home: Optional[str] = None):
     shutil.rmtree(data_home)
 
 
-def load_wikilinks_dataset(dataset_name: str, data_home: Optional[str] = None,
-                           max_depth: int = 1, full_path: bool = True):
+def load_wikilinks(dataset_name: str, data_home: Optional[str] = None,
+                   max_depth: int = 1, full_path: bool = True):
     """
     Loads a dataset from the `WikiLinks database
     <https://graphs.telecom-paristech.fr/Home_page.html#wikilinks-section>`_.
@@ -126,7 +126,7 @@ def load_wikilinks_dataset(dataset_name: str, data_home: Optional[str] = None,
     return data
 
 
-def load_konect_dataset(dataset_name: str, data_home: Optional[str] = None, auto_numpy_bundle: bool = True):
+def load_konect(dataset_name: str, data_home: Optional[str] = None, auto_numpy_bundle: bool = True):
     """
     Loads a dataset from the `Konect database
     <http://konect.uni-koblenz.de>`_.

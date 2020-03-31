@@ -4,18 +4,15 @@
 
 import unittest
 
-import numpy as np
-from scipy import sparse
-
 from sknetwork.classification import PageRankClassifier, BiPageRankClassifier
-from sknetwork.data import painters, movie_actor
+from sknetwork.data.basic import *
 
 
 # noinspection DuplicatedCode
 class TestPageRankClassifier(unittest.TestCase):
 
     def test_undirected(self):
-        adjacency: sparse.csr_matrix = painters()
+        adjacency = Small().adjacency
         adj_array_seeds = -np.ones(adjacency.shape[0])
         adj_array_seeds[:2] = np.arange(2)
         adj_dict_seeds = {0: 0, 1: 1}
@@ -27,7 +24,7 @@ class TestPageRankClassifier(unittest.TestCase):
         self.assertEqual(labels2.shape[0], adjacency.shape[0])
 
     def test_bipartite(self):
-        biadjacency: sparse.csr_matrix = movie_actor()
+        biadjacency = BiSmall().biadjacency
         biadj_array_seeds = -np.ones(biadjacency.shape[0])
         biadj_array_seeds[:2] = np.arange(2)
         biadj_dict_seeds = {0: 0, 1: 1}

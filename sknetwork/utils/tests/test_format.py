@@ -1,42 +1,37 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tests for formats.py"""
+"""tests for format.py"""
 
 import unittest
 
-from sknetwork.data import star_wars_villains, rock_paper_scissors, house
-from sknetwork.utils.formats import *
-from sknetwork.utils.checks import is_symmetric
+from sknetwork.data import StarWars, House, CycleDirected
+from sknetwork.utils.format import *
+from sknetwork.utils.check import is_symmetric
 
 
 # noinspection PyMissingOrEmptyDocstring
 class TestFormats(unittest.TestCase):
 
     def setUp(self):
-        self.biadjacency = star_wars_villains(return_labels=False)
+        self.biadjacency = StarWars().biadjacency
 
     def test_dir2undir(self):
-        self.adjacency = rock_paper_scissors()
-        undirected_graph = directed2undirected(self.adjacency)
-        self.assertEqual(undirected_graph.shape, self.adjacency.shape)
+        adjacency = CycleDirected(3).adjacency
+        undirected_graph = directed2undirected(adjacency)
+        self.assertEqual(undirected_graph.shape, adjacency.shape)
         self.assertTrue(is_symmetric(undirected_graph))
 
-        self.house = house()
-        error = 0.5 * directed2undirected(self.house) - self.house
+        adjacency = House().adjacency
+        error = 0.5 * directed2undirected(adjacency) - adjacency
         self.assertEqual(error.nnz, 0)
-
-        n, m = self.adjacency.shape
-        slr = SparseLR(self.adjacency, [(np.ones(n), np.ones(m))])
-        undirected_graph = directed2undirected(slr)
-        self.assertTrue(type(undirected_graph) == SparseLR)
 
     def test_bip2dir(self):
         n_nodes = self.biadjacency.shape[0] + self.biadjacency.shape[1]
         directed_graph = bipartite2directed(self.biadjacency)
         self.assertEqual(directed_graph.shape, (n_nodes, n_nodes))
 
-        n, m = self.biadjacency.shape
-        slr = SparseLR(self.biadjacency, [(np.ones(n), np.ones(m))])
+        n1, n2 = self.biadjacency.shape
+        slr = SparseLR(self.biadjacency, [(np.ones(n1), np.ones(n2))])
         directed_graph = bipartite2directed(slr)
         self.assertTrue(type(directed_graph) == SparseLR)
 
@@ -46,7 +41,7 @@ class TestFormats(unittest.TestCase):
         self.assertEqual(undirected_graph.shape, (n_nodes, n_nodes))
         self.assertTrue(is_symmetric(undirected_graph))
 
-        n, m = self.biadjacency.shape
-        slr = SparseLR(self.biadjacency, [(np.ones(n), np.ones(m))])
+        n1, n2 = self.biadjacency.shape
+        slr = SparseLR(self.biadjacency, [(np.ones(n1), np.ones(n2))])
         undirected_graph = bipartite2undirected(slr)
         self.assertTrue(type(undirected_graph) == SparseLR)

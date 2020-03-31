@@ -14,7 +14,7 @@ from scipy import sparse
 
 from sknetwork.classification import BaseClassifier
 from sknetwork.ranking import BaseRanking
-from sknetwork.utils.checks import check_seeds, check_labels
+from sknetwork.utils.check import check_seeds, check_labels
 from sknetwork.utils.verbose import VerboseMixin
 
 

@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 
 from sknetwork.linalg import LanczosEig, HalkoEig, SparseLR
-from sknetwork.data import miserables, karate_club
+from sknetwork.data import Miserables, KarateClub
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -20,7 +20,7 @@ def eigenvector_err(matrix, eigenvectors, eigenvalues):
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):
-        self.adjacency = miserables()
+        self.adjacency = Miserables().adjacency
         self.random_state = np.random.RandomState(123)
         n = self.adjacency.shape[0]
         x = np.random.random(n)
@@ -36,11 +36,11 @@ class TestSolvers(unittest.TestCase):
         self.assertEqual(len(solver.eigenvalues_), 2)
         self.assertAlmostEqual(eigenvector_err(self.slr, solver.eigenvectors_, solver.eigenvalues_), 0)
 
-        karate = karate_club()
+        adjacency = KarateClub().adjacency
         solver = LanczosEig('SM')
-        solver.fit(karate, 2)
+        solver.fit(adjacency, 2)
         self.assertEqual(len(solver.eigenvalues_), 2)
-        self.assertAlmostEqual(eigenvector_err(karate, solver.eigenvectors_, solver.eigenvalues_), 0)
+        self.assertAlmostEqual(eigenvector_err(adjacency, solver.eigenvectors_, solver.eigenvalues_), 0)
 
     def test_halko(self):
         solver = HalkoEig('LM', random_state=self.random_state)

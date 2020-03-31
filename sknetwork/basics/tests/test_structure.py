@@ -8,17 +8,17 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.basics.structure import largest_connected_component, is_bipartite
-from sknetwork.data import star_wars_villains, rock_paper_scissors
-from sknetwork.utils.formats import bipartite2undirected, directed2undirected
+from sknetwork.data import StarWars, CycleDirected
+from sknetwork.utils.format import bipartite2undirected, directed2undirected
 
 
 # noinspection PyMissingOrEmptyDocstring
 class TestStructure(unittest.TestCase):
     def setUp(self):
-        self.biadjacency = star_wars_villains()
+        self.biadjacency = StarWars().biadjacency
 
     def test_largest_cc(self):
-        self.adjacency = rock_paper_scissors()
+        self.adjacency = CycleDirected(3).adjacency
         self.adjacency += self.adjacency.T
         largest_cc, indices = largest_connected_component(self.adjacency, return_labels=True)
         self.assertAlmostEqual(np.linalg.norm(largest_cc.toarray() - np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]])), 0)
@@ -46,7 +46,7 @@ class TestStructure(unittest.TestCase):
         bipartite = is_bipartite(self.not_bipartite)
         self.assertEqual(bipartite, False)
 
-        self.not_bipartite = directed2undirected(rock_paper_scissors())
+        self.not_bipartite = directed2undirected(CycleDirected(3).adjacency)
         bipartite, biadjacency = is_bipartite(self.not_bipartite, return_biadjacency=True)
         self.assertEqual(bipartite, False)
         self.assertIsNone(biadjacency)

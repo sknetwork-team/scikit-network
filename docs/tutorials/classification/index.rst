@@ -4,7 +4,7 @@ Classification
 
 .. toctree::
 
-   maxrank
-   maxdiff
+   diffusion
+   pagerank
 
 

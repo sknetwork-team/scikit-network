@@ -7,10 +7,8 @@ Created on March 2019
 
 import unittest
 
-import numpy as np
-
 from sknetwork.hierarchy import Paris, tree_sampling_divergence, dasgupta_score
-from sknetwork.data import karate_club, painters
+from sknetwork.data.basic import *
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -20,26 +18,26 @@ class TestMetrics(unittest.TestCase):
         self.paris = Paris(engine='python')
 
     def test_undirected(self):
-        adjacency = karate_club()
+        adjacency = Small().adjacency
         dendrogram = self.paris.fit_transform(adjacency)
-        self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), .666, 2)
-        self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), .487, 2)
+        self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.697, 2)
+        self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.605, 2)
 
     def test_directed(self):
-        adjacency = painters()
+        adjacency = DiSmall().adjacency
         dendrogram = self.paris.fit_transform(adjacency)
-        self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), .584, 2)
-        self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), .468, 2)
+        self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.711, 2)
+        self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.613, 2)
 
     def test_disconnected(self):
-        adjacency = np.eye(10)
+        adjacency = SmallDisconnected().adjacency
         dendrogram = self.paris.fit_transform(adjacency)
-        self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 1, 2)
-        self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0, 2)
+        self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.752, 2)
+        self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.627, 2)
 
     def test_options(self):
-        adjacency = karate_club()
+        adjacency = Small().adjacency
         dendrogram = self.paris.fit_transform(adjacency)
-        self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram, weights='degree'), .656, 2)
-        self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram, weights='uniform'), .326, 2)
-        self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram, normalized=False), .717, 2)
+        self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram, weights='degree'), 0.698, 2)
+        self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram, weights='uniform'), 0.436, 2)
+        self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram, normalized=False), 0.894, 2)

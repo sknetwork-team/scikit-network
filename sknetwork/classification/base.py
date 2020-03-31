@@ -10,7 +10,7 @@ from sknetwork.utils.base import Algorithm
 
 
 class BaseClassifier(Algorithm, ABC):
-    """Base class for classifiers"""
+    """Base class for classifiers."""
 
     def __init__(self):
         self.labels_ = None

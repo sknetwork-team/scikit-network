@@ -11,7 +11,7 @@ import unittest
 import numpy as np
 
 from sknetwork.hierarchy import Paris, cut_straight, cut_balanced
-from sknetwork.data import karate_club
+from sknetwork.data import KarateClub
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -19,7 +19,7 @@ class TestCuts(unittest.TestCase):
 
     def setUp(self):
         paris = Paris(engine='python')
-        adjacency = karate_club()
+        adjacency = KarateClub().adjacency
         self.dendrogram = paris.fit_transform(adjacency)
 
     def test_cuts(self):

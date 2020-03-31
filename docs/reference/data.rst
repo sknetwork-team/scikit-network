@@ -3,52 +3,81 @@
 Data
 ####
 
-Sources and tools for importing synthetic and real data.
+Sources and tools for importing data.
+
+Graphs
+******
+
+.. currentmodule:: sknetwork
+
+.. autoclass:: sknetwork.data.BaseGraph
+    :inherited-members:
+    :members:
 
 Toy graphs
 **********
 
-.. currentmodule:: sknetwork
-
 Synthetic data
 --------------
 
-.. autofunction:: sknetwork.data.bow_tie
+.. autoclass:: sknetwork.data.House
+    :inherited-members:
+    :members:
 
-.. autofunction:: sknetwork.data.house
-
-.. autofunction:: sknetwork.data.simple_directed_graph
-
-.. autofunction:: sknetwork.data.rock_paper_scissors
-
-.. autofunction:: sknetwork.data.line_graph
-
-.. autofunction:: sknetwork.data.simple_bipartite_graph
+.. autoclass:: sknetwork.data.BowTie
+    :inherited-members:
+    :members:
 
 Real-world data
 ---------------
 
-.. autofunction:: sknetwork.data.karate_club
+.. autoclass:: sknetwork.data.KarateClub
+    :inherited-members:
+    :members:
 
-.. autofunction:: sknetwork.data.miserables
+.. autoclass:: sknetwork.data.Miserables
+    :inherited-members:
+    :members:
 
-.. autofunction:: sknetwork.data.painters
+.. autoclass:: sknetwork.data.Painters
+    :inherited-members:
+    :members:
 
-.. autofunction:: sknetwork.data.movie_actor
+.. autoclass:: sknetwork.data.StarWars
+    :inherited-members:
+    :members:
 
-.. autofunction:: sknetwork.data.star_wars_villains
+.. autoclass:: sknetwork.data.MovieActor
+    :inherited-members:
+    :members:
 
 Random graphs
 -------------
+
+.. autoclass:: sknetwork.data.Line
+    :inherited-members:
+    :members:
+
+.. autoclass:: sknetwork.data.LineDirected
+    :inherited-members:
+    :members:
+
+.. autoclass:: sknetwork.data.Cycle
+    :inherited-members:
+    :members:
+
+.. autoclass:: sknetwork.data.CycleDirected
+    :inherited-members:
+    :members:
 
 .. autofunction:: sknetwork.data.block_model
 
 Loading
 *******
 
-.. autofunction:: sknetwork.data.load_wikilinks_dataset
+.. autofunction:: sknetwork.data.load_wikilinks
 
-.. autofunction:: sknetwork.data.load_konect_dataset
+.. autofunction:: sknetwork.data.load_konect
 
 Parsing
 *******

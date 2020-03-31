@@ -7,7 +7,7 @@ import unittest
 from sknetwork.clustering import Louvain
 from sknetwork.hierarchy import Paris
 from sknetwork.ranking import PageRank
-from sknetwork.utils.checks import check_engine
+from sknetwork.utils.check import check_engine
 
 
 # noinspection PyMissingOrEmptyDocstring

@@ -14,7 +14,7 @@ from scipy import sparse
 from scipy.sparse.linalg import bicgstab
 from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.checks import check_format, is_square
+from sknetwork.utils.check import check_format, is_square
 from sknetwork.utils.verbose import VerboseMixin
 
 
@@ -82,9 +82,9 @@ class Diffusion(BaseRanking, VerboseMixin):
 
     Example
     -------
-    >>> from sknetwork.data import house
+    >>> from sknetwork.data import House
     >>> diffusion = Diffusion()
-    >>> adjacency = house()
+    >>> adjacency = House().adjacency
     >>> personalization = {0: 1, 2: 0}
     >>> np.round(diffusion.fit_transform(adjacency, personalization), 2)
     array([1.  , 0.54, 0.  , 0.31, 0.62])
@@ -169,9 +169,9 @@ class BiDiffusion(Diffusion):
 
     Example
     -------
-    >>> from sknetwork.data import star_wars_villains
+    >>> from sknetwork.data import StarWars
     >>> bidiffusion = BiDiffusion()
-    >>> biadjacency = star_wars_villains()
+    >>> biadjacency = StarWars().biadjacency
     >>> personalization = {0: 1, 2: 0}
     >>> np.round(bidiffusion.fit_transform(biadjacency, personalization), 2)
     array([1.  , 0.5 , 0.  , 0.29])

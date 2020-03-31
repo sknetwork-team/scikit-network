@@ -8,25 +8,25 @@ Created on October 2019
 import unittest
 
 from sknetwork.basics import co_neighbors_graph
-from sknetwork.data import movie_actor
+from sknetwork.data import MovieActor
 
 
 # noinspection PyMissingOrEmptyDocstring
 class TestCoNeighbors(unittest.TestCase):
 
     def setUp(self):
-        self.bipartite = movie_actor(return_labels=False)
+        self.biadjacency = MovieActor().biadjacency
 
     def test_exact(self):
-        n = self.bipartite.shape[0]
-        co_neighbors = co_neighbors_graph(self.bipartite, method='exact')
+        n = self.biadjacency.shape[0]
+        co_neighbors = co_neighbors_graph(self.biadjacency, method='exact')
         self.assertEqual(co_neighbors.shape, (n, n))
-        co_neighbors = co_neighbors_graph(self.bipartite, method='exact', normalize=False)
+        co_neighbors = co_neighbors_graph(self.biadjacency, method='exact', normalize=False)
         self.assertEqual(co_neighbors.shape, (n, n))
 
     def test_knn(self):
-        n = self.bipartite.shape[0]
-        co_neighbors = co_neighbors_graph(self.bipartite, method='knn')
+        n = self.biadjacency.shape[0]
+        co_neighbors = co_neighbors_graph(self.biadjacency, method='knn')
         self.assertEqual(co_neighbors.shape, (n, n))
-        co_neighbors = co_neighbors_graph(self.bipartite, method='knn', normalize=False)
+        co_neighbors = co_neighbors_graph(self.biadjacency, method='knn', normalize=False)
         self.assertEqual(co_neighbors.shape, (n, n))

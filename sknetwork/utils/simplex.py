@@ -9,8 +9,7 @@ import numpy as np
 
 
 def projection_simplex(array: np.ndarray, scale: float = 1) -> np.ndarray:
-    """
-    Project each line of the input onto the Euclidean simplex i.e. solve
+    """Project each line of the input onto the Euclidean simplex i.e. solve
 
     :math:`\\underset{w}{min} ||w - x_i||_2^2` s.t. :math:`\\sum w_j = z, w_j \\ge 0`.
 

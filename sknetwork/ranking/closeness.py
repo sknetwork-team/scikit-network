@@ -12,7 +12,7 @@ from scipy import sparse
 
 from sknetwork.basics import shortest_path, is_connected
 from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.checks import check_format, is_square
+from sknetwork.utils.check import check_format, is_square
 
 
 class Closeness(BaseRanking):
@@ -39,9 +39,9 @@ class Closeness(BaseRanking):
 
     Example
     -------
-    >>> from sknetwork.data import rock_paper_scissors
+    >>> from sknetwork.data import CycleDirected
     >>> closeness = Closeness()
-    >>> adjacency = rock_paper_scissors()
+    >>> adjacency = CycleDirected(3).adjacency
     >>> np.round(closeness.fit(adjacency).scores_, 2)
     array([0.67, 0.67, 0.67])
 

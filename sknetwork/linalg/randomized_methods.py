@@ -12,7 +12,7 @@ import numpy as np
 from scipy import sparse, linalg
 
 from sknetwork.linalg.sparse_lowrank import SparseLR
-from sknetwork.utils.checks import check_random_state
+from sknetwork.utils.check import check_random_state
 
 
 def safe_sparse_dot(a, b):

@@ -8,7 +8,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.ranking.diffusion import Diffusion, BiDiffusion
-from sknetwork.data import karate_club, painters, star_wars_villains
+from sknetwork.data.basic import *
 
 
 # noinspection DuplicatedCode,PyMissingOrEmptyDocstring
@@ -29,8 +29,7 @@ class TestDiffusion(unittest.TestCase):
         self.assertEqual(self.diffusion.scores_, [1])
 
     def test_undirected(self):
-        self.karate_club = karate_club()
-        adjacency: sparse.csr_matrix = karate_club()
+        adjacency = Small().adjacency
 
         self.diffusion.fit(adjacency, {0: 0, 1: 1, 2: 0.5})
         score = self.diffusion.scores_
@@ -41,19 +40,18 @@ class TestDiffusion(unittest.TestCase):
         self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= 0 - self.tol))
 
     def test_directed(self):
-        self.painters = painters(return_labels=False)
-        adjacency: sparse.csr_matrix = self.painters
+        adjacency = DiSmall().adjacency
         self.diffusion.fit(adjacency, {0: 0, 1: 1, 2: 0.5})
         score = self.diffusion.scores_
         self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= 0 - self.tol))
 
     def test_bidiffusion(self):
         bidiffusion = BiDiffusion()
-        self.star_wars: sparse.csr_matrix = star_wars_villains(return_labels=False)
-        bidiffusion.fit(self.star_wars, {0: 1})
+        biadjacency = BiSmall().biadjacency
+        bidiffusion.fit(biadjacency, {0: 1})
         score = bidiffusion.scores_
         self.assertTrue(np.all(score <= 1) and np.all(score >= 0))
 
         naive_bidiff = BiDiffusion(n_iter=10)
-        score = naive_bidiff.fit_transform(self.star_wars, {0: 1})
+        score = naive_bidiff.fit_transform(biadjacency, {0: 1})
         self.assertTrue(np.all(score <= 1) and np.all(score >= 0))

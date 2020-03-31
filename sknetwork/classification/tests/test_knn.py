@@ -4,18 +4,15 @@
 
 import unittest
 
-import numpy as np
-from scipy import sparse
-
 from sknetwork.classification import KNN
-from sknetwork.data import painters
+from sknetwork.data.basic import *
 
 
 # noinspection DuplicatedCode
 class TestKNN(unittest.TestCase):
 
     def test_undirected(self):
-        adjacency: sparse.csr_matrix = painters()
+        adjacency = Small().adjacency
         adj_array_seeds = -np.ones(adjacency.shape[0])
         adj_array_seeds[:2] = np.arange(2)
         adj_dict_seeds = {0: 0, 1: 1}

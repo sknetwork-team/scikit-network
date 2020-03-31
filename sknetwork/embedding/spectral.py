@@ -16,8 +16,8 @@ from scipy.sparse.linalg import LinearOperator
 from sknetwork.basics.structure import is_connected
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv
-from sknetwork.utils.checks import check_format, is_square, is_symmetric
-from sknetwork.utils.formats import bipartite2undirected
+from sknetwork.utils.check import check_format, is_square, is_symmetric
+from sknetwork.utils.format import bipartite2undirected
 
 
 class LaplacianOperator(LinearOperator):
@@ -342,14 +342,16 @@ class Spectral(BaseEmbedding):
             adjacency_vector_reg += self.regularization_
 
         # projection in the embedding space
-        averaging = (adjacency_vector_reg.T / np.sum(adjacency_vector_reg, axis=1)).T
+        sum_inv_diag = diag_pinv(np.sum(adjacency_vector_reg, axis=1))
+        averaging = sum_inv_diag.dot(adjacency_vector_reg)
         embedding_vectors = averaging.dot(eigenvectors)
 
         if not self.barycenter:
             if self.normalized_laplacian:
                 factors = 1 - eigenvalues
             else:
-                factors = 1 - eigenvalues / np.sum(adjacency_vector_reg)
+                # to be modified
+                factors = 1 - eigenvalues / np.sum(adjacency_vector_reg + 1e-9)
             factors_inv_diag = diag_pinv(factors)
             embedding_vectors = factors_inv_diag.dot(embedding_vectors.T).T
 

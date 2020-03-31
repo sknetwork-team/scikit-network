@@ -8,19 +8,19 @@ import numpy as np
 
 from sknetwork.linalg.randomized_methods import randomized_svd, randomized_eig
 from sknetwork.linalg.sparse_lowrank import SparseLR
-from sknetwork.data import house, star_wars_villains
+from sknetwork.data import House, StarWars
 
 
 # noinspection PyMissingOrEmptyDocstring
 class TestSparseLowRank(unittest.TestCase):
 
     def setUp(self):
-        self.undirected = SparseLR(house(), [(np.ones(5), np.ones(5))])
-        self.bipartite = SparseLR(star_wars_villains(), [(np.ones(4), np.ones(3))])
+        self.undirected = SparseLR(House().adjacency, [(np.ones(5), np.ones(5))])
+        self.bipartite = SparseLR(StarWars().biadjacency, [(np.ones(4), np.ones(3))])
 
     def test_addition(self):
         addition = self.undirected + self.undirected
-        expected = SparseLR(2 * house(), [(np.ones(5), 2 * np.ones(5))])
+        expected = SparseLR(2 * House().adjacency, [(np.ones(5), 2 * np.ones(5))])
         err = (addition.sparse_mat - expected.sparse_mat).count_nonzero()
         self.assertEqual(err, 0)
         random_vector = np.random.rand(5)

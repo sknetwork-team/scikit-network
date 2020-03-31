@@ -67,7 +67,8 @@ Notes
 ^^^^^
 
 * Adjacency and biadjacency matrices have non-negative entries (the weights of the edges).
-* Bipartite graphs are undirected but have a special structure that is exploited by some algorithms, starting with the prefix Bi.
+* Bipartite graphs are undirected but have a special structure that is exploited by some algorithms.
+  These algorithms are identified with the prefix ``Bi``.
 
 .. _Numba: https://numba.pydata.org
 

@@ -13,8 +13,8 @@ from scipy import sparse
 
 from sknetwork.clustering.postprocess import membership_matrix
 from sknetwork.linalg import diag_pinv
-from sknetwork.utils.formats import bipartite2directed
-from sknetwork.utils.checks import check_format, check_probs, is_square
+from sknetwork.utils.format import bipartite2directed
+from sknetwork.utils.check import check_format, check_probs, is_square
 
 
 def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray,

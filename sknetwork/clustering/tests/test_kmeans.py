@@ -7,44 +7,42 @@ Created on October 2019
 
 import unittest
 
-import numpy as np
-from scipy import sparse
-
 from sknetwork.clustering import BiKMeans, KMeans
-from sknetwork.data import karate_club, painters, movie_actor
+from sknetwork.data.basic import *
+from sknetwork.data import KarateClub, MovieActor
 from sknetwork.embedding import BiSpectral, Spectral
 
 
 class TestKMeans(unittest.TestCase):
 
     def setUp(self):
-        self.kmeans = KMeans()
-        self.bikmeans = BiKMeans(cluster_both=True)
+        self.kmeans = KMeans(n_clusters=3)
+        self.bikmeans = BiKMeans(n_clusters=3, cluster_both=True)
 
     def test_undirected(self):
-        adjacency = karate_club()
+        adjacency = Small().adjacency
         labels = self.kmeans.fit_transform(adjacency)
-        self.assertEqual(len(set(labels)), 8)
+        self.assertEqual(len(set(labels)), 3)
 
     def test_directed(self):
-        adjacency = painters()
+        adjacency = DiSmall().adjacency
         labels = self.kmeans.fit_transform(adjacency)
-        self.assertEqual(len(set(labels)), 8)
+        self.assertEqual(len(set(labels)), 3)
 
     def test_bipartite(self):
-        biadjacency = movie_actor()
+        biadjacency = BiSmall().biadjacency
         self.bikmeans.fit(biadjacency)
         labels = np.hstack((self.bikmeans.labels_row_, self.bikmeans.labels_col_))
-        self.assertEqual(len(set(labels)), 8)
+        self.assertEqual(len(set(labels)), 3)
 
     def test_disconnected(self):
-        adjacency = sparse.identity(10, format='csr')
+        adjacency = SmallDisconnected().adjacency
         self.kmeans.n_clusters = 5
         labels = self.kmeans.fit_transform(adjacency)
         self.assertTrue(len(set(labels)), 5)
 
     def test_options(self):
-        adjacency = karate_club()
+        adjacency = KarateClub().adjacency
 
         # embedding
         kmeans = KMeans(embedding_method=Spectral())
@@ -58,7 +56,7 @@ class TestKMeans(unittest.TestCase):
         self.assertEqual(kmeans.adjacency_.shape, (n_labels, n_labels))
 
     def test_options_bipartite(self):
-        biadjacency = movie_actor()
+        biadjacency = MovieActor().biadjacency
 
         # embedding
         bikmeans = BiKMeans(embedding_method=BiSpectral())

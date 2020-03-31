@@ -9,7 +9,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.hierarchy.paris import AggregateGraph
-from sknetwork.utils.checks import check_format, check_probs, is_square
+from sknetwork.utils.check import check_format, check_probs, is_square
 
 
 # noinspection DuplicatedCode

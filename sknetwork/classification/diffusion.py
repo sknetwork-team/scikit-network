@@ -11,7 +11,7 @@ import numpy as np
 
 from sknetwork.classification.base_rank import RankClassifier
 from sknetwork.ranking import BiDiffusion, Diffusion
-from sknetwork.utils.checks import check_labels
+from sknetwork.utils.check import check_labels
 
 
 class DiffusionClassifier(RankClassifier):
@@ -32,9 +32,11 @@ class DiffusionClassifier(RankClassifier):
 
     Example
     -------
-    >>> from sknetwork.data import karate_club
+    >>> from sknetwork.data import KarateClub
     >>> diff = DiffusionClassifier()
-    >>> adjacency, labels_true = karate_club(return_labels=True)
+    >>> graph = KarateClub()
+    >>> adjacency = graph.adjacency
+    >>> labels_true = graph.labels
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
     >>> labels_pred = diff.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
@@ -120,9 +122,9 @@ class BiDiffusionClassifier(DiffusionClassifier):
 
     Example
     -------
-    >>> from sknetwork.data import star_wars_villains
+    >>> from sknetwork.data import StarWars
     >>> bidiff = BiDiffusionClassifier()
-    >>> biadjacency = star_wars_villains()
+    >>> biadjacency = StarWars().biadjacency
     >>> seeds = {0: 1, 2: 0}
     >>> bidiff.fit_transform(biadjacency, seeds)
     array([1, 1, 0, 0])

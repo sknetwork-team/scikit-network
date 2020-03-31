@@ -12,7 +12,7 @@ from scipy import sparse
 
 from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.embedding.spectral import BiSpectral
-from sknetwork.utils.checks import check_format
+from sknetwork.utils.check import check_format
 from sknetwork.utils.knn import KNNDense
 
 

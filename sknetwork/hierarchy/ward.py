@@ -24,6 +24,14 @@ class Ward(BaseHierarchy):
     embedding_method :
         Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
 
+    Examples
+    --------
+    >>> from sknetwork.data import House
+    >>> ward = Ward()
+    >>> adjacency = House().adjacency
+    >>> ward.fit_transform(adjacency).shape
+    (4, 4)
+
     References
     ----------
     * Ward, J. H., Jr. (1963). Hierarchical grouping to optimize an objective function.
@@ -86,6 +94,14 @@ class BiWard(BaseHierarchy):
         Dendrogram for the columns.
     dendrogram_full_ :
         Dendrogram for both rows and columns, indexed in this order.
+
+    Examples
+    --------
+    >>> from sknetwork.data import StarWars
+    >>> biward = BiWard()
+    >>> biadjacency = StarWars().biadjacency
+    >>> biward.fit_transform(biadjacency).shape
+    (3, 4)
 
     References
     ----------

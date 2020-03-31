@@ -7,32 +7,29 @@ Created on October 2019
 
 import unittest
 
-import numpy as np
-from scipy import sparse
-
 from sknetwork.hierarchy import Ward, BiWard
-from sknetwork.embedding import Spectral
-from sknetwork.data import karate_club, painters, movie_actor
+from sknetwork.embedding import GSVD, Spectral
+from sknetwork.data.basic import *
 
 
 class TestWard(unittest.TestCase):
 
     def setUp(self):
-        self.ward = Ward()
-        self.biward = BiWard(cluster_col=True, cluster_both=True)
+        self.ward = Ward(embedding_method=GSVD(3))
+        self.biward = BiWard(embedding_method=GSVD(3), cluster_col=True, cluster_both=True)
 
     def test_undirected(self):
-        adjacency = karate_club()
+        adjacency = Small().adjacency
         dendrogram = self.ward.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))
 
     def test_directed(self):
-        adjacency = painters()
+        adjacency = DiSmall().adjacency
         dendrogram = self.ward.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))
 
     def test_bipartite(self):
-        biadjacency = movie_actor()
+        biadjacency = BiSmall().biadjacency
         self.biward.fit(biadjacency)
         n1, n2 = biadjacency.shape
         self.assertEqual(self.biward.dendrogram_.shape, (n1 - 1, 4))
@@ -41,14 +38,13 @@ class TestWard(unittest.TestCase):
         self.assertEqual(self.biward.dendrogram_full_.shape, (n1 + n2 - 1, 4))
 
     def test_disconnected(self):
-        n = 20
-        adjacency = np.eye(n)
+        adjacency = SmallDisconnected().adjacency
         dendrogram = self.ward.fit_transform(adjacency)
-        self.assertEqual(dendrogram.shape, (n - 1, 4))
+        self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))
 
     def test_options(self):
-        adjacency = karate_club()
-        ward = Ward(embedding_method=Spectral())
+        adjacency = Small().adjacency
+        ward = Ward(embedding_method=Spectral(3))
         dendrogram = ward.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))
 

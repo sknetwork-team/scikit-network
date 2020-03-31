@@ -1,26 +1,27 @@
 # -*- coding: utf-8 -*-
-# tests for graph_data.py
+# tests for toys.py
 """authors: Quentin Lutz <qlutz@enst.fr>"""
 
 import unittest
 
 import numpy as np
 
-from sknetwork.data.graph_models import block_model
+from sknetwork.data.models import *
 
 
-class TestGraphImport(unittest.TestCase):
+class TestModels(unittest.TestCase):
 
-    def test_errors(self):
-        with self.assertRaises(TypeError):
-            # noinspection PyTypeChecker
-            block_model('foo')
+    def test_undirected(self):
+        graph = Line(5)
+        self.assertEqual(graph.adjacency.shape, (5, 5))
+        graph = Cycle(5)
+        self.assertEqual(graph.adjacency.shape, (5, 5))
 
-        with self.assertRaises(ValueError):
-            block_model(-1)
-
-        with self.assertRaises(ValueError):
-            block_model(10)
+    def test_directed(self):
+        graph = LineDirected(5)
+        self.assertEqual(graph.adjacency.shape, (5, 5))
+        graph = CycleDirected(5)
+        self.assertEqual(graph.adjacency.shape, (5, 5))
 
     # noinspection DuplicatedCode
     def test_generation(self):

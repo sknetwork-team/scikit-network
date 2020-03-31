@@ -4,12 +4,10 @@
 
 import unittest
 
-import numpy as np
-from scipy import sparse
-
 from sknetwork import is_numba_available
 from sknetwork.clustering import Louvain, BiLouvain, modularity
-from sknetwork.data import karate_club, painters, movie_actor
+from sknetwork.data.basic import *
+from sknetwork.data import KarateClub
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -26,23 +24,23 @@ class TestLouvainClustering(unittest.TestCase):
                 Louvain(engine='numba')
 
     def test_undirected(self):
-        adjacency = karate_club()
+        adjacency = Small().adjacency
         labels = self.louvain.fit_transform(adjacency)
-        self.assertEqual(labels.shape, (34,))
-        self.assertAlmostEqual(modularity(adjacency, labels), 0.42, 2)
+        self.assertEqual(labels.shape, (10,))
+        self.assertAlmostEqual(modularity(adjacency, labels), 0.503, 2)
         if is_numba_available:
             labels = self.louvain_numba.fit_transform(adjacency)
-            self.assertEqual(labels.shape, (34,))
-            self.assertAlmostEqual(modularity(adjacency, labels), 0.42, 2)
+            self.assertEqual(labels.shape, (10,))
+            self.assertAlmostEqual(modularity(adjacency, labels), 0.503, 2)
 
     def test_directed(self):
-        adjacency = painters()
+        adjacency = DiSmall().adjacency
         labels = self.louvain.fit_transform(adjacency)
-        self.assertEqual(labels.shape, (14,))
-        self.assertAlmostEqual(modularity(adjacency, labels), 0.32, 2)
+        self.assertEqual(labels.shape, (10,))
+        self.assertAlmostEqual(modularity(adjacency, labels), 0.548, 2)
 
     def test_bipartite(self):
-        biadjacency = movie_actor()
+        biadjacency = BiSmall().biadjacency
         n1, n2 = biadjacency.shape
         self.bilouvain.fit(biadjacency)
         labels_row = self.bilouvain.labels_row_
@@ -57,15 +55,13 @@ class TestLouvainClustering(unittest.TestCase):
             self.assertEqual(labels_col.shape, (n2,))
 
     def test_disconnected(self):
-        adjacency = sparse.identity(1, format='csr')
+        adjacency = KarateClub().adjacency
+        n = adjacency.shape[0]
         labels = self.louvain.fit_transform(adjacency)
-        self.assertEqual(labels, [0])
-        adjacency = sparse.identity(10, format='csr')
-        labels = self.louvain.fit_transform(adjacency)
-        self.assertTrue(np.array_equal(labels, np.arange(10)))
+        self.assertEqual(len(labels), n)
 
     def test_options(self):
-        adjacency = karate_club()
+        adjacency = KarateClub().adjacency
 
         # resolution
         louvain = Louvain(engine='python', resolution=2)

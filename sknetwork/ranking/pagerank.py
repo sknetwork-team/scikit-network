@@ -14,8 +14,8 @@ from scipy.sparse.linalg import eigs, LinearOperator, lsqr, bicgstab
 
 from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.formats import bipartite2undirected
-from sknetwork.utils.checks import check_format, has_nonnegative_entries, is_square
+from sknetwork.utils.format import bipartite2undirected
+from sknetwork.utils.check import check_format, has_nonnegative_entries, is_square
 from sknetwork.utils.verbose import VerboseMixin
 
 
@@ -165,9 +165,9 @@ class PageRank(BaseRanking, VerboseMixin):
 
     Example
     -------
-    >>> from sknetwork.data import house
+    >>> from sknetwork.data import House
     >>> pagerank = PageRank()
-    >>> adjacency = house()
+    >>> adjacency = House().adjacency
     >>> personalization = {0: 1}
     >>> np.round(pagerank.fit_transform(adjacency, personalization), 2)
     array([0.29, 0.24, 0.12, 0.12, 0.24])
@@ -238,9 +238,9 @@ class BiPageRank(PageRank):
 
     Example
     -------
-    >>> from sknetwork.data import star_wars_villains
+    >>> from sknetwork.data import StarWars
     >>> bipagerank = BiPageRank()
-    >>> biadjacency = star_wars_villains()
+    >>> biadjacency = StarWars().biadjacency
     >>> personalization = {0: 1}
     >>> np.round(bipagerank.fit_transform(biadjacency, personalization), 2)
     array([0.42, 0.11, 0.29, 0.18])

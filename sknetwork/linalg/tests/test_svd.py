@@ -5,10 +5,9 @@
 import unittest
 
 import numpy as np
-from scipy import sparse
 
 from sknetwork.linalg import LanczosSVD, HalkoSVD, SparseLR
-from sknetwork.data import movie_actor
+from sknetwork.data import MovieActor
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -21,9 +20,9 @@ def svd_err(matrix, u, v, sigma):
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):
-        self.biadjacency: sparse.csr_matrix = movie_actor()
-        n, m = self.biadjacency.shape
-        self.slr = SparseLR(self.biadjacency, [(np.random.rand(n), np.random.rand(m))])
+        self.biadjacency = MovieActor().biadjacency
+        n1, n2 = self.biadjacency.shape
+        self.slr = SparseLR(self.biadjacency, [(np.random.rand(n1), np.random.rand(n2))])
 
     def test_lanczos(self):
         solver = LanczosSVD()

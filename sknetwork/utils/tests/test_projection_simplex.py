@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tests for projection_simplex.py"""
+"""tests for simplex.py"""
 
 import unittest
 
 import numpy as np
 
-from sknetwork.utils.checks import is_proba_array
-from sknetwork.utils.projection_simplex import projection_simplex
+from sknetwork.utils.check import is_proba_array
+from sknetwork.utils.simplex import projection_simplex
 
 
 # noinspection PyMissingOrEmptyDocstring

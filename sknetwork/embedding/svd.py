@@ -14,7 +14,7 @@ from scipy import sparse
 
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import SparseLR, SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv
-from sknetwork.utils.checks import check_format
+from sknetwork.utils.check import check_format
 
 
 class GSVD(BaseEmbedding):
@@ -241,7 +241,8 @@ class GSVD(BaseEmbedding):
         adjacency_vector_reg = diag_row.dot(diag_col.dot(adjacency_vector_reg.T).T)
 
         # projection in the embedding space
-        averaging = (adjacency_vector_reg.T / np.sum(adjacency_vector_reg, axis=1)).T
+        diag = diag_pinv(np.sum(adjacency_vector_reg, axis=1))
+        averaging = diag.dot(adjacency_vector_reg)
         embedding_vectors = diag_row.dot(averaging.dot(singular_vectors_right))
 
         # scaling

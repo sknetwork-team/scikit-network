@@ -17,7 +17,7 @@ from scipy.spatial import cKDTree
 from sknetwork.classification import BaseClassifier
 from sknetwork.embedding import BaseEmbedding, GSVD
 from sknetwork.linalg.normalize import normalize
-from sknetwork.utils.checks import check_seeds
+from sknetwork.utils.check import check_seeds
 
 
 class KNN(BaseClassifier):
@@ -54,9 +54,11 @@ class KNN(BaseClassifier):
 
     Example
     -------
-    >>> from sknetwork.data import karate_club
+    >>> from sknetwork.data import KarateClub
     >>> knn = KNN(n_neighbors=1)
-    >>> adjacency, labels_true = karate_club(return_labels=True)
+    >>> graph = KarateClub()
+    >>> adjacency = graph.adjacency
+    >>> labels_true = graph.labels
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
     >>> labels_pred = knn.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)

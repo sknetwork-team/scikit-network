@@ -11,7 +11,7 @@ from scipy import sparse
 
 from sknetwork.basics import shortest_path
 from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.checks import check_format, is_square
+from sknetwork.utils.check import check_format, is_square
 
 
 class Harmonic(BaseRanking):
@@ -34,10 +34,11 @@ class Harmonic(BaseRanking):
 
     Example
     -------
+    >>> from sknetwork.data import House
     >>> harmonic = Harmonic()
-    >>> adjacency = sparse.identity(3).tocsr()
+    >>> adjacency = House().adjacency
     >>> np.round(harmonic.fit(adjacency).scores_, 2)
-    array([0., 0., 0.])
+    array([3. , 3.5, 3. , 3. , 3.5])
 
     References
     ----------

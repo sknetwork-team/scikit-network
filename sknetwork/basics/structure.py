@@ -11,8 +11,8 @@ from typing import Tuple, Optional, Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.utils.formats import bipartite2undirected
-from sknetwork.utils.checks import is_symmetric, is_square, check_format
+from sknetwork.utils.format import bipartite2undirected
+from sknetwork.utils.check import is_symmetric, is_square, check_format
 
 
 def is_connected(adjacency: sparse.csr_matrix) -> bool:
