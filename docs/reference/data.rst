@@ -28,8 +28,8 @@ Real-world data
 
 .. autofunction:: sknetwork.data.movie_actor
 
-Random graphs
--------------
+Models
+******
 
 .. autofunction:: sknetwork.data.linear_graph
 
