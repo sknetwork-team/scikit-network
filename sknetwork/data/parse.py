@@ -7,18 +7,16 @@ Nathan de Lara <ndelara@enst.fr>
 """
 
 from csv import reader
-from typing import Union, Optional
+from typing import Optional
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.data import Graph, BiGraph
 from sknetwork.utils import Bunch
 
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
-              named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True)\
-                -> Union[Graph, BiGraph]:
+              named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True):
     """
     A parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
 
@@ -45,7 +43,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
 
     Returns
     -------
-    graph: :class:`Graph` or :class:`BiGraph`
+    graph: :class:`Bunch`
     """
     reindexed = False
     header_len = -1
@@ -91,6 +89,8 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
                 if weighted:
                     data.append(float(line[2]))
     n_edges = len(row)
+
+    graph = Bunch()
     if bipartite:
         names_row, row = np.unique(row, return_inverse=True)
         names_col, col = np.unique(col, return_inverse=True)
@@ -103,7 +103,6 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         if not weighted:
             data = np.ones(n_edges, dtype=bool)
         biadjacency = sparse.csr_matrix((data, (row, col)), shape=(n_row, n_col))
-        graph = BiGraph
         graph.biadjacency = biadjacency
         if named or reindex:
             graph.names = names_row
@@ -129,7 +128,6 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         adjacency = sparse.csr_matrix((data, (row, col)), shape=(n_nodes, n_nodes))
         if not directed:
             adjacency += adjacency.T
-        graph = Graph()
         graph.adjacency = adjacency
         if named or reindexed:
             graph.names = names

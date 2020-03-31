@@ -36,9 +36,9 @@ class PageRankClassifier(RankClassifier):
 
     Example
     -------
-    >>> from sknetwork.data import KarateClub
+    >>> from sknetwork.data import karate_club
     >>> pagerank = PageRankClassifier()
-    >>> graph = KarateClub()
+    >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
@@ -86,9 +86,9 @@ class BiPageRankClassifier(RankClassifier):
 
     Example
     -------
-    >>> from sknetwork.data import StarWars
+    >>> from sknetwork.data import star_wars
     >>> bipagerank = BiPageRankClassifier()
-    >>> biadjacency = StarWars().biadjacency
+    >>> biadjacency = star_wars()
     >>> seeds = {0: 1, 2: 0}
     >>> bipagerank.fit_transform(biadjacency, seeds)
     array([1, 1, 0, 0])

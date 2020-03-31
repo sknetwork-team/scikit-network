@@ -7,7 +7,7 @@ import unittest
 from sknetwork import is_numba_available
 from sknetwork.clustering import Louvain, BiLouvain, modularity
 from sknetwork.data.test_graphs import *
-from sknetwork.data import KarateClub
+from sknetwork.data import karate_club
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -24,7 +24,7 @@ class TestLouvainClustering(unittest.TestCase):
                 Louvain(engine='numba')
 
     def test_undirected(self):
-        adjacency = Simple().adjacency
+        adjacency = test_graph()
         labels = self.louvain.fit_transform(adjacency)
         self.assertEqual(labels.shape, (10,))
         self.assertAlmostEqual(modularity(adjacency, labels), 0.503, 2)
@@ -34,13 +34,13 @@ class TestLouvainClustering(unittest.TestCase):
             self.assertAlmostEqual(modularity(adjacency, labels), 0.503, 2)
 
     def test_directed(self):
-        adjacency = DiSimple().adjacency
+        adjacency = test_digraph()
         labels = self.louvain.fit_transform(adjacency)
         self.assertEqual(labels.shape, (10,))
         self.assertAlmostEqual(modularity(adjacency, labels), 0.548, 2)
 
     def test_bipartite(self):
-        biadjacency = BiSimple().biadjacency
+        biadjacency = test_bigraph()
         n1, n2 = biadjacency.shape
         self.bilouvain.fit(biadjacency)
         labels_row = self.bilouvain.labels_row_
@@ -55,13 +55,13 @@ class TestLouvainClustering(unittest.TestCase):
             self.assertEqual(labels_col.shape, (n2,))
 
     def test_disconnected(self):
-        adjacency = KarateClub().adjacency
+        adjacency = test_disconnected_graph()
         n = adjacency.shape[0]
         labels = self.louvain.fit_transform(adjacency)
         self.assertEqual(len(labels), n)
 
     def test_options(self):
-        adjacency = KarateClub().adjacency
+        adjacency = karate_club()
 
         # resolution
         louvain = Louvain(engine='python', resolution=2)
@@ -84,6 +84,3 @@ class TestLouvainClustering(unittest.TestCase):
         n_labels = len(set(labels))
         self.assertEqual(louvain.adjacency_.shape, (n_labels, n_labels))
 
-    def test_unknown_types(self):
-        with self.assertRaises(TypeError):
-            self.louvain.fit(sparse.identity(10))

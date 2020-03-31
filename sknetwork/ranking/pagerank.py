@@ -165,9 +165,9 @@ class PageRank(BaseRanking, VerboseMixin):
 
     Example
     -------
-    >>> from sknetwork.data import House
+    >>> from sknetwork.data import house
     >>> pagerank = PageRank()
-    >>> adjacency = House().adjacency
+    >>> adjacency = house()
     >>> personalization = {0: 1}
     >>> np.round(pagerank.fit_transform(adjacency, personalization), 2)
     array([0.29, 0.24, 0.12, 0.12, 0.24])
@@ -238,9 +238,9 @@ class BiPageRank(PageRank):
 
     Example
     -------
-    >>> from sknetwork.data import StarWars
+    >>> from sknetwork.data import star_wars
     >>> bipagerank = BiPageRank()
-    >>> biadjacency = StarWars().biadjacency
+    >>> biadjacency = star_wars()
     >>> personalization = {0: 1}
     >>> np.round(bipagerank.fit_transform(biadjacency, personalization), 2)
     array([0.42, 0.11, 0.29, 0.18])

@@ -12,7 +12,7 @@ from sknetwork.data.test_graphs import *
 class TestPageRankClassifier(unittest.TestCase):
 
     def test_undirected(self):
-        adjacency = Simple().adjacency
+        adjacency = test_graph()
         adj_array_seeds = -np.ones(adjacency.shape[0])
         adj_array_seeds[:2] = np.arange(2)
         adj_dict_seeds = {0: 0, 1: 1}
@@ -24,7 +24,7 @@ class TestPageRankClassifier(unittest.TestCase):
         self.assertEqual(labels2.shape[0], adjacency.shape[0])
 
     def test_bipartite(self):
-        biadjacency = BiSimple().biadjacency
+        biadjacency = test_bigraph()
         biadj_array_seeds = -np.ones(biadjacency.shape[0])
         biadj_array_seeds[:2] = np.arange(2)
         biadj_dict_seeds = {0: 0, 1: 1}

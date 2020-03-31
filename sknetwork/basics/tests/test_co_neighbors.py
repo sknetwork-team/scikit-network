@@ -8,14 +8,14 @@ Created on October 2019
 import unittest
 
 from sknetwork.basics import co_neighbors_graph
-from sknetwork.data import MovieActor
+from sknetwork.data import movie_actor
 
 
 # noinspection PyMissingOrEmptyDocstring
 class TestCoNeighbors(unittest.TestCase):
 
     def setUp(self):
-        self.biadjacency = MovieActor().biadjacency
+        self.biadjacency = movie_actor()
 
     def test_exact(self):
         n = self.biadjacency.shape[0]

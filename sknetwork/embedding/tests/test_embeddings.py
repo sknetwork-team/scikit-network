@@ -16,7 +16,7 @@ class TestEmbeddings(unittest.TestCase):
         self.bimethods = [BiSpectral(), SVD(), GSVD()]
 
     def test_undirected(self):
-        adjacency = Simple().adjacency
+        adjacency = test_graph()
         n = adjacency.shape[0]
         for method in self.methods:
             embedding = method.fit_transform(adjacency)
@@ -27,7 +27,7 @@ class TestEmbeddings(unittest.TestCase):
             #self.assertAlmostEqual(error, 0)
 
     def test_directed(self):
-        adjacency = DiSimple().adjacency
+        adjacency = test_digraph()
         n = adjacency.shape[0]
         for method in self.bimethods:
             method.fit(adjacency)
@@ -40,7 +40,7 @@ class TestEmbeddings(unittest.TestCase):
             #self.assertAlmostEqual(error, 0)
 
     def test_bipartite(self):
-        biadjacency = BiSimple().biadjacency
+        biadjacency = test_bigraph()
         n1, n2 = biadjacency.shape
         for method in self.bimethods:
             method.fit(biadjacency)
@@ -59,7 +59,7 @@ class TestEmbeddings(unittest.TestCase):
             self.assertEqual(embedding.shape, (10, 2))
 
     def test_spectral_options(self):
-        adjacency = Simple().adjacency
+        adjacency = test_graph()
         n = adjacency.shape[0]
         k = 5
 
@@ -85,9 +85,3 @@ class TestEmbeddings(unittest.TestCase):
         spectral = Spectral(k, solver='halko')
         embedding = spectral.fit_transform(adjacency)
         self.assertEqual(embedding.shape, (n, k))
-
-    # noinspection PyTypeChecker
-    def test_input(self):
-        for method in self.methods:
-            with self.assertRaises(TypeError):
-                method.fit(sparse.identity(5))

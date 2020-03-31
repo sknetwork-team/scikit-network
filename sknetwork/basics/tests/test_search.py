@@ -7,14 +7,14 @@ import unittest
 import numpy as np
 
 from sknetwork.basics import breadth_first_search, depth_first_search
-from sknetwork.data import CycleDirected
+from sknetwork.data import cyclic_digraph
 
 
 class TestSearch(unittest.TestCase):
 
     def setUp(self) -> None:
         """Load graph for tests."""
-        self.adjacency = CycleDirected(3).adjacency
+        self.adjacency = cyclic_digraph(3)
 
     def test_bfs(self):
         self.assertTrue((breadth_first_search(

@@ -54,9 +54,9 @@ class KNN(BaseClassifier):
 
     Example
     -------
-    >>> from sknetwork.data import KarateClub
+    >>> from sknetwork.data import karate_club
     >>> knn = KNN(n_neighbors=1)
-    >>> graph = KarateClub()
+    >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}

@@ -9,7 +9,7 @@ import unittest
 
 from sknetwork.clustering import BiKMeans, KMeans
 from sknetwork.data.test_graphs import *
-from sknetwork.data import KarateClub, MovieActor
+from sknetwork.data import karate_club, movie_actor
 from sknetwork.embedding import BiSpectral, Spectral
 
 
@@ -20,29 +20,29 @@ class TestKMeans(unittest.TestCase):
         self.bikmeans = BiKMeans(n_clusters=3, cluster_both=True)
 
     def test_undirected(self):
-        adjacency = Simple().adjacency
+        adjacency = test_graph()
         labels = self.kmeans.fit_transform(adjacency)
         self.assertEqual(len(set(labels)), 3)
 
     def test_directed(self):
-        adjacency = DiSimple().adjacency
+        adjacency = test_digraph()
         labels = self.kmeans.fit_transform(adjacency)
         self.assertEqual(len(set(labels)), 3)
 
     def test_bipartite(self):
-        biadjacency = BiSimple().biadjacency
+        biadjacency = test_bigraph()
         self.bikmeans.fit(biadjacency)
         labels = np.hstack((self.bikmeans.labels_row_, self.bikmeans.labels_col_))
         self.assertEqual(len(set(labels)), 3)
 
     def test_disconnected(self):
-        adjacency = DisSimple().adjacency
+        adjacency = test_disconnected_graph()
         self.kmeans.n_clusters = 5
         labels = self.kmeans.fit_transform(adjacency)
         self.assertTrue(len(set(labels)), 5)
 
     def test_options(self):
-        adjacency = KarateClub().adjacency
+        adjacency = test_graph()
 
         # embedding
         kmeans = KMeans(embedding_method=Spectral())
@@ -56,7 +56,7 @@ class TestKMeans(unittest.TestCase):
         self.assertEqual(kmeans.adjacency_.shape, (n_labels, n_labels))
 
     def test_options_bipartite(self):
-        biadjacency = MovieActor().biadjacency
+        biadjacency = test_bigraph()
 
         # embedding
         bikmeans = BiKMeans(embedding_method=BiSpectral())
@@ -70,7 +70,4 @@ class TestKMeans(unittest.TestCase):
         n_labels_col = len(set(bikmeans.labels_col_))
         self.assertEqual(bikmeans.biadjacency_.shape, (n_labels_row, n_labels_col))
 
-    def test_unknown_types(self):
-        with self.assertRaises(TypeError):
-            self.kmeans.fit(sparse.identity(10))
 

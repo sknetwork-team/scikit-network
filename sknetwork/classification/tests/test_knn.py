@@ -12,7 +12,7 @@ from sknetwork.data.test_graphs import *
 class TestKNN(unittest.TestCase):
 
     def test_undirected(self):
-        adjacency = Simple().adjacency
+        adjacency = test_graph()
         adj_array_seeds = -np.ones(adjacency.shape[0])
         adj_array_seeds[:2] = np.arange(2)
         adj_dict_seeds = {0: 0, 1: 1}

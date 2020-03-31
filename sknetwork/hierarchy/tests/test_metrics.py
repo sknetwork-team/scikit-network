@@ -18,25 +18,25 @@ class TestMetrics(unittest.TestCase):
         self.paris = Paris(engine='python')
 
     def test_undirected(self):
-        adjacency = Simple().adjacency
+        adjacency = test_graph()
         dendrogram = self.paris.fit_transform(adjacency)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.697, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.605, 2)
 
     def test_directed(self):
-        adjacency = DiSimple().adjacency
+        adjacency = test_digraph()
         dendrogram = self.paris.fit_transform(adjacency)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.711, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.613, 2)
 
     def test_disconnected(self):
-        adjacency = DisSimple().adjacency
+        adjacency = test_disconnected_graph()
         dendrogram = self.paris.fit_transform(adjacency)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.752, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.627, 2)
 
     def test_options(self):
-        adjacency = Simple().adjacency
+        adjacency = test_graph()
         dendrogram = self.paris.fit_transform(adjacency)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram, weights='degree'), 0.698, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram, weights='uniform'), 0.436, 2)

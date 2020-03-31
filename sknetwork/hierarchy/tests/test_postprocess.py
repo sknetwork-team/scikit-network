@@ -11,7 +11,7 @@ import unittest
 import numpy as np
 
 from sknetwork.hierarchy import Paris, cut_straight, cut_balanced
-from sknetwork.data import KarateClub
+from sknetwork.data import karate_club
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -19,7 +19,7 @@ class TestCuts(unittest.TestCase):
 
     def setUp(self):
         paris = Paris(engine='python')
-        adjacency = KarateClub().adjacency
+        adjacency = karate_club()
         self.dendrogram = paris.fit_transform(adjacency)
 
     def test_cuts(self):
@@ -40,7 +40,3 @@ class TestCuts(unittest.TestCase):
         labels, dendrogram = cut_straight(self.dendrogram, n_clusters=7, return_dendrogram=True)
         self.assertEqual(dendrogram.shape, (6, 4))
 
-    # noinspection PyTypeChecker
-    def test_input(self):
-        with self.assertRaises(ValueError):
-            cut_straight(np.zeros(5))

@@ -34,9 +34,9 @@ class Harmonic(BaseRanking):
 
     Example
     -------
-    >>> from sknetwork.data import House
+    >>> from sknetwork.data import house
     >>> harmonic = Harmonic()
-    >>> adjacency = House().adjacency
+    >>> adjacency = house()
     >>> np.round(harmonic.fit(adjacency).scores_, 2)
     array([3. , 3.5, 3. , 3. , 3.5])
 

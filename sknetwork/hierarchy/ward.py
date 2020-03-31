@@ -26,9 +26,9 @@ class Ward(BaseHierarchy):
 
     Examples
     --------
-    >>> from sknetwork.data import House
+    >>> from sknetwork.data import house
     >>> ward = Ward()
-    >>> adjacency = House().adjacency
+    >>> adjacency = house()
     >>> ward.fit_transform(adjacency).shape
     (4, 4)
 
@@ -97,9 +97,9 @@ class BiWard(BaseHierarchy):
 
     Examples
     --------
-    >>> from sknetwork.data import StarWars
+    >>> from sknetwork.data import star_wars
     >>> biward = BiWard()
-    >>> biadjacency = StarWars().biadjacency
+    >>> biadjacency = star_wars()
     >>> biward.fit_transform(biadjacency).shape
     (3, 4)
 

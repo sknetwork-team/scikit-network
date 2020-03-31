@@ -8,8 +8,7 @@ import inspect
 
 
 class Algorithm:
-    """
-    Base class for all algorithms
+    """Base class for all algorithms.
     """
     def __repr__(self):
         # parameters not to display

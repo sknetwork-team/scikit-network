@@ -4,7 +4,7 @@
 
 import unittest
 
-from sknetwork.data import CycleDirected
+from sknetwork.data import cyclic_digraph
 from sknetwork.utils.format import *
 from sknetwork.utils.check import has_nonnegative_entries, has_positive_entries,\
     is_proba_array, make_weights, check_engine, check_is_proba, check_weights,\
@@ -15,7 +15,7 @@ from sknetwork.utils.check import has_nonnegative_entries, has_positive_entries,
 class TestChecks(unittest.TestCase):
 
     def setUp(self):
-        self.adjacency = CycleDirected(3).adjacency
+        self.adjacency = cyclic_digraph(3)
         self.dense_mat = np.identity(3)
 
     def test_non_negative_entries(self):

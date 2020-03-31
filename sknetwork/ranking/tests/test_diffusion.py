@@ -29,7 +29,7 @@ class TestDiffusion(unittest.TestCase):
         self.assertEqual(self.diffusion.scores_, [1])
 
     def test_undirected(self):
-        adjacency = Simple().adjacency
+        adjacency = test_graph()
 
         self.diffusion.fit(adjacency, {0: 0, 1: 1, 2: 0.5})
         score = self.diffusion.scores_
@@ -40,14 +40,14 @@ class TestDiffusion(unittest.TestCase):
         self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= 0 - self.tol))
 
     def test_directed(self):
-        adjacency = DiSimple().adjacency
+        adjacency = test_digraph()
         self.diffusion.fit(adjacency, {0: 0, 1: 1, 2: 0.5})
         score = self.diffusion.scores_
         self.assertTrue(np.all(score <= 1 + self.tol) and np.all(score >= 0 - self.tol))
 
     def test_bidiffusion(self):
         bidiffusion = BiDiffusion()
-        biadjacency = BiSimple().biadjacency
+        biadjacency = test_bigraph()
         bidiffusion.fit(biadjacency, {0: 1})
         score = bidiffusion.scores_
         self.assertTrue(np.all(score <= 1) and np.all(score >= 0))

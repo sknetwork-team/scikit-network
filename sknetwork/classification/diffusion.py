@@ -32,9 +32,9 @@ class DiffusionClassifier(RankClassifier):
 
     Example
     -------
-    >>> from sknetwork.data import KarateClub
+    >>> from sknetwork.data import karate_club
     >>> diff = DiffusionClassifier()
-    >>> graph = KarateClub()
+    >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
@@ -122,9 +122,9 @@ class BiDiffusionClassifier(DiffusionClassifier):
 
     Example
     -------
-    >>> from sknetwork.data import StarWars
+    >>> from sknetwork.data import star_wars
     >>> bidiff = BiDiffusionClassifier()
-    >>> biadjacency = StarWars().biadjacency
+    >>> biadjacency = star_wars()
     >>> seeds = {0: 1, 2: 0}
     >>> bidiff.fit_transform(biadjacency, seeds)
     array([1, 1, 0, 0])

@@ -19,17 +19,17 @@ class TestWard(unittest.TestCase):
         self.biward = BiWard(embedding_method=GSVD(3), cluster_col=True, cluster_both=True)
 
     def test_undirected(self):
-        adjacency = Simple().adjacency
+        adjacency = test_graph()
         dendrogram = self.ward.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))
 
     def test_directed(self):
-        adjacency = DiSimple().adjacency
+        adjacency = test_digraph()
         dendrogram = self.ward.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))
 
     def test_bipartite(self):
-        biadjacency = BiSimple().biadjacency
+        biadjacency = test_bigraph()
         self.biward.fit(biadjacency)
         n1, n2 = biadjacency.shape
         self.assertEqual(self.biward.dendrogram_.shape, (n1 - 1, 4))
@@ -38,17 +38,12 @@ class TestWard(unittest.TestCase):
         self.assertEqual(self.biward.dendrogram_full_.shape, (n1 + n2 - 1, 4))
 
     def test_disconnected(self):
-        adjacency = DisSimple().adjacency
+        adjacency = test_disconnected_graph()
         dendrogram = self.ward.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))
 
     def test_options(self):
-        adjacency = Simple().adjacency
+        adjacency = test_graph()
         ward = Ward(embedding_method=Spectral(3))
         dendrogram = ward.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))
-
-    # noinspection PyTypeChecker
-    def test_input(self):
-        with self.assertRaises(TypeError):
-            self.ward.fit(sparse.identity(1))

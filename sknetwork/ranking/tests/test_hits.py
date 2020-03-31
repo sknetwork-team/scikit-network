@@ -16,19 +16,19 @@ class TestHITS(unittest.TestCase):
     def test_hits(self):
         hits = HITS()
 
-        adjacency = Simple().adjacency
+        adjacency = test_graph()
         n = adjacency.shape[0]
         hits.fit(adjacency)
         self.assertEqual(len(hits.scores_), n)
         self.assertEqual(len(hits.scores_col_), n)
 
-        adjacency = DiSimple().adjacency
+        adjacency = test_digraph()
         n = adjacency.shape[0]
         hits.fit(adjacency)
         self.assertEqual(len(hits.scores_), n)
         self.assertEqual(len(hits.scores_col_), n)
 
-        biadjacency = BiSimple().biadjacency
+        biadjacency = test_bigraph()
         n1, n2 = biadjacency.shape
         hits.fit(biadjacency)
         self.assertEqual(len(hits.scores_), n1)

@@ -14,17 +14,17 @@ from sknetwork.data.test_graphs import *
 class TestTestGraphs(unittest.TestCase):
 
     def test_undirected(self):
-        graph = Simple()
-        self.assertEqual(graph.adjacency.shape, (10, 10))
-        graph = DisSimple()
-        self.assertEqual(graph.adjacency.shape, (10, 10))
+        adjacency = test_graph()
+        self.assertEqual(adjacency.shape, (10, 10))
+        adjacency = test_disconnected_graph()
+        self.assertEqual(adjacency.shape, (10, 10))
 
     def test_directed(self):
-        graph = DiSimple()
-        self.assertEqual(graph.adjacency.shape, (10, 10))
+        adjacency = test_digraph()
+        self.assertEqual(adjacency.shape, (10, 10))
 
     def test_bipartite(self):
-        graph = BiSimple()
-        self.assertEqual(graph.biadjacency.shape, (4, 5))
-        graph = BiDisSimple()
-        self.assertEqual(graph.biadjacency.shape, (4, 5))
+        biadjacency = test_bigraph()
+        self.assertEqual(biadjacency.shape, (4, 5))
+        biadjacency = test_disconnected_bigraph()
+        self.assertEqual(biadjacency.shape, (4, 5))

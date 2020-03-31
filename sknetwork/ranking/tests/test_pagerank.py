@@ -8,14 +8,14 @@ import numpy as np
 
 from sknetwork.ranking.pagerank import PageRank, BiPageRank
 from sknetwork.data.test_graphs import *
-from sknetwork.data.models import CycleDirected
+from sknetwork.data.models import cyclic_digraph
 
 
 # noinspection PyMissingOrEmptyDocstring
 class TestPageRank(unittest.TestCase):
 
     def test_directed(self):
-        adjacency = CycleDirected(3).adjacency
+        adjacency = cyclic_digraph(3)
         ground_truth = np.ones(3) / 3
 
         pagerank_sps = PageRank(solver='spsolve')
@@ -46,7 +46,7 @@ class TestPageRank(unittest.TestCase):
 
     def test_bipartite(self):
         bipagerank = BiPageRank()
-        biadjacency = BiSimple().biadjacency
+        biadjacency = test_bigraph()
         n1, n2 = biadjacency.shape
 
         bipagerank.fit(biadjacency, {0: 1})

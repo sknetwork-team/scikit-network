@@ -10,20 +10,20 @@ from sknetwork.data.models import *
 class TestModels(unittest.TestCase):
 
     def test_undirected(self):
-        graph = Line(5)
-        self.assertEqual(graph.adjacency.shape, (5, 5))
-        graph = Cycle(5)
-        self.assertEqual(graph.adjacency.shape, (5, 5))
+        adjacency = linear_graph(5)
+        self.assertEqual(adjacency.shape, (5, 5))
+        adjacency = cyclic_graph(5)
+        self.assertEqual(adjacency.shape, (5, 5))
 
     def test_directed(self):
-        graph = LineDirected(5)
-        self.assertEqual(graph.adjacency.shape, (5, 5))
-        graph = CycleDirected(5)
-        self.assertEqual(graph.adjacency.shape, (5, 5))
+        adjacency = linear_digraph(5)
+        self.assertEqual(adjacency.shape, (5, 5))
+        adjacency = cyclic_digraph(5)
+        self.assertEqual(adjacency.shape, (5, 5))
 
     # noinspection DuplicatedCode
     def test_generation(self):
-        graph = SBM(2, shape=(2, 2), random_state=1)
+        graph = block_model(2, shape=(2, 2), random_state=1, metadata=True)
         biadjacency = graph.biadjacency
         labels = graph.labels
         labels_col = graph.labels_col
@@ -33,7 +33,7 @@ class TestModels(unittest.TestCase):
         self.assertEqual((labels_col == [0, 1]).all(), True)
         self.assertEqual((labels == [0, 1]).all(), True)
 
-        graph = SBM(np.ones((2, 2), dtype=int), shape=(2, 2), random_state=1)
+        graph = block_model(np.ones((2, 2), dtype=int), shape=(2, 2), random_state=1, metadata=True)
         biadjacency = graph.biadjacency
         labels = graph.labels
         labels_col = graph.labels_col

@@ -8,38 +8,38 @@
 
 import unittest
 
-from sknetwork.data.toy_graphs import House, BowTie, KarateClub, Miserables, Painters, StarWars, MovieActor
+from sknetwork.data.toy_graphs import *
 
 
 class TestToys(unittest.TestCase):
 
     def test_undirected(self):
-        graph = House()
-        self.assertEqual(graph.adjacency.shape, (5, 5))
+        adjacency = house()
+        self.assertEqual(adjacency.shape, (5, 5))
 
-        graph = BowTie()
-        self.assertEqual(graph.adjacency.shape, (5, 5))
+        adjacency = bow_tie()
+        self.assertEqual(adjacency.shape, (5, 5))
 
-        graph = KarateClub()
+        graph = karate_club(True)
         self.assertEqual(graph.adjacency.shape, (34, 34))
         self.assertEqual(len(graph.labels), 34)
 
-        graph = Miserables()
+        graph = miserables(True)
         self.assertEqual(graph.adjacency.shape, (77, 77))
         self.assertEqual(len(graph.names), 77)
 
     def test_directed(self):
-        graph = Painters()
+        graph = painters(True)
         self.assertEqual(graph.adjacency.shape, (14, 14))
         self.assertEqual(len(graph.names), 14)
 
     def test_bipartite(self):
-        graph = StarWars()
+        graph = star_wars(True)
         self.assertEqual(graph.biadjacency.shape, (4, 3))
         self.assertEqual(len(graph.names), 4)
         self.assertEqual(len(graph.names_col), 3)
 
-        graph = MovieActor()
+        graph = movie_actor(True)
         self.assertEqual(graph.biadjacency.shape, (15, 16))
         self.assertEqual(len(graph.names), 15)
         self.assertEqual(len(graph.names_col), 16)

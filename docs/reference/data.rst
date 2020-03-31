@@ -5,72 +5,41 @@ Data
 
 Sources and tools for importing data.
 
-Graphs
-******
-
-.. currentmodule:: sknetwork
-
-.. autoclass:: sknetwork.data.Graph
-    :inherited-members:
-    :members:
-
 Toy graphs
 **********
 
 Synthetic data
 --------------
 
-.. autoclass:: sknetwork.data.House
-    :inherited-members:
-    :members:
+.. autofunction:: sknetwork.data.house
 
-.. autoclass:: sknetwork.data.BowTie
-    :inherited-members:
-    :members:
+.. autofunction:: sknetwork.data.bow_tie
 
 Real-world data
 ---------------
 
-.. autoclass:: sknetwork.data.KarateClub
-    :inherited-members:
-    :members:
+.. autofunction:: sknetwork.data.karate_club
 
-.. autoclass:: sknetwork.data.Miserables
-    :inherited-members:
-    :members:
+.. autofunction:: sknetwork.data.miserables
 
-.. autoclass:: sknetwork.data.Painters
-    :inherited-members:
-    :members:
+.. autofunction:: sknetwork.data.painters
 
-.. autoclass:: sknetwork.data.StarWars
-    :inherited-members:
-    :members:
+.. autofunction:: sknetwork.data.star_wars
 
-.. autoclass:: sknetwork.data.MovieActor
-    :inherited-members:
-    :members:
+.. autofunction:: sknetwork.data.movie_actor
 
 Random graphs
 -------------
 
-.. autoclass:: sknetwork.data.Line
-    :inherited-members:
-    :members:
+.. autofunction:: sknetwork.data.linear_graph
 
-.. autoclass:: sknetwork.data.LineDirected
-    :inherited-members:
-    :members:
+.. autofunction:: sknetwork.data.linear_digraph
 
-.. autoclass:: sknetwork.data.Cycle
-    :inherited-members:
-    :members:
+.. autofunction:: sknetwork.data.cyclic_graph
 
-.. autoclass:: sknetwork.data.CycleDirected
-    :inherited-members:
-    :members:
+.. autofunction:: sknetwork.data.cyclic_digraph
 
-.. autofunction:: sknetwork.data.SBM
+.. autofunction:: sknetwork.data.block_model
 
 Loading
 *******

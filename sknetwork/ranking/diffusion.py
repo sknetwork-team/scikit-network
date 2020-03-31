@@ -82,9 +82,9 @@ class Diffusion(BaseRanking, VerboseMixin):
 
     Example
     -------
-    >>> from sknetwork.data import House
+    >>> from sknetwork.data import house
     >>> diffusion = Diffusion()
-    >>> adjacency = House().adjacency
+    >>> adjacency = house()
     >>> personalization = {0: 1, 2: 0}
     >>> np.round(diffusion.fit_transform(adjacency, personalization), 2)
     array([1.  , 0.54, 0.  , 0.31, 0.62])
@@ -169,9 +169,9 @@ class BiDiffusion(Diffusion):
 
     Example
     -------
-    >>> from sknetwork.data import StarWars
+    >>> from sknetwork.data import star_wars
     >>> bidiffusion = BiDiffusion()
-    >>> biadjacency = StarWars().biadjacency
+    >>> biadjacency = star_wars()
     >>> personalization = {0: 1, 2: 0}
     >>> np.round(bidiffusion.fit_transform(biadjacency, personalization), 2)
     array([1.  , 0.5 , 0.  , 0.29])

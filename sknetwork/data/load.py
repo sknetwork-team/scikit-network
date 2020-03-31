@@ -19,7 +19,6 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.data.parse import parse_tsv, parse_labels, parse_header, parse_metadata
-from sknetwork.data import Graph, BiGraph
 from sknetwork.utils import Bunch
 
 
@@ -73,7 +72,7 @@ def load_wikilinks(dataset_name: str, data_home: Optional[str] = None,
 
     Returns
     -------
-    graph: :class:`Graph` or :class:`BiGraph`
+    graph : :class:`Bunch`
     """
     if data_home is None:
         data_home = get_data_home()
@@ -91,22 +90,18 @@ def load_wikilinks(dataset_name: str, data_home: Optional[str] = None,
             tar_ref.extractall(data_home)
         remove(data_home + '/' + dataset_name + '_npz.tar.gz')
 
-    graph = None
+    graph = Bunch()
     files = [file for file in listdir(data_path)]
 
     if 'adjacency.npz' in files:
-        graph = Graph()
         graph.adjacency = sparse.load_npz(data_path + '/adjacency.npz')
     elif 'biadjacency.npz' in files:
-        graph = BiGraph()
         graph.biadjacency = sparse.load_npz(data_path + '/biadjacency.npz')
-        if 'feature_names.npy' in files:
-            graph.names_col = np.load(data_path + '/feature_names.npy')
-    else:
-        return graph
+    if 'feature_names.npy' in files:
+        graph.names_col = np.load(data_path + '/feature_names.npy')
     if 'names.npy' in files:
         graph.names = np.load(data_path + '/names.npy')
-        if isinstance(graph, BiGraph):
+        if hasattr(graph, 'biadjacency'):
             graph.names_row = graph.names
     if 'target_names.npy' in files:
         target_names = np.load(data_path + '/target_names.npy')
@@ -142,11 +137,12 @@ def load_konect(dataset_name: str, data_home: Optional[str] = None, auto_numpy_b
     Returns
     -------
     data: :class:`Bunch`
-        An object with the following attributes:
 
-         * `adjacency` or `biadjacency`: the adjacency/biadjacency matrix for the dataset
-         * `meta`: a dictionary containing the metadata as specified by Konect
-         * any attribute described in an ent.* file
+    An object with the following attributes:
+
+     * `adjacency` or `biadjacency`: the adjacency/biadjacency matrix for the dataset
+     * `meta`: a dictionary containing the metadata as specified by Konect
+     * any attribute described in an ent.* file
 
     """
     if data_home is None:

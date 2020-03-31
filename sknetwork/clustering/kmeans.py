@@ -38,8 +38,8 @@ class KMeans(BaseClustering):
 
     Example
     -------
-    >>> from sknetwork.data import KarateClub
-    >>> adjacency = KarateClub().adjacency
+    >>> from sknetwork.data import karate_club
+    >>> adjacency = karate_club()
     >>> kmeans = KMeans(n_clusters=3)
     >>> len(set(kmeans.fit_transform(adjacency)))
     3
@@ -118,14 +118,14 @@ class BiKMeans(KMeans):
 
     Example
     -------
-    >>> from sknetwork.data import MovieActor
-    >>> biadjacency = MovieActor().biadjacency
+    >>> from sknetwork.data import movie_actor
+    >>> biadjacency = movie_actor()
     >>> bikmeans = BiKMeans(n_clusters=3)
     >>> len(set(bikmeans.fit_transform(biadjacency)))
     3
     """
 
-    def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10), cluster_both: bool = False,
+    def __init__(self, n_clusters: int = 2, embedding_method: BaseEmbedding = GSVD(10), cluster_both: bool = False,
                  sort_clusters: bool = True, return_graph: bool = False):
         KMeans.__init__(self, n_clusters, embedding_method, sort_clusters, return_graph)
 
