@@ -4,8 +4,6 @@
 
 import unittest
 
-import numpy as np
-
 from sknetwork.data.models import *
 
 
@@ -25,16 +23,22 @@ class TestModels(unittest.TestCase):
 
     # noinspection DuplicatedCode
     def test_generation(self):
-        adj, g_t_f, g_t_s = block_model(2, shape=(2, 2), random_state=1)
-        self.assertEqual((adj.indptr == [0, 0, 1]).all(), True)
-        self.assertEqual((adj.indices == [0]).all(), True)
-        self.assertEqual((adj.data == [True]).all(), True)
-        self.assertEqual((g_t_f == [0, 1]).all(), True)
-        self.assertEqual((g_t_s == [0, 1]).all(), True)
+        graph = SBM(2, shape=(2, 2), random_state=1)
+        biadjacency = graph.biadjacency
+        labels = graph.labels
+        labels_col = graph.labels_col
+        self.assertEqual((biadjacency.indptr == [0, 0, 1]).all(), True)
+        self.assertEqual((biadjacency.indices == [0]).all(), True)
+        self.assertEqual((biadjacency.data == [True]).all(), True)
+        self.assertEqual((labels_col == [0, 1]).all(), True)
+        self.assertEqual((labels == [0, 1]).all(), True)
 
-        adj, g_t_f, g_t_s = block_model(np.ones((2, 2), dtype=int), shape=(2, 2), random_state=1)
-        self.assertEqual((adj.indptr == [0, 0, 1]).all(), True)
-        self.assertEqual((adj.indices == [0]).all(), True)
-        self.assertEqual((adj.data == [True]).all(), True)
-        self.assertEqual((g_t_f == [0, 1]).all(), True)
-        self.assertEqual((g_t_s == [0, 1]).all(), True)
+        graph = SBM(np.ones((2, 2), dtype=int), shape=(2, 2), random_state=1)
+        biadjacency = graph.biadjacency
+        labels = graph.labels
+        labels_col = graph.labels_col
+        self.assertEqual((biadjacency.indptr == [0, 0, 1]).all(), True)
+        self.assertEqual((biadjacency.indices == [0]).all(), True)
+        self.assertEqual((biadjacency.data == [True]).all(), True)
+        self.assertEqual((labels_col == [0, 1]).all(), True)
+        self.assertEqual((labels == [0, 1]).all(), True)

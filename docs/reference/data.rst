@@ -70,7 +70,7 @@ Random graphs
     :inherited-members:
     :members:
 
-.. autofunction:: sknetwork.data.block_model
+.. autofunction:: sknetwork.data.SBM
 
 Loading
 *******

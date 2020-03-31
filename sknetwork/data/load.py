@@ -177,9 +177,11 @@ def load_konect(dataset_name: str, data_home: Optional[str] = None, auto_numpy_b
         file = matrix[0]
         directed, bipartite, weighted = parse_header(data_path + file)
         if bipartite:
-            data.biadjacency = parse_tsv(data_path + file, directed=directed, bipartite=bipartite, weighted=weighted)[0]
+            graph = parse_tsv(data_path + file, directed=directed, bipartite=bipartite, weighted=weighted)
+            data.biadjacency = graph.biadjacency
         else:
-            data.adjacency = parse_tsv(data_path + file, directed=directed, bipartite=bipartite, weighted=weighted)[0]
+            graph = parse_tsv(data_path + file, directed=directed, bipartite=bipartite, weighted=weighted)
+            data.adjacency = graph.adjacency
 
     metadata = [file for file in files if 'meta.' in file]
     if metadata:

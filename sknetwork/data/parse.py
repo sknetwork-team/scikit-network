@@ -2,21 +2,23 @@
 # -*- coding: utf-8 -*-
 """
 Created on Dec 5, 2018
-@author: Quentin Lutz <qlutz@enst.fr>, Nathan de Lara <ndelara@enst.fr>
+@author: Quentin Lutz <qlutz@enst.fr>
+Nathan de Lara <ndelara@enst.fr>
 """
 
 from csv import reader
-from typing import Tuple, Union, Optional
+from typing import Union, Optional
 
-from numpy import zeros, unique, argmax, ones, concatenate, array, ndarray
+import numpy as np
 from scipy import sparse
 
+from sknetwork.data import Graph, BiGraph
 from sknetwork.utils import Bunch
 
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
-              labeled: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True)\
-                -> Union[sparse.csr_matrix, Tuple[sparse.csr_matrix, dict], Tuple[sparse.csr_matrix, dict, dict]]:
+              named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True)\
+                -> Union[Graph, BiGraph]:
     """
     A parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
 
@@ -25,12 +27,12 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     file : str
         The path to the dataset in TSV format
     directed : bool
-        If False, considers the graph as undirected.
+        If ``True``, considers the graph as directed.
     bipartite : bool
-        If True, returns a biadjacency matrix of shape (n, p).
+        If ``True``, returns a biadjacency matrix of shape (n1, n2).
     weighted : Optional[bool]
         Retrieves the weights in the third field of the file. None makes a guess based on the first lines.
-    labeled : Optional[bool]
+    named : Optional[bool]
         Retrieves the names given to the nodes and renumbers them. Returns an additional array. None makes a guess
         based on the first lines.
     comment : str
@@ -43,17 +45,12 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
 
     Returns
     -------
-    adjacency : csr_matrix
-        Adjacency or biadjacency matrix of the graph.
-    labels : dict, optional
-        Label of each node.
-    feature_labels : dict, optional
-        Label of each feature node (for bipartite graphs).
+    graph: :class:`Graph` or :class:`BiGraph`
     """
     reindexed = False
     header_len = -1
     possible_delimiters = ['\t', ',', ' ']
-    del_count = zeros(3, dtype=int)
+    del_count = np.zeros(3, dtype=int)
     lines = []
     row = comment
     with open(file, 'r', encoding='utf-8') as f:
@@ -67,79 +64,80 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
             lines.append(row.rstrip())
             row = f.readline()
         lines = [line for line in lines if line != '']
-        guess_delimiter = possible_delimiters[int(argmax(del_count))]
+        guess_delimiter = possible_delimiters[int(np.argmax(del_count))]
         guess_weighted = bool(min([line.count(guess_delimiter) for line in lines]) - 1)
-        guess_labeled = not all([all([el.strip().isdigit() for el in line.split(guess_delimiter)][0:2]) for line
-                                 in lines])
+        guess_named = not all([all([el.strip().isdigit() for el in line.split(guess_delimiter)][0:2])
+                               for line in lines])
     if weighted is None:
         weighted = guess_weighted
-    if labeled is None:
-        labeled = guess_labeled
+    if named is None:
+        named = guess_named
     if delimiter is None:
         delimiter = guess_delimiter
 
-    rows, cols, dat = [], [], []
+    row, col, data = [], [], []
     with open(file, 'r', encoding='utf-8') as f:
         for i in range(header_len):
             f.readline()
         csv_reader = reader(f, delimiter=delimiter)
-        for row in csv_reader:
-            if row[0] not in comment:
-                if labeled:
-                    rows.append(row[0])
-                    cols.append(row[1])
+        for line in csv_reader:
+            if line[0] not in comment:
+                if named:
+                    row.append(line[0])
+                    col.append(line[1])
                 else:
-                    rows.append(int(row[0]))
-                    cols.append(int(row[1]))
+                    row.append(int(line[0]))
+                    col.append(int(line[1]))
                 if weighted:
-                    dat.append(float(row[2]))
-    n_edges = len(rows)
+                    data.append(float(line[2]))
+    n_edges = len(row)
     if bipartite:
-        labels, rows = unique(rows, return_inverse=True)
-        feature_labels, cols = unique(cols, return_inverse=True)
+        names_row, row = np.unique(row, return_inverse=True)
+        names_col, col = np.unique(col, return_inverse=True)
         if not reindex:
-            n_nodes = max(labels) + 1
-            n_feature_nodes = max(feature_labels) + 1
+            n_row = max(names_row) + 1
+            n_col = max(names_col) + 1
         else:
-            n_nodes = len(labels)
-            n_feature_nodes = len(feature_labels)
+            n_row = len(names_row)
+            n_col = len(names_col)
         if not weighted:
-            dat = ones(n_edges, dtype=bool)
-        biadjacency = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_feature_nodes))
-        if labeled or reindex:
-            labels = {i: l for i, l in enumerate(labels)}
-            feature_labels = {i: l for i, l in enumerate(feature_labels)}
-            return biadjacency, labels, feature_labels
-        else:
-            return biadjacency
+            data = np.ones(n_edges, dtype=bool)
+        biadjacency = sparse.csr_matrix((data, (row, col)), shape=(n_row, n_col))
+        graph = BiGraph
+        graph.biadjacency = biadjacency
+        if named or reindex:
+            graph.names = names_row
+            graph.names_row = names_row
+            graph.names_col = names_col
     else:
-        nodes = concatenate((rows, cols), axis=None)
-        labels, new_nodes = unique(nodes, return_inverse=True)
+        nodes = np.concatenate((row, col), axis=None)
+        names, new_nodes = np.unique(nodes, return_inverse=True)
         if not reindex:
-            n_nodes = max(labels) + 1
+            n_nodes = max(names) + 1
         else:
-            n_nodes = len(labels)
-        if labeled:
-            rows = new_nodes[:n_edges]
-            cols = new_nodes[n_edges:]
+            n_nodes = len(names)
+        if named:
+            row = new_nodes[:n_edges]
+            col = new_nodes[n_edges:]
         else:
-            if not all(labels == range(len(labels))) and reindex:
+            if not all(names == range(len(names))) and reindex:
                 reindexed = True
-                rows = new_nodes[:n_edges]
-                cols = new_nodes[n_edges:]
+                row = new_nodes[:n_edges]
+                col = new_nodes[n_edges:]
         if not weighted:
-            dat = ones(n_edges, dtype=bool)
-        adjacency = sparse.csr_matrix((dat, (rows, cols)), shape=(n_nodes, n_nodes))
+            data = np.ones(n_edges, dtype=int)
+        adjacency = sparse.csr_matrix((data, (row, col)), shape=(n_nodes, n_nodes))
         if not directed:
-            adjacency += adjacency.transpose()
-        if labeled or reindexed:
-            labels = {i: l for i, l in enumerate(labels)}
-            return adjacency, labels
-        else:
-            return adjacency
+            adjacency += adjacency.T
+        graph = Graph()
+        graph.adjacency = adjacency
+        if named or reindexed:
+            graph.names = names
+
+    return graph
 
 
-def parse_labels(file: str) -> ndarray:
+def parse_labels(file: str) -> np.ndarray:
     """
     A parser for files with a single entry on each row.
 
@@ -157,7 +155,7 @@ def parse_labels(file: str) -> ndarray:
     with open(file, 'r', encoding='utf-8') as f:
         for row in f:
             rows.append(row.strip())
-    return array(rows)
+    return np.array(rows)
 
 
 def parse_hierarchical_labels(file: str, depth: int, full_path: bool = True, delimiter: str = '|||'):
@@ -188,7 +186,7 @@ def parse_hierarchical_labels(file: str, depth: int, full_path: bool = True, del
                 rows.append(".".join(parts[:min(depth, len(parts))]))
             else:
                 rows.append(parts[:min(depth, len(parts))][-1])
-    return array(rows)
+    return np.array(rows)
 
 
 def parse_header(file: str):
