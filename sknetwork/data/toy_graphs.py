@@ -14,9 +14,11 @@ from sknetwork.data.base import Graph, BiGraph
 
 
 class House(Graph):
-    """House graph (undirected).
-    5 nodes, 6 edges.
-    No label.
+    """House graph.
+
+    * Undirected graph
+    * 5 nodes, 6 edges
+
     """
 
     def __init__(self):
@@ -32,9 +34,11 @@ class House(Graph):
 
 
 class BowTie(Graph):
-    """Bow tie graph (undirected).
-    5 nodes, 6 edges
-    No label.
+    """Bow tie graph.
+
+    * Undirected graph
+    * 5 nodes, 6 edges
+
     """
 
     def __init__(self):
@@ -51,9 +55,10 @@ class BowTie(Graph):
 
 class KarateClub(Graph):
     """Karate club graph.
-    Undirected graph.
-    34 nodes, 78 edges.
-    2 labels.
+
+    * Undirected graph
+    * 34 nodes, 78 edges
+    * 2 labels
 
     References
     ----------
@@ -94,10 +99,12 @@ class KarateClub(Graph):
 
 
 class Miserables(Graph):
-    """Co-occurrence graph of the characters in the novel Les Miserables by Victor Hugo (undirected graph).
-    77 nodes, 508 edges
-    No label.
-    Names of characters.
+    """Co-occurrence graph of the characters in the novel Les Miserables by Victor Hugo.
+
+    * Undirected graph
+    * 77 nodes, 508 edges
+    * Names of characters
+
     """
 
     def __init__(self):
@@ -179,9 +186,12 @@ class Miserables(Graph):
 
 
 class Painters(Graph):
-    """Graph of links between some famous painters on Wikipedia (directed).
-    14 nodes, 50 edges.
-    Names of painters.
+    """Graph of links between some famous painters on Wikipedia.
+
+    * Directed graph
+    * 14 nodes, 50 edges
+    * Names of painters
+
     """
 
     def __init__(self):
@@ -214,8 +224,11 @@ class Painters(Graph):
 
 class StarWars(BiGraph):
     """Bipartite graph connecting some Star Wars villains to the movies in which they appear.
-    7 nodes (4 villains, 3 movies), 8 edges.
-    Names of villains and movies.
+
+    * Bipartite graph
+    * 7 nodes (4 villains, 3 movies), 8 edges
+    * Names of villains and movies
+
     """
     def __init__(self):
         super(StarWars, self).__init__()
@@ -235,8 +248,10 @@ class StarWars(BiGraph):
 
 class MovieActor(BiGraph):
     """Bipartite graph connecting movies to some actors starring in them.
-    31 nodes (15 movies, 16 actors), 41 edges.
-    Names of movies (rows) and actors (columns).
+
+    * Bipartite graph
+    * 31 nodes (15 movies, 16 actors), 41 edges
+    * Names of movies (rows) and actors (columns)
     """
     def __init__(self):
         super(MovieActor, self).__init__()
@@ -255,13 +270,12 @@ class MovieActor(BiGraph):
              'Crazy Stupid Love', 'Vice', 'The Grand Budapest Hotel', 'Aviator', '007 Spectre', 'Inglourious Basterds',
              'Midnight In Paris', 'Murder on the Orient Express', 'Fantastic Beasts 2'])
         actors = np.array(
-            ['Leonardo DiCaprio', 'Marion Cotillard', 'Joseph Gordon Lewitt', 'Christian Bale', 'Ryan Gosling', 'Brad Pitt',
-             'Carey Mulligan', 'Emma Stone', 'Steve Carell', 'Lea Seydoux', 'Ralph Fiennes', 'Jude Law', 'Willem Dafoe',
-             'Christophe Waltz', 'Johnny Depp', 'Owen Wilson'])
+            ['Leonardo DiCaprio', 'Marion Cotillard', 'Joseph Gordon Lewitt', 'Christian Bale', 'Ryan Gosling',
+             'Brad Pitt', 'Carey Mulligan', 'Emma Stone', 'Steve Carell', 'Lea Seydoux', 'Ralph Fiennes', 'Jude Law',
+             'Willem Dafoe', 'Christophe Waltz', 'Johnny Depp', 'Owen Wilson'])
 
         self.biadjacency = biadjacency
         self.names = movies
         self.names_row = movies
         self.names_col = actors
         self.pos_col, self.pos_row = self._get_position(self)
-
