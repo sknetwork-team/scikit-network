@@ -4,10 +4,9 @@
 """The setup script."""
 
 
-from setuptools import find_packages
+from setuptools import find_packages, setup
 from setuptools.extension import Extension
 from Cython.Build import cythonize
-from distutils.core import setup
 import os
 import sys
 
@@ -26,10 +25,10 @@ setup_requirements = ['pytest-runner']
 test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
 
-pyx_paths = ["./sknetwork/clustering/louvain_core.pyx",
-                          "./sknetwork/utils/knn1d.pyx"]
-c_paths = ["./sknetwork/clustering/louvain_core.cpp",
-                          "./sknetwork/utils/knn1d.cpp"]
+pyx_paths = ["sknetwork/clustering/louvain_core.pyx",
+                          "sknetwork/utils/knn1d.pyx"]
+c_paths = ["sknetwork/clustering/louvain_core.cpp",
+                          "sknetwork/utils/knn1d.cpp"]
 
 """
 try:
