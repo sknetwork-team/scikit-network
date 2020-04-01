@@ -25,19 +25,6 @@ setup_requirements = ['pytest-runner']
 test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
 
-pyx_paths = ["sknetwork/utils/knn1d.pyx","sknetwork/clustering/louvain_core.pyx"]
-c_paths = ["sknetwork/utils/knn1d.cpp", "sknetwork/clustering/louvain_core.cpp"]
-modules = ['knn1d', 'louvain_core']
-
-"""
-try:
-    import Cython
-    HAVE_CYTHON = True
-except ImportError:
-    HAVE_CYTHON = False
-"""
-
-
 def no_cythonize(extensions, **_ignore):
     for extension in extensions:
         sources = []
