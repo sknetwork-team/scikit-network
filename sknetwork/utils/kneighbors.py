@@ -12,7 +12,7 @@ from scipy.spatial import cKDTree
 
 from sknetwork.utils.adjacency_formats import directed2undirected
 from sknetwork.utils.base import Algorithm
-from sknetwork.utils.knn1d import toto
+from sknetwork.utils.toto import toto
 
 
 class BaseTransformer(Algorithm, ABC):
