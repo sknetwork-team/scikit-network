@@ -41,7 +41,7 @@ def no_cythonize(extensions, **_ignore):
     return extensions
 
 
-ext_modules = [Extension("*", ["*.pyx"])]
+ext_modules = [Extension("*", ["*.pyx"], language='c++')]
 
 
 setup(
