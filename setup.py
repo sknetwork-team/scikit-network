@@ -37,7 +37,7 @@ except ImportError:
     HAVE_CYTHON = False
 """
 
-HAVE_CYTHON = False
+HAVE_CYTHON = True
 
 if HAVE_CYTHON:
     for couple_index in range(len(pyx_paths)):
