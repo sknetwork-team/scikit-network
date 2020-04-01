@@ -16,7 +16,7 @@ from sknetwork.utils import Bunch
 
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
-              named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True):
+              named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True) -> Bunch:
     """
     A parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
 
@@ -201,7 +201,7 @@ def parse_header(file: str):
     return directed, bipartite, weighted
 
 
-def parse_metadata(file: str, delimiter: str = ': ') -> 'Bunch':
+def parse_metadata(file: str, delimiter: str = ': ') -> Bunch:
     """Extract metadata from the file."""
     metadata = Bunch()
     with open(file, 'r', encoding='utf-8') as f:

@@ -54,7 +54,7 @@ def clear_data_home(data_home: Optional[str] = None):
 
 
 def load_wikilinks(dataset_name: str, data_home: Optional[str] = None,
-                   max_depth: int = 1, full_label: bool = True):
+                   max_depth: int = 1, full_label: bool = True) -> Bunch:
     """Load a dataset from the `WikiLinks database
     <https://graphs.telecom-paristech.fr/Home_page.html#wikilinks-section>`_.
 
@@ -119,7 +119,7 @@ def load_wikilinks(dataset_name: str, data_home: Optional[str] = None,
     return graph
 
 
-def load_konect(dataset_name: str, data_home: Optional[str] = None, auto_numpy_bundle: bool = True):
+def load_konect(dataset_name: str, data_home: Optional[str] = None, auto_numpy_bundle: bool = True) -> Bunch:
     """Load a dataset from the `Konect database
     <http://konect.uni-koblenz.de>`_.
 

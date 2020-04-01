@@ -6,95 +6,66 @@ Created on Jul 1, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
-from typing import Union, Tuple, Optional
+from typing import Union, Optional
 
 import numpy as np
 from scipy import sparse
 
 from sknetwork.utils import Bunch
-from sknetwork.utils.check import check_is_proba, check_random_state
 
 
-def block_model(clusters: Union[np.ndarray, int], shape: Optional[Tuple[int, int]] = None, inner_prob: float = .2,
-                outer_prob: float = .01, random_state: Optional[Union[np.random.RandomState, int]] = None,
-                metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def block_model(sizes: np.ndarray, p_in: Union[float, np.ndarray] = .2, p_out: float = .05,
+                seed: Optional[int] = None, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     """Stochastic block model.
 
     Parameters
     ----------
-    clusters : Union[np.ndarray, int]
-         Cluster specifications (array of couples where each entry denotes the shape of a cluster
-         or an int denoting the number of clusters). If an ``int`` is passed, ``shape`` must be given and
-         the clusters are identical in shape.
-    shape : Optional[Tuple[int]]
-        The size of the adjacency or biadjacency matrix.
-    inner_prob : float
-        Intra-cluster connection probability.
-    outer_prob : float
-        Inter-cluster connection probability.
-    random_state : Optional[Union[np.random.RandomState, int]]
-        Random number generator or random seed. If ``None``, ``numpy.random`` will be used.
+    sizes :
+         Block sizes.
+    p_in :
+        Probability of connection within blocks.
+    p_out :
+        Probability of connection across blocks (must be less than **p_in**).
+    seed : Optional[int]
+        Random seed.
     metadata :
         If ``True``, return a `Bunch` object with metadata.
 
     Returns
     -------
     adjacency or graph : Union[sparse.csr_matrix, Bunch]
-        Adjacency / biadjacency matrix or graph with metadata (labels).
+        Adjacency matrix or graph with metadata (labels).
     """
-    check_is_proba(inner_prob)
-    check_is_proba(outer_prob)
-    random_state = check_random_state(random_state)
+    np.random.seed(seed)
 
-    if type(clusters) == int:
-        if not shape:
-            raise ValueError('Please specify the shape of the matrix when giving a number of clusters.')
-        if clusters <= 0:
-            raise ValueError('The number of clusters must be positive.')
-        n_clusters = clusters
-        clusters_cumul = np.zeros((n_clusters + 1, 2), dtype=int)
-        row_step, col_step = shape[0] // clusters, shape[1] // clusters
-        if row_step == 0 or col_step == 0:
-            raise ValueError('Number of clusters is too high given the shape of the matrix.')
-        clusters_cumul[:, 0] = np.arange(0, shape[0] + 1, row_step)
-        clusters_cumul[:, 1] = np.arange(0, shape[1] + 1, col_step)
-        clusters_cumul[-1, 0] = shape[0]
-        clusters_cumul[-1, 1] = shape[1]
+    if type(p_in) != np.ndarray:
+        p_in = p_in * np.ones_like(sizes)
+    if np.min(p_in) < p_out:
+        raise ValueError('The probability of connection across blocks p_out must be less that the probability of '
+                         'connection within a block p_in.')
 
-    elif type(clusters) == np.ndarray:
-        n_clusters = clusters.shape[0]
-        clusters_cumul = np.cumsum(clusters, axis=0)
-        clusters_cumul = np.insert(clusters_cumul, 0, 0, axis=0)
-        if shape:
-            if clusters_cumul[-1, 0] != shape[0] or clusters_cumul[-1, 1] != shape[1]:
-                raise ValueError('Cluster sizes do not match matrix size.')
+    # each edge is considered twice
+    p_in = p_in / 2
+    p_out = p_out / 2
 
-    else:
-        raise TypeError(
-            'Please specify an array of sizes or a number of clusters (along with the shape of the desired matrix).')
-
-    n_row, n_col = clusters_cumul[-1, 0], clusters_cumul[-1, 1]
-    labels_row = np.zeros(n_row, dtype=int)
-    labels_col = np.zeros(n_col, dtype=int)
-    mat = sparse.dok_matrix((n_row, n_col), dtype=bool)
-    for label, row_block in enumerate(range(n_clusters)):
-        labels_row[clusters_cumul[row_block, 0]:clusters_cumul[row_block + 1, 0]] = label
-        labels_col[clusters_cumul[row_block, 1]:clusters_cumul[row_block + 1, 1]] = label
-        mask = np.full(n_col, outer_prob)
-        mask[clusters_cumul[row_block, 1]:clusters_cumul[row_block + 1, 1]] = inner_prob
-        for row in range(clusters_cumul[row_block, 0], clusters_cumul[row_block + 1, 0]):
-            mat[row, (random_state.rand(n_col) < mask)] = True
-    biadjacency = sparse.csr_matrix(mat)
+    p_diff = p_in - p_out
+    blocks_in = [(sparse.random(s, s, p_diff[k]) > 0) for k, s in enumerate(sizes)]
+    adjacency_in = sparse.block_diag(blocks_in)
+    n = sizes.sum()
+    adjacency_out = sparse.random(n, n, p_out) > 0
+    adjacency = sparse.lil_matrix(adjacency_in + adjacency_out)
+    adjacency.setdiag(0)
+    adjacency = adjacency + adjacency.T
+    adjacency = sparse.csr_matrix(adjacency).astype(int)
 
     if metadata:
         graph = Bunch()
-        graph.biadjacency = biadjacency
-        graph.labels = labels_row
-        graph.labels_row = labels_row
-        graph.labels_col = labels_col
+        graph.adjacency = adjacency
+        labels = np.repeat(np.arange(len(sizes)), sizes)
+        graph.labels = labels
         return graph
     else:
-        return biadjacency
+        return adjacency
 
 
 def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
