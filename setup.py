@@ -68,7 +68,7 @@ if HAVE_CYTHON:
 else:
     ext_modules = [Extension(
         'sknetwork',
-        [c_path],
+        c_paths,
         extra_compile_args=['-O3']
     )]
 
