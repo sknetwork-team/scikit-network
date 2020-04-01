@@ -4,32 +4,36 @@
 
 import unittest
 
-from scipy import sparse
-
-from sknetwork.ranking.hits import HITS
-from sknetwork.data.test_graphs import *
+from sknetwork.data.toy_graphs import karate_club, painters, movie_actor
+from sknetwork.visualization.svg import svg_graph, svg_digraph, svg_bigraph
 
 
 # noinspection DuplicatedCode,PyMissingOrEmptyDocstring
-class TestHITS(unittest.TestCase):
+class TestVisualization(unittest.TestCase):
 
-    def test_hits(self):
-        hits = HITS()
+    def test_undirected(self):
+        graph = karate_club(True)
+        adjacency = graph.adjacency
+        position = graph.position
+        labels = graph.labels
+        image = svg_graph(adjacency, position, labels=labels)
+        self.assertEqual(image[1:4], 'svg')
 
-        adjacency = test_graph()
-        n = adjacency.shape[0]
-        hits.fit(adjacency)
-        self.assertEqual(len(hits.scores_), n)
-        self.assertEqual(len(hits.scores_col_), n)
+    def test_directed(self):
+        graph = painters(True)
+        adjacency = graph.adjacency
+        position = graph.position
+        names = graph.names
+        image = svg_digraph(adjacency, position, names=names)
+        self.assertEqual(image[1:4], 'svg')
 
-        adjacency = test_digraph()
-        n = adjacency.shape[0]
-        hits.fit(adjacency)
-        self.assertEqual(len(hits.scores_), n)
-        self.assertEqual(len(hits.scores_col_), n)
+    def test_bipartite(self):
+        graph = movie_actor(True)
+        biadjacency = graph.biadjacency
+        position_row = graph.position_row
+        position_col = graph.position_col
+        names_row = graph.names_row
+        names_col = graph.names_col
+        image = svg_bigraph(biadjacency, position_row, position_col, names_row, names_col)
+        self.assertEqual(image[1:4], 'svg')
 
-        biadjacency = test_bigraph()
-        n1, n2 = biadjacency.shape
-        hits.fit(biadjacency)
-        self.assertEqual(len(hits.scores_), n1)
-        self.assertEqual(len(hits.scores_col_), n2)

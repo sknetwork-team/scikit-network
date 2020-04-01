@@ -1,192 +1,361 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on October 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+Created on April 2020
+@authors:
+Thomas Bonald <bonald@enst.fr>
+Quentin Lutz <qlutz@enst.fr>
 """
 
-from typing import Union
+from typing import Optional
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering.base import BaseClustering
-from sknetwork.clustering.postprocess import membership_matrix, reindex_clusters
-from sknetwork.embedding import BaseEmbedding, GSVD
-from sknetwork.utils.kmeans import KMeansDense
+from sknetwork.visualization.colors import get_standard_colors, get_coolwarm_rgb
 
 
-class KMeans(BaseClustering):
-    """K-means applied in the embedding space.
+def min_max_scaling(x: np.ndarray) -> np.ndarray:
+    x = x.astype(float)
+    x -= np.min(x)
+    if np.max(x):
+        x /= np.max(x)
+    else:
+        x = .5 * np.ones_like(x)
+    return x
+
+
+def max_min_scaling(y: np.ndarray) -> np.ndarray:
+    y = y.astype(float)
+    y = np.max(y) - y
+    if np.max(y):
+        y /= np.max(y)
+    else:
+        y = .5 * np.ones_like(y)
+    return y
+
+
+def get_colors(n: int, labels: np.ndarray, scores: np.ndarray, color: str) -> np.ndarray:
+    """Return the colors using either labels or scores or default color."""
+    if labels is not None:
+        colors_label = get_standard_colors()
+        colors = colors_label[labels % len(colors_label)]
+    elif scores is not None:
+        colors_score = get_coolwarm_rgb()
+        scores = (min_max_scaling(scores) * 99).astype(int)
+        colors = ['rgb' + str(tuple(colors_score[s])) for s in scores]
+    else:
+        colors = n * [color]
+    return np.array(colors)
+
+
+def svg_node(pos_node: np.ndarray, size: float, color: str, stroke_width: float = 1, stroke_color: str = 'black') \
+        -> str:
+    """Return svg code for a node."""
+    return """<circle cx="{}" cy="{}" r="{}" style="fill:{};stroke:{};stroke-width:{}"/>"""\
+        .format(pos_node[0], pos_node[1], size, color, stroke_color, stroke_width)
+
+
+def svg_edge(pos_1: np.ndarray, pos_2: np.ndarray, stroke_width: float = 1, stroke_color: str = 'black') -> str:
+    """Return svg code for an edge."""
+    return """<path stroke-width="{}" stroke="{}" d="M {} {} {} {}" />"""\
+        .format(stroke_width, stroke_color, pos_1[0], pos_1[1], pos_2[0], pos_2[1])
+
+
+def svg_edge_directed(pos_1: np.ndarray, pos_2: np.ndarray, node_size: float, stroke_width: float = 1,
+                      stroke_color: str = 'black') -> str:
+    """Return svg code for a directed edge."""
+    vec = pos_2 - pos_1
+    norm = np.linalg.norm(vec)
+    if norm:
+        vec = vec / norm * node_size * 2
+        return """<path stroke-width="{}" stroke="{}" d="M {} {} {} {}" marker-end="url(#arrow)"/>"""\
+            .format(stroke_width, stroke_color, pos_1[0], pos_1[1], pos_2[0] - vec[0], pos_2[1] - vec[1])
+    else:
+        return ""
+
+
+def svg_text(pos, text, font_size=12, align_right=False):
+    """Return svg code for text."""
+    if align_right:
+        return """<text text-anchor="end" x="{}" y="{}" font-size="{}">{}</text>"""\
+            .format(pos[0], pos[1], font_size, text)
+    else:
+        return """<text x="{}" y="{}" font-size="{}">{}</text>""".format(pos[0], pos[1], font_size, text)
+
+
+def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optional[np.ndarray] = None,
+              labels: Optional[np.ndarray] = None, scores: Optional[np.ndarray] = None, color: str = 'blue',
+              width: float = 400, height: float = 300, margin: float = 20, margin_text: float = 10,
+              scale: float = 1, node_size: float = 5, edge_width: float = 1, font_size: int = 12) -> str:
+    """Return svg code for a graph.
 
     Parameters
     ----------
-    n_clusters:
-        Number of desired clusters.
-    embedding_method:
-        Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
-    sort_clusters :
-            If ``True``, sort labels in decreasing order of cluster size.
-    return_graph :
-            If ``True``, return the adjacency matrix of the graph between clusters.
-    Attributes
-    ----------
-    labels_ : np.ndarray
-        Label of each node.
-    adjacency_ : sparse.csr_matrix
-        Adjacency matrix between clusters. Only valid if **return_graph** = `True`.
+    adjacency :
+        Adjacency matrix of the graph.
+    position :
+        Positions of the nodes.
+    names :
+        Names of the nodes.
+    labels :
+        Labels of the nodes.
+    scores :
+        Scores of the nodes (measure of importance).
+    color :
+        Default color (svg color).
+    width :
+        Width of the image.
+    height :
+        Height of the image.
+    margin :
+        Margin of the image.
+    margin_text :
+        Margin between node and text.
+    scale :
+        Multiplicative factor on the dimensions of the image.
+    node_size :
+        Size of nodes.
+    edge_width :
+        Width of edges.
+    font_size :
+        Font size.
 
-    Example
+    Returns
     -------
-    >>> from sknetwork.data import karate_club
-    >>> adjacency = karate_club()
-    >>> kmeans = KMeans(n_clusters=3)
-    >>> len(set(kmeans.fit_transform(adjacency)))
-    3
-
+    image : str
+        SVG image.
     """
+    n = adjacency.shape[0]
 
-    def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10), sort_clusters: bool = True,
-                 return_graph: bool = False):
-        super(KMeans, self).__init__()
+    # colors
+    colors = get_colors(n, labels, scores, color)
 
-        self.n_clusters = n_clusters
-        self.embedding_method = embedding_method
-        self.sort_clusters = sort_clusters
-        self.return_graph = return_graph
+    # rescaling
+    x = min_max_scaling(position[:, 0])
+    y = max_min_scaling(position[:, 1])
+    position = np.vstack((x, y)).T
+    position = position * np.array([width, height])
 
-        self.adjacency_ = None
+    # margins
+    position += margin
+    height += 2 * margin
+    width += 2 * margin
+    if names is not None:
+        text_length = np.max(np.array([len(name) for name in names]))
+        width += text_length * font_size * .5
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'KMeans':
-        """Apply embedding method followed by K-means.
+    # scaling
+    position *= scale
+    height *= scale
+    width *= scale
 
-        Parameters
-        ----------
-        adjacency:
-            Adjacency matrix of the graph.
-
-        Returns
-        -------
-        self: :class:`KMeans`
-
-        """
-        if self.n_clusters > adjacency.shape[0]:
-            raise ValueError('The number of clusters exceeds the number of nodes.')
-
-        embedding = self.embedding_method.fit_transform(adjacency)
-        kmeans = KMeansDense(self.n_clusters)
-        kmeans.fit(embedding)
-
-        if self.sort_clusters:
-            labels = reindex_clusters(kmeans.labels_)
-        else:
-            labels = kmeans.labels_
-        self.labels_ = labels
-
-        if self.return_graph:
-            membership = membership_matrix(labels)
-            self.adjacency_ = membership.T.dot(adjacency.dot(membership))
-
-        return self
+    svg = """<svg width="{}" height="{}">""".format(width, height)
+    # edges
+    for i in range(n):
+        for j in adjacency[i].indices:
+            svg += svg_edge(position[i], position[j], edge_width)
+    # nodes
+    for i in range(n):
+        svg += svg_node(position[i], node_size, colors[i])
+    # text
+    if names is not None:
+        for i in range(n):
+            svg += svg_text(position[i] + (margin_text, node_size), names[i], font_size)
+    svg += '</svg>'
+    return svg
 
 
-class BiKMeans(KMeans):
-    """KMeans co-clustering applied in the embedding space.
+def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optional[np.ndarray] = None,
+                labels: Optional[np.ndarray] = None, scores: Optional[np.ndarray] = None, color: str = 'blue',
+                width: float = 400, height: float = 300, margin: float = 20, margin_text: float = 10,
+                scale: float = 1, node_size: float = 5, edge_width: float = 1, font_size: int = 12) -> str:
+    """Return svg code for a directed graph.
 
     Parameters
     ----------
-    n_clusters :
-        Number of clusters.
-    embedding_method :
-        Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
-    cluster_both :
-        If ``True``, co-cluster rows and columns (default = ``False``).
-    sort_clusters :
-            If ``True``, sort labels in decreasing order of cluster size.
-    return_graph :
-            If ``True``, return the biadjacency matrix of the graph between clusters.
-    Attributes
+    adjacency :
+        Adjacency matrix of the graph.
+    position :
+        Positions of the nodes.
+    names :
+        Names of the nodes.
+    labels :
+        Labels of the nodes.
+    scores :
+        Scores of the nodes (measure of importance).
+    color :
+        Default color (svg color).
+    width :
+        Width of the image.
+    height :
+        Height of the image.
+    margin :
+        Margin of the image.
+    margin_text :
+        Margin between node and text.
+    scale :
+        Multiplicative factor on the dimensions of the image.
+    node_size :
+        Size of nodes.
+    edge_width :
+        Width of edges.
+    font_size :
+        Font size.
+
+    Returns
+    -------
+    image : str
+        SVG image.
+    """
+    n = adjacency.shape[0]
+
+    # colors
+    colors = get_colors(n, labels, scores, color)
+
+    # rescaling
+    x = min_max_scaling(position[:, 0])
+    y = max_min_scaling(position[:, 1])
+    position = np.vstack((x, y)).T
+    position = position * np.array([width, height])
+
+    # margins
+    position += margin
+    height += 2 * margin
+    width += 2 * margin
+    if names is not None:
+        text_length = np.max(np.array([len(name) for name in names]))
+        width += text_length * font_size * .5
+
+    # scaling
+    position *= scale
+    height *= scale
+    width *= scale
+
+    svg = """<svg width="{}" height="{}">""".format(width, height)
+    # arrow
+    svg += """<defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" """
+    svg += """markerHeight="10" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" /></marker></defs>"""
+    # edges
+    for i in range(n):
+        for j in adjacency[i].indices:
+            svg += svg_edge_directed(position[i], position[j], node_size, edge_width)
+    # nodes
+    for i in range(n):
+        svg += svg_node(position[i], node_size, colors[i])
+    # text
+    if names is not None:
+        for i in range(n):
+            svg += svg_text(position[i] + (margin_text, node_size), names[i], font_size)
+    svg += '</svg>'
+    return svg
+
+
+def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: np.ndarray, position_col: np.ndarray,
+                names_row: Optional[np.ndarray] = None, names_col: Optional[np.ndarray] = None,
+                labels_row: Optional[np.ndarray] = None, labels_col: Optional[np.ndarray] = None,
+                scores_row: Optional[np.ndarray] = None, scores_col: Optional[np.ndarray] = None,
+                color: str = 'blue', width: float = 400, height: float = 300, margin: float = 20,
+                margin_text: float = 10, scale: float = 1, node_size: float = 5, edge_width: float = 1,
+                font_size: int = 12) -> str:
+    """Return svg code for a bipartite graph.
+
+    Parameters
     ----------
-    labels_ : np.ndarray
+    biadjacency :
+        Adjacency matrix of the graph.
+    position_row :
+        Positions of the rows.
+    position_col :
+        Positions of the columns.
+    names_row :
+        Names of the rows.
+    names_col :
+        Names of the columns.
+    labels_row :
         Labels of the rows.
-    labels_row_ : np.ndarray
-        Labels of the rows (copy of **labels_**).
-    labels_col_ : np.ndarray
-        Labels of the columns. Only valid if **cluster_both** = `True`.
-    biadjacency_ : sparse.csr_matrix
-        Biadjacency matrix of the graph between clusters. Only valid if **return_graph** = `True`.
+    labels_col :
+        Labels of the columns.
+    scores_row :
+        Scores of the rows (measure of importance).
+    scores_col :
+        Scores of the rows (measure of importance).
+    color :
+        Default color (svg color).
+    width :
+        Width of the image.
+    height :
+        Height of the image.
+    margin :
+        Margin of the image.
+    margin_text :
+        Margin between node and text.
+    scale :
+        Multiplicative factor on the dimensions of the image.
+    node_size :
+        Size of nodes.
+    edge_width :
+        Width of edges.
+    font_size :
+        Font size.
 
-    Example
+    Returns
     -------
-    >>> from sknetwork.data import movie_actor
-    >>> biadjacency = movie_actor()
-    >>> bikmeans = BiKMeans(n_clusters=3)
-    >>> len(set(bikmeans.fit_transform(biadjacency)))
-    3
+    image : str
+        SVG image.
     """
+    n_row, n_col = biadjacency.shape
 
-    def __init__(self, n_clusters: int = 2, embedding_method: BaseEmbedding = GSVD(10), cluster_both: bool = False,
-                 sort_clusters: bool = True, return_graph: bool = False):
-        KMeans.__init__(self, n_clusters, embedding_method, sort_clusters, return_graph)
+    # colors
+    colors_row = get_colors(n_row, labels_row, scores_row, color)
+    colors_col = get_colors(n_col, labels_col, scores_col, color)
 
-        if not hasattr(embedding_method, 'embedding_col_'):
-            raise ValueError('The embedding method is not valid for bipartite graphs.')
+    # rescaling
+    position = np.vstack((position_row, position_col))
+    x = min_max_scaling(position[:, 0])
+    y = max_min_scaling(position[:, 1])
+    position = np.vstack((x, y)).T
+    position = position * np.array([width, height])
 
-        self.cluster_both = cluster_both
+    # margins
+    position += margin
+    height += 2 * margin
+    width += 2 * margin
+    if names_row is not None:
+        text_length = np.max(np.array([len(name) for name in names_row]))
+        position[:, 0] += text_length * font_size * .5
+        width += text_length * font_size * .5
+    if names_col is not None:
+        text_length = np.max(np.array([len(name) for name in names_col]))
+        width += text_length * font_size * .5
 
-        self.labels_ = None
-        self.labels_row_ = None
-        self.labels_col_ = None
-        self.biadjacency_ = None
+        # scaling
+    position *= scale
+    height *= scale
+    width *= scale
+    position_row = position[:n_row]
+    position_col = position[n_row:]
 
-    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiKMeans':
-        """Apply embedding method followed by clustering to the graph.
+    svg = """<svg width="{}" height="{}">""".format(width, height)
+    # edges
+    for i in range(n_row):
+        for j in biadjacency[i].indices:
+            svg += svg_edge(position_row[i], position_col[j], edge_width)
+    # nodes
+    for i in range(n_row):
+        svg += svg_node(position_row[i], node_size, colors_row[i])
+    for i in range(n_col):
+        svg += svg_node(position_col[i], node_size, colors_col[i])
+    # text
+    if names_row is not None:
+        for i in range(n_row):
+            svg += svg_text(position_row[i] - (margin_text, 0), names_row[i], font_size, True)
+    if names_col is not None:
+        for i in range(n_col):
+            svg += svg_text(position_col[i] + (margin_text, 0), names_col[i], font_size)
+    svg += '</svg>'
+    return svg
 
-        Parameters
-        ----------
-        biadjacency:
-            Biadjacency matrix of the graph.
 
-        Returns
-        -------
-        self: :class:`BiKMeans`
 
-        """
-        n1, n2 = biadjacency.shape
 
-        if self.n_clusters > n1:
-            raise ValueError('The number of clusters exceeds the number of rows.')
-
-        method = self.embedding_method
-        method.fit(biadjacency)
-
-        if self.cluster_both:
-            embedding = np.vstack((method.embedding_row_, method.embedding_col_))
-        else:
-            embedding = method.embedding_row_
-
-        kmeans = KMeansDense(self.n_clusters)
-        kmeans.fit(embedding)
-
-        if self.sort_clusters:
-            labels = reindex_clusters(kmeans.labels_)
-        else:
-            labels = kmeans.labels_
-
-        if self.cluster_both:
-            self.labels_ = labels[:n1]
-            self.labels_row_ = labels[:n1]
-            self.labels_col_ = labels[n1:]
-        else:
-            self.labels_ = labels
-            self.labels_row_ = labels
-
-        if self.return_graph:
-            membership_row = membership_matrix(self.labels_row_)
-            biadjacency_ = membership_row.T.dot(biadjacency)
-            if self.labels_col_ is not None:
-                membership_col = membership_matrix(self.labels_col_)
-                biadjacency_ = biadjacency_.dot(membership_col)
-            self.biadjacency_ = biadjacency_
-
-        return self
