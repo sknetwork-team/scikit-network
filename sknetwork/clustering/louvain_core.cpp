@@ -8,12 +8,12 @@
             "-O3"
         ],
         "language": "c++",
-        "name": "sknetwork",
+        "name": "sknetwork.clustering.louvain_core",
         "sources": [
             "sknetwork/clustering/louvain_core.pyx"
         ]
     },
-    "module_name": "sknetwork"
+    "module_name": "sknetwork.clustering.louvain_core"
 }
 END: Cython Metadata */
 
@@ -623,8 +623,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__sknetwork
-#define __PYX_HAVE_API__sknetwork
+#define __PYX_HAVE__sknetwork__clustering__louvain_core
+#define __PYX_HAVE_API__sknetwork__clustering__louvain_core
 /* Early includes */
 #include <string.h>
 #include <stdio.h>
@@ -1180,7 +1180,7 @@ typedef npy_longdouble __pyx_t_5numpy_longdouble_t;
  * ctypedef np.float_t float_type_t
  * 
  */
-typedef __pyx_t_5numpy_int_t __pyx_t_9sknetwork_int_type_t;
+typedef __pyx_t_5numpy_int_t __pyx_t_9sknetwork_10clustering_12louvain_core_int_type_t;
 
 /* "sknetwork/clustering/louvain_core.pyx":11
  * 
@@ -1189,7 +1189,7 @@ typedef __pyx_t_5numpy_int_t __pyx_t_9sknetwork_int_type_t;
  * 
  * @cython.boundscheck(False)
  */
-typedef __pyx_t_5numpy_float_t __pyx_t_9sknetwork_float_type_t;
+typedef __pyx_t_5numpy_float_t __pyx_t_9sknetwork_10clustering_12louvain_core_float_type_t;
 /* Declarations.proto */
 #if CYTHON_CCOMPLEX
   #ifdef __cplusplus
@@ -2211,7 +2211,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *, cha
 
 /* Module declarations from 'cython' */
 
-/* Module declarations from 'sknetwork' */
+/* Module declarations from 'sknetwork.clustering.louvain_core' */
 static PyTypeObject *__pyx_array_type = 0;
 static PyTypeObject *__pyx_MemviewEnum_type = 0;
 static PyTypeObject *__pyx_memoryview_type = 0;
@@ -2260,11 +2260,11 @@ static void __pyx_memoryview__slice_assign_scalar(char *, Py_ssize_t *, Py_ssize
 static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, PyObject *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_float_t = { "float_t", NULL, sizeof(__pyx_t_5numpy_float_t), { 0 }, 0, 'R', 0, 0 };
 static __Pyx_TypeInfo __Pyx_TypeInfo_int = { "int", NULL, sizeof(int), { 0 }, 0, IS_UNSIGNED(int) ? 'U' : 'I', IS_UNSIGNED(int), 0 };
-#define __Pyx_MODULE_NAME "sknetwork"
-extern int __pyx_module_is_main_sknetwork;
-int __pyx_module_is_main_sknetwork = 0;
+#define __Pyx_MODULE_NAME "sknetwork.clustering.louvain_core"
+extern int __pyx_module_is_main_sknetwork__clustering__louvain_core;
+int __pyx_module_is_main_sknetwork__clustering__louvain_core = 0;
 
-/* Implementation of 'sknetwork' */
+/* Implementation of 'sknetwork.clustering.louvain_core' */
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_RuntimeError;
@@ -2338,7 +2338,6 @@ static const char __pyx_k_enumerate[] = "enumerate";
 static const char __pyx_k_neighbors[] = "neighbors";
 static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
-static const char __pyx_k_sknetwork[] = "sknetwork";
 static const char __pyx_k_IndexError[] = "IndexError";
 static const char __pyx_k_ValueError[] = "ValueError";
 static const char __pyx_k_delta_best[] = "delta_best";
@@ -2410,6 +2409,7 @@ static const char __pyx_k_numpy_core_umath_failed_to_impor[] = "numpy.core.umath
 static const char __pyx_k_sknetwork_clustering_louvain_cor[] = "sknetwork/clustering/louvain_core.pyx";
 static const char __pyx_k_unable_to_allocate_shape_and_str[] = "unable to allocate shape and strides.";
 static const char __pyx_k_Format_string_allocated_too_shor_2[] = "Format string allocated too short.";
+static const char __pyx_k_sknetwork_clustering_louvain_cor_2[] = "sknetwork.clustering.louvain_core";
 static PyObject *__pyx_n_s_ASCII;
 static PyObject *__pyx_kp_s_Buffer_view_does_not_expose_stri;
 static PyObject *__pyx_kp_s_Can_only_create_a_buffer_that_is;
@@ -2528,8 +2528,8 @@ static PyObject *__pyx_n_s_setstate;
 static PyObject *__pyx_n_s_setstate_cython;
 static PyObject *__pyx_n_s_shape;
 static PyObject *__pyx_n_s_size;
-static PyObject *__pyx_n_s_sknetwork;
 static PyObject *__pyx_kp_s_sknetwork_clustering_louvain_cor;
+static PyObject *__pyx_n_s_sknetwork_clustering_louvain_cor_2;
 static PyObject *__pyx_n_s_start;
 static PyObject *__pyx_n_s_step;
 static PyObject *__pyx_n_s_stop;
@@ -2547,7 +2547,7 @@ static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
 static PyObject *__pyx_n_s_unpack;
 static PyObject *__pyx_n_s_update;
 static PyObject *__pyx_n_s_weights;
-static PyObject *__pyx_pf_9sknetwork_fit_core(CYTHON_UNUSED PyObject *__pyx_self, __pyx_t_9sknetwork_float_type_t __pyx_v_resolution, __pyx_t_9sknetwork_float_type_t __pyx_v_tol, __pyx_t_9sknetwork_int_type_t __pyx_v_n_nodes, __Pyx_memviewslice __pyx_v_ou_node_probs, __Pyx_memviewslice __pyx_v_in_node_probs, __Pyx_memviewslice __pyx_v_self_loops, __Pyx_memviewslice __pyx_v_data, __Pyx_memviewslice __pyx_v_indices, __Pyx_memviewslice __pyx_v_indptr); /* proto */
+static PyObject *__pyx_pf_9sknetwork_10clustering_12louvain_core_fit_core(CYTHON_UNUSED PyObject *__pyx_self, __pyx_t_9sknetwork_10clustering_12louvain_core_float_type_t __pyx_v_resolution, __pyx_t_9sknetwork_10clustering_12louvain_core_float_type_t __pyx_v_tol, __pyx_t_9sknetwork_10clustering_12louvain_core_int_type_t __pyx_v_n_nodes, __Pyx_memviewslice __pyx_v_ou_node_probs, __Pyx_memviewslice __pyx_v_in_node_probs, __Pyx_memviewslice __pyx_v_self_loops, __Pyx_memviewslice __pyx_v_data, __Pyx_memviewslice __pyx_v_indices, __Pyx_memviewslice __pyx_v_indptr); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
@@ -2645,13 +2645,13 @@ static PyObject *__pyx_codeobj__34;
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9sknetwork_1fit_core(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9sknetwork_fit_core[] = "\n    Fit the clusters to the objective function.\n\n    Parameters\n    ----------\n    resolution :\n        Resolution parameter (positive).\n    tol :\n        Minimum increase in modularity to enter a new optimization pass.\n    n_nodes :\n        Number of nodes.\n    ou_node_probs :\n        Distribution of node weights based on their out-edges (sums to 1).\n    in_node_probs :\n        Distribution of node weights based on their in-edges (sums to 1).\n    self_loops :\n        Weights of self loops.\n    data :\n        CSR format data array of the normalized adjacency matrix.\n    indices :\n        CSR format index array of the normalized adjacency matrix.\n    indptr :\n        CSR format index pointer array of the normalized adjacency matrix.\n\n    Returns\n    -------\n    labels :\n        Cluster index of each node.\n    total_increase :\n        Score of the clustering (total increase in modularity).\n    ";
-static PyMethodDef __pyx_mdef_9sknetwork_1fit_core = {"fit_core", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9sknetwork_1fit_core, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9sknetwork_fit_core};
-static PyObject *__pyx_pw_9sknetwork_1fit_core(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  __pyx_t_9sknetwork_float_type_t __pyx_v_resolution;
-  __pyx_t_9sknetwork_float_type_t __pyx_v_tol;
-  __pyx_t_9sknetwork_int_type_t __pyx_v_n_nodes;
+static PyObject *__pyx_pw_9sknetwork_10clustering_12louvain_core_1fit_core(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_9sknetwork_10clustering_12louvain_core_fit_core[] = "\n    Fit the clusters to the objective function.\n\n    Parameters\n    ----------\n    resolution :\n        Resolution parameter (positive).\n    tol :\n        Minimum increase in modularity to enter a new optimization pass.\n    n_nodes :\n        Number of nodes.\n    ou_node_probs :\n        Distribution of node weights based on their out-edges (sums to 1).\n    in_node_probs :\n        Distribution of node weights based on their in-edges (sums to 1).\n    self_loops :\n        Weights of self loops.\n    data :\n        CSR format data array of the normalized adjacency matrix.\n    indices :\n        CSR format index array of the normalized adjacency matrix.\n    indptr :\n        CSR format index pointer array of the normalized adjacency matrix.\n\n    Returns\n    -------\n    labels :\n        Cluster index of each node.\n    total_increase :\n        Score of the clustering (total increase in modularity).\n    ";
+static PyMethodDef __pyx_mdef_9sknetwork_10clustering_12louvain_core_1fit_core = {"fit_core", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9sknetwork_10clustering_12louvain_core_1fit_core, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9sknetwork_10clustering_12louvain_core_fit_core};
+static PyObject *__pyx_pw_9sknetwork_10clustering_12louvain_core_1fit_core(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  __pyx_t_9sknetwork_10clustering_12louvain_core_float_type_t __pyx_v_resolution;
+  __pyx_t_9sknetwork_10clustering_12louvain_core_float_type_t __pyx_v_tol;
+  __pyx_t_9sknetwork_10clustering_12louvain_core_int_type_t __pyx_v_n_nodes;
   __Pyx_memviewslice __pyx_v_ou_node_probs = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_in_node_probs = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_self_loops = { 0, 0, { 0 }, { 0 }, { 0 } };
@@ -2773,18 +2773,18 @@ static PyObject *__pyx_pw_9sknetwork_1fit_core(PyObject *__pyx_self, PyObject *_
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("fit_core", 1, 9, 9, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 15, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sknetwork.fit_core", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("sknetwork.clustering.louvain_core.fit_core", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9sknetwork_fit_core(__pyx_self, __pyx_v_resolution, __pyx_v_tol, __pyx_v_n_nodes, __pyx_v_ou_node_probs, __pyx_v_in_node_probs, __pyx_v_self_loops, __pyx_v_data, __pyx_v_indices, __pyx_v_indptr);
+  __pyx_r = __pyx_pf_9sknetwork_10clustering_12louvain_core_fit_core(__pyx_self, __pyx_v_resolution, __pyx_v_tol, __pyx_v_n_nodes, __pyx_v_ou_node_probs, __pyx_v_in_node_probs, __pyx_v_self_loops, __pyx_v_data, __pyx_v_indices, __pyx_v_indptr);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9sknetwork_fit_core(CYTHON_UNUSED PyObject *__pyx_self, __pyx_t_9sknetwork_float_type_t __pyx_v_resolution, __pyx_t_9sknetwork_float_type_t __pyx_v_tol, __pyx_t_9sknetwork_int_type_t __pyx_v_n_nodes, __Pyx_memviewslice __pyx_v_ou_node_probs, __Pyx_memviewslice __pyx_v_in_node_probs, __Pyx_memviewslice __pyx_v_self_loops, __Pyx_memviewslice __pyx_v_data, __Pyx_memviewslice __pyx_v_indices, __Pyx_memviewslice __pyx_v_indptr) {
+static PyObject *__pyx_pf_9sknetwork_10clustering_12louvain_core_fit_core(CYTHON_UNUSED PyObject *__pyx_self, __pyx_t_9sknetwork_10clustering_12louvain_core_float_type_t __pyx_v_resolution, __pyx_t_9sknetwork_10clustering_12louvain_core_float_type_t __pyx_v_tol, __pyx_t_9sknetwork_10clustering_12louvain_core_int_type_t __pyx_v_n_nodes, __Pyx_memviewslice __pyx_v_ou_node_probs, __Pyx_memviewslice __pyx_v_in_node_probs, __Pyx_memviewslice __pyx_v_self_loops, __Pyx_memviewslice __pyx_v_data, __Pyx_memviewslice __pyx_v_indices, __Pyx_memviewslice __pyx_v_indptr) {
   int __pyx_v_increase;
   CYTHON_UNUSED int __pyx_v_has_candidates;
   std::vector<int>  __pyx_v_labels;
@@ -2816,8 +2816,8 @@ static PyObject *__pyx_pf_9sknetwork_fit_core(CYTHON_UNUSED PyObject *__pyx_self
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   std::set<int>  __pyx_t_1;
-  __pyx_t_9sknetwork_int_type_t __pyx_t_2;
-  __pyx_t_9sknetwork_int_type_t __pyx_t_3;
+  __pyx_t_9sknetwork_10clustering_12louvain_core_int_type_t __pyx_t_2;
+  __pyx_t_9sknetwork_10clustering_12louvain_core_int_type_t __pyx_t_3;
   int __pyx_t_4;
   Py_ssize_t __pyx_t_5;
   Py_ssize_t __pyx_t_6;
@@ -3536,7 +3536,7 @@ static PyObject *__pyx_pf_9sknetwork_fit_core(CYTHON_UNUSED PyObject *__pyx_self
   __Pyx_XDECREF(__pyx_t_20);
   __Pyx_XDECREF(__pyx_t_21);
   __Pyx_XDECREF(__pyx_t_22);
-  __Pyx_AddTraceback("sknetwork.fit_core", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("sknetwork.clustering.louvain_core.fit_core", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_ou_node_probs, 1);
@@ -19094,7 +19094,7 @@ static PyBufferProcs __pyx_tp_as_buffer_array = {
 
 static PyTypeObject __pyx_type___pyx_array = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sknetwork.array", /*tp_name*/
+  "sknetwork.clustering.louvain_core.array", /*tp_name*/
   sizeof(struct __pyx_array_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_array, /*tp_dealloc*/
@@ -19213,7 +19213,7 @@ static PyMethodDef __pyx_methods_Enum[] = {
 
 static PyTypeObject __pyx_type___pyx_MemviewEnum = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sknetwork.Enum", /*tp_name*/
+  "sknetwork.clustering.louvain_core.Enum", /*tp_name*/
   sizeof(struct __pyx_MemviewEnum_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_Enum, /*tp_dealloc*/
@@ -19474,7 +19474,7 @@ static PyBufferProcs __pyx_tp_as_buffer_memoryview = {
 
 static PyTypeObject __pyx_type___pyx_memoryview = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sknetwork.memoryview", /*tp_name*/
+  "sknetwork.clustering.louvain_core.memoryview", /*tp_name*/
   sizeof(struct __pyx_memoryview_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_memoryview, /*tp_dealloc*/
@@ -19612,7 +19612,7 @@ static struct PyGetSetDef __pyx_getsets__memoryviewslice[] = {
 
 static PyTypeObject __pyx_type___pyx_memoryviewslice = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sknetwork._memoryviewslice", /*tp_name*/
+  "sknetwork.clustering.louvain_core._memoryviewslice", /*tp_name*/
   sizeof(struct __pyx_memoryviewslice_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc__memoryviewslice, /*tp_dealloc*/
@@ -19694,17 +19694,17 @@ static PyMethodDef __pyx_methods[] = {
 #if PY_MAJOR_VERSION >= 3
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 static PyObject* __pyx_pymod_create(PyObject *spec, PyModuleDef *def); /*proto*/
-static int __pyx_pymod_exec_sknetwork(PyObject* module); /*proto*/
+static int __pyx_pymod_exec_louvain_core(PyObject* module); /*proto*/
 static PyModuleDef_Slot __pyx_moduledef_slots[] = {
   {Py_mod_create, (void*)__pyx_pymod_create},
-  {Py_mod_exec, (void*)__pyx_pymod_exec_sknetwork},
+  {Py_mod_exec, (void*)__pyx_pymod_exec_louvain_core},
   {0, NULL}
 };
 #endif
 
 static struct PyModuleDef __pyx_moduledef = {
     PyModuleDef_HEAD_INIT,
-    "sknetwork",
+    "louvain_core",
     0, /* m_doc */
   #if CYTHON_PEP489_MULTI_PHASE_INIT
     0, /* m_size */
@@ -19851,8 +19851,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_setstate_cython, __pyx_k_setstate_cython, sizeof(__pyx_k_setstate_cython), 0, 0, 1, 1},
   {&__pyx_n_s_shape, __pyx_k_shape, sizeof(__pyx_k_shape), 0, 0, 1, 1},
   {&__pyx_n_s_size, __pyx_k_size, sizeof(__pyx_k_size), 0, 0, 1, 1},
-  {&__pyx_n_s_sknetwork, __pyx_k_sknetwork, sizeof(__pyx_k_sknetwork), 0, 0, 1, 1},
   {&__pyx_kp_s_sknetwork_clustering_louvain_cor, __pyx_k_sknetwork_clustering_louvain_cor, sizeof(__pyx_k_sknetwork_clustering_louvain_cor), 0, 0, 1, 0},
+  {&__pyx_n_s_sknetwork_clustering_louvain_cor_2, __pyx_k_sknetwork_clustering_louvain_cor_2, sizeof(__pyx_k_sknetwork_clustering_louvain_cor_2), 0, 0, 1, 1},
   {&__pyx_n_s_start, __pyx_k_start, sizeof(__pyx_k_start), 0, 0, 1, 1},
   {&__pyx_n_s_step, __pyx_k_step, sizeof(__pyx_k_step), 0, 0, 1, 1},
   {&__pyx_n_s_stop, __pyx_k_stop, sizeof(__pyx_k_stop), 0, 0, 1, 1},
@@ -20424,11 +20424,11 @@ static int __Pyx_modinit_function_import_code(void) {
 
 
 #if PY_MAJOR_VERSION < 3
-__Pyx_PyMODINIT_FUNC initsknetwork(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC initsknetwork(void)
+__Pyx_PyMODINIT_FUNC initlouvain_core(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC initlouvain_core(void)
 #else
-__Pyx_PyMODINIT_FUNC PyInit_sknetwork(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC PyInit_sknetwork(void)
+__Pyx_PyMODINIT_FUNC PyInit_louvain_core(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC PyInit_louvain_core(void)
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 {
   return PyModuleDef_Init(&__pyx_moduledef);
@@ -20495,7 +20495,7 @@ bad:
 }
 
 
-static CYTHON_SMALL_CODE int __pyx_pymod_exec_sknetwork(PyObject *__pyx_pyinit_module)
+static CYTHON_SMALL_CODE int __pyx_pymod_exec_louvain_core(PyObject *__pyx_pyinit_module)
 #endif
 #endif
 {
@@ -20505,7 +20505,7 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_sknetwork(PyObject *__pyx_pyinit_m
   #if CYTHON_PEP489_MULTI_PHASE_INIT
   if (__pyx_m) {
     if (__pyx_m == __pyx_pyinit_module) return 0;
-    PyErr_SetString(PyExc_RuntimeError, "Module 'sknetwork' has already been imported. Re-initialisation is not supported.");
+    PyErr_SetString(PyExc_RuntimeError, "Module 'louvain_core' has already been imported. Re-initialisation is not supported.");
     return -1;
   }
   #elif PY_MAJOR_VERSION >= 3
@@ -20520,7 +20520,7 @@ if (!__Pyx_RefNanny) {
       Py_FatalError("failed to import 'refnanny' module");
 }
 #endif
-  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_sknetwork(void)", 0);
+  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_louvain_core(void)", 0);
   if (__Pyx_check_binary_version() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #ifdef __Pxy_PyFrame_Initialize_Offsets
   __Pxy_PyFrame_Initialize_Offsets();
@@ -20559,7 +20559,7 @@ if (!__Pyx_RefNanny) {
   Py_INCREF(__pyx_m);
   #else
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("sknetwork", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("louvain_core", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   #else
   __pyx_m = PyModule_Create(&__pyx_moduledef);
   #endif
@@ -20577,14 +20577,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_sknetwork) {
+  if (__pyx_module_is_main_sknetwork__clustering__louvain_core) {
     if (PyObject_SetAttr(__pyx_m, __pyx_n_s_name_2, __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "sknetwork")) {
-      if (unlikely(PyDict_SetItemString(modules, "sknetwork", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "sknetwork.clustering.louvain_core")) {
+      if (unlikely(PyDict_SetItemString(modules, "sknetwork.clustering.louvain_core", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -20624,7 +20624,7 @@ if (!__Pyx_RefNanny) {
  *              np.float_t[:] in_node_probs, np.float_t[:] self_loops, np.float_t[:] data, int[:] indices,
  *              int[:] indptr):  # pragma: no cover
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_9sknetwork_1fit_core, NULL, __pyx_n_s_sknetwork); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_9sknetwork_10clustering_12louvain_core_1fit_core, NULL, __pyx_n_s_sknetwork_clustering_louvain_cor_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 15, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_fit_core, __pyx_t_1) < 0) __PYX_ERR(0, 15, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -20799,11 +20799,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_1);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init sknetwork", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init sknetwork.clustering.louvain_core", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_CLEAR(__pyx_m);
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init sknetwork");
+    PyErr_SetString(PyExc_ImportError, "init sknetwork.clustering.louvain_core");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();

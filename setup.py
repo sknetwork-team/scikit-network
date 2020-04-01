@@ -43,13 +43,14 @@ if HAVE_CYTHON:
     for couple_index in range(len(pyx_paths)):
         pyx_path = pyx_paths[couple_index]
         c_path = c_paths[couple_index]
+        mod_name = modules[couple_index]
         if os.path.exists(c_path):
             # Remove C file to force Cython recompile.
             os.remove(c_path)
         if 'test' in sys.argv and platform.python_implementation() == 'CPython':
             from Cython.Build import cythonize
             ext_modules = cythonize(Extension(
-                "sknetwork",
+                mod_name,
                 [pyx_path],
                 define_macros=[('CYTHON_TRACE', '1')]
             ), compiler_directives={
@@ -59,7 +60,7 @@ if HAVE_CYTHON:
         else:
             from Cython.Build import cythonize
             ext_modules = cythonize(Extension(
-                "sknetwork",
+                mod_name,
                 [pyx_path],
                 extra_compile_args=['-O3']
             ))

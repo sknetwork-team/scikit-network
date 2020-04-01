@@ -8,12 +8,12 @@
             "-O3"
         ],
         "language": "c++",
-        "name": "sknetwork",
+        "name": "sknetwork.utils.toto",
         "sources": [
             "sknetwork/utils/toto.pyx"
         ]
     },
-    "module_name": "sknetwork"
+    "module_name": "sknetwork.utils.toto"
 }
 END: Cython Metadata */
 
@@ -623,8 +623,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__sknetwork
-#define __PYX_HAVE_API__sknetwork
+#define __PYX_HAVE__sknetwork__utils__toto
+#define __PYX_HAVE_API__sknetwork__utils__toto
 /* Early includes */
 #include <string.h>
 #include <stdio.h>
@@ -1178,7 +1178,7 @@ typedef npy_longdouble __pyx_t_5numpy_longdouble_t;
  * ctypedef np.float_t float_type_t
  * 
  */
-typedef __pyx_t_5numpy_int_t __pyx_t_9sknetwork_int_type_t;
+typedef __pyx_t_5numpy_int_t __pyx_t_9sknetwork_5utils_4toto_int_type_t;
 
 /* "sknetwork/utils/toto.pyx":15
  * 
@@ -1187,7 +1187,7 @@ typedef __pyx_t_5numpy_int_t __pyx_t_9sknetwork_int_type_t;
  * 
  * @cython.boundscheck(False)
  */
-typedef __pyx_t_5numpy_float_t __pyx_t_9sknetwork_float_type_t;
+typedef __pyx_t_5numpy_float_t __pyx_t_9sknetwork_5utils_4toto_float_type_t;
 /* Declarations.proto */
 #if CYTHON_CCOMPLEX
   #ifdef __cplusplus
@@ -2206,7 +2206,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *, cha
 
 /* Module declarations from 'cython' */
 
-/* Module declarations from 'sknetwork' */
+/* Module declarations from 'sknetwork.utils.toto' */
 static PyTypeObject *__pyx_array_type = 0;
 static PyTypeObject *__pyx_MemviewEnum_type = 0;
 static PyTypeObject *__pyx_memoryview_type = 0;
@@ -2255,11 +2255,11 @@ static void __pyx_memoryview_slice_assign_scalar(__Pyx_memviewslice *, int, size
 static void __pyx_memoryview__slice_assign_scalar(char *, Py_ssize_t *, Py_ssize_t *, int, size_t, void *); /*proto*/
 static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, PyObject *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_float_t = { "float_t", NULL, sizeof(__pyx_t_5numpy_float_t), { 0 }, 0, 'R', 0, 0 };
-#define __Pyx_MODULE_NAME "sknetwork"
-extern int __pyx_module_is_main_sknetwork;
-int __pyx_module_is_main_sknetwork = 0;
+#define __Pyx_MODULE_NAME "sknetwork.utils.toto"
+extern int __pyx_module_is_main_sknetwork__utils__toto;
+int __pyx_module_is_main_sknetwork__utils__toto = 0;
 
-/* Implementation of 'sknetwork' */
+/* Implementation of 'sknetwork.utils.toto' */
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_RuntimeError;
@@ -2330,7 +2330,6 @@ static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_enumerate[] = "enumerate";
 static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
-static const char __pyx_k_sknetwork[] = "sknetwork";
 static const char __pyx_k_sorted_ix[] = "sorted_ix";
 static const char __pyx_k_IndexError[] = "IndexError";
 static const char __pyx_k_ValueError[] = "ValueError";
@@ -2356,6 +2355,7 @@ static const char __pyx_k_pyx_unpickle_Enum[] = "__pyx_unpickle_Enum";
 static const char __pyx_k_sorted_candidates[] = "sorted_candidates";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
+static const char __pyx_k_sknetwork_utils_toto[] = "sknetwork.utils.toto";
 static const char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
 static const char __pyx_k_contiguous_and_direct[] = "<contiguous and direct>";
 static const char __pyx_k_MemoryView_of_r_object[] = "<MemoryView of %r object>";
@@ -2486,7 +2486,7 @@ static PyObject *__pyx_n_s_setstate;
 static PyObject *__pyx_n_s_setstate_cython;
 static PyObject *__pyx_n_s_shape;
 static PyObject *__pyx_n_s_size;
-static PyObject *__pyx_n_s_sknetwork;
+static PyObject *__pyx_n_s_sknetwork_utils_toto;
 static PyObject *__pyx_kp_s_sknetwork_utils_toto_pyx;
 static PyObject *__pyx_n_s_sorted_candidates;
 static PyObject *__pyx_n_s_sorted_deltas;
@@ -2509,7 +2509,7 @@ static PyObject *__pyx_n_s_unpack;
 static PyObject *__pyx_n_s_update;
 static PyObject *__pyx_n_s_val;
 static PyObject *__pyx_n_s_x;
-static PyObject *__pyx_pf_9sknetwork_toto(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_x, int __pyx_v_n_neighbors); /* proto */
+static PyObject *__pyx_pf_9sknetwork_5utils_4toto_toto(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_x, int __pyx_v_n_neighbors); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
@@ -2607,10 +2607,10 @@ static PyObject *__pyx_codeobj__34;
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9sknetwork_1toto(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9sknetwork_toto[] = "K nearest neighbors search for 1-dimensional arrays.\n\n    Parameters\n    ----------\n    x: np.ndarray\n        1-d data\n    n_neighbors: int\n        Number of neighbors to return.\n    Returns\n    -------\n    list\n        List of nearest neighbors tuples (i, j).\n\n    ";
-static PyMethodDef __pyx_mdef_9sknetwork_1toto = {"toto", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9sknetwork_1toto, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9sknetwork_toto};
-static PyObject *__pyx_pw_9sknetwork_1toto(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_9sknetwork_5utils_4toto_1toto(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_9sknetwork_5utils_4toto_toto[] = "K nearest neighbors search for 1-dimensional arrays.\n\n    Parameters\n    ----------\n    x: np.ndarray\n        1-d data\n    n_neighbors: int\n        Number of neighbors to return.\n    Returns\n    -------\n    list\n        List of nearest neighbors tuples (i, j).\n\n    ";
+static PyMethodDef __pyx_mdef_9sknetwork_5utils_4toto_1toto = {"toto", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9sknetwork_5utils_4toto_1toto, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9sknetwork_5utils_4toto_toto};
+static PyObject *__pyx_pw_9sknetwork_5utils_4toto_1toto(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   __Pyx_memviewslice __pyx_v_x = { 0, 0, { 0 }, { 0 }, { 0 } };
   int __pyx_v_n_neighbors;
   PyObject *__pyx_r = 0;
@@ -2658,18 +2658,18 @@ static PyObject *__pyx_pw_9sknetwork_1toto(PyObject *__pyx_self, PyObject *__pyx
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("toto", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 19, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sknetwork.toto", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("sknetwork.utils.toto.toto", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9sknetwork_toto(__pyx_self, __pyx_v_x, __pyx_v_n_neighbors);
+  __pyx_r = __pyx_pf_9sknetwork_5utils_4toto_toto(__pyx_self, __pyx_v_x, __pyx_v_n_neighbors);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9sknetwork_toto(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_x, int __pyx_v_n_neighbors) {
+static PyObject *__pyx_pf_9sknetwork_5utils_4toto_toto(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_x, int __pyx_v_n_neighbors) {
   int __pyx_v_n;
   int __pyx_v_i;
   int __pyx_v_j;
@@ -3094,7 +3094,7 @@ static PyObject *__pyx_pf_9sknetwork_toto(CYTHON_UNUSED PyObject *__pyx_self, __
   __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("sknetwork.toto", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("sknetwork.utils.toto.toto", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __PYX_XDEC_MEMVIEW(&__pyx_v_x, 1);
@@ -18701,7 +18701,7 @@ static PyBufferProcs __pyx_tp_as_buffer_array = {
 
 static PyTypeObject __pyx_type___pyx_array = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sknetwork.array", /*tp_name*/
+  "sknetwork.utils.toto.array", /*tp_name*/
   sizeof(struct __pyx_array_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_array, /*tp_dealloc*/
@@ -18820,7 +18820,7 @@ static PyMethodDef __pyx_methods_Enum[] = {
 
 static PyTypeObject __pyx_type___pyx_MemviewEnum = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sknetwork.Enum", /*tp_name*/
+  "sknetwork.utils.toto.Enum", /*tp_name*/
   sizeof(struct __pyx_MemviewEnum_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_Enum, /*tp_dealloc*/
@@ -19081,7 +19081,7 @@ static PyBufferProcs __pyx_tp_as_buffer_memoryview = {
 
 static PyTypeObject __pyx_type___pyx_memoryview = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sknetwork.memoryview", /*tp_name*/
+  "sknetwork.utils.toto.memoryview", /*tp_name*/
   sizeof(struct __pyx_memoryview_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_memoryview, /*tp_dealloc*/
@@ -19219,7 +19219,7 @@ static struct PyGetSetDef __pyx_getsets__memoryviewslice[] = {
 
 static PyTypeObject __pyx_type___pyx_memoryviewslice = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sknetwork._memoryviewslice", /*tp_name*/
+  "sknetwork.utils.toto._memoryviewslice", /*tp_name*/
   sizeof(struct __pyx_memoryviewslice_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc__memoryviewslice, /*tp_dealloc*/
@@ -19301,17 +19301,17 @@ static PyMethodDef __pyx_methods[] = {
 #if PY_MAJOR_VERSION >= 3
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 static PyObject* __pyx_pymod_create(PyObject *spec, PyModuleDef *def); /*proto*/
-static int __pyx_pymod_exec_sknetwork(PyObject* module); /*proto*/
+static int __pyx_pymod_exec_toto(PyObject* module); /*proto*/
 static PyModuleDef_Slot __pyx_moduledef_slots[] = {
   {Py_mod_create, (void*)__pyx_pymod_create},
-  {Py_mod_exec, (void*)__pyx_pymod_exec_sknetwork},
+  {Py_mod_exec, (void*)__pyx_pymod_exec_toto},
   {0, NULL}
 };
 #endif
 
 static struct PyModuleDef __pyx_moduledef = {
     PyModuleDef_HEAD_INIT,
-    "sknetwork",
+    "toto",
     __pyx_k_One_dimensional_nearest_neighbo, /* m_doc */
   #if CYTHON_PEP489_MULTI_PHASE_INIT
     0, /* m_size */
@@ -19437,7 +19437,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_setstate_cython, __pyx_k_setstate_cython, sizeof(__pyx_k_setstate_cython), 0, 0, 1, 1},
   {&__pyx_n_s_shape, __pyx_k_shape, sizeof(__pyx_k_shape), 0, 0, 1, 1},
   {&__pyx_n_s_size, __pyx_k_size, sizeof(__pyx_k_size), 0, 0, 1, 1},
-  {&__pyx_n_s_sknetwork, __pyx_k_sknetwork, sizeof(__pyx_k_sknetwork), 0, 0, 1, 1},
+  {&__pyx_n_s_sknetwork_utils_toto, __pyx_k_sknetwork_utils_toto, sizeof(__pyx_k_sknetwork_utils_toto), 0, 0, 1, 1},
   {&__pyx_kp_s_sknetwork_utils_toto_pyx, __pyx_k_sknetwork_utils_toto_pyx, sizeof(__pyx_k_sknetwork_utils_toto_pyx), 0, 0, 1, 0},
   {&__pyx_n_s_sorted_candidates, __pyx_k_sorted_candidates, sizeof(__pyx_k_sorted_candidates), 0, 0, 1, 1},
   {&__pyx_n_s_sorted_deltas, __pyx_k_sorted_deltas, sizeof(__pyx_k_sorted_deltas), 0, 0, 1, 1},
@@ -20014,11 +20014,11 @@ static int __Pyx_modinit_function_import_code(void) {
 
 
 #if PY_MAJOR_VERSION < 3
-__Pyx_PyMODINIT_FUNC initsknetwork(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC initsknetwork(void)
+__Pyx_PyMODINIT_FUNC inittoto(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC inittoto(void)
 #else
-__Pyx_PyMODINIT_FUNC PyInit_sknetwork(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC PyInit_sknetwork(void)
+__Pyx_PyMODINIT_FUNC PyInit_toto(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC PyInit_toto(void)
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 {
   return PyModuleDef_Init(&__pyx_moduledef);
@@ -20085,7 +20085,7 @@ bad:
 }
 
 
-static CYTHON_SMALL_CODE int __pyx_pymod_exec_sknetwork(PyObject *__pyx_pyinit_module)
+static CYTHON_SMALL_CODE int __pyx_pymod_exec_toto(PyObject *__pyx_pyinit_module)
 #endif
 #endif
 {
@@ -20095,7 +20095,7 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_sknetwork(PyObject *__pyx_pyinit_m
   #if CYTHON_PEP489_MULTI_PHASE_INIT
   if (__pyx_m) {
     if (__pyx_m == __pyx_pyinit_module) return 0;
-    PyErr_SetString(PyExc_RuntimeError, "Module 'sknetwork' has already been imported. Re-initialisation is not supported.");
+    PyErr_SetString(PyExc_RuntimeError, "Module 'toto' has already been imported. Re-initialisation is not supported.");
     return -1;
   }
   #elif PY_MAJOR_VERSION >= 3
@@ -20110,7 +20110,7 @@ if (!__Pyx_RefNanny) {
       Py_FatalError("failed to import 'refnanny' module");
 }
 #endif
-  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_sknetwork(void)", 0);
+  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_toto(void)", 0);
   if (__Pyx_check_binary_version() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #ifdef __Pxy_PyFrame_Initialize_Offsets
   __Pxy_PyFrame_Initialize_Offsets();
@@ -20149,7 +20149,7 @@ if (!__Pyx_RefNanny) {
   Py_INCREF(__pyx_m);
   #else
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("sknetwork", __pyx_methods, __pyx_k_One_dimensional_nearest_neighbo, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("toto", __pyx_methods, __pyx_k_One_dimensional_nearest_neighbo, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   #else
   __pyx_m = PyModule_Create(&__pyx_moduledef);
   #endif
@@ -20167,14 +20167,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_sknetwork) {
+  if (__pyx_module_is_main_sknetwork__utils__toto) {
     if (PyObject_SetAttr(__pyx_m, __pyx_n_s_name_2, __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "sknetwork")) {
-      if (unlikely(PyDict_SetItemString(modules, "sknetwork", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "sknetwork.utils.toto")) {
+      if (unlikely(PyDict_SetItemString(modules, "sknetwork.utils.toto", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -20214,7 +20214,7 @@ if (!__Pyx_RefNanny) {
  *     """K nearest neighbors search for 1-dimensional arrays.
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_9sknetwork_1toto, NULL, __pyx_n_s_sknetwork); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_9sknetwork_5utils_4toto_1toto, NULL, __pyx_n_s_sknetwork_utils_toto); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 19, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_toto, __pyx_t_1) < 0) __PYX_ERR(0, 19, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -20389,11 +20389,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_1);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init sknetwork", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init sknetwork.utils.toto", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_CLEAR(__pyx_m);
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init sknetwork");
+    PyErr_SetString(PyExc_ImportError, "init sknetwork.utils.toto");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
