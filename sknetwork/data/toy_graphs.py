@@ -281,7 +281,7 @@ def painters(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
 
     if metadata:
         names = np.array(
-            ['Pablo Picasso', 'Claude Monet', 'Michelangelo', 'Edouard Manet', 'Peter Paul Rubens', 'Rembrandt',
+            ['Pablo Picasso', 'Claude Monet', 'Michel Angelo', 'Edouard Manet', 'Peter Paul Rubens', 'Rembrandt',
              'Gustav Klimt', 'Edgar Degas', 'Vincent van Gogh', 'Leonardo da Vinci', 'Henri Matisse', 'Paul Cezanne',
              'Pierre-Auguste Renoir', 'Egon Schiele'])
         x = np.array(
