@@ -1,3 +1,5 @@
+STUFF = "Hi"
+
 # distutils: language = c++
 # cython: language_level=3
 """ One dimensional nearest neighbor search.
