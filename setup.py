@@ -27,7 +27,7 @@ test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
 pyx_paths = ["sknetwork/utils/toto.pyx", "sknetwork/clustering/louvain_core.pyx"]
 c_paths = ["sknetwork/utils/toto.cpp", "sknetwork/clustering/louvain_core.cpp"]
-modules = ['sknetwork.utils.knn1d', 'sknetwork.clustering.louvain_core']
+modules = ['sknetwork.utils.toto', 'sknetwork.clustering.louvain_core']
 
 """
 try:
