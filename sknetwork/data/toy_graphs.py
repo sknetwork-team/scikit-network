@@ -24,12 +24,12 @@ def get_position_bipartite(n1: int, n2: int):
 
     Returns
     -------
-    pos_col, pos_row :
+    position_col, position_row :
         Position of nodes.
     """
-    pos_row = np.vstack((np.zeros(n1), np.arange(n1))).T
-    pos_col = np.vstack((np.ones(n2), np.arange(n2))).T
-    return pos_row, pos_col
+    position_row = np.vstack((np.zeros(n1), np.arange(n1))).T
+    position_col = np.vstack((np.ones(n2), np.arange(n2))).T
+    return position_row, position_col
 
 
 def house(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
@@ -58,7 +58,7 @@ def house(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         y = np.array([2, 1, -1, -1, 1])
         graph = Bunch()
         graph.adjacency = adjacency
-        graph.pos = np.vstack((x, y)).T
+        graph.position = np.vstack((x, y)).T
         return graph
     else:
         return adjacency
@@ -90,7 +90,7 @@ def bow_tie(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         y = np.array([0, 1, 1, -1, -1])
         graph = Bunch()
         graph.adjacency = adjacency
-        graph.pos = np.vstack((x, y)).T
+        graph.position = np.vstack((x, y)).T
         return graph
     else:
         return adjacency
@@ -147,7 +147,7 @@ def karate_club(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph = Bunch()
         graph.adjacency = adjacency
         graph.labels = labels
-        graph.pos = np.vstack((x, y)).T
+        graph.position = np.vstack((x, y)).T
         return graph
     else:
         return adjacency
@@ -246,7 +246,7 @@ def miserables(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph = Bunch()
         graph.adjacency = adjacency
         graph.names = np.array(names)
-        graph.pos = np.vstack((x, y)).T
+        graph.position = np.vstack((x, y)).T
         return graph
     else:
         return adjacency
@@ -293,7 +293,7 @@ def painters(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph = Bunch()
         graph.adjacency = adjacency
         graph.names = names
-        graph.pos = np.stack((x, y)).T
+        graph.position = np.stack((x, y)).T
         return graph
     else:
         return adjacency
@@ -328,7 +328,7 @@ def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.names = villains
         graph.names_row = villains
         graph.names_col = movies
-        graph.pos_row, graph.pos_col = get_position_bipartite(*biadjacency.shape)
+        graph.position_row, graph.position_col = get_position_bipartite(*biadjacency.shape)
         return graph
     else:
         return biadjacency
@@ -375,7 +375,7 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.names = movies
         graph.names_row = movies
         graph.names_col = actors
-        graph.pos_row, graph.pos_col = get_position_bipartite(*biadjacency.shape)
+        graph.position_row, graph.position_col = get_position_bipartite(*biadjacency.shape)
         return graph
     else:
         return biadjacency

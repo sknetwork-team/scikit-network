@@ -94,7 +94,7 @@ def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
         y = np.zeros(n)
         graph = Bunch()
         graph.adjacency = adjacency
-        graph.pos = np.array((x, y)).T
+        graph.position = np.array((x, y)).T
         return graph
     else:
         return adjacency
@@ -151,7 +151,7 @@ def cyclic_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
         y = np.sin(t)
         graph = Bunch()
         graph.adjacency = adjacency
-        graph.pos = np.array((x, y)).T
+        graph.position = np.array((x, y)).T
         return graph
     else:
         return adjacency
