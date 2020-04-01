@@ -15,3 +15,4 @@ Reference
     linalg
     basics
     utils
+    visualization

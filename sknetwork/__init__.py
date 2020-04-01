@@ -59,3 +59,4 @@ import sknetwork.linalg
 import sknetwork.ranking
 import sknetwork.data
 import sknetwork.utils
+import sknetwork.visualization

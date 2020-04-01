@@ -42,8 +42,10 @@ def get_colors(n: int, labels: np.ndarray, scores: np.ndarray, color: str) -> np
         colors = colors_label[labels % len(colors_label)]
     elif scores is not None:
         colors_score = get_coolwarm_rgb()
-        scores = (min_max_scaling(scores) * 99).astype(int)
-        colors = ['rgb' + str(tuple(colors_score[s])) for s in scores]
+        n_colors = colors_score.shape[0]
+        colors_score_svg = np.array(['rgb' + str(tuple(colors_score[i])) for i in range(n_colors)])
+        scores = (min_max_scaling(scores) * (n_colors - 1)).astype(int)
+        colors = colors_score_svg[scores]
     else:
         colors = n * [color]
     return np.array(colors)
