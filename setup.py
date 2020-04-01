@@ -97,6 +97,7 @@ setup(
     name='scikit-network',
     # packages=find_packages(include=['sknetwork']),
     packages=find_packages(),
+    package_dir={'sknetwork': 'sknetwork'},
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
