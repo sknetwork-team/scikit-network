@@ -29,6 +29,7 @@ pyx_paths = ["sknetwork/clustering/louvain_core.pyx",
                           "sknetwork/utils/knn1d.pyx"]
 c_paths = ["sknetwork/clustering/louvain_core.cpp",
                           "sknetwork/utils/knn1d.cpp"]
+modules = ["clustering", "utils"]
 
 """
 try:
@@ -66,10 +67,10 @@ if HAVE_CYTHON:
             ))
 else:
     ext_modules = [Extension(
-        'sknetwork',
-        c_paths,
+        modules[index],
+        [c_paths[index]],
         extra_compile_args=['-O3']
-    )]
+    ) for index in range(len(modules))]
 
 
 setup(
