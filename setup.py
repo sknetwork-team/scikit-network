@@ -23,9 +23,9 @@ setup_requirements = ['pytest-runner']
 test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
 
-pyx_paths = ["sknetwork/utils/", "sknetwork/clustering/"]
+pyx_paths = ["sknetwork/utils/toto.pyx", "sknetwork/clustering/louvain_core.pyx"]
 c_paths = ["sknetwork/utils/toto.cpp", "sknetwork/clustering/louvain_core.cpp"]
-modules = ['toto', 'louvain_core']
+modules = ['sknetwork.utils.toto', 'sknetwork.clustering.louvain_core']
 
 """
 try:
@@ -38,6 +38,8 @@ except ImportError:
 HAVE_CYTHON = True
 
 if HAVE_CYTHON:
+    from Cython.Build import cythonize
+
     ext_modules = []
     for couple_index in range(len(pyx_paths)):
         pyx_path = pyx_paths[couple_index]
@@ -46,12 +48,12 @@ if HAVE_CYTHON:
         if os.path.exists(c_path):
             # Remove C file to force Cython recompile.
             os.remove(c_path)
-        from Cython.Build import cythonize
-        ext_modules.append(cythonize(Extension(
+
+        ext_modules += cythonize(Extension(
             mod_name,
             [pyx_path],
             extra_compile_args=['-O3']
-        )))
+        ))
 else:
     ext_modules = [Extension(
         modules[index],
