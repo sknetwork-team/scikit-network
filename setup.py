@@ -4,8 +4,8 @@
 """The setup script."""
 
 
-from setuptools import find_packages, setup
-from setuptools.extension import Extension
+from setuptools import find_packages
+from distutils.core import setup, Extension
 from Cython.Build import cythonize
 import os
 import sys
