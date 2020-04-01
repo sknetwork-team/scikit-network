@@ -6,9 +6,7 @@
 
 from setuptools import find_packages
 from distutils.core import setup, Extension
-from Cython.Build import cythonize
 import os
-import sys
 
 import numpy
 
@@ -40,6 +38,7 @@ except ImportError:
 HAVE_CYTHON = True
 
 if HAVE_CYTHON:
+    ext_modules = []
     for couple_index in range(len(pyx_paths)):
         pyx_path = pyx_paths[couple_index]
         c_path = c_paths[couple_index]
@@ -47,23 +46,12 @@ if HAVE_CYTHON:
         if os.path.exists(c_path):
             # Remove C file to force Cython recompile.
             os.remove(c_path)
-        if 'test' in sys.argv and platform.python_implementation() == 'CPython':
-            from Cython.Build import cythonize
-            ext_modules = cythonize(Extension(
-                mod_name,
-                [pyx_path],
-                define_macros=[('CYTHON_TRACE', '1')]
-            ), compiler_directives={
-                'linetrace': True,
-                'binding': True
-            })
-        else:
-            from Cython.Build import cythonize
-            ext_modules = cythonize(Extension(
-                mod_name,
-                [pyx_path],
-                extra_compile_args=['-O3']
-            ))
+        from Cython.Build import cythonize
+        ext_modules.append(cythonize(Extension(
+            mod_name,
+            [pyx_path],
+            extra_compile_args=['-O3']
+        )))
 else:
     ext_modules = [Extension(
         modules[index],
@@ -95,8 +83,7 @@ setup(
     include_package_data=True,
     keywords='sknetwork',
     name='scikit-network',
-    packages=find_packages(include=['sknetwork']),
-    # packages=find_packages(),
+    packages=find_packages(),
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
