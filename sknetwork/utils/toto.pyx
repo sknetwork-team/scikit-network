@@ -8,7 +8,7 @@ import numpy as np
 cimport numpy as np
 
 from libcpp.vector cimport vector
-from cython.parallel cimport prange
+#from cython.parallel cimport prange
 cimport cython
 
 ctypedef np.int_t int_type_t
