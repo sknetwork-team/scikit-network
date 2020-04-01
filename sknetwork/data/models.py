@@ -37,6 +37,7 @@ def block_model(sizes: np.ndarray, p_in: Union[float, np.ndarray] = .2, p_out: f
         Adjacency matrix or graph with metadata (labels).
     """
     np.random.seed(seed)
+    sizes = np.array(sizes)
 
     if type(p_in) != np.ndarray:
         p_in = p_in * np.ones_like(sizes)
