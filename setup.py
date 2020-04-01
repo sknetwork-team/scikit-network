@@ -49,11 +49,8 @@ if HAVE_CYTHON:
             # Remove C file to force Cython recompile.
             os.remove(c_path)
 
-        ext_modules += cythonize(Extension(
-            mod_name,
-            [pyx_path],
-            extra_compile_args=['-O3']
-        ))
+        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], extra_compile_args=['-O3']),
+                                 language='c++')
 else:
     ext_modules = [Extension(
         modules[index],
@@ -92,8 +89,7 @@ setup(
     url='https://github.com/sknetwork-team/scikit-network',
     version='0.12.1',
     zip_safe=False,
-    # ext_modules=ext_modules,
-    ext_modules=cythonize("sknetwork/*.pyx"),
+    ext_modules=ext_modules,
     include_dirs=[numpy.get_include()],
     extra_compile_args=["-std=c++11"],
 )
