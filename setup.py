@@ -65,12 +65,12 @@ if HAVE_CYTHON:
                 [pyx_path],
                 extra_compile_args=['-O3']
             ))
-    else:
-        ext_modules = [Extension(
-            'sknetwork',
-            [c_path],
-            extra_compile_args=['-O3']
-        )]
+else:
+    ext_modules = [Extension(
+        'sknetwork',
+        [c_path],
+        extra_compile_args=['-O3']
+    )]
 
 
 setup(
