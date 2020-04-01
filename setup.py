@@ -41,7 +41,8 @@ def no_cythonize(extensions, **_ignore):
     return extensions
 
 
-ext_modules = [Extension("*", ["*.pyx"], language='c++')]
+ext_modules = [Extension(name="*", sources=["*.pyx"],
+                         include_dirs=["sknetwork/clustering/", "sknetwork/utils/"], language='c++')]
 
 
 setup(
