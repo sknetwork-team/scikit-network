@@ -25,8 +25,8 @@ setup_requirements = ['pytest-runner']
 test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
 
-pyx_paths = ["sknetwork/utils/knn1d.pyx", "sknetwork/clustering/louvain_core.pyx"]
-c_paths = ["sknetwork/utils/knn1d.cpp", "sknetwork/clustering/louvain_core.cpp"]
+pyx_paths = ["sknetwork/utils/toto.pyx", "sknetwork/clustering/louvain_core.pyx"]
+c_paths = ["sknetwork/utils/toto.cpp", "sknetwork/clustering/louvain_core.cpp"]
 modules = ['sknetwork.utils.knn1d', 'sknetwork.clustering.louvain_core']
 
 """
@@ -67,7 +67,8 @@ else:
     ext_modules = [Extension(
         modules[index],
         [c_paths[index]],
-        extra_compile_args=['-O3']
+        extra_compile_args=['-O3'],
+        language='c++'
     ) for index in range(len(modules))]
 
 
