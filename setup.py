@@ -29,7 +29,7 @@ pyx_paths = ["sknetwork/clustering/louvain_core.pyx",
                           "sknetwork/utils/knn1d.pyx"]
 c_paths = ["sknetwork/clustering/louvain_core.cpp",
                           "sknetwork/utils/knn1d.cpp"]
-modules = ["clustering", "utils"]
+modules = ['sknetwork.clustering.louvain_core', 'sknetwork.utils.knn1d']
 
 """
 try:
