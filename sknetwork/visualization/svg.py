@@ -125,6 +125,14 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
     -------
     image : str
         SVG image.
+
+    Example
+    -------
+    >>> adjacency = sparse.csr_matrix(np.ones((3,3)))
+    >>> position = np.random.random((3,2))
+    >>> image = svg_graph(adjacency, position)
+    >>> image[1:4]
+    'svg'
     """
     n = adjacency.shape[0]
 
@@ -207,6 +215,14 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
     -------
     image : str
         SVG image.
+
+    Example
+    -------
+    >>> adjacency = sparse.csr_matrix(np.ones((3,3)))
+    >>> position = np.random.random((3,2))
+    >>> image = svg_digraph(adjacency, position)
+    >>> image[1:4]
+    'svg'
     """
     n = adjacency.shape[0]
 
@@ -303,6 +319,15 @@ def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: np.ndarray, positi
     -------
     image : str
         SVG image.
+
+    Example
+    -------
+    >>> biadjacency = sparse.csr_matrix(np.ones((4,3)))
+    >>> position_row = np.random.random((4,2))
+    >>> position_col = np.random.random((3,2))
+    >>> image = svg_bigraph(biadjacency, position_row, position_col)
+    >>> image[1:4]
+    'svg'
     """
     n_row, n_col = biadjacency.shape
 
