@@ -16,7 +16,7 @@ ctypedef np.float_t float_type_t
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def knn1d(np.float_t[:] x, int n_neighbors):
+def knn1d_core(np.float_t[:] x, int n_neighbors):
     """K nearest neighbors search for 1-dimensional arrays.
 
     Parameters
