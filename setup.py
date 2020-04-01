@@ -25,9 +25,9 @@ setup_requirements = ['pytest-runner']
 test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
 
-pyx_paths = ["sknetwork/utils/knn1d.pyx","sknetwork/clustering/louvain_core.pyx"]
+pyx_paths = ["sknetwork/utils/knn1d.pyx", "sknetwork/clustering/louvain_core.pyx"]
 c_paths = ["sknetwork/utils/knn1d.cpp", "sknetwork/clustering/louvain_core.cpp"]
-modules = ['knn1d','louvain_core']
+modules = ['sknetwork.utils.knn1d', 'sknetwork.clustering.louvain_core']
 
 """
 try:
