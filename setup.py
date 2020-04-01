@@ -31,12 +31,15 @@ pyx_paths = ["./sknetwork/clustering/louvain_core.pyx",
 c_paths = ["./sknetwork/clustering/louvain_core.cpp",
                           "./sknetwork/utils/knn1d.cpp"]
 
-
+"""
 try:
     import Cython
     HAVE_CYTHON = True
 except ImportError:
     HAVE_CYTHON = False
+"""
+
+HAVE_CYTHON = False
 
 if HAVE_CYTHON:
     for couple_index in range(len(pyx_paths)):
