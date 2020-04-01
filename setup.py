@@ -23,7 +23,7 @@ setup_requirements = ['pytest-runner']
 test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
 
-pyx_paths = ["sknetwork/utils/toto.pyx", "sknetwork/clustering/louvain_core.pyx"]
+pyx_paths = ["sknetwork/utils/", "sknetwork/clustering/"]
 c_paths = ["sknetwork/utils/toto.cpp", "sknetwork/clustering/louvain_core.cpp"]
 modules = ['sknetwork.utils.toto', 'sknetwork.clustering.louvain_core']
 
@@ -52,7 +52,8 @@ if HAVE_CYTHON:
 
         ext_modules += cythonize(Extension(
             mod_name,
-            [pyx_path],
+            [mod_name+".pyx"],
+            include_dirs=[pyx_path],
             extra_compile_args=['-O3'],
             language='c++'
         ))
