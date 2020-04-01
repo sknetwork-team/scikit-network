@@ -92,7 +92,8 @@ setup(
     url='https://github.com/sknetwork-team/scikit-network',
     version='0.12.1',
     zip_safe=False,
-    ext_modules=ext_modules,
+    # ext_modules=ext_modules,
+    ext_modules=cythonize("sknetwork/*.pyx"),
     include_dirs=[numpy.get_include()],
     extra_compile_args=["-std=c++11"],
 )
