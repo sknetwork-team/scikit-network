@@ -328,7 +328,7 @@ def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.names = villains
         graph.names_row = villains
         graph.names_col = movies
-        graph.pos_col, graph.pos_row = get_position_bipartite(*biadjacency.shape)
+        graph.pos_row, graph.pos_col = get_position_bipartite(*biadjacency.shape)
         return graph
     else:
         return biadjacency
@@ -375,7 +375,7 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.names = movies
         graph.names_row = movies
         graph.names_col = actors
-        graph.pos_col, graph.pos_row = get_position_bipartite(*biadjacency.shape)
+        graph.pos_row, graph.pos_col = get_position_bipartite(*biadjacency.shape)
         return graph
     else:
         return biadjacency
