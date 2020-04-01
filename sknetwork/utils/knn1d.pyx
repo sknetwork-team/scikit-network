@@ -8,15 +8,15 @@ import numpy as np
 cimport numpy as np
 
 from libcpp.vector cimport vector
-cimport cython
 from cython.parallel cimport prange
+cimport cython
 
 ctypedef np.int_t int_type_t
 ctypedef np.float_t float_type_t
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def knn1d_core(np.float_t[:] x, int n_neighbors):
+def knn1d(np.float_t[:] x, int n_neighbors):
     """K nearest neighbors search for 1-dimensional arrays.
 
     Parameters

@@ -27,7 +27,7 @@ test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
 pyx_paths = ["sknetwork/utils/knn1d.pyx","sknetwork/clustering/louvain_core.pyx"]
 c_paths = ["sknetwork/utils/knn1d.cpp", "sknetwork/clustering/louvain_core.cpp"]
-modules = ['knn1d','louvain_core']
+modules = ['knn1d', 'louvain_core']
 
 """
 try:
@@ -37,38 +37,24 @@ except ImportError:
     HAVE_CYTHON = False
 """
 
-HAVE_CYTHON = False
 
-if HAVE_CYTHON:
-    for couple_index in range(len(pyx_paths)):
-        pyx_path = pyx_paths[couple_index]
-        c_path = c_paths[couple_index]
-        if os.path.exists(c_path):
-            # Remove C file to force Cython recompile.
-            os.remove(c_path)
-        if 'test' in sys.argv and platform.python_implementation() == 'CPython':
-            from Cython.Build import cythonize
-            ext_modules = cythonize(Extension(
-                "sknetwork",
-                [pyx_path],
-                define_macros=[('CYTHON_TRACE', '1')]
-            ), compiler_directives={
-                'linetrace': True,
-                'binding': True
-            })
-        else:
-            from Cython.Build import cythonize
-            ext_modules = cythonize(Extension(
-                "sknetwork",
-                [pyx_path],
-                extra_compile_args=['-O3']
-            ))
-else:
-    ext_modules = [Extension(
-        modules[index],
-        [c_paths[index]],
-        extra_compile_args=['-O3']
-    ) for index in range(len(modules))]
+def no_cythonize(extensions, **_ignore):
+    for extension in extensions:
+        sources = []
+        for sfile in extension.sources:
+            path, ext = os.path.splitext(sfile)
+            if ext in ('.pyx', '.py'):
+                if extension.language == 'c++':
+                    ext = '.cpp'
+                else:
+                    ext = '.c'
+                sfile = path + ext
+            sources.append(sfile)
+        extension.sources[:] = sources
+    return extensions
+
+
+ext_modules = [Extension("*", ["*.pyx"])]
 
 
 setup(
@@ -101,7 +87,7 @@ setup(
     url='https://github.com/sknetwork-team/scikit-network',
     version='0.12.1',
     zip_safe=False,
-    ext_modules=ext_modules,
+    ext_modules=no_cythonize(ext_modules),
     include_dirs=[numpy.get_include()],
     extra_compile_args=["-std=c++11"],
 )
