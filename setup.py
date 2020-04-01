@@ -16,7 +16,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', 'numpy', 'scipy']
+requirements = ['Click>=6.0', 'numpy', 'scipy', 'Cython']
 
 setup_requirements = ['pytest-runner']
 
@@ -38,20 +38,24 @@ except ImportError:
 HAVE_CYTHON = True
 
 if HAVE_CYTHON:
+    from Cython.Build import cythonize
+
     ext_modules = []
-    for couple_index in range(len(pyx_paths)):
-        pyx_path = pyx_paths[couple_index]
-        c_path = c_paths[couple_index]
-        mod_name = modules[couple_index]
+    for index in range(len(pyx_paths)):
+        pyx_path = pyx_paths[index]
+        c_path = c_paths[index]
+        mod_name = modules[index]
+
         if os.path.exists(c_path):
             # Remove C file to force Cython recompile.
             os.remove(c_path)
-        from Cython.Build import cythonize
-        ext_modules.append(cythonize(Extension(
+
+        ext_modules += cythonize(Extension(
             mod_name,
             [pyx_path],
-            extra_compile_args=['-O3']
-        )))
+            extra_compile_args=['-O3'],
+            language='c++'
+        ))
 else:
     ext_modules = [Extension(
         modules[index],
