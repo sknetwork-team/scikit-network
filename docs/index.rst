@@ -22,6 +22,7 @@ Welcome to scikit-network's documentation!
    tutorials/ranking/index
    tutorials/classification/index
    tutorials/utils/index
+   tutorials/visualization/index
 
 .. toctree::
    :maxdepth: 1
