@@ -34,7 +34,8 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
     method:
         Either ``'exact'`` or ``'knn'``. If 'exact' the output is computed with matrix multiplication.
         However, the density can be much higher than in the input graph and this can trigger Memory errors.
-        If ``'knn'``, the co-neighborhood is approximated through KNNDense-search in an appropriate spectral embedding space.
+        If ``'knn'``, the co-neighborhood is approximated through KNNDense-search in an appropriate spectral embedding
+        space.
     n_neighbors:
         Number of neighbors for the KNNDense search. Only useful if ``method='knn'``.
     n_components:
