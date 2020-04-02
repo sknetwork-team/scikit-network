@@ -37,7 +37,7 @@ except ImportError:
 
 from Cython.Build import cythonize
 
-ext_modules = cythonize(Extension(name='*', sources='*.pyx', extra_compile_args=['-O3']),
+ext_modules = cythonize(Extension(name='*', sources=['*.pyx'], extra_compile_args=['-O3']),
                         language='c++')
 
 """
