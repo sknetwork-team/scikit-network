@@ -148,7 +148,6 @@ def karate_club(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.adjacency = adjacency
         graph.labels = labels
         graph.position = np.vstack((x, y)).T
-        graph.pos = np.vstack((x, y)).T
         return graph
     else:
         return adjacency
@@ -248,7 +247,6 @@ def miserables(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.adjacency = adjacency
         graph.names = np.array(names)
         graph.position = np.vstack((x, y)).T
-        graph.pos = np.vstack((x, y)).T
         return graph
     else:
         return adjacency
@@ -296,7 +294,6 @@ def painters(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.adjacency = adjacency
         graph.names = names
         graph.position = np.stack((x, y)).T
-        graph.pos = np.vstack((x, y)).T
         return graph
     else:
         return adjacency
@@ -379,7 +376,6 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.names_row = movies
         graph.names_col = actors
         graph.position_row, graph.position_col = get_position_bipartite(*biadjacency.shape)
-        graph.pos_row, graph.pos_col = graph.position_row, graph.position_col
         return graph
     else:
         return biadjacency
