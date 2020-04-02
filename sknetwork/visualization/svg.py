@@ -89,7 +89,7 @@ def svg_text(pos, text, font_size=12, align_right=False):
 def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optional[np.ndarray] = None,
               labels: Optional[np.ndarray] = None, scores: Optional[np.ndarray] = None, color: str = 'blue',
               width: float = 400, height: float = 300, margin: float = 20, margin_text: float = 10,
-              scale: float = 1, node_size: float = 5, edge_width: float = 1, font_size: int = 12) -> str:
+              scale: float = 1, node_size: float = 7, edge_width: float = 1, font_size: int = 12) -> str:
     """Return svg code for a graph.
 
     Parameters
@@ -179,7 +179,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
 def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optional[np.ndarray] = None,
                 labels: Optional[np.ndarray] = None, scores: Optional[np.ndarray] = None, color: str = 'blue',
                 width: float = 400, height: float = 300, margin: float = 20, margin_text: float = 10,
-                scale: float = 1, node_size: float = 5, edge_width: float = 1, font_size: int = 12) -> str:
+                scale: float = 1, node_size: float = 7, edge_width: float = 1, font_size: int = 12) -> str:
     """Return svg code for a directed graph.
 
     Parameters
@@ -273,9 +273,9 @@ def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: np.ndarray, positi
                 names_row: Optional[np.ndarray] = None, names_col: Optional[np.ndarray] = None,
                 labels_row: Optional[np.ndarray] = None, labels_col: Optional[np.ndarray] = None,
                 scores_row: Optional[np.ndarray] = None, scores_col: Optional[np.ndarray] = None,
-                color: str = 'blue', width: float = 400, height: float = 300, margin: float = 20,
-                margin_text: float = 10, scale: float = 1, node_size: float = 5, edge_width: float = 1,
-                font_size: int = 12) -> str:
+                color_row: str = 'blue', color_col: str = 'red', width: float = 400, height: float = 300,
+                margin: float = 20, margin_text: float = 10, scale: float = 1, node_size: float = 7,
+                edge_width: float = 1, font_size: int = 12) -> str:
     """Return svg code for a bipartite graph.
 
     Parameters
@@ -298,8 +298,10 @@ def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: np.ndarray, positi
         Scores of the rows (measure of importance).
     scores_col :
         Scores of the rows (measure of importance).
-    color :
-        Default color (svg color).
+    color_row :
+        Default color of rows (svg color).
+    color_col :
+        Default color of cols (svg color).
     width :
         Width of the image.
     height :
@@ -334,8 +336,8 @@ def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: np.ndarray, positi
     n_row, n_col = biadjacency.shape
 
     # colors
-    colors_row = get_colors(n_row, labels_row, scores_row, color)
-    colors_col = get_colors(n_col, labels_col, scores_col, color)
+    colors_row = get_colors(n_row, labels_row, scores_row, color_row)
+    colors_col = get_colors(n_col, labels_col, scores_col, color_col)
 
     # rescaling
     position = np.vstack((position_row, position_col))

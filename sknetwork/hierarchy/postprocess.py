@@ -59,7 +59,7 @@ def cut_straight(dendrogram: np.ndarray, n_clusters: int = 2, sort_clusters: boo
     -------
     labels : np.ndarray
         Cluster of each node.
-    dendrogram_new : np.ndarray
+    dendrogram_aggregate : np.ndarray
         Dendrogram starting from clusters (leaves = clusters).
     """
     if len(dendrogram.shape) != 2 or dendrogram.shape[1] != 4:
@@ -96,7 +96,7 @@ def cut_balanced(dendrogram: np.ndarray, max_cluster_size: int = 2, sort_cluster
     -------
     labels : np.ndarray
         Label of each node.
-    dendrogram_new : np.ndarray
+    dendrogram_aggregate : np.ndarray
         Dendrogram starting from clusters (leaves = clusters).
     """
     if len(dendrogram.shape) != 2 or dendrogram.shape[1] != 4:

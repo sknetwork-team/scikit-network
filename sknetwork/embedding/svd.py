@@ -277,7 +277,7 @@ class SVD(GSVD):
         * :math:`V` is the matrix of right singular vectors, shape (n_col, n_components)
         * :math:`\\Sigma` is the diagonal matrix of singular values, shape (n_components, n_components)
 
-    normalize : bool (default = ``True``)
+    normalize : bool (default = ``False``)
         If ``True``, normalize the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
@@ -321,7 +321,7 @@ class SVD(GSVD):
     """
 
     def __init__(self, n_components=2, regularization: Union[None, float] = None, relative_regularization: bool = True,
-                 factor_singular: float = 0., normalize: bool = True, solver: Union[str, SVDSolver] = 'auto'):
+                 factor_singular: float = 0., normalize: bool = False, solver: Union[str, SVDSolver] = 'auto'):
         GSVD.__init__(self, n_components, regularization, relative_regularization, factor_singular, 0, 0, normalize,
                       solver)
 
