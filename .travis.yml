@@ -5,7 +5,7 @@ python:
 - 3.7
 - 3.6
 install:
-  - pip install -r dev_requirements.txt
+  - pip install -r requirements_dev.txt
   - pip install codecov
   - python setup.py develop
 env:
