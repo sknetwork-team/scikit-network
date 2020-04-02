@@ -35,8 +35,12 @@ except ImportError:
     HAVE_CYTHON = False
 """
 
-HAVE_CYTHON = True
+from Cython.Build import cythonize
 
+ext_modules = cythonize(Extension(name='*', sources='*.pyx', extra_compile_args=['-O3']),
+                        language='c++')
+
+"""
 if HAVE_CYTHON:
     from Cython.Build import cythonize
 
@@ -58,7 +62,7 @@ else:
         extra_compile_args=['-O3'],
         language='c++'
     ) for index in range(len(modules))]
-
+"""
 
 setup(
     author="Scikit-network team",
