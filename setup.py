@@ -27,20 +27,13 @@ pyx_paths = ["sknetwork/utils/toto.pyx", "sknetwork/clustering/louvain_core.pyx"
 c_paths = ["sknetwork/utils/toto.cpp", "sknetwork/clustering/louvain_core.cpp"]
 modules = ['sknetwork.utils.toto', 'sknetwork.clustering.louvain_core']
 
-"""
 try:
     import Cython
     HAVE_CYTHON = True
 except ImportError:
     HAVE_CYTHON = False
-"""
 
-from Cython.Build import cythonize
 
-ext_modules = cythonize(Extension(name='*', sources=['*.pyx'], extra_compile_args=['-O3']),
-                        language='c++')
-
-"""
 if HAVE_CYTHON:
     from Cython.Build import cythonize
 
@@ -62,7 +55,7 @@ else:
         extra_compile_args=['-O3'],
         language='c++'
     ) for index in range(len(modules))]
-"""
+
 
 setup(
     author="Scikit-network team",
