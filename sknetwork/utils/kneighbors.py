@@ -12,7 +12,7 @@ from scipy.spatial import cKDTree
 
 from sknetwork.utils.adjacency_formats import directed2undirected
 from sknetwork.utils.base import Algorithm
-from sknetwork.utils.toto import toto
+from sknetwork.utils.knn1d import knn1d
 
 
 class BaseTransformer(Algorithm, ABC):
@@ -168,7 +168,7 @@ class FWKNeighborsTransformer(BaseTransformer):
 
         row_ind, col_ind = [], []
         for j in range(x.shape[1]):
-            row, col = toto(x[:, j].astype(float), self.n_neighbors)
+            row, col = knn1d(x[:, j].astype(float), self.n_neighbors)
             row_ind += row
             col_ind += col
 
