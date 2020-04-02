@@ -7,7 +7,7 @@ Thomas Bonald <bonald@enst.fr>
 Quentin Lutz <qlutz@enst.fr>
 """
 
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 from scipy import sparse
@@ -51,6 +51,17 @@ def get_colors(n: int, labels: np.ndarray, scores: np.ndarray, color: str) -> np
     return np.array(colors)
 
 
+def get_node_widths(n: int, seeds: Union[dict, list], node_width: float, seed_width: float) -> np.ndarray:
+    """Return the node widths."""
+    node_widths = node_width * np.ones(n)
+    if seeds is not None:
+        if type(seeds) == dict:
+            seeds = list(seeds.keys())
+        if len(seeds):
+            node_widths[np.array(seeds)] = seed_width
+    return node_widths
+
+
 def svg_node(pos_node: np.ndarray, size: float, color: str, stroke_width: float = 1, stroke_color: str = 'black') \
         -> str:
     """Return svg code for a node."""
@@ -87,9 +98,10 @@ def svg_text(pos, text, font_size=12, align_right=False):
 
 
 def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optional[np.ndarray] = None,
-              labels: Optional[np.ndarray] = None, scores: Optional[np.ndarray] = None, color: str = 'blue',
-              width: float = 400, height: float = 300, margin: float = 20, margin_text: float = 10,
-              scale: float = 1, node_size: float = 7, edge_width: float = 1, font_size: int = 12) -> str:
+              labels: Optional[np.ndarray] = None, scores: Optional[np.ndarray] = None, seeds: Union[list, dict] = None,
+              color: str = 'blue', width: float = 400, height: float = 300, margin: float = 20, margin_text: float = 10,
+              scale: float = 1, node_size: float = 7, node_width: float = 1, seed_width: float = 3,
+              edge_width: float = 1, font_size: int = 12) -> str:
     """Return svg code for a graph.
 
     Parameters
@@ -104,6 +116,8 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
         Labels of the nodes.
     scores :
         Scores of the nodes (measure of importance).
+    seeds :
+        Nodes to be highlighted (if dict, only keys are considered).
     color :
         Default color (svg color).
     width :
@@ -118,6 +132,10 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
         Multiplicative factor on the dimensions of the image.
     node_size :
         Size of nodes.
+    node_width :
+        Width of node circle.
+    seed_width :
+        Width of node circle for seeds.
     edge_width :
         Width of edges.
     font_size :
@@ -140,6 +158,9 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
 
     # colors
     colors = get_colors(n, labels, scores, color)
+
+    # node widths
+    node_widths = get_node_widths(n, seeds, node_width, seed_width)
 
     # rescaling
     x = min_max_scaling(position[:, 0])
@@ -167,7 +188,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
             svg += svg_edge(position[i], position[j], edge_width)
     # nodes
     for i in range(n):
-        svg += svg_node(position[i], node_size, colors[i])
+        svg += svg_node(position[i], node_size, colors[i], node_widths[i])
     # text
     if names is not None:
         for i in range(n):
@@ -177,9 +198,10 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
 
 
 def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optional[np.ndarray] = None,
-                labels: Optional[np.ndarray] = None, scores: Optional[np.ndarray] = None, color: str = 'blue',
-                width: float = 400, height: float = 300, margin: float = 20, margin_text: float = 10,
-                scale: float = 1, node_size: float = 7, edge_width: float = 1, font_size: int = 12) -> str:
+                labels: Optional[np.ndarray] = None, scores: Optional[np.ndarray] = None,
+                seeds: Union[list, dict] = None, color: str = 'blue', width: float = 400, height: float = 300,
+                margin: float = 20, margin_text: float = 10, scale: float = 1, node_size: float = 7,
+                node_width: float = 1, seed_width: float = 3, edge_width: float = 1, font_size: int = 12) -> str:
     """Return svg code for a directed graph.
 
     Parameters
@@ -194,6 +216,8 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
         Labels of the nodes.
     scores :
         Scores of the nodes (measure of importance).
+    seeds :
+        Nodes to be highlighted (if dict, only keys are considered).
     color :
         Default color (svg color).
     width :
@@ -208,6 +232,10 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
         Multiplicative factor on the dimensions of the image.
     node_size :
         Size of nodes.
+    node_width :
+        Width of node circle.
+    seed_width :
+        Width of node circle for seeds.
     edge_width :
         Width of edges.
     font_size :
@@ -230,6 +258,9 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
 
     # colors
     colors = get_colors(n, labels, scores, color)
+
+    # node widths
+    node_widths = get_node_widths(n, seeds, node_width, seed_width)
 
     # rescaling
     x = min_max_scaling(position[:, 0])
@@ -260,7 +291,7 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
             svg += svg_edge_directed(position[i], position[j], node_size, edge_width)
     # nodes
     for i in range(n):
-        svg += svg_node(position[i], node_size, colors[i])
+        svg += svg_node(position[i], node_size, colors[i], node_widths[i])
     # text
     if names is not None:
         for i in range(n):
@@ -273,9 +304,10 @@ def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: np.ndarray, positi
                 names_row: Optional[np.ndarray] = None, names_col: Optional[np.ndarray] = None,
                 labels_row: Optional[np.ndarray] = None, labels_col: Optional[np.ndarray] = None,
                 scores_row: Optional[np.ndarray] = None, scores_col: Optional[np.ndarray] = None,
+                seeds_row: Union[list, dict] = None, seeds_col: Union[list, dict] = None,
                 color_row: str = 'blue', color_col: str = 'red', width: float = 400, height: float = 300,
                 margin: float = 20, margin_text: float = 10, scale: float = 1, node_size: float = 7,
-                edge_width: float = 1, font_size: int = 12) -> str:
+                node_width: float = 1, seed_width: float = 3, edge_width: float = 1, font_size: int = 12) -> str:
     """Return svg code for a bipartite graph.
 
     Parameters
@@ -298,6 +330,10 @@ def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: np.ndarray, positi
         Scores of the rows (measure of importance).
     scores_col :
         Scores of the rows (measure of importance).
+    seeds_row :
+        Rows to be highlighted (if dict, only keys are considered).
+    seeds_col :
+        Columns to be highlighted (if dict, only keys are considered).
     color_row :
         Default color of rows (svg color).
     color_col :
@@ -314,6 +350,10 @@ def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: np.ndarray, positi
         Multiplicative factor on the dimensions of the image.
     node_size :
         Size of nodes.
+    node_width :
+        Width of node circle.
+    seed_width :
+        Width of node circle for seeds.
     edge_width :
         Width of edges.
     font_size :
@@ -339,6 +379,10 @@ def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: np.ndarray, positi
     colors_row = get_colors(n_row, labels_row, scores_row, color_row)
     colors_col = get_colors(n_col, labels_col, scores_col, color_col)
 
+    # node widths
+    node_widths_row = get_node_widths(n_row, seeds_row, node_width, seed_width)
+    node_widths_col = get_node_widths(n_col, seeds_col, node_width, seed_width)
+
     # rescaling
     position = np.vstack((position_row, position_col))
     x = min_max_scaling(position[:, 0])
@@ -358,7 +402,7 @@ def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: np.ndarray, positi
         text_length = np.max(np.array([len(name) for name in names_col]))
         width += text_length * font_size * .5
 
-        # scaling
+    # scaling
     position *= scale
     height *= scale
     width *= scale
@@ -372,9 +416,9 @@ def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: np.ndarray, positi
             svg += svg_edge(position_row[i], position_col[j], edge_width)
     # nodes
     for i in range(n_row):
-        svg += svg_node(position_row[i], node_size, colors_row[i])
+        svg += svg_node(position_row[i], node_size, colors_row[i], node_widths_row[i])
     for i in range(n_col):
-        svg += svg_node(position_col[i], node_size, colors_col[i])
+        svg += svg_node(position_col[i], node_size, colors_col[i], node_widths_col[i])
     # text
     if names_row is not None:
         for i in range(n_row):
