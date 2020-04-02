@@ -17,6 +17,7 @@ def get_labels(dendrogram: np.ndarray, cluster: dict, sort_clusters: bool, retur
     n = dendrogram.shape[0] + 1
     n_clusters = len(cluster)
     clusters = np.array(list(cluster.values()))
+    index = None
     if sort_clusters:
         sizes = np.array([len(nodes) for nodes in clusters])
         index = np.argsort(-sizes)
@@ -114,5 +115,3 @@ def cut_balanced(dendrogram: np.ndarray, max_cluster_size: int = 2, sort_cluster
             cluster[n + t] = cluster.pop(left) + cluster.pop(right)
 
     return get_labels(dendrogram, cluster, sort_clusters, return_dendrogram)
-
-
