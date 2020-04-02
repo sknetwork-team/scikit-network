@@ -33,6 +33,8 @@ Models
 
 .. autofunction:: sknetwork.data.cyclic_digraph
 
+.. autofunction:: sknetwork.data.erdos_renyie
+
 .. autofunction:: sknetwork.data.block_model
 
 Loading
