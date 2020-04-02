@@ -69,6 +69,27 @@ def block_model(sizes: np.ndarray, p_in: Union[float, np.ndarray] = .2, p_out: f
         return adjacency
 
 
+def erdos_renyie(n: int = 20, p: float = .3, seed: Optional[int] = None) -> sparse.csr_matrix:
+    """Erdos-Renyie graph.
+
+    Parameters
+    ----------
+    n :
+         Number of nodes.
+    p :
+        Probability of connection between nodes.
+    seed : Optional[int]
+        Random seed.
+
+    Returns
+    -------
+    adjacency : sparse.csr_matrix
+        Adjacency matrix.
+    """
+    adjacency = block_model(np.array([n]), p, 0., seed, metadata=False)
+    return adjacency
+
+
 def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     """Linear graph (directed).
 
