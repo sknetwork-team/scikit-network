@@ -77,9 +77,9 @@ class GSVD(BaseEmbedding):
     Example
     -------
     >>> gsvd = GSVD(3)
-    >>> embedding = gsvd.fit_transform(np.ones((6,4)))
+    >>> embedding = gsvd.fit_transform(np.ones((7,5)))
     >>> embedding.shape
-    (6, 3)
+    (7, 3)
 
     References
     ----------

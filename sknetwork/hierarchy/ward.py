@@ -26,11 +26,11 @@ class Ward(BaseHierarchy):
 
     Examples
     --------
-    >>> from sknetwork.data import house
+    >>> from sknetwork.data import karate_club
     >>> ward = Ward()
-    >>> adjacency = house()
+    >>> adjacency = karate_club()
     >>> ward.fit_transform(adjacency).shape
-    (4, 4)
+    (33, 4)
 
     References
     ----------
