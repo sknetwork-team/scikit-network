@@ -12,6 +12,7 @@ from typing import Optional, Union
 import numpy as np
 from scipy import sparse
 
+from sknetwork.clustering import BiLouvain
 from sknetwork.visualization.colors import get_standard_colors, get_coolwarm_rgb
 
 
@@ -323,7 +324,8 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
     return svg
 
 
-def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: np.ndarray, position_col: np.ndarray,
+def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: Union[None, str, np.ndarray] = 'bilouvain',
+                position_col: Union[None, str, np.ndarray] = 'bilouvain',
                 names_row: Optional[np.ndarray] = None, names_col: Optional[np.ndarray] = None,
                 labels_row: Optional[np.ndarray] = None, labels_col: Optional[np.ndarray] = None,
                 scores_row: Optional[np.ndarray] = None, scores_col: Optional[np.ndarray] = None,
@@ -402,6 +404,45 @@ def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: np.ndarray, positi
     'svg'
     """
     n_row, n_col = biadjacency.shape
+
+    if type(position_row) != np.ndarray or type(position_col) != np.ndarray:
+        if position_row == 'bilouvain' or position_col == 'bilouvain':
+            bilouvain = BiLouvain()
+            bilouvain.fit(biadjacency)
+            clusters_index = np.unique(np.hstack((bilouvain.labels_row_, bilouvain.labels_col_)))
+            y_min_row, y_min_col = 0, 0
+
+            position_row = np.zeros((n_row, 2))
+            position_col = np.ones((n_col, 2))
+            for cluster in clusters_index:
+                ix_row = (bilouvain.labels_row_ == cluster)
+                ix_col = (bilouvain.labels_col_ == cluster)
+                size_row = ix_row.sum()
+                size_col = ix_col.sum()
+                position_row[ix_row, 1] = y_min_row + np.arange(size_row)
+                position_col[ix_col, 1] = y_min_col + np.arange(size_col)
+                y_min_row += size_row
+                y_min_col += size_col
+        else:
+            position_row = np.zeros((n_row, 2))
+            position_row[:, 1] = np.arange(n_row)
+            position_col = np.ones((n_col, 2))
+            position_col[:, 1] = np.arange(n_col)
+
+        # scale
+        scale_row = position_row[:, 1].max() - position_row[:, 1].min()
+        scale_col = position_col[:, 1].max() - position_col[:, 1].min()
+        scale_y = max(scale_row, scale_col)
+        position_row[:, 1] *= scale_y / scale_row
+        position_col[:, 1] *= scale_y / scale_col
+
+        # shift
+        y_mean_row = position_row[:, 1].mean()
+        y_mean_col = position_col[:, 1].mean()
+        y_mean = max(y_mean_row, y_mean_col)
+        position_row[:, 1] += y_mean - y_mean_row
+        position_col[:, 1] += y_mean - y_mean_col
+
     biadjacency = sparse.coo_matrix(biadjacency)
 
     # colors

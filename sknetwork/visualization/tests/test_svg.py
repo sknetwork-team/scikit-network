@@ -59,6 +59,12 @@ class TestVisualization(unittest.TestCase):
                             edge_width_max=4, edge_weight=True, font_size=14)
         self.assertEqual(image[1:4], 'svg')
 
+        image = svg_bigraph(biadjacency)
+        self.assertEqual(image[1:4], 'svg')
+
+        image = svg_bigraph(biadjacency, position_row=None, position_col=None)
+        self.assertEqual(image[1:4], 'svg')
+
     def test_disconnect(self):
         adjacency = test_graph_disconnect()
         position = np.random.random((adjacency.shape[0], 2))
