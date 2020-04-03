@@ -320,7 +320,9 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
 
     * Bipartite graph
     * 31 nodes (15 movies, 16 actors), 41 edges
+    * 9 labels (rows)
     * Names of movies (rows) and actors (columns)
+    * Names of movies production company (rows)
 
     Parameters
     ----------
@@ -356,6 +358,13 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.names = movies
         graph.names_row = movies
         graph.names_col = actors
+        graph.labels = np.array([0, 0, 1, 2, 3, 2, 4, 1, 5, 0, 6, 5, 7, 8, 0])
+        graph.labels_name = np.array(['Warner Bros', 'Plan B Entertainment', 'Marc Platt Productions', 'Bazmark Films',
+                                      'Carousel Productions', 'Babelsberg Studios', 'MGM', 'Gravier Productions',
+                                      'Genre Films'])
+        graph.labels_row = graph.labels
+        graph.labels_row_name = graph.labels_name
+
         return graph
     else:
         return biadjacency
