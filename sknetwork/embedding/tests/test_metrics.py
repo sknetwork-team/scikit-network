@@ -19,6 +19,4 @@ class TestClusteringMetrics(unittest.TestCase):
         embedding = self.method.fit_transform(biadjacency)
         embedding_col = self.method.embedding_col_
         fit, div, modularity = cosine_modularity(biadjacency, embedding, embedding_col, return_all=True)
-        self.assertAlmostEqual(modularity, 0.302, 2)
-        self.assertAlmostEqual(fit, 1., 2)
-        self.assertAlmostEqual(div, 0.697, 2)
+        self.assertAlmostEqual(modularity, fit - div)

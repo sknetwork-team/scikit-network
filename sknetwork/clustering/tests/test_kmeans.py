@@ -9,15 +9,14 @@ import unittest
 
 from sknetwork.clustering import BiKMeans, KMeans
 from sknetwork.data.test_graphs import *
-from sknetwork.data import karate_club, movie_actor
-from sknetwork.embedding import BiSpectral, Spectral
+from sknetwork.embedding import GSVD, BiSpectral, Spectral
 
 
 class TestKMeans(unittest.TestCase):
 
     def setUp(self):
-        self.kmeans = KMeans(n_clusters=3)
-        self.bikmeans = BiKMeans(n_clusters=3, cluster_both=True)
+        self.kmeans = KMeans(embedding_method=GSVD(3), n_clusters=3)
+        self.bikmeans = BiKMeans(embedding_method=GSVD(3), n_clusters=3, cluster_both=True)
 
     def test_undirected(self):
         adjacency = test_graph()
@@ -45,12 +44,12 @@ class TestKMeans(unittest.TestCase):
         adjacency = test_graph()
 
         # embedding
-        kmeans = KMeans(embedding_method=Spectral())
+        kmeans = KMeans(embedding_method=Spectral(3))
         labels = kmeans.fit_transform(adjacency)
         self.assertTrue(len(set(labels)), 8)
 
         # aggregate graph
-        kmeans = KMeans(return_graph=True)
+        kmeans = KMeans(embedding_method=GSVD(3), return_graph=True)
         labels = kmeans.fit_transform(adjacency)
         n_labels = len(set(labels))
         self.assertEqual(kmeans.adjacency_.shape, (n_labels, n_labels))
@@ -59,12 +58,12 @@ class TestKMeans(unittest.TestCase):
         biadjacency = test_bigraph()
 
         # embedding
-        bikmeans = BiKMeans(embedding_method=BiSpectral())
+        bikmeans = BiKMeans(embedding_method=BiSpectral(3))
         labels = bikmeans.fit_transform(biadjacency)
         self.assertTrue(len(set(labels)), 8)
 
         # aggregate graph
-        bikmeans = BiKMeans(cluster_both=True, return_graph=True)
+        bikmeans = BiKMeans(embedding_method=GSVD(3), cluster_both=True, return_graph=True)
         bikmeans.fit(biadjacency)
         n_labels_row = len(set(bikmeans.labels_row_))
         n_labels_col = len(set(bikmeans.labels_col_))

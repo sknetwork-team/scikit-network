@@ -25,6 +25,6 @@ class TestTestGraphs(unittest.TestCase):
 
     def test_bipartite(self):
         biadjacency = test_bigraph()
-        self.assertEqual(biadjacency.shape, (4, 5))
+        self.assertEqual(biadjacency.shape, (6, 8))
         biadjacency = test_bigraph_disconnect()
-        self.assertEqual(biadjacency.shape, (4, 5))
+        self.assertEqual(biadjacency.shape, (6, 8))

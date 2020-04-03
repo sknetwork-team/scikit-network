@@ -6,6 +6,7 @@ import unittest
 
 from sknetwork.classification import KNN
 from sknetwork.data.test_graphs import *
+from sknetwork.embedding import GSVD
 
 
 # noinspection DuplicatedCode
@@ -13,12 +14,12 @@ class TestKNN(unittest.TestCase):
 
     def test_undirected(self):
         adjacency = test_graph()
-        adj_array_seeds = -np.ones(adjacency.shape[0])
-        adj_array_seeds[:2] = np.arange(2)
-        adj_dict_seeds = {0: 0, 1: 1}
+        seeds_array = -np.ones(adjacency.shape[0])
+        seeds_array[:2] = np.arange(2)
+        seeds_dict = {0: 0, 1: 1}
 
-        knn = KNN(n_neighbors=2)
-        labels1 = knn.fit_transform(adjacency, adj_array_seeds)
-        labels2 = knn.fit_transform(adjacency, adj_dict_seeds)
+        knn = KNN(embedding_method=GSVD(3), n_neighbors=2)
+        labels1 = knn.fit_transform(adjacency, seeds_array)
+        labels2 = knn.fit_transform(adjacency, seeds_dict)
         self.assertTrue(np.allclose(labels1, labels2))
         self.assertEqual(labels2.shape[0], adjacency.shape[0])

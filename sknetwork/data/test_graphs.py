@@ -35,12 +35,12 @@ def test_digraph():
 
 def test_bigraph():
     """Simple bipartite graph, used for testing.
-    4 + 5 nodes, 6 edges.
+    6 + 8 nodes, 9 edges.
     """
-    row = np.array([0, 1, 1, 2, 2, 3])
-    col = np.array([1, 2, 3, 1, 0, 4])
-    data = np.array([1, 2.5, 1, 2, 2, 1.5])
-    biadjacency = sparse.csr_matrix((data, (row, col)), shape=(4, 5))
+    row = np.array([0, 1, 1, 2, 2, 3, 4, 5, 5])
+    col = np.array([1, 2, 3, 1, 0, 4, 7, 7, 6])
+    data = np.array([1, 2.5, 1, 2, 2, 1.5, 1, 0, 3])
+    biadjacency = sparse.csr_matrix((data, (row, col)), shape=(6, 8))
     return biadjacency
 
 
@@ -57,10 +57,10 @@ def test_graph_disconnect():
 
 def test_bigraph_disconnect():
     """Simple disconnected bipartite graph, used for testing.
-    4 + 5 nodes, 6 edges.
+    6 + 8 nodes, 9 edges.
     """
-    row = np.array([1, 1, 1, 2, 2, 3])
-    col = np.array([1, 2, 3, 1, 3, 4])
-    data = np.array([1, 2.5, 1, 2, 2, 1.5])
-    biadjacency = sparse.csr_matrix((data, (row, col)), shape=(4, 5))
+    row = np.array([1, 1, 1, 2, 2, 3, 5, 4, 5])
+    col = np.array([1, 2, 3, 1, 3, 4, 7, 7, 6])
+    data = np.array([1, 2.5, 1, 2, 2, 1.5, 3, 0, 1])
+    biadjacency = sparse.csr_matrix((data, (row, col)), shape=(6, 8))
     return biadjacency
