@@ -18,7 +18,7 @@ class TestModels(unittest.TestCase):
         self.assertEqual(adjacency.shape, (5, 5))
         adjacency = erdos_renyie(5)
         self.assertEqual(adjacency.shape, (5, 5))
-        graph = block_model(np.array([4, 5, 6]), metadata=True)
+        graph = block_model(np.array([4, 5, 6]), np.array([0.5, 0.3, 0.2]), 0.1, metadata=True)
         adjacency = graph.adjacency
         labels = graph.labels
         self.assertEqual(adjacency.shape, (15, 15))
