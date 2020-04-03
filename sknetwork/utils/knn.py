@@ -65,7 +65,7 @@ class KNNDense(BaseTransformer):
         2 is the usual Euclidean distance infinity is the maximum-coordinate-difference distance.
         A finite large p may cause a ValueError if overflow can occur.
     eps :
-        Return approximate nearest neighbors; the k-th returned value is guaranteed to be no further than (1+eps) times
+        Return approximate nearest neighbors; the k-th returned value is guaranteed to be no further than (1+tol_nn) times
         the distance to the real k-th nearest neighbor.
     n_jobs :
         Number of jobs to schedule for parallel processing. If -1 is given all processors are used.

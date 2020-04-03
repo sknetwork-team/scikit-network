@@ -409,6 +409,8 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     n_row, n_col = biadjacency.shape
 
     if position_row is None or position_col is None:
+        position_row = np.zeros((n_row, 2))
+        position_col = np.ones((n_col, 2))
         if cluster:
             bilouvain = BiLouvain()
             bilouvain.fit(biadjacency)
@@ -417,8 +419,8 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
         else:
             index_row = np.arange(n_row)
             index_col = np.arange(n_col)
-        position_row = np.vstack((np.zeros(n_row), index_row)).T
-        position_col = np.vstack((np.ones(n_col), index_col + .5 * (n_row - n_col))).T
+        position_row[index_row, 1] = np.arange(n_row)
+        position_col[index_col, 1] = np.arange(n_col) + .5 * (n_row - n_col)
 
     biadjacency = sparse.coo_matrix(biadjacency)
 
