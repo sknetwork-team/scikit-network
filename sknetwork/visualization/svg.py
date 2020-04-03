@@ -63,12 +63,21 @@ def get_node_widths(n: int, seeds: Union[dict, list], node_width: float, node_wi
     return node_widths
 
 
-def get_edge_widths(data: np.ndarray, edge_width: float, edge_width_max: float, edge_weight: bool) -> np.ndarray:
-    """Return the edge widths."""
-    if edge_weight and np.min(data) < np.max(data):
-        edge_widths = edge_width + np.abs(edge_width_max - edge_width) * min_max_scaling(data)
+def get_node_sizes(weights: np.ndarray, node_size: float, node_size_max: float, node_weight) -> np.ndarray:
+    """Return the node sizes."""
+    if node_weight and np.min(weights) < np.max(weights):
+        node_sizes = node_size + np.abs(node_size_max - node_size) * min_max_scaling(weights)
     else:
-        edge_widths = edge_width * np.ones_like(data)
+        node_sizes = node_size * np.ones_like(weights)
+    return node_sizes
+
+
+def get_edge_widths(weights: np.ndarray, edge_width: float, edge_width_max: float, edge_weight: bool) -> np.ndarray:
+    """Return the edge widths."""
+    if edge_weight and np.min(weights) < np.max(weights):
+        edge_widths = edge_width + np.abs(edge_width_max - edge_width) * min_max_scaling(weights)
+    else:
+        edge_widths = edge_width * np.ones_like(weights)
     return edge_widths
 
 
@@ -110,7 +119,8 @@ def svg_text(pos, text, font_size=12, align_right=False):
 def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optional[np.ndarray] = None,
               labels: Optional[np.ndarray] = None, scores: Optional[np.ndarray] = None, seeds: Union[list, dict] = None,
               width: float = 400, height: float = 300, margin: float = 20, margin_text: float = 10,
-              scale: float = 1, node_size: float = 7, node_width: float = 1, node_width_max: float = 3,
+              scale: float = 1, node_size: float = 7, node_size_max: float = 20, node_weight: bool = False,
+              node_weights: Optional[np.ndarray] = None, node_width: float = 1, node_width_max: float = 3,
               node_color: str = 'blue', edge_width: float = 1, edge_width_max: float = 10, edge_weight: bool = True,
               edge_color: Optional[str] = None, font_size: int = 12) -> str:
     """Return svg code for a graph.
@@ -141,12 +151,18 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
         Multiplicative factor on the dimensions of the image.
     node_size :
         Size of nodes.
+    node_size_max:
+        Maximum size of a node.
     node_width :
         Width of node circle.
     node_width_max :
         Maximum width of node circle.
     node_color :
         Default color of nodes (svg color).
+    node_weight :
+        Display node weights by node size.
+    node_weights :
+        Node weights (used only if **node_weight** is ``True``).
     edge_width :
         Width of edges.
     edge_width_max :
@@ -182,6 +198,11 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
         else:
             edge_color = 'gray'
 
+    # node sizes
+    if node_weights is None:
+        node_weights = adjacency.dot(np.ones(n))
+    node_sizes = get_node_sizes(node_weights, node_size, node_size_max, node_weight)
+
     # node widths
     node_widths = get_node_widths(n, seeds, node_width, node_width_max)
 
@@ -195,6 +216,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
     position = position * np.array([width, height])
 
     # margins
+    margin = max(margin, 2 * node_size_max * node_weight)
     position += margin
     height += 2 * margin
     width += 2 * margin
@@ -213,7 +235,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
         svg += svg_edge(position[adjacency.row[i]], position[adjacency.col[i]], edge_widths[i], edge_color)
     # nodes
     for i in range(n):
-        svg += svg_node(position[i], node_size, colors[i], node_widths[i])
+        svg += svg_node(position[i], node_sizes[i], colors[i], node_widths[i])
     # text
     if names is not None:
         for i in range(n):

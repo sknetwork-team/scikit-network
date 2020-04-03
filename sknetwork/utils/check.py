@@ -179,10 +179,9 @@ def check_random_state(random_state: Optional[Union[np.random.RandomState, int]]
         raise TypeError('To specify a random state, pass the seed (as an int) or a NumPy random state object.')
 
 
-def check_seeds(seeds: Union[np.ndarray, dict], adjacency):
+def check_seeds(seeds: Union[np.ndarray, dict], n: int):
     """Check the format of seeds for semi-supervised algorithms."""
 
-    n: int = adjacency.shape[0]
     if isinstance(seeds, np.ndarray):
         if seeds.shape[0] != n:
             raise ValueError('Dimensions mismatch between adjacency and seeds vector.')

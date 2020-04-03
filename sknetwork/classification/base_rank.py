@@ -100,9 +100,9 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         -------
         self: :class:`RankClassifier`
         """
-        seeds_labels = check_seeds(seeds, adjacency).astype(int)
-        classes, n_classes = check_labels(seeds_labels)
         n = adjacency.shape[0]
+        seeds_labels = check_seeds(seeds, n).astype(int)
+        classes, n_classes = check_labels(seeds_labels)
 
         personalizations = self._process_seeds(seeds_labels)
 
