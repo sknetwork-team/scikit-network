@@ -488,7 +488,7 @@ class Louvain(BaseClustering, VerboseMixin):
         self.labels_ = labels
         if self.return_graph:
             membership = membership_matrix(labels)
-            self.adjacency_ = membership.T.dot(adjacency.dot(membership))
+            self.adjacency_ = sparse.csr_matrix(membership.T.dot(adjacency.dot(membership)))
 
         return self
 
@@ -565,7 +565,6 @@ class BiLouvain(Louvain):
         self.labels_ = None
         self.labels_row_ = None
         self.labels_col_ = None
-
         self.biadjacency_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiLouvain':
@@ -589,15 +588,15 @@ class BiLouvain(Louvain):
                           shuffle_nodes=self.shuffle_nodes, sort_clusters=self.sort_clusters,
                           return_graph=self.return_graph, random_state=self.random_state, verbose=self.log.verbose)
         biadjacency = check_format(biadjacency)
-        n1, _ = biadjacency.shape
+        n_row, _ = biadjacency.shape
 
         adjacency = bipartite2directed(biadjacency)
         louvain.fit(adjacency)
 
-        self.labels_ = louvain.labels_[:n1]
-        self.labels_row_ = louvain.labels_[:n1]
-        self.labels_col_ = louvain.labels_[n1:]
+        self.labels_ = louvain.labels_[:n_row]
+        self.labels_row_ = louvain.labels_[:n_row]
+        self.labels_col_ = louvain.labels_[n_row:]
         if self.return_graph:
-            self.biadjacency_ = louvain.adjacency_[:n1][n1:]
+            self.biadjacency_ = louvain.adjacency_
 
         return self
