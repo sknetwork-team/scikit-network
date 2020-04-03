@@ -51,7 +51,7 @@ class TestParis(unittest.TestCase):
             self.assertEqual(biparis.dendrogram_full_.shape, (n1 + n2 - 1, 4))
 
     def test_disconnected(self):
-        adjacency = test_disconnected_graph()
+        adjacency = test_graph_disconnect()
         paris = Paris(engine='python')
         dendrogram = paris.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (9, 4))

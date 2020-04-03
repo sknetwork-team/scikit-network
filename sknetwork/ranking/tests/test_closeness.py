@@ -18,7 +18,7 @@ class TestDiffusion(unittest.TestCase):
         self.assertEqual(len(scores), 10)
 
     def test_disconnected(self):
-        adjacency = test_disconnected_graph()
+        adjacency = test_graph_disconnect()
         closeness = Closeness()
         with self.assertRaises(ValueError):
             closeness.fit(adjacency)

@@ -38,7 +38,7 @@ class TestWard(unittest.TestCase):
         self.assertEqual(self.biward.dendrogram_full_.shape, (n1 + n2 - 1, 4))
 
     def test_disconnected(self):
-        adjacency = test_disconnected_graph()
+        adjacency = test_graph_disconnect()
         dendrogram = self.ward.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (adjacency.shape[0] - 1, 4))
 

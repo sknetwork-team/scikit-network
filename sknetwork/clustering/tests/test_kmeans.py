@@ -36,7 +36,7 @@ class TestKMeans(unittest.TestCase):
         self.assertEqual(len(set(labels)), 3)
 
     def test_disconnected(self):
-        adjacency = test_disconnected_graph()
+        adjacency = test_graph_disconnect()
         self.kmeans.n_clusters = 5
         labels = self.kmeans.fit_transform(adjacency)
         self.assertTrue(len(set(labels)), 5)

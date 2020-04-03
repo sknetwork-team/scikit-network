@@ -55,7 +55,7 @@ class TestLouvainClustering(unittest.TestCase):
             self.assertEqual(labels_col.shape, (n2,))
 
     def test_disconnected(self):
-        adjacency = test_disconnected_graph()
+        adjacency = test_graph_disconnect()
         n = adjacency.shape[0]
         labels = self.louvain.fit_transform(adjacency)
         self.assertEqual(len(labels), n)

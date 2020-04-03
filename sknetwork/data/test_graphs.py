@@ -44,7 +44,7 @@ def test_bigraph():
     return biadjacency
 
 
-def test_disconnected_graph():
+def test_graph_disconnect():
     """Simple disconnected undirected graph, used for testing.
     10 nodes, 10 edges.
     """
@@ -55,7 +55,7 @@ def test_disconnected_graph():
     return adjacency + adjacency.T
 
 
-def test_disconnected_bigraph():
+def test_bigraph_disconnect():
     """Simple disconnected bipartite graph, used for testing.
     4 + 5 nodes, 6 edges.
     """

@@ -16,7 +16,7 @@ class TestTestGraphs(unittest.TestCase):
     def test_undirected(self):
         adjacency = test_graph()
         self.assertEqual(adjacency.shape, (10, 10))
-        adjacency = test_disconnected_graph()
+        adjacency = test_graph_disconnect()
         self.assertEqual(adjacency.shape, (10, 10))
 
     def test_directed(self):
@@ -26,5 +26,5 @@ class TestTestGraphs(unittest.TestCase):
     def test_bipartite(self):
         biadjacency = test_bigraph()
         self.assertEqual(biadjacency.shape, (4, 5))
-        biadjacency = test_disconnected_bigraph()
+        biadjacency = test_bigraph_disconnect()
         self.assertEqual(biadjacency.shape, (4, 5))
