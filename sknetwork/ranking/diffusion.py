@@ -69,8 +69,8 @@ class Diffusion(BaseRanking, VerboseMixin):
     Parameters
     ----------
     n_iter: int
-        If ``n_iter > 0``, the algorithm will emulate the diffusion for n_iter steps.
-        If ``n_iter <= 0``, the algorithm will use BIConjugate Gradient STABilized iteration
+        If ``n_iter > 0``, simulate the diffusion in discrete time for n_iter steps.
+        If ``n_iter <= 0``, use BIConjugate Gradient STABilized iteration
         to solve the Dirichlet problem.
     verbose: bool
         Verbose mode.

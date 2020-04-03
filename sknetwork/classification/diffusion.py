@@ -20,9 +20,8 @@ class DiffusionClassifier(RankClassifier):
     Parameters
     ----------
     n_iter: int
-        If ``n_iter > 0``, the algorithm will emulate the diffusion for n_iter steps.
-        If ``n_iter <= 0``, the algorithm will use BIConjugate Gradient STABilized iteration
-        to solve the Dirichlet problem.
+        If ``n_iter > 0``, apply the diffusion for n_iter steps.
+        If ``n_iter <= 0``, use BIConjugate Gradient STABilized iteration to solve the Dirichlet problem.
     Attributes
     ----------
     labels_ : np.ndarray
@@ -109,9 +108,8 @@ class BiDiffusionClassifier(DiffusionClassifier):
     Parameters
     ----------
     n_iter: int
-        If ``n_iter > 0``, the algorithm will emulate the diffusion for n_iter steps.
-        If ``n_iter <= 0``, the algorithm will use BIConjugate Gradient STABilized iteration
-        to solve the Dirichlet problem.
+        If ``n_iter > 0``, apply the diffusion for n_iter steps.
+        If ``n_iter <= 0``, use BIConjugate Gradient STABilized iteration to solve the Dirichlet problem.
 
     Attributes
     ----------

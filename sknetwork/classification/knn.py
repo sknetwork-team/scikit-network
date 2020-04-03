@@ -21,12 +21,14 @@ from sknetwork.utils.check import check_seeds
 
 
 class KNN(BaseClassifier):
-    """K-nearest neighbors classifier applied to a graph embedding.
+    """K-nearest neighbors classification in the embedding space.
+
+    Undirected, directed and bipartite graphs. 
 
     Parameters
     ----------
     embedding_method :
-        Which algorithm to use to project the nodes in vector space. Default is GSVD.
+        Which algorithm to use to project the nodes in vector space. Default is ``GSVD``.
     n_neighbors :
         Number of neighbors to consider in order to infer label.
     factor_distance :
@@ -55,14 +57,15 @@ class KNN(BaseClassifier):
     Example
     -------
     >>> from sknetwork.data import karate_club
-    >>> knn = KNN(n_neighbors=1)
+    >>> from sknetwork.embedding import GSVD
+    >>> knn = KNN(embedding_method=GSVD(3), n_neighbors=1)
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
     >>> labels_pred = knn.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
-    0.91
+    0.97
 
     """
     def __init__(self, embedding_method: BaseEmbedding = GSVD(10, normalize=False), n_neighbors: int = 5,
@@ -77,10 +80,8 @@ class KNN(BaseClassifier):
         self.eps = eps
         self.n_jobs = n_jobs
 
-        self.membership_ = None
-
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'KNN':
-        """Perform semi-supervised classification by k-nearest neighbors.
+        """Node classification by k-nearest neighbors in the embedding space.
 
         adjacency :
             Adjacency or biadjacency matrix of the graph.
@@ -94,7 +95,7 @@ class KNN(BaseClassifier):
         n = adjacency.shape[0]
         labels = check_seeds(seeds, adjacency).astype(int)
         index_seed = np.argwhere(labels >= 0).ravel()
-        index_test = np.argwhere(labels < 0).ravel()
+        index_remain = np.argwhere(labels < 0).ravel()
         labels_seed = labels[index_seed]
 
         n_neighbors = self.n_neighbors
@@ -104,10 +105,10 @@ class KNN(BaseClassifier):
 
         embedding = self.embedding_method.fit_transform(adjacency)
         embedding_seed = embedding[index_seed]
-        embedding_test = embedding[index_test]
+        embedding_remain = embedding[index_remain]
 
         tree = cKDTree(embedding_seed, self.leaf_size)
-        distances, neighbors = tree.query(embedding_test, n_neighbors, self.eps, self.p, n_jobs=self.n_jobs)
+        distances, neighbors = tree.query(embedding_remain, n_neighbors, self.eps, self.p, n_jobs=self.n_jobs)
 
         if n_neighbors == 1:
             distances = distances[:, np.newaxis]
@@ -119,7 +120,7 @@ class KNN(BaseClassifier):
         weights_neighbor[index] = (distances[index] == 0)
         weights_neighbor[~index] = 1 / np.power(distances[~index], self.factor_distance)
 
-        row = list(np.repeat(index_test, n_neighbors))
+        row = list(np.repeat(index_remain, n_neighbors))
         col = list(labels_neighbor.ravel())
         data = list(weights_neighbor.ravel())
 

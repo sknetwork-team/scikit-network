@@ -33,10 +33,11 @@ class RankClassifier(BaseClassifier, VerboseMixin):
 
     Attributes
     ----------
+    labels_ : np.ndarray
+        Label of each node.
     membership_ : sparse.csr_matrix
         Membership matrix (labels = columns).
     """
-
     def __init__(self, algorithm: BaseRanking, n_jobs: Optional[int] = None, verbose: bool = False):
         super(RankClassifier, self).__init__()
         VerboseMixin.__init__(self, verbose)
@@ -44,8 +45,6 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         self.algorithm = algorithm
         self.n_jobs = n_jobs
         self.verbose = verbose
-
-        self.membership_ = None
 
     @staticmethod
     def _process_seeds(seeds_labels: np.ndarray) -> list:
