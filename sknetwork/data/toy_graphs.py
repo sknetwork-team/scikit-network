@@ -319,7 +319,7 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     """Bipartite graph connecting movies to some actors starring in them.
 
     * Bipartite graph
-    * 31 nodes (15 movies, 16 actors), 41 edges
+    * 31 nodes (15 movies, 16 actors), 42 edges
     * 9 labels (rows)
     * Names of movies (rows) and actors (columns)
     * Names of movies production company (rows)
@@ -336,11 +336,11 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     """
     row = np.array(
         [0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 4, 4, 5, 5, 6,
-         6, 6, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 10, 10, 11, 11, 11,
+         6, 6, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11,
          12, 12, 12, 13, 13, 14, 14])
     col = np.array(
         [0, 1, 2, 1, 2, 3, 3, 4, 5, 8, 4, 6, 0, 6, 4, 7, 4,
-         7, 8, 3, 8, 9, 10, 11, 12, 15, 0, 11, 12, 9, 10, 5, 9, 13,
+         7, 8, 3, 8, 9, 10, 11, 12, 15, 0, 11, 12, 9, 10, 13, 5, 9, 13,
          1, 9, 15, 12, 14, 11, 14])
     biadjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(15, 16))
 
