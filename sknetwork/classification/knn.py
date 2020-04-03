@@ -23,7 +23,7 @@ from sknetwork.utils.check import check_seeds
 class KNN(BaseClassifier):
     """K-nearest neighbors classification in the embedding space.
 
-    Undirected, directed and bipartite graphs. 
+    Undirected, directed and bipartite graphs.
 
     Parameters
     ----------
