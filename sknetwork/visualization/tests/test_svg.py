@@ -23,9 +23,9 @@ class TestVisualization(unittest.TestCase):
         self.assertEqual(image[1:4], 'svg')
         n = adjacency.shape[0]
         image = svg_graph(adjacency, position, names=np.arange(n), labels=np.arange(n), scores=np.arange(n),
-                          seeds=[0, 1], color='red', width=200, height=200, margin=10, margin_text=5, scale=3,
-                          node_size=5, node_width=2, node_width_max=5, edge_width=2, edge_width_max=4,
-                          edge_weight=True, font_size=14)
+                          seeds=[0, 1], width=200, height=200, margin=10, margin_text=5, scale=3,
+                          node_size=5, node_width=2, node_width_max=5, node_color='red', edge_width=2,
+                          edge_width_max=4, edge_color='blue', edge_weight=True, font_size=14)
         self.assertEqual(image[1:4], 'svg')
 
     def test_directed(self):
@@ -37,9 +37,9 @@ class TestVisualization(unittest.TestCase):
         self.assertEqual(image[1:4], 'svg')
         n = adjacency.shape[0]
         image = svg_digraph(adjacency, position, names=np.arange(n), labels=np.arange(n), scores=np.arange(n),
-                            seeds=[0, 1], color='red', width=200, height=200, margin=10, margin_text=5, scale=3,
-                            node_size=5, node_width=2, node_width_max=5, edge_width=2, edge_width_max=4,
-                            edge_weight=True, font_size=14)
+                            seeds=[0, 1], width=200, height=200, margin=10, margin_text=5, scale=3,
+                            node_size=5, node_width=2, node_width_max=5, node_color='red', edge_width=2,
+                            edge_width_max=4, edge_color='blue', edge_weight=True, font_size=14)
         self.assertEqual(image[1:4], 'svg')
 
     def test_bipartite(self):
@@ -59,7 +59,7 @@ class TestVisualization(unittest.TestCase):
                             [1, 2], position_row, position_col, color_row='red', color_col='white',
                             width=200, height=200, margin=10,
                             margin_text=5, scale=3, node_size=5, node_width=2, node_width_max=5, edge_width=2,
-                            edge_width_max=4, edge_weight=True, font_size=14)
+                            edge_width_max=4, edge_color='red', edge_weight=True, font_size=14)
         self.assertEqual(image[1:4], 'svg')
 
     def test_disconnect(self):
