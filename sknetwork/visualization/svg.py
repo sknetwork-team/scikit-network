@@ -310,9 +310,12 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
     width *= scale
 
     svg = """<svg width="{}" height="{}">""".format(width, height)
+    # arrow
+    svg += """<defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" """
+    svg += """markerHeight="10" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" /></marker></defs>"""
     # edges
     for i in range(len(adjacency.row)):
-        svg += svg_edge_directed(position[adjacency.row[i]], position[adjacency.col[i]], edge_widths[i])
+        svg += svg_edge_directed(position[adjacency.row[i]], position[adjacency.col[i]], node_size, edge_widths[i])
     # nodes
     for i in range(n):
         svg += svg_node(position[i], node_size, colors[i], node_widths[i])
