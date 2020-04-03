@@ -327,26 +327,22 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
     return svg
 
 
-def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: Union[None, str, np.ndarray] = 'bilouvain',
-                position_col: Union[None, str, np.ndarray] = 'bilouvain',
+def svg_bigraph(biadjacency: sparse.csr_matrix,
                 names_row: Optional[np.ndarray] = None, names_col: Optional[np.ndarray] = None,
                 labels_row: Optional[np.ndarray] = None, labels_col: Optional[np.ndarray] = None,
                 scores_row: Optional[np.ndarray] = None, scores_col: Optional[np.ndarray] = None,
                 seeds_row: Union[list, dict] = None, seeds_col: Union[list, dict] = None,
-                color_row: str = 'blue', color_col: str = 'red', width: float = 400, height: float = 300,
-                margin: float = 20, margin_text: float = 10, scale: float = 1, node_size: float = 7,
-                node_width: float = 1, node_width_max: float = 3, edge_width: float = 1, edge_width_max: float = 10,
-                edge_weight: bool = True, font_size: int = 12) -> str:
+                position_row: Optional[np.ndarray] = None, position_col: Optional[np.ndarray] = None,
+                cluster: bool = True, color_row: str = 'blue', color_col: str = 'red', width: float = 400,
+                height: float = 300, margin: float = 20, margin_text: float = 10, scale: float = 1,
+                node_size: float = 7, node_width: float = 1, node_width_max: float = 3, edge_width: float = 1,
+                edge_width_max: float = 10, edge_weight: bool = True, font_size: int = 12) -> str:
     """Return svg code for a bipartite graph.
 
     Parameters
     ----------
     biadjacency :
         Adjacency matrix of the graph.
-    position_row :
-        Positions of the rows.
-    position_col :
-        Positions of the columns.
     names_row :
         Names of the rows.
     names_col :
@@ -363,6 +359,12 @@ def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: Union[None, str, n
         Rows to be highlighted (if dict, only keys are considered).
     seeds_col :
         Columns to be highlighted (if dict, only keys are considered).
+    position_row :
+        Positions of the rows.
+    position_col :
+        Positions of the columns.
+    cluster :
+        Use clustering to order nodes.
     color_row :
         Default color of rows (svg color).
     color_col :
@@ -400,51 +402,23 @@ def svg_bigraph(biadjacency: sparse.csr_matrix, position_row: Union[None, str, n
     Example
     -------
     >>> biadjacency = sparse.csr_matrix(np.ones((4,3)))
-    >>> position_row = np.random.random((4,2))
-    >>> position_col = np.random.random((3,2))
-    >>> image = svg_bigraph(biadjacency, position_row, position_col)
+    >>> image = svg_bigraph(biadjacency)
     >>> image[1:4]
     'svg'
     """
     n_row, n_col = biadjacency.shape
 
-    if type(position_row) != np.ndarray or type(position_col) != np.ndarray:
-        if position_row == 'bilouvain' or position_col == 'bilouvain':
+    if position_row is None or position_col is None:
+        if cluster:
             bilouvain = BiLouvain()
             bilouvain.fit(biadjacency)
-            clusters_index = np.unique(np.hstack((bilouvain.labels_row_, bilouvain.labels_col_)))
-            y_min_row, y_min_col = 0, 0
-
-            position_row = np.zeros((n_row, 2))
-            position_col = np.ones((n_col, 2))
-            for cluster in clusters_index:
-                ix_row = (bilouvain.labels_row_ == cluster)
-                ix_col = (bilouvain.labels_col_ == cluster)
-                size_row = ix_row.sum()
-                size_col = ix_col.sum()
-                position_row[ix_row, 1] = y_min_row + np.arange(size_row)
-                position_col[ix_col, 1] = y_min_col + np.arange(size_col)
-                y_min_row += size_row
-                y_min_col += size_col
+            index_row = np.argsort(bilouvain.labels_row_)
+            index_col = np.argsort(bilouvain.labels_col_)
         else:
-            position_row = np.zeros((n_row, 2))
-            position_row[:, 1] = np.arange(n_row)
-            position_col = np.ones((n_col, 2))
-            position_col[:, 1] = np.arange(n_col)
-
-        # scale
-        scale_row = position_row[:, 1].max() - position_row[:, 1].min()
-        scale_col = position_col[:, 1].max() - position_col[:, 1].min()
-        scale_y = max(scale_row, scale_col)
-        position_row[:, 1] *= scale_y / scale_row
-        position_col[:, 1] *= scale_y / scale_col
-
-        # shift
-        y_mean_row = position_row[:, 1].mean()
-        y_mean_col = position_col[:, 1].mean()
-        y_mean = max(y_mean_row, y_mean_col)
-        position_row[:, 1] += y_mean - y_mean_row
-        position_col[:, 1] += y_mean - y_mean_col
+            index_row = np.arange(n_row)
+            index_col = np.arange(n_col)
+        position_row = np.vstack((np.zeros(n_row), index_row)).T
+        position_col = np.vstack((np.ones(n_col), index_col + .5 * (n_row - n_col))).T
 
     biadjacency = sparse.coo_matrix(biadjacency)
 

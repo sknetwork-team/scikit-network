@@ -14,24 +14,6 @@ from scipy import sparse
 from sknetwork.utils import Bunch
 
 
-def get_position_bipartite(n1: int, n2: int):
-    """Default position of nodes for bipartite graphs.
-
-    Parameters
-    ----------
-    n1, n2 :
-        Shape of the biadjacency matrix.
-
-    Returns
-    -------
-    position_col, position_row :
-        Position of nodes.
-    """
-    position_row = np.vstack((np.zeros(n1), np.arange(n1))).T
-    position_col = np.vstack((np.ones(n2), np.arange(n2))).T
-    return position_row, position_col
-
-
 def house(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     """House graph.
 
@@ -314,7 +296,7 @@ def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     Returns
     -------
     biadjacency or graph : Union[sparse.csr_matrix, Bunch]
-        Biadjacency matrix or graph with metadata (names, positions).
+        Biadjacency matrix or graph with metadata (names).
    """
     row = np.array([0, 0, 1, 2, 2, 2, 3, 3])
     col = np.array([0, 2, 0, 0, 1, 2, 1, 2])
@@ -328,7 +310,6 @@ def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.names = villains
         graph.names_row = villains
         graph.names_col = movies
-        graph.position_row, graph.position_col = get_position_bipartite(*biadjacency.shape)
         return graph
     else:
         return biadjacency
@@ -349,7 +330,7 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     Returns
     -------
     biadjacency or graph : Union[sparse.csr_matrix, Bunch]
-        Biadjacency matrix or graph with metadata (names, positions).
+        Biadjacency matrix or graph with metadata (names).
     """
     row = np.array(
         [0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 4, 4, 5, 5, 6,
@@ -375,7 +356,6 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.names = movies
         graph.names_row = movies
         graph.names_col = actors
-        graph.position_row, graph.position_col = get_position_bipartite(*biadjacency.shape)
         return graph
     else:
         return biadjacency

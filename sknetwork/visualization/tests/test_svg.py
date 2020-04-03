@@ -45,24 +45,21 @@ class TestVisualization(unittest.TestCase):
     def test_bipartite(self):
         graph = movie_actor(True)
         biadjacency = graph.biadjacency
-        position_row = graph.position_row
-        position_col = graph.position_col
         names_row = graph.names_row
         names_col = graph.names_col
-        image = svg_bigraph(biadjacency, position_row, position_col, names_row, names_col)
+        image = svg_bigraph(biadjacency, names_row, names_col)
+        self.assertEqual(image[1:4], 'svg')
+        image = svg_bigraph(biadjacency, cluster=False)
         self.assertEqual(image[1:4], 'svg')
         n_row, n_col = biadjacency.shape
-        image = svg_bigraph(biadjacency, position_row, position_col, np.arange(n_row), np.arange(n_col),
-                            np.arange(n_row), np.arange(n_col), np.arange(n_row), np.arange(n_col), seeds_row=[0, 1],
-                            seeds_col=[1, 2], color_row='red', color_col='white', width=200, height=200, margin=10,
+        position_row = np.random.random((n_row, 2))
+        position_col = np.random.random((n_col, 2))
+        image = svg_bigraph(biadjacency, np.arange(n_row), np.arange(n_col),
+                            np.arange(n_row), np.arange(n_col), np.arange(n_row), np.arange(n_col), [0, 1],
+                            [1, 2], position_row, position_col, color_row='red', color_col='white',
+                            width=200, height=200, margin=10,
                             margin_text=5, scale=3, node_size=5, node_width=2, node_width_max=5, edge_width=2,
                             edge_width_max=4, edge_weight=True, font_size=14)
-        self.assertEqual(image[1:4], 'svg')
-
-        image = svg_bigraph(biadjacency)
-        self.assertEqual(image[1:4], 'svg')
-
-        image = svg_bigraph(biadjacency, position_row=None, position_col=None)
         self.assertEqual(image[1:4], 'svg')
 
     def test_disconnect(self):
@@ -71,7 +68,5 @@ class TestVisualization(unittest.TestCase):
         image = svg_graph(adjacency, position)
         self.assertEqual(image[1:4], 'svg')
         biadjacency = test_bigraph_disconnect()
-        position_row = np.random.random((biadjacency.shape[0], 2))
-        position_col = np.random.random((biadjacency.shape[1], 2))
-        image = svg_bigraph(biadjacency, position_row, position_col)
+        image = svg_bigraph(biadjacency)
         self.assertEqual(image[1:4], 'svg')
