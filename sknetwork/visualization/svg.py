@@ -112,7 +112,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
               width: float = 400, height: float = 300, margin: float = 20, margin_text: float = 10,
               scale: float = 1, node_size: float = 7, node_width: float = 1, node_width_max: float = 3,
               node_color: str = 'blue', edge_width: float = 1, edge_width_max: float = 10, edge_weight: bool = True,
-              edge_color: str = 'black', font_size: int = 12) -> str:
+              edge_color: Optional[str] = None, font_size: int = 12) -> str:
     """Return svg code for a graph.
 
     Parameters
@@ -176,6 +176,11 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
 
     # colors
     colors = get_colors(n, labels, scores, node_color)
+    if edge_color is None:
+        if names is None:
+            edge_color = 'black'
+        else:
+            edge_color = 'gray'
 
     # node widths
     node_widths = get_node_widths(n, seeds, node_width, node_width_max)
@@ -213,7 +218,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
     if names is not None:
         for i in range(n):
             svg += svg_text(position[i] + (margin_text, node_size), names[i], font_size)
-    svg += '</svg>'
+    svg += """</svg>"""
     return svg
 
 
@@ -222,7 +227,7 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
                 seeds: Union[list, dict] = None, width: float = 400, height: float = 300,
                 margin: float = 20, margin_text: float = 10, scale: float = 1,
                 node_size: float = 7, node_width: float = 1, node_width_max: float = 3, node_color: str = 'blue',
-                edge_width: float = 1, edge_width_max: float = 10, edge_color: str = 'black',
+                edge_width: float = 1, edge_width_max: float = 10, edge_color: Optional[str] = None,
                 edge_weight: bool = True, font_size: int = 12) -> str:
     """Return svg code for a directed graph.
 
@@ -287,6 +292,11 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
 
     # colors
     colors = get_colors(n, labels, scores, node_color)
+    if edge_color is None:
+        if names is None:
+            edge_color = 'black'
+        else:
+            edge_color = 'gray'
 
     # node widths
     node_widths = get_node_widths(n, seeds, node_width, node_width_max)
@@ -316,7 +326,8 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
     svg = """<svg width="{}" height="{}">""".format(width, height)
     # arrow
     svg += """<defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" """
-    svg += """markerHeight="10" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" /></marker></defs>"""
+    svg += """markerHeight="10" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" """
+    svg += """fill="{}"/></marker></defs>""".format(edge_color)
     # edges
     for i in range(len(adjacency.row)):
         svg += svg_edge_directed(position[adjacency.row[i]], position[adjacency.col[i]], node_size, edge_widths[i],
@@ -328,7 +339,7 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
     if names is not None:
         for i in range(n):
             svg += svg_text(position[i] + (margin_text, node_size), names[i], font_size)
-    svg += '</svg>'
+    svg += """</svg>"""
     return svg
 
 
@@ -486,7 +497,7 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     if names_col is not None:
         for i in range(n_col):
             svg += svg_text(position_col[i] + (margin_text, 0), names_col[i], font_size)
-    svg += '</svg>'
+    svg += """</svg>"""
     return svg
 
 
