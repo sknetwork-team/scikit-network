@@ -50,6 +50,9 @@ class KMeans(BaseClustering):
                  return_graph: bool = True):
         super(KMeans, self).__init__()
 
+        if not hasattr(embedding_method, 'embedding_'):
+            raise TypeError('The embedding method must have an attribute embedding_.')
+
         self.n_clusters = n_clusters
         self.embedding_method = embedding_method
         self.sort_clusters = sort_clusters
@@ -129,8 +132,10 @@ class BiKMeans(KMeans):
                  sort_clusters: bool = True, return_graph: bool = True):
         KMeans.__init__(self, n_clusters, embedding_method, sort_clusters, return_graph)
 
-        if not hasattr(embedding_method, 'embedding_col_'):
-            raise ValueError('The embedding method is not valid for bipartite graphs.')
+        if not hasattr(embedding_method, 'embedding_'):
+            raise TypeError('The embedding method must have an attribute embedding_.')
+        if cluster_both and not hasattr(embedding_method, 'embedding_col_'):
+            raise ValueError('For co-clustering, the embedding method must have an attribute embedding_col_.')
 
         self.cluster_both = cluster_both
 
@@ -152,9 +157,9 @@ class BiKMeans(KMeans):
         self: :class:`BiKMeans`
 
         """
-        n1, n2 = biadjacency.shape
+        n_row, n_col = biadjacency.shape
 
-        if self.n_clusters > n1:
+        if self.n_clusters > n_row:
             raise ValueError('The number of clusters exceeds the number of rows.')
 
         method = self.embedding_method
@@ -163,7 +168,7 @@ class BiKMeans(KMeans):
         if self.cluster_both:
             embedding = np.vstack((method.embedding_row_, method.embedding_col_))
         else:
-            embedding = method.embedding_row_
+            embedding = method.embedding_
 
         kmeans = KMeansDense(self.n_clusters)
         kmeans.fit(embedding)
@@ -174,9 +179,9 @@ class BiKMeans(KMeans):
             labels = kmeans.labels_
 
         if self.cluster_both:
-            self.labels_ = labels[:n1]
-            self.labels_row_ = labels[:n1]
-            self.labels_col_ = labels[n1:]
+            self.labels_ = labels[:n_row]
+            self.labels_row_ = labels[:n_row]
+            self.labels_col_ = labels[n_row:]
         else:
             self.labels_ = labels
             self.labels_row_ = labels
