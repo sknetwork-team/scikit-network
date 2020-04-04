@@ -4,6 +4,7 @@
 Created on Nov 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
+from typing import Union
 
 import numpy as np
 from scipy import sparse
@@ -29,7 +30,7 @@ def diag_pinv(weights: np.ndarray) -> sparse.csr_matrix:
     return diag
 
 
-def normalize(matrix: sparse.csr_matrix) -> sparse.csr_matrix:
+def normalize(matrix: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
     """Normalize a matrix so that rows sum to 1 (or 0).
 
     Parameters

@@ -586,7 +586,7 @@ class BiLouvain(Louvain):
         louvain = Louvain(algorithm=self.algorithm, tol_aggregation=self.tol_aggregation,
                           n_aggregations=self.n_aggregations,
                           shuffle_nodes=self.shuffle_nodes, sort_clusters=self.sort_clusters,
-                          return_graph=self.return_graph, random_state=self.random_state, verbose=self.log.verbose)
+                          return_graph=False, random_state=self.random_state, verbose=self.log.verbose)
         biadjacency = check_format(biadjacency)
         n_row, _ = biadjacency.shape
 
@@ -597,6 +597,8 @@ class BiLouvain(Louvain):
         self.labels_row_ = louvain.labels_[:n_row]
         self.labels_col_ = louvain.labels_[n_row:]
         if self.return_graph:
-            self.biadjacency_ = louvain.adjacency_
+            membership_row = membership_matrix(self.labels_row_)
+            membership_col = membership_matrix(self.labels_col_)
+            self.biadjacency_ = sparse.csr_matrix(membership_row.T.dot(biadjacency.dot(membership_col)))
 
         return self
