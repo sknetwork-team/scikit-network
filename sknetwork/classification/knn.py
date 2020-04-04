@@ -12,6 +12,7 @@ from scipy import sparse
 from scipy.spatial import cKDTree
 
 from sknetwork.classification import BaseClassifier
+from sknetwork.classification.seeds import stack_seeds
 from sknetwork.embedding import BaseEmbedding, GSVD
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_seeds, check_n_neighbors
@@ -212,12 +213,7 @@ class BiKNN(KNN):
     def _instanciate_vars(self, biadjacency: Union[sparse.csr_matrix, np.ndarray], seeds_row: Union[np.ndarray, dict],
                           seeds_col: Optional[Union[np.ndarray, dict]] = None):
         n_row, n_col = biadjacency.shape
-        labels_row = check_seeds(seeds_row, n_row).astype(int)
-        if seeds_col is None:
-            labels_col = -np.ones(n_col, dtype=int)
-        else:
-            labels_col = check_seeds(seeds_col, n_col).astype(int)
-        labels = np.hstack((labels_row, labels_col))
+        labels = stack_seeds(n_row, n_col, seeds_row, seeds_col)
         index_seed = np.argwhere(labels >= 0).ravel()
         index_remain = np.argwhere(labels < 0).ravel()
         labels_seed = labels[index_seed]

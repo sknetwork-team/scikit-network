@@ -47,12 +47,12 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         self.verbose = verbose
 
     @staticmethod
-    def _process_seeds(seeds_labels: np.ndarray) -> list:
+    def _process_seeds(labels_seeds: np.ndarray) -> list:
         """Make one-vs-all seed labels from seeds.
 
         Parameters
         ----------
-        seeds_labels
+        labels_seeds
 
         Returns
         -------
@@ -62,10 +62,10 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         """
 
         personalizations = []
-        classes, _ = check_labels(seeds_labels)
+        classes, _ = check_labels(labels_seeds)
 
         for label in classes:
-            personalization = np.array(seeds_labels == label).astype(int)
+            personalization = np.array(labels_seeds == label).astype(int)
             personalizations.append(personalization)
 
         return personalizations

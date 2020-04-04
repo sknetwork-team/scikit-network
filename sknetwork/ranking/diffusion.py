@@ -15,28 +15,14 @@ from scipy.sparse.linalg import bicgstab
 from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.check import check_format, is_square
+from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.verbose import VerboseMixin
 
 
-def limit_conditions(personalization: Union[np.ndarray, dict], n: int) -> Tuple:
-    """Compute personalization vector and border indicator.
-
-    Parameters
-    ----------
-    personalization:
-        Array or dictionary indicating the fixed temperatures in the graph.
-        In order to avoid ambiguities, temperatures must be non-negative.
-    n:
-        Number of nodes in the graph.
-
-    Returns
-    -------
-    b:
-        Personalization vector.
-    border:
-        Border boolean indicator.
-
-    """
+def check_personalization(personalization: Union[np.ndarray, dict], n: int) -> np.ndarray:
+    """Return personalization as standardized array."""
+    if personalization is None:
+        return -np.ones(n)
 
     if type(personalization) == dict:
         keys = np.array(list(personalization.keys()))
@@ -56,7 +42,27 @@ def limit_conditions(personalization: Union[np.ndarray, dict], n: int) -> Tuple:
     else:
         raise ValueError('Personalization must be a dictionary or a vector'
                          ' of length equal to the number of nodes.')
+    return b
 
+
+def limit_conditions(personalization: np.ndarray) -> Tuple:
+    """Compute personalization vector and border indicator.
+
+    Parameters
+    ----------
+    personalization:
+        Array or dictionary indicating the fixed temperatures in the graph.
+        In order to avoid ambiguities, temperatures must be non-negative.
+
+    Returns
+    -------
+    b:
+        Personalization vector.
+    border:
+        Border boolean indicator.
+
+    """
+    b = personalization
     border = (b >= 0)
     b[~border] = 0
     return b.astype(float), border.astype(bool)
@@ -122,8 +128,8 @@ class Diffusion(BaseRanking, VerboseMixin):
         n: int = adjacency.shape[0]
         if not is_square(adjacency):
             raise ValueError('The adjacency matrix should be square. See BiDiffusion.')
-
-        b, border = limit_conditions(personalization, n)
+        personalization = check_personalization(personalization, n)
+        b, border = limit_conditions(personalization)
         tmin, tmax = np.min(b[border]), np.max(b)
 
         interior: sparse.csr_matrix = sparse.diags(~border, shape=(n, n), format='csr', dtype=float)
@@ -184,16 +190,19 @@ class BiDiffusion(Diffusion):
         self.scores_col_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Union[dict, np.ndarray], initial_state: Optional = None) -> 'BiDiffusion':
+            personalization_row: Union[dict, np.ndarray], personalization_col: Optional[Union[dict, np.ndarray]] = None,
+            initial_state: Optional = None) -> 'BiDiffusion':
         """
         Compute the diffusion (temperature at equilibrium).
 
         Parameters
         ----------
         biadjacency :
-            Biadjacency matrix, shape (n1, n2).
-        personalization :
-            Temperatures of border nodes (dictionary or vector of size n1). Negative temperatures ignored.
+            Biadjacency matrix, shape (n_row, n_col).
+        personalization_row :
+            Temperatures of row border nodes (dictionary or vector of size n_row). Negative temperatures ignored.
+        personalization_col :
+            Temperatures of column border nodes (dictionary or vector of size n_row). Negative temperatures ignored.
         initial_state :
             Initial state of temperatures.
 
@@ -202,63 +211,16 @@ class BiDiffusion(Diffusion):
         self: :class:`BiDiffusion`
         """
         biadjacency = check_format(biadjacency)
-        n1, n2 = biadjacency.shape
+        n_row, n_col = biadjacency.shape
+        personalization_row = check_personalization(personalization_row, n_row)
+        personalization_col = check_personalization(personalization_col, n_col)
+        personalization = np.hstack((personalization_row, personalization_col))
 
-        b, border = limit_conditions(personalization, n1)
-        interior: sparse.csr_matrix = sparse.diags(1 - border, format='csr')
-        backward: sparse.csr_matrix = interior.dot(transition_matrix(biadjacency))
-        forward: sparse.csr_matrix = transition_matrix(biadjacency.T)
+        adjacency = bipartite2undirected(biadjacency)
+        Diffusion.fit(self, adjacency, personalization)
 
-        initial_state = np.zeros(n1)
-        ix = (b >= 0)
-        initial_state[ix] = b[ix]
-
-        if self.n_iter > 0:
-            scores = initial_state
-            for i in range(self.n_iter):
-                scores = backward.dot(forward.dot(scores))
-                scores[border] = b[border]
-
-        else:
-
-            def mv(x: np.ndarray) -> np.ndarray:
-                """Matrix vector multiplication for BiDiffusion operator.
-
-                Parameters
-                ----------
-                x:
-                    vector
-
-                Returns
-                -------
-                matrix-vector product
-
-                """
-                return x - backward.dot(forward.dot(x))
-
-            def rmv(x: np.ndarray) -> np.ndarray:
-                """Matrix vector multiplication for transposed BiDiffusion operator.
-
-                Parameters
-                ----------
-                x:
-                    vector
-
-                Returns
-                -------
-                matrix-vector product
-
-                """
-                return x - forward.T.dot(backward.T.dot(x))
-
-            # noinspection PyArgumentList
-            a = sparse.linalg.LinearOperator(dtype=float, shape=(n1, n1), matvec=mv, rmatvec=rmv)
-            # noinspection PyTypeChecker
-            scores, info = bicgstab(a, initial_state, atol=0., x0=initial_state)
-            self._scipy_solver_info(info)
-
-        self.scores_row_ = np.clip(scores, np.min(b), np.max(b))
-        self.scores_col_ = transition_matrix(biadjacency.T).dot(self.scores_row_)
+        self.scores_row_ = self.scores_[:n_row]
+        self.scores_col_ = self.scores_[n_row:]
         self.scores_ = self.scores_row_
 
         return self
