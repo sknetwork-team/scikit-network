@@ -4,7 +4,7 @@
 Created on Apr 4, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
+import warnings
 from typing import Union, Optional
 
 import numpy as np
@@ -192,6 +192,14 @@ def check_seeds(seeds: Union[np.ndarray, dict], n: int):
     else:
         raise TypeError('"seeds" must be a dictionary or a one-dimensional array.')
     return seeds
+
+
+def check_n_neighbors(n_neighbors: int, n_seeds: int):
+    """Set the number of neighbors so that it does not exceed the number of labeled samples."""
+    if n_neighbors > n_seeds:
+        warnings.warn(Warning("The number of neighbors cannot exceed the number of seeds. Changed accordingly."))
+        n_neighbors = n_seeds
+    return n_neighbors
 
 
 def check_labels(labels: np.ndarray):
