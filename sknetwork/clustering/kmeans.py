@@ -183,7 +183,7 @@ class BiKMeans(KMeans):
 
         if self.return_graph:
             membership_row = membership_matrix(self.labels_row_)
-            biadjacency_ = membership_row.T.dot(biadjacency)
+            biadjacency_ = sparse.csr_matrix(membership_row.T.dot(biadjacency))
             if self.labels_col_ is not None:
                 membership_col = membership_matrix(self.labels_col_)
                 biadjacency_ = biadjacency_.dot(membership_col)

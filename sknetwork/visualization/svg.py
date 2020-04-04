@@ -272,7 +272,7 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
                 node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20, node_weight: bool = False,
                 node_weights: Optional[np.ndarray] = None, node_width: float = 1, node_width_max: float = 3,
                 node_color: str = 'blue', edge_width: float = 1, edge_width_min: float = 0.5,
-                edge_width_max: float = 10, edge_weight: bool = True, edge_color: Optional[str] = None,
+                edge_width_max: float = 3, edge_weight: bool = True, edge_color: Optional[str] = None,
                 font_size: int = 12) -> str:
     """Return svg code for a directed graph.
 
@@ -386,8 +386,8 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
 
     svg = """<svg width="{}" height="{}">""".format(width, height)
     # arrow
-    svg += """<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" """
-    svg += """markerUnits="strokeWidth"> """
+    svg += """<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" >"""
+    #svg += """markerUnits="strokeWidth"> """
     svg += """<path d="M0,0 L0,6 L9,3 z" fill="{}"/></marker></defs>""".format(edge_color)
     # edges
     for l in range(len(adjacency.row)):
