@@ -100,10 +100,10 @@ class KNN(BaseClassifier):
             neighbors = neighbors[:, np.newaxis]
 
         labels_neighbor = labels_seed[neighbors]
-        index = np.min(distances, axis=1) == 0
+        index = (np.min(distances, axis=1) == 0)
         weights_neighbor = np.zeros_like(distances).astype(float)
         # take all seeds at distance zero, if any
-        weights_neighbor[index] = distances[index] == 0
+        weights_neighbor[index] = (distances[index] == 0).astype(float)
         # assign weights with respect to distances for other
         weights_neighbor[~index] = 1 / np.power(distances[~index], self.factor_distance)
 
@@ -117,13 +117,8 @@ class KNN(BaseClassifier):
         data += list(np.ones_like(index_seed))
 
         membership = normalize(sparse.csr_matrix((data, (row, col)), shape=(n, np.max(labels_seed) + 1)))
-
-        labels = np.zeros(n, dtype=int)
-        indptr, indices, data = membership.indptr, membership.indices, membership.data
-        for i in range(n):
-            labels_neighbor = indices[indptr[i]:indptr[i+1]]
-            weights_neighbor = data[indptr[i]:indptr[i+1]]
-            labels[i] = labels_neighbor[np.argmax(weights_neighbor)]
+        membership_dense = membership.toarray()
+        labels = np.argmax(membership_dense, axis=1)
 
         return membership, labels
 
