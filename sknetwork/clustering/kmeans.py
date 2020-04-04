@@ -47,7 +47,7 @@ class KMeans(BaseClustering):
     """
 
     def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10), sort_clusters: bool = True,
-                 return_graph: bool = False):
+                 return_graph: bool = True):
         super(KMeans, self).__init__()
 
         self.n_clusters = n_clusters
@@ -126,7 +126,7 @@ class BiKMeans(KMeans):
     """
 
     def __init__(self, n_clusters: int = 2, embedding_method: BaseEmbedding = GSVD(10), cluster_both: bool = False,
-                 sort_clusters: bool = True, return_graph: bool = False):
+                 sort_clusters: bool = True, return_graph: bool = True):
         KMeans.__init__(self, n_clusters, embedding_method, sort_clusters, return_graph)
 
         if not hasattr(embedding_method, 'embedding_col_'):

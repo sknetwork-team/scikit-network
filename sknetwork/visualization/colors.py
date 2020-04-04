@@ -12,7 +12,7 @@ import numpy as np
 def get_standard_colors() -> np.ndarray:
     """Return 10 standard svg colors."""
 
-    colors = np.array(['blue', 'red', 'green', 'orange', ' purple', 'gray', 'yellow', 'fuschia', 'olive', 'aqua'])
+    colors = np.array(['blue', 'red', 'green', 'orange', ' purple', 'gray', 'yellow', 'fuchsia', 'olive', 'aqua'])
     return colors
 
 

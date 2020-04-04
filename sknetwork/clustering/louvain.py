@@ -403,7 +403,7 @@ class Louvain(BaseClustering, VerboseMixin):
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
                  tol: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
-                 shuffle_nodes: bool = False, sort_clusters: bool = True, return_graph: bool = False,
+                 shuffle_nodes: bool = False, sort_clusters: bool = True, return_graph: bool = True,
                  random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
         super(Louvain, self).__init__()
         VerboseMixin.__init__(self, verbose)
@@ -556,7 +556,7 @@ class BiLouvain(Louvain):
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
                  tol: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
-                 shuffle_nodes: bool = False, sort_clusters: bool = True, return_graph: bool = False,
+                 shuffle_nodes: bool = False, sort_clusters: bool = True, return_graph: bool = True,
                  random_state: Optional[Union[np.random.RandomState, int]] = None,
                  verbose: bool = False):
         Louvain.__init__(self, engine, algorithm, resolution, tol, tol_aggregation, n_aggregations,
