@@ -71,12 +71,13 @@ class TestChecks(unittest.TestCase):
             check_random_state('junk')
 
     def test_check_seeds(self):
-        adj_array_seeds = -np.ones(self.adjacency.shape[0])
-        adj_array_seeds[:2] = np.arange(2)
-        adj_dict_seeds = {0: 0, 1: 1}
-        tmp1 = check_seeds(adj_array_seeds, self.adjacency)
-        tmp2 = check_seeds(adj_dict_seeds, self.adjacency)
-        self.assertTrue(np.allclose(tmp1, tmp2))
+        n = 10
+        seeds_array = -np.ones(n)
+        seeds_array[:2] = np.arange(2)
+        seeds_dict = {0: 0, 1: 1}
+        labels_array = check_seeds(seeds_array, n)
+        labels_dict = check_seeds(seeds_dict, n)
+        self.assertTrue(np.allclose(labels_array, labels_dict))
 
     def test_check_labels(self):
         with self.assertRaises(ValueError):

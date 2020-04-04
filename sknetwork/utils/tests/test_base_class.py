@@ -24,6 +24,6 @@ class TestAlgo(unittest.TestCase):
         self.assertEqual(str(self.paris), "Paris(engine='{}', weights='degree', reorder=True)".format(self.engine))
         self.assertEqual(str(self.louvain), "Louvain(algorithm=GreedyModularity(resolution=1, tol=0, engine='{}'), "
                                             "tol_aggregation=0.001, n_aggregations=-1, shuffle_nodes=False, "
-                                            "sort_clusters=True, return_graph=False)".format(self.engine))
+                                            "sort_clusters=True, return_graph=True)".format(self.engine))
         self.assertEqual(str(self.louvain.algorithm), "GreedyModularity(resolution=1, "
                                                       "tol=0, engine='{}')".format(self.engine))

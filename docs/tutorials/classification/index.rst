@@ -4,7 +4,9 @@ Classification
 
 .. toctree::
 
-   diffusion
-   pagerank
+    diffusion
+    pagerank
+    knn
+
 
 

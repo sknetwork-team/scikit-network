@@ -8,7 +8,7 @@ Created on Nov, 2019
 
 import warnings
 
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 from scipy import sparse
@@ -16,7 +16,7 @@ from scipy.spatial import cKDTree
 
 from sknetwork.classification import BaseClassifier
 from sknetwork.embedding import BaseEmbedding, GSVD
-from sknetwork.linalg.normalize import normalize
+from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_seeds
 
 
@@ -94,7 +94,7 @@ class KNN(BaseClassifier):
         self: :class:`KNN`
         """
         n = adjacency.shape[0]
-        labels = check_seeds(seeds, adjacency).astype(int)
+        labels = check_seeds(seeds, n).astype(int)
         index_seed = np.argwhere(labels >= 0).ravel()
         index_remain = np.argwhere(labels < 0).ravel()
         labels_seed = labels[index_seed]
@@ -190,10 +190,9 @@ class BiKNN(BaseClassifier):
     >>> from sknetwork.data import movie_actor
     >>> biknn = BiKNN(n_neighbors=2)
     >>> graph = movie_actor(metadata=True)
-    >>> adjacency = graph.biadjacency
+    >>> biadjacency = graph.biadjacency
     >>> seeds_row = {0: 0, 1: 2, 2: 1}
-    >>> biknn.fit(biadjacency, seeds_row)
-    >>> len(biknn.labels_row_)
+    >>> len(biknn.fit_transform(biadjacency, seeds_row))
     15
     >>> len(biknn.labels_col_)
     16
@@ -218,7 +217,7 @@ class BiKNN(BaseClassifier):
         self.membership_col_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray], seeds_row: Union[np.ndarray, dict],
-            seeds_col: Union[np.ndarray, dict]) -> 'BiKNN':
+            seeds_col: Optional[Union[np.ndarray, dict]] = None) -> 'BiKNN':
         """Node classification by k-nearest neighbors in the embedding space.
 
         Parameters
@@ -228,14 +227,19 @@ class BiKNN(BaseClassifier):
         seeds_row :
             Seed rows. Can be a dict {node: label} or an array where "-1" means no label.
         seeds_col :
-            Seed columns. Same format.
+            Seed columns (optional). Same format.
 
         Returns
         -------
         self: :class:`BiKNN`
         """
-        n_row, n_col = biadjacency.shape[0]
-        labels = check_seeds(seeds, adjacency).astype(int)
+        n_row, n_col = biadjacency.shape
+        labels_row = check_seeds(seeds_row, n_row).astype(int)
+        if seeds_col is None:
+            labels_col = -np.ones(n_col, dtype=int)
+        else:
+            labels_col = check_seeds(seeds_col, n_col).astype(int)
+        labels = np.hstack((labels_row, labels_col))
         index_seed = np.argwhere(labels >= 0).ravel()
         index_remain = np.argwhere(labels < 0).ravel()
         labels_seed = labels[index_seed]
@@ -245,7 +249,10 @@ class BiKNN(BaseClassifier):
             warnings.warn(Warning("The number of neighbors cannot exceed the number of seeds. Changed accordingly."))
             n_neighbors = len(labels_seed)
 
-        embedding = self.embedding_method.fit_transform(adjacency)
+        self.embedding_method.fit(biadjacency)
+        embedding_row = self.embedding_method.embedding_row_
+        embedding_col = self.embedding_method.embedding_col_
+        embedding = np.vstack((embedding_row, embedding_col))
         embedding_seed = embedding[index_seed]
         embedding_remain = embedding[index_remain]
 
@@ -273,15 +280,19 @@ class BiKNN(BaseClassifier):
         col += list(labels_seed)
         data += list(np.ones_like(index_seed))
 
-        membership = normalize(sparse.csr_matrix((data, (row, col)), shape=(n, np.max(labels_seed) + 1)))
+        membership = normalize(sparse.csr_matrix((data, (row, col)), shape=(n_row + n_col, np.max(labels_seed) + 1)))
 
-        labels = np.zeros(n, dtype=int)
-        for i in range(n):
+        labels = np.zeros(n_row + n_col, dtype=int)
+        for i in range(n_row + n_col):
             labels_neighbor = membership[i].indices
             weights_neighbor = membership[i].data
             labels[i] = labels_neighbor[np.argmax(weights_neighbor)]
 
-        self.membership_ = membership
-        self.labels_ = labels
+        self.labels_row_ = labels[:n_row]
+        self.labels_col_ = labels[n_row:]
+        self.labels_ = self.labels_row_
+        self.membership_row_ = membership[:n_row]
+        self.membership_col_ = membership[n_row:]
+        self.membership_ = self.membership_row_
 
         return self
