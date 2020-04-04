@@ -5,9 +5,6 @@ Created on Nov, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <tbonald@enst.fr>
 """
-
-import warnings
-
 from typing import Optional, Union
 
 import numpy as np
@@ -17,7 +14,7 @@ from scipy.spatial import cKDTree
 from sknetwork.classification import BaseClassifier
 from sknetwork.embedding import BaseEmbedding, GSVD
 from sknetwork.linalg.normalization import normalize
-from sknetwork.utils.check import check_seeds
+from sknetwork.utils.check import check_seeds, check_n_neighbors
 
 
 class KNN(BaseClassifier):
@@ -25,7 +22,7 @@ class KNN(BaseClassifier):
 
     Graphs, digraphs and bigraphs.
 
-    For bigraphs, classify rows only (see ``BiKNN``for joint classification of rows and columns).
+    For bigraphs, classify rows only (see ``BiKNN`` for joint classification of rows and columns).
 
     Parameters
     ----------
@@ -79,35 +76,22 @@ class KNN(BaseClassifier):
         self.tol_nn = tol_nn
         self.n_jobs = n_jobs
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'KNN':
-        """Node classification by k-nearest neighbors in the embedding space.
-
-        Parameters
-        ----------
-        adjacency :
-            Adjacency or biadjacency matrix of the graph.
-        seeds :
-            Seed nodes. Can be a dict {node: label} or an array where "-1" means no label.
-
-        Returns
-        -------
-        self: :class:`KNN`
-        """
+    def _instanciate_vars(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]):
         n = adjacency.shape[0]
         labels = check_seeds(seeds, n).astype(int)
         index_seed = np.argwhere(labels >= 0).ravel()
         index_remain = np.argwhere(labels < 0).ravel()
         labels_seed = labels[index_seed]
 
-        n_neighbors = self.n_neighbors
-        if n_neighbors > len(labels_seed):
-            warnings.warn(Warning("The number of neighbors cannot exceed the number of seeds. Changed accordingly."))
-            n_neighbors = len(labels_seed)
-
         embedding = self.embedding_method.fit_transform(adjacency)
+
+        return index_seed, index_remain, labels_seed, embedding
+
+    def _fit_core(self, n, labels_seed, embedding, index_seed, index_remain):
+        n_seeds = len(labels_seed)
         embedding_seed = embedding[index_seed]
         embedding_remain = embedding[index_remain]
-
+        n_neighbors = check_n_neighbors(self.n_neighbors, n_seeds)
         tree = cKDTree(embedding_seed, self.leaf_size)
         distances, neighbors = tree.query(embedding_remain, n_neighbors, self.tol_nn, self.p, n_jobs=self.n_jobs)
 
@@ -135,10 +119,32 @@ class KNN(BaseClassifier):
         membership = normalize(sparse.csr_matrix((data, (row, col)), shape=(n, np.max(labels_seed) + 1)))
 
         labels = np.zeros(n, dtype=int)
+        indptr, indices, data = membership.indptr, membership.indices, membership.data
         for i in range(n):
-            labels_neighbor = membership[i].indices
-            weights_neighbor = membership[i].data
+            labels_neighbor = indices[indptr[i]:indptr[i+1]]
+            weights_neighbor = data[indptr[i]:indptr[i+1]]
             labels[i] = labels_neighbor[np.argmax(weights_neighbor)]
+
+        return membership, labels
+
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'KNN':
+        """Node classification by k-nearest neighbors in the embedding space.
+
+        Parameters
+        ----------
+        adjacency :
+            Adjacency or biadjacency matrix of the graph.
+        seeds :
+            Seed nodes. Can be a dict {node: label} or an array where "-1" means no label.
+
+        Returns
+        -------
+        self: :class:`KNN`
+        """
+        n = adjacency.shape[0]
+        index_seed, index_remain, labels_seed, embedding = self._instanciate_vars(adjacency, seeds)
+
+        membership, labels = self._fit_core(n, labels_seed, embedding, index_seed, index_remain)
 
         self.membership_ = membership
         self.labels_ = labels
@@ -146,7 +152,7 @@ class KNN(BaseClassifier):
         return self
 
 
-class BiKNN(BaseClassifier):
+class BiKNN(KNN):
     """Node classification by K-nearest neighbors in the embedding space.
 
     Bigraphs.
@@ -201,20 +207,32 @@ class BiKNN(BaseClassifier):
     """
     def __init__(self, embedding_method: BaseEmbedding = GSVD(10), n_neighbors: int = 5,
                  factor_distance: float = 2, leaf_size: int = 16, p: float = 2, tol_nn: float = 0.01, n_jobs: int = 1):
-        super(BiKNN, self).__init__()
-
-        self.embedding_method = embedding_method
-        self.n_neighbors = n_neighbors
-        self.factor_distance = factor_distance
-        self.leaf_size = leaf_size
-        self.p = p
-        self.tol_nn = tol_nn
-        self.n_jobs = n_jobs
+        super(BiKNN, self).__init__(embedding_method, n_neighbors, factor_distance, leaf_size, p, tol_nn, n_jobs)
 
         self.labels_row_ = None
         self.labels_col_ = None
         self.membership_row_ = None
         self.membership_col_ = None
+
+    def _instanciate_vars(self, biadjacency: Union[sparse.csr_matrix, np.ndarray], seeds_row: Union[np.ndarray, dict],
+                          seeds_col: Optional[Union[np.ndarray, dict]] = None):
+        n_row, n_col = biadjacency.shape
+        labels_row = check_seeds(seeds_row, n_row).astype(int)
+        if seeds_col is None:
+            labels_col = -np.ones(n_col, dtype=int)
+        else:
+            labels_col = check_seeds(seeds_col, n_col).astype(int)
+        labels = np.hstack((labels_row, labels_col))
+        index_seed = np.argwhere(labels >= 0).ravel()
+        index_remain = np.argwhere(labels < 0).ravel()
+        labels_seed = labels[index_seed]
+
+        self.embedding_method.fit(biadjacency)
+        embedding_row = self.embedding_method.embedding_row_
+        embedding_col = self.embedding_method.embedding_col_
+        embedding = np.vstack((embedding_row, embedding_col))
+
+        return index_seed, index_remain, labels_seed, embedding
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray], seeds_row: Union[np.ndarray, dict],
             seeds_col: Optional[Union[np.ndarray, dict]] = None) -> 'BiKNN':
@@ -234,59 +252,9 @@ class BiKNN(BaseClassifier):
         self: :class:`BiKNN`
         """
         n_row, n_col = biadjacency.shape
-        labels_row = check_seeds(seeds_row, n_row).astype(int)
-        if seeds_col is None:
-            labels_col = -np.ones(n_col, dtype=int)
-        else:
-            labels_col = check_seeds(seeds_col, n_col).astype(int)
-        labels = np.hstack((labels_row, labels_col))
-        index_seed = np.argwhere(labels >= 0).ravel()
-        index_remain = np.argwhere(labels < 0).ravel()
-        labels_seed = labels[index_seed]
+        index_seed, index_remain, labels_seed, embedding = self._instanciate_vars(biadjacency, seeds_row, seeds_col)
 
-        n_neighbors = self.n_neighbors
-        if n_neighbors > len(labels_seed):
-            warnings.warn(Warning("The number of neighbors cannot exceed the number of seeds. Changed accordingly."))
-            n_neighbors = len(labels_seed)
-
-        self.embedding_method.fit(biadjacency)
-        embedding_row = self.embedding_method.embedding_row_
-        embedding_col = self.embedding_method.embedding_col_
-        embedding = np.vstack((embedding_row, embedding_col))
-        embedding_seed = embedding[index_seed]
-        embedding_remain = embedding[index_remain]
-
-        tree = cKDTree(embedding_seed, self.leaf_size)
-        distances, neighbors = tree.query(embedding_remain, n_neighbors, self.tol_nn, self.p, n_jobs=self.n_jobs)
-
-        if n_neighbors == 1:
-            distances = distances[:, np.newaxis]
-            neighbors = neighbors[:, np.newaxis]
-
-        labels_neighbor = labels_seed[neighbors]
-        index = np.min(distances, axis=1) == 0
-        weights_neighbor = np.zeros_like(distances).astype(float)
-        # take all seeds at distance zero, if any
-        weights_neighbor[index] = distances[index] == 0
-        # assign weights with respect to distances for other
-        weights_neighbor[~index] = 1 / np.power(distances[~index], self.factor_distance)
-
-        # form the corresponding matrix
-        row = list(np.repeat(index_remain, n_neighbors))
-        col = list(labels_neighbor.ravel())
-        data = list(weights_neighbor.ravel())
-
-        row += list(index_seed)
-        col += list(labels_seed)
-        data += list(np.ones_like(index_seed))
-
-        membership = normalize(sparse.csr_matrix((data, (row, col)), shape=(n_row + n_col, np.max(labels_seed) + 1)))
-
-        labels = np.zeros(n_row + n_col, dtype=int)
-        for i in range(n_row + n_col):
-            labels_neighbor = membership[i].indices
-            weights_neighbor = membership[i].data
-            labels[i] = labels_neighbor[np.argmax(weights_neighbor)]
+        membership, labels = self._fit_core(n_row + n_col, labels_seed, embedding, index_seed, index_remain)
 
         self.labels_row_ = labels[:n_row]
         self.labels_col_ = labels[n_row:]
