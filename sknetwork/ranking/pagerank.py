@@ -14,9 +14,9 @@ from scipy.sparse.linalg import eigs, LinearOperator, lsqr, bicgstab
 
 from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.ranking.base import BaseRanking
-from utils.seeds import seeds2probs
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.check import check_format, is_square
+from sknetwork.utils.seeds import seeds2probs
 from sknetwork.utils.verbose import VerboseMixin
 
 

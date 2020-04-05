@@ -13,9 +13,9 @@ from scipy import sparse
 from scipy.sparse.linalg import bicgstab
 from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.ranking.base import BaseRanking
-from utils.seeds import stack_seeds
 from sknetwork.utils.check import check_format, check_seeds, is_square
 from sknetwork.utils.format import bipartite2undirected
+from sknetwork.utils.seeds import stack_seeds
 from sknetwork.utils.verbose import VerboseMixin
 
 
