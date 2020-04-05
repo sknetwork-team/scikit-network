@@ -19,6 +19,9 @@ from sknetwork.utils.kmeans import KMeansDense
 class KMeans(BaseClustering):
     """K-means applied in the embedding space.
 
+    * Graphs
+    * Digraphs
+
     Parameters
     ----------
     n_clusters:
@@ -94,7 +97,9 @@ class KMeans(BaseClustering):
 
 
 class BiKMeans(KMeans):
-    """KMeans co-clustering applied in the embedding space.
+    """KMeans clustering of bipartite graphs applied in the embedding space.
+
+    * Bigraphs
 
     Parameters
     ----------

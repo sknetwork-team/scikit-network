@@ -339,10 +339,8 @@ class Louvain(BaseClustering, VerboseMixin):
     """
     Louvain algorithm for clustering graphs in Python (default) and Numba.
 
-    Compute the best partition of the nodes with respect to the optimization criterion
-    (default: :class:`GreedyModularity`).
-
-    The graph can be directed or undirected.
+    * Graphs
+    * Digraphs
 
     Parameters
     ----------
@@ -496,63 +494,62 @@ class Louvain(BaseClustering, VerboseMixin):
 class BiLouvain(Louvain):
     """BiLouvain algorithm for the clustering of bipartite graphs in Python (default) and Numba.
 
-        Compute the best partition of the nodes with respect to the optimization criterion
-        (default: :class:`GreedyModularity`).
+    * Bigraphs
 
-        Parameters
-        ----------
-        engine :
-            ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
-        algorithm :
-            The optimization algorithm.
-            Requires a fit method.
-            Requires `score\\_`  and `labels\\_` attributes.
+    Parameters
+    ----------
+    engine :
+        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
+    algorithm :
+        The optimization algorithm.
+        Requires a fit method.
+        Requires `score\\_`  and `labels\\_` attributes.
 
-            If ``'default'``, uses greedy modularity optimization algorithm: :class:`GreedyModularity`.
-        resolution :
-            Resolution parameter.
-        tol :
-            Minimum increase in the objective function to enter a new optimization pass.
-        tol_aggregation :
-            Minimum increase in the objective function to enter a new aggregation pass.
-        n_aggregations :
-            Maximum number of aggregations.
-            A negative value is interpreted as no limit.
-        shuffle_nodes :
-            Enables node shuffling before optimization.
-        sort_clusters :
-                If ``True``, sort labels in decreasing order of cluster size.
-        return_graph :
-            If ``True``, return the biadjacency matrix of the graph between clusters.
-        random_state :
-            Random number generator or random seed. If None, numpy.random is used.
-        verbose :
-            Verbose mode.
+        If ``'default'``, uses greedy modularity optimization algorithm: :class:`GreedyModularity`.
+    resolution :
+        Resolution parameter.
+    tol :
+        Minimum increase in the objective function to enter a new optimization pass.
+    tol_aggregation :
+        Minimum increase in the objective function to enter a new aggregation pass.
+    n_aggregations :
+        Maximum number of aggregations.
+        A negative value is interpreted as no limit.
+    shuffle_nodes :
+        Enables node shuffling before optimization.
+    sort_clusters :
+            If ``True``, sort labels in decreasing order of cluster size.
+    return_graph :
+        If ``True``, return the biadjacency matrix of the graph between clusters.
+    random_state :
+        Random number generator or random seed. If None, numpy.random is used.
+    verbose :
+        Verbose mode.
 
-        Attributes
-        ----------
-        labels_ : np.ndarray
-            Labels of the rows.
-        labels_row_ : np.ndarray
-            Labels of the rows (copy of **labels_**).
-        labels_col_ : np.ndarray
-            Labels of the columns.
-        biadjacency_ : sparse.csr_matrix
-            Biadjacency matrix of the aggregate graph between clusters.
+    Attributes
+    ----------
+    labels_ : np.ndarray
+        Labels of the rows.
+    labels_row_ : np.ndarray
+        Labels of the rows (copy of **labels_**).
+    labels_col_ : np.ndarray
+        Labels of the columns.
+    biadjacency_ : sparse.csr_matrix
+        Biadjacency matrix of the aggregate graph between clusters.
 
-        Example
-        -------
-        >>> bilouvain = BiLouvain('python')
-        >>> bilouvain.fit_transform(np.ones((4,3)))
-        array([0, 1, 2, 3])
+    Example
+    -------
+    >>> bilouvain = BiLouvain('python')
+    >>> bilouvain.fit_transform(np.ones((4,3)))
+    array([0, 1, 2, 3])
 
-        References
-        ----------
-        * Dugué, N., & Perez, A. (2015).
-          `Directed Louvain: maximizing modularity in directed networks
-          <https://hal.archives-ouvertes.fr/hal-01231784/document>`_
-          (Doctoral dissertation, Université d'Orléans).
-        """
+    References
+    ----------
+    * Dugué, N., & Perez, A. (2015).
+      `Directed Louvain: maximizing modularity in directed networks
+      <https://hal.archives-ouvertes.fr/hal-01231784/document>`_
+      (Doctoral dissertation, Université d'Orléans).
+    """
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
                  tol: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
