@@ -12,6 +12,7 @@ from scipy import sparse
 
 from sknetwork.classification.base_rank import RankClassifier
 from sknetwork.ranking import BiPageRank, PageRank
+from sknetwork.linalg import normalize
 
 
 class PageRankClassifier(RankClassifier):
@@ -98,7 +99,9 @@ class BiPageRankClassifier(RankClassifier):
         super(BiPageRankClassifier, self).__init__(algorithm, n_jobs, verbose)
 
         self.labels_row_ = None
+        self.labels_col_ = None
         self.membership_row_ = None
+        self.membership_col_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds_row: Union[np.ndarray, dict]) -> 'RankClassifier':
@@ -106,5 +109,9 @@ class BiPageRankClassifier(RankClassifier):
         RankClassifier.fit(self, biadjacency, seeds_row)
         self.labels_row_ = self.labels_
         self.membership_row_ = self.membership_
+
+        membership_col = normalize(biadjacency.T.dot(self.membership_row_)).toarray()
+        self.labels_col_ = np.argmax(membership_col, axis=1)
+        self.membership_col_ = sparse.csr_matrix(membership_col)
 
         return self
