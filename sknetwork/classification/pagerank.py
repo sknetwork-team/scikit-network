@@ -5,9 +5,10 @@ Created on Mar, 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
+from scipy import sparse
 
 from sknetwork.classification.base_rank import RankClassifier
 from sknetwork.ranking import BiPageRank, PageRank
@@ -97,6 +98,13 @@ class BiPageRankClassifier(RankClassifier):
         super(BiPageRankClassifier, self).__init__(algorithm, n_jobs, verbose)
 
         self.labels_row_ = None
-        self.labels_col_ = None
         self.membership_row_ = None
-        self.membership_col_ = None
+
+    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
+            seeds_row: Union[np.ndarray, dict]) -> 'RankClassifier':
+        """Compute labels."""
+        RankClassifier.fit(self, biadjacency, seeds_row)
+        self.labels_row_ = self.labels_
+        self.membership_row_ = self.membership_
+
+        return self

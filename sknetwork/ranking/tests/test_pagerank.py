@@ -23,8 +23,8 @@ class TestPageRank(unittest.TestCase):
         scores = pagerank_sps.scores_
         self.assertAlmostEqual(np.linalg.norm(scores - ground_truth), 0.)
 
-        pagerank_sps.fit(adjacency, personalization=np.array([0, 1, 0]))
-        pagerank_sps.fit(adjacency, personalization={1: 1})
+        pagerank_sps.fit(adjacency, seeds=np.array([0, 1, 0]))
+        pagerank_sps.fit(adjacency, seeds={1: 1})
 
         pagerank_high_damping = PageRank(damping_factor=0.99)
         pagerank_high_damping.fit(adjacency)

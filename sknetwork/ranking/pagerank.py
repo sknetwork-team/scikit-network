@@ -14,42 +14,10 @@ from scipy.sparse.linalg import eigs, LinearOperator, lsqr, bicgstab
 
 from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.ranking.base import BaseRanking
+from utils.seeds import seeds2probs
 from sknetwork.utils.format import bipartite2undirected
-from sknetwork.utils.check import check_format, has_nonnegative_entries, is_square
+from sknetwork.utils.check import check_format, is_square
 from sknetwork.utils.verbose import VerboseMixin
-
-
-def restart_probability(n: int, personalization: Union[dict, np.ndarray] = None) -> np.ndarray:
-    """
-
-    Parameters
-    ----------
-    n :
-        Total number of samples.
-    personalization :
-        If ``None``, the uniform distribution is used.
-        Otherwise, a non-negative, non-zero vector or a dictionary must be provided.
-
-    Returns
-    -------
-    restart_prob:
-        A probability vector.
-
-    """
-    if personalization is None:
-        restart_prob: np.ndarray = np.ones(n) / n
-    else:
-        if type(personalization) == dict:
-            tmp = np.zeros(n)
-            tmp[list(personalization.keys())] = list(personalization.values())
-            personalization = tmp
-        if type(personalization) == np.ndarray and len(personalization) == n \
-           and has_nonnegative_entries(personalization) and np.sum(personalization):
-            restart_prob = personalization.astype(float) / np.sum(personalization)
-        else:
-            raise ValueError('Personalization must be None or a non-negative, non-null vector '
-                             'or a dictionary with positive values.')
-    return restart_prob
 
 
 class RandomSurferOperator(LinearOperator, VerboseMixin):
@@ -62,7 +30,7 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
         Adjacency matrix of the graph.
     damping_factor : float
         Probability to continue the random walk.
-    personalization :
+    seeds :
         If ``None``, the uniform distribution is used.
         Otherwise, a non-negative, non-zero vector or a dictionary must be provided.
     fb_mode :
@@ -77,12 +45,12 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
         Scaled restart probability vector.
 
     """
-    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float = 0.85, personalization=None,
+    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float = 0.85, seeds=None,
                  fb_mode: bool = False, verbose: bool = False):
         VerboseMixin.__init__(self, verbose)
 
         n1, n2 = adjacency.shape
-        restart_prob: np.ndarray = restart_probability(n1, personalization)
+        restart_prob: np.ndarray = seeds2probs(n1, seeds)
 
         if fb_mode:
             restart_prob = np.hstack((restart_prob, np.zeros(n2)))
@@ -104,7 +72,7 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
 
     # noinspection PyTypeChecker
     def solve(self, solver: str = 'lanczos', n_iter: int = 10):
-        """Pagerank vector for a given adjacency and personalization.
+        """Pagerank vector for a given adjacency and seeds.
 
         Parameters
         ----------
@@ -168,8 +136,8 @@ class PageRank(BaseRanking, VerboseMixin):
     >>> from sknetwork.data import house
     >>> pagerank = PageRank()
     >>> adjacency = house()
-    >>> personalization = {0: 1}
-    >>> np.round(pagerank.fit_transform(adjacency, personalization), 2)
+    >>> seeds = {0: 1}
+    >>> np.round(pagerank.fit_transform(adjacency, seeds), 2)
     array([0.29, 0.24, 0.12, 0.12, 0.24])
 
     References
@@ -189,14 +157,14 @@ class PageRank(BaseRanking, VerboseMixin):
 
     # noinspection PyTypeChecker
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Optional[Union[dict, np.ndarray]] = None) -> 'PageRank':
+            seeds: Optional[Union[dict, np.ndarray]] = None) -> 'PageRank':
         """Fit algorithm to data.
 
         Parameters
         ----------
         adjacency :
             Adjacency matrix.
-        personalization :
+        seeds :
             If ``None``, the uniform distribution is used.
             Otherwise, a non-negative, non-zero vector or a dictionary must be provided.
 
@@ -209,7 +177,7 @@ class PageRank(BaseRanking, VerboseMixin):
         if not is_square(adjacency):
             raise ValueError("The adjacency is not square. See BiPageRank.")
 
-        rso = RandomSurferOperator(adjacency, self.damping_factor, personalization, False)
+        rso = RandomSurferOperator(adjacency, self.damping_factor, seeds, False)
         self.scores_ = rso.solve(self.solver, self.n_iter)
 
         return self
@@ -241,8 +209,8 @@ class BiPageRank(PageRank):
     >>> from sknetwork.data import star_wars
     >>> bipagerank = BiPageRank()
     >>> biadjacency = star_wars()
-    >>> personalization = {0: 1}
-    >>> np.round(bipagerank.fit_transform(biadjacency, personalization), 2)
+    >>> seeds = {0: 1}
+    >>> np.round(bipagerank.fit_transform(biadjacency, seeds), 2)
     array([0.42, 0.11, 0.29, 0.18])
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10):
@@ -252,14 +220,14 @@ class BiPageRank(PageRank):
         self.scores_col_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
-            personalization: Optional[Union[dict, np.ndarray]] = None) -> 'BiPageRank':
+            seeds: Optional[Union[dict, np.ndarray]] = None) -> 'BiPageRank':
         """Fit algorithm to data.
 
         Parameters
         ----------
         biadjacency :
-            Biadjacency matrix, shape (n1, n2).
-        personalization :
+            Biadjacency matrix, shape (n_row, n_col).
+        seeds :
             If ``None``, the uniform distribution over is used.
             Otherwise, a non-negative, non-zero vector of size n1 or a dictionary must be provided.
 
@@ -269,7 +237,7 @@ class BiPageRank(PageRank):
         """
 
         biadjacency = check_format(biadjacency)
-        rso = RandomSurferOperator(biadjacency, self.damping_factor, personalization, True)
+        rso = RandomSurferOperator(biadjacency, self.damping_factor, seeds, True)
         self.scores_row_ = rso.solve(self.solver, self.n_iter)[:biadjacency.shape[0]]
         self.scores_col_ = transition_matrix(biadjacency.T).dot(self.scores_row_)
         self.scores_row_ /= self.scores_row_.sum()

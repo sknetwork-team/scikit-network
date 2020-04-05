@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.classification.base_rank import RankClassifier
-from sknetwork.classification.seeds import stack_seeds
+from utils.seeds import stack_seeds
 from sknetwork.ranking import Diffusion
 from sknetwork.utils.check import check_labels
 from sknetwork.utils.format import bipartite2undirected

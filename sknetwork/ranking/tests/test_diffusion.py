@@ -4,9 +4,6 @@
 
 import unittest
 
-import numpy as np
-from scipy import sparse
-
 from sknetwork.ranking.diffusion import Diffusion, BiDiffusion
 from sknetwork.data.test_graphs import *
 
@@ -20,9 +17,9 @@ class TestDiffusion(unittest.TestCase):
         self.tol = 1e-6
 
     def test_unknown_types(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             # noinspection PyTypeChecker
-            self.diffusion.fit(sparse.identity(2, format='csr'), personalization='test')
+            self.diffusion.fit(sparse.identity(2, format='csr'), seeds='test')
 
     def test_single_node_graph(self):
         self.diffusion.fit(sparse.identity(1, format='csr'), {0: 1})

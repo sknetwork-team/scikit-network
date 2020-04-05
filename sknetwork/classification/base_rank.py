@@ -56,19 +56,17 @@ class RankClassifier(BaseClassifier, VerboseMixin):
 
         Returns
         -------
-        personalizations
-            List of personalization vectors.
-
+        List of seeds vectors.
         """
 
-        personalizations = []
+        seeds_all = []
         classes, _ = check_labels(labels_seeds)
 
         for label in classes:
-            personalization = np.array(labels_seeds == label).astype(int)
-            personalizations.append(personalization)
+            seeds = np.array(labels_seeds == label).astype(int)
+            seeds_all.append(seeds)
 
-        return personalizations
+        return seeds_all
 
     @staticmethod
     def _process_scores(scores: np.ndarray) -> np.ndarray:
@@ -104,17 +102,17 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         seeds_labels = check_seeds(seeds, n).astype(int)
         classes, n_classes = check_labels(seeds_labels)
 
-        personalizations = self._process_seeds(seeds_labels)
+        seeds_all = self._process_seeds(seeds_labels)
 
         if self.n_jobs != 1:
             local_function = partial(self.algorithm.fit_transform, adjacency)
             with Pool(self.n_jobs) as pool:
-                scores = np.array(pool.map(local_function, personalizations))
+                scores = np.array(pool.map(local_function, seeds_all))
             scores = scores.T
         else:
             scores = np.zeros((n, n_classes))
             for i in range(n_classes):
-                scores[:, i] = self.algorithm.fit_transform(adjacency, personalization=personalizations[i])[:n]
+                scores[:, i] = self.algorithm.fit_transform(adjacency, seeds_all[i])[:n]
 
         scores = self._process_scores(scores)
 
