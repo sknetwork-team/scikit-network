@@ -3,6 +3,7 @@
 """
 Created on October 2019
 @author: Nathan de Lara <ndelara@enst.fr>
+@author: Thomas Bonald <bonald@enst.fr>
 """
 
 from typing import Union
@@ -24,20 +25,24 @@ class KMeans(BaseClustering):
 
     Parameters
     ----------
-    n_clusters:
+    n_clusters :
         Number of desired clusters.
-    embedding_method:
+    embedding_method :
         Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
     sort_clusters :
             If ``True``, sort labels in decreasing order of cluster size.
-    return_graph :
+    return_membership :
+            If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
+    return_adjacency :
             If ``True``, return the adjacency matrix of the graph between clusters.
     Attributes
     ----------
     labels_ : np.ndarray
         Label of each node.
+    membership_ : sparse.csr_matrix
+        Membership matrix.
     adjacency_ : sparse.csr_matrix
-        Adjacency matrix between clusters. Only valid if **return_graph** = `True`.
+        Adjacency matrix between clusters.
 
     Example
     -------
@@ -50,7 +55,7 @@ class KMeans(BaseClustering):
     """
 
     def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10), sort_clusters: bool = True,
-                 return_graph: bool = True):
+                 return_membership: bool = True, return_adjacency: bool = True):
         super(KMeans, self).__init__()
 
         if not hasattr(embedding_method, 'embedding_'):
@@ -59,7 +64,8 @@ class KMeans(BaseClustering):
         self.n_clusters = n_clusters
         self.embedding_method = embedding_method
         self.sort_clusters = sort_clusters
-        self.return_graph = return_graph
+        self.return_membership = return_membership
+        self.return_adjacency = return_adjacency
 
         self.adjacency_ = None
 
@@ -89,9 +95,12 @@ class KMeans(BaseClustering):
             labels = kmeans.labels_
         self.labels_ = labels
 
-        if self.return_graph:
+        if self.return_membership or self.return_adjacency:
             membership = membership_matrix(labels)
-            self.adjacency_ = membership.T.dot(adjacency.dot(membership))
+            if self.return_membership:
+                self.membership_ = adjacency.dot(membership)
+            if self.return_adjacency:
+                self.adjacency_ = membership.T.dot(adjacency.dot(membership))
 
         return self
 
@@ -111,7 +120,9 @@ class BiKMeans(KMeans):
         If ``True``, co-cluster rows and columns (default = ``False``).
     sort_clusters :
             If ``True``, sort labels in decreasing order of cluster size.
-    return_graph :
+    return_membership :
+            If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
+    return_biadjacency :
             If ``True``, return the biadjacency matrix of the graph between clusters.
     Attributes
     ----------
@@ -121,8 +132,14 @@ class BiKMeans(KMeans):
         Labels of the rows (copy of **labels_**).
     labels_col_ : np.ndarray
         Labels of the columns. Only valid if **cluster_both** = `True`.
+    membership_ : sparse.csr_matrix
+        Membership matrix of the rows.
+    membership_row_ : sparse.csr_matrix
+        Membership matrix of the rows (copy of **membership_**).
+    membership_col_ : sparse.csr_matrix
+        Membership matrix of the columns. Only valid if **cluster_both** = `True`.
     biadjacency_ : sparse.csr_matrix
-        Biadjacency matrix of the graph between clusters. Only valid if **return_graph** = `True`.
+        Biadjacency matrix of the graph between clusters.
 
     Example
     -------
@@ -134,8 +151,8 @@ class BiKMeans(KMeans):
     """
 
     def __init__(self, n_clusters: int = 2, embedding_method: BaseEmbedding = GSVD(10), cluster_both: bool = False,
-                 sort_clusters: bool = True, return_graph: bool = True):
-        KMeans.__init__(self, n_clusters, embedding_method, sort_clusters, return_graph)
+                 sort_clusters: bool = True, return_membership: bool = True, return_biadjacency: bool = True):
+        KMeans.__init__(self, n_clusters, embedding_method, sort_clusters, return_membership, False)
 
         if not hasattr(embedding_method, 'embedding_'):
             raise TypeError('The embedding method must have an attribute embedding_.')
@@ -143,10 +160,14 @@ class BiKMeans(KMeans):
             raise ValueError('For co-clustering, the embedding method must have an attribute embedding_col_.')
 
         self.cluster_both = cluster_both
+        self.return_biadjacency = return_biadjacency
 
         self.labels_ = None
         self.labels_row_ = None
         self.labels_col_ = None
+        self.membership_ = None
+        self.membership_row_ = None
+        self.membership_col_ = None
         self.biadjacency_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiKMeans':
@@ -191,11 +212,16 @@ class BiKMeans(KMeans):
             self.labels_ = labels
             self.labels_row_ = labels
 
-        if self.return_graph:
+        if self.return_membership or self.return_biadjacency:
             membership_row = membership_matrix(self.labels_row_)
+            if self.return_membership:
+                self.membership_row_ = membership_row
+                self.membership_ = membership_row
             biadjacency_ = sparse.csr_matrix(membership_row.T.dot(biadjacency))
             if self.labels_col_ is not None:
                 membership_col = membership_matrix(self.labels_col_)
+                if self.return_membership:
+                    self.membership_col_ = membership_col
                 biadjacency_ = biadjacency_.dot(membership_col)
             self.biadjacency_ = biadjacency_
 

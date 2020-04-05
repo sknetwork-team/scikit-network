@@ -14,6 +14,7 @@ class BaseClustering(Algorithm, ABC):
 
     def __init__(self):
         self.labels_ = None
+        self.membership_ = None
 
     def fit_transform(self, *args, **kwargs):
         """Fit algorithm to the data and return the labels. Uses the same inputs as the ``fit`` method."""
