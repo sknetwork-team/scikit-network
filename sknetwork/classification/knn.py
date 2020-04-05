@@ -12,10 +12,10 @@ from scipy import sparse
 from scipy.spatial import cKDTree
 
 from sknetwork.classification import BaseClassifier
-from utils.seeds import stack_seeds
 from sknetwork.embedding import BaseEmbedding, GSVD
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_seeds, check_n_neighbors
+from sknetwork.utils.seeds import stack_seeds
 
 
 class KNN(BaseClassifier):
