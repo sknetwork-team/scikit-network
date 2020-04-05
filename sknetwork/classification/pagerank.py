@@ -10,9 +10,12 @@ from typing import Optional, Union
 import numpy as np
 from scipy import sparse
 
+from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.classification.base_rank import RankClassifier
+from sknetwork.clustering.postprocess import membership_matrix
 from sknetwork.ranking import BiPageRank, PageRank
 from sknetwork.linalg import normalize
+from sknetwork.utils.check import check_seeds
 
 
 class PageRankClassifier(RankClassifier):
@@ -104,9 +107,34 @@ class BiPageRankClassifier(RankClassifier):
         self.membership_col_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
-            seeds_row: Union[np.ndarray, dict]) -> 'RankClassifier':
-        """Compute labels."""
-        RankClassifier.fit(self, biadjacency, seeds_row)
+            seeds_row: Union[np.ndarray, dict], seeds_col: Union[np.ndarray, dict, None] = None) -> 'RankClassifier':
+        """Compute labels.
+
+        Parameters
+        ----------
+        biadjacency :
+            Biadjacency matrix of the graph.
+        seeds_row :
+            Seed rows. Can be a dict {node: label} or an array where "-1" means no label.
+        seeds_col :
+            Seed columns (optional). Same format.
+
+        Returns
+        -------
+        self: :class:`BiPageRankClassifier`
+        """
+        n_row, n_col = biadjacency.shape
+        seeds = check_seeds(seeds_row, n_row)
+        if seeds_col is not None:
+            seeds_label_col = check_seeds(seeds_col, n_col)
+            membership_col = membership_matrix(seeds_label_col)
+            membership_row = transition_matrix(biadjacency).dot(membership_col)
+            labels = np.argmax(membership_row.toarray(), axis=1)
+
+            ix = (seeds < 0) * (labels >= 0)
+            seeds[ix] = labels[ix]
+
+        RankClassifier.fit(self, biadjacency, seeds)
         self.labels_row_ = self.labels_
         self.membership_row_ = self.membership_
 

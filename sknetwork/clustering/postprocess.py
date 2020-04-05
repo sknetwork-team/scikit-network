@@ -12,6 +12,7 @@ from scipy import sparse
 def membership_matrix(labels: np.ndarray, dtype=bool) -> sparse.csr_matrix:
     """
     Build a n x k matrix of the label assignments, with k the number of labels.
+    Negative labels are ignored.
 
     Parameters
     ----------
@@ -31,7 +32,12 @@ def membership_matrix(labels: np.ndarray, dtype=bool) -> sparse.csr_matrix:
 
     """
     n: int = len(labels)
-    return sparse.csr_matrix((np.ones(n), (np.arange(n), labels)), dtype=dtype)
+    shape = (n, max(labels)+1)
+    ix = (labels >= 0)
+    data = np.ones(ix.sum())
+    row = np.arange(n)[ix]
+    col = labels[ix]
+    return sparse.csr_matrix((data, (row, col)), shape=shape, dtype=dtype)
 
 
 def reindex_clusters(labels: np.ndarray, assume_range: bool = True) -> np.ndarray:
