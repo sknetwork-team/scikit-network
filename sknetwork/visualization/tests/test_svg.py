@@ -11,7 +11,7 @@ from sknetwork.data.toy_graphs import karate_club, painters, movie_actor
 from sknetwork.visualization.svg import svg_graph, svg_digraph, svg_bigraph
 
 
-# noinspection DuplicatedCode,PyMissingOrEmptyDocstring
+# noinspection DuplicatedCode
 class TestVisualization(unittest.TestCase):
 
     def test_undirected(self):
