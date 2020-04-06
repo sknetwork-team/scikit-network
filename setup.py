@@ -23,9 +23,9 @@ setup_requirements = ['pytest-runner']
 test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
 
-pyx_paths = ["sknetwork/utils/knn1d.pyx", "sknetwork/clustering/louvain_core.pyx"]
-c_paths = ["sknetwork/utils/knn1d.cpp", "sknetwork/clustering/louvain_core.cpp"]
-modules = ['sknetwork.utils.knn1d', 'sknetwork.clustering.louvain_core']
+pyx_paths = ["sknetwork/utils/knn1d.pyx", "sknetwork/clustering/louvain_core.pyx", "sknetwork/hierarchy/paris.pyx"]
+c_paths = ["sknetwork/utils/knn1d.cpp", "sknetwork/clustering/louvain_core.cpp", "sknetwork/hierarchy/paris.cpp"]
+modules = ['sknetwork.utils.knn1d', 'sknetwork.clustering.louvain_core', 'sknetwork.hierarchy.paris']
 
 
 if os.environ.get('SKNETWORK_DISABLE_CYTHONIZE') is None:
