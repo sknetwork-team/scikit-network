@@ -14,7 +14,7 @@ from scipy import sparse
 
 from sknetwork.classification import BaseClassifier
 from sknetwork.ranking import BaseRanking
-from sknetwork.utils.check import check_seeds, check_labels
+from sknetwork.utils.check import check_seeds, check_labels, check_n_jobs
 from sknetwork.utils.verbose import VerboseMixin
 
 
@@ -103,10 +103,10 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         classes, n_classes = check_labels(seeds_labels)
 
         seeds_all = self._process_seeds(seeds_labels)
-
-        if self.n_jobs != 1:
+        n_jobs = check_n_jobs(self.n_jobs)
+        if n_jobs != 1:
             local_function = partial(self.algorithm.fit_transform, adjacency)
-            with Pool(self.n_jobs) as pool:
+            with Pool(n_jobs) as pool:
                 scores = np.array(pool.map(local_function, seeds_all))
             scores = scores.T
         else:
