@@ -11,7 +11,6 @@ import unittest
 import numpy as np
 from scipy import sparse
 
-from sknetwork import is_numba_available
 from sknetwork.hierarchy import Paris, BiParis, straight_cut, balanced_cut
 from sknetwork.data import house, karate_club, star_wars_villains
 
@@ -20,14 +19,8 @@ from sknetwork.data import house, karate_club, star_wars_villains
 class TestParis(unittest.TestCase):
 
     def setUp(self):
-        self.paris = Paris(engine='python')
-        self.biparis = BiParis(engine='python')
-        if is_numba_available:
-            self.paris_numba = Paris(engine='numba')
-            self.biparis_numba = BiParis(engine='numba')
-        else:
-            with self.assertRaises(ValueError):
-                Paris(engine='numba')
+        self.paris = Paris()
+        self.biparis = BiParis()
 
     # noinspection PyTypeChecker
     def test_unknown_types(self):
@@ -37,11 +30,6 @@ class TestParis(unittest.TestCase):
     # noinspection DuplicatedCode
     def test_undirected(self):
         house_graph = house()
-        if is_numba_available:
-            self.paris_numba.fit(house_graph)
-            self.assertEqual(self.paris_numba.dendrogram_.shape[0], 4)
-            labels = straight_cut(self.paris_numba.dendrogram_, sorted_clusters=True)
-            self.assertTrue(np.array_equal(labels, np.array([0, 0, 1, 1, 0])))
         self.paris.fit(house_graph)
         self.assertEqual(self.paris.dendrogram_.shape[0], 4)
         labels = straight_cut(self.paris.dendrogram_, sorted_clusters=True)
@@ -60,7 +48,3 @@ class TestParis(unittest.TestCase):
         self.biparis.fit(star_wars_graph)
         dendrogram = self.biparis.dendrogram_
         self.assertEqual(dendrogram.shape, (6, 4))
-        if is_numba_available:
-            self.biparis_numba.fit(star_wars_graph)
-            dendrogram = self.biparis_numba.dendrogram_
-            self.assertEqual(dendrogram.shape, (6, 4))

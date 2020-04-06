@@ -78,27 +78,6 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
     return node_weights_vec
 
 
-def check_engine(engine: str) -> str:
-    """Checks if the desired engine is available and returns Numba whenever possible rather than Python if asked for
-    the ``'default'`` engine.
-    """
-    if engine == 'default':
-        if is_numba_available:
-            engine = 'numba'
-        else:
-            engine = 'python'
-    elif engine == 'numba':
-        if is_numba_available:
-            engine = 'numba'
-        else:
-            raise ValueError('Numba is not available')
-    elif engine == 'python':
-        engine = 'python'
-    else:
-        raise ValueError('Engine must be default, python or numba.')
-    return engine
-
-
 def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
     """Checks whether the matrix is an instance of a supported type (NumPy array or Scipy CSR matrix) and returns
     the corresponding Scipy CSR matrix.

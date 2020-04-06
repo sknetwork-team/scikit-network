@@ -6,7 +6,6 @@ import unittest
 
 from scipy import sparse
 
-from sknetwork import is_numba_available
 from sknetwork.clustering import Louvain, BiLouvain, modularity
 from sknetwork.data import simple_directed_graph, karate_club, bow_tie, painters, star_wars_villains
 from sknetwork.utils.adjacency_formats import directed2undirected
@@ -16,14 +15,8 @@ from sknetwork.utils.adjacency_formats import directed2undirected
 class TestLouvainClustering(unittest.TestCase):
 
     def setUp(self):
-        self.louvain = Louvain(engine='python')
-        self.bilouvain = BiLouvain(engine='python')
-        if is_numba_available:
-            self.louvain_numba = Louvain(engine='numba')
-            self.bilouvain_numba = BiLouvain(engine='numba')
-        else:
-            with self.assertRaises(ValueError):
-                Louvain(engine='numba')
+        self.louvain = Louvain()
+        self.bilouvain = BiLouvain()
 
     def test_unknown_types(self):
         with self.assertRaises(TypeError):
@@ -38,18 +31,13 @@ class TestLouvainClustering(unittest.TestCase):
         self.assertEqual(len(self.louvain.labels_), 10)
 
     def test_undirected(self):
-        self.louvain_high_resolution = Louvain(engine='python', resolution=2)
-        self.louvain_null_resolution = Louvain(engine='python', resolution=0)
+        self.louvain_high_resolution = Louvain(resolution=2)
+        self.louvain_null_resolution = Louvain(resolution=0)
         self.karate_club = karate_club()
         self.louvain.fit(self.karate_club)
         labels = self.louvain.labels_
         self.assertEqual(labels.shape, (34,))
         self.assertAlmostEqual(modularity(self.karate_club, labels), 0.42, 2)
-        if is_numba_available:
-            self.louvain_numba.fit(self.karate_club)
-            labels = self.louvain_numba.labels_
-            self.assertEqual(labels.shape, (34,))
-            self.assertAlmostEqual(modularity(self.karate_club, labels), 0.42, 2)
         self.louvain_high_resolution.fit(self.karate_club)
         labels = self.louvain_high_resolution.labels_
         self.assertEqual(labels.shape, (34,))
@@ -81,16 +69,10 @@ class TestLouvainClustering(unittest.TestCase):
         col_labels = self.bilouvain.col_labels_
         self.assertEqual(row_labels.shape, (4,))
         self.assertEqual(col_labels.shape, (3,))
-        if is_numba_available:
-            self.bilouvain_numba.fit(star_wars_graph)
-            row_labels = self.bilouvain_numba.row_labels_
-            col_labels = self.bilouvain_numba.col_labels_
-            self.assertEqual(row_labels.shape, (4,))
-            self.assertEqual(col_labels.shape, (3,))
 
     def test_shuffling(self):
-        self.louvain_shuffle_first = Louvain(engine='python', shuffle_nodes=True, random_state=0)
-        self.louvain_shuffle_second = Louvain(engine='python', shuffle_nodes=True, random_state=123)
+        self.louvain_shuffle_first = Louvain(shuffle_nodes=True, random_state=0)
+        self.louvain_shuffle_second = Louvain(shuffle_nodes=True, random_state=123)
         self.bow_tie = bow_tie()
         self.louvain_shuffle_first.fit(self.bow_tie)
         self.assertEqual(self.louvain_shuffle_first.labels_[1], 1)
