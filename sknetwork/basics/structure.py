@@ -24,8 +24,8 @@ def is_connected(adjacency: sparse.csr_matrix) -> bool:
     adjacency:
         Adjacency matrix of the graph.
     """
-    n, m = adjacency.shape
-    if n != m:
+    n_row, n_col = adjacency.shape
+    if n_row != n_col:
         adjacency = bipartite2undirected(adjacency)
     return connected_components(adjacency)[0] == 1
 
@@ -78,7 +78,7 @@ def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray],
 
     """
     adjacency = check_format(adjacency)
-    n_samples, n_features = adjacency.shape
+    n_row, n_col = adjacency.shape
     if not is_square(adjacency):
         bipartite: bool = True
         full_adjacency = sparse.bmat([[None, adjacency], [adjacency.T, None]], format='csr')
@@ -92,8 +92,8 @@ def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray],
     component_indices = np.where(labels == component_label)[0]
 
     if bipartite:
-        split_ix = np.searchsorted(component_indices, n_samples)
-        samples_ix, features_ix = component_indices[:split_ix], component_indices[split_ix:] - n_samples
+        split_ix = np.searchsorted(component_indices, n_row)
+        samples_ix, features_ix = component_indices[:split_ix], component_indices[split_ix:] - n_row
     else:
         samples_ix, features_ix = component_indices, component_indices
     new_adjacency = adjacency[samples_ix, :]

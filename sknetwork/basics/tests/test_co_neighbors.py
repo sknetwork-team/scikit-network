@@ -11,10 +11,10 @@ from sknetwork.basics import co_neighbors_graph
 from sknetwork.data import movie_actor
 
 
-# noinspection PyMissingOrEmptyDocstring
 class TestCoNeighbors(unittest.TestCase):
 
     def setUp(self):
+        """Simple biadjacency for tests."""
         self.biadjacency = movie_actor()
 
     def test_exact(self):

@@ -12,6 +12,8 @@ from typing import Optional
 import numpy as np
 from scipy import sparse
 
+from sknetwork.utils.check import check_n_jobs
+
 
 def shortest_path(adjacency: sparse.csr_matrix, method: str = 'auto', directed: bool = True,
                   return_predecessors: bool = False, unweighted: bool = False,
@@ -53,23 +55,18 @@ def shortest_path(adjacency: sparse.csr_matrix, method: str = 'auto', directed: 
         each entry ``predecessors[i, j]`` gives the index of the previous node in the path from point ``i`` to point
         ``j``. If no path exists between point ``i`` and ``j``, then ``predecessors[i, j] = -9999``.
     """
-    if n_jobs is not None:
-        if n_jobs == -1:
-            n_jobs = None
-        if method == 'FW':
-            raise ValueError('The Floyd-Warshall algorithm cannot be used with parallel computations.')
-        if indices is None:
-            indices = np.arange(adjacency.shape[0])
-        local_function = partial(sparse.csgraph.shortest_path,
-                                 adjacency, method, directed, return_predecessors, unweighted, overwrite)
-        with Pool(n_jobs) as pool:
-            res = pool.map(local_function, indices)
-        if return_predecessors:
-            paths = [el[0] for el in res]
-            predecessors = [el[1] for el in res]
-            return np.vstack(paths), np.vstack(predecessors)
-        else:
-            return np.vstack(res)
+    n_jobs = check_n_jobs(n_jobs)
+    if method == 'FW':
+        raise ValueError('The Floyd-Warshall algorithm cannot be used with parallel computations.')
+    if indices is None:
+        indices = np.arange(adjacency.shape[0])
+    local_function = partial(sparse.csgraph.shortest_path,
+                             adjacency, method, directed, return_predecessors, unweighted, overwrite)
+    with Pool(n_jobs) as pool:
+        res = pool.map(local_function, indices)
+    if return_predecessors:
+        paths = [el[0] for el in res]
+        predecessors = [el[1] for el in res]
+        return np.vstack(paths), np.vstack(predecessors)
     else:
-        return sparse.csgraph.shortest_path(adjacency, method, directed,
-                                            return_predecessors, unweighted, overwrite, indices)
+        return np.vstack(res)
