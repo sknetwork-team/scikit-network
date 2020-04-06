@@ -1,8 +1,12 @@
-Clustering
-**********
+Classification
+**************
 
 
 .. toctree::
 
-   louvain
-   kmeans
+    diffusion
+    pagerank
+    knn
+
+
+
