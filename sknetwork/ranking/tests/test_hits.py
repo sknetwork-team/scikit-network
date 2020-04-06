@@ -4,13 +4,11 @@
 
 import unittest
 
-from scipy import sparse
-
 from sknetwork.ranking.hits import HITS
 from sknetwork.data.test_graphs import *
 
 
-# noinspection DuplicatedCode,PyMissingOrEmptyDocstring
+# noinspection DuplicatedCode
 class TestHITS(unittest.TestCase):
 
     def test_hits(self):
@@ -19,17 +17,17 @@ class TestHITS(unittest.TestCase):
         adjacency = test_graph()
         n = adjacency.shape[0]
         hits.fit(adjacency)
-        self.assertEqual(len(hits.scores_), n)
-        self.assertEqual(len(hits.scores_col_), n)
+        self.assertEqual(hits.scores_.shape, (n,))
+        self.assertEqual(hits.scores_col_.shape, (n,))
 
         adjacency = test_digraph()
         n = adjacency.shape[0]
         hits.fit(adjacency)
-        self.assertEqual(len(hits.scores_), n)
-        self.assertEqual(len(hits.scores_col_), n)
+        self.assertEqual(hits.scores_.shape, (n,))
+        self.assertEqual(hits.scores_col_.shape, (n,))
 
         biadjacency = test_bigraph()
-        n1, n2 = biadjacency.shape
+        n_row, n_col = biadjacency.shape
         hits.fit(biadjacency)
-        self.assertEqual(len(hits.scores_), n1)
-        self.assertEqual(len(hits.scores_col_), n2)
+        self.assertEqual(hits.scores_.shape, (n_row,))
+        self.assertEqual(hits.scores_col_.shape, (n_col,))

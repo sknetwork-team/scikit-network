@@ -65,7 +65,6 @@ class HITS(BaseRanking):
 
         self.scores_row_ = None
         self.scores_col_ = None
-        self.scores_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'HITS':
         """
