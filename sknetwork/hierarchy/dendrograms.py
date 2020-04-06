@@ -118,11 +118,11 @@ def get_dendrogram(tree, dendrogram=None, index=None, depth=0, size=None, copy_t
                 i = tree.pop()[0]
                 j = tree.pop()[0]
                 s = size[i] + size[j]
-                dendrogram.append([i, j, -depth, s])
+                dendrogram.append([i, j, float(-depth), s])
                 index += 1
                 while len(tree):
                     s += 1
-                    dendrogram.append([index, tree.pop()[0], -depth, s])
+                    dendrogram.append([index, tree.pop()[0], float(-depth), s])
                     index += 1
                 size[index] = s
                 tree.append(index)

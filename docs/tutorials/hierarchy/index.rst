@@ -6,3 +6,4 @@ Hierarchical clustering
 
    paris
    spectral_ward
+   louvain_hierarchy

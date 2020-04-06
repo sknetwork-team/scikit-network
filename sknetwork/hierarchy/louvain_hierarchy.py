@@ -111,11 +111,11 @@ class LouvainHierarchy(BaseHierarchy):
         adjacency = check_format(adjacency)
         if not is_square(adjacency):
             raise ValueError('The adjacency matrix is not square.')
-        if not is_symmetric(adjacency):
-            raise ValueError('The adjacency matrix is not symmetric.')
 
         tree = self.recursive_louvain(adjacency)
         dendrogram, _ = get_dendrogram(tree)
+        dendrogram = np.array(dendrogram)
+        dendrogram[:, 2] -= min(dendrogram[:, 2])
 
         self.dendrogram_ = dendrogram
 

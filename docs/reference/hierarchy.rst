@@ -34,6 +34,12 @@ Spectral
     :inherited-members:
     :members:
 
+Louvain hierarchy
+-----------------
+.. autoclass:: sknetwork.hierarchy.LouvainHierarchy
+    :inherited-members:
+    :members:
+
 
 Cuts
 ----
