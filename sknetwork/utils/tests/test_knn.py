@@ -20,11 +20,11 @@ class TestKNN(unittest.TestCase):
         x = np.array([[-2, -1], [-2, 1], [2, 1], [2, -1]])
         knn = KNNDense(n_neighbors=1)
         knn.fit(x)
-        gt = np.zeros(16).reshape((4, 4))
-        gt[0, 1] = 1
-        gt[2, 3] = 1
-        gt = sparse.csr_matrix(gt + gt.T)
-        self.assertAlmostEqual(norm(gt - knn.adjacency_), 0)
+        truth = np.zeros(16).reshape((4, 4))
+        truth[0, 1] = 1
+        truth[2, 3] = 1
+        truth = sparse.csr_matrix(truth + truth.T)
+        self.assertAlmostEqual(norm(truth - knn.adjacency_), 0)
 
     def test_pknn(self):
         x = np.array([(0, 4), (1, 0), (2, 1), (3, 2), (4, 3)])

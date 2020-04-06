@@ -10,15 +10,13 @@ from sknetwork.utils.check import is_proba_array
 from sknetwork.utils.simplex import projection_simplex
 
 
-# noinspection PyMissingOrEmptyDocstring
 class TestProjSimplex(unittest.TestCase):
 
-    def setUp(self):
-        self.one_d_array = np.random.rand(5)
-        self.two_d_array = np.random.rand(4, 3)
-
     def test_proj_simplex(self):
-        one_d_proj = projection_simplex(self.one_d_array)
-        self.assertTrue(is_proba_array(one_d_proj))
-        two_d_proj = projection_simplex(self.two_d_array)
-        self.assertTrue(is_proba_array(two_d_proj))
+        x = np.random.rand(5)
+        proj = projection_simplex(x)
+        self.assertTrue(is_proba_array(proj))
+
+        x = np.random.rand(4, 3)
+        proj = projection_simplex(x)
+        self.assertTrue(is_proba_array(proj))
