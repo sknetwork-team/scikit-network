@@ -155,8 +155,6 @@ class Paris(BaseHierarchy):
     weights :
             Weights of nodes.
             ``'degree'`` (default) or ``'uniform'``.
-    engine : str
-        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     reorder :
             If True, reorder the dendrogram in increasing order of heights.
 
@@ -193,11 +191,10 @@ class Paris(BaseHierarchy):
     Workshop on Mining and Learning with Graphs.
     """
 
-    def __init__(self, engine: str = 'default', weights: str = 'degree', reorder: bool = True):
+    def __init__(self, weights: str = 'degree', reorder: bool = True):
         super(Paris, self).__init__()
 
         self.weights = weights
-        self.engine = check_engine(engine)
         self.reorder = reorder
 
     @cython.boundscheck(False)
