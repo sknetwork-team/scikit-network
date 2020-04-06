@@ -10,8 +10,6 @@ from typing import Union, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork import is_numba_available
-
 
 def has_nonnegative_entries(entry: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     """Check whether the array has non negative entries."""
