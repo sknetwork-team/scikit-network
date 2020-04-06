@@ -5,7 +5,7 @@ Created on January, 22nd 2020
 @author: Quentin Lutz <qlutz@enst.fr>
 """
 
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 import numpy as np
 from scipy import sparse
@@ -14,7 +14,7 @@ from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.louvain import Louvain
 from sknetwork.hierarchy.base import BaseHierarchy
 from sknetwork.hierarchy.dendrograms import get_dendrogram
-from sknetwork.utils.checks import check_format, is_square, is_symmetric
+from sknetwork.utils.checks import check_format, is_square
 
 
 class LouvainHierarchy(BaseHierarchy):

@@ -9,6 +9,7 @@ Created on October 2019
 from collections import defaultdict
 from typing import Union, Tuple
 
+import copy
 import numpy as np
 
 
