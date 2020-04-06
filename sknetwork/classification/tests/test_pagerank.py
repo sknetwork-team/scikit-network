@@ -4,36 +4,23 @@
 
 import unittest
 
-from sknetwork.classification import PageRankClassifier, BiPageRankClassifier
+from sknetwork.classification import PageRankClassifier
 from sknetwork.data.test_graphs import *
 
 
-# noinspection DuplicatedCode
 class TestPageRankClassifier(unittest.TestCase):
 
-    def test_undirected(self):
+    def test_solvers(self):
         adjacency = test_graph()
-        adj_array_seeds = -np.ones(adjacency.shape[0])
-        adj_array_seeds[:2] = np.arange(2)
-        adj_dict_seeds = {0: 0, 1: 1}
+        seeds = {0: 0, 1: 1}
 
-        mr = PageRankClassifier(solver='lsqr')
-        labels1 = mr.fit_transform(adjacency, adj_array_seeds)
-        labels2 = mr.fit_transform(adjacency, adj_dict_seeds)
+        clf1 = PageRankClassifier(solver='lsqr')
+        clf2 = PageRankClassifier(solver='lanczos')
+        clf3 = PageRankClassifier()
+
+        labels1 = clf1.fit_transform(adjacency, seeds)
+        labels2 = clf2.fit_transform(adjacency, seeds)
+        labels3 = clf3.fit_transform(adjacency, seeds)
+
         self.assertTrue(np.allclose(labels1, labels2))
-        self.assertEqual(labels2.shape[0], adjacency.shape[0])
-
-    def test_bipartite(self):
-        biadjacency = test_bigraph()
-        seeds_row_array = -np.ones(biadjacency.shape[0])
-        seeds_row_array[:2] = np.arange(2)
-        seeds_row_dict = {0: 0, 1: 1}
-        seeds_col_dict = {0: 0}
-
-        bmr = BiPageRankClassifier()
-        labels1 = bmr.fit_transform(biadjacency, seeds_row_array)
-        labels2 = bmr.fit_transform(biadjacency, seeds_row_dict)
-        self.assertTrue(np.allclose(labels1, labels2))
-        self.assertEqual(labels2.shape[0], biadjacency.shape[0])
-
-        bmr.fit(biadjacency, seeds_row_dict, seeds_col_dict)
+        self.assertTrue(np.allclose(labels2, labels3))

@@ -35,3 +35,8 @@ class TestSeeds(unittest.TestCase):
         self.assertTrue(np.allclose(seeds1, seeds2))
         self.assertTrue(np.allclose(seeds2, seeds3))
         self.assertTrue(np.allclose(seeds3, seeds4))
+
+        seeds1 = stack_seeds(n_row, n_col, seeds_row_array, None)
+        seeds2 = stack_seeds(n_row, n_col, seeds_row_dict, None)
+
+        self.assertTrue(np.allclose(seeds1, seeds2))

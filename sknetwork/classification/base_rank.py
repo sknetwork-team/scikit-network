@@ -43,7 +43,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         VerboseMixin.__init__(self, verbose)
 
         self.algorithm = algorithm
-        self.n_jobs = n_jobs
+        self.n_jobs = check_n_jobs(n_jobs)
         self.verbose = verbose
 
     @staticmethod
@@ -103,10 +103,9 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         classes, n_classes = check_labels(seeds_labels)
 
         seeds_all = self._process_seeds(seeds_labels)
-        n_jobs = check_n_jobs(self.n_jobs)
-        if n_jobs != 1:
+        if self.n_jobs != 1:
             local_function = partial(self.algorithm.fit_transform, adjacency)
-            with Pool(n_jobs) as pool:
+            with Pool(self.n_jobs) as pool:
                 scores = np.array(pool.map(local_function, seeds_all))
             scores = scores.T
         else:

@@ -25,6 +25,11 @@ class DiffusionClassifier(RankClassifier):
     n_iter: int
         If ``n_iter > 0``, apply the diffusion for n_iter steps.
         If ``n_iter <= 0``, use BIConjugate Gradient STABilized iteration to solve the Dirichlet problem.
+    n_jobs :
+        If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
+        If ``None``, no parallel computations are made.
+    verbose :
+        Verbose mode.
 
     Attributes
     ----------

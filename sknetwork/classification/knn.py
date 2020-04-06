@@ -14,7 +14,7 @@ from scipy.spatial import cKDTree
 from sknetwork.classification import BaseClassifier
 from sknetwork.embedding import BaseEmbedding, GSVD
 from sknetwork.linalg.normalization import normalize
-from sknetwork.utils.check import check_seeds, check_n_neighbors
+from sknetwork.utils.check import check_seeds, check_n_neighbors, check_n_jobs
 from sknetwork.utils.seeds import stack_seeds
 
 
@@ -66,7 +66,8 @@ class KNN(BaseClassifier):
 
     """
     def __init__(self, embedding_method: BaseEmbedding = GSVD(10), n_neighbors: int = 5,
-                 factor_distance: float = 2, leaf_size: int = 16, p: float = 2, tol_nn: float = 0.01, n_jobs: int = 1):
+                 factor_distance: float = 2, leaf_size: int = 16, p: float = 2, tol_nn: float = 0.01,
+                 n_jobs: Optional[int] = None):
         super(KNN, self).__init__()
 
         self.embedding_method = embedding_method
@@ -75,7 +76,10 @@ class KNN(BaseClassifier):
         self.leaf_size = leaf_size
         self.p = p
         self.tol_nn = tol_nn
-        self.n_jobs = n_jobs
+        self.n_jobs = check_n_jobs(n_jobs)
+        # special case of scipy API for tree.query
+        if self.n_jobs is None:
+            self.n_jobs = -1
 
     def _instanciate_vars(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]):
         n = adjacency.shape[0]
