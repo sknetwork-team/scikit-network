@@ -31,12 +31,18 @@ cdef class AggregateGraph:
 
     Parameters
     ----------
-    adjacency :
-        Adjacency matrix of the graph.
     out_weights :
         Out-weights (sums to 1).
     in_weights :
         In-weights (sums to 1).
+    data :
+        CSR format data array of the normalized adjacency matrix.
+    indices :
+        CSR format index array of the normalized adjacency matrix.
+    indptr :
+        CSR format index pointer array of the normalized adjacency matrix.
+    shape :
+        Matrix shape.
 
     Attributes
     ----------
@@ -57,13 +63,8 @@ cdef class AggregateGraph:
     cdef public dict cluster_out_weights
     cdef public dict cluster_in_weights
 
-    def __init__(self,
-                 np.float_t[:] out_weights,
-                 np.float_t[:] in_weights,
-                 np.float_t[:] data,
-                 int[:] indices,
-                 int[:] indptr,
-                 (int, int) shape):
+    def __init__(self, np.float_t[:] out_weights, np.float_t[:] in_weights, np.float_t[:] data, int[:] indices,
+                 int[:] indptr, (int, int) shape):
         cdef int n = shape[0]
         cdef float total_weight = sum(data) / 2
         cdef int node
@@ -372,4 +373,3 @@ class BiParis(Paris):
         self.dendrogram_ = paris.dendrogram_
 
         return self
-
