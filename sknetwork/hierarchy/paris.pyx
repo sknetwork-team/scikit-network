@@ -167,7 +167,7 @@ class Paris(BaseHierarchy):
     --------
     >>> from sknetwork.data import house
     >>> adjacency = house()
-    >>> paris = Paris(engine='python')
+    >>> paris = Paris()
     >>> paris.fit(adjacency).dendrogram_
     array([[3.        , 2.        , 0.16666667, 2.        ],
            [1.        , 0.        , 0.25      , 2.        ],
@@ -291,7 +291,7 @@ class Paris(BaseHierarchy):
 
 class BiParis(Paris):
     """
-    BiParis algorithm for the hierarchical co-clustering of bipartite graphs in Python (default) and Numba.
+    BiParis algorithm for the hierarchical co-clustering of bipartite graphs in Python.
 
     Returns a single dendrogram.
     Nodes are indexed from 0 to n1 + n2 - 1 with (n1, n2) the shape of the biadjacency matrix.
@@ -302,8 +302,6 @@ class BiParis(Paris):
     weights :
             Weights of nodes.
             ``'degree'`` (default) or ``'uniform'``.
-    engine : str
-        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
     reorder :
             If True, reorder the dendrogram in increasing order of heights.
 
@@ -316,7 +314,7 @@ class BiParis(Paris):
     --------
     >>> from sknetwork.data import star_wars_villains
     >>> biadjacency = star_wars_villains()
-    >>> biparis = BiParis(engine='python')
+    >>> biparis = BiParis()
     >>> biparis.fit(biadjacency).dendrogram_
     array([[ 1.      ,  4.      ,  0.09375 ,  2.      ],
            [ 3.      ,  5.      ,  0.125   ,  2.      ],
@@ -342,8 +340,8 @@ class BiParis(Paris):
     Workshop on Mining and Learning with Graphs.
     """
 
-    def __init__(self, engine: str = 'default', weights: str = 'degree', reorder: bool = True):
-        Paris.__init__(self, engine, weights, reorder)
+    def __init__(self, weights: str = 'degree', reorder: bool = True):
+        Paris.__init__(self, weights, reorder)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiParis':
         """Applies the Paris algorithm to
@@ -361,7 +359,7 @@ class BiParis(Paris):
         -------
         self: :class:`BiParis`
         """
-        paris = Paris(engine=self.engine, weights=self.weights, reorder=self.reorder)
+        paris = Paris(weights=self.weights, reorder=self.reorder)
         biadjacency = check_format(biadjacency)
 
         adjacency = bipartite2undirected(biadjacency)
