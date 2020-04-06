@@ -14,6 +14,7 @@ from scipy import sparse
 from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.postprocess import membership_matrix, reindex_clusters
 from sknetwork.embedding import BaseEmbedding, GSVD
+from sknetwork.linalg import normalize
 from sknetwork.utils.kmeans import KMeansDense
 
 
@@ -98,7 +99,7 @@ class KMeans(BaseClustering):
         if self.return_membership or self.return_adjacency:
             membership = membership_matrix(labels)
             if self.return_membership:
-                self.membership_ = adjacency.dot(membership)
+                self.membership_ = normalize(adjacency.dot(membership))
             if self.return_adjacency:
                 self.adjacency_ = membership.T.dot(adjacency.dot(membership))
 
@@ -116,7 +117,7 @@ class BiKMeans(KMeans):
         Number of clusters.
     embedding_method :
         Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
-    cluster_both :
+    co_cluster :
         If ``True``, co-cluster rows and columns (default = ``False``).
     sort_clusters :
             If ``True``, sort labels in decreasing order of cluster size.
@@ -150,16 +151,16 @@ class BiKMeans(KMeans):
     3
     """
 
-    def __init__(self, n_clusters: int = 2, embedding_method: BaseEmbedding = GSVD(10), cluster_both: bool = False,
+    def __init__(self, n_clusters: int = 2, embedding_method: BaseEmbedding = GSVD(10), co_cluster: bool = False,
                  sort_clusters: bool = True, return_membership: bool = True, return_biadjacency: bool = True):
         KMeans.__init__(self, n_clusters, embedding_method, sort_clusters, return_membership, False)
 
         if not hasattr(embedding_method, 'embedding_'):
             raise TypeError('The embedding method must have an attribute embedding_.')
-        if cluster_both and not hasattr(embedding_method, 'embedding_col_'):
-            raise ValueError('For co-clustering, the embedding method must have an attribute embedding_col_.')
+        if (co_cluster or return_membership) and not hasattr(embedding_method, 'embedding_col_'):
+            raise ValueError('The embedding method must have an attribute embedding_col_.')
 
-        self.cluster_both = cluster_both
+        self.co_cluster = co_cluster
         self.return_biadjacency = return_biadjacency
 
         self.labels_ = None
@@ -191,7 +192,7 @@ class BiKMeans(KMeans):
         method = self.embedding_method
         method.fit(biadjacency)
 
-        if self.cluster_both:
+        if self.co_cluster:
             embedding = np.vstack((method.embedding_row_, method.embedding_col_))
         else:
             embedding = method.embedding_
@@ -204,7 +205,7 @@ class BiKMeans(KMeans):
         else:
             labels = kmeans.labels_
 
-        if self.cluster_both:
+        if self.co_cluster:
             self.labels_ = labels[:n_row]
             self.labels_row_ = labels[:n_row]
             self.labels_col_ = labels[n_row:]
@@ -212,16 +213,21 @@ class BiKMeans(KMeans):
             self.labels_ = labels
             self.labels_row_ = labels
 
-        if self.return_membership or self.return_biadjacency:
+        if self.return_membership:
             membership_row = membership_matrix(self.labels_row_)
-            if self.return_membership:
-                self.membership_row_ = membership_row
-                self.membership_ = membership_row
+            if self.labels_col_ is not None:
+                membership_col = membership_matrix(self.labels_col_)
+                self.membership_row_ = normalize(biadjacency.dot(membership_col))
+                self.membership_col_ = normalize(biadjacency.T.dot(membership_row))
+            else:
+                self.membership_row_ = normalize(biadjacency.dot(biadjacency.T.dot(membership_row)))
+            self.membership_ = self.membership_row_
+
+        if self.return_biadjacency:
+            membership_row = membership_matrix(self.labels_row_)
             biadjacency_ = sparse.csr_matrix(membership_row.T.dot(biadjacency))
             if self.labels_col_ is not None:
                 membership_col = membership_matrix(self.labels_col_)
-                if self.return_membership:
-                    self.membership_col_ = membership_col
                 biadjacency_ = biadjacency_.dot(membership_col)
             self.biadjacency_ = biadjacency_
 

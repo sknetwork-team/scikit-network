@@ -18,7 +18,7 @@ class TestKMeans(unittest.TestCase):
         self.kmeans = KMeans(3, GSVD(2))
         self.bikmeans = BiKMeans(3, GSVD(2))
         self.kmeans_options = KMeans(4, SVD(3), sort_clusters=False)
-        self.bikmeans_options = BiKMeans(4, BiSpectral(3), cluster_both=True, sort_clusters=False)
+        self.bikmeans_options = BiKMeans(4, BiSpectral(3), co_cluster=True, sort_clusters=False)
 
     def test_undirected(self):
         for adjacency in [test_graph(), test_graph_disconnect()]:

@@ -16,25 +16,25 @@ class KMeansDense(Algorithm):
 
     Parameters
     ----------
-    n_clusters:
+    n_clusters :
         Number of desired clusters.
-    init:
+    init :
         Method for initialization. Available methods are ‘random’, ‘points’, ‘++’ and ‘matrix’:
         * ‘random’: generate k centroids from a Gaussian with mean and variance estimated from the data.
         * ‘points’: choose k observations (rows) at random from data for the initial centroids.
         * ‘++’: choose k observations accordingly to the kmeans++ method (careful seeding)
         * ‘matrix’: interpret the k parameter as a k by M (or length k array for one-dimensional data) array of initial
         centroids.
-    n_init:
+    n_init :
         Number of iterations of the k-means algorithm to run.
-    tol:
+    tol :
         Relative tolerance with regards to inertia to declare convergence.
 
     Attributes
     ----------
-    labels_:
+    labels_ :
         Label of each sample.
-    cluster_centers_:
+    cluster_centers_ :
         A ‘k’ by ‘N’ array of centroids found at the last iteration of k-means.
 
     References
