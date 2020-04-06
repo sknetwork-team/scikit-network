@@ -45,4 +45,3 @@ def normalize(matrix: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix
     """
     diag = diag_pinv(matrix.dot(np.ones(matrix.shape[1])))
     return diag.dot(matrix)
-

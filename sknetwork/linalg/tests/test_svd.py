@@ -10,16 +10,17 @@ from sknetwork.linalg import LanczosSVD, HalkoSVD, SparseLR
 from sknetwork.data import movie_actor
 
 
-# noinspection PyMissingOrEmptyDocstring
 def svd_err(matrix, u, v, sigma):
+    """Approximation error for singular vectors."""
     err = matrix.dot(v) - u * sigma
     return np.linalg.norm(err)
 
 
-# noinspection DuplicatedCode,PyMissingOrEmptyDocstring
+# noinspection DuplicatedCode
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):
+        """Simple biadjacency for tests."""
         self.biadjacency = movie_actor()
         n1, n2 = self.biadjacency.shape
         self.slr = SparseLR(self.biadjacency, [(np.random.rand(n1), np.random.rand(n2))])
