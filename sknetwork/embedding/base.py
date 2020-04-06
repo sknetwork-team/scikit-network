@@ -6,6 +6,8 @@ Created on Nov, 2019
 """
 from abc import ABC
 
+import numpy as np
+
 from sknetwork.utils.base import Algorithm
 
 
@@ -22,3 +24,7 @@ class BaseEmbedding(Algorithm, ABC):
         Use the same inputs as the ``fit`` method."""
         self.fit(*args, **kwargs)
         return self.embedding_
+
+    def predict(self, *args, **kwargs) -> np.ndarray:
+        """Compute the embedding of new nodes."""
+        raise NotImplementedError('Predict method is currently unavailable for this algorithm.')

@@ -14,7 +14,7 @@ from scipy import sparse
 
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import SparseLR, SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv
-from sknetwork.utils.check import check_format
+from sknetwork.utils.check import check_format, check_adjacency_vector
 
 
 class GSVD(BaseEmbedding):
@@ -212,21 +212,11 @@ class GSVD(BaseEmbedding):
                              " Call 'fit' with appropriate arguments before using this method.")
         singular_values = self.singular_values_
 
-        n1, _ = self.embedding_row_.shape
-        n2, _ = self.embedding_col_.shape
+        n_row, _ = self.embedding_row_.shape
+        n_col, _ = self.embedding_col_.shape
 
-        if isinstance(adjacency_vectors, sparse.csr_matrix):
-            adjacency_vectors = np.array(adjacency_vectors.todense())
-
-        single_vector = False
-        if len(adjacency_vectors.shape) == 1:
-            single_vector = True
-            adjacency_vectors = adjacency_vectors.reshape(1, -1)
-
-        if adjacency_vectors.shape[1] != n2:
-            raise ValueError('The adjacency vector must be of length equal to the number of columns of the '
-                             'biadjacency matrix.')
-        elif not np.all(adjacency_vectors >= 0):
+        adjacency_vectors = check_adjacency_vector(adjacency_vectors, n_col)
+        if not np.all(adjacency_vectors >= 0):
             raise ValueError('The adjacency vector must be non-negative.')
 
         # regularization
@@ -235,7 +225,7 @@ class GSVD(BaseEmbedding):
             adjacency_vector_reg += self.regularization_
 
         # weighting
-        weights_row = adjacency_vector_reg.dot(np.ones(n2))
+        weights_row = adjacency_vector_reg.dot(np.ones(n_col))
         diag_row = diag_pinv(np.power(weights_row, self.factor_row))
         diag_col = diag_pinv(np.power(self.weights_col_, self.factor_col))
         adjacency_vector_reg = diag_row.dot(diag_col.dot(adjacency_vector_reg.T).T)
@@ -251,7 +241,7 @@ class GSVD(BaseEmbedding):
         if self.normalize:
             embedding_vectors = diag_pinv(np.linalg.norm(embedding_vectors, axis=1)).dot(embedding_vectors)
 
-        if single_vector:
+        if embedding_vectors.shape[0] == 1:
             embedding_vectors = embedding_vectors.ravel()
 
         return embedding_vectors
@@ -332,4 +322,3 @@ class SVD(GSVD):
         self.singular_vectors_left_ = None
         self.singular_vectors_right_ = None
         self.regularization_ = None
-
