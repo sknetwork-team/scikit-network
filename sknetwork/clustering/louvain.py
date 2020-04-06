@@ -15,6 +15,7 @@ from scipy import sparse
 from sknetwork import njit
 from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.postprocess import membership_matrix, reindex_clusters
+from sknetwork.linalg import normalize
 from sknetwork.utils.format import bipartite2directed, directed2undirected
 from sknetwork.utils.base import Algorithm
 from sknetwork.utils.check import check_format, check_engine, check_random_state, check_probs, is_square
@@ -365,7 +366,9 @@ class Louvain(BaseClustering, VerboseMixin):
         Enables node shuffling before optimization.
     sort_clusters :
             If ``True``, sort labels in decreasing order of cluster size.
-    return_graph :
+    return_membership :
+            If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
+    return_adjacency :
             If ``True``, return the adjacency matrix of the graph between clusters.
     random_state :
         Random number generator or random seed. If None, numpy.random is used.
@@ -376,6 +379,8 @@ class Louvain(BaseClustering, VerboseMixin):
     ----------
     labels_ : np.ndarray
         Label of each node.
+    membership_ : sparse.csr_matrix
+        Membership matrix.
     adjacency_ : sparse.csr_matrix
         Adjacency matrix between clusters.
 
@@ -401,8 +406,9 @@ class Louvain(BaseClustering, VerboseMixin):
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
                  tol: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
-                 shuffle_nodes: bool = False, sort_clusters: bool = True, return_graph: bool = True,
-                 random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
+                 shuffle_nodes: bool = False, sort_clusters: bool = True, return_membership: bool = True,
+                 return_adjacency: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
+                 verbose: bool = False):
         super(Louvain, self).__init__()
         VerboseMixin.__init__(self, verbose)
 
@@ -419,8 +425,10 @@ class Louvain(BaseClustering, VerboseMixin):
         self.n_aggregations = n_aggregations
         self.shuffle_nodes = shuffle_nodes
         self.sort_clusters = sort_clusters
-        self.return_graph = return_graph
+        self.return_membership = return_membership
+        self.return_adjacency = return_adjacency
 
+        self.membership_ = None
         self.adjacency_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Louvain':
@@ -484,9 +492,13 @@ class Louvain(BaseClustering, VerboseMixin):
             labels = labels[reverse]
 
         self.labels_ = labels
-        if self.return_graph:
+
+        if self.return_membership or self.return_adjacency:
             membership = membership_matrix(labels)
-            self.adjacency_ = sparse.csr_matrix(membership.T.dot(adjacency.dot(membership)))
+            if self.return_membership:
+                self.membership_ = normalize(adjacency.dot(membership))
+            if self.return_adjacency:
+                self.adjacency_ = sparse.csr_matrix(membership.T.dot(adjacency.dot(membership)))
 
         return self
 
@@ -519,7 +531,9 @@ class BiLouvain(Louvain):
         Enables node shuffling before optimization.
     sort_clusters :
             If ``True``, sort labels in decreasing order of cluster size.
-    return_graph :
+    return_membership :
+            If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
+    return_biadjacency :
         If ``True``, return the biadjacency matrix of the graph between clusters.
     random_state :
         Random number generator or random seed. If None, numpy.random is used.
@@ -534,6 +548,12 @@ class BiLouvain(Louvain):
         Labels of the rows (copy of **labels_**).
     labels_col_ : np.ndarray
         Labels of the columns.
+    membership_ : sparse.csr_matrix
+        Membership matrix of the rows.
+    membership_row_ : sparse.csr_matrix
+        Membership matrix of the rows (copy of **membership_**).
+    membership_col_ : sparse.csr_matrix
+        Membership matrix of the columns. Only valid if **cluster_both** = `True`.
     biadjacency_ : sparse.csr_matrix
         Biadjacency matrix of the aggregate graph between clusters.
 
@@ -553,15 +573,20 @@ class BiLouvain(Louvain):
 
     def __init__(self, engine: str = 'default', algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
                  tol: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
-                 shuffle_nodes: bool = False, sort_clusters: bool = True, return_graph: bool = True,
-                 random_state: Optional[Union[np.random.RandomState, int]] = None,
+                 shuffle_nodes: bool = False, sort_clusters: bool = True, return_membership: bool = True,
+                 return_biadjacency: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
                  verbose: bool = False):
         Louvain.__init__(self, engine, algorithm, resolution, tol, tol_aggregation, n_aggregations,
-                         shuffle_nodes, sort_clusters, return_graph, random_state, verbose)
+                         shuffle_nodes, sort_clusters, return_membership, return_biadjacency, random_state, verbose)
+
+        self.return_biadjacency = return_biadjacency
 
         self.labels_ = None
         self.labels_row_ = None
         self.labels_col_ = None
+        self.membership_ = None
+        self.membership_row_ = None
+        self.membership_col_ = None
         self.biadjacency_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiLouvain':
@@ -583,7 +608,8 @@ class BiLouvain(Louvain):
         louvain = Louvain(algorithm=self.algorithm, tol_aggregation=self.tol_aggregation,
                           n_aggregations=self.n_aggregations,
                           shuffle_nodes=self.shuffle_nodes, sort_clusters=self.sort_clusters,
-                          return_graph=False, random_state=self.random_state, verbose=self.log.verbose)
+                          return_membership=self.return_membership, return_adjacency=False,
+                          random_state=self.random_state, verbose=self.log.verbose)
         biadjacency = check_format(biadjacency)
         n_row, _ = biadjacency.shape
 
@@ -593,9 +619,18 @@ class BiLouvain(Louvain):
         self.labels_ = louvain.labels_[:n_row]
         self.labels_row_ = louvain.labels_[:n_row]
         self.labels_col_ = louvain.labels_[n_row:]
-        if self.return_graph:
+
+        if self.return_membership:
             membership_row = membership_matrix(self.labels_row_)
             membership_col = membership_matrix(self.labels_col_)
-            self.biadjacency_ = sparse.csr_matrix(membership_row.T.dot(biadjacency.dot(membership_col)))
+            self.membership_row_ = normalize(biadjacency.dot(membership_col))
+            self.membership_col_ = normalize(biadjacency.T.dot(membership_row))
+
+        if self.return_biadjacency:
+            membership_row = membership_matrix(self.labels_row_)
+            membership_col = membership_matrix(self.labels_col_)
+            biadjacency_ = sparse.csr_matrix(membership_row.T.dot(biadjacency))
+            biadjacency_ = biadjacency_.dot(membership_col)
+            self.biadjacency_ = biadjacency_
 
         return self
