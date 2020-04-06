@@ -18,7 +18,7 @@ from sknetwork.data import line_graph, karate_club
 class TestMetrics(unittest.TestCase):
 
     def setUp(self):
-        self.paris = Paris(engine='python')
+        self.paris = Paris()
         self.line_graph = line_graph()
         self.karate_club = karate_club()
 

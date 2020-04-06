@@ -22,7 +22,7 @@ from scipy import sparse
 
 from sknetwork.hierarchy.base import BaseHierarchy
 from sknetwork.utils.adjacency_formats import bipartite2undirected
-from sknetwork.utils.checks import check_engine, check_format, check_probs, is_square
+from sknetwork.utils.checks import check_format, check_probs, is_square
 
 
 cdef class AggregateGraph:

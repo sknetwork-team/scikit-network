@@ -7,7 +7,7 @@ import unittest
 from sknetwork.data import rock_paper_scissors
 from sknetwork.utils.adjacency_formats import *
 from sknetwork.utils.checks import has_nonnegative_entries, has_positive_entries,\
-    is_proba_array, make_weights, check_engine, check_is_proba, check_weights,\
+    is_proba_array, make_weights, check_is_proba, check_weights,\
     check_random_state, check_seeds, check_labels, check_n_jobs
 
 
@@ -38,10 +38,6 @@ class TestChecks(unittest.TestCase):
     def test_error_make_weights(self):
         with self.assertRaises(ValueError):
             make_weights(distribution='junk', adjacency=self.adjacency)
-
-    def test_error_check_engine(self):
-        with self.assertRaises(ValueError):
-            check_engine('junk')
 
     def test_error_check_is_proba(self):
         with self.assertRaises(TypeError):
