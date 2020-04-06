@@ -16,7 +16,7 @@ from scipy.sparse.linalg import LinearOperator
 from sknetwork.basics.structure import is_connected
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv
-from sknetwork.utils.check import check_format, is_square, is_symmetric
+from sknetwork.utils.check import check_format, is_square, is_symmetric, check_adjacency_vector
 from sknetwork.utils.format import bipartite2undirected
 
 
@@ -323,17 +323,9 @@ class Spectral(BaseEmbedding):
         else:
             n = eigenvectors.shape[0]
 
-        if isinstance(adjacency_vectors, sparse.csr_matrix):
-            adjacency_vectors = np.array(adjacency_vectors.todense())
+        adjacency_vectors = check_adjacency_vector(adjacency_vectors, n)
 
-        single_vector = False
-        if len(adjacency_vectors.shape) == 1:
-            single_vector = True
-            adjacency_vectors = adjacency_vectors.reshape(1, -1)
-
-        if adjacency_vectors.shape[1] != n:
-            raise ValueError('The adjacency vector must be of length equal to the number of nodes.')
-        elif not np.all(adjacency_vectors >= 0):
+        if not np.all(adjacency_vectors >= 0):
             raise ValueError('The adjacency vector must be non-negative.')
 
         # regularization
@@ -361,7 +353,7 @@ class Spectral(BaseEmbedding):
         if self.normalize:
             embedding_vectors = diag_pinv(np.linalg.norm(embedding_vectors, axis=1)).dot(embedding_vectors)
 
-        if single_vector:
+        if embedding_vectors.shape[0] == 1:
             embedding_vectors = embedding_vectors.ravel()
 
         return embedding_vectors
@@ -445,6 +437,7 @@ class BiSpectral(Spectral):
         self.eigenvectors_ = None
         self.regularization_ = None
 
+    # noinspection DuplicatedCode
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiSpectral':
         """Spectral embedding of the bipartite graph considered as undirected, with adjacency matrix:
 
@@ -466,11 +459,11 @@ class BiSpectral(Spectral):
                             equalize=self.equalize, barycenter=self.barycenter, normalize=self.normalize,
                             solver=self.solver)
         biadjacency = check_format(biadjacency)
-        n1, _ = biadjacency.shape
+        n_row, _ = biadjacency.shape
         spectral.fit(bipartite2undirected(biadjacency))
 
-        self.embedding_row_ = spectral.embedding_[:n1]
-        self.embedding_col_ = spectral.embedding_[n1:]
+        self.embedding_row_ = spectral.embedding_[:n_row]
+        self.embedding_col_ = spectral.embedding_[n_row:]
         self.embedding_ = self.embedding_row_
         self.eigenvalues_ = spectral.eigenvalues_
         self.eigenvectors_ = spectral.eigenvectors_
@@ -499,25 +492,15 @@ class BiSpectral(Spectral):
         n1, _ = self.embedding_row_.shape
         n2, _ = self.embedding_col_.shape
 
-        if isinstance(adjacency_vectors, sparse.csr_matrix):
-            adjacency_vectors = np.array(adjacency_vectors.todense())
+        adjacency_vectors = check_adjacency_vector(adjacency_vectors, n2)
 
-        single_vector = False
-        if len(adjacency_vectors.shape) == 1:
-            single_vector = True
-            adjacency_vectors = adjacency_vectors.reshape(1, -1)
-
-        if adjacency_vectors.shape[1] != n2:
-            raise ValueError('The adjacency vector must be of length equal to the number of columns of the '
-                             'biadjacency matrix.')
-        elif not np.all(adjacency_vectors >= 0):
+        if not np.all(adjacency_vectors >= 0):
             raise ValueError('The adjacency vector must be non-negative.')
 
         adjacency_vectors = np.hstack((np.zeros((adjacency_vectors.shape[0], n1)), adjacency_vectors))
         embedding_vectors = Spectral.predict(self, adjacency_vectors)
 
-        if single_vector:
+        if embedding_vectors.shape[0] == 1:
             embedding_vectors = embedding_vectors.ravel()
 
         return embedding_vectors
-

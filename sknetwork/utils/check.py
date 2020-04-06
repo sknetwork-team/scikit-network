@@ -224,3 +224,20 @@ def check_n_jobs(n_jobs: Optional[int] = None):
         return 1
     else:
         return n_jobs
+
+
+def check_adjacency_vector(adjacency_vectors: Union[sparse.csr_matrix, np.ndarray],
+                           n: Optional[int] = None) -> np.ndarray:
+    """Check format of new samples for predict methods"""
+
+    if isinstance(adjacency_vectors, sparse.csr_matrix):
+        adjacency_vectors = adjacency_vectors.toarray()
+
+    if len(adjacency_vectors.shape) == 1:
+        adjacency_vectors = adjacency_vectors.reshape(1, -1)
+
+    if n is not None:
+        if adjacency_vectors.shape[1] != n:
+            raise ValueError('The adjacency vector must be of length equal to the number nodes in the initial graph.')
+
+    return adjacency_vectors

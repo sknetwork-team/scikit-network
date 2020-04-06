@@ -15,6 +15,6 @@ class TestShortestPath(unittest.TestCase):
 
     def test_parallel(self):
         adjacency: sparse.csr_matrix = karate_club()
-        truth = shortest_path(adjacency)
-        parallel = shortest_path(adjacency, n_jobs=None)
-        self.assertEqual(np.equal(truth, parallel).sum(), 34 ** 2)
+        path1 = shortest_path(adjacency)
+        path2 = shortest_path(adjacency, n_jobs=-1)
+        self.assertTrue((path1 == path2).all())
