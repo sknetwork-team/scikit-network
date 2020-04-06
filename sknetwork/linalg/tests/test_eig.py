@@ -10,16 +10,17 @@ from sknetwork.linalg import LanczosEig, HalkoEig, SparseLR
 from sknetwork.data import miserables, karate_club
 
 
-# noinspection PyMissingOrEmptyDocstring
 def eigenvector_err(matrix, eigenvectors, eigenvalues):
+    """Approximation error for eigenvectors."""
     err = matrix.dot(eigenvectors) - eigenvectors * eigenvalues
     return np.linalg.norm(err)
 
 
-# noinspection DuplicatedCode,PyMissingOrEmptyDocstring
+# noinspection DuplicatedCode
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):
+        """Instanciate les Miserables and regularized version"""
         self.adjacency = miserables()
         self.random_state = np.random.RandomState(123)
         n = self.adjacency.shape[0]

@@ -11,10 +11,10 @@ from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.data import house, star_wars
 
 
-# noinspection PyMissingOrEmptyDocstring
 class TestSparseLowRank(unittest.TestCase):
 
     def setUp(self):
+        """Simple regularized adjacency and biadjacency for tests."""
         self.undirected = SparseLR(house(), [(np.ones(5), np.ones(5))])
         self.bipartite = SparseLR(star_wars(), [(np.ones(4), np.ones(3))])
 
