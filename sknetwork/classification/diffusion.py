@@ -20,9 +20,12 @@ from sknetwork.utils.seeds import stack_seeds
 class DiffusionClassifier(RankClassifier):
     """Node classification using multiple diffusions.
 
+    * Graphs
+    * Digraphs
+
     Parameters
     ----------
-    n_iter: int
+    n_iter : int
         If ``n_iter > 0``, apply the diffusion for n_iter steps.
         If ``n_iter <= 0``, use BIConjugate Gradient STABilized iteration to solve the Dirichlet problem.
     n_jobs :
@@ -36,7 +39,7 @@ class DiffusionClassifier(RankClassifier):
     labels_ : np.ndarray
         Label of each node (hard classification).
     membership_ : sparse.csr_matrix
-        Membership matrix (soft classification, columns = labels).
+        Membership matrix (soft classification, labels on columns).
 
     Example
     -------
@@ -60,6 +63,9 @@ class DiffusionClassifier(RankClassifier):
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = Diffusion(n_iter, verbose)
         super(DiffusionClassifier, self).__init__(algorithm, n_jobs, verbose)
+
+        self.labels_ = None
+        self.membership_ = None
 
     @staticmethod
     def _process_seeds(labels_seeds, temperature_max: float = 5):
@@ -111,6 +117,8 @@ class DiffusionClassifier(RankClassifier):
 class BiDiffusionClassifier(DiffusionClassifier):
     """Node classification using multiple diffusions.
 
+    * Bigraphs
+
     Parameters
     ----------
     n_iter: int
@@ -120,9 +128,17 @@ class BiDiffusionClassifier(DiffusionClassifier):
     Attributes
     ----------
     labels_ : np.ndarray
-        Label of each node (hard classification).
+        Label of each row.
+    labels_row_ : np.ndarray
+        Label of each row (copy of **labels_**).
+    labels_col_ : np.ndarray
+        Label of each column.
     membership_ : sparse.csr_matrix
-        Membership matrix (soft classification, columns = labels).
+        Membership matrix of rows (soft classification, labels on columns).
+    membership_row_ : sparse.csr_matrix
+        Membership matrix of rows (copy of **membership_**).
+    membership_col_ : sparse.csr_matrix
+        Membership matrix of columns.
 
     Example
     -------
@@ -145,6 +161,7 @@ class BiDiffusionClassifier(DiffusionClassifier):
 
         self.labels_row_ = None
         self.labels_col_ = None
+        self.membership_ = None
         self.membership_row_ = None
         self.membership_col_ = None
 

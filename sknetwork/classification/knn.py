@@ -21,7 +21,9 @@ from sknetwork.utils.seeds import stack_seeds
 class KNN(BaseClassifier):
     """Node classification by K-nearest neighbors in the embedding space.
 
-    Graphs, digraphs and bigraphs.
+    * Graphs
+    * Digraphs
+    * Bigraphs
 
     For bigraphs, classify rows only (see ``BiKNN`` for joint classification of rows and columns).
 
@@ -155,7 +157,7 @@ class KNN(BaseClassifier):
 class BiKNN(KNN):
     """Node classification by K-nearest neighbors in the embedding space.
 
-    Bigraphs.
+    * Bigraphs
 
     Parameters
     ----------

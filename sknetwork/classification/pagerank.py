@@ -21,6 +21,9 @@ from sknetwork.utils.check import check_seeds
 class PageRankClassifier(RankClassifier):
     """Node classification by multiple personalized PageRanks.
 
+    * Graphs
+    * Digraphs
+
     Parameters
     ----------
     damping_factor:
@@ -64,9 +67,14 @@ class PageRankClassifier(RankClassifier):
         algorithm = PageRank(damping_factor, solver, n_iter)
         super(PageRankClassifier, self).__init__(algorithm, n_jobs, verbose)
 
+        self.labels_ = None
+        self.membership_ = None
+
 
 class BiPageRankClassifier(RankClassifier):
     """Node classification for bipartite graphs by multiple personalized PageRanks .
+
+    * Bigraphs
 
     Parameters
     ----------
@@ -82,9 +90,17 @@ class BiPageRankClassifier(RankClassifier):
     Attributes
     ----------
     labels_ : np.ndarray
-        Label of each node (hard classification).
+        Label of each row.
+    labels_row_ : np.ndarray
+        Label of each row (copy of **labels_**).
+    labels_col_ : np.ndarray
+        Label of each column.
     membership_ : sparse.csr_matrix
-        Membership matrix (soft classification, columns = labels).
+        Membership matrix of rows (soft classification, labels on columns).
+    membership_row_ : sparse.csr_matrix
+        Membership matrix of rows (copy of **membership_**).
+    membership_col_ : sparse.csr_matrix
+        Membership matrix of columns.
 
     Example
     -------
@@ -101,8 +117,10 @@ class BiPageRankClassifier(RankClassifier):
         algorithm = BiPageRank(damping_factor, solver, n_iter)
         super(BiPageRankClassifier, self).__init__(algorithm, n_jobs, verbose)
 
+        self.labels_ = None
         self.labels_row_ = None
         self.labels_col_ = None
+        self.membership_ = None
         self.membership_row_ = None
         self.membership_col_ = None
 
