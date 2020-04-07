@@ -27,17 +27,17 @@ class TestLouvainClustering(unittest.TestCase):
         adjacency = test_graph()
         labels = self.louvain.fit_transform(adjacency)
         self.assertEqual(labels.shape, (10,))
-        self.assertAlmostEqual(modularity(adjacency, labels), 0.503, 2)
+        self.assertAlmostEqual(modularity(adjacency, labels), 0.495, 2)
         if is_numba_available:
             labels = self.louvain_numba.fit_transform(adjacency)
             self.assertEqual(labels.shape, (10,))
-            self.assertAlmostEqual(modularity(adjacency, labels), 0.503, 2)
+            self.assertAlmostEqual(modularity(adjacency, labels), 0.495, 2)
 
     def test_directed(self):
         adjacency = test_digraph()
         labels = self.louvain.fit_transform(adjacency)
         self.assertEqual(labels.shape, (10,))
-        self.assertAlmostEqual(modularity(adjacency, labels), 0.548, 2)
+        self.assertAlmostEqual(modularity(adjacency, labels), 0.475, 2)
 
     def test_bipartite(self):
         biadjacency = test_bigraph()

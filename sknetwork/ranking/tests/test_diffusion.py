@@ -29,7 +29,6 @@ class TestDiffusion(unittest.TestCase):
             score = self.diffusion.fit_transform(adjacency, {0: 0, 1: 1, 2: 0.5})
             self.assertTrue(np.all(score <= 1) and np.all(score >= 0))
 
-    def test_bidiffusion(self):
         bidiffusion = BiDiffusion()
         biadjacency = test_bigraph()
 

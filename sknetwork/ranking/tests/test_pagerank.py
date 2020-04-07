@@ -6,9 +6,10 @@ import unittest
 
 import numpy as np
 
-from sknetwork.ranking.pagerank import PageRank, BiPageRank
-from sknetwork.data.test_graphs import test_bigraph
+from sknetwork.basics import co_neighbors_graph
 from sknetwork.data.models import cyclic_digraph
+from sknetwork.data.test_graphs import test_bigraph
+from sknetwork.ranking.pagerank import PageRank, CoPageRank
 
 
 class TestPageRank(unittest.TestCase):
@@ -51,16 +52,16 @@ class TestPageRank(unittest.TestCase):
         scores = pr.fit_transform(self.adjacency)
         self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
 
-    def test_bipartite(self):
-        bipagerank = BiPageRank()
+    def test_copagerank(self):
+        seeds = {0: 1}
         biadjacency = test_bigraph()
-        n_row, n_col = biadjacency.shape
 
-        bipagerank.fit(biadjacency, {0: 1})
-        scores_row = bipagerank.scores_row_
-        scores_col = bipagerank.scores_col_
-        scores = bipagerank.scores_
+        adjacency = co_neighbors_graph(biadjacency, method='exact')
+        scores1 = CoPageRank().fit_transform(biadjacency, seeds)
+        scores2 = PageRank().fit_transform(adjacency, seeds)
+        self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0.)
 
-        self.assertEqual(scores_row.shape, (n_row,))
-        self.assertEqual(scores_col.shape, (n_col,))
-        self.assertEqual(scores.shape, (n_row,))
+        adjacency = co_neighbors_graph(biadjacency.T.tocsr(), method='exact')
+        scores1 = CoPageRank().fit(biadjacency, seeds_col=seeds).scores_col_
+        scores2 = PageRank().fit_transform(adjacency, seeds)
+        self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0.)

@@ -12,7 +12,7 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import eigs, LinearOperator, lsqr, bicgstab
 
-from sknetwork.basics.rand_walk import transition_matrix
+from sknetwork.basics import transition_matrix, CoNeighbors
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.check import check_format, is_square
@@ -27,15 +27,12 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
     Parameters
     ----------
     adjacency :
-        Adjacency matrix of the graph.
+        Adjacency matrix of the graph as a CSR or a LinearOperator.
     damping_factor : float
         Probability to continue the random walk.
     seeds :
         If ``None``, the uniform distribution is used.
         Otherwise, a non-negative, non-zero vector or a dictionary must be provided.
-    fb_mode :
-        Forward-Backward mode. If ``True``, the random surfer performs two consecutive jumps, the first one follows the
-        direction of the edges, while the second one goes in the opposite direction.
 
     Attributes
     ----------
@@ -45,26 +42,21 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
         Scaled restart probability vector.
 
     """
-    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float = 0.85, seeds=None,
-                 fb_mode: bool = False, verbose: bool = False):
+    def __init__(self, adjacency: Union[sparse.csr_matrix, LinearOperator], damping_factor: float = 0.85, seeds=None,
+                 verbose: bool = False):
         VerboseMixin.__init__(self, verbose)
 
-        n1, n2 = adjacency.shape
-        restart_prob: np.ndarray = seeds2probs(n1, seeds)
-
-        if fb_mode:
-            restart_prob = np.hstack((restart_prob, np.zeros(n2)))
-            adjacency = bipartite2undirected(adjacency)
+        n = adjacency.shape[0]
+        restart_prob: np.ndarray = seeds2probs(n, seeds)
 
         LinearOperator.__init__(self, shape=adjacency.shape, dtype=float)
-        n = adjacency.shape[0]
         out_degrees = adjacency.dot(np.ones(n))
-
         damping_matrix = damping_factor * sparse.eye(n, format='csr')
-        if fb_mode:
-            damping_matrix.data[n1:] = 1
 
-        self.a = (damping_matrix.dot(transition_matrix(adjacency))).T.tocsr()
+        if hasattr(adjacency, 'left_sparse_dot'):
+            self.a = transition_matrix(adjacency).left_sparse_dot(damping_matrix).T
+        else:
+            self.a = (damping_matrix.dot(transition_matrix(adjacency))).T.tocsr()
         self.b = (np.ones(n) - damping_factor * out_degrees.astype(bool)) * restart_prob
 
     def _matvec(self, x):
@@ -156,7 +148,7 @@ class PageRank(BaseRanking, VerboseMixin):
         self.n_iter = n_iter
 
     # noinspection PyTypeChecker
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray, LinearOperator],
             seeds: Optional[Union[dict, np.ndarray]] = None) -> 'PageRank':
         """Fit algorithm to data.
 
@@ -172,8 +164,8 @@ class PageRank(BaseRanking, VerboseMixin):
         -------
         self: :class:`PageRank`
         """
-
-        adjacency = check_format(adjacency)
+        if not isinstance(adjacency, LinearOperator):
+            adjacency = check_format(adjacency)
         if not is_square(adjacency):
             raise ValueError("The adjacency is not square. See BiPageRank.")
 
@@ -242,14 +234,81 @@ class BiPageRank(PageRank):
         n_row, n_col = biadjacency.shape
         adjacency = bipartite2undirected(biadjacency)
         seeds = stack_seeds(n_row, n_col, seeds_row, seeds_col)
-        pagerank = PageRank(self.damping_factor, self.solver, self.n_iter)
-        pagerank.fit(adjacency, seeds)
 
-        scores_row = pagerank.scores_[:n_row]
-        scores_col = pagerank.scores_[n_row:]
+        PageRank.fit(self, adjacency, seeds)
+        scores_row = self.scores_[:n_row]
+        scores_col = self.scores_[n_row:]
 
         self.scores_row_ = scores_row / np.sum(scores_row)
         self.scores_col_ = scores_col / np.sum(scores_col)
+        self.scores_ = self.scores_row_
+
+        return self
+
+
+class CoPageRank(BiPageRank):
+    """Compute the PageRank of each node through a two-hops random walk in the bipartite graph.
+
+    Parameters
+    ----------
+    damping_factor : float
+        Probability to continue the random walk.
+    solver : str
+        Which solver to use: 'bicgstab', 'lanczos', 'lsqr'.
+
+    Attributes
+    ----------
+    scores_ : np.ndarray
+        PageRank score of each row.
+    scores_row_ : np.ndarray
+        PageRank score of each row (copy of **scores_**).
+    scores_col_ : np.ndarray
+        PageRank score of each column.
+
+
+    Example
+    -------
+    >>> from sknetwork.data import star_wars
+    >>> copagerank = CoPageRank()
+    >>> biadjacency = star_wars()
+    >>> seeds = {0: 1}
+    >>> np.round(copagerank.fit_transform(biadjacency, seeds), 2)
+    array([0.38, 0.12, 0.31, 0.2 ])
+    """
+    def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10):
+        super(CoPageRank, self).__init__(damping_factor, solver, n_iter)
+
+    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
+            seeds_row: Optional[Union[dict, np.ndarray]] = None,
+            seeds_col: Optional[Union[dict, np.ndarray]] = None) -> 'CoPageRank':
+        """Fit algorithm to data.
+
+        Parameters
+        ----------
+        biadjacency :
+            Biadjacency matrix.
+        seeds_row :
+            Seed rows, as a dict or a vector.
+        seeds_col :
+            Seed columns, as a dict or a vector.
+            If both seeds_row and seeds_col are ``None``, the uniform distribution is used.
+
+        Returns
+        -------
+        self: :class:`CoPageRank`
+        """
+        biadjacency = check_format(biadjacency)
+        n_row, n_col = biadjacency.shape
+        pr = PageRank(self.damping_factor, self.solver, self.n_iter)
+
+        operator = CoNeighbors(biadjacency, True)
+        seeds_row = seeds2probs(n_row, seeds_row)
+        self.scores_row_ = pr.fit_transform(operator, seeds_row)
+
+        operator = CoNeighbors(biadjacency.T.tocsr(), True)
+        seeds_col = seeds2probs(n_col, seeds_col)
+        self.scores_col_ = pr.fit_transform(operator, seeds_col)
+
         self.scores_ = self.scores_row_
 
         return self

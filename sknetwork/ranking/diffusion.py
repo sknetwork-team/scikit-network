@@ -81,7 +81,7 @@ class Diffusion(BaseRanking, VerboseMixin):
         self.n_iter = n_iter
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            seeds: Union[dict, np.ndarray], initial_state: Optional = None) -> 'Diffusion':
+            seeds: Optional[Union[dict, np.ndarray]] = None, initial_state: Optional = None) -> 'Diffusion':
         """
         Compute the diffusion (temperature at equilibrium).
 
@@ -102,6 +102,10 @@ class Diffusion(BaseRanking, VerboseMixin):
         n: int = adjacency.shape[0]
         if not is_square(adjacency):
             raise ValueError('The adjacency matrix should be square. See BiDiffusion.')
+        if seeds is None:
+            self.scores_ = np.ones(n) / n
+            return self
+
         seeds = check_seeds(seeds, n)
         b, border = limit_conditions(seeds)
         tmin, tmax = np.min(b[border]), np.max(b)
@@ -164,7 +168,7 @@ class BiDiffusion(Diffusion):
         self.scores_col_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
-            seeds_row: Union[dict, np.ndarray], seeds_col: Optional[Union[dict, np.ndarray]] = None,
+            seeds_row: Optional[Union[dict, np.ndarray]] = None, seeds_col: Optional[Union[dict, np.ndarray]] = None,
             initial_state: Optional = None) -> 'BiDiffusion':
         """
         Compute the diffusion (temperature at equilibrium).

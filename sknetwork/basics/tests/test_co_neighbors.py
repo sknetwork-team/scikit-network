@@ -7,7 +7,9 @@ Created on October 2019
 
 import unittest
 
-from sknetwork.basics import co_neighbors_graph
+import numpy as np
+
+from sknetwork.basics import co_neighbors_graph, CoNeighbors, transition_matrix
 from sknetwork.data import movie_actor
 
 
@@ -19,14 +21,26 @@ class TestCoNeighbors(unittest.TestCase):
 
     def test_exact(self):
         n = self.biadjacency.shape[0]
-        co_neighbors = co_neighbors_graph(self.biadjacency, method='exact')
-        self.assertEqual(co_neighbors.shape, (n, n))
-        co_neighbors = co_neighbors_graph(self.biadjacency, method='exact', normalize=False)
-        self.assertEqual(co_neighbors.shape, (n, n))
+        adjacency = co_neighbors_graph(self.biadjacency, method='exact', normalize=False)
+        self.assertEqual(adjacency.shape, (n, n))
+        adjacency = co_neighbors_graph(self.biadjacency, method='exact')
+        self.assertEqual(adjacency.shape, (n, n))
+
+        operator = CoNeighbors(self.biadjacency)
+        x = np.random.randn(n)
+        y1 = adjacency.dot(x)
+        y2 = operator.dot(x)
+        self.assertAlmostEqual(np.linalg.norm(y1 - y2), 0)
 
     def test_knn(self):
         n = self.biadjacency.shape[0]
-        co_neighbors = co_neighbors_graph(self.biadjacency, method='knn')
-        self.assertEqual(co_neighbors.shape, (n, n))
-        co_neighbors = co_neighbors_graph(self.biadjacency, method='knn', normalize=False)
-        self.assertEqual(co_neighbors.shape, (n, n))
+        adjacency = co_neighbors_graph(self.biadjacency, method='knn')
+        self.assertEqual(adjacency.shape, (n, n))
+        adjacency = co_neighbors_graph(self.biadjacency, method='knn', normalize=False)
+        self.assertEqual(adjacency.shape, (n, n))
+
+    def test_operator(self):
+        operator = CoNeighbors(self.biadjacency)
+        transition = transition_matrix(operator)
+        x = transition.dot(np.ones(transition.shape[1]))
+        self.assertAlmostEqual(np.linalg.norm(x - np.ones(operator.shape[0])), 0)
