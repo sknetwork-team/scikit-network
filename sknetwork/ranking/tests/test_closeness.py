@@ -10,7 +10,7 @@ from sknetwork.data.test_graphs import *
 
 class TestDiffusion(unittest.TestCase):
 
-    def test_undirected(self):
+    def test_parallel(self):
         adjacency = test_graph()
         n = adjacency.shape[0]
 

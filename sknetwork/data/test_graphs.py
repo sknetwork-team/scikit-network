@@ -10,27 +10,24 @@ Created on Nov 29, 2018
 import numpy as np
 from scipy import sparse
 
-
-def test_graph():
-    """Simple undirected graph, used for testing.
-    10 nodes, 10 edges.
-    """
-    row = np.array([0, 1, 3, 2, 6, 6, 6, 7, 8, 9])
-    col = np.array([1, 3, 2, 5, 4, 5, 7, 9, 9, 9])
-    data = np.array([1, 2.5, 1, 2, 2, 1, 2, 2, 1.5, 2])
-    adjacency = sparse.csr_matrix((data, (row, col)), shape=(10, 10))
-    return adjacency + adjacency.T
+from sknetwork.utils import directed2undirected
 
 
 def test_digraph():
     """Simple directed graph, used for testing.
     10 nodes, 10 edges
     """
-    row = np.array([0, 1, 3, 4, 6, 6, 6, 7, 8, 9])
-    col = np.array([1, 3, 2, 5, 4, 5, 7, 9, 9, 9])
-    data = np.array([1, 2.5, 1, 2, 2, 1, 2, 2, 1.5, 2])
-    adjacency = sparse.csr_matrix((data, (row, col)), shape=(10, 10))
-    return adjacency
+    row = np.array([0, 0, 1, 3, 4, 6, 6, 6, 7, 8, 9])
+    col = np.array([1, 4, 3, 2, 5, 4, 5, 7, 9, 9, 9])
+    data = np.array([1, 1, 2.5, 1, 2, 2, 1, 2, 2, 1.5, 2])
+    return sparse.csr_matrix((data, (row, col)), shape=(10, 10))
+
+
+def test_graph():
+    """Simple undirected graph, used for testing.
+    10 nodes, 10 edges.
+    """
+    return directed2undirected(test_digraph(), weight_sum=True)
 
 
 def test_bigraph():
@@ -40,8 +37,7 @@ def test_bigraph():
     row = np.array([0, 1, 1, 2, 2, 3, 4, 5, 5])
     col = np.array([1, 2, 3, 1, 0, 4, 7, 7, 6])
     data = np.array([1, 2.5, 1, 2, 2, 1.5, 1, 0, 3])
-    biadjacency = sparse.csr_matrix((data, (row, col)), shape=(6, 8))
-    return biadjacency
+    return sparse.csr_matrix((data, (row, col)), shape=(6, 8))
 
 
 def test_graph_disconnect():
@@ -62,5 +58,4 @@ def test_bigraph_disconnect():
     row = np.array([1, 1, 1, 2, 2, 3, 5, 4, 5])
     col = np.array([1, 2, 3, 1, 3, 4, 7, 7, 6])
     data = np.array([1, 2.5, 1, 2, 2, 1.5, 3, 0, 1])
-    biadjacency = sparse.csr_matrix((data, (row, col)), shape=(6, 8))
-    return biadjacency
+    return sparse.csr_matrix((data, (row, col)), shape=(6, 8))
