@@ -47,7 +47,7 @@ class TestCoNeighbors(unittest.TestCase):
         x = transition.dot(np.ones(transition.shape[1]))
         self.assertAlmostEqual(np.linalg.norm(x - np.ones(operator.shape[0])), 0)
 
-        operator = CoNeighbors(self.biadjacency, normalize=False)
+        operator = CoNeighbors(self.biadjacency, normalized=False)
         operator.astype(np.float)
         operator.right_sparse_dot(sparse.eye(operator.shape[1], format='csr'))
         x = np.random.randn(operator.shape[1])

@@ -10,7 +10,6 @@ from typing import Optional, Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.classification.base_rank import RankClassifier, RankBiClassifier
 from sknetwork.linalg.normalization import normalize
 from sknetwork.ranking import PageRank, CoPageRank
@@ -186,7 +185,7 @@ class CoPageRankClassifier(RankBiClassifier):
         self.labels_row_ = self.labels_
         self.membership_row_ = self.membership_
 
-        transition = transition_matrix(biadjacency.T)
+        transition = normalize(biadjacency.T).tocsr()
         self.membership_col_ = normalize(transition.dot(self.membership_row_))
         membership_col = self.membership_col_.toarray()
         self.labels_col_ = np.argmax(membership_col, axis=1)
