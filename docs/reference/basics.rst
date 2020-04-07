@@ -33,7 +33,7 @@ all-pairs problem):
 Random Walk
 -----------
 
-.. autofunction:: sknetwork.basics.transition_matrix
+.. autofunction:: sknetwork.basics.normalize
 
 
 Searches

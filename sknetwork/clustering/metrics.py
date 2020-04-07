@@ -11,10 +11,10 @@ from typing import Union, Tuple
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering.postprocess import membership_matrix
 from sknetwork.linalg import diag_pinv
 from sknetwork.utils.format import bipartite2directed
 from sknetwork.utils.check import check_format, check_probs, is_square
+from sknetwork.utils.membership import membership_matrix
 
 
 def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray,
