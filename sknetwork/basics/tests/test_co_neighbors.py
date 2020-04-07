@@ -10,8 +10,9 @@ import unittest
 import numpy as np
 from scipy import sparse
 
-from sknetwork.basics import co_neighbors_graph, CoNeighbors, transition_matrix
+from sknetwork.basics import co_neighbors_graph, CoNeighbors
 from sknetwork.data import movie_actor
+from sknetwork.linalg.normalization import normalize
 
 
 class TestCoNeighbors(unittest.TestCase):
@@ -22,7 +23,7 @@ class TestCoNeighbors(unittest.TestCase):
 
     def test_exact(self):
         n = self.biadjacency.shape[0]
-        adjacency = co_neighbors_graph(self.biadjacency, method='exact', normalize=False)
+        adjacency = co_neighbors_graph(self.biadjacency, method='exact', normalized=False)
         self.assertEqual(adjacency.shape, (n, n))
         adjacency = co_neighbors_graph(self.biadjacency, method='exact')
         self.assertEqual(adjacency.shape, (n, n))
@@ -37,12 +38,12 @@ class TestCoNeighbors(unittest.TestCase):
         n = self.biadjacency.shape[0]
         adjacency = co_neighbors_graph(self.biadjacency, method='knn')
         self.assertEqual(adjacency.shape, (n, n))
-        adjacency = co_neighbors_graph(self.biadjacency, method='knn', normalize=False)
+        adjacency = co_neighbors_graph(self.biadjacency, method='knn', normalized=False)
         self.assertEqual(adjacency.shape, (n, n))
 
     def test_operator(self):
         operator = CoNeighbors(self.biadjacency)
-        transition = transition_matrix(operator)
+        transition = normalize(operator)
         x = transition.dot(np.ones(transition.shape[1]))
         self.assertAlmostEqual(np.linalg.norm(x - np.ones(operator.shape[0])), 0)
 

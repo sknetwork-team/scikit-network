@@ -8,6 +8,7 @@ from typing import Union
 
 import numpy as np
 from scipy import sparse
+from scipy.sparse.linalg import LinearOperator
 
 
 def diag_pinv(weights: np.ndarray) -> sparse.csr_matrix:
@@ -30,7 +31,7 @@ def diag_pinv(weights: np.ndarray) -> sparse.csr_matrix:
     return diag
 
 
-def normalize(matrix: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
+def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator]) -> sparse.csr_matrix:
     """Normalize a matrix so that rows sum to 1 (or 0).
 
     Parameters
@@ -44,4 +45,6 @@ def normalize(matrix: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix
 
     """
     diag = diag_pinv(matrix.dot(np.ones(matrix.shape[1])))
+    if hasattr(matrix, 'left_sparse_dot'):
+        return matrix.left_sparse_dot(diag)
     return diag.dot(matrix)

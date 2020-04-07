@@ -11,13 +11,13 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 
-from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.embedding.spectral import BiSpectral
+from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_format
 from sknetwork.utils.knn import KNNDense
 
 
-def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normalize: bool = True, method='knn',
+def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normalized: bool = True, method='knn',
                        n_neighbors: int = 5, n_components: int = 8) -> sparse.csr_matrix:
     """Compute the co-neighborhood adjacency defined as
 
@@ -29,7 +29,7 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
     ----------
     adjacency:
         Adjacency of the input graph.
-    normalize:
+    normalized:
         If ``True``, F is the diagonal in-degree matrix :math:`F = \\text{diag}(A^T1)`.
         Otherwise, F is the identity matrix.
     method:
@@ -51,14 +51,14 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
     adjacency = check_format(adjacency)
 
     if method == 'exact':
-        if normalize:
-            forward = transition_matrix(adjacency.T)
+        if normalized:
+            forward = normalize(adjacency.T).tocsr()
         else:
             forward = adjacency.T
         return adjacency.dot(forward)
 
     elif method == 'knn':
-        bispectral = BiSpectral(n_components, normalized_laplacian=normalize)
+        bispectral = BiSpectral(n_components, normalized_laplacian=normalized)
         bispectral.fit(adjacency)
         knn = KNNDense(n_neighbors, undirected=True)
         knn.fit(bispectral.embedding_row_)
@@ -78,7 +78,7 @@ class CoNeighbors(LinearOperator):
     ----------
     adjacency:
         Adjacency of the input graph.
-    normalize:
+    normalized:
         If ``True``, F is the diagonal in-degree matrix :math:`F = \\text{diag}(A^T1)`.
         Otherwise, F is the identity matrix.
 
@@ -87,13 +87,13 @@ class CoNeighbors(LinearOperator):
     LinearOperator
         Adjacency of the co-neighborhood.
     """
-    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], normalize: bool = True):
+    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], normalized: bool = True):
         adjacency = check_format(adjacency)
         n = adjacency.shape[0]
         super(CoNeighbors, self).__init__(dtype=float, shape=(n, n))
 
-        if normalize:
-            self.forward = transition_matrix(adjacency.T)
+        if normalized:
+            self.forward = normalize(adjacency.T).tocsr()
         else:
             self.forward = adjacency.T
 

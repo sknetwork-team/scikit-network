@@ -14,11 +14,12 @@ from scipy import sparse
 
 from sknetwork import njit
 from sknetwork.clustering.base import BaseClustering
-from sknetwork.clustering.postprocess import membership_matrix, reindex_clusters
+from sknetwork.clustering.postprocess import reindex_clusters
 from sknetwork.linalg import normalize
 from sknetwork.utils.format import bipartite2directed, directed2undirected
 from sknetwork.utils.base import Algorithm
 from sknetwork.utils.check import check_format, check_engine, check_random_state, check_probs, is_square
+from sknetwork.utils.membership import membership_matrix
 from sknetwork.utils.verbose import VerboseMixin
 
 

@@ -133,7 +133,7 @@ class Spectral(BaseEmbedding):
         If ``True``, use the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
         with :math:`P = D^{-1}A`. Otherwise, use :math:`U`.
     normalize : bool (default = ``True``)
-        If ``True``, normalize the embedding so that each vector has norm 1 in the embedding space, i.e.,
+        If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
         Which eigenvalue solver to use.
@@ -385,7 +385,7 @@ class BiSpectral(Spectral):
         If ``True``, use the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
         with :math:`P = D^{-1}A`. Otherwise use :math:`U`.
     normalize : bool (default = ``True``)
-        If ``True``, normalize the embedding so that each vector has norm 1 in the embedding space, i.e.,
+        If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
         Which eigenvalue solver to use.

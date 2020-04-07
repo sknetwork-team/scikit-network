@@ -13,7 +13,7 @@ from scipy import sparse
 from scipy.sparse.linalg import eigs, LinearOperator, lsqr, bicgstab
 
 from sknetwork.basics import CoNeighbors
-from sknetwork.linalg import normalize
+from sknetwork.linalg.normalization import normalize
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.check import check_format, is_square

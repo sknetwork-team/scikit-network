@@ -30,11 +30,6 @@ all-pairs problem):
 |    Johnson     | :math:`O(n^2 \log n + nm)`   | negative-weight cycles only            |
 +----------------+------------------------------+----------------------------------------+
 
-Random Walk
------------
-
-.. autofunction:: sknetwork.basics.transition_matrix
-
 
 Searches
 --------

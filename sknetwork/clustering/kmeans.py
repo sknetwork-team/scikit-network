@@ -12,10 +12,11 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering.base import BaseClustering
-from sknetwork.clustering.postprocess import membership_matrix, reindex_clusters
+from sknetwork.clustering.postprocess import reindex_clusters
 from sknetwork.embedding import BaseEmbedding, GSVD
 from sknetwork.linalg import normalize
 from sknetwork.utils.kmeans import KMeansDense
+from sknetwork.utils.membership import membership_matrix
 
 
 class KMeans(BaseClustering):

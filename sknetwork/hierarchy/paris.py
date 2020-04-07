@@ -52,7 +52,7 @@ class AggregateGraph:
         self.next_cluster = n
         self.neighbors = {}
         for node in range(n):
-            # normalize so that the sum of edge weights is equal to 1
+            # normalized so that the sum of edge weights is equal to 1
             # remove self-loops
             self.neighbors[node] = {adjacency.indices[i]: adjacency.data[i] / total_weight for i in
                                     range(adjacency.indptr[node], adjacency.indptr[node + 1])
@@ -205,7 +205,7 @@ def fit_core(n: int, out_weights: np.ndarray, in_weights: np.ndarray, data: np.n
     neighbors = [[types.int32(-1)] for _ in range(n)]
     for node in range(n):
         node = types.int32(node)
-        # normalize so that the total weight is equal to 1
+        # normalized so that the total weight is equal to 1
         # remove self-loops
         for i in range(indptr[types.int32(node)], indptr[node + 1]):
             if i == indptr[types.int32(node)]:

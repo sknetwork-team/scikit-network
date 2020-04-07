@@ -11,7 +11,7 @@ from typing import Union, Tuple, Optional
 import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import bicgstab
-from sknetwork.basics.rand_walk import transition_matrix
+from sknetwork.linalg.normalization import normalize
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.check import check_format, check_seeds, is_square
 from sknetwork.utils.format import bipartite2undirected
@@ -111,7 +111,7 @@ class Diffusion(BaseRanking, VerboseMixin):
         tmin, tmax = np.min(b[border]), np.max(b)
 
         interior: sparse.csr_matrix = sparse.diags(~border, shape=(n, n), format='csr', dtype=float)
-        diffusion_matrix = interior.dot(transition_matrix(adjacency))
+        diffusion_matrix = interior.dot(normalize(adjacency))
 
         if initial_state is None:
             if tmin != tmax:

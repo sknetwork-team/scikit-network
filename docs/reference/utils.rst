@@ -44,3 +44,9 @@ Nearest-neighbors
     :members:
 
 
+Miscellaneous
+-------------
+
+.. autofunction:: sknetwork.utils.membership_matrix
+
+

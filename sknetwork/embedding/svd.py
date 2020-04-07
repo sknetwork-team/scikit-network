@@ -45,7 +45,7 @@ class GSVD(BaseEmbedding):
         * :math:`\\Sigma` is the diagonal matrix of singular values, shape (n_components, n_components)
 
     normalize : bool (default = ``True``)
-        If ``True``, normalize the embedding so that each vector has norm 1 in the embedding space, i.e.,
+        If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.
@@ -268,7 +268,7 @@ class SVD(GSVD):
         * :math:`\\Sigma` is the diagonal matrix of singular values, shape (n_components, n_components)
 
     normalize : bool (default = ``False``)
-        If ``True``, normalize the embedding so that each vector has norm 1 in the embedding space, i.e.,
+        If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.

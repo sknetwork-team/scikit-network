@@ -47,7 +47,6 @@ Metrics
 
 Post-processing
 ---------------
-.. autofunction:: sknetwork.clustering.postprocess.membership_matrix
 
 .. autofunction:: sknetwork.clustering.postprocess.reindex_clusters
 
