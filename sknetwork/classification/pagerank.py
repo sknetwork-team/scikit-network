@@ -26,7 +26,7 @@ class PageRankClassifier(RankClassifier):
     ----------
     damping_factor:
         Damping factor for personalized PageRank.
-    solver : str
+    solver : :obj:`str`
         Which solver to use: 'spsolve', 'lanczos' (default), 'lsqr' or 'halko'.
         Otherwise, the random walk is emulated for a certain number of iterations.
     n_iter : int
