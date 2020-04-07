@@ -11,17 +11,19 @@ import numpy as np
 from sknetwork.utils.check import check_seeds
 
 
-def stack_seeds(n_row: int, n_col: int, seeds_row: Union[np.ndarray, dict],
+def stack_seeds(n_row: int, n_col: int, seeds_row: Optional[Union[np.ndarray, dict]],
                 seeds_col: Optional[Union[np.ndarray, dict]] = None) -> np.ndarray:
     """Process seeds for rows and columns and stack the results into a single vector."""
-    seeds_row = check_seeds(seeds_row, n_row).astype(int)
-    if seeds_col is None:
-        seeds_col = -np.ones(n_col, dtype=int)
-    else:
-        seeds_col = check_seeds(seeds_col, n_col).astype(int)
-    seeds = np.hstack((seeds_row, seeds_col))
-
-    return seeds
+    if seeds_row is None and seeds_col is None:
+        seeds_row = np.ones(n_row)
+        seeds_col = -np.ones(n_col)
+    elif seeds_row is None:
+        seeds_row = -np.ones(n_row)
+    elif seeds_col is None:
+        seeds_col = -np.ones(n_col)
+    seeds_row = check_seeds(seeds_row, n_row)
+    seeds_col = check_seeds(seeds_col, n_col)
+    return np.hstack((seeds_row, seeds_col))
 
 
 def seeds2probs(n: int, seeds: Union[dict, np.ndarray] = None) -> np.ndarray:

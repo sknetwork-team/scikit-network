@@ -219,7 +219,7 @@ class BiKNN(KNN):
     def _instanciate_vars(self, biadjacency: Union[sparse.csr_matrix, np.ndarray], seeds_row: Union[np.ndarray, dict],
                           seeds_col: Optional[Union[np.ndarray, dict]] = None):
         n_row, n_col = biadjacency.shape
-        labels = stack_seeds(n_row, n_col, seeds_row, seeds_col)
+        labels = stack_seeds(n_row, n_col, seeds_row, seeds_col).astype(int)
         index_seed = np.argwhere(labels >= 0).ravel()
         index_remain = np.argwhere(labels < 0).ravel()
         labels_seed = labels[index_seed]

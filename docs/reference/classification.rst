@@ -35,3 +35,6 @@ Nearest neighbors
     :inherited-members:
     :members:
 
+.. autoclass:: sknetwork.classification.BiKNN
+    :inherited-members:
+    :members:

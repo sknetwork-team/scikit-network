@@ -10,12 +10,10 @@ from typing import Optional, Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.basics.rand_walk import transition_matrix
 from sknetwork.classification.base_rank import RankClassifier
-from sknetwork.clustering.postprocess import membership_matrix
-from sknetwork.ranking import BiPageRank, PageRank
-from sknetwork.linalg import normalize
-from sknetwork.utils.check import check_seeds
+from sknetwork.ranking import PageRank
+from sknetwork.utils.format import bipartite2undirected
+from sknetwork.utils.seeds import stack_seeds
 
 
 class PageRankClassifier(RankClassifier):
@@ -71,7 +69,7 @@ class PageRankClassifier(RankClassifier):
         self.membership_ = None
 
 
-class BiPageRankClassifier(RankClassifier):
+class BiPageRankClassifier(PageRankClassifier):
     """Node classification for bipartite graphs by multiple personalized PageRanks .
 
     * Bigraphs
@@ -114,8 +112,7 @@ class BiPageRankClassifier(RankClassifier):
 
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10,
                  n_jobs: Optional[int] = None, verbose: bool = False):
-        algorithm = BiPageRank(damping_factor, solver, n_iter)
-        super(BiPageRankClassifier, self).__init__(algorithm, n_jobs, verbose)
+        PageRankClassifier.__init__(self, damping_factor, solver, n_iter, n_jobs, verbose)
 
         self.labels_ = None
         self.labels_row_ = None
@@ -142,22 +139,15 @@ class BiPageRankClassifier(RankClassifier):
         self: :class:`BiPageRankClassifier`
         """
         n_row, n_col = biadjacency.shape
-        seeds = check_seeds(seeds_row, n_row)
-        if seeds_col is not None:
-            seeds_label_col = check_seeds(seeds_col, n_col)
-            membership_col = membership_matrix(seeds_label_col)
-            membership_row = transition_matrix(biadjacency).dot(membership_col)
-            labels = np.argmax(membership_row.toarray(), axis=1)
+        labels = stack_seeds(n_row, n_col, seeds_row, seeds_col)
+        adjacency = bipartite2undirected(biadjacency)
+        PageRankClassifier.fit(self, adjacency, labels)
 
-            ix = (seeds < 0) * (labels >= 0)
-            seeds[ix] = labels[ix]
-
-        RankClassifier.fit(self, biadjacency, seeds)
-        self.labels_row_ = self.labels_
-        self.membership_row_ = self.membership_
-
-        membership_col = normalize(biadjacency.T.dot(self.membership_row_)).toarray()
-        self.labels_col_ = np.argmax(membership_col, axis=1)
-        self.membership_col_ = sparse.csr_matrix(membership_col)
+        self.labels_row_ = self.labels_[:n_row]
+        self.labels_col_ = self.labels_[n_row:]
+        self.labels_ = self.labels_row_
+        self.membership_row_ = self.membership_[:n_row]
+        self.membership_col_ = self.membership_[n_row:]
+        self.membership_ = self.membership_row_
 
         return self
