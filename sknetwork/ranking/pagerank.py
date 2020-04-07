@@ -12,7 +12,8 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import eigs, LinearOperator, lsqr, bicgstab
 
-from sknetwork.basics import transition_matrix, CoNeighbors
+from sknetwork.basics import CoNeighbors
+from sknetwork.linalg import normalize
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.check import check_format, is_square
@@ -54,9 +55,9 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
         damping_matrix = damping_factor * sparse.eye(n, format='csr')
 
         if hasattr(adjacency, 'left_sparse_dot'):
-            self.a = transition_matrix(adjacency).left_sparse_dot(damping_matrix).T
+            self.a = normalize(adjacency).left_sparse_dot(damping_matrix).T
         else:
-            self.a = (damping_matrix.dot(transition_matrix(adjacency))).T.tocsr()
+            self.a = (damping_matrix.dot(normalize(adjacency))).T.tocsr()
         self.b = (np.ones(n) - damping_factor * out_degrees.astype(bool)) * restart_prob
 
     def _matvec(self, x):
