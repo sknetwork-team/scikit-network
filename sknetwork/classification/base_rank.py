@@ -88,7 +88,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         return scores
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'RankClassifier':
-        """
+        """Fit algorithm to the data.
 
         Parameters
         ----------

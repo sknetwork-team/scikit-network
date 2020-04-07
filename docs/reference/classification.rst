@@ -19,6 +19,10 @@ PageRank
     :inherited-members:
     :members:
 
+.. autoclass:: sknetwork.classification.CoPageRankClassifier
+    :inherited-members:
+    :members:
+
 Diffusion
 ---------
 .. autoclass:: sknetwork.classification.DiffusionClassifier

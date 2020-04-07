@@ -23,7 +23,7 @@ class BaseClassifier(Algorithm, ABC):
 
 
 class BaseBiClassifier(BaseClassifier, ABC):
-    """Base class for classifiers."""
+    """Base class for classifiers on bigraphs."""
 
     def __init__(self):
         super(BaseBiClassifier, self).__init__()

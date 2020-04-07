@@ -99,9 +99,11 @@ class DiffusionClassifier(RankClassifier):
 
     References
     ----------
-    Lin, F., & Cohen, W. W. (2010, August). `Semi-supervised classification of network data using very few labels.
-    <https://lti.cs.cmu.edu/sites/default/files/research/reports/2009/cmulti09017.pdf>`_
     In 2010 International Conference on Advances in Social Networks Analysis and Mining (pp. 192-199). IEEE.
+    Zhu, X., Lafferty, J., & Rosenfeld, R. (2005). `Semi-supervised learning with graphs
+    <http://pages.cs.wisc.edu/~jerryzhu/machineteaching/pub/thesis.pdf>`_
+    (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
+
 
     """
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):
@@ -145,13 +147,6 @@ class BiDiffusionClassifier(RankBiClassifier):
     >>> seeds = {0: 1, 2: 0}
     >>> bidiff.fit_transform(biadjacency, seeds)
     array([1, 1, 0, 0])
-
-    References
-    ----------
-    Lin, F., & Cohen, W. W. (2010, August). `Semi-supervised classification of network data using very few labels.
-    <https://lti.cs.cmu.edu/sites/default/files/research/reports/2009/cmulti09017.pdf>`_
-    In 2010 International Conference on Advances in Social Networks Analysis and Mining (pp. 192-199). IEEE.
-
     """
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = Diffusion(n_iter, verbose)

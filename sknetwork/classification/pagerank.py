@@ -114,7 +114,7 @@ class BiPageRankClassifier(RankBiClassifier):
 
 
 class CoPageRankClassifier(RankBiClassifier):
-    """Node classification for bipartite graphs by multiple personalized CoPageRanks .
+    """Node classification for bipartite graphs by multiple personalized :class:`CoPageRank`.
 
     * Graphs
     * Digraphs

@@ -15,7 +15,10 @@ PageRank
     :members:
 
 .. autoclass:: sknetwork.ranking.BiPageRank
-    :show-inheritance:
+    :inherited-members:
+    :members:
+
+.. autoclass:: sknetwork.ranking.CoPageRank
     :inherited-members:
     :members:
 
