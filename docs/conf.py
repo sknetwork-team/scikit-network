@@ -46,6 +46,15 @@ extensions = ['sphinx.ext.autodoc',
               ]
 
 
+numpydoc_class_members_toctree = False
+
+
+autodoc_default_options = {
+    'members': True,
+    'inherited-members': True
+}
+
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = []
 
