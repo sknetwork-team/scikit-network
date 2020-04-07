@@ -41,3 +41,5 @@ Miscellaneous
 -------------
 
 .. autofunction:: sknetwork.linalg.diag_pinv
+
+.. autofunction:: sknetwork.linalg.normalize
