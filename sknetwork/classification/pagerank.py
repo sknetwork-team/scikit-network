@@ -110,11 +110,12 @@ class BiPageRankClassifier(RankBiClassifier):
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10,
                  n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = PageRank(damping_factor, solver, n_iter)
-        super(BiPageRankClassifier, self).__init__(algorithm, n_jobs, verbose)
+        super(BiPageRankClassifier, self).__init__(algorithm=algorithm, n_jobs=n_jobs, verbose=verbose)
 
 
 class CoPageRankClassifier(RankBiClassifier):
     """Node classification for bipartite graphs by multiple personalized CoPageRanks .
+
     * Graphs
     * Digraphs
     * Bigraphs
