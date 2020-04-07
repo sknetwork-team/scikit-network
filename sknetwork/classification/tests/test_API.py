@@ -19,7 +19,8 @@ class TestClassificationAPI(unittest.TestCase):
         seeds_array[:2] = np.arange(2)
         seeds_dict = {0: 0, 1: 1}
 
-        classifiers = [PageRankClassifier(), DiffusionClassifier(), KNN(embedding_method=GSVD(3), n_neighbors=1)]
+        classifiers = [PageRankClassifier(), DiffusionClassifier(), KNN(embedding_method=GSVD(3), n_neighbors=1),
+                       CoPageRankClassifier()]
         for clf in classifiers:
             labels1 = clf.fit_transform(adjacency, seeds_array)
             labels2 = clf.fit_transform(adjacency, seeds_dict)
@@ -35,7 +36,8 @@ class TestClassificationAPI(unittest.TestCase):
         seeds_row_dict = {0: 0, 1: 1}
         seeds_col_dict = {0: 0}
 
-        classifiers = [BiPageRankClassifier(), BiDiffusionClassifier(), BiKNN(embedding_method=GSVD(3), n_neighbors=1)]
+        classifiers = [BiPageRankClassifier(), BiDiffusionClassifier(), BiKNN(embedding_method=GSVD(3), n_neighbors=1),
+                       CoPageRankClassifier()]
         for clf in classifiers:
             clf.fit(biadjacency, seeds_row_array)
             labels_row1, labels_col1 = clf.labels_row_, clf.labels_col_
