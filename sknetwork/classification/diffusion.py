@@ -5,16 +5,60 @@ Created on Mar, 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
-from typing import Optional, Union
+from typing import Optional
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.classification.base_rank import RankClassifier
+from sknetwork.classification.base_rank import RankClassifier, RankBiClassifier
 from sknetwork.ranking import Diffusion
 from sknetwork.utils.check import check_labels
-from sknetwork.utils.format import bipartite2undirected
-from sknetwork.utils.seeds import stack_seeds
+
+
+def process_seeds(labels_seeds, temperature_max: float = 1):
+    """Make one-vs-all seed labels from seeds.
+
+    Parameters
+    ----------
+    labels_seeds :
+
+    temperature_max
+    Returns
+    -------
+    personalizations: list
+        Personalization vectors.
+
+    """
+
+    personalizations = []
+    classes, _ = check_labels(labels_seeds)
+
+    for label in classes:
+        personalization = -np.ones(labels_seeds.shape[0])
+        personalization[labels_seeds == label] = temperature_max
+        ix = np.logical_and(labels_seeds != label, labels_seeds >= 0)
+        personalization[ix] = 0
+        personalizations.append(personalization)
+
+    return personalizations
+
+
+def process_scores(scores: np.ndarray) -> np.ndarray:
+    """Post-processing of the score matrix.
+
+    Parameters
+    ----------
+    scores
+        (n x k) matrix of scores.
+
+    Returns
+    -------
+    scores: np.ndarray
+
+    """
+    scores -= np.mean(scores, axis=0)
+    scores = np.exp(scores)
+    return scores
 
 
 class DiffusionClassifier(RankClassifier):
@@ -62,59 +106,12 @@ class DiffusionClassifier(RankClassifier):
     """
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = Diffusion(n_iter, verbose)
-        super(DiffusionClassifier, self).__init__(algorithm, n_jobs, verbose)
-
-        self.labels_ = None
-        self.membership_ = None
-
-    @staticmethod
-    def _process_seeds(labels_seeds, temperature_max: float = 5):
-        """Make one-vs-all seed labels from seeds.
-
-        Parameters
-        ----------
-        labels_seeds :
-
-        temperature_max
-        Returns
-        -------
-        personalizations: list
-            Personalization vectors.
-
-        """
-
-        personalizations = []
-        classes, _ = check_labels(labels_seeds)
-
-        for label in classes:
-            personalization = -np.ones(labels_seeds.shape[0])
-            personalization[labels_seeds == label] = temperature_max
-            ix = np.logical_and(labels_seeds != label, labels_seeds >= 0)
-            personalization[ix] = 0
-            personalizations.append(personalization)
-
-        return personalizations
-
-    @staticmethod
-    def _process_scores(scores: np.ndarray):
-        """Post-processing of the score matrix.
-
-        Parameters
-        ----------
-        scores
-            (n x k) matrix of scores.
-
-        Returns
-        -------
-        scores: np.ndarray
-
-        """
-        scores -= np.mean(scores, axis=0)
-        scores = np.exp(scores)
-        return scores
+        RankClassifier.__init__(self, algorithm, n_jobs, verbose)
+        self._process_seeds = process_seeds
+        self._process_scores = process_scores
 
 
-class BiDiffusionClassifier(DiffusionClassifier):
+class BiDiffusionClassifier(RankBiClassifier):
     """Node classification using multiple diffusions.
 
     * Bigraphs
@@ -157,28 +154,7 @@ class BiDiffusionClassifier(DiffusionClassifier):
 
     """
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):
-        DiffusionClassifier.__init__(self, n_iter, n_jobs, verbose)
-
-        self.labels_row_ = None
-        self.labels_col_ = None
-        self.membership_ = None
-        self.membership_row_ = None
-        self.membership_col_ = None
-
-    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray], seeds_row: Union[np.ndarray, dict],
-            seeds_col: Optional[Union[np.ndarray, dict]] = None) -> 'RankClassifier':
-        """Jointly classify rows and columns."""
-
-        n_row, n_col = biadjacency.shape
-        labels = stack_seeds(n_row, n_col, seeds_row, seeds_col)
-        adjacency = bipartite2undirected(biadjacency)
-        DiffusionClassifier.fit(self, adjacency, labels)
-
-        self.labels_row_ = self.labels_[:n_row]
-        self.labels_col_ = self.labels_[n_row:]
-        self.membership_row_ = self.membership_[:n_row]
-        self.membership_col_ = self.membership_[n_row:]
-        self.labels_ = self.labels_row_
-        self.membership_ = self.membership_row_
-
-        return self
+        algorithm = Diffusion(n_iter, verbose)
+        RankBiClassifier.__init__(self, algorithm, n_jobs, verbose)
+        self._process_seeds = process_seeds
+        self._process_scores = process_scores

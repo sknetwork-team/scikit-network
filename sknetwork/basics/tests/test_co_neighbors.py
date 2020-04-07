@@ -8,6 +8,7 @@ Created on October 2019
 import unittest
 
 import numpy as np
+from scipy import sparse
 
 from sknetwork.basics import co_neighbors_graph, CoNeighbors
 from sknetwork.data import movie_actor
@@ -45,3 +46,11 @@ class TestCoNeighbors(unittest.TestCase):
         transition = normalize(operator)
         x = transition.dot(np.ones(transition.shape[1]))
         self.assertAlmostEqual(np.linalg.norm(x - np.ones(operator.shape[0])), 0)
+
+        operator = CoNeighbors(self.biadjacency, normalize=False)
+        operator.astype(np.float)
+        operator.right_sparse_dot(sparse.eye(operator.shape[1], format='csr'))
+        x = np.random.randn(operator.shape[1])
+        x1 = -operator.dot(x)
+        x2 = (-1 * operator).dot(x)
+        self.assertAlmostEqual(np.linalg.norm(x1 - x2), 0)

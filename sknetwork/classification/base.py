@@ -20,3 +20,15 @@ class BaseClassifier(Algorithm, ABC):
         """Fit algorithm to the data and return the labels. Use the same inputs as the ``fit`` method."""
         self.fit(*args, **kwargs)
         return self.labels_
+
+
+class BaseBiClassifier(BaseClassifier, ABC):
+    """Base class for classifiers."""
+
+    def __init__(self):
+        super(BaseBiClassifier, self).__init__()
+
+        self.labels_row_ = None
+        self.labels_col_ = None
+        self.membership_row_ = None
+        self.membership_col_ = None
