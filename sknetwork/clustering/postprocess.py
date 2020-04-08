@@ -10,8 +10,7 @@ import numpy as np
 
 
 def reindex_clusters(labels: np.ndarray, assume_range: bool = True) -> np.ndarray:
-    """
-    Reindex clusters in decreasing order of size.
+    """Reindex clusters in decreasing order of size.
 
     Parameters
     ----------
@@ -23,7 +22,6 @@ def reindex_clusters(labels: np.ndarray, assume_range: bool = True) -> np.ndarra
     -------
     new_labels: np.ndarray
         new label of each node.
-
     """
     if not assume_range:
         _, labels = np.unique(labels, return_inverse=True)

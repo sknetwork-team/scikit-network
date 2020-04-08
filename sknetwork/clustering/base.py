@@ -10,7 +10,15 @@ from sknetwork.utils.base import Algorithm
 
 
 class BaseClustering(Algorithm, ABC):
-    """Base class for clustering algorithms."""
+    """Base class for clustering algorithms.
+
+    Attributes
+    ----------
+    labels_ : np.ndarray
+        Label of each node.
+    membership_ : sparse.csr_matrix
+        Membership matrix.
+    """
 
     def __init__(self):
         self.labels_ = None

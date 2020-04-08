@@ -23,8 +23,7 @@ from sknetwork.utils.verbose import VerboseMixin
 
 
 class Louvain(BaseClustering, VerboseMixin):
-    """
-    Louvain algorithm for clustering graphs in Python.
+    """Louvain algorithm for clustering graphs.
 
     * Graphs
     * Digraphs
@@ -100,12 +99,10 @@ class Louvain(BaseClustering, VerboseMixin):
         self.return_membership = return_membership
         self.return_adjacency = return_adjacency
 
-        self.membership_ = None
         self.adjacency_ = None
 
     def _optimize(self, n_nodes, adjacency_norm, probs_out, probs_in):
-        """
-        One local optimization pass of the Louvain algorithm
+        """One local optimization pass of the Louvain algorithm
 
         Parameters
         ----------
@@ -143,8 +140,7 @@ class Louvain(BaseClustering, VerboseMixin):
     def _aggregate(adjacency_norm, probs_out, probs_in,
                    membership_row: Union[sparse.csr_matrix, np.ndarray],
                    membership_col: Union[None, sparse.csr_matrix, np.ndarray] = None):
-        """
-        Aggregates nodes belonging to the same cluster.
+        """Aggregate nodes belonging to the same cluster.
 
         Parameters
         ----------
@@ -183,8 +179,7 @@ class Louvain(BaseClustering, VerboseMixin):
         return n_nodes, adjacency_norm, probs_out, probs_in
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Louvain':
-        """
-        Clustering using chosen Optimizer.
+        """Fit algorithm to the data.
 
         Parameters
         ----------
@@ -257,7 +252,7 @@ class Louvain(BaseClustering, VerboseMixin):
 
 
 class BiLouvain(Louvain):
-    """BiLouvain algorithm for the clustering of bipartite graphs in Python (default) and Numba.
+    """BiLouvain algorithm for the clustering of bipartite graphs.
 
     * Bigraphs
 
@@ -326,16 +321,14 @@ class BiLouvain(Louvain):
 
         self.return_biadjacency = return_biadjacency
 
-        self.labels_ = None
         self.labels_row_ = None
         self.labels_col_ = None
-        self.membership_ = None
         self.membership_row_ = None
         self.membership_col_ = None
         self.biadjacency_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiLouvain':
-        """Applies the Louvain algorithm to the corresponding directed graph, with adjacency matrix:
+        """Apply the Louvain algorithm to the corresponding directed graph, with adjacency matrix:
 
         :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}`
 

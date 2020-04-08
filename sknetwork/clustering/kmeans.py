@@ -82,7 +82,6 @@ class KMeans(BaseClustering):
         Returns
         -------
         self: :class:`KMeans`
-
         """
         if self.n_clusters > adjacency.shape[0]:
             raise ValueError('The number of clusters exceeds the number of nodes.')
@@ -183,7 +182,6 @@ class BiKMeans(KMeans):
         Returns
         -------
         self: :class:`BiKMeans`
-
         """
         n_row, n_col = biadjacency.shape
 
