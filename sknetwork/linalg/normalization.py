@@ -31,8 +31,8 @@ def diag_pinv(weights: np.ndarray) -> sparse.csr_matrix:
     return diag
 
 
-def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1) -> sparse.csr_matrix:
-    """Normalize a matrix so that rows sum to 1 (or 0).
+def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1):
+    """Normalize rows of a matrix. Null rows remain null.
 
     Parameters
     ----------

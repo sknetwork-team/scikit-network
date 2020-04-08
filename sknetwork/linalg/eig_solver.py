@@ -2,9 +2,7 @@
 # coding: utf-8
 """
 Created on July 9 2019
-
-Authors:
-Nathan De Lara <nathan.delara@telecom-paris.fr>
+@author: Nathan De Lara <ndelara@enst.fr>
 """
 from typing import Union
 
@@ -19,8 +17,7 @@ from sknetwork.utils.check import check_random_state
 
 
 class EigSolver(Algorithm):
-    """
-    A generic class for eigensolvers.
+    """Generic class for eigensolvers.
 
     Parameters
     ----------
@@ -63,8 +60,7 @@ class EigSolver(Algorithm):
 
 
 class LanczosEig(EigSolver):
-    """
-    An eigenvalue solver using Lanczos method.
+    """Eigenvalue solver using Lanczos method.
 
     Parameters
     ----------
@@ -118,8 +114,7 @@ class LanczosEig(EigSolver):
 
 
 class HalkoEig(EigSolver):
-    """
-    An eigenvalue solver using Halko's randomized method.
+    """Eigenvalue solver using Halko's randomized method.
 
     Parameters
     ----------
