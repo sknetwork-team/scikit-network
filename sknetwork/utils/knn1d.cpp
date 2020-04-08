@@ -5,12 +5,12 @@
     "distutils": {
         "depends": [],
         "language": "c++",
-        "name": "sknetwork.clustering.louvain_core",
+        "name": "sknetwork.utils.knn1d",
         "sources": [
-            "sknetwork/clustering/louvain_core.pyx"
+            "sknetwork/utils/knn1d.pyx"
         ]
     },
-    "module_name": "sknetwork.clustering.louvain_core"
+    "module_name": "sknetwork.utils.knn1d"
 }
 END: Cython Metadata */
 
@@ -620,8 +620,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__sknetwork__clustering__louvain_core
-#define __PYX_HAVE_API__sknetwork__clustering__louvain_core
+#define __PYX_HAVE__sknetwork__utils__knn1d
+#define __PYX_HAVE_API__sknetwork__utils__knn1d
 /* Early includes */
 #include <string.h>
 #include <stdio.h>
@@ -631,8 +631,6 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include "new"
 #include "stdexcept"
 #include "typeinfo"
-#include <utility>
-#include <set>
 #include <vector>
 #include "pythread.h"
 #include <stdlib.h>
@@ -867,7 +865,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "sknetwork\\clustering\\louvain_core.pyx",
+  "sknetwork\\utils\\knn1d.pyx",
   "__init__.pxd",
   "stringsource",
   "type.pxd",
@@ -1170,23 +1168,23 @@ typedef npy_double __pyx_t_5numpy_double_t;
  */
 typedef npy_longdouble __pyx_t_5numpy_longdouble_t;
 
-/* "sknetwork/clustering/louvain_core.pyx":10
+/* "sknetwork/utils/knn1d.pyx":14
  * cimport cython
  * 
  * ctypedef np.int_t int_type_t             # <<<<<<<<<<<<<<
  * ctypedef np.float_t float_type_t
  * 
  */
-typedef __pyx_t_5numpy_int_t __pyx_t_9sknetwork_10clustering_12louvain_core_int_type_t;
+typedef __pyx_t_5numpy_int_t __pyx_t_9sknetwork_5utils_5knn1d_int_type_t;
 
-/* "sknetwork/clustering/louvain_core.pyx":11
+/* "sknetwork/utils/knn1d.pyx":15
  * 
  * ctypedef np.int_t int_type_t
  * ctypedef np.float_t float_type_t             # <<<<<<<<<<<<<<
  * 
  * @cython.boundscheck(False)
  */
-typedef __pyx_t_5numpy_float_t __pyx_t_9sknetwork_10clustering_12louvain_core_float_type_t;
+typedef __pyx_t_5numpy_float_t __pyx_t_9sknetwork_5utils_5knn1d_float_type_t;
 /* Declarations.proto */
 #if CYTHON_CCOMPLEX
   #ifdef __cplusplus
@@ -1465,6 +1463,107 @@ static int __Pyx_ParseOptionalKeywords(PyObject *kwds, PyObject **argnames[],\
     PyObject *kwds2, PyObject *values[], Py_ssize_t num_pos_args,\
     const char* function_name);
 
+/* PyDictVersioning.proto */
+#if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_TYPE_SLOTS
+#define __PYX_DICT_VERSION_INIT  ((PY_UINT64_T) -1)
+#define __PYX_GET_DICT_VERSION(dict)  (((PyDictObject*)(dict))->ma_version_tag)
+#define __PYX_UPDATE_DICT_CACHE(dict, value, cache_var, version_var)\
+    (version_var) = __PYX_GET_DICT_VERSION(dict);\
+    (cache_var) = (value);
+#define __PYX_PY_DICT_LOOKUP_IF_MODIFIED(VAR, DICT, LOOKUP) {\
+    static PY_UINT64_T __pyx_dict_version = 0;\
+    static PyObject *__pyx_dict_cached_value = NULL;\
+    if (likely(__PYX_GET_DICT_VERSION(DICT) == __pyx_dict_version)) {\
+        (VAR) = __pyx_dict_cached_value;\
+    } else {\
+        (VAR) = __pyx_dict_cached_value = (LOOKUP);\
+        __pyx_dict_version = __PYX_GET_DICT_VERSION(DICT);\
+    }\
+}
+static CYTHON_INLINE PY_UINT64_T __Pyx_get_tp_dict_version(PyObject *obj);
+static CYTHON_INLINE PY_UINT64_T __Pyx_get_object_dict_version(PyObject *obj);
+static CYTHON_INLINE int __Pyx_object_dict_version_matches(PyObject* obj, PY_UINT64_T tp_dict_version, PY_UINT64_T obj_dict_version);
+#else
+#define __PYX_GET_DICT_VERSION(dict)  (0)
+#define __PYX_UPDATE_DICT_CACHE(dict, value, cache_var, version_var)
+#define __PYX_PY_DICT_LOOKUP_IF_MODIFIED(VAR, DICT, LOOKUP)  (VAR) = (LOOKUP);
+#endif
+
+/* GetModuleGlobalName.proto */
+#if CYTHON_USE_DICT_VERSIONS
+#define __Pyx_GetModuleGlobalName(var, name)  {\
+    static PY_UINT64_T __pyx_dict_version = 0;\
+    static PyObject *__pyx_dict_cached_value = NULL;\
+    (var) = (likely(__pyx_dict_version == __PYX_GET_DICT_VERSION(__pyx_d))) ?\
+        (likely(__pyx_dict_cached_value) ? __Pyx_NewRef(__pyx_dict_cached_value) : __Pyx_GetBuiltinName(name)) :\
+        __Pyx__GetModuleGlobalName(name, &__pyx_dict_version, &__pyx_dict_cached_value);\
+}
+#define __Pyx_GetModuleGlobalNameUncached(var, name)  {\
+    PY_UINT64_T __pyx_dict_version;\
+    PyObject *__pyx_dict_cached_value;\
+    (var) = __Pyx__GetModuleGlobalName(name, &__pyx_dict_version, &__pyx_dict_cached_value);\
+}
+static PyObject *__Pyx__GetModuleGlobalName(PyObject *name, PY_UINT64_T *dict_version, PyObject **dict_cached_value);
+#else
+#define __Pyx_GetModuleGlobalName(var, name)  (var) = __Pyx__GetModuleGlobalName(name)
+#define __Pyx_GetModuleGlobalNameUncached(var, name)  (var) = __Pyx__GetModuleGlobalName(name)
+static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name);
+#endif
+
+/* PyCFunctionFastCall.proto */
+#if CYTHON_FAST_PYCCALL
+static CYTHON_INLINE PyObject *__Pyx_PyCFunction_FastCall(PyObject *func, PyObject **args, Py_ssize_t nargs);
+#else
+#define __Pyx_PyCFunction_FastCall(func, args, nargs)  (assert(0), NULL)
+#endif
+
+/* PyFunctionFastCall.proto */
+#if CYTHON_FAST_PYCALL
+#define __Pyx_PyFunction_FastCall(func, args, nargs)\
+    __Pyx_PyFunction_FastCallDict((func), (args), (nargs), NULL)
+#if 1 || PY_VERSION_HEX < 0x030600B1
+static PyObject *__Pyx_PyFunction_FastCallDict(PyObject *func, PyObject **args, Py_ssize_t nargs, PyObject *kwargs);
+#else
+#define __Pyx_PyFunction_FastCallDict(func, args, nargs, kwargs) _PyFunction_FastCallDict(func, args, nargs, kwargs)
+#endif
+#define __Pyx_BUILD_ASSERT_EXPR(cond)\
+    (sizeof(char [1 - 2*!(cond)]) - 1)
+#ifndef Py_MEMBER_SIZE
+#define Py_MEMBER_SIZE(type, member) sizeof(((type *)0)->member)
+#endif
+  static size_t __pyx_pyframe_localsplus_offset = 0;
+  #include "frameobject.h"
+  #define __Pxy_PyFrame_Initialize_Offsets()\
+    ((void)__Pyx_BUILD_ASSERT_EXPR(sizeof(PyFrameObject) == offsetof(PyFrameObject, f_localsplus) + Py_MEMBER_SIZE(PyFrameObject, f_localsplus)),\
+     (void)(__pyx_pyframe_localsplus_offset = ((size_t)PyFrame_Type.tp_basicsize) - Py_MEMBER_SIZE(PyFrameObject, f_localsplus)))
+  #define __Pyx_PyFrame_GetLocalsplus(frame)\
+    (assert(__pyx_pyframe_localsplus_offset), (PyObject **)(((char *)(frame)) + __pyx_pyframe_localsplus_offset))
+#endif
+
+/* PyObjectCall.proto */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw);
+#else
+#define __Pyx_PyObject_Call(func, arg, kw) PyObject_Call(func, arg, kw)
+#endif
+
+/* PyObjectCall2Args.proto */
+static CYTHON_UNUSED PyObject* __Pyx_PyObject_Call2Args(PyObject* function, PyObject* arg1, PyObject* arg2);
+
+/* PyObjectCallMethO.proto */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg);
+#endif
+
+/* PyObjectCallOneArg.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg);
+
+/* SliceObject.proto */
+static CYTHON_INLINE PyObject* __Pyx_PyObject_GetSlice(
+        PyObject* obj, Py_ssize_t cstart, Py_ssize_t cstop,
+        PyObject** py_start, PyObject** py_stop, PyObject** py_slice,
+        int has_cstart, int has_cstop, int wraparound);
+
 /* MemviewSliceInit.proto */
 #define __Pyx_BUF_MAX_NDIMS %(BUF_MAX_NDIMS)d
 #define __Pyx_MEMVIEW_DIRECT   1
@@ -1490,13 +1589,6 @@ static CYTHON_INLINE int __pyx_sub_acquisition_count_locked(
 #define __PYX_XDEC_MEMVIEW(slice, have_gil) __Pyx_XDEC_MEMVIEW(slice, have_gil, __LINE__)
 static CYTHON_INLINE void __Pyx_INC_MEMVIEW(__Pyx_memviewslice *, int, int);
 static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *, int, int);
-
-/* PyObjectCall.proto */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw);
-#else
-#define __Pyx_PyObject_Call(func, arg, kw) PyObject_Call(func, arg, kw)
-#endif
 
 /* PyThreadStateGet.proto */
 #if CYTHON_FAST_THREAD_STATE
@@ -1536,44 +1628,6 @@ static CYTHON_INLINE void __Pyx_ErrFetchInState(PyThreadState *tstate, PyObject 
 
 /* RaiseException.proto */
 static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject *cause);
-
-/* PyCFunctionFastCall.proto */
-#if CYTHON_FAST_PYCCALL
-static CYTHON_INLINE PyObject *__Pyx_PyCFunction_FastCall(PyObject *func, PyObject **args, Py_ssize_t nargs);
-#else
-#define __Pyx_PyCFunction_FastCall(func, args, nargs)  (assert(0), NULL)
-#endif
-
-/* PyFunctionFastCall.proto */
-#if CYTHON_FAST_PYCALL
-#define __Pyx_PyFunction_FastCall(func, args, nargs)\
-    __Pyx_PyFunction_FastCallDict((func), (args), (nargs), NULL)
-#if 1 || PY_VERSION_HEX < 0x030600B1
-static PyObject *__Pyx_PyFunction_FastCallDict(PyObject *func, PyObject **args, Py_ssize_t nargs, PyObject *kwargs);
-#else
-#define __Pyx_PyFunction_FastCallDict(func, args, nargs, kwargs) _PyFunction_FastCallDict(func, args, nargs, kwargs)
-#endif
-#define __Pyx_BUILD_ASSERT_EXPR(cond)\
-    (sizeof(char [1 - 2*!(cond)]) - 1)
-#ifndef Py_MEMBER_SIZE
-#define Py_MEMBER_SIZE(type, member) sizeof(((type *)0)->member)
-#endif
-  static size_t __pyx_pyframe_localsplus_offset = 0;
-  #include "frameobject.h"
-  #define __Pxy_PyFrame_Initialize_Offsets()\
-    ((void)__Pyx_BUILD_ASSERT_EXPR(sizeof(PyFrameObject) == offsetof(PyFrameObject, f_localsplus) + Py_MEMBER_SIZE(PyFrameObject, f_localsplus)),\
-     (void)(__pyx_pyframe_localsplus_offset = ((size_t)PyFrame_Type.tp_basicsize) - Py_MEMBER_SIZE(PyFrameObject, f_localsplus)))
-  #define __Pyx_PyFrame_GetLocalsplus(frame)\
-    (assert(__pyx_pyframe_localsplus_offset), (PyObject **)(((char *)(frame)) + __pyx_pyframe_localsplus_offset))
-#endif
-
-/* PyObjectCallMethO.proto */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg);
-#endif
-
-/* PyObjectCallOneArg.proto */
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg);
 
 /* DictGetItem.proto */
 #if PY_MAJOR_VERSION >= 3 && !CYTHON_COMPILING_IN_PYPY
@@ -1652,9 +1706,6 @@ static CYTHON_INLINE int __Pyx_ListComp_Append(PyObject* list, PyObject* x) {
     ((likely((Py_TYPE(obj) == type) | (none_allowed && (obj == Py_None)))) ? 1 :\
         __Pyx__ArgTypeTest(obj, type, name, exact))
 static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *name, int exact);
-
-/* PyObjectCall2Args.proto */
-static CYTHON_UNUSED PyObject* __Pyx_PyObject_Call2Args(PyObject* function, PyObject* arg1, PyObject* arg2);
 
 /* IncludeStringH.proto */
 #include <string.h>
@@ -1735,53 +1786,6 @@ static CYTHON_INLINE PyObject* __Pyx_decode_c_string(
 
 /* GetAttr3.proto */
 static CYTHON_INLINE PyObject *__Pyx_GetAttr3(PyObject *, PyObject *, PyObject *);
-
-/* PyDictVersioning.proto */
-#if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_TYPE_SLOTS
-#define __PYX_DICT_VERSION_INIT  ((PY_UINT64_T) -1)
-#define __PYX_GET_DICT_VERSION(dict)  (((PyDictObject*)(dict))->ma_version_tag)
-#define __PYX_UPDATE_DICT_CACHE(dict, value, cache_var, version_var)\
-    (version_var) = __PYX_GET_DICT_VERSION(dict);\
-    (cache_var) = (value);
-#define __PYX_PY_DICT_LOOKUP_IF_MODIFIED(VAR, DICT, LOOKUP) {\
-    static PY_UINT64_T __pyx_dict_version = 0;\
-    static PyObject *__pyx_dict_cached_value = NULL;\
-    if (likely(__PYX_GET_DICT_VERSION(DICT) == __pyx_dict_version)) {\
-        (VAR) = __pyx_dict_cached_value;\
-    } else {\
-        (VAR) = __pyx_dict_cached_value = (LOOKUP);\
-        __pyx_dict_version = __PYX_GET_DICT_VERSION(DICT);\
-    }\
-}
-static CYTHON_INLINE PY_UINT64_T __Pyx_get_tp_dict_version(PyObject *obj);
-static CYTHON_INLINE PY_UINT64_T __Pyx_get_object_dict_version(PyObject *obj);
-static CYTHON_INLINE int __Pyx_object_dict_version_matches(PyObject* obj, PY_UINT64_T tp_dict_version, PY_UINT64_T obj_dict_version);
-#else
-#define __PYX_GET_DICT_VERSION(dict)  (0)
-#define __PYX_UPDATE_DICT_CACHE(dict, value, cache_var, version_var)
-#define __PYX_PY_DICT_LOOKUP_IF_MODIFIED(VAR, DICT, LOOKUP)  (VAR) = (LOOKUP);
-#endif
-
-/* GetModuleGlobalName.proto */
-#if CYTHON_USE_DICT_VERSIONS
-#define __Pyx_GetModuleGlobalName(var, name)  {\
-    static PY_UINT64_T __pyx_dict_version = 0;\
-    static PyObject *__pyx_dict_cached_value = NULL;\
-    (var) = (likely(__pyx_dict_version == __PYX_GET_DICT_VERSION(__pyx_d))) ?\
-        (likely(__pyx_dict_cached_value) ? __Pyx_NewRef(__pyx_dict_cached_value) : __Pyx_GetBuiltinName(name)) :\
-        __Pyx__GetModuleGlobalName(name, &__pyx_dict_version, &__pyx_dict_cached_value);\
-}
-#define __Pyx_GetModuleGlobalNameUncached(var, name)  {\
-    PY_UINT64_T __pyx_dict_version;\
-    PyObject *__pyx_dict_cached_value;\
-    (var) = __Pyx__GetModuleGlobalName(name, &__pyx_dict_version, &__pyx_dict_cached_value);\
-}
-static PyObject *__Pyx__GetModuleGlobalName(PyObject *name, PY_UINT64_T *dict_version, PyObject **dict_cached_value);
-#else
-#define __Pyx_GetModuleGlobalName(var, name)  (var) = __Pyx__GetModuleGlobalName(name)
-#define __Pyx_GetModuleGlobalNameUncached(var, name)  (var) = __Pyx__GetModuleGlobalName(name)
-static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name);
-#endif
 
 /* SwapException.proto */
 #if CYTHON_FAST_THREAD_STATE
@@ -1975,11 +1979,12 @@ static int __Pyx_ValidateAndInit_memviewslice(
 /* ObjectToMemviewSlice.proto */
 static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(PyObject *, int writable_flag);
 
-/* ObjectToMemviewSlice.proto */
-static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_int(PyObject *, int writable_flag);
+/* MemviewDtypeToObject.proto */
+static CYTHON_INLINE PyObject *__pyx_memview_get_nn___pyx_t_5numpy_float_t(const char *itemp);
+static CYTHON_INLINE int __pyx_memview_set_nn___pyx_t_5numpy_float_t(const char *itemp, PyObject *obj);
 
 /* CIntToPy.proto */
-static CYTHON_INLINE PyObject* __Pyx_PyInt_From_npy_long(npy_long value);
+static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value);
 
 /* CppExceptionConversion.proto */
 #ifndef __Pyx_CppExn2PyErr
@@ -2022,9 +2027,6 @@ static void __Pyx_CppExn2PyErr() {
   }
 }
 #endif
-
-/* CIntToPy.proto */
-static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value);
 
 /* RealImag.proto */
 #if CYTHON_CCOMPLEX
@@ -2135,9 +2137,6 @@ __pyx_memoryview_copy_new_contig(const __Pyx_memviewslice *from_mvs,
                                  int dtype_is_object);
 
 /* CIntFromPy.proto */
-static CYTHON_INLINE npy_long __Pyx_PyInt_As_npy_long(PyObject *);
-
-/* CIntFromPy.proto */
 static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *);
 
 /* CIntFromPy.proto */
@@ -2198,17 +2197,13 @@ static PyTypeObject *__pyx_ptype_5numpy_ndarray = 0;
 static PyTypeObject *__pyx_ptype_5numpy_ufunc = 0;
 static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *, char *, char *, int *); /*proto*/
 
-/* Module declarations from 'libcpp.utility' */
-
-/* Module declarations from 'libcpp.set' */
-
 /* Module declarations from 'libcpp.vector' */
 
 /* Module declarations from 'cython.view' */
 
 /* Module declarations from 'cython' */
 
-/* Module declarations from 'sknetwork.clustering.louvain_core' */
+/* Module declarations from 'sknetwork.utils.knn1d' */
 static PyTypeObject *__pyx_array_type = 0;
 static PyTypeObject *__pyx_MemviewEnum_type = 0;
 static PyTypeObject *__pyx_memoryview_type = 0;
@@ -2220,8 +2215,9 @@ static PyObject *contiguous = 0;
 static PyObject *indirect_contiguous = 0;
 static int __pyx_memoryview_thread_locks_used;
 static PyThread_type_lock __pyx_memoryview_thread_locks[8];
-static std::set<int>  __pyx_convert_set_from_py_int(PyObject *); /*proto*/
+static std::vector<int>  __pyx_convert_vector_from_py_int(PyObject *); /*proto*/
 static PyObject *__pyx_convert_vector_to_py_int(const std::vector<int>  &); /*proto*/
+static PyObject *__pyx_convert_vector_to_py_float(const std::vector<float>  &); /*proto*/
 static struct __pyx_array_obj *__pyx_array_new(PyObject *, Py_ssize_t, char *, char *, char *); /*proto*/
 static void *__pyx_align_pointer(void *, size_t); /*proto*/
 static PyObject *__pyx_memoryview_new(PyObject *, int, int, __Pyx_TypeInfo *); /*proto*/
@@ -2256,12 +2252,11 @@ static void __pyx_memoryview_slice_assign_scalar(__Pyx_memviewslice *, int, size
 static void __pyx_memoryview__slice_assign_scalar(char *, Py_ssize_t *, Py_ssize_t *, int, size_t, void *); /*proto*/
 static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, PyObject *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_nn___pyx_t_5numpy_float_t = { "float_t", NULL, sizeof(__pyx_t_5numpy_float_t), { 0 }, 0, 'R', 0, 0 };
-static __Pyx_TypeInfo __Pyx_TypeInfo_int = { "int", NULL, sizeof(int), { 0 }, 0, IS_UNSIGNED(int) ? 'U' : 'I', IS_UNSIGNED(int), 0 };
-#define __Pyx_MODULE_NAME "sknetwork.clustering.louvain_core"
-extern int __pyx_module_is_main_sknetwork__clustering__louvain_core;
-int __pyx_module_is_main_sknetwork__clustering__louvain_core = 0;
+#define __Pyx_MODULE_NAME "sknetwork.utils.knn1d"
+extern int __pyx_module_is_main_sknetwork__utils__knn1d;
+int __pyx_module_is_main_sknetwork__utils__knn1d = 0;
 
-/* Implementation of 'sknetwork.clustering.louvain_core' */
+/* Implementation of 'sknetwork.utils.knn1d' */
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_RuntimeError;
@@ -2275,19 +2270,26 @@ static PyObject *__pyx_builtin_IndexError;
 static const char __pyx_k_O[] = "O";
 static const char __pyx_k_c[] = "c";
 static const char __pyx_k_i[] = "i";
+static const char __pyx_k_j[] = "j";
+static const char __pyx_k_n[] = "n";
+static const char __pyx_k_x[] = "x";
 static const char __pyx_k_id[] = "id";
+static const char __pyx_k_ix[] = "ix";
 static const char __pyx_k_np[] = "np";
+static const char __pyx_k_col[] = "col";
+static const char __pyx_k_hgh[] = "hgh";
+static const char __pyx_k_low[] = "low";
 static const char __pyx_k_new[] = "__new__";
 static const char __pyx_k_obj[] = "obj";
-static const char __pyx_k_tol[] = "tol";
+static const char __pyx_k_row[] = "row";
+static const char __pyx_k_tmp[] = "tmp";
+static const char __pyx_k_val[] = "val";
 static const char __pyx_k_base[] = "base";
-static const char __pyx_k_data[] = "data";
 static const char __pyx_k_dict[] = "__dict__";
 static const char __pyx_k_main[] = "__main__";
 static const char __pyx_k_mode[] = "mode";
 static const char __pyx_k_name[] = "name";
 static const char __pyx_k_ndim[] = "ndim";
-static const char __pyx_k_node[] = "node";
 static const char __pyx_k_pack[] = "pack";
 static const char __pyx_k_size[] = "size";
 static const char __pyx_k_step[] = "step";
@@ -2295,96 +2297,75 @@ static const char __pyx_k_stop[] = "stop";
 static const char __pyx_k_test[] = "__test__";
 static const char __pyx_k_ASCII[] = "ASCII";
 static const char __pyx_k_class[] = "__class__";
-static const char __pyx_k_delta[] = "delta";
 static const char __pyx_k_error[] = "error";
 static const char __pyx_k_flags[] = "flags";
-static const char __pyx_k_label[] = "label";
+static const char __pyx_k_knn1d[] = "knn1d";
+static const char __pyx_k_neigh[] = "neigh";
 static const char __pyx_k_numpy[] = "numpy";
 static const char __pyx_k_range[] = "range";
 static const char __pyx_k_shape[] = "shape";
 static const char __pyx_k_start[] = "start";
+static const char __pyx_k_deltas[] = "deltas";
 static const char __pyx_k_encode[] = "encode";
 static const char __pyx_k_format[] = "format";
 static const char __pyx_k_import[] = "__import__";
-static const char __pyx_k_indptr[] = "indptr";
-static const char __pyx_k_labels[] = "labels";
 static const char __pyx_k_name_2[] = "__name__";
 static const char __pyx_k_pickle[] = "pickle";
 static const char __pyx_k_reduce[] = "__reduce__";
 static const char __pyx_k_struct[] = "struct";
 static const char __pyx_k_unpack[] = "unpack";
 static const char __pyx_k_update[] = "update";
-static const char __pyx_k_cluster[] = "cluster";
+static const char __pyx_k_argsort[] = "argsort";
 static const char __pyx_k_fortran[] = "fortran";
-static const char __pyx_k_indices[] = "indices";
 static const char __pyx_k_memview[] = "memview";
-static const char __pyx_k_n_nodes[] = "n_nodes";
-static const char __pyx_k_weights[] = "weights";
 static const char __pyx_k_Ellipsis[] = "Ellipsis";
-static const char __pyx_k_fit_core[] = "fit_core";
 static const char __pyx_k_getstate[] = "__getstate__";
-static const char __pyx_k_increase[] = "increase";
 static const char __pyx_k_itemsize[] = "itemsize";
-static const char __pyx_k_neighbor[] = "neighbor";
 static const char __pyx_k_pyx_type[] = "__pyx_type";
-static const char __pyx_k_ratio_in[] = "ratio_in";
-static const char __pyx_k_ratio_ou[] = "ratio_ou";
 static const char __pyx_k_setstate[] = "__setstate__";
 static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_enumerate[] = "enumerate";
-static const char __pyx_k_neighbors[] = "neighbors";
 static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
+static const char __pyx_k_sorted_ix[] = "sorted_ix";
 static const char __pyx_k_IndexError[] = "IndexError";
 static const char __pyx_k_ValueError[] = "ValueError";
-static const char __pyx_k_delta_best[] = "delta_best";
-static const char __pyx_k_delta_exit[] = "delta_exit";
+static const char __pyx_k_candidates[] = "candidates";
 static const char __pyx_k_pyx_result[] = "__pyx_result";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
-static const char __pyx_k_resolution[] = "resolution";
-static const char __pyx_k_self_loops[] = "self_loops";
 static const char __pyx_k_ImportError[] = "ImportError";
 static const char __pyx_k_MemoryError[] = "MemoryError";
 static const char __pyx_k_PickleError[] = "PickleError";
-static const char __pyx_k_delta_local[] = "delta_local";
 static const char __pyx_k_n_neighbors[] = "n_neighbors";
 static const char __pyx_k_RuntimeError[] = "RuntimeError";
-static const char __pyx_k_cluster_best[] = "cluster_best";
-static const char __pyx_k_cluster_node[] = "cluster_node";
-static const char __pyx_k_node_prob_in[] = "node_prob_in";
-static const char __pyx_k_node_prob_ou[] = "node_prob_ou";
 static const char __pyx_k_pyx_checksum[] = "__pyx_checksum";
 static const char __pyx_k_stringsource[] = "stringsource";
-static const char __pyx_k_in_node_probs[] = "in_node_probs";
-static const char __pyx_k_increase_pass[] = "increase_pass";
-static const char __pyx_k_ou_node_probs[] = "ou_node_probs";
 static const char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
-static const char __pyx_k_has_candidates[] = "has_candidates";
-static const char __pyx_k_increase_total[] = "increase_total";
+static const char __pyx_k_sorted_deltas[] = "sorted_deltas";
 static const char __pyx_k_View_MemoryView[] = "View.MemoryView";
 static const char __pyx_k_allocate_buffer[] = "allocate_buffer";
 static const char __pyx_k_dtype_is_object[] = "dtype_is_object";
 static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
-static const char __pyx_k_unique_clusters[] = "unique_clusters";
 static const char __pyx_k_pyx_unpickle_Enum[] = "__pyx_unpickle_Enum";
+static const char __pyx_k_sorted_candidates[] = "sorted_candidates";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
-static const char __pyx_k_in_clusters_weights[] = "in_clusters_weights";
-static const char __pyx_k_ou_clusters_weights[] = "ou_clusters_weights";
 static const char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
 static const char __pyx_k_contiguous_and_direct[] = "<contiguous and direct>";
+static const char __pyx_k_sknetwork_utils_knn1d[] = "sknetwork.utils.knn1d";
 static const char __pyx_k_MemoryView_of_r_object[] = "<MemoryView of %r object>";
 static const char __pyx_k_MemoryView_of_r_at_0x_x[] = "<MemoryView of %r at 0x%x>";
 static const char __pyx_k_contiguous_and_indirect[] = "<contiguous and indirect>";
 static const char __pyx_k_Cannot_index_with_type_s[] = "Cannot index with type '%s'";
 static const char __pyx_k_Invalid_shape_in_axis_d_d[] = "Invalid shape in axis %d: %d.";
-static const char __pyx_k_neighbor_clusters_weights[] = "neighbor_clusters_weights";
+static const char __pyx_k_sknetwork_utils_knn1d_pyx[] = "sknetwork\\utils\\knn1d.pyx";
 static const char __pyx_k_itemsize_0_for_cython_array[] = "itemsize <= 0 for cython.array";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
 static const char __pyx_k_unable_to_allocate_array_data[] = "unable to allocate array data.";
 static const char __pyx_k_strided_and_direct_or_indirect[] = "<strided and direct or indirect>";
+static const char __pyx_k_One_dimensional_nearest_neighbo[] = " One dimensional nearest neighbor search.\nCreated on Mar, 2020\n@author: Nathan de Lara <ndelara@enst.fr>\n";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
 static const char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
 static const char __pyx_k_Buffer_view_does_not_expose_stri[] = "Buffer view does not expose strides";
@@ -2403,10 +2384,8 @@ static const char __pyx_k_got_differing_extents_in_dimensi[] = "got differing ex
 static const char __pyx_k_ndarray_is_not_Fortran_contiguou[] = "ndarray is not Fortran contiguous";
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
 static const char __pyx_k_numpy_core_umath_failed_to_impor[] = "numpy.core.umath failed to import";
-static const char __pyx_k_sknetwork_clustering_louvain_cor[] = "sknetwork\\clustering\\louvain_core.pyx";
 static const char __pyx_k_unable_to_allocate_shape_and_str[] = "unable to allocate shape and strides.";
 static const char __pyx_k_Format_string_allocated_too_shor_2[] = "Format string allocated too short.";
-static const char __pyx_k_sknetwork_clustering_louvain_cor_2[] = "sknetwork.clustering.louvain_core";
 static PyObject *__pyx_n_s_ASCII;
 static PyObject *__pyx_kp_s_Buffer_view_does_not_expose_stri;
 static PyObject *__pyx_kp_s_Can_only_create_a_buffer_that_is;
@@ -2436,73 +2415,56 @@ static PyObject *__pyx_kp_s_Unable_to_convert_item_to_object;
 static PyObject *__pyx_n_s_ValueError;
 static PyObject *__pyx_n_s_View_MemoryView;
 static PyObject *__pyx_n_s_allocate_buffer;
+static PyObject *__pyx_n_s_argsort;
 static PyObject *__pyx_n_s_base;
 static PyObject *__pyx_n_s_c;
 static PyObject *__pyx_n_u_c;
+static PyObject *__pyx_n_s_candidates;
 static PyObject *__pyx_n_s_class;
 static PyObject *__pyx_n_s_cline_in_traceback;
-static PyObject *__pyx_n_s_cluster;
-static PyObject *__pyx_n_s_cluster_best;
-static PyObject *__pyx_n_s_cluster_node;
+static PyObject *__pyx_n_s_col;
 static PyObject *__pyx_kp_s_contiguous_and_direct;
 static PyObject *__pyx_kp_s_contiguous_and_indirect;
-static PyObject *__pyx_n_s_data;
-static PyObject *__pyx_n_s_delta;
-static PyObject *__pyx_n_s_delta_best;
-static PyObject *__pyx_n_s_delta_exit;
-static PyObject *__pyx_n_s_delta_local;
+static PyObject *__pyx_n_s_deltas;
 static PyObject *__pyx_n_s_dict;
 static PyObject *__pyx_n_s_dtype_is_object;
 static PyObject *__pyx_n_s_encode;
 static PyObject *__pyx_n_s_enumerate;
 static PyObject *__pyx_n_s_error;
-static PyObject *__pyx_n_s_fit_core;
 static PyObject *__pyx_n_s_flags;
 static PyObject *__pyx_n_s_format;
 static PyObject *__pyx_n_s_fortran;
 static PyObject *__pyx_n_u_fortran;
 static PyObject *__pyx_n_s_getstate;
 static PyObject *__pyx_kp_s_got_differing_extents_in_dimensi;
-static PyObject *__pyx_n_s_has_candidates;
+static PyObject *__pyx_n_s_hgh;
 static PyObject *__pyx_n_s_i;
 static PyObject *__pyx_n_s_id;
 static PyObject *__pyx_n_s_import;
-static PyObject *__pyx_n_s_in_clusters_weights;
-static PyObject *__pyx_n_s_in_node_probs;
-static PyObject *__pyx_n_s_increase;
-static PyObject *__pyx_n_s_increase_pass;
-static PyObject *__pyx_n_s_increase_total;
-static PyObject *__pyx_n_s_indices;
-static PyObject *__pyx_n_s_indptr;
 static PyObject *__pyx_n_s_itemsize;
 static PyObject *__pyx_kp_s_itemsize_0_for_cython_array;
-static PyObject *__pyx_n_s_label;
-static PyObject *__pyx_n_s_labels;
+static PyObject *__pyx_n_s_ix;
+static PyObject *__pyx_n_s_j;
+static PyObject *__pyx_n_s_knn1d;
+static PyObject *__pyx_n_s_low;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_memview;
 static PyObject *__pyx_n_s_mode;
+static PyObject *__pyx_n_s_n;
 static PyObject *__pyx_n_s_n_neighbors;
-static PyObject *__pyx_n_s_n_nodes;
 static PyObject *__pyx_n_s_name;
 static PyObject *__pyx_n_s_name_2;
 static PyObject *__pyx_kp_u_ndarray_is_not_C_contiguous;
 static PyObject *__pyx_kp_u_ndarray_is_not_Fortran_contiguou;
 static PyObject *__pyx_n_s_ndim;
-static PyObject *__pyx_n_s_neighbor;
-static PyObject *__pyx_n_s_neighbor_clusters_weights;
-static PyObject *__pyx_n_s_neighbors;
+static PyObject *__pyx_n_s_neigh;
 static PyObject *__pyx_n_s_new;
 static PyObject *__pyx_kp_s_no_default___reduce___due_to_non;
-static PyObject *__pyx_n_s_node;
-static PyObject *__pyx_n_s_node_prob_in;
-static PyObject *__pyx_n_s_node_prob_ou;
 static PyObject *__pyx_n_s_np;
 static PyObject *__pyx_n_s_numpy;
 static PyObject *__pyx_kp_u_numpy_core_multiarray_failed_to;
 static PyObject *__pyx_kp_u_numpy_core_umath_failed_to_impor;
 static PyObject *__pyx_n_s_obj;
-static PyObject *__pyx_n_s_ou_clusters_weights;
-static PyObject *__pyx_n_s_ou_node_probs;
 static PyObject *__pyx_n_s_pack;
 static PyObject *__pyx_n_s_pickle;
 static PyObject *__pyx_n_s_pyx_PickleError;
@@ -2514,19 +2476,19 @@ static PyObject *__pyx_n_s_pyx_type;
 static PyObject *__pyx_n_s_pyx_unpickle_Enum;
 static PyObject *__pyx_n_s_pyx_vtable;
 static PyObject *__pyx_n_s_range;
-static PyObject *__pyx_n_s_ratio_in;
-static PyObject *__pyx_n_s_ratio_ou;
 static PyObject *__pyx_n_s_reduce;
 static PyObject *__pyx_n_s_reduce_cython;
 static PyObject *__pyx_n_s_reduce_ex;
-static PyObject *__pyx_n_s_resolution;
-static PyObject *__pyx_n_s_self_loops;
+static PyObject *__pyx_n_s_row;
 static PyObject *__pyx_n_s_setstate;
 static PyObject *__pyx_n_s_setstate_cython;
 static PyObject *__pyx_n_s_shape;
 static PyObject *__pyx_n_s_size;
-static PyObject *__pyx_kp_s_sknetwork_clustering_louvain_cor;
-static PyObject *__pyx_n_s_sknetwork_clustering_louvain_cor_2;
+static PyObject *__pyx_n_s_sknetwork_utils_knn1d;
+static PyObject *__pyx_kp_s_sknetwork_utils_knn1d_pyx;
+static PyObject *__pyx_n_s_sorted_candidates;
+static PyObject *__pyx_n_s_sorted_deltas;
+static PyObject *__pyx_n_s_sorted_ix;
 static PyObject *__pyx_n_s_start;
 static PyObject *__pyx_n_s_step;
 static PyObject *__pyx_n_s_stop;
@@ -2536,15 +2498,15 @@ static PyObject *__pyx_kp_s_strided_and_indirect;
 static PyObject *__pyx_kp_s_stringsource;
 static PyObject *__pyx_n_s_struct;
 static PyObject *__pyx_n_s_test;
-static PyObject *__pyx_n_s_tol;
+static PyObject *__pyx_n_s_tmp;
 static PyObject *__pyx_kp_s_unable_to_allocate_array_data;
 static PyObject *__pyx_kp_s_unable_to_allocate_shape_and_str;
-static PyObject *__pyx_n_s_unique_clusters;
 static PyObject *__pyx_kp_u_unknown_dtype_code_in_numpy_pxd;
 static PyObject *__pyx_n_s_unpack;
 static PyObject *__pyx_n_s_update;
-static PyObject *__pyx_n_s_weights;
-static PyObject *__pyx_pf_9sknetwork_10clustering_12louvain_core_fit_core(CYTHON_UNUSED PyObject *__pyx_self, __pyx_t_9sknetwork_10clustering_12louvain_core_float_type_t __pyx_v_resolution, __pyx_t_9sknetwork_10clustering_12louvain_core_float_type_t __pyx_v_tol, __pyx_t_9sknetwork_10clustering_12louvain_core_int_type_t __pyx_v_n_nodes, __Pyx_memviewslice __pyx_v_ou_node_probs, __Pyx_memviewslice __pyx_v_in_node_probs, __Pyx_memviewslice __pyx_v_self_loops, __Pyx_memviewslice __pyx_v_data, __Pyx_memviewslice __pyx_v_indices, __Pyx_memviewslice __pyx_v_indptr); /* proto */
+static PyObject *__pyx_n_s_val;
+static PyObject *__pyx_n_s_x;
+static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_x, int __pyx_v_n_neighbors); /* proto */
 static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_self, Py_buffer *__pyx_v_info); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
@@ -2633,52 +2595,31 @@ static PyObject *__pyx_codeobj__27;
 static PyObject *__pyx_codeobj__34;
 /* Late includes */
 
-/* "sknetwork/clustering/louvain_core.pyx":15
+/* "sknetwork/utils/knn1d.pyx":19
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
- * def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.float_t[:] ou_node_probs,             # <<<<<<<<<<<<<<
- *              np.float_t[:] in_node_probs, np.float_t[:] self_loops, np.float_t[:] data, int[:] indices,
- *              int[:] indptr):  # pragma: no cover
+ * def knn1d(np.float_t[:] x, int n_neighbors):             # <<<<<<<<<<<<<<
+ *     """K nearest neighbors search for 1-dimensional arrays.
+ * 
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_9sknetwork_10clustering_12louvain_core_1fit_core(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9sknetwork_10clustering_12louvain_core_fit_core[] = "\n    Fit the clusters to the objective function.\n\n    Parameters\n    ----------\n    resolution :\n        Resolution parameter (positive).\n    tol :\n        Minimum increase in modularity to enter a new optimization pass.\n    n_nodes :\n        Number of nodes.\n    ou_node_probs :\n        Distribution of node weights based on their out-edges (sums to 1).\n    in_node_probs :\n        Distribution of node weights based on their in-edges (sums to 1).\n    self_loops :\n        Weights of self loops.\n    data :\n        CSR format data array of the normalized adjacency matrix.\n    indices :\n        CSR format index array of the normalized adjacency matrix.\n    indptr :\n        CSR format index pointer array of the normalized adjacency matrix.\n\n    Returns\n    -------\n    labels :\n        Cluster index of each node.\n    total_increase :\n        Score of the clustering (total increase in modularity).\n    ";
-static PyMethodDef __pyx_mdef_9sknetwork_10clustering_12louvain_core_1fit_core = {"fit_core", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9sknetwork_10clustering_12louvain_core_1fit_core, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9sknetwork_10clustering_12louvain_core_fit_core};
-static PyObject *__pyx_pw_9sknetwork_10clustering_12louvain_core_1fit_core(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
-  __pyx_t_9sknetwork_10clustering_12louvain_core_float_type_t __pyx_v_resolution;
-  __pyx_t_9sknetwork_10clustering_12louvain_core_float_type_t __pyx_v_tol;
-  __pyx_t_9sknetwork_10clustering_12louvain_core_int_type_t __pyx_v_n_nodes;
-  __Pyx_memviewslice __pyx_v_ou_node_probs = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_in_node_probs = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_self_loops = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_data = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_indices = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_v_indptr = { 0, 0, { 0 }, { 0 }, { 0 } };
+static PyObject *__pyx_pw_9sknetwork_5utils_5knn1d_1knn1d(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_9sknetwork_5utils_5knn1d_knn1d[] = "K nearest neighbors search for 1-dimensional arrays.\n\n    Parameters\n    ----------\n    x: np.ndarray\n        1-d data\n    n_neighbors: int\n        Number of neighbors to return.\n    Returns\n    -------\n    list\n        List of nearest neighbors tuples (i, j).\n\n    ";
+static PyMethodDef __pyx_mdef_9sknetwork_5utils_5knn1d_1knn1d = {"knn1d", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9sknetwork_5utils_5knn1d_1knn1d, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9sknetwork_5utils_5knn1d_knn1d};
+static PyObject *__pyx_pw_9sknetwork_5utils_5knn1d_1knn1d(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  __Pyx_memviewslice __pyx_v_x = { 0, 0, { 0 }, { 0 }, { 0 } };
+  int __pyx_v_n_neighbors;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("fit_core (wrapper)", 0);
+  __Pyx_RefNannySetupContext("knn1d (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_resolution,&__pyx_n_s_tol,&__pyx_n_s_n_nodes,&__pyx_n_s_ou_node_probs,&__pyx_n_s_in_node_probs,&__pyx_n_s_self_loops,&__pyx_n_s_data,&__pyx_n_s_indices,&__pyx_n_s_indptr,0};
-    PyObject* values[9] = {0,0,0,0,0,0,0,0,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_x,&__pyx_n_s_n_neighbors,0};
+    PyObject* values[2] = {0,0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
-        case  9: values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
-        CYTHON_FALLTHROUGH;
-        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
-        CYTHON_FALLTHROUGH;
-        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-        CYTHON_FALLTHROUGH;
-        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-        CYTHON_FALLTHROUGH;
-        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-        CYTHON_FALLTHROUGH;
-        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-        CYTHON_FALLTHROUGH;
-        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-        CYTHON_FALLTHROUGH;
         case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
         CYTHON_FALLTHROUGH;
         case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
@@ -2689,859 +2630,471 @@ static PyObject *__pyx_pw_9sknetwork_10clustering_12louvain_core_1fit_core(PyObj
       kw_args = PyDict_Size(__pyx_kwds);
       switch (pos_args) {
         case  0:
-        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_resolution)) != 0)) kw_args--;
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_x)) != 0)) kw_args--;
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
-        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_tol)) != 0)) kw_args--;
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_n_neighbors)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("fit_core", 1, 9, 9, 1); __PYX_ERR(0, 15, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  2:
-        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_n_nodes)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("fit_core", 1, 9, 9, 2); __PYX_ERR(0, 15, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  3:
-        if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_ou_node_probs)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("fit_core", 1, 9, 9, 3); __PYX_ERR(0, 15, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  4:
-        if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_in_node_probs)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("fit_core", 1, 9, 9, 4); __PYX_ERR(0, 15, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  5:
-        if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_self_loops)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("fit_core", 1, 9, 9, 5); __PYX_ERR(0, 15, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  6:
-        if (likely((values[6] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_data)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("fit_core", 1, 9, 9, 6); __PYX_ERR(0, 15, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  7:
-        if (likely((values[7] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_indices)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("fit_core", 1, 9, 9, 7); __PYX_ERR(0, 15, __pyx_L3_error)
-        }
-        CYTHON_FALLTHROUGH;
-        case  8:
-        if (likely((values[8] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_indptr)) != 0)) kw_args--;
-        else {
-          __Pyx_RaiseArgtupleInvalid("fit_core", 1, 9, 9, 8); __PYX_ERR(0, 15, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("knn1d", 1, 2, 2, 1); __PYX_ERR(0, 19, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "fit_core") < 0)) __PYX_ERR(0, 15, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "knn1d") < 0)) __PYX_ERR(0, 19, __pyx_L3_error)
       }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 9) {
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
-      values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
-      values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
-      values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
-      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
-      values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
-      values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
-      values[8] = PyTuple_GET_ITEM(__pyx_args, 8);
     }
-    __pyx_v_resolution = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_resolution == ((npy_double)-1)) && PyErr_Occurred())) __PYX_ERR(0, 15, __pyx_L3_error)
-    __pyx_v_tol = __pyx_PyFloat_AsDouble(values[1]); if (unlikely((__pyx_v_tol == ((npy_double)-1)) && PyErr_Occurred())) __PYX_ERR(0, 15, __pyx_L3_error)
-    __pyx_v_n_nodes = __Pyx_PyInt_As_npy_long(values[2]); if (unlikely((__pyx_v_n_nodes == ((npy_long)-1)) && PyErr_Occurred())) __PYX_ERR(0, 15, __pyx_L3_error)
-    __pyx_v_ou_node_probs = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_ou_node_probs.memview)) __PYX_ERR(0, 15, __pyx_L3_error)
-    __pyx_v_in_node_probs = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_in_node_probs.memview)) __PYX_ERR(0, 16, __pyx_L3_error)
-    __pyx_v_self_loops = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(values[5], PyBUF_WRITABLE); if (unlikely(!__pyx_v_self_loops.memview)) __PYX_ERR(0, 16, __pyx_L3_error)
-    __pyx_v_data = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(values[6], PyBUF_WRITABLE); if (unlikely(!__pyx_v_data.memview)) __PYX_ERR(0, 16, __pyx_L3_error)
-    __pyx_v_indices = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[7], PyBUF_WRITABLE); if (unlikely(!__pyx_v_indices.memview)) __PYX_ERR(0, 16, __pyx_L3_error)
-    __pyx_v_indptr = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[8], PyBUF_WRITABLE); if (unlikely(!__pyx_v_indptr.memview)) __PYX_ERR(0, 17, __pyx_L3_error)
+    __pyx_v_x = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_x.memview)) __PYX_ERR(0, 19, __pyx_L3_error)
+    __pyx_v_n_neighbors = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_n_neighbors == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("fit_core", 1, 9, 9, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 15, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("knn1d", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 19, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("sknetwork.clustering.louvain_core.fit_core", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("sknetwork.utils.knn1d.knn1d", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_9sknetwork_10clustering_12louvain_core_fit_core(__pyx_self, __pyx_v_resolution, __pyx_v_tol, __pyx_v_n_nodes, __pyx_v_ou_node_probs, __pyx_v_in_node_probs, __pyx_v_self_loops, __pyx_v_data, __pyx_v_indices, __pyx_v_indptr);
+  __pyx_r = __pyx_pf_9sknetwork_5utils_5knn1d_knn1d(__pyx_self, __pyx_v_x, __pyx_v_n_neighbors);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_9sknetwork_10clustering_12louvain_core_fit_core(CYTHON_UNUSED PyObject *__pyx_self, __pyx_t_9sknetwork_10clustering_12louvain_core_float_type_t __pyx_v_resolution, __pyx_t_9sknetwork_10clustering_12louvain_core_float_type_t __pyx_v_tol, __pyx_t_9sknetwork_10clustering_12louvain_core_int_type_t __pyx_v_n_nodes, __Pyx_memviewslice __pyx_v_ou_node_probs, __Pyx_memviewslice __pyx_v_in_node_probs, __Pyx_memviewslice __pyx_v_self_loops, __Pyx_memviewslice __pyx_v_data, __Pyx_memviewslice __pyx_v_indices, __Pyx_memviewslice __pyx_v_indptr) {
-  int __pyx_v_increase;
-  CYTHON_UNUSED int __pyx_v_has_candidates;
-  std::vector<int>  __pyx_v_labels;
-  std::vector<float>  __pyx_v_neighbor_clusters_weights;
-  std::vector<float>  __pyx_v_ou_clusters_weights;
-  std::vector<float>  __pyx_v_in_clusters_weights;
-  std::vector<int>  __pyx_v_neighbors;
-  std::vector<float>  __pyx_v_weights;
-  std::set<int>  __pyx_v_unique_clusters;
-  float __pyx_v_increase_pass;
-  float __pyx_v_increase_total;
-  float __pyx_v_delta;
-  float __pyx_v_delta_best;
-  float __pyx_v_delta_exit;
-  float __pyx_v_delta_local;
-  float __pyx_v_node_prob_in;
-  float __pyx_v_node_prob_ou;
-  float __pyx_v_ratio_in;
-  float __pyx_v_ratio_ou;
-  int __pyx_v_cluster;
-  int __pyx_v_cluster_best;
-  int __pyx_v_cluster_node;
+static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_x, int __pyx_v_n_neighbors) {
+  int __pyx_v_n;
   int __pyx_v_i;
-  int __pyx_v_label;
-  int __pyx_v_n_neighbors;
-  int __pyx_v_neighbor;
-  int __pyx_v_node;
-  int __pyx_v_start;
+  int __pyx_v_j;
+  int __pyx_v_ix;
+  int __pyx_v_low;
+  int __pyx_v_hgh;
+  int __pyx_v_neigh;
+  int __pyx_v_val;
+  std::vector<int>  __pyx_v_sorted_ix;
+  std::vector<int>  __pyx_v_row;
+  std::vector<int>  __pyx_v_col;
+  std::vector<int>  __pyx_v_candidates;
+  std::vector<int>  __pyx_v_sorted_candidates;
+  std::vector<int>  __pyx_v_sorted_deltas;
+  std::vector<int>  __pyx_v_tmp;
+  std::vector<float>  __pyx_v_deltas;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
-  std::set<int>  __pyx_t_1;
-  __pyx_t_9sknetwork_10clustering_12louvain_core_int_type_t __pyx_t_2;
-  __pyx_t_9sknetwork_10clustering_12louvain_core_int_type_t __pyx_t_3;
-  int __pyx_t_4;
-  Py_ssize_t __pyx_t_5;
-  Py_ssize_t __pyx_t_6;
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  std::vector<int>  __pyx_t_5;
+  int __pyx_t_6;
   int __pyx_t_7;
-  Py_ssize_t __pyx_t_8;
-  Py_ssize_t __pyx_t_9;
-  int __pyx_t_10;
-  int __pyx_t_11;
-  int __pyx_t_12;
+  int __pyx_t_8;
+  int __pyx_t_9;
+  long __pyx_t_10;
+  long __pyx_t_11;
+  long __pyx_t_12;
   Py_ssize_t __pyx_t_13;
   Py_ssize_t __pyx_t_14;
-  int __pyx_t_15;
+  Py_ssize_t __pyx_t_15;
   Py_ssize_t __pyx_t_16;
-  Py_ssize_t __pyx_t_17;
-  Py_ssize_t __pyx_t_18;
-  std::set<int> ::iterator __pyx_t_19;
-  PyObject *__pyx_t_20 = NULL;
-  PyObject *__pyx_t_21 = NULL;
-  PyObject *__pyx_t_22 = NULL;
-  __Pyx_RefNannySetupContext("fit_core", 0);
+  int __pyx_t_17;
+  __Pyx_RefNannySetupContext("knn1d", 0);
 
-  /* "sknetwork/clustering/louvain_core.pyx":49
- *         Score of the clustering (total increase in modularity).
- *     """
- *     cdef int increase = 1             # <<<<<<<<<<<<<<
- *     cdef int has_candidates = 0
+  /* "sknetwork/utils/knn1d.pyx":53
+ *     cdef vector[float] deltas
  * 
+ *     n = x.shape[0]             # <<<<<<<<<<<<<<
+ *     tmp = np.argsort(x)
+ *     for i in range(n):
  */
-  __pyx_v_increase = 1;
+  __pyx_v_n = (__pyx_v_x.shape[0]);
 
-  /* "sknetwork/clustering/louvain_core.pyx":50
- *     """
- *     cdef int increase = 1
- *     cdef int has_candidates = 0             # <<<<<<<<<<<<<<
+  /* "sknetwork/utils/knn1d.pyx":54
  * 
- *     cdef vector[int] labels
+ *     n = x.shape[0]
+ *     tmp = np.argsort(x)             # <<<<<<<<<<<<<<
+ *     for i in range(n):
+ *         sorted_ix.push_back(tmp[i])
  */
-  __pyx_v_has_candidates = 0;
-
-  /* "sknetwork/clustering/louvain_core.pyx":58
- *     cdef vector[int] neighbors
- *     cdef vector[float] weights
- *     cdef set[int] unique_clusters = ()             # <<<<<<<<<<<<<<
- * 
- *     cdef float increase_pass
- */
-  __pyx_t_1 = __pyx_convert_set_from_py_int(__pyx_empty_tuple); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 58, __pyx_L1_error)
-  __pyx_v_unique_clusters = __pyx_t_1;
-
-  /* "sknetwork/clustering/louvain_core.pyx":61
- * 
- *     cdef float increase_pass
- *     cdef float increase_total = 0             # <<<<<<<<<<<<<<
- *     cdef float delta
- *     cdef float delta_best
- */
-  __pyx_v_increase_total = 0.0;
-
-  /* "sknetwork/clustering/louvain_core.pyx":81
- *     cdef int start
- * 
- *     for i in range(n_nodes):             # <<<<<<<<<<<<<<
- *         labels.push_back(i)
- *         neighbor_clusters_weights.push_back(0.)
- */
-  __pyx_t_2 = __pyx_v_n_nodes;
-  __pyx_t_3 = __pyx_t_2;
-  for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
-    __pyx_v_i = __pyx_t_4;
-
-    /* "sknetwork/clustering/louvain_core.pyx":82
- * 
- *     for i in range(n_nodes):
- *         labels.push_back(i)             # <<<<<<<<<<<<<<
- *         neighbor_clusters_weights.push_back(0.)
- *         ou_clusters_weights.push_back(ou_node_probs[i])
- */
-    try {
-      __pyx_v_labels.push_back(__pyx_v_i);
-    } catch(...) {
-      __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 82, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_argsort); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_x, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_5numpy_float_t, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_5numpy_float_t, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_4 = NULL;
+  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
+    __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_3);
+    if (likely(__pyx_t_4)) {
+      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+      __Pyx_INCREF(__pyx_t_4);
+      __Pyx_INCREF(function);
+      __Pyx_DECREF_SET(__pyx_t_3, function);
     }
+  }
+  __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_5 = __pyx_convert_vector_from_py_int(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 54, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_tmp = __pyx_t_5;
 
-    /* "sknetwork/clustering/louvain_core.pyx":83
- *     for i in range(n_nodes):
- *         labels.push_back(i)
- *         neighbor_clusters_weights.push_back(0.)             # <<<<<<<<<<<<<<
- *         ou_clusters_weights.push_back(ou_node_probs[i])
- *         in_clusters_weights.push_back(in_node_probs[i])
- */
-    try {
-      __pyx_v_neighbor_clusters_weights.push_back(0.);
-    } catch(...) {
-      __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 83, __pyx_L1_error)
-    }
-
-    /* "sknetwork/clustering/louvain_core.pyx":84
- *         labels.push_back(i)
- *         neighbor_clusters_weights.push_back(0.)
- *         ou_clusters_weights.push_back(ou_node_probs[i])             # <<<<<<<<<<<<<<
- *         in_clusters_weights.push_back(in_node_probs[i])
+  /* "sknetwork/utils/knn1d.pyx":55
+ *     n = x.shape[0]
+ *     tmp = np.argsort(x)
+ *     for i in range(n):             # <<<<<<<<<<<<<<
+ *         sorted_ix.push_back(tmp[i])
  * 
  */
-    __pyx_t_5 = __pyx_v_i;
-    try {
-      __pyx_v_ou_clusters_weights.push_back((*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_ou_node_probs.data + __pyx_t_5 * __pyx_v_ou_node_probs.strides[0]) ))));
-    } catch(...) {
-      __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 84, __pyx_L1_error)
-    }
+  __pyx_t_6 = __pyx_v_n;
+  __pyx_t_7 = __pyx_t_6;
+  for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
+    __pyx_v_i = __pyx_t_8;
 
-    /* "sknetwork/clustering/louvain_core.pyx":85
- *         neighbor_clusters_weights.push_back(0.)
- *         ou_clusters_weights.push_back(ou_node_probs[i])
- *         in_clusters_weights.push_back(in_node_probs[i])             # <<<<<<<<<<<<<<
+    /* "sknetwork/utils/knn1d.pyx":56
+ *     tmp = np.argsort(x)
+ *     for i in range(n):
+ *         sorted_ix.push_back(tmp[i])             # <<<<<<<<<<<<<<
  * 
- *     while increase == 1:
+ *     for i in range(n):
  */
-    __pyx_t_6 = __pyx_v_i;
     try {
-      __pyx_v_in_clusters_weights.push_back((*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_in_node_probs.data + __pyx_t_6 * __pyx_v_in_node_probs.strides[0]) ))));
+      __pyx_v_sorted_ix.push_back((__pyx_v_tmp[__pyx_v_i]));
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 85, __pyx_L1_error)
+      __PYX_ERR(0, 56, __pyx_L1_error)
     }
   }
 
-  /* "sknetwork/clustering/louvain_core.pyx":87
- *         in_clusters_weights.push_back(in_node_probs[i])
+  /* "sknetwork/utils/knn1d.pyx":58
+ *         sorted_ix.push_back(tmp[i])
  * 
- *     while increase == 1:             # <<<<<<<<<<<<<<
- *         increase = 0
- *         increase_pass = 0
+ *     for i in range(n):             # <<<<<<<<<<<<<<
+ *         deltas.clear()
+ *         sorted_candidates.clear()
  */
-  while (1) {
-    __pyx_t_7 = ((__pyx_v_increase == 1) != 0);
-    if (!__pyx_t_7) break;
+  __pyx_t_6 = __pyx_v_n;
+  __pyx_t_7 = __pyx_t_6;
+  for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
+    __pyx_v_i = __pyx_t_8;
 
-    /* "sknetwork/clustering/louvain_core.pyx":88
+    /* "sknetwork/utils/knn1d.pyx":59
  * 
- *     while increase == 1:
- *         increase = 0             # <<<<<<<<<<<<<<
- *         increase_pass = 0
+ *     for i in range(n):
+ *         deltas.clear()             # <<<<<<<<<<<<<<
+ *         sorted_candidates.clear()
  * 
  */
-    __pyx_v_increase = 0;
+    __pyx_v_deltas.clear();
 
-    /* "sknetwork/clustering/louvain_core.pyx":89
- *     while increase == 1:
- *         increase = 0
- *         increase_pass = 0             # <<<<<<<<<<<<<<
+    /* "sknetwork/utils/knn1d.pyx":60
+ *     for i in range(n):
+ *         deltas.clear()
+ *         sorted_candidates.clear()             # <<<<<<<<<<<<<<
  * 
- *         for node in range(n_nodes):
+ *         ix = sorted_ix[i]
  */
-    __pyx_v_increase_pass = 0.0;
+    __pyx_v_sorted_candidates.clear();
 
-    /* "sknetwork/clustering/louvain_core.pyx":91
- *         increase_pass = 0
+    /* "sknetwork/utils/knn1d.pyx":62
+ *         sorted_candidates.clear()
  * 
- *         for node in range(n_nodes):             # <<<<<<<<<<<<<<
- *             has_candidates = 0
- *             cluster_node = labels[node]
+ *         ix = sorted_ix[i]             # <<<<<<<<<<<<<<
+ *         low = max(0, i - n_neighbors)
+ *         hgh = min(n - 1, i + n_neighbors + 1)
  */
-    __pyx_t_2 = __pyx_v_n_nodes;
-    __pyx_t_3 = __pyx_t_2;
-    for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
-      __pyx_v_node = __pyx_t_4;
+    __pyx_v_ix = (__pyx_v_sorted_ix[__pyx_v_i]);
 
-      /* "sknetwork/clustering/louvain_core.pyx":92
+    /* "sknetwork/utils/knn1d.pyx":63
  * 
- *         for node in range(n_nodes):
- *             has_candidates = 0             # <<<<<<<<<<<<<<
- *             cluster_node = labels[node]
- * 
+ *         ix = sorted_ix[i]
+ *         low = max(0, i - n_neighbors)             # <<<<<<<<<<<<<<
+ *         hgh = min(n - 1, i + n_neighbors + 1)
+ *         candidates = sorted_ix[low:hgh]
  */
-      __pyx_v_has_candidates = 0;
-
-      /* "sknetwork/clustering/louvain_core.pyx":93
- *         for node in range(n_nodes):
- *             has_candidates = 0
- *             cluster_node = labels[node]             # <<<<<<<<<<<<<<
- * 
- *             neighbors.clear()
- */
-      __pyx_v_cluster_node = (__pyx_v_labels[__pyx_v_node]);
-
-      /* "sknetwork/clustering/louvain_core.pyx":95
- *             cluster_node = labels[node]
- * 
- *             neighbors.clear()             # <<<<<<<<<<<<<<
- *             weights.clear()
- *             start = indptr[node]
- */
-      __pyx_v_neighbors.clear();
-
-      /* "sknetwork/clustering/louvain_core.pyx":96
- * 
- *             neighbors.clear()
- *             weights.clear()             # <<<<<<<<<<<<<<
- *             start = indptr[node]
- *             n_neighbors = indptr[node + 1] - start
- */
-      __pyx_v_weights.clear();
-
-      /* "sknetwork/clustering/louvain_core.pyx":97
- *             neighbors.clear()
- *             weights.clear()
- *             start = indptr[node]             # <<<<<<<<<<<<<<
- *             n_neighbors = indptr[node + 1] - start
- * 
- */
-      __pyx_t_8 = __pyx_v_node;
-      __pyx_v_start = (*((int *) ( /* dim=0 */ (__pyx_v_indptr.data + __pyx_t_8 * __pyx_v_indptr.strides[0]) )));
-
-      /* "sknetwork/clustering/louvain_core.pyx":98
- *             weights.clear()
- *             start = indptr[node]
- *             n_neighbors = indptr[node + 1] - start             # <<<<<<<<<<<<<<
- * 
- *             neighbor_clusters_weights[labels[node]] = 0
- */
-      __pyx_t_9 = (__pyx_v_node + 1);
-      __pyx_v_n_neighbors = ((*((int *) ( /* dim=0 */ (__pyx_v_indptr.data + __pyx_t_9 * __pyx_v_indptr.strides[0]) ))) - __pyx_v_start);
-
-      /* "sknetwork/clustering/louvain_core.pyx":100
- *             n_neighbors = indptr[node + 1] - start
- * 
- *             neighbor_clusters_weights[labels[node]] = 0             # <<<<<<<<<<<<<<
- *             for i in range(n_neighbors):
- *                 neighbor = indices[start + i]
- */
-      (__pyx_v_neighbor_clusters_weights[(__pyx_v_labels[__pyx_v_node])]) = 0.0;
-
-      /* "sknetwork/clustering/louvain_core.pyx":101
- * 
- *             neighbor_clusters_weights[labels[node]] = 0
- *             for i in range(n_neighbors):             # <<<<<<<<<<<<<<
- *                 neighbor = indices[start + i]
- *                 neighbors.push_back(neighbor)
- */
-      __pyx_t_10 = __pyx_v_n_neighbors;
+    __pyx_t_9 = (__pyx_v_i - __pyx_v_n_neighbors);
+    __pyx_t_10 = 0;
+    if (((__pyx_t_9 > __pyx_t_10) != 0)) {
+      __pyx_t_11 = __pyx_t_9;
+    } else {
       __pyx_t_11 = __pyx_t_10;
-      for (__pyx_t_12 = 0; __pyx_t_12 < __pyx_t_11; __pyx_t_12+=1) {
-        __pyx_v_i = __pyx_t_12;
+    }
+    __pyx_v_low = __pyx_t_11;
 
-        /* "sknetwork/clustering/louvain_core.pyx":102
- *             neighbor_clusters_weights[labels[node]] = 0
- *             for i in range(n_neighbors):
- *                 neighbor = indices[start + i]             # <<<<<<<<<<<<<<
- *                 neighbors.push_back(neighbor)
- *                 weights.push_back(data[start + i])
- */
-        __pyx_t_13 = (__pyx_v_start + __pyx_v_i);
-        __pyx_v_neighbor = (*((int *) ( /* dim=0 */ (__pyx_v_indices.data + __pyx_t_13 * __pyx_v_indices.strides[0]) )));
-
-        /* "sknetwork/clustering/louvain_core.pyx":103
- *             for i in range(n_neighbors):
- *                 neighbor = indices[start + i]
- *                 neighbors.push_back(neighbor)             # <<<<<<<<<<<<<<
- *                 weights.push_back(data[start + i])
- *                 label = labels[neighbor]
- */
-        try {
-          __pyx_v_neighbors.push_back(__pyx_v_neighbor);
-        } catch(...) {
-          __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 103, __pyx_L1_error)
-        }
-
-        /* "sknetwork/clustering/louvain_core.pyx":104
- *                 neighbor = indices[start + i]
- *                 neighbors.push_back(neighbor)
- *                 weights.push_back(data[start + i])             # <<<<<<<<<<<<<<
- *                 label = labels[neighbor]
- *                 neighbor_clusters_weights[label] = 0
- */
-        __pyx_t_14 = (__pyx_v_start + __pyx_v_i);
-        try {
-          __pyx_v_weights.push_back((*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_data.data + __pyx_t_14 * __pyx_v_data.strides[0]) ))));
-        } catch(...) {
-          __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 104, __pyx_L1_error)
-        }
-
-        /* "sknetwork/clustering/louvain_core.pyx":105
- *                 neighbors.push_back(neighbor)
- *                 weights.push_back(data[start + i])
- *                 label = labels[neighbor]             # <<<<<<<<<<<<<<
- *                 neighbor_clusters_weights[label] = 0
+    /* "sknetwork/utils/knn1d.pyx":64
+ *         ix = sorted_ix[i]
+ *         low = max(0, i - n_neighbors)
+ *         hgh = min(n - 1, i + n_neighbors + 1)             # <<<<<<<<<<<<<<
+ *         candidates = sorted_ix[low:hgh]
  * 
  */
-        __pyx_v_label = (__pyx_v_labels[__pyx_v_neighbor]);
+    __pyx_t_11 = ((__pyx_v_i + __pyx_v_n_neighbors) + 1);
+    __pyx_t_10 = (__pyx_v_n - 1);
+    if (((__pyx_t_11 < __pyx_t_10) != 0)) {
+      __pyx_t_12 = __pyx_t_11;
+    } else {
+      __pyx_t_12 = __pyx_t_10;
+    }
+    __pyx_v_hgh = __pyx_t_12;
 
-        /* "sknetwork/clustering/louvain_core.pyx":106
- *                 weights.push_back(data[start + i])
- *                 label = labels[neighbor]
- *                 neighbor_clusters_weights[label] = 0             # <<<<<<<<<<<<<<
+    /* "sknetwork/utils/knn1d.pyx":65
+ *         low = max(0, i - n_neighbors)
+ *         hgh = min(n - 1, i + n_neighbors + 1)
+ *         candidates = sorted_ix[low:hgh]             # <<<<<<<<<<<<<<
  * 
- *             unique_clusters.clear()
+ *         for j in range(len(candidates)):
  */
-        (__pyx_v_neighbor_clusters_weights[__pyx_v_label]) = 0.0;
-      }
+    __pyx_t_1 = __pyx_convert_vector_to_py_int(__pyx_v_sorted_ix); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 65, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_3 = __Pyx_PyObject_GetSlice(__pyx_t_1, __pyx_v_low, __pyx_v_hgh, NULL, NULL, NULL, 1, 1, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 65, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_t_5 = __pyx_convert_vector_from_py_int(__pyx_t_3); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 65, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_v_candidates = __pyx_t_5;
 
-      /* "sknetwork/clustering/louvain_core.pyx":108
- *                 neighbor_clusters_weights[label] = 0
+    /* "sknetwork/utils/knn1d.pyx":67
+ *         candidates = sorted_ix[low:hgh]
  * 
- *             unique_clusters.clear()             # <<<<<<<<<<<<<<
- *             for i in range(n_neighbors):
- *                 label = labels[neighbors[i]]
- */
-      __pyx_v_unique_clusters.clear();
-
-      /* "sknetwork/clustering/louvain_core.pyx":109
- * 
- *             unique_clusters.clear()
- *             for i in range(n_neighbors):             # <<<<<<<<<<<<<<
- *                 label = labels[neighbors[i]]
- *                 neighbor_clusters_weights[label] += weights[i]
- */
-      __pyx_t_10 = __pyx_v_n_neighbors;
-      __pyx_t_11 = __pyx_t_10;
-      for (__pyx_t_12 = 0; __pyx_t_12 < __pyx_t_11; __pyx_t_12+=1) {
-        __pyx_v_i = __pyx_t_12;
-
-        /* "sknetwork/clustering/louvain_core.pyx":110
- *             unique_clusters.clear()
- *             for i in range(n_neighbors):
- *                 label = labels[neighbors[i]]             # <<<<<<<<<<<<<<
- *                 neighbor_clusters_weights[label] += weights[i]
- *                 unique_clusters.insert(label)
- */
-        __pyx_v_label = (__pyx_v_labels[(__pyx_v_neighbors[__pyx_v_i])]);
-
-        /* "sknetwork/clustering/louvain_core.pyx":111
- *             for i in range(n_neighbors):
- *                 label = labels[neighbors[i]]
- *                 neighbor_clusters_weights[label] += weights[i]             # <<<<<<<<<<<<<<
- *                 unique_clusters.insert(label)
+ *         for j in range(len(candidates)):             # <<<<<<<<<<<<<<
+ *             deltas.push_back(abs(x[candidates[j]] - x[ix]))
  * 
  */
-        __pyx_t_15 = __pyx_v_label;
-        (__pyx_v_neighbor_clusters_weights[__pyx_t_15]) = ((__pyx_v_neighbor_clusters_weights[__pyx_t_15]) + (__pyx_v_weights[__pyx_v_i]));
+    __pyx_t_3 = __pyx_convert_vector_to_py_int(__pyx_v_candidates); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 67, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_13 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_13 == ((Py_ssize_t)-1))) __PYX_ERR(0, 67, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_14 = __pyx_t_13;
+    for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_14; __pyx_t_9+=1) {
+      __pyx_v_j = __pyx_t_9;
 
-        /* "sknetwork/clustering/louvain_core.pyx":112
- *                 label = labels[neighbors[i]]
- *                 neighbor_clusters_weights[label] += weights[i]
- *                 unique_clusters.insert(label)             # <<<<<<<<<<<<<<
+      /* "sknetwork/utils/knn1d.pyx":68
  * 
- *             unique_clusters.erase(cluster_node)
- */
-        try {
-          __pyx_v_unique_clusters.insert(__pyx_v_label);
-        } catch(...) {
-          __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 112, __pyx_L1_error)
-        }
-      }
-
-      /* "sknetwork/clustering/louvain_core.pyx":114
- *                 unique_clusters.insert(label)
+ *         for j in range(len(candidates)):
+ *             deltas.push_back(abs(x[candidates[j]] - x[ix]))             # <<<<<<<<<<<<<<
  * 
- *             unique_clusters.erase(cluster_node)             # <<<<<<<<<<<<<<
- * 
- *             if not unique_clusters.empty():
+ *         sorted_deltas = np.argsort(deltas)
  */
-      (void)(__pyx_v_unique_clusters.erase(__pyx_v_cluster_node));
-
-      /* "sknetwork/clustering/louvain_core.pyx":116
- *             unique_clusters.erase(cluster_node)
- * 
- *             if not unique_clusters.empty():             # <<<<<<<<<<<<<<
- *                 node_prob_ou = ou_node_probs[node]
- *                 node_prob_in = in_node_probs[node]
- */
-      __pyx_t_7 = ((!(__pyx_v_unique_clusters.empty() != 0)) != 0);
-      if (__pyx_t_7) {
-
-        /* "sknetwork/clustering/louvain_core.pyx":117
- * 
- *             if not unique_clusters.empty():
- *                 node_prob_ou = ou_node_probs[node]             # <<<<<<<<<<<<<<
- *                 node_prob_in = in_node_probs[node]
- *                 ratio_ou = resolution * node_prob_ou
- */
-        __pyx_t_16 = __pyx_v_node;
-        __pyx_v_node_prob_ou = (*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_ou_node_probs.data + __pyx_t_16 * __pyx_v_ou_node_probs.strides[0]) )));
-
-        /* "sknetwork/clustering/louvain_core.pyx":118
- *             if not unique_clusters.empty():
- *                 node_prob_ou = ou_node_probs[node]
- *                 node_prob_in = in_node_probs[node]             # <<<<<<<<<<<<<<
- *                 ratio_ou = resolution * node_prob_ou
- *                 ratio_in = resolution * node_prob_in
- */
-        __pyx_t_17 = __pyx_v_node;
-        __pyx_v_node_prob_in = (*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_in_node_probs.data + __pyx_t_17 * __pyx_v_in_node_probs.strides[0]) )));
-
-        /* "sknetwork/clustering/louvain_core.pyx":119
- *                 node_prob_ou = ou_node_probs[node]
- *                 node_prob_in = in_node_probs[node]
- *                 ratio_ou = resolution * node_prob_ou             # <<<<<<<<<<<<<<
- *                 ratio_in = resolution * node_prob_in
- * 
- */
-        __pyx_v_ratio_ou = (__pyx_v_resolution * __pyx_v_node_prob_ou);
-
-        /* "sknetwork/clustering/louvain_core.pyx":120
- *                 node_prob_in = in_node_probs[node]
- *                 ratio_ou = resolution * node_prob_ou
- *                 ratio_in = resolution * node_prob_in             # <<<<<<<<<<<<<<
- * 
- *                 delta_exit = 2 * (neighbor_clusters_weights[cluster_node] - self_loops[node])
- */
-        __pyx_v_ratio_in = (__pyx_v_resolution * __pyx_v_node_prob_in);
-
-        /* "sknetwork/clustering/louvain_core.pyx":122
- *                 ratio_in = resolution * node_prob_in
- * 
- *                 delta_exit = 2 * (neighbor_clusters_weights[cluster_node] - self_loops[node])             # <<<<<<<<<<<<<<
- *                 delta_exit -= ratio_ou * (in_clusters_weights[cluster_node] - node_prob_in)
- *                 delta_exit -= ratio_in * (ou_clusters_weights[cluster_node] - node_prob_ou)
- */
-        __pyx_t_18 = __pyx_v_node;
-        __pyx_v_delta_exit = (2.0 * ((__pyx_v_neighbor_clusters_weights[__pyx_v_cluster_node]) - (*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_self_loops.data + __pyx_t_18 * __pyx_v_self_loops.strides[0]) )))));
-
-        /* "sknetwork/clustering/louvain_core.pyx":123
- * 
- *                 delta_exit = 2 * (neighbor_clusters_weights[cluster_node] - self_loops[node])
- *                 delta_exit -= ratio_ou * (in_clusters_weights[cluster_node] - node_prob_in)             # <<<<<<<<<<<<<<
- *                 delta_exit -= ratio_in * (ou_clusters_weights[cluster_node] - node_prob_ou)
- * 
- */
-        __pyx_v_delta_exit = (__pyx_v_delta_exit - (__pyx_v_ratio_ou * ((__pyx_v_in_clusters_weights[__pyx_v_cluster_node]) - __pyx_v_node_prob_in)));
-
-        /* "sknetwork/clustering/louvain_core.pyx":124
- *                 delta_exit = 2 * (neighbor_clusters_weights[cluster_node] - self_loops[node])
- *                 delta_exit -= ratio_ou * (in_clusters_weights[cluster_node] - node_prob_in)
- *                 delta_exit -= ratio_in * (ou_clusters_weights[cluster_node] - node_prob_ou)             # <<<<<<<<<<<<<<
- * 
- *                 delta_best = 0
- */
-        __pyx_v_delta_exit = (__pyx_v_delta_exit - (__pyx_v_ratio_in * ((__pyx_v_ou_clusters_weights[__pyx_v_cluster_node]) - __pyx_v_node_prob_ou)));
-
-        /* "sknetwork/clustering/louvain_core.pyx":126
- *                 delta_exit -= ratio_in * (ou_clusters_weights[cluster_node] - node_prob_ou)
- * 
- *                 delta_best = 0             # <<<<<<<<<<<<<<
- *                 cluster_best = cluster_node
- * 
- */
-        __pyx_v_delta_best = 0.0;
-
-        /* "sknetwork/clustering/louvain_core.pyx":127
- * 
- *                 delta_best = 0
- *                 cluster_best = cluster_node             # <<<<<<<<<<<<<<
- * 
- *                 for cluster in unique_clusters:
- */
-        __pyx_v_cluster_best = __pyx_v_cluster_node;
-
-        /* "sknetwork/clustering/louvain_core.pyx":129
- *                 cluster_best = cluster_node
- * 
- *                 for cluster in unique_clusters:             # <<<<<<<<<<<<<<
- *                     delta = 2 * neighbor_clusters_weights[cluster]
- *                     delta -= ratio_ou * in_clusters_weights[cluster]
- */
-        __pyx_t_19 = __pyx_v_unique_clusters.begin();
-        for (;;) {
-          if (!(__pyx_t_19 != __pyx_v_unique_clusters.end())) break;
-          __pyx_t_10 = *__pyx_t_19;
-          ++__pyx_t_19;
-          __pyx_v_cluster = __pyx_t_10;
-
-          /* "sknetwork/clustering/louvain_core.pyx":130
- * 
- *                 for cluster in unique_clusters:
- *                     delta = 2 * neighbor_clusters_weights[cluster]             # <<<<<<<<<<<<<<
- *                     delta -= ratio_ou * in_clusters_weights[cluster]
- *                     delta -= ratio_in * ou_clusters_weights[cluster]
- */
-          __pyx_v_delta = (2.0 * (__pyx_v_neighbor_clusters_weights[__pyx_v_cluster]));
-
-          /* "sknetwork/clustering/louvain_core.pyx":131
- *                 for cluster in unique_clusters:
- *                     delta = 2 * neighbor_clusters_weights[cluster]
- *                     delta -= ratio_ou * in_clusters_weights[cluster]             # <<<<<<<<<<<<<<
- *                     delta -= ratio_in * ou_clusters_weights[cluster]
- * 
- */
-          __pyx_v_delta = (__pyx_v_delta - (__pyx_v_ratio_ou * (__pyx_v_in_clusters_weights[__pyx_v_cluster])));
-
-          /* "sknetwork/clustering/louvain_core.pyx":132
- *                     delta = 2 * neighbor_clusters_weights[cluster]
- *                     delta -= ratio_ou * in_clusters_weights[cluster]
- *                     delta -= ratio_in * ou_clusters_weights[cluster]             # <<<<<<<<<<<<<<
- * 
- *                     delta_local = delta - delta_exit
- */
-          __pyx_v_delta = (__pyx_v_delta - (__pyx_v_ratio_in * (__pyx_v_ou_clusters_weights[__pyx_v_cluster])));
-
-          /* "sknetwork/clustering/louvain_core.pyx":134
- *                     delta -= ratio_in * ou_clusters_weights[cluster]
- * 
- *                     delta_local = delta - delta_exit             # <<<<<<<<<<<<<<
- *                     if delta_local > delta_best:
- *                         delta_best = delta_local
- */
-          __pyx_v_delta_local = (__pyx_v_delta - __pyx_v_delta_exit);
-
-          /* "sknetwork/clustering/louvain_core.pyx":135
- * 
- *                     delta_local = delta - delta_exit
- *                     if delta_local > delta_best:             # <<<<<<<<<<<<<<
- *                         delta_best = delta_local
- *                         cluster_best = cluster
- */
-          __pyx_t_7 = ((__pyx_v_delta_local > __pyx_v_delta_best) != 0);
-          if (__pyx_t_7) {
-
-            /* "sknetwork/clustering/louvain_core.pyx":136
- *                     delta_local = delta - delta_exit
- *                     if delta_local > delta_best:
- *                         delta_best = delta_local             # <<<<<<<<<<<<<<
- *                         cluster_best = cluster
- * 
- */
-            __pyx_v_delta_best = __pyx_v_delta_local;
-
-            /* "sknetwork/clustering/louvain_core.pyx":137
- *                     if delta_local > delta_best:
- *                         delta_best = delta_local
- *                         cluster_best = cluster             # <<<<<<<<<<<<<<
- * 
- *                 if delta_best > 0:
- */
-            __pyx_v_cluster_best = __pyx_v_cluster;
-
-            /* "sknetwork/clustering/louvain_core.pyx":135
- * 
- *                     delta_local = delta - delta_exit
- *                     if delta_local > delta_best:             # <<<<<<<<<<<<<<
- *                         delta_best = delta_local
- *                         cluster_best = cluster
- */
-          }
-
-          /* "sknetwork/clustering/louvain_core.pyx":129
- *                 cluster_best = cluster_node
- * 
- *                 for cluster in unique_clusters:             # <<<<<<<<<<<<<<
- *                     delta = 2 * neighbor_clusters_weights[cluster]
- *                     delta -= ratio_ou * in_clusters_weights[cluster]
- */
-        }
-
-        /* "sknetwork/clustering/louvain_core.pyx":139
- *                         cluster_best = cluster
- * 
- *                 if delta_best > 0:             # <<<<<<<<<<<<<<
- *                     increase_pass += delta_best
- *                     ou_clusters_weights[cluster_node] -= node_prob_ou
- */
-        __pyx_t_7 = ((__pyx_v_delta_best > 0.0) != 0);
-        if (__pyx_t_7) {
-
-          /* "sknetwork/clustering/louvain_core.pyx":140
- * 
- *                 if delta_best > 0:
- *                     increase_pass += delta_best             # <<<<<<<<<<<<<<
- *                     ou_clusters_weights[cluster_node] -= node_prob_ou
- *                     in_clusters_weights[cluster_node] -= node_prob_in
- */
-          __pyx_v_increase_pass = (__pyx_v_increase_pass + __pyx_v_delta_best);
-
-          /* "sknetwork/clustering/louvain_core.pyx":141
- *                 if delta_best > 0:
- *                     increase_pass += delta_best
- *                     ou_clusters_weights[cluster_node] -= node_prob_ou             # <<<<<<<<<<<<<<
- *                     in_clusters_weights[cluster_node] -= node_prob_in
- *                     ou_clusters_weights[cluster_best] += node_prob_ou
- */
-          __pyx_t_10 = __pyx_v_cluster_node;
-          (__pyx_v_ou_clusters_weights[__pyx_t_10]) = ((__pyx_v_ou_clusters_weights[__pyx_t_10]) - __pyx_v_node_prob_ou);
-
-          /* "sknetwork/clustering/louvain_core.pyx":142
- *                     increase_pass += delta_best
- *                     ou_clusters_weights[cluster_node] -= node_prob_ou
- *                     in_clusters_weights[cluster_node] -= node_prob_in             # <<<<<<<<<<<<<<
- *                     ou_clusters_weights[cluster_best] += node_prob_ou
- *                     in_clusters_weights[cluster_best] += node_prob_in
- */
-          __pyx_t_10 = __pyx_v_cluster_node;
-          (__pyx_v_in_clusters_weights[__pyx_t_10]) = ((__pyx_v_in_clusters_weights[__pyx_t_10]) - __pyx_v_node_prob_in);
-
-          /* "sknetwork/clustering/louvain_core.pyx":143
- *                     ou_clusters_weights[cluster_node] -= node_prob_ou
- *                     in_clusters_weights[cluster_node] -= node_prob_in
- *                     ou_clusters_weights[cluster_best] += node_prob_ou             # <<<<<<<<<<<<<<
- *                     in_clusters_weights[cluster_best] += node_prob_in
- *                     labels[node] = cluster_best
- */
-          __pyx_t_10 = __pyx_v_cluster_best;
-          (__pyx_v_ou_clusters_weights[__pyx_t_10]) = ((__pyx_v_ou_clusters_weights[__pyx_t_10]) + __pyx_v_node_prob_ou);
-
-          /* "sknetwork/clustering/louvain_core.pyx":144
- *                     in_clusters_weights[cluster_node] -= node_prob_in
- *                     ou_clusters_weights[cluster_best] += node_prob_ou
- *                     in_clusters_weights[cluster_best] += node_prob_in             # <<<<<<<<<<<<<<
- *                     labels[node] = cluster_best
- * 
- */
-          __pyx_t_10 = __pyx_v_cluster_best;
-          (__pyx_v_in_clusters_weights[__pyx_t_10]) = ((__pyx_v_in_clusters_weights[__pyx_t_10]) + __pyx_v_node_prob_in);
-
-          /* "sknetwork/clustering/louvain_core.pyx":145
- *                     ou_clusters_weights[cluster_best] += node_prob_ou
- *                     in_clusters_weights[cluster_best] += node_prob_in
- *                     labels[node] = cluster_best             # <<<<<<<<<<<<<<
- * 
- *         increase_total += increase_pass
- */
-          (__pyx_v_labels[__pyx_v_node]) = __pyx_v_cluster_best;
-
-          /* "sknetwork/clustering/louvain_core.pyx":139
- *                         cluster_best = cluster
- * 
- *                 if delta_best > 0:             # <<<<<<<<<<<<<<
- *                     increase_pass += delta_best
- *                     ou_clusters_weights[cluster_node] -= node_prob_ou
- */
-        }
-
-        /* "sknetwork/clustering/louvain_core.pyx":116
- *             unique_clusters.erase(cluster_node)
- * 
- *             if not unique_clusters.empty():             # <<<<<<<<<<<<<<
- *                 node_prob_ou = ou_node_probs[node]
- *                 node_prob_in = in_node_probs[node]
- */
+      __pyx_t_15 = (__pyx_v_candidates[__pyx_v_j]);
+      __pyx_t_16 = __pyx_v_ix;
+      try {
+        __pyx_v_deltas.push_back(fabs(((*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_15 * __pyx_v_x.strides[0]) ))) - (*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_16 * __pyx_v_x.strides[0]) ))))));
+      } catch(...) {
+        __Pyx_CppExn2PyErr();
+        __PYX_ERR(0, 68, __pyx_L1_error)
       }
     }
 
-    /* "sknetwork/clustering/louvain_core.pyx":147
- *                     labels[node] = cluster_best
+    /* "sknetwork/utils/knn1d.pyx":70
+ *             deltas.push_back(abs(x[candidates[j]] - x[ix]))
  * 
- *         increase_total += increase_pass             # <<<<<<<<<<<<<<
- *         if increase_pass > tol:
- *             increase = 1
+ *         sorted_deltas = np.argsort(deltas)             # <<<<<<<<<<<<<<
+ *         for j in range(len(sorted_deltas)):
+ *             val = candidates[sorted_deltas[j]]
  */
-    __pyx_v_increase_total = (__pyx_v_increase_total + __pyx_v_increase_pass);
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_argsort); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __pyx_t_1 = __pyx_convert_vector_to_py_float(__pyx_v_deltas); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_4 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
+      __pyx_t_4 = PyMethod_GET_SELF(__pyx_t_2);
+      if (likely(__pyx_t_4)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+        __Pyx_INCREF(__pyx_t_4);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_2, function);
+      }
+    }
+    __pyx_t_3 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_4, __pyx_t_1) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1);
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_5 = __pyx_convert_vector_from_py_int(__pyx_t_3); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 70, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_v_sorted_deltas = __pyx_t_5;
 
-    /* "sknetwork/clustering/louvain_core.pyx":148
+    /* "sknetwork/utils/knn1d.pyx":71
  * 
- *         increase_total += increase_pass
- *         if increase_pass > tol:             # <<<<<<<<<<<<<<
- *             increase = 1
- *     return labels, increase_total
+ *         sorted_deltas = np.argsort(deltas)
+ *         for j in range(len(sorted_deltas)):             # <<<<<<<<<<<<<<
+ *             val = candidates[sorted_deltas[j]]
+ *             sorted_candidates.push_back(val)
  */
-    __pyx_t_7 = ((__pyx_v_increase_pass > __pyx_v_tol) != 0);
-    if (__pyx_t_7) {
+    __pyx_t_3 = __pyx_convert_vector_to_py_int(__pyx_v_sorted_deltas); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 71, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_13 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_13 == ((Py_ssize_t)-1))) __PYX_ERR(0, 71, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_14 = __pyx_t_13;
+    for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_14; __pyx_t_9+=1) {
+      __pyx_v_j = __pyx_t_9;
 
-      /* "sknetwork/clustering/louvain_core.pyx":149
- *         increase_total += increase_pass
- *         if increase_pass > tol:
- *             increase = 1             # <<<<<<<<<<<<<<
- *     return labels, increase_total
+      /* "sknetwork/utils/knn1d.pyx":72
+ *         sorted_deltas = np.argsort(deltas)
+ *         for j in range(len(sorted_deltas)):
+ *             val = candidates[sorted_deltas[j]]             # <<<<<<<<<<<<<<
+ *             sorted_candidates.push_back(val)
+ *         sorted_candidates = sorted_candidates[:n_neighbors+1]
  */
-      __pyx_v_increase = 1;
+      __pyx_v_val = (__pyx_v_candidates[(__pyx_v_sorted_deltas[__pyx_v_j])]);
 
-      /* "sknetwork/clustering/louvain_core.pyx":148
+      /* "sknetwork/utils/knn1d.pyx":73
+ *         for j in range(len(sorted_deltas)):
+ *             val = candidates[sorted_deltas[j]]
+ *             sorted_candidates.push_back(val)             # <<<<<<<<<<<<<<
+ *         sorted_candidates = sorted_candidates[:n_neighbors+1]
  * 
- *         increase_total += increase_pass
- *         if increase_pass > tol:             # <<<<<<<<<<<<<<
- *             increase = 1
- *     return labels, increase_total
  */
+      try {
+        __pyx_v_sorted_candidates.push_back(__pyx_v_val);
+      } catch(...) {
+        __Pyx_CppExn2PyErr();
+        __PYX_ERR(0, 73, __pyx_L1_error)
+      }
+    }
+
+    /* "sknetwork/utils/knn1d.pyx":74
+ *             val = candidates[sorted_deltas[j]]
+ *             sorted_candidates.push_back(val)
+ *         sorted_candidates = sorted_candidates[:n_neighbors+1]             # <<<<<<<<<<<<<<
+ * 
+ *         for j in range(len(sorted_candidates)):
+ */
+    __pyx_t_3 = __pyx_convert_vector_to_py_int(__pyx_v_sorted_candidates); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 74, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_2 = __Pyx_PyObject_GetSlice(__pyx_t_3, 0, (__pyx_v_n_neighbors + 1), NULL, NULL, NULL, 0, 1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 74, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_t_5 = __pyx_convert_vector_from_py_int(__pyx_t_2); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 74, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_v_sorted_candidates = __pyx_t_5;
+
+    /* "sknetwork/utils/knn1d.pyx":76
+ *         sorted_candidates = sorted_candidates[:n_neighbors+1]
+ * 
+ *         for j in range(len(sorted_candidates)):             # <<<<<<<<<<<<<<
+ *             neigh = sorted_candidates[j]
+ *             if neigh != ix:
+ */
+    __pyx_t_2 = __pyx_convert_vector_to_py_int(__pyx_v_sorted_candidates); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_13 = PyObject_Length(__pyx_t_2); if (unlikely(__pyx_t_13 == ((Py_ssize_t)-1))) __PYX_ERR(0, 76, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_14 = __pyx_t_13;
+    for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_14; __pyx_t_9+=1) {
+      __pyx_v_j = __pyx_t_9;
+
+      /* "sknetwork/utils/knn1d.pyx":77
+ * 
+ *         for j in range(len(sorted_candidates)):
+ *             neigh = sorted_candidates[j]             # <<<<<<<<<<<<<<
+ *             if neigh != ix:
+ *                 row.push_back(ix)
+ */
+      __pyx_v_neigh = (__pyx_v_sorted_candidates[__pyx_v_j]);
+
+      /* "sknetwork/utils/knn1d.pyx":78
+ *         for j in range(len(sorted_candidates)):
+ *             neigh = sorted_candidates[j]
+ *             if neigh != ix:             # <<<<<<<<<<<<<<
+ *                 row.push_back(ix)
+ *                 col.push_back(neigh)
+ */
+      __pyx_t_17 = ((__pyx_v_neigh != __pyx_v_ix) != 0);
+      if (__pyx_t_17) {
+
+        /* "sknetwork/utils/knn1d.pyx":79
+ *             neigh = sorted_candidates[j]
+ *             if neigh != ix:
+ *                 row.push_back(ix)             # <<<<<<<<<<<<<<
+ *                 col.push_back(neigh)
+ * 
+ */
+        try {
+          __pyx_v_row.push_back(__pyx_v_ix);
+        } catch(...) {
+          __Pyx_CppExn2PyErr();
+          __PYX_ERR(0, 79, __pyx_L1_error)
+        }
+
+        /* "sknetwork/utils/knn1d.pyx":80
+ *             if neigh != ix:
+ *                 row.push_back(ix)
+ *                 col.push_back(neigh)             # <<<<<<<<<<<<<<
+ * 
+ *     return row, col
+ */
+        try {
+          __pyx_v_col.push_back(__pyx_v_neigh);
+        } catch(...) {
+          __Pyx_CppExn2PyErr();
+          __PYX_ERR(0, 80, __pyx_L1_error)
+        }
+
+        /* "sknetwork/utils/knn1d.pyx":78
+ *         for j in range(len(sorted_candidates)):
+ *             neigh = sorted_candidates[j]
+ *             if neigh != ix:             # <<<<<<<<<<<<<<
+ *                 row.push_back(ix)
+ *                 col.push_back(neigh)
+ */
+      }
     }
   }
 
-  /* "sknetwork/clustering/louvain_core.pyx":150
- *         if increase_pass > tol:
- *             increase = 1
- *     return labels, increase_total             # <<<<<<<<<<<<<<
+  /* "sknetwork/utils/knn1d.pyx":82
+ *                 col.push_back(neigh)
+ * 
+ *     return row, col             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_20 = __pyx_convert_vector_to_py_int(__pyx_v_labels); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 150, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_20);
-  __pyx_t_21 = PyFloat_FromDouble(__pyx_v_increase_total); if (unlikely(!__pyx_t_21)) __PYX_ERR(0, 150, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_21);
-  __pyx_t_22 = PyTuple_New(2); if (unlikely(!__pyx_t_22)) __PYX_ERR(0, 150, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_22);
-  __Pyx_GIVEREF(__pyx_t_20);
-  PyTuple_SET_ITEM(__pyx_t_22, 0, __pyx_t_20);
-  __Pyx_GIVEREF(__pyx_t_21);
-  PyTuple_SET_ITEM(__pyx_t_22, 1, __pyx_t_21);
-  __pyx_t_20 = 0;
-  __pyx_t_21 = 0;
-  __pyx_r = __pyx_t_22;
-  __pyx_t_22 = 0;
+  __pyx_t_2 = __pyx_convert_vector_to_py_int(__pyx_v_row); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_t_3 = __pyx_convert_vector_to_py_int(__pyx_v_col); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_GIVEREF(__pyx_t_2);
+  PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_3);
+  PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_t_3);
+  __pyx_t_2 = 0;
+  __pyx_t_3 = 0;
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sknetwork/clustering/louvain_core.pyx":15
+  /* "sknetwork/utils/knn1d.pyx":19
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
- * def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.float_t[:] ou_node_probs,             # <<<<<<<<<<<<<<
- *              np.float_t[:] in_node_probs, np.float_t[:] self_loops, np.float_t[:] data, int[:] indices,
- *              int[:] indptr):  # pragma: no cover
+ * def knn1d(np.float_t[:] x, int n_neighbors):             # <<<<<<<<<<<<<<
+ *     """K nearest neighbors search for 1-dimensional arrays.
+ * 
  */
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_20);
-  __Pyx_XDECREF(__pyx_t_21);
-  __Pyx_XDECREF(__pyx_t_22);
-  __Pyx_AddTraceback("sknetwork.clustering.louvain_core.fit_core", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_AddTraceback("sknetwork.utils.knn1d.knn1d", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
-  __PYX_XDEC_MEMVIEW(&__pyx_v_ou_node_probs, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_in_node_probs, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_self_loops, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_data, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_indices, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_v_indptr, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_x, 1);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
@@ -5965,57 +5518,57 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
   return __pyx_r;
 }
 
-/* "set.from_py":108
+/* "vector.from_py":45
  * 
- * @cname("__pyx_convert_set_from_py_int")
- * cdef set[X] __pyx_convert_set_from_py_int(object o) except *:             # <<<<<<<<<<<<<<
- *     cdef set[X] s
+ * @cname("__pyx_convert_vector_from_py_int")
+ * cdef vector[X] __pyx_convert_vector_from_py_int(object o) except *:             # <<<<<<<<<<<<<<
+ *     cdef vector[X] v
  *     for item in o:
  */
 
-static std::set<int>  __pyx_convert_set_from_py_int(PyObject *__pyx_v_o) {
-  std::set<int>  __pyx_v_s;
+static std::vector<int>  __pyx_convert_vector_from_py_int(PyObject *__pyx_v_o) {
+  std::vector<int>  __pyx_v_v;
   PyObject *__pyx_v_item = NULL;
-  std::set<int>  __pyx_r;
+  std::vector<int>  __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   Py_ssize_t __pyx_t_2;
   PyObject *(*__pyx_t_3)(PyObject *);
   PyObject *__pyx_t_4 = NULL;
   int __pyx_t_5;
-  __Pyx_RefNannySetupContext("__pyx_convert_set_from_py_int", 0);
+  __Pyx_RefNannySetupContext("__pyx_convert_vector_from_py_int", 0);
 
-  /* "set.from_py":110
- * cdef set[X] __pyx_convert_set_from_py_int(object o) except *:
- *     cdef set[X] s
+  /* "vector.from_py":47
+ * cdef vector[X] __pyx_convert_vector_from_py_int(object o) except *:
+ *     cdef vector[X] v
  *     for item in o:             # <<<<<<<<<<<<<<
- *         s.insert(<X>item)
- *     return s
+ *         v.push_back(<X>item)
+ *     return v
  */
   if (likely(PyList_CheckExact(__pyx_v_o)) || PyTuple_CheckExact(__pyx_v_o)) {
     __pyx_t_1 = __pyx_v_o; __Pyx_INCREF(__pyx_t_1); __pyx_t_2 = 0;
     __pyx_t_3 = NULL;
   } else {
-    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_o); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 110, __pyx_L1_error)
+    __pyx_t_2 = -1; __pyx_t_1 = PyObject_GetIter(__pyx_v_o); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 47, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 110, __pyx_L1_error)
+    __pyx_t_3 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 47, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_3)) {
       if (likely(PyList_CheckExact(__pyx_t_1))) {
         if (__pyx_t_2 >= PyList_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(2, 110, __pyx_L1_error)
+        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(2, 47, __pyx_L1_error)
         #else
-        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(2, 110, __pyx_L1_error)
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(2, 47, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       } else {
         if (__pyx_t_2 >= PyTuple_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(2, 110, __pyx_L1_error)
+        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_2); __Pyx_INCREF(__pyx_t_4); __pyx_t_2++; if (unlikely(0 < 0)) __PYX_ERR(2, 47, __pyx_L1_error)
         #else
-        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(2, 110, __pyx_L1_error)
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_1, __pyx_t_2); __pyx_t_2++; if (unlikely(!__pyx_t_4)) __PYX_ERR(2, 47, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       }
@@ -6025,7 +5578,7 @@ static std::set<int>  __pyx_convert_set_from_py_int(PyObject *__pyx_v_o) {
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(2, 110, __pyx_L1_error)
+          else __PYX_ERR(2, 47, __pyx_L1_error)
         }
         break;
       }
@@ -6034,41 +5587,41 @@ static std::set<int>  __pyx_convert_set_from_py_int(PyObject *__pyx_v_o) {
     __Pyx_XDECREF_SET(__pyx_v_item, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "set.from_py":111
- *     cdef set[X] s
+    /* "vector.from_py":48
+ *     cdef vector[X] v
  *     for item in o:
- *         s.insert(<X>item)             # <<<<<<<<<<<<<<
- *     return s
+ *         v.push_back(<X>item)             # <<<<<<<<<<<<<<
+ *     return v
  * 
  */
-    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_v_item); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 111, __pyx_L1_error)
-    __pyx_v_s.insert(((int)__pyx_t_5));
+    __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_v_item); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 48, __pyx_L1_error)
+    __pyx_v_v.push_back(((int)__pyx_t_5));
 
-    /* "set.from_py":110
- * cdef set[X] __pyx_convert_set_from_py_int(object o) except *:
- *     cdef set[X] s
+    /* "vector.from_py":47
+ * cdef vector[X] __pyx_convert_vector_from_py_int(object o) except *:
+ *     cdef vector[X] v
  *     for item in o:             # <<<<<<<<<<<<<<
- *         s.insert(<X>item)
- *     return s
+ *         v.push_back(<X>item)
+ *     return v
  */
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "set.from_py":112
+  /* "vector.from_py":49
  *     for item in o:
- *         s.insert(<X>item)
- *     return s             # <<<<<<<<<<<<<<
+ *         v.push_back(<X>item)
+ *     return v             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_r = __pyx_v_s;
+  __pyx_r = __pyx_v_v;
   goto __pyx_L0;
 
-  /* "set.from_py":108
+  /* "vector.from_py":45
  * 
- * @cname("__pyx_convert_set_from_py_int")
- * cdef set[X] __pyx_convert_set_from_py_int(object o) except *:             # <<<<<<<<<<<<<<
- *     cdef set[X] s
+ * @cname("__pyx_convert_vector_from_py_int")
+ * cdef vector[X] __pyx_convert_vector_from_py_int(object o) except *:             # <<<<<<<<<<<<<<
+ *     cdef vector[X] v
  *     for item in o:
  */
 
@@ -6076,7 +5629,7 @@ static std::set<int>  __pyx_convert_set_from_py_int(PyObject *__pyx_v_o) {
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_4);
-  __Pyx_AddTraceback("set.from_py.__pyx_convert_set_from_py_int", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("vector.from_py.__pyx_convert_vector_from_py_int", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_pretend_to_initialize(&__pyx_r);
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_item);
@@ -6139,6 +5692,60 @@ static PyObject *__pyx_convert_vector_to_py_int(const std::vector<int>  &__pyx_v
   __Pyx_XDECREF(__pyx_t_1);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_AddTraceback("vector.to_py.__pyx_convert_vector_to_py_int", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_convert_vector_to_py_float(const std::vector<float>  &__pyx_v_v) {
+  size_t __pyx_v_i;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  size_t __pyx_t_2;
+  size_t __pyx_t_3;
+  size_t __pyx_t_4;
+  PyObject *__pyx_t_5 = NULL;
+  __Pyx_RefNannySetupContext("__pyx_convert_vector_to_py_float", 0);
+
+  /* "vector.to_py":61
+ * @cname("__pyx_convert_vector_to_py_float")
+ * cdef object __pyx_convert_vector_to_py_float(vector[X]& v):
+ *     return [v[i] for i in range(v.size())]             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 61, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __pyx_v_v.size();
+  __pyx_t_3 = __pyx_t_2;
+  for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
+    __pyx_v_i = __pyx_t_4;
+    __pyx_t_5 = PyFloat_FromDouble((__pyx_v_v[__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 61, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_5))) __PYX_ERR(2, 61, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  }
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "vector.to_py":60
+ * 
+ * @cname("__pyx_convert_vector_to_py_float")
+ * cdef object __pyx_convert_vector_to_py_float(vector[X]& v):             # <<<<<<<<<<<<<<
+ *     return [v[i] for i in range(v.size())]
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_AddTraceback("vector.to_py.__pyx_convert_vector_to_py_float", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XGIVEREF(__pyx_r);
@@ -19091,7 +18698,7 @@ static PyBufferProcs __pyx_tp_as_buffer_array = {
 
 static PyTypeObject __pyx_type___pyx_array = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sknetwork.clustering.louvain_core.array", /*tp_name*/
+  "sknetwork.utils.knn1d.array", /*tp_name*/
   sizeof(struct __pyx_array_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_array, /*tp_dealloc*/
@@ -19210,7 +18817,7 @@ static PyMethodDef __pyx_methods_Enum[] = {
 
 static PyTypeObject __pyx_type___pyx_MemviewEnum = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sknetwork.clustering.louvain_core.Enum", /*tp_name*/
+  "sknetwork.utils.knn1d.Enum", /*tp_name*/
   sizeof(struct __pyx_MemviewEnum_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_Enum, /*tp_dealloc*/
@@ -19471,7 +19078,7 @@ static PyBufferProcs __pyx_tp_as_buffer_memoryview = {
 
 static PyTypeObject __pyx_type___pyx_memoryview = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sknetwork.clustering.louvain_core.memoryview", /*tp_name*/
+  "sknetwork.utils.knn1d.memoryview", /*tp_name*/
   sizeof(struct __pyx_memoryview_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_memoryview, /*tp_dealloc*/
@@ -19609,7 +19216,7 @@ static struct PyGetSetDef __pyx_getsets__memoryviewslice[] = {
 
 static PyTypeObject __pyx_type___pyx_memoryviewslice = {
   PyVarObject_HEAD_INIT(0, 0)
-  "sknetwork.clustering.louvain_core._memoryviewslice", /*tp_name*/
+  "sknetwork.utils.knn1d._memoryviewslice", /*tp_name*/
   sizeof(struct __pyx_memoryviewslice_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc__memoryviewslice, /*tp_dealloc*/
@@ -19691,18 +19298,18 @@ static PyMethodDef __pyx_methods[] = {
 #if PY_MAJOR_VERSION >= 3
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 static PyObject* __pyx_pymod_create(PyObject *spec, PyModuleDef *def); /*proto*/
-static int __pyx_pymod_exec_louvain_core(PyObject* module); /*proto*/
+static int __pyx_pymod_exec_knn1d(PyObject* module); /*proto*/
 static PyModuleDef_Slot __pyx_moduledef_slots[] = {
   {Py_mod_create, (void*)__pyx_pymod_create},
-  {Py_mod_exec, (void*)__pyx_pymod_exec_louvain_core},
+  {Py_mod_exec, (void*)__pyx_pymod_exec_knn1d},
   {0, NULL}
 };
 #endif
 
 static struct PyModuleDef __pyx_moduledef = {
     PyModuleDef_HEAD_INIT,
-    "louvain_core",
-    0, /* m_doc */
+    "knn1d",
+    __pyx_k_One_dimensional_nearest_neighbo, /* m_doc */
   #if CYTHON_PEP489_MULTI_PHASE_INIT
     0, /* m_size */
   #else
@@ -19759,73 +19366,56 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
   {&__pyx_n_s_View_MemoryView, __pyx_k_View_MemoryView, sizeof(__pyx_k_View_MemoryView), 0, 0, 1, 1},
   {&__pyx_n_s_allocate_buffer, __pyx_k_allocate_buffer, sizeof(__pyx_k_allocate_buffer), 0, 0, 1, 1},
+  {&__pyx_n_s_argsort, __pyx_k_argsort, sizeof(__pyx_k_argsort), 0, 0, 1, 1},
   {&__pyx_n_s_base, __pyx_k_base, sizeof(__pyx_k_base), 0, 0, 1, 1},
   {&__pyx_n_s_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 0, 1, 1},
   {&__pyx_n_u_c, __pyx_k_c, sizeof(__pyx_k_c), 0, 1, 0, 1},
+  {&__pyx_n_s_candidates, __pyx_k_candidates, sizeof(__pyx_k_candidates), 0, 0, 1, 1},
   {&__pyx_n_s_class, __pyx_k_class, sizeof(__pyx_k_class), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
-  {&__pyx_n_s_cluster, __pyx_k_cluster, sizeof(__pyx_k_cluster), 0, 0, 1, 1},
-  {&__pyx_n_s_cluster_best, __pyx_k_cluster_best, sizeof(__pyx_k_cluster_best), 0, 0, 1, 1},
-  {&__pyx_n_s_cluster_node, __pyx_k_cluster_node, sizeof(__pyx_k_cluster_node), 0, 0, 1, 1},
+  {&__pyx_n_s_col, __pyx_k_col, sizeof(__pyx_k_col), 0, 0, 1, 1},
   {&__pyx_kp_s_contiguous_and_direct, __pyx_k_contiguous_and_direct, sizeof(__pyx_k_contiguous_and_direct), 0, 0, 1, 0},
   {&__pyx_kp_s_contiguous_and_indirect, __pyx_k_contiguous_and_indirect, sizeof(__pyx_k_contiguous_and_indirect), 0, 0, 1, 0},
-  {&__pyx_n_s_data, __pyx_k_data, sizeof(__pyx_k_data), 0, 0, 1, 1},
-  {&__pyx_n_s_delta, __pyx_k_delta, sizeof(__pyx_k_delta), 0, 0, 1, 1},
-  {&__pyx_n_s_delta_best, __pyx_k_delta_best, sizeof(__pyx_k_delta_best), 0, 0, 1, 1},
-  {&__pyx_n_s_delta_exit, __pyx_k_delta_exit, sizeof(__pyx_k_delta_exit), 0, 0, 1, 1},
-  {&__pyx_n_s_delta_local, __pyx_k_delta_local, sizeof(__pyx_k_delta_local), 0, 0, 1, 1},
+  {&__pyx_n_s_deltas, __pyx_k_deltas, sizeof(__pyx_k_deltas), 0, 0, 1, 1},
   {&__pyx_n_s_dict, __pyx_k_dict, sizeof(__pyx_k_dict), 0, 0, 1, 1},
   {&__pyx_n_s_dtype_is_object, __pyx_k_dtype_is_object, sizeof(__pyx_k_dtype_is_object), 0, 0, 1, 1},
   {&__pyx_n_s_encode, __pyx_k_encode, sizeof(__pyx_k_encode), 0, 0, 1, 1},
   {&__pyx_n_s_enumerate, __pyx_k_enumerate, sizeof(__pyx_k_enumerate), 0, 0, 1, 1},
   {&__pyx_n_s_error, __pyx_k_error, sizeof(__pyx_k_error), 0, 0, 1, 1},
-  {&__pyx_n_s_fit_core, __pyx_k_fit_core, sizeof(__pyx_k_fit_core), 0, 0, 1, 1},
   {&__pyx_n_s_flags, __pyx_k_flags, sizeof(__pyx_k_flags), 0, 0, 1, 1},
   {&__pyx_n_s_format, __pyx_k_format, sizeof(__pyx_k_format), 0, 0, 1, 1},
   {&__pyx_n_s_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 0, 1, 1},
   {&__pyx_n_u_fortran, __pyx_k_fortran, sizeof(__pyx_k_fortran), 0, 1, 0, 1},
   {&__pyx_n_s_getstate, __pyx_k_getstate, sizeof(__pyx_k_getstate), 0, 0, 1, 1},
   {&__pyx_kp_s_got_differing_extents_in_dimensi, __pyx_k_got_differing_extents_in_dimensi, sizeof(__pyx_k_got_differing_extents_in_dimensi), 0, 0, 1, 0},
-  {&__pyx_n_s_has_candidates, __pyx_k_has_candidates, sizeof(__pyx_k_has_candidates), 0, 0, 1, 1},
+  {&__pyx_n_s_hgh, __pyx_k_hgh, sizeof(__pyx_k_hgh), 0, 0, 1, 1},
   {&__pyx_n_s_i, __pyx_k_i, sizeof(__pyx_k_i), 0, 0, 1, 1},
   {&__pyx_n_s_id, __pyx_k_id, sizeof(__pyx_k_id), 0, 0, 1, 1},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
-  {&__pyx_n_s_in_clusters_weights, __pyx_k_in_clusters_weights, sizeof(__pyx_k_in_clusters_weights), 0, 0, 1, 1},
-  {&__pyx_n_s_in_node_probs, __pyx_k_in_node_probs, sizeof(__pyx_k_in_node_probs), 0, 0, 1, 1},
-  {&__pyx_n_s_increase, __pyx_k_increase, sizeof(__pyx_k_increase), 0, 0, 1, 1},
-  {&__pyx_n_s_increase_pass, __pyx_k_increase_pass, sizeof(__pyx_k_increase_pass), 0, 0, 1, 1},
-  {&__pyx_n_s_increase_total, __pyx_k_increase_total, sizeof(__pyx_k_increase_total), 0, 0, 1, 1},
-  {&__pyx_n_s_indices, __pyx_k_indices, sizeof(__pyx_k_indices), 0, 0, 1, 1},
-  {&__pyx_n_s_indptr, __pyx_k_indptr, sizeof(__pyx_k_indptr), 0, 0, 1, 1},
   {&__pyx_n_s_itemsize, __pyx_k_itemsize, sizeof(__pyx_k_itemsize), 0, 0, 1, 1},
   {&__pyx_kp_s_itemsize_0_for_cython_array, __pyx_k_itemsize_0_for_cython_array, sizeof(__pyx_k_itemsize_0_for_cython_array), 0, 0, 1, 0},
-  {&__pyx_n_s_label, __pyx_k_label, sizeof(__pyx_k_label), 0, 0, 1, 1},
-  {&__pyx_n_s_labels, __pyx_k_labels, sizeof(__pyx_k_labels), 0, 0, 1, 1},
+  {&__pyx_n_s_ix, __pyx_k_ix, sizeof(__pyx_k_ix), 0, 0, 1, 1},
+  {&__pyx_n_s_j, __pyx_k_j, sizeof(__pyx_k_j), 0, 0, 1, 1},
+  {&__pyx_n_s_knn1d, __pyx_k_knn1d, sizeof(__pyx_k_knn1d), 0, 0, 1, 1},
+  {&__pyx_n_s_low, __pyx_k_low, sizeof(__pyx_k_low), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_memview, __pyx_k_memview, sizeof(__pyx_k_memview), 0, 0, 1, 1},
   {&__pyx_n_s_mode, __pyx_k_mode, sizeof(__pyx_k_mode), 0, 0, 1, 1},
+  {&__pyx_n_s_n, __pyx_k_n, sizeof(__pyx_k_n), 0, 0, 1, 1},
   {&__pyx_n_s_n_neighbors, __pyx_k_n_neighbors, sizeof(__pyx_k_n_neighbors), 0, 0, 1, 1},
-  {&__pyx_n_s_n_nodes, __pyx_k_n_nodes, sizeof(__pyx_k_n_nodes), 0, 0, 1, 1},
   {&__pyx_n_s_name, __pyx_k_name, sizeof(__pyx_k_name), 0, 0, 1, 1},
   {&__pyx_n_s_name_2, __pyx_k_name_2, sizeof(__pyx_k_name_2), 0, 0, 1, 1},
   {&__pyx_kp_u_ndarray_is_not_C_contiguous, __pyx_k_ndarray_is_not_C_contiguous, sizeof(__pyx_k_ndarray_is_not_C_contiguous), 0, 1, 0, 0},
   {&__pyx_kp_u_ndarray_is_not_Fortran_contiguou, __pyx_k_ndarray_is_not_Fortran_contiguou, sizeof(__pyx_k_ndarray_is_not_Fortran_contiguou), 0, 1, 0, 0},
   {&__pyx_n_s_ndim, __pyx_k_ndim, sizeof(__pyx_k_ndim), 0, 0, 1, 1},
-  {&__pyx_n_s_neighbor, __pyx_k_neighbor, sizeof(__pyx_k_neighbor), 0, 0, 1, 1},
-  {&__pyx_n_s_neighbor_clusters_weights, __pyx_k_neighbor_clusters_weights, sizeof(__pyx_k_neighbor_clusters_weights), 0, 0, 1, 1},
-  {&__pyx_n_s_neighbors, __pyx_k_neighbors, sizeof(__pyx_k_neighbors), 0, 0, 1, 1},
+  {&__pyx_n_s_neigh, __pyx_k_neigh, sizeof(__pyx_k_neigh), 0, 0, 1, 1},
   {&__pyx_n_s_new, __pyx_k_new, sizeof(__pyx_k_new), 0, 0, 1, 1},
   {&__pyx_kp_s_no_default___reduce___due_to_non, __pyx_k_no_default___reduce___due_to_non, sizeof(__pyx_k_no_default___reduce___due_to_non), 0, 0, 1, 0},
-  {&__pyx_n_s_node, __pyx_k_node, sizeof(__pyx_k_node), 0, 0, 1, 1},
-  {&__pyx_n_s_node_prob_in, __pyx_k_node_prob_in, sizeof(__pyx_k_node_prob_in), 0, 0, 1, 1},
-  {&__pyx_n_s_node_prob_ou, __pyx_k_node_prob_ou, sizeof(__pyx_k_node_prob_ou), 0, 0, 1, 1},
   {&__pyx_n_s_np, __pyx_k_np, sizeof(__pyx_k_np), 0, 0, 1, 1},
   {&__pyx_n_s_numpy, __pyx_k_numpy, sizeof(__pyx_k_numpy), 0, 0, 1, 1},
   {&__pyx_kp_u_numpy_core_multiarray_failed_to, __pyx_k_numpy_core_multiarray_failed_to, sizeof(__pyx_k_numpy_core_multiarray_failed_to), 0, 1, 0, 0},
   {&__pyx_kp_u_numpy_core_umath_failed_to_impor, __pyx_k_numpy_core_umath_failed_to_impor, sizeof(__pyx_k_numpy_core_umath_failed_to_impor), 0, 1, 0, 0},
   {&__pyx_n_s_obj, __pyx_k_obj, sizeof(__pyx_k_obj), 0, 0, 1, 1},
-  {&__pyx_n_s_ou_clusters_weights, __pyx_k_ou_clusters_weights, sizeof(__pyx_k_ou_clusters_weights), 0, 0, 1, 1},
-  {&__pyx_n_s_ou_node_probs, __pyx_k_ou_node_probs, sizeof(__pyx_k_ou_node_probs), 0, 0, 1, 1},
   {&__pyx_n_s_pack, __pyx_k_pack, sizeof(__pyx_k_pack), 0, 0, 1, 1},
   {&__pyx_n_s_pickle, __pyx_k_pickle, sizeof(__pyx_k_pickle), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
@@ -19837,19 +19427,19 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_pyx_unpickle_Enum, __pyx_k_pyx_unpickle_Enum, sizeof(__pyx_k_pyx_unpickle_Enum), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_vtable, __pyx_k_pyx_vtable, sizeof(__pyx_k_pyx_vtable), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
-  {&__pyx_n_s_ratio_in, __pyx_k_ratio_in, sizeof(__pyx_k_ratio_in), 0, 0, 1, 1},
-  {&__pyx_n_s_ratio_ou, __pyx_k_ratio_ou, sizeof(__pyx_k_ratio_ou), 0, 0, 1, 1},
   {&__pyx_n_s_reduce, __pyx_k_reduce, sizeof(__pyx_k_reduce), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_cython, __pyx_k_reduce_cython, sizeof(__pyx_k_reduce_cython), 0, 0, 1, 1},
   {&__pyx_n_s_reduce_ex, __pyx_k_reduce_ex, sizeof(__pyx_k_reduce_ex), 0, 0, 1, 1},
-  {&__pyx_n_s_resolution, __pyx_k_resolution, sizeof(__pyx_k_resolution), 0, 0, 1, 1},
-  {&__pyx_n_s_self_loops, __pyx_k_self_loops, sizeof(__pyx_k_self_loops), 0, 0, 1, 1},
+  {&__pyx_n_s_row, __pyx_k_row, sizeof(__pyx_k_row), 0, 0, 1, 1},
   {&__pyx_n_s_setstate, __pyx_k_setstate, sizeof(__pyx_k_setstate), 0, 0, 1, 1},
   {&__pyx_n_s_setstate_cython, __pyx_k_setstate_cython, sizeof(__pyx_k_setstate_cython), 0, 0, 1, 1},
   {&__pyx_n_s_shape, __pyx_k_shape, sizeof(__pyx_k_shape), 0, 0, 1, 1},
   {&__pyx_n_s_size, __pyx_k_size, sizeof(__pyx_k_size), 0, 0, 1, 1},
-  {&__pyx_kp_s_sknetwork_clustering_louvain_cor, __pyx_k_sknetwork_clustering_louvain_cor, sizeof(__pyx_k_sknetwork_clustering_louvain_cor), 0, 0, 1, 0},
-  {&__pyx_n_s_sknetwork_clustering_louvain_cor_2, __pyx_k_sknetwork_clustering_louvain_cor_2, sizeof(__pyx_k_sknetwork_clustering_louvain_cor_2), 0, 0, 1, 1},
+  {&__pyx_n_s_sknetwork_utils_knn1d, __pyx_k_sknetwork_utils_knn1d, sizeof(__pyx_k_sknetwork_utils_knn1d), 0, 0, 1, 1},
+  {&__pyx_kp_s_sknetwork_utils_knn1d_pyx, __pyx_k_sknetwork_utils_knn1d_pyx, sizeof(__pyx_k_sknetwork_utils_knn1d_pyx), 0, 0, 1, 0},
+  {&__pyx_n_s_sorted_candidates, __pyx_k_sorted_candidates, sizeof(__pyx_k_sorted_candidates), 0, 0, 1, 1},
+  {&__pyx_n_s_sorted_deltas, __pyx_k_sorted_deltas, sizeof(__pyx_k_sorted_deltas), 0, 0, 1, 1},
+  {&__pyx_n_s_sorted_ix, __pyx_k_sorted_ix, sizeof(__pyx_k_sorted_ix), 0, 0, 1, 1},
   {&__pyx_n_s_start, __pyx_k_start, sizeof(__pyx_k_start), 0, 0, 1, 1},
   {&__pyx_n_s_step, __pyx_k_step, sizeof(__pyx_k_step), 0, 0, 1, 1},
   {&__pyx_n_s_stop, __pyx_k_stop, sizeof(__pyx_k_stop), 0, 0, 1, 1},
@@ -19859,18 +19449,18 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_stringsource, __pyx_k_stringsource, sizeof(__pyx_k_stringsource), 0, 0, 1, 0},
   {&__pyx_n_s_struct, __pyx_k_struct, sizeof(__pyx_k_struct), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
-  {&__pyx_n_s_tol, __pyx_k_tol, sizeof(__pyx_k_tol), 0, 0, 1, 1},
+  {&__pyx_n_s_tmp, __pyx_k_tmp, sizeof(__pyx_k_tmp), 0, 0, 1, 1},
   {&__pyx_kp_s_unable_to_allocate_array_data, __pyx_k_unable_to_allocate_array_data, sizeof(__pyx_k_unable_to_allocate_array_data), 0, 0, 1, 0},
   {&__pyx_kp_s_unable_to_allocate_shape_and_str, __pyx_k_unable_to_allocate_shape_and_str, sizeof(__pyx_k_unable_to_allocate_shape_and_str), 0, 0, 1, 0},
-  {&__pyx_n_s_unique_clusters, __pyx_k_unique_clusters, sizeof(__pyx_k_unique_clusters), 0, 0, 1, 1},
   {&__pyx_kp_u_unknown_dtype_code_in_numpy_pxd, __pyx_k_unknown_dtype_code_in_numpy_pxd, sizeof(__pyx_k_unknown_dtype_code_in_numpy_pxd), 0, 1, 0, 0},
   {&__pyx_n_s_unpack, __pyx_k_unpack, sizeof(__pyx_k_unpack), 0, 0, 1, 1},
   {&__pyx_n_s_update, __pyx_k_update, sizeof(__pyx_k_update), 0, 0, 1, 1},
-  {&__pyx_n_s_weights, __pyx_k_weights, sizeof(__pyx_k_weights), 0, 0, 1, 1},
+  {&__pyx_n_s_val, __pyx_k_val, sizeof(__pyx_k_val), 0, 0, 1, 1},
+  {&__pyx_n_s_x, __pyx_k_x, sizeof(__pyx_k_x), 0, 0, 1, 1},
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 81, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 55, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 272, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(1, 856, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 1038, __pyx_L1_error)
@@ -20158,17 +19748,17 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__25);
   __Pyx_GIVEREF(__pyx_tuple__25);
 
-  /* "sknetwork/clustering/louvain_core.pyx":15
+  /* "sknetwork/utils/knn1d.pyx":19
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
- * def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.float_t[:] ou_node_probs,             # <<<<<<<<<<<<<<
- *              np.float_t[:] in_node_probs, np.float_t[:] self_loops, np.float_t[:] data, int[:] indices,
- *              int[:] indptr):  # pragma: no cover
+ * def knn1d(np.float_t[:] x, int n_neighbors):             # <<<<<<<<<<<<<<
+ *     """K nearest neighbors search for 1-dimensional arrays.
+ * 
  */
-  __pyx_tuple__26 = PyTuple_Pack(37, __pyx_n_s_resolution, __pyx_n_s_tol, __pyx_n_s_n_nodes, __pyx_n_s_ou_node_probs, __pyx_n_s_in_node_probs, __pyx_n_s_self_loops, __pyx_n_s_data, __pyx_n_s_indices, __pyx_n_s_indptr, __pyx_n_s_increase, __pyx_n_s_has_candidates, __pyx_n_s_labels, __pyx_n_s_neighbor_clusters_weights, __pyx_n_s_ou_clusters_weights, __pyx_n_s_in_clusters_weights, __pyx_n_s_neighbors, __pyx_n_s_weights, __pyx_n_s_unique_clusters, __pyx_n_s_increase_pass, __pyx_n_s_increase_total, __pyx_n_s_delta, __pyx_n_s_delta_best, __pyx_n_s_delta_exit, __pyx_n_s_delta_local, __pyx_n_s_node_prob_in, __pyx_n_s_node_prob_ou, __pyx_n_s_ratio_in, __pyx_n_s_ratio_ou, __pyx_n_s_cluster, __pyx_n_s_cluster_best, __pyx_n_s_cluster_node, __pyx_n_s_i, __pyx_n_s_label, __pyx_n_s_n_neighbors, __pyx_n_s_neighbor, __pyx_n_s_node, __pyx_n_s_start); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_tuple__26 = PyTuple_Pack(18, __pyx_n_s_x, __pyx_n_s_n_neighbors, __pyx_n_s_n, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_ix, __pyx_n_s_low, __pyx_n_s_hgh, __pyx_n_s_neigh, __pyx_n_s_val, __pyx_n_s_sorted_ix, __pyx_n_s_row, __pyx_n_s_col, __pyx_n_s_candidates, __pyx_n_s_sorted_candidates, __pyx_n_s_sorted_deltas, __pyx_n_s_tmp, __pyx_n_s_deltas); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(0, 19, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__26);
   __Pyx_GIVEREF(__pyx_tuple__26);
-  __pyx_codeobj__27 = (PyObject*)__Pyx_PyCode_New(9, 0, 37, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__26, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_sknetwork_clustering_louvain_cor, __pyx_n_s_fit_core, 15, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__27)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_codeobj__27 = (PyObject*)__Pyx_PyCode_New(2, 0, 18, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__26, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_sknetwork_utils_knn1d_pyx, __pyx_n_s_knn1d, 19, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__27)) __PYX_ERR(0, 19, __pyx_L1_error)
 
   /* "View.MemoryView":286
  *         return self.name
@@ -20421,11 +20011,11 @@ static int __Pyx_modinit_function_import_code(void) {
 
 
 #if PY_MAJOR_VERSION < 3
-__Pyx_PyMODINIT_FUNC initlouvain_core(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC initlouvain_core(void)
+__Pyx_PyMODINIT_FUNC initknn1d(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC initknn1d(void)
 #else
-__Pyx_PyMODINIT_FUNC PyInit_louvain_core(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC PyInit_louvain_core(void)
+__Pyx_PyMODINIT_FUNC PyInit_knn1d(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC PyInit_knn1d(void)
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 {
   return PyModuleDef_Init(&__pyx_moduledef);
@@ -20492,7 +20082,7 @@ bad:
 }
 
 
-static CYTHON_SMALL_CODE int __pyx_pymod_exec_louvain_core(PyObject *__pyx_pyinit_module)
+static CYTHON_SMALL_CODE int __pyx_pymod_exec_knn1d(PyObject *__pyx_pyinit_module)
 #endif
 #endif
 {
@@ -20502,7 +20092,7 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_louvain_core(PyObject *__pyx_pyini
   #if CYTHON_PEP489_MULTI_PHASE_INIT
   if (__pyx_m) {
     if (__pyx_m == __pyx_pyinit_module) return 0;
-    PyErr_SetString(PyExc_RuntimeError, "Module 'louvain_core' has already been imported. Re-initialisation is not supported.");
+    PyErr_SetString(PyExc_RuntimeError, "Module 'knn1d' has already been imported. Re-initialisation is not supported.");
     return -1;
   }
   #elif PY_MAJOR_VERSION >= 3
@@ -20517,7 +20107,7 @@ if (!__Pyx_RefNanny) {
       Py_FatalError("failed to import 'refnanny' module");
 }
 #endif
-  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_louvain_core(void)", 0);
+  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_knn1d(void)", 0);
   if (__Pyx_check_binary_version() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #ifdef __Pxy_PyFrame_Initialize_Offsets
   __Pxy_PyFrame_Initialize_Offsets();
@@ -20556,7 +20146,7 @@ if (!__Pyx_RefNanny) {
   Py_INCREF(__pyx_m);
   #else
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("louvain_core", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("knn1d", __pyx_methods, __pyx_k_One_dimensional_nearest_neighbo, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   #else
   __pyx_m = PyModule_Create(&__pyx_moduledef);
   #endif
@@ -20574,14 +20164,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_sknetwork__clustering__louvain_core) {
+  if (__pyx_module_is_main_sknetwork__utils__knn1d) {
     if (PyObject_SetAttr(__pyx_m, __pyx_n_s_name_2, __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "sknetwork.clustering.louvain_core")) {
-      if (unlikely(PyDict_SetItemString(modules, "sknetwork.clustering.louvain_core", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "sknetwork.utils.knn1d")) {
+      if (unlikely(PyDict_SetItemString(modules, "sknetwork.utils.knn1d", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -20602,34 +20192,34 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "sknetwork/clustering/louvain_core.pyx":3
- * # distutils: language = c++
- * # cython: language_level=3
+  /* "sknetwork/utils/knn1d.pyx":7
+ * @author: Nathan de Lara <ndelara@enst.fr>
+ * """
  * import numpy as np             # <<<<<<<<<<<<<<
  * cimport numpy as np
  * 
  */
-  __pyx_t_1 = __Pyx_Import(__pyx_n_s_numpy, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 3, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_numpy, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 7, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 3, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 7, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sknetwork/clustering/louvain_core.pyx":15
+  /* "sknetwork/utils/knn1d.pyx":19
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
- * def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.float_t[:] ou_node_probs,             # <<<<<<<<<<<<<<
- *              np.float_t[:] in_node_probs, np.float_t[:] self_loops, np.float_t[:] data, int[:] indices,
- *              int[:] indptr):  # pragma: no cover
+ * def knn1d(np.float_t[:] x, int n_neighbors):             # <<<<<<<<<<<<<<
+ *     """K nearest neighbors search for 1-dimensional arrays.
+ * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_9sknetwork_10clustering_12louvain_core_1fit_core, NULL, __pyx_n_s_sknetwork_clustering_louvain_cor_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_9sknetwork_5utils_5knn1d_1knn1d, NULL, __pyx_n_s_sknetwork_utils_knn1d); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 19, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_fit_core, __pyx_t_1) < 0) __PYX_ERR(0, 15, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_knn1d, __pyx_t_1) < 0) __PYX_ERR(0, 19, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sknetwork/clustering/louvain_core.pyx":1
+  /* "sknetwork/utils/knn1d.pyx":1
  * # distutils: language = c++             # <<<<<<<<<<<<<<
  * # cython: language_level=3
- * import numpy as np
+ * """ One dimensional nearest neighbor search.
  */
   __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 1, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -20796,11 +20386,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_1);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init sknetwork.clustering.louvain_core", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init sknetwork.utils.knn1d", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_CLEAR(__pyx_m);
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init sknetwork.clustering.louvain_core");
+    PyErr_SetString(PyExc_ImportError, "init sknetwork.utils.knn1d");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();
@@ -21001,6 +20591,415 @@ bad:
     return -1;
 }
 
+/* PyDictVersioning */
+#if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_TYPE_SLOTS
+static CYTHON_INLINE PY_UINT64_T __Pyx_get_tp_dict_version(PyObject *obj) {
+    PyObject *dict = Py_TYPE(obj)->tp_dict;
+    return likely(dict) ? __PYX_GET_DICT_VERSION(dict) : 0;
+}
+static CYTHON_INLINE PY_UINT64_T __Pyx_get_object_dict_version(PyObject *obj) {
+    PyObject **dictptr = NULL;
+    Py_ssize_t offset = Py_TYPE(obj)->tp_dictoffset;
+    if (offset) {
+#if CYTHON_COMPILING_IN_CPYTHON
+        dictptr = (likely(offset > 0)) ? (PyObject **) ((char *)obj + offset) : _PyObject_GetDictPtr(obj);
+#else
+        dictptr = _PyObject_GetDictPtr(obj);
+#endif
+    }
+    return (dictptr && *dictptr) ? __PYX_GET_DICT_VERSION(*dictptr) : 0;
+}
+static CYTHON_INLINE int __Pyx_object_dict_version_matches(PyObject* obj, PY_UINT64_T tp_dict_version, PY_UINT64_T obj_dict_version) {
+    PyObject *dict = Py_TYPE(obj)->tp_dict;
+    if (unlikely(!dict) || unlikely(tp_dict_version != __PYX_GET_DICT_VERSION(dict)))
+        return 0;
+    return obj_dict_version == __Pyx_get_object_dict_version(obj);
+}
+#endif
+
+/* GetModuleGlobalName */
+#if CYTHON_USE_DICT_VERSIONS
+static PyObject *__Pyx__GetModuleGlobalName(PyObject *name, PY_UINT64_T *dict_version, PyObject **dict_cached_value)
+#else
+static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name)
+#endif
+{
+    PyObject *result;
+#if !CYTHON_AVOID_BORROWED_REFS
+#if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030500A1
+    result = _PyDict_GetItem_KnownHash(__pyx_d, name, ((PyASCIIObject *) name)->hash);
+    __PYX_UPDATE_DICT_CACHE(__pyx_d, result, *dict_cached_value, *dict_version)
+    if (likely(result)) {
+        return __Pyx_NewRef(result);
+    } else if (unlikely(PyErr_Occurred())) {
+        return NULL;
+    }
+#else
+    result = PyDict_GetItem(__pyx_d, name);
+    __PYX_UPDATE_DICT_CACHE(__pyx_d, result, *dict_cached_value, *dict_version)
+    if (likely(result)) {
+        return __Pyx_NewRef(result);
+    }
+#endif
+#else
+    result = PyObject_GetItem(__pyx_d, name);
+    __PYX_UPDATE_DICT_CACHE(__pyx_d, result, *dict_cached_value, *dict_version)
+    if (likely(result)) {
+        return __Pyx_NewRef(result);
+    }
+    PyErr_Clear();
+#endif
+    return __Pyx_GetBuiltinName(name);
+}
+
+/* PyCFunctionFastCall */
+#if CYTHON_FAST_PYCCALL
+static CYTHON_INLINE PyObject * __Pyx_PyCFunction_FastCall(PyObject *func_obj, PyObject **args, Py_ssize_t nargs) {
+    PyCFunctionObject *func = (PyCFunctionObject*)func_obj;
+    PyCFunction meth = PyCFunction_GET_FUNCTION(func);
+    PyObject *self = PyCFunction_GET_SELF(func);
+    int flags = PyCFunction_GET_FLAGS(func);
+    assert(PyCFunction_Check(func));
+    assert(METH_FASTCALL == (flags & ~(METH_CLASS | METH_STATIC | METH_COEXIST | METH_KEYWORDS | METH_STACKLESS)));
+    assert(nargs >= 0);
+    assert(nargs == 0 || args != NULL);
+    /* _PyCFunction_FastCallDict() must not be called with an exception set,
+       because it may clear it (directly or indirectly) and so the
+       caller loses its exception */
+    assert(!PyErr_Occurred());
+    if ((PY_VERSION_HEX < 0x030700A0) || unlikely(flags & METH_KEYWORDS)) {
+        return (*((__Pyx_PyCFunctionFastWithKeywords)(void*)meth)) (self, args, nargs, NULL);
+    } else {
+        return (*((__Pyx_PyCFunctionFast)(void*)meth)) (self, args, nargs);
+    }
+}
+#endif
+
+/* PyFunctionFastCall */
+#if CYTHON_FAST_PYCALL
+static PyObject* __Pyx_PyFunction_FastCallNoKw(PyCodeObject *co, PyObject **args, Py_ssize_t na,
+                                               PyObject *globals) {
+    PyFrameObject *f;
+    PyThreadState *tstate = __Pyx_PyThreadState_Current;
+    PyObject **fastlocals;
+    Py_ssize_t i;
+    PyObject *result;
+    assert(globals != NULL);
+    /* XXX Perhaps we should create a specialized
+       PyFrame_New() that doesn't take locals, but does
+       take builtins without sanity checking them.
+       */
+    assert(tstate != NULL);
+    f = PyFrame_New(tstate, co, globals, NULL);
+    if (f == NULL) {
+        return NULL;
+    }
+    fastlocals = __Pyx_PyFrame_GetLocalsplus(f);
+    for (i = 0; i < na; i++) {
+        Py_INCREF(*args);
+        fastlocals[i] = *args++;
+    }
+    result = PyEval_EvalFrameEx(f,0);
+    ++tstate->recursion_depth;
+    Py_DECREF(f);
+    --tstate->recursion_depth;
+    return result;
+}
+#if 1 || PY_VERSION_HEX < 0x030600B1
+static PyObject *__Pyx_PyFunction_FastCallDict(PyObject *func, PyObject **args, Py_ssize_t nargs, PyObject *kwargs) {
+    PyCodeObject *co = (PyCodeObject *)PyFunction_GET_CODE(func);
+    PyObject *globals = PyFunction_GET_GLOBALS(func);
+    PyObject *argdefs = PyFunction_GET_DEFAULTS(func);
+    PyObject *closure;
+#if PY_MAJOR_VERSION >= 3
+    PyObject *kwdefs;
+#endif
+    PyObject *kwtuple, **k;
+    PyObject **d;
+    Py_ssize_t nd;
+    Py_ssize_t nk;
+    PyObject *result;
+    assert(kwargs == NULL || PyDict_Check(kwargs));
+    nk = kwargs ? PyDict_Size(kwargs) : 0;
+    if (Py_EnterRecursiveCall((char*)" while calling a Python object")) {
+        return NULL;
+    }
+    if (
+#if PY_MAJOR_VERSION >= 3
+            co->co_kwonlyargcount == 0 &&
+#endif
+            likely(kwargs == NULL || nk == 0) &&
+            co->co_flags == (CO_OPTIMIZED | CO_NEWLOCALS | CO_NOFREE)) {
+        if (argdefs == NULL && co->co_argcount == nargs) {
+            result = __Pyx_PyFunction_FastCallNoKw(co, args, nargs, globals);
+            goto done;
+        }
+        else if (nargs == 0 && argdefs != NULL
+                 && co->co_argcount == Py_SIZE(argdefs)) {
+            /* function called with no arguments, but all parameters have
+               a default value: use default values as arguments .*/
+            args = &PyTuple_GET_ITEM(argdefs, 0);
+            result =__Pyx_PyFunction_FastCallNoKw(co, args, Py_SIZE(argdefs), globals);
+            goto done;
+        }
+    }
+    if (kwargs != NULL) {
+        Py_ssize_t pos, i;
+        kwtuple = PyTuple_New(2 * nk);
+        if (kwtuple == NULL) {
+            result = NULL;
+            goto done;
+        }
+        k = &PyTuple_GET_ITEM(kwtuple, 0);
+        pos = i = 0;
+        while (PyDict_Next(kwargs, &pos, &k[i], &k[i+1])) {
+            Py_INCREF(k[i]);
+            Py_INCREF(k[i+1]);
+            i += 2;
+        }
+        nk = i / 2;
+    }
+    else {
+        kwtuple = NULL;
+        k = NULL;
+    }
+    closure = PyFunction_GET_CLOSURE(func);
+#if PY_MAJOR_VERSION >= 3
+    kwdefs = PyFunction_GET_KW_DEFAULTS(func);
+#endif
+    if (argdefs != NULL) {
+        d = &PyTuple_GET_ITEM(argdefs, 0);
+        nd = Py_SIZE(argdefs);
+    }
+    else {
+        d = NULL;
+        nd = 0;
+    }
+#if PY_MAJOR_VERSION >= 3
+    result = PyEval_EvalCodeEx((PyObject*)co, globals, (PyObject *)NULL,
+                               args, (int)nargs,
+                               k, (int)nk,
+                               d, (int)nd, kwdefs, closure);
+#else
+    result = PyEval_EvalCodeEx(co, globals, (PyObject *)NULL,
+                               args, (int)nargs,
+                               k, (int)nk,
+                               d, (int)nd, closure);
+#endif
+    Py_XDECREF(kwtuple);
+done:
+    Py_LeaveRecursiveCall();
+    return result;
+}
+#endif
+#endif
+
+/* PyObjectCall */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw) {
+    PyObject *result;
+    ternaryfunc call = func->ob_type->tp_call;
+    if (unlikely(!call))
+        return PyObject_Call(func, arg, kw);
+    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
+        return NULL;
+    result = (*call)(func, arg, kw);
+    Py_LeaveRecursiveCall();
+    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
+        PyErr_SetString(
+            PyExc_SystemError,
+            "NULL result without error in PyObject_Call");
+    }
+    return result;
+}
+#endif
+
+/* PyObjectCall2Args */
+static CYTHON_UNUSED PyObject* __Pyx_PyObject_Call2Args(PyObject* function, PyObject* arg1, PyObject* arg2) {
+    PyObject *args, *result = NULL;
+    #if CYTHON_FAST_PYCALL
+    if (PyFunction_Check(function)) {
+        PyObject *args[2] = {arg1, arg2};
+        return __Pyx_PyFunction_FastCall(function, args, 2);
+    }
+    #endif
+    #if CYTHON_FAST_PYCCALL
+    if (__Pyx_PyFastCFunction_Check(function)) {
+        PyObject *args[2] = {arg1, arg2};
+        return __Pyx_PyCFunction_FastCall(function, args, 2);
+    }
+    #endif
+    args = PyTuple_New(2);
+    if (unlikely(!args)) goto done;
+    Py_INCREF(arg1);
+    PyTuple_SET_ITEM(args, 0, arg1);
+    Py_INCREF(arg2);
+    PyTuple_SET_ITEM(args, 1, arg2);
+    Py_INCREF(function);
+    result = __Pyx_PyObject_Call(function, args, NULL);
+    Py_DECREF(args);
+    Py_DECREF(function);
+done:
+    return result;
+}
+
+/* PyObjectCallMethO */
+#if CYTHON_COMPILING_IN_CPYTHON
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg) {
+    PyObject *self, *result;
+    PyCFunction cfunc;
+    cfunc = PyCFunction_GET_FUNCTION(func);
+    self = PyCFunction_GET_SELF(func);
+    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
+        return NULL;
+    result = cfunc(self, arg);
+    Py_LeaveRecursiveCall();
+    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
+        PyErr_SetString(
+            PyExc_SystemError,
+            "NULL result without error in PyObject_Call");
+    }
+    return result;
+}
+#endif
+
+/* PyObjectCallOneArg */
+#if CYTHON_COMPILING_IN_CPYTHON
+static PyObject* __Pyx__PyObject_CallOneArg(PyObject *func, PyObject *arg) {
+    PyObject *result;
+    PyObject *args = PyTuple_New(1);
+    if (unlikely(!args)) return NULL;
+    Py_INCREF(arg);
+    PyTuple_SET_ITEM(args, 0, arg);
+    result = __Pyx_PyObject_Call(func, args, NULL);
+    Py_DECREF(args);
+    return result;
+}
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
+#if CYTHON_FAST_PYCALL
+    if (PyFunction_Check(func)) {
+        return __Pyx_PyFunction_FastCall(func, &arg, 1);
+    }
+#endif
+    if (likely(PyCFunction_Check(func))) {
+        if (likely(PyCFunction_GET_FLAGS(func) & METH_O)) {
+            return __Pyx_PyObject_CallMethO(func, arg);
+#if CYTHON_FAST_PYCCALL
+        } else if (PyCFunction_GET_FLAGS(func) & METH_FASTCALL) {
+            return __Pyx_PyCFunction_FastCall(func, &arg, 1);
+#endif
+        }
+    }
+    return __Pyx__PyObject_CallOneArg(func, arg);
+}
+#else
+static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
+    PyObject *result;
+    PyObject *args = PyTuple_Pack(1, arg);
+    if (unlikely(!args)) return NULL;
+    result = __Pyx_PyObject_Call(func, args, NULL);
+    Py_DECREF(args);
+    return result;
+}
+#endif
+
+/* SliceObject */
+static CYTHON_INLINE PyObject* __Pyx_PyObject_GetSlice(PyObject* obj,
+        Py_ssize_t cstart, Py_ssize_t cstop,
+        PyObject** _py_start, PyObject** _py_stop, PyObject** _py_slice,
+        int has_cstart, int has_cstop, CYTHON_UNUSED int wraparound) {
+#if CYTHON_USE_TYPE_SLOTS
+    PyMappingMethods* mp;
+#if PY_MAJOR_VERSION < 3
+    PySequenceMethods* ms = Py_TYPE(obj)->tp_as_sequence;
+    if (likely(ms && ms->sq_slice)) {
+        if (!has_cstart) {
+            if (_py_start && (*_py_start != Py_None)) {
+                cstart = __Pyx_PyIndex_AsSsize_t(*_py_start);
+                if ((cstart == (Py_ssize_t)-1) && PyErr_Occurred()) goto bad;
+            } else
+                cstart = 0;
+        }
+        if (!has_cstop) {
+            if (_py_stop && (*_py_stop != Py_None)) {
+                cstop = __Pyx_PyIndex_AsSsize_t(*_py_stop);
+                if ((cstop == (Py_ssize_t)-1) && PyErr_Occurred()) goto bad;
+            } else
+                cstop = PY_SSIZE_T_MAX;
+        }
+        if (wraparound && unlikely((cstart < 0) | (cstop < 0)) && likely(ms->sq_length)) {
+            Py_ssize_t l = ms->sq_length(obj);
+            if (likely(l >= 0)) {
+                if (cstop < 0) {
+                    cstop += l;
+                    if (cstop < 0) cstop = 0;
+                }
+                if (cstart < 0) {
+                    cstart += l;
+                    if (cstart < 0) cstart = 0;
+                }
+            } else {
+                if (!PyErr_ExceptionMatches(PyExc_OverflowError))
+                    goto bad;
+                PyErr_Clear();
+            }
+        }
+        return ms->sq_slice(obj, cstart, cstop);
+    }
+#endif
+    mp = Py_TYPE(obj)->tp_as_mapping;
+    if (likely(mp && mp->mp_subscript))
+#endif
+    {
+        PyObject* result;
+        PyObject *py_slice, *py_start, *py_stop;
+        if (_py_slice) {
+            py_slice = *_py_slice;
+        } else {
+            PyObject* owned_start = NULL;
+            PyObject* owned_stop = NULL;
+            if (_py_start) {
+                py_start = *_py_start;
+            } else {
+                if (has_cstart) {
+                    owned_start = py_start = PyInt_FromSsize_t(cstart);
+                    if (unlikely(!py_start)) goto bad;
+                } else
+                    py_start = Py_None;
+            }
+            if (_py_stop) {
+                py_stop = *_py_stop;
+            } else {
+                if (has_cstop) {
+                    owned_stop = py_stop = PyInt_FromSsize_t(cstop);
+                    if (unlikely(!py_stop)) {
+                        Py_XDECREF(owned_start);
+                        goto bad;
+                    }
+                } else
+                    py_stop = Py_None;
+            }
+            py_slice = PySlice_New(py_start, py_stop, Py_None);
+            Py_XDECREF(owned_start);
+            Py_XDECREF(owned_stop);
+            if (unlikely(!py_slice)) goto bad;
+        }
+#if CYTHON_USE_TYPE_SLOTS
+        result = mp->mp_subscript(obj, py_slice);
+#else
+        result = PyObject_GetItem(obj, py_slice);
+#endif
+        if (!_py_slice) {
+            Py_DECREF(py_slice);
+        }
+        return result;
+    }
+    PyErr_Format(PyExc_TypeError,
+        "'%.200s' object is unsliceable", Py_TYPE(obj)->tp_name);
+bad:
+    return NULL;
+}
+
 /* MemviewSliceInit */
 static int
 __Pyx_init_memviewslice(struct __pyx_memoryview_obj *memview,
@@ -21134,26 +21133,6 @@ static CYTHON_INLINE void __Pyx_XDEC_MEMVIEW(__Pyx_memviewslice *memslice,
         memslice->memview = NULL;
     }
 }
-
-/* PyObjectCall */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_Call(PyObject *func, PyObject *arg, PyObject *kw) {
-    PyObject *result;
-    ternaryfunc call = func->ob_type->tp_call;
-    if (unlikely(!call))
-        return PyObject_Call(func, arg, kw);
-    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
-        return NULL;
-    result = (*call)(func, arg, kw);
-    Py_LeaveRecursiveCall();
-    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
-        PyErr_SetString(
-            PyExc_SystemError,
-            "NULL result without error in PyObject_Call");
-    }
-    return result;
-}
-#endif
 
 /* PyErrFetchRestore */
 #if CYTHON_FAST_THREAD_STATE
@@ -21335,208 +21314,6 @@ static void __Pyx_Raise(PyObject *type, PyObject *value, PyObject *tb, PyObject 
 bad:
     Py_XDECREF(owned_instance);
     return;
-}
-#endif
-
-/* PyCFunctionFastCall */
-#if CYTHON_FAST_PYCCALL
-static CYTHON_INLINE PyObject * __Pyx_PyCFunction_FastCall(PyObject *func_obj, PyObject **args, Py_ssize_t nargs) {
-    PyCFunctionObject *func = (PyCFunctionObject*)func_obj;
-    PyCFunction meth = PyCFunction_GET_FUNCTION(func);
-    PyObject *self = PyCFunction_GET_SELF(func);
-    int flags = PyCFunction_GET_FLAGS(func);
-    assert(PyCFunction_Check(func));
-    assert(METH_FASTCALL == (flags & ~(METH_CLASS | METH_STATIC | METH_COEXIST | METH_KEYWORDS | METH_STACKLESS)));
-    assert(nargs >= 0);
-    assert(nargs == 0 || args != NULL);
-    /* _PyCFunction_FastCallDict() must not be called with an exception set,
-       because it may clear it (directly or indirectly) and so the
-       caller loses its exception */
-    assert(!PyErr_Occurred());
-    if ((PY_VERSION_HEX < 0x030700A0) || unlikely(flags & METH_KEYWORDS)) {
-        return (*((__Pyx_PyCFunctionFastWithKeywords)(void*)meth)) (self, args, nargs, NULL);
-    } else {
-        return (*((__Pyx_PyCFunctionFast)(void*)meth)) (self, args, nargs);
-    }
-}
-#endif
-
-/* PyFunctionFastCall */
-#if CYTHON_FAST_PYCALL
-static PyObject* __Pyx_PyFunction_FastCallNoKw(PyCodeObject *co, PyObject **args, Py_ssize_t na,
-                                               PyObject *globals) {
-    PyFrameObject *f;
-    PyThreadState *tstate = __Pyx_PyThreadState_Current;
-    PyObject **fastlocals;
-    Py_ssize_t i;
-    PyObject *result;
-    assert(globals != NULL);
-    /* XXX Perhaps we should create a specialized
-       PyFrame_New() that doesn't take locals, but does
-       take builtins without sanity checking them.
-       */
-    assert(tstate != NULL);
-    f = PyFrame_New(tstate, co, globals, NULL);
-    if (f == NULL) {
-        return NULL;
-    }
-    fastlocals = __Pyx_PyFrame_GetLocalsplus(f);
-    for (i = 0; i < na; i++) {
-        Py_INCREF(*args);
-        fastlocals[i] = *args++;
-    }
-    result = PyEval_EvalFrameEx(f,0);
-    ++tstate->recursion_depth;
-    Py_DECREF(f);
-    --tstate->recursion_depth;
-    return result;
-}
-#if 1 || PY_VERSION_HEX < 0x030600B1
-static PyObject *__Pyx_PyFunction_FastCallDict(PyObject *func, PyObject **args, Py_ssize_t nargs, PyObject *kwargs) {
-    PyCodeObject *co = (PyCodeObject *)PyFunction_GET_CODE(func);
-    PyObject *globals = PyFunction_GET_GLOBALS(func);
-    PyObject *argdefs = PyFunction_GET_DEFAULTS(func);
-    PyObject *closure;
-#if PY_MAJOR_VERSION >= 3
-    PyObject *kwdefs;
-#endif
-    PyObject *kwtuple, **k;
-    PyObject **d;
-    Py_ssize_t nd;
-    Py_ssize_t nk;
-    PyObject *result;
-    assert(kwargs == NULL || PyDict_Check(kwargs));
-    nk = kwargs ? PyDict_Size(kwargs) : 0;
-    if (Py_EnterRecursiveCall((char*)" while calling a Python object")) {
-        return NULL;
-    }
-    if (
-#if PY_MAJOR_VERSION >= 3
-            co->co_kwonlyargcount == 0 &&
-#endif
-            likely(kwargs == NULL || nk == 0) &&
-            co->co_flags == (CO_OPTIMIZED | CO_NEWLOCALS | CO_NOFREE)) {
-        if (argdefs == NULL && co->co_argcount == nargs) {
-            result = __Pyx_PyFunction_FastCallNoKw(co, args, nargs, globals);
-            goto done;
-        }
-        else if (nargs == 0 && argdefs != NULL
-                 && co->co_argcount == Py_SIZE(argdefs)) {
-            /* function called with no arguments, but all parameters have
-               a default value: use default values as arguments .*/
-            args = &PyTuple_GET_ITEM(argdefs, 0);
-            result =__Pyx_PyFunction_FastCallNoKw(co, args, Py_SIZE(argdefs), globals);
-            goto done;
-        }
-    }
-    if (kwargs != NULL) {
-        Py_ssize_t pos, i;
-        kwtuple = PyTuple_New(2 * nk);
-        if (kwtuple == NULL) {
-            result = NULL;
-            goto done;
-        }
-        k = &PyTuple_GET_ITEM(kwtuple, 0);
-        pos = i = 0;
-        while (PyDict_Next(kwargs, &pos, &k[i], &k[i+1])) {
-            Py_INCREF(k[i]);
-            Py_INCREF(k[i+1]);
-            i += 2;
-        }
-        nk = i / 2;
-    }
-    else {
-        kwtuple = NULL;
-        k = NULL;
-    }
-    closure = PyFunction_GET_CLOSURE(func);
-#if PY_MAJOR_VERSION >= 3
-    kwdefs = PyFunction_GET_KW_DEFAULTS(func);
-#endif
-    if (argdefs != NULL) {
-        d = &PyTuple_GET_ITEM(argdefs, 0);
-        nd = Py_SIZE(argdefs);
-    }
-    else {
-        d = NULL;
-        nd = 0;
-    }
-#if PY_MAJOR_VERSION >= 3
-    result = PyEval_EvalCodeEx((PyObject*)co, globals, (PyObject *)NULL,
-                               args, (int)nargs,
-                               k, (int)nk,
-                               d, (int)nd, kwdefs, closure);
-#else
-    result = PyEval_EvalCodeEx(co, globals, (PyObject *)NULL,
-                               args, (int)nargs,
-                               k, (int)nk,
-                               d, (int)nd, closure);
-#endif
-    Py_XDECREF(kwtuple);
-done:
-    Py_LeaveRecursiveCall();
-    return result;
-}
-#endif
-#endif
-
-/* PyObjectCallMethO */
-#if CYTHON_COMPILING_IN_CPYTHON
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallMethO(PyObject *func, PyObject *arg) {
-    PyObject *self, *result;
-    PyCFunction cfunc;
-    cfunc = PyCFunction_GET_FUNCTION(func);
-    self = PyCFunction_GET_SELF(func);
-    if (unlikely(Py_EnterRecursiveCall((char*)" while calling a Python object")))
-        return NULL;
-    result = cfunc(self, arg);
-    Py_LeaveRecursiveCall();
-    if (unlikely(!result) && unlikely(!PyErr_Occurred())) {
-        PyErr_SetString(
-            PyExc_SystemError,
-            "NULL result without error in PyObject_Call");
-    }
-    return result;
-}
-#endif
-
-/* PyObjectCallOneArg */
-#if CYTHON_COMPILING_IN_CPYTHON
-static PyObject* __Pyx__PyObject_CallOneArg(PyObject *func, PyObject *arg) {
-    PyObject *result;
-    PyObject *args = PyTuple_New(1);
-    if (unlikely(!args)) return NULL;
-    Py_INCREF(arg);
-    PyTuple_SET_ITEM(args, 0, arg);
-    result = __Pyx_PyObject_Call(func, args, NULL);
-    Py_DECREF(args);
-    return result;
-}
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
-#if CYTHON_FAST_PYCALL
-    if (PyFunction_Check(func)) {
-        return __Pyx_PyFunction_FastCall(func, &arg, 1);
-    }
-#endif
-    if (likely(PyCFunction_Check(func))) {
-        if (likely(PyCFunction_GET_FLAGS(func) & METH_O)) {
-            return __Pyx_PyObject_CallMethO(func, arg);
-#if CYTHON_FAST_PYCCALL
-        } else if (PyCFunction_GET_FLAGS(func) & METH_FASTCALL) {
-            return __Pyx_PyCFunction_FastCall(func, &arg, 1);
-#endif
-        }
-    }
-    return __Pyx__PyObject_CallOneArg(func, arg);
-}
-#else
-static CYTHON_INLINE PyObject* __Pyx_PyObject_CallOneArg(PyObject *func, PyObject *arg) {
-    PyObject *result;
-    PyObject *args = PyTuple_Pack(1, arg);
-    if (unlikely(!args)) return NULL;
-    result = __Pyx_PyObject_Call(func, args, NULL);
-    Py_DECREF(args);
-    return result;
 }
 #endif
 
@@ -21769,35 +21546,6 @@ static int __Pyx__ArgTypeTest(PyObject *obj, PyTypeObject *type, const char *nam
         "Argument '%.200s' has incorrect type (expected %.200s, got %.200s)",
         name, type->tp_name, Py_TYPE(obj)->tp_name);
     return 0;
-}
-
-/* PyObjectCall2Args */
-static CYTHON_UNUSED PyObject* __Pyx_PyObject_Call2Args(PyObject* function, PyObject* arg1, PyObject* arg2) {
-    PyObject *args, *result = NULL;
-    #if CYTHON_FAST_PYCALL
-    if (PyFunction_Check(function)) {
-        PyObject *args[2] = {arg1, arg2};
-        return __Pyx_PyFunction_FastCall(function, args, 2);
-    }
-    #endif
-    #if CYTHON_FAST_PYCCALL
-    if (__Pyx_PyFastCFunction_Check(function)) {
-        PyObject *args[2] = {arg1, arg2};
-        return __Pyx_PyCFunction_FastCall(function, args, 2);
-    }
-    #endif
-    args = PyTuple_New(2);
-    if (unlikely(!args)) goto done;
-    Py_INCREF(arg1);
-    PyTuple_SET_ITEM(args, 0, arg1);
-    Py_INCREF(arg2);
-    PyTuple_SET_ITEM(args, 1, arg2);
-    Py_INCREF(function);
-    result = __Pyx_PyObject_Call(function, args, NULL);
-    Py_DECREF(args);
-    Py_DECREF(function);
-done:
-    return result;
 }
 
 /* BytesEquals */
@@ -22132,67 +21880,6 @@ static PyObject *__Pyx_GetAttr3Default(PyObject *d) {
 static CYTHON_INLINE PyObject *__Pyx_GetAttr3(PyObject *o, PyObject *n, PyObject *d) {
     PyObject *r = __Pyx_GetAttr(o, n);
     return (likely(r)) ? r : __Pyx_GetAttr3Default(d);
-}
-
-/* PyDictVersioning */
-#if CYTHON_USE_DICT_VERSIONS && CYTHON_USE_TYPE_SLOTS
-static CYTHON_INLINE PY_UINT64_T __Pyx_get_tp_dict_version(PyObject *obj) {
-    PyObject *dict = Py_TYPE(obj)->tp_dict;
-    return likely(dict) ? __PYX_GET_DICT_VERSION(dict) : 0;
-}
-static CYTHON_INLINE PY_UINT64_T __Pyx_get_object_dict_version(PyObject *obj) {
-    PyObject **dictptr = NULL;
-    Py_ssize_t offset = Py_TYPE(obj)->tp_dictoffset;
-    if (offset) {
-#if CYTHON_COMPILING_IN_CPYTHON
-        dictptr = (likely(offset > 0)) ? (PyObject **) ((char *)obj + offset) : _PyObject_GetDictPtr(obj);
-#else
-        dictptr = _PyObject_GetDictPtr(obj);
-#endif
-    }
-    return (dictptr && *dictptr) ? __PYX_GET_DICT_VERSION(*dictptr) : 0;
-}
-static CYTHON_INLINE int __Pyx_object_dict_version_matches(PyObject* obj, PY_UINT64_T tp_dict_version, PY_UINT64_T obj_dict_version) {
-    PyObject *dict = Py_TYPE(obj)->tp_dict;
-    if (unlikely(!dict) || unlikely(tp_dict_version != __PYX_GET_DICT_VERSION(dict)))
-        return 0;
-    return obj_dict_version == __Pyx_get_object_dict_version(obj);
-}
-#endif
-
-/* GetModuleGlobalName */
-#if CYTHON_USE_DICT_VERSIONS
-static PyObject *__Pyx__GetModuleGlobalName(PyObject *name, PY_UINT64_T *dict_version, PyObject **dict_cached_value)
-#else
-static CYTHON_INLINE PyObject *__Pyx__GetModuleGlobalName(PyObject *name)
-#endif
-{
-    PyObject *result;
-#if !CYTHON_AVOID_BORROWED_REFS
-#if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030500A1
-    result = _PyDict_GetItem_KnownHash(__pyx_d, name, ((PyASCIIObject *) name)->hash);
-    __PYX_UPDATE_DICT_CACHE(__pyx_d, result, *dict_cached_value, *dict_version)
-    if (likely(result)) {
-        return __Pyx_NewRef(result);
-    } else if (unlikely(PyErr_Occurred())) {
-        return NULL;
-    }
-#else
-    result = PyDict_GetItem(__pyx_d, name);
-    __PYX_UPDATE_DICT_CACHE(__pyx_d, result, *dict_cached_value, *dict_version)
-    if (likely(result)) {
-        return __Pyx_NewRef(result);
-    }
-#endif
-#else
-    result = PyObject_GetItem(__pyx_d, name);
-    __PYX_UPDATE_DICT_CACHE(__pyx_d, result, *dict_cached_value, *dict_version)
-    if (likely(result)) {
-        return __Pyx_NewRef(result);
-    }
-    PyErr_Clear();
-#endif
-    return __Pyx_GetBuiltinName(name);
 }
 
 /* SwapException */
@@ -23071,28 +22758,6 @@ __pyx_capsule_create(void *p, CYTHON_UNUSED const char *sig)
     return cobj;
 }
 
-/* CIntFromPyVerify */
-#define __PYX_VERIFY_RETURN_INT(target_type, func_type, func_value)\
-    __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 0)
-#define __PYX_VERIFY_RETURN_INT_EXC(target_type, func_type, func_value)\
-    __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 1)
-#define __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, exc)\
-    {\
-        func_type value = func_value;\
-        if (sizeof(target_type) < sizeof(func_type)) {\
-            if (unlikely(value != (func_type) (target_type) value)) {\
-                func_type zero = 0;\
-                if (exc && unlikely(value == (func_type)-1 && PyErr_Occurred()))\
-                    return (target_type) -1;\
-                if (is_unsigned && unlikely(value < zero))\
-                    goto raise_neg_overflow;\
-                else\
-                    goto raise_overflow;\
-            }\
-        }\
-        return (target_type) value;\
-    }
-
 /* IsLittleEndian */
 static CYTHON_INLINE int __Pyx_Is_Little_Endian(void)
 {
@@ -23853,58 +23518,38 @@ __pyx_fail:
     return result;
 }
 
-/* ObjectToMemviewSlice */
-  static CYTHON_INLINE __Pyx_memviewslice __Pyx_PyObject_to_MemoryviewSlice_ds_int(PyObject *obj, int writable_flag) {
-    __Pyx_memviewslice result = { 0, 0, { 0 }, { 0 }, { 0 } };
-    __Pyx_BufFmt_StackElem stack[1];
-    int axes_specs[] = { (__Pyx_MEMVIEW_DIRECT | __Pyx_MEMVIEW_STRIDED) };
-    int retcode;
-    if (obj == Py_None) {
-        result.memview = (struct __pyx_memoryview_obj *) Py_None;
-        return result;
+/* CIntFromPyVerify */
+  #define __PYX_VERIFY_RETURN_INT(target_type, func_type, func_value)\
+    __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 0)
+#define __PYX_VERIFY_RETURN_INT_EXC(target_type, func_type, func_value)\
+    __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, 1)
+#define __PYX__VERIFY_RETURN_INT(target_type, func_type, func_value, exc)\
+    {\
+        func_type value = func_value;\
+        if (sizeof(target_type) < sizeof(func_type)) {\
+            if (unlikely(value != (func_type) (target_type) value)) {\
+                func_type zero = 0;\
+                if (exc && unlikely(value == (func_type)-1 && PyErr_Occurred()))\
+                    return (target_type) -1;\
+                if (is_unsigned && unlikely(value < zero))\
+                    goto raise_neg_overflow;\
+                else\
+                    goto raise_overflow;\
+            }\
+        }\
+        return (target_type) value;\
     }
-    retcode = __Pyx_ValidateAndInit_memviewslice(axes_specs, 0,
-                                                 PyBUF_RECORDS_RO | writable_flag, 1,
-                                                 &__Pyx_TypeInfo_int, stack,
-                                                 &result, obj);
-    if (unlikely(retcode == -1))
-        goto __pyx_fail;
-    return result;
-__pyx_fail:
-    result.memview = NULL;
-    result.data = NULL;
-    return result;
-}
 
-/* CIntToPy */
-  static CYTHON_INLINE PyObject* __Pyx_PyInt_From_npy_long(npy_long value) {
-    const npy_long neg_one = (npy_long) ((npy_long) 0 - (npy_long) 1), const_zero = (npy_long) 0;
-    const int is_unsigned = neg_one > const_zero;
-    if (is_unsigned) {
-        if (sizeof(npy_long) < sizeof(long)) {
-            return PyInt_FromLong((long) value);
-        } else if (sizeof(npy_long) <= sizeof(unsigned long)) {
-            return PyLong_FromUnsignedLong((unsigned long) value);
-#ifdef HAVE_LONG_LONG
-        } else if (sizeof(npy_long) <= sizeof(unsigned PY_LONG_LONG)) {
-            return PyLong_FromUnsignedLongLong((unsigned PY_LONG_LONG) value);
-#endif
-        }
-    } else {
-        if (sizeof(npy_long) <= sizeof(long)) {
-            return PyInt_FromLong((long) value);
-#ifdef HAVE_LONG_LONG
-        } else if (sizeof(npy_long) <= sizeof(PY_LONG_LONG)) {
-            return PyLong_FromLongLong((PY_LONG_LONG) value);
-#endif
-        }
-    }
-    {
-        int one = 1; int little = (int)*(unsigned char *)&one;
-        unsigned char *bytes = (unsigned char *)&value;
-        return _PyLong_FromByteArray(bytes, sizeof(npy_long),
-                                     little, !is_unsigned);
-    }
+/* MemviewDtypeToObject */
+  static CYTHON_INLINE PyObject *__pyx_memview_get_nn___pyx_t_5numpy_float_t(const char *itemp) {
+    return (PyObject *) PyFloat_FromDouble(*(__pyx_t_5numpy_float_t *) itemp);
+}
+static CYTHON_INLINE int __pyx_memview_set_nn___pyx_t_5numpy_float_t(const char *itemp, PyObject *obj) {
+    __pyx_t_5numpy_float_t value = __pyx_PyFloat_AsDouble(obj);
+    if ((value == ((npy_double)-1)) && PyErr_Occurred())
+        return 0;
+    *(__pyx_t_5numpy_float_t *) itemp = value;
+    return 1;
 }
 
 /* CIntToPy */
@@ -24342,195 +23987,6 @@ no_fail:
     __Pyx_XDECREF(array_obj);
     __Pyx_RefNannyFinishContext();
     return new_mvs;
-}
-
-/* CIntFromPy */
-  static CYTHON_INLINE npy_long __Pyx_PyInt_As_npy_long(PyObject *x) {
-    const npy_long neg_one = (npy_long) ((npy_long) 0 - (npy_long) 1), const_zero = (npy_long) 0;
-    const int is_unsigned = neg_one > const_zero;
-#if PY_MAJOR_VERSION < 3
-    if (likely(PyInt_Check(x))) {
-        if (sizeof(npy_long) < sizeof(long)) {
-            __PYX_VERIFY_RETURN_INT(npy_long, long, PyInt_AS_LONG(x))
-        } else {
-            long val = PyInt_AS_LONG(x);
-            if (is_unsigned && unlikely(val < 0)) {
-                goto raise_neg_overflow;
-            }
-            return (npy_long) val;
-        }
-    } else
-#endif
-    if (likely(PyLong_Check(x))) {
-        if (is_unsigned) {
-#if CYTHON_USE_PYLONG_INTERNALS
-            const digit* digits = ((PyLongObject*)x)->ob_digit;
-            switch (Py_SIZE(x)) {
-                case  0: return (npy_long) 0;
-                case  1: __PYX_VERIFY_RETURN_INT(npy_long, digit, digits[0])
-                case 2:
-                    if (8 * sizeof(npy_long) > 1 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(npy_long, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(npy_long) >= 2 * PyLong_SHIFT) {
-                            return (npy_long) (((((npy_long)digits[1]) << PyLong_SHIFT) | (npy_long)digits[0]));
-                        }
-                    }
-                    break;
-                case 3:
-                    if (8 * sizeof(npy_long) > 2 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(npy_long, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(npy_long) >= 3 * PyLong_SHIFT) {
-                            return (npy_long) (((((((npy_long)digits[2]) << PyLong_SHIFT) | (npy_long)digits[1]) << PyLong_SHIFT) | (npy_long)digits[0]));
-                        }
-                    }
-                    break;
-                case 4:
-                    if (8 * sizeof(npy_long) > 3 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(npy_long, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(npy_long) >= 4 * PyLong_SHIFT) {
-                            return (npy_long) (((((((((npy_long)digits[3]) << PyLong_SHIFT) | (npy_long)digits[2]) << PyLong_SHIFT) | (npy_long)digits[1]) << PyLong_SHIFT) | (npy_long)digits[0]));
-                        }
-                    }
-                    break;
-            }
-#endif
-#if CYTHON_COMPILING_IN_CPYTHON
-            if (unlikely(Py_SIZE(x) < 0)) {
-                goto raise_neg_overflow;
-            }
-#else
-            {
-                int result = PyObject_RichCompareBool(x, Py_False, Py_LT);
-                if (unlikely(result < 0))
-                    return (npy_long) -1;
-                if (unlikely(result == 1))
-                    goto raise_neg_overflow;
-            }
-#endif
-            if (sizeof(npy_long) <= sizeof(unsigned long)) {
-                __PYX_VERIFY_RETURN_INT_EXC(npy_long, unsigned long, PyLong_AsUnsignedLong(x))
-#ifdef HAVE_LONG_LONG
-            } else if (sizeof(npy_long) <= sizeof(unsigned PY_LONG_LONG)) {
-                __PYX_VERIFY_RETURN_INT_EXC(npy_long, unsigned PY_LONG_LONG, PyLong_AsUnsignedLongLong(x))
-#endif
-            }
-        } else {
-#if CYTHON_USE_PYLONG_INTERNALS
-            const digit* digits = ((PyLongObject*)x)->ob_digit;
-            switch (Py_SIZE(x)) {
-                case  0: return (npy_long) 0;
-                case -1: __PYX_VERIFY_RETURN_INT(npy_long, sdigit, (sdigit) (-(sdigit)digits[0]))
-                case  1: __PYX_VERIFY_RETURN_INT(npy_long,  digit, +digits[0])
-                case -2:
-                    if (8 * sizeof(npy_long) - 1 > 1 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(npy_long, long, -(long) (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(npy_long) - 1 > 2 * PyLong_SHIFT) {
-                            return (npy_long) (((npy_long)-1)*(((((npy_long)digits[1]) << PyLong_SHIFT) | (npy_long)digits[0])));
-                        }
-                    }
-                    break;
-                case 2:
-                    if (8 * sizeof(npy_long) > 1 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 2 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(npy_long, unsigned long, (((((unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(npy_long) - 1 > 2 * PyLong_SHIFT) {
-                            return (npy_long) ((((((npy_long)digits[1]) << PyLong_SHIFT) | (npy_long)digits[0])));
-                        }
-                    }
-                    break;
-                case -3:
-                    if (8 * sizeof(npy_long) - 1 > 2 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(npy_long, long, -(long) (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(npy_long) - 1 > 3 * PyLong_SHIFT) {
-                            return (npy_long) (((npy_long)-1)*(((((((npy_long)digits[2]) << PyLong_SHIFT) | (npy_long)digits[1]) << PyLong_SHIFT) | (npy_long)digits[0])));
-                        }
-                    }
-                    break;
-                case 3:
-                    if (8 * sizeof(npy_long) > 2 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 3 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(npy_long, unsigned long, (((((((unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(npy_long) - 1 > 3 * PyLong_SHIFT) {
-                            return (npy_long) ((((((((npy_long)digits[2]) << PyLong_SHIFT) | (npy_long)digits[1]) << PyLong_SHIFT) | (npy_long)digits[0])));
-                        }
-                    }
-                    break;
-                case -4:
-                    if (8 * sizeof(npy_long) - 1 > 3 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(npy_long, long, -(long) (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(npy_long) - 1 > 4 * PyLong_SHIFT) {
-                            return (npy_long) (((npy_long)-1)*(((((((((npy_long)digits[3]) << PyLong_SHIFT) | (npy_long)digits[2]) << PyLong_SHIFT) | (npy_long)digits[1]) << PyLong_SHIFT) | (npy_long)digits[0])));
-                        }
-                    }
-                    break;
-                case 4:
-                    if (8 * sizeof(npy_long) > 3 * PyLong_SHIFT) {
-                        if (8 * sizeof(unsigned long) > 4 * PyLong_SHIFT) {
-                            __PYX_VERIFY_RETURN_INT(npy_long, unsigned long, (((((((((unsigned long)digits[3]) << PyLong_SHIFT) | (unsigned long)digits[2]) << PyLong_SHIFT) | (unsigned long)digits[1]) << PyLong_SHIFT) | (unsigned long)digits[0])))
-                        } else if (8 * sizeof(npy_long) - 1 > 4 * PyLong_SHIFT) {
-                            return (npy_long) ((((((((((npy_long)digits[3]) << PyLong_SHIFT) | (npy_long)digits[2]) << PyLong_SHIFT) | (npy_long)digits[1]) << PyLong_SHIFT) | (npy_long)digits[0])));
-                        }
-                    }
-                    break;
-            }
-#endif
-            if (sizeof(npy_long) <= sizeof(long)) {
-                __PYX_VERIFY_RETURN_INT_EXC(npy_long, long, PyLong_AsLong(x))
-#ifdef HAVE_LONG_LONG
-            } else if (sizeof(npy_long) <= sizeof(PY_LONG_LONG)) {
-                __PYX_VERIFY_RETURN_INT_EXC(npy_long, PY_LONG_LONG, PyLong_AsLongLong(x))
-#endif
-            }
-        }
-        {
-#if CYTHON_COMPILING_IN_PYPY && !defined(_PyLong_AsByteArray)
-            PyErr_SetString(PyExc_RuntimeError,
-                            "_PyLong_AsByteArray() not available in PyPy, cannot convert large numbers");
-#else
-            npy_long val;
-            PyObject *v = __Pyx_PyNumber_IntOrLong(x);
- #if PY_MAJOR_VERSION < 3
-            if (likely(v) && !PyLong_Check(v)) {
-                PyObject *tmp = v;
-                v = PyNumber_Long(tmp);
-                Py_DECREF(tmp);
-            }
- #endif
-            if (likely(v)) {
-                int one = 1; int is_little = (int)*(unsigned char *)&one;
-                unsigned char *bytes = (unsigned char *)&val;
-                int ret = _PyLong_AsByteArray((PyLongObject *)v,
-                                              bytes, sizeof(val),
-                                              is_little, !is_unsigned);
-                Py_DECREF(v);
-                if (likely(!ret))
-                    return val;
-            }
-#endif
-            return (npy_long) -1;
-        }
-    } else {
-        npy_long val;
-        PyObject *tmp = __Pyx_PyNumber_IntOrLong(x);
-        if (!tmp) return (npy_long) -1;
-        val = __Pyx_PyInt_As_npy_long(tmp);
-        Py_DECREF(tmp);
-        return val;
-    }
-raise_overflow:
-    PyErr_SetString(PyExc_OverflowError,
-        "value too large to convert to npy_long");
-    return (npy_long) -1;
-raise_neg_overflow:
-    PyErr_SetString(PyExc_OverflowError,
-        "can't convert negative value to npy_long");
-    return (npy_long) -1;
 }
 
 /* CIntFromPy */
