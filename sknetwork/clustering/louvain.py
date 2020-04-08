@@ -32,7 +32,7 @@ class Louvain(BaseClustering, VerboseMixin):
     ----------
     resolution :
         Resolution parameter.
-    tol :
+    tol_optimization :
         Minimum increase in the objective function to enter a new optimization pass.
     tol_aggregation :
         Minimum increase in the objective function to enter a new aggregation pass.
@@ -82,7 +82,7 @@ class Louvain(BaseClustering, VerboseMixin):
     """
 
     def __init__(self, resolution: float = 1,
-                 tol: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
+                 tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
                  shuffle_nodes: bool = False, sort_clusters: bool = True, return_membership: bool = True,
                  return_adjacency: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
                  verbose: bool = False):
@@ -92,7 +92,7 @@ class Louvain(BaseClustering, VerboseMixin):
         self.random_state = check_random_state(random_state)
         self.tol_aggregation = tol_aggregation
         self.resolution = resolution
-        self.tol = tol
+        self.tol = tol_optimization
         self.n_aggregations = n_aggregations
         self.shuffle_nodes = shuffle_nodes
         self.sort_clusters = sort_clusters
@@ -260,7 +260,7 @@ class BiLouvain(Louvain):
     ----------
     resolution :
         Resolution parameter.
-    tol :
+    tol_optimization :
         Minimum increase in the objective function to enter a new optimization pass.
     tol_aggregation :
         Minimum increase in the objective function to enter a new aggregation pass.
@@ -288,8 +288,6 @@ class BiLouvain(Louvain):
         Labels of the rows (copy of **labels_**).
     labels_col_ : np.ndarray
         Labels of the columns.
-    membership_ : sparse.csr_matrix
-        Membership matrix of the rows.
     membership_row_ : sparse.csr_matrix
         Membership matrix of the rows (copy of **membership_**).
     membership_col_ : sparse.csr_matrix
@@ -312,11 +310,11 @@ class BiLouvain(Louvain):
     """
 
     def __init__(self, resolution: float = 1,
-                 tol: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
+                 tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
                  shuffle_nodes: bool = False, sort_clusters: bool = True, return_membership: bool = True,
                  return_biadjacency: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
                  verbose: bool = False):
-        Louvain.__init__(self, resolution, tol, tol_aggregation, n_aggregations,
+        Louvain.__init__(self, resolution, tol_optimization, tol_aggregation, n_aggregations,
                          shuffle_nodes, sort_clusters, return_membership, return_biadjacency, random_state, verbose)
 
         self.return_biadjacency = return_biadjacency
