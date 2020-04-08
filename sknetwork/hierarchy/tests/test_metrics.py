@@ -15,7 +15,8 @@ from sknetwork.data.test_graphs import *
 class TestMetrics(unittest.TestCase):
 
     def setUp(self):
-        self.paris = Paris(engine='python')
+        self.paris = Paris()
+
 
     def test_undirected(self):
         adjacency = test_graph()

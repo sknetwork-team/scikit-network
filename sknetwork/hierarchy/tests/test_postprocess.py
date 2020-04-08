@@ -18,7 +18,7 @@ from sknetwork.data import karate_club
 class TestCuts(unittest.TestCase):
 
     def setUp(self):
-        paris = Paris(engine='python')
+        paris = Paris()
         adjacency = karate_club()
         self.dendrogram = paris.fit_transform(adjacency)
 
