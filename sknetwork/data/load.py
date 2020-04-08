@@ -136,13 +136,12 @@ def load_konect(dataset_name: str, data_home: Optional[str] = None, auto_numpy_b
 
     Returns
     -------
-    data: :class:`Bunch`
+    graph : :class:`Bunch`
+        An object with the following attributes:
 
-    An object with the following attributes:
-
-     * `adjacency` or `biadjacency`: the adjacency/biadjacency matrix for the dataset
-     * `meta`: a dictionary containing the metadata as specified by Konect
-     * any attribute described in an ent.* file
+             * `adjacency` or `biadjacency`: the adjacency/biadjacency matrix for the dataset
+             * `meta`: a dictionary containing the metadata as specified by Konect
+             * each attribute specified by Konect (ent.* file)
 
     """
     if data_home is None:
