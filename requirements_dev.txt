@@ -2,13 +2,13 @@ pip==20.0.2
 bumpversion==0.5.3
 wheel==0.34.2
 watchdog==0.10.2
-Sphinx==2.4.3
-coverage==5.0.3
+Sphinx==3.0.0
+coverage==5.0.4
 twine==3.1.1
-nbsphinx==0.5.1
-ipython==7.12.0
-jupyter_client==6.0.0
-ipykernel==5.1.4
+nbsphinx==0.6.0
+ipython==7.13.0
+jupyter_client==6.1.2
+ipykernel==5.2.0
 networkx==2.4
 matplotlib==3.2.1
 codecov==2.0.22
@@ -18,4 +18,4 @@ pytest-runner==5.2
 pytest==5.4.1
 pytest-cov==2.8.1
 
-cython
+cython==0.29.16
