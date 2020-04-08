@@ -15,7 +15,7 @@ from scipy.sparse.linalg import LinearOperator
 
 from sknetwork.basics.structure import is_connected
 from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv
+from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv, normalize
 from sknetwork.utils.check import check_format, is_square, is_symmetric, check_adjacency_vector
 from sknetwork.utils.format import bipartite2undirected
 
@@ -111,7 +111,7 @@ class Spectral(BaseEmbedding):
     Spectral embedding of graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`.
     Eigenvectors are considered in increasing order of eigenvalues, skipping the first eigenvector.
 
-    The graph must be undirected (see :class:`BiSpectral` for directed graphs and bipartite graphs).
+    * Graphs (see :class:`BiSpectral` for directed graphs and bipartite graphs).
 
     Parameters
     ----------
@@ -132,7 +132,7 @@ class Spectral(BaseEmbedding):
     barycenter : bool (default = ``True``)
         If ``True``, use the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
         with :math:`P = D^{-1}A`. Otherwise, use :math:`U`.
-    normalize : bool (default = ``True``)
+    normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
@@ -169,7 +169,7 @@ class Spectral(BaseEmbedding):
 
     def __init__(self, n_components: int = 2, normalized_laplacian=True,
                  regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
-                 equalize: bool = False, barycenter: bool = True, normalize: bool = True,
+                 equalize: bool = False, barycenter: bool = True, normalized: bool = True,
                  solver: Union[str, EigSolver] = 'auto'):
         super(Spectral, self).__init__()
 
@@ -184,7 +184,7 @@ class Spectral(BaseEmbedding):
 
         self.equalize = equalize
         self.barycenter = barycenter
-        self.normalize = normalize
+        self.normalized = normalized
         if solver == 'halko':
             self.solver: EigSolver = HalkoEig()
         elif solver == 'lanczos':
@@ -192,7 +192,6 @@ class Spectral(BaseEmbedding):
         else:
             self.solver = solver
 
-        self.embedding_ = None
         self.eigenvalues_ = None
         self.eigenvectors_ = None
         self.regularization_ = None
@@ -291,8 +290,8 @@ class Spectral(BaseEmbedding):
                 subtract = weights_inv_diag.dot(subtract)
             embedding -= subtract
 
-        if self.normalize:
-            embedding = diag_pinv(np.linalg.norm(embedding, axis=1)).dot(embedding)
+        if self.normalized:
+            embedding = normalize(embedding, p=2)
 
         self.embedding_ = embedding
         self.eigenvalues_ = eigenvalues
@@ -350,8 +349,8 @@ class Spectral(BaseEmbedding):
         if self.equalize:
             embedding_vectors = diag_pinv(np.sqrt(eigenvalues)).dot(embedding_vectors.T).T
 
-        if self.normalize:
-            embedding_vectors = diag_pinv(np.linalg.norm(embedding_vectors, axis=1)).dot(embedding_vectors)
+        if self.normalized:
+            embedding_vectors = normalize(embedding_vectors, p=2)
 
         if embedding_vectors.shape[0] == 1:
             embedding_vectors = embedding_vectors.ravel()
@@ -384,7 +383,7 @@ class BiSpectral(Spectral):
     barycenter : bool (default = ``True``)
         If ``True``, use the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
         with :math:`P = D^{-1}A`. Otherwise use :math:`U`.
-    normalize : bool (default = ``True``)
+    normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
@@ -425,19 +424,14 @@ class BiSpectral(Spectral):
 
     def __init__(self, n_components: int = 2, normalized_laplacian=True,
                  regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
-                 equalize: bool = False, barycenter: bool = True, normalize: bool = True,
+                 equalize: bool = False, barycenter: bool = True, normalized: bool = True,
                  solver: Union[str, EigSolver] = 'auto'):
-        Spectral.__init__(self, n_components, normalized_laplacian, regularization, relative_regularization, equalize,
-                          barycenter, normalize, solver)
+        super(BiSpectral, self).__init__(n_components, normalized_laplacian, regularization, relative_regularization,
+                                         equalize, barycenter, normalized, solver)
 
-        self.embedding_ = None
         self.embedding_row_ = None
         self.embedding_col_ = None
-        self.eigenvalues_ = None
-        self.eigenvectors_ = None
-        self.regularization_ = None
 
-    # noinspection DuplicatedCode
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiSpectral':
         """Spectral embedding of the bipartite graph considered as undirected, with adjacency matrix:
 
@@ -454,20 +448,13 @@ class BiSpectral(Spectral):
         -------
         self: :class:`BiSpectral`
         """
-        spectral = Spectral(n_components=self.n_components, normalized_laplacian=self.normalized_laplacian,
-                            regularization=self.regularization, relative_regularization=self.relative_regularization,
-                            equalize=self.equalize, barycenter=self.barycenter, normalize=self.normalize,
-                            solver=self.solver)
         biadjacency = check_format(biadjacency)
         n_row, _ = biadjacency.shape
-        spectral.fit(bipartite2undirected(biadjacency))
+        Spectral.fit(self, bipartite2undirected(biadjacency))
 
-        self.embedding_row_ = spectral.embedding_[:n_row]
-        self.embedding_col_ = spectral.embedding_[n_row:]
+        self.embedding_row_ = self.embedding_[:n_row]
+        self.embedding_col_ = self.embedding_[n_row:]
         self.embedding_ = self.embedding_row_
-        self.eigenvalues_ = spectral.eigenvalues_
-        self.eigenvectors_ = spectral.eigenvectors_
-        self.regularization_ = spectral.regularization_
 
         return self
 
@@ -484,20 +471,19 @@ class BiSpectral(Spectral):
         embedding_vectors : array, shape (n_components,) (single vector) or (n_vectors, n_components)
             Embedding of the nodes.
         """
-        eigenvectors = self.eigenvectors_
-        if eigenvectors is None:
+        if self.eigenvectors_ is None:
             raise ValueError("This instance of BiSpectral embedding is not fitted yet."
                              " Call 'fit' with appropriate arguments before using this method.")
 
-        n1, _ = self.embedding_row_.shape
-        n2, _ = self.embedding_col_.shape
+        n_row, _ = self.embedding_row_.shape
+        n_col, _ = self.embedding_col_.shape
 
-        adjacency_vectors = check_adjacency_vector(adjacency_vectors, n2)
+        adjacency_vectors = check_adjacency_vector(adjacency_vectors, n_col)
 
         if not np.all(adjacency_vectors >= 0):
             raise ValueError('The adjacency vector must be non-negative.')
 
-        adjacency_vectors = np.hstack((np.zeros((adjacency_vectors.shape[0], n1)), adjacency_vectors))
+        adjacency_vectors = np.hstack((np.zeros((adjacency_vectors.shape[0], n_row)), adjacency_vectors))
         embedding_vectors = Spectral.predict(self, adjacency_vectors)
 
         if embedding_vectors.shape[0] == 1:

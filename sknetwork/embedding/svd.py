@@ -13,7 +13,8 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.linalg import SparseLR, SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv
+from sknetwork.linalg import SparseLR, SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv,\
+    normalize
 from sknetwork.utils.check import check_format, check_adjacency_vector
 
 
@@ -22,6 +23,10 @@ class GSVD(BaseEmbedding):
     This is equivalent to the Singular Value Decomposition of the matrix :math:`D_1^{- \\alpha_1}AD_2^{- \\alpha_2}`
     where :math:`D_1, D_2` are the diagonal matrices of row weights and columns weights, respectively, and
     :math:`\\alpha_1, \\alpha_2` are parameters.
+
+    * Graphs
+    * Digraphs
+    * Bigraphs
 
     Parameters
     -----------
@@ -44,7 +49,7 @@ class GSVD(BaseEmbedding):
         * :math:`V` is the matrix of right singular vectors, shape (n_col, n_components)
         * :math:`\\Sigma` is the diagonal matrix of singular values, shape (n_components, n_components)
 
-    normalize : bool (default = ``True``)
+    normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
@@ -90,7 +95,7 @@ class GSVD(BaseEmbedding):
     """
 
     def __init__(self, n_components=2, regularization: Union[None, float] = None, relative_regularization: bool = True,
-                 factor_row: float = 0.5, factor_col: float = 0.5, factor_singular: float = 0., normalize: bool = True,
+                 factor_row: float = 0.5, factor_col: float = 0.5, factor_singular: float = 0., normalized: bool = True,
                  solver: Union[str, SVDSolver] = 'auto'):
         super(GSVD, self).__init__()
 
@@ -103,7 +108,7 @@ class GSVD(BaseEmbedding):
         self.factor_row = factor_row
         self.factor_col = factor_col
         self.factor_singular = factor_singular
-        self.normalize = normalize
+        self.normalized = normalized
         if solver == 'halko':
             self.solver: SVDSolver = HalkoSVD()
         elif solver == 'lanczos':
@@ -111,7 +116,6 @@ class GSVD(BaseEmbedding):
         else:
             self.solver = solver
 
-        self.embedding_ = None
         self.embedding_row_ = None
         self.embedding_col_ = None
         self.singular_values_ = None
@@ -178,9 +182,9 @@ class GSVD(BaseEmbedding):
         embedding_row = singular_left_diag.dot(embedding_row.T).T
         embedding_col = singular_right_diag.dot(embedding_col.T).T
 
-        if self.normalize:
-            embedding_row = diag_pinv(np.linalg.norm(embedding_row, axis=1)).dot(embedding_row)
-            embedding_col = diag_pinv(np.linalg.norm(embedding_col, axis=1)).dot(embedding_col)
+        if self.normalized:
+            embedding_row = normalize(embedding_row, p=2)
+            embedding_col = normalize(embedding_col, p=2)
 
         self.embedding_row_ = embedding_row
         self.embedding_col_ = embedding_col
@@ -238,8 +242,8 @@ class GSVD(BaseEmbedding):
         # scaling
         embedding_vectors /= np.power(singular_values, self.factor_singular)
 
-        if self.normalize:
-            embedding_vectors = diag_pinv(np.linalg.norm(embedding_vectors, axis=1)).dot(embedding_vectors)
+        if self.normalized:
+            embedding_vectors = normalize(embedding_vectors, p=2)
 
         if embedding_vectors.shape[0] == 1:
             embedding_vectors = embedding_vectors.ravel()
@@ -249,6 +253,10 @@ class GSVD(BaseEmbedding):
 
 class SVD(GSVD):
     """Graph embedding by Singular Value Decomposition of the adjacency or biadjacency matrix.
+
+    * Graphs
+    * Digraphs
+    * Bigraphs
 
     Parameters
     -----------
@@ -267,7 +275,7 @@ class SVD(GSVD):
         * :math:`V` is the matrix of right singular vectors, shape (n_col, n_components)
         * :math:`\\Sigma` is the diagonal matrix of singular values, shape (n_components, n_components)
 
-    normalize : bool (default = ``False``)
+    normalized : bool (default = ``False``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
@@ -280,11 +288,11 @@ class SVD(GSVD):
 
     Attributes
     ----------
-    embedding_ : np.ndarray, shape = (n1, n_components)
+    embedding_ : np.ndarray, shape = (n_row, n_components)
         Embedding of the rows.
-    embedding_row_ : np.ndarray, shape = (n1, n_components)
+    embedding_row_ : np.ndarray, shape = (n_row, n_components)
         Embedding of the rows (copy of **embedding_**).
-    embedding_col_ : np.ndarray, shape = (n2, n_components)
+    embedding_col_ : np.ndarray, shape = (n_col, n_components)
         Embedding of the columns.
     singular_values_ : np.ndarray, shape = (n_components)
         Singular values.
@@ -311,14 +319,6 @@ class SVD(GSVD):
     """
 
     def __init__(self, n_components=2, regularization: Union[None, float] = None, relative_regularization: bool = True,
-                 factor_singular: float = 0., normalize: bool = False, solver: Union[str, SVDSolver] = 'auto'):
-        GSVD.__init__(self, n_components, regularization, relative_regularization, factor_singular, 0, 0, normalize,
-                      solver)
-
-        self.embedding_ = None
-        self.embedding_row_ = None
-        self.embedding_col_ = None
-        self.singular_values_ = None
-        self.singular_vectors_left_ = None
-        self.singular_vectors_right_ = None
-        self.regularization_ = None
+                 factor_singular: float = 0., normalized: bool = False, solver: Union[str, SVDSolver] = 'auto'):
+        super(SVD, self).__init__(n_components, regularization, relative_regularization, factor_singular, 0, 0,
+                                  normalized, solver)

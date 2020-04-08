@@ -2,17 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 Created on Nov 6 2018
-
-Authors:
-Nathan De Lara <ndelara@enst.fr>
-
+@author: Nathan De Lara <ndelara@enst.fr>
 Quality metrics for adjacency embeddings
 """
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.linalg import diag_pinv
+from sknetwork.linalg import normalize
 from sknetwork.utils.check import check_format, check_probs, is_square
 
 
@@ -62,10 +59,8 @@ def cosine_modularity(adjacency, embedding: np.ndarray, embedding_col=None, reso
         else:
             embedding_col = embedding.copy()
 
-    diag_row = diag_pinv(np.linalg.norm(embedding, axis=1))
-    embedding_row_norm = diag_row.dot(embedding)
-    diag_col = diag_pinv(np.linalg.norm(embedding_col, axis=1))
-    embedding_col_norm = diag_col.dot(embedding_col)
+    embedding_row_norm = normalize(embedding, p=1)
+    embedding_col_norm = normalize(embedding_col, p=1)
 
     probs_row = check_probs(weights, adjacency)
     probs_col = check_probs(weights, adjacency.T)
