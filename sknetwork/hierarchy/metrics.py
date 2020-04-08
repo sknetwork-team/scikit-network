@@ -10,12 +10,28 @@ from scipy import sparse
 
 from sknetwork.hierarchy.paris import AggregateGraph
 from sknetwork.utils.check import check_format, check_probs, is_square
+from sknetwork.utils.format import directed2undirected
 
 
-# noinspection DuplicatedCode
+def _instanciate_vars(adjacency: sparse.csr_matrix, weights: str = 'uniform'):
+    """Initialize standard variables for metrics."""
+    n = adjacency.shape[0]
+    weights_row = check_probs(weights, adjacency)
+    weights_col = check_probs(weights, adjacency.T)
+    sym_adjacency = directed2undirected(adjacency)
+
+    aggregate_graph = AggregateGraph(weights_row, weights_col, sym_adjacency.data.astype(np.float),
+                                     sym_adjacency.indices, sym_adjacency.indptr, sym_adjacency.shape)
+
+    height = np.zeros(n - 1)
+    cluster_weight = np.zeros(n - 1)
+    edge_sampling = np.zeros(n - 1)
+
+    return aggregate_graph, height, cluster_weight, edge_sampling, weights_row, weights_col
+
+
 def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights: str = 'uniform') -> float:
-    """
-    Dasgupta's score of a hierarchy, defined as 1 - Dasgupta's cost.
+    """Dasgupta's score of a hierarchy, defined as 1 - Dasgupta's cost.
 
     The higher the score, the better.
 
@@ -38,7 +54,6 @@ def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights
     ----------
     Dasgupta, S. (2016). A cost function for similarity-based hierarchical clustering.
     Proceedings of ACM symposium on Theory of Computing.
-
     """
     adjacency = check_format(adjacency)
     if not is_square(adjacency):
@@ -48,16 +63,8 @@ def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights
     if n <= 1:
         raise ValueError('The graph must contain at least two nodes.')
 
-    out_weights = check_probs(weights, adjacency)
-    in_weights = check_probs(weights, adjacency.T)
-    sym_adjacency = adjacency + adjacency.T
+    aggregate_graph, height, edge_sampling, cluster_weight, _, _ = _instanciate_vars(adjacency, weights)
 
-    aggregate_graph = AggregateGraph(out_weights, in_weights, sym_adjacency.data.astype(np.float),
-                                     sym_adjacency.indices, sym_adjacency.indptr, sym_adjacency.shape)
-
-    height = np.zeros(n - 1)
-    edge_sampling = np.zeros(n - 1)
-    cluster_weight = np.zeros(n - 1)
     for t in range(n - 1):
         node1 = int(dendrogram[t][0])
         node2 = int(dendrogram[t][1])
@@ -78,11 +85,9 @@ def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights
     return 1 - cost
 
 
-# noinspection DuplicatedCode
 def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights: str = 'degree',
                              normalized: bool = True) -> float:
-    """
-    Tree sampling divergence of a hierarchy (quality metric).
+    """Tree sampling divergence of a hierarchy (quality metric).
 
     The higher the score, the better.
 
@@ -111,7 +116,6 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     Hierarchical Graph Clustering.
     <https://hal.telecom-paristech.fr/hal-02144394/document>`_
     Proceedings of IJCAI.
-
     """
     adjacency = check_format(adjacency)
     if not is_square(adjacency):
@@ -127,17 +131,10 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
 
     adjacency.data = adjacency.data / total_weight
 
-    out_weights = check_probs(weights, adjacency)
-    in_weights = check_probs(weights, adjacency.T)
-
-    sym_adjacency = adjacency + adjacency.T
-
-    aggregate_graph = AggregateGraph(out_weights, in_weights, sym_adjacency.data.astype(np.float),
-                                     sym_adjacency.indices, sym_adjacency.indptr, sym_adjacency.shape)
-
-    height = np.zeros(n - 1)
-    edge_sampling = np.zeros(n - 1)
+    aggregate_graph, height, cluster_weight, edge_sampling, weights_row, weights_col = _instanciate_vars(adjacency,
+                                                                                                         weights)
     node_sampling = np.zeros(n - 1)
+
     for t in range(n - 1):
         node1 = int(dendrogram[t][0])
         node2 = int(dendrogram[t][1])
@@ -159,9 +156,9 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     index = np.where(edge_sampling)[0]
     score = edge_sampling[index].dot(np.log(edge_sampling[index] / node_sampling[index]))
     if normalized:
-        inv_out_weights = sparse.diags(out_weights, shape=(n, n), format='csr')
+        inv_out_weights = sparse.diags(weights_row, shape=(n, n), format='csr')
         inv_out_weights.data = 1 / inv_out_weights.data
-        inv_in_weights = sparse.diags(in_weights, shape=(n, n), format='csr')
+        inv_in_weights = sparse.diags(weights_col, shape=(n, n), format='csr')
         inv_in_weights.data = 1 / inv_in_weights.data
         sampling_ratio = inv_out_weights.dot(adjacency.dot(inv_in_weights))
         inv_out_weights.data = np.ones(len(inv_out_weights.data))

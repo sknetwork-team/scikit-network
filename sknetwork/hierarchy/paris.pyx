@@ -27,8 +27,7 @@ from sknetwork.utils.check import check_format, check_probs, is_square
 
 
 cdef class AggregateGraph:
-    """
-    A class of graphs suitable for aggregation. Each node represents a cluster.
+    """A class of graphs suitable for aggregation. Each node represents a cluster.
 
     Parameters
     ----------
@@ -143,8 +142,7 @@ cdef class AggregateGraph:
 
 
 class Paris(BaseHierarchy):
-    """
-    Agglomerative clustering algorithm that performs greedy merge of nodes based on their similarity.
+    """Agglomerative clustering algorithm that performs greedy merge of nodes based on their similarity.
 
     The similarity between nodes :math:`i,j` is :math:`\\dfrac{A_{ij}}{w_i w_j}` where
 
@@ -201,8 +199,7 @@ class Paris(BaseHierarchy):
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Paris':
-        """
-        Agglomerative clustering using the nearest neighbor chain.
+        """Agglomerative clustering using the nearest neighbor chain.
 
         Parameters
         ----------
@@ -291,8 +288,7 @@ class Paris(BaseHierarchy):
 
 
 class BiParis(Paris):
-    """
-    Hierarchical clustering of bipartite graphs by the Paris method.
+    """Hierarchical clustering of bipartite graphs by the Paris method.
 
     Parameters
     ----------
@@ -335,7 +331,6 @@ class BiParis(Paris):
     <https://arxiv.org/abs/1806.01664>`_
     Workshop on Mining and Learning with Graphs.
     """
-
     def __init__(self, weights: str = 'degree', reorder: bool = True):
         Paris.__init__(self, weights, reorder)
 
