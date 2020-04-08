@@ -25,6 +25,16 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(len(graph.names), n)
         clear_data_home(tmp_data_dir)
 
+    def test_invalid_wikilinks(self):
+        tmp_data_dir = tempfile.gettempdir() + '/stub'
+        clear_data_home(tmp_data_dir)
+        try:
+            with self.assertRaises(ValueError):
+                load_wikilinks('junk', tmp_data_dir)
+        except URLError:
+            warnings.warn('Could not reach Telecom Graphs. Corresponding test has not been performed.', RuntimeWarning)
+            return
+
     def test_konect(self):
         tmp_data_dir = tempfile.gettempdir() + '/moreno_crime'
         clear_data_home(tmp_data_dir)
@@ -39,3 +49,13 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(data.biadjacency.shape[0], 829)
         self.assertEqual(data.name.shape[0], 829)
         clear_data_home(tmp_data_dir)
+
+    def test_invalid_konect(self):
+        tmp_data_dir = tempfile.gettempdir() + '/stub'
+        clear_data_home(tmp_data_dir)
+        try:
+            with self.assertRaises(ValueError):
+                load_konect('junk', tmp_data_dir)
+        except URLError:
+            warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
+            return

@@ -8,9 +8,7 @@ Created on March 2019
 
 import unittest
 
-import numpy as np
-
-from sknetwork.hierarchy import Paris, cut_straight, cut_balanced
+from sknetwork.hierarchy import Paris, cut_straight, cut_balanced, aggregate_dendrogram
 from sknetwork.data import karate_club
 
 
@@ -39,4 +37,12 @@ class TestCuts(unittest.TestCase):
         self.assertEqual(len(set(labels)), 5)
         labels, dendrogram = cut_straight(self.dendrogram, n_clusters=7, return_dendrogram=True)
         self.assertEqual(dendrogram.shape, (6, 4))
+
+    def test_aggregation(self):
+        aggregated = aggregate_dendrogram(self.dendrogram, n_clusters=3)
+        self.assertEqual(len(aggregated), 2)
+
+        aggregated, counts = aggregate_dendrogram(self.dendrogram, n_clusters=3, return_counts=True)
+        self.assertEqual(len(aggregated), 2)
+        self.assertEqual(len(counts), 3)
 

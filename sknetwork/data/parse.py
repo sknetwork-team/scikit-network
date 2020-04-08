@@ -154,36 +154,6 @@ def parse_labels(file: str) -> np.ndarray:
     return np.array(rows)
 
 
-def parse_hierarchical_labels(file: str, depth: int, full_path: bool = True, delimiter: str = '|||'):
-    """Parser for files with a single entry of the form ``'String1'<delimiter>...<delimiter>'StringN'`` on each row.
-
-    Parameters
-    ----------
-    file : str
-        The path to the dataset
-    depth: int
-        The maximum depth to search
-    full_path: bool
-        Denotes if only the deepest label possible should be returned or if all super categories should be considered
-    delimiter: str
-        The delimiter on each row
-
-    Returns
-    -------
-    labels: np.ndarray
-        Labels.
-    """
-    rows = []
-    with open(file, 'r', encoding='utf-8') as f:
-        for row in f:
-            parts = row.strip().split(delimiter)
-            if full_path:
-                rows.append(".".join(parts[:min(depth, len(parts))]))
-            else:
-                rows.append(parts[:min(depth, len(parts))][-1])
-    return np.array(rows)
-
-
 def parse_header(file: str):
     """Check if the graph is directed, bipartite, weighted."""
     directed, bipartite, weighted = False, False, True

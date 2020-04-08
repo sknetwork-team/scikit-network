@@ -17,8 +17,14 @@ class TestToys(unittest.TestCase):
         adjacency = house()
         self.assertEqual(adjacency.shape, (5, 5))
 
+        graph = house(metadata=True)
+        self.assertEqual(graph.position.shape, (5, 2))
+
         adjacency = bow_tie()
         self.assertEqual(adjacency.shape, (5, 5))
+
+        graph = bow_tie(metadata=True)
+        self.assertEqual(graph.position.shape, (5, 2))
 
         graph = karate_club(True)
         self.assertEqual(graph.adjacency.shape, (34, 34))
@@ -29,6 +35,9 @@ class TestToys(unittest.TestCase):
         self.assertEqual(len(graph.names), 77)
 
     def test_directed(self):
+        adjacency = painters()
+        self.assertEqual(adjacency.shape, (14, 14))
+
         graph = painters(True)
         self.assertEqual(graph.adjacency.shape, (14, 14))
         self.assertEqual(len(graph.names), 14)
@@ -43,3 +52,9 @@ class TestToys(unittest.TestCase):
         self.assertEqual(graph.biadjacency.shape, (15, 16))
         self.assertEqual(len(graph.names), 15)
         self.assertEqual(len(graph.names_col), 16)
+
+        adjacency = hourglass()
+        self.assertEqual(adjacency.shape, (2, 2))
+
+        graph = hourglass(True)
+        self.assertEqual(graph.adjacency.shape, (2, 2))
