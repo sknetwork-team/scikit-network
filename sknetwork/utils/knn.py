@@ -10,7 +10,7 @@ import numpy as np
 from scipy import sparse
 from scipy.spatial import cKDTree
 
-from sknetwork.utils.knn1d import knn1d
+from sknetwork import njit, prange
 from sknetwork.utils.format import directed2undirected
 from sknetwork.utils.base import Algorithm
 
@@ -65,8 +65,8 @@ class KNNDense(BaseTransformer):
         2 is the usual Euclidean distance infinity is the maximum-coordinate-difference distance.
         A finite large p may cause a ValueError if overflow can occur.
     eps :
-        Return approximate nearest neighbors; the k-th returned value is guaranteed to be no further than (1+tol_nn)
-        times the distance to the real k-th nearest neighbor.
+        Return approximate nearest neighbors; the k-th returned value is guaranteed to be no further than (1+tol_nn) times
+        the distance to the real k-th nearest neighbor.
     n_jobs :
         Number of jobs to schedule for parallel processing. If -1 is given all processors are used.
 
@@ -122,6 +122,40 @@ class KNNDense(BaseTransformer):
         return self
 
 
+@njit
+def knn1d(x: np.ndarray, n_neighbors: int) -> list:
+    """K nearest neighbors search for 1-dimensional arrays.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        1-d data
+    n_neighbors : int
+        Number of neighbors to return.
+    Returns
+    -------
+    list :
+        List of nearest neighbors tuples (i, j).
+
+    """
+    sorted_ix = np.argsort(x)
+    edgelist = []
+
+    n: int = x.shape[0]
+    for i in prange(n):
+        ix = sorted_ix[i]
+        low: int = max(0, i - n_neighbors)
+        hgh: int = min(n - 1, i + n_neighbors + 1)
+        candidates = sorted_ix[low:hgh]
+
+        deltas = np.abs(x[candidates] - x[ix])
+        sorted_candidates = candidates[np.argsort(deltas)]
+        sorted_candidates = sorted_candidates[:n_neighbors+1]
+        edgelist.extend([(ix, neigh) for neigh in sorted_candidates if neigh != ix])
+
+    return edgelist
+
+
 class PNNDense(BaseTransformer):
     """Extract adjacency from vector data through parallel k-nearest-neighbor search.
     KNN is applied independently on each column of the input matrix.
@@ -162,7 +196,7 @@ class PNNDense(BaseTransformer):
 
         edgelist = []
         for j in range(x.shape[1]):
-            edgelist += knn1d(x[:, j].astype(float), self.n_neighbors)
+            edgelist += knn1d(x[:, j], self.n_neighbors)
         edges = np.array(edgelist)
         data = np.ones(edges.shape[0])
         row = edges[:, 0]

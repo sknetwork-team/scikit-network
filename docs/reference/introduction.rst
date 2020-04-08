@@ -25,6 +25,15 @@ Data format
 Each graph is represented by its adjacency matrix, either as a dense ``numpy array`` or a sparse ``scipy CSR matrix``.
 A bipartite graph may be represented by its biadjacency matrix, in the same format.
 
+Optional dependency
+-------------------
+
+Numba_ is not listed as an explicit dependency for :mod:`scikit-network`. It is automatically
+used whenever possible (unless specified otherwise by the user) in order to speed up algorithm executions.
+
+Note that when using a Numba-accelerated function for the first time in a session,
+just-in-time compilation takes a few seconds.
+
 About the documentation
 -----------------------
 
@@ -63,4 +72,6 @@ Notes
 * Adjacency and biadjacency matrices have non-negative entries (the weights of the edges).
 * Bipartite graphs are undirected but have a special structure that is exploited by some algorithms.
   These algorithms are identified with the prefix ``Bi``.
+
+.. _Numba: https://numba.pydata.org
 

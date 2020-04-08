@@ -1,18 +1,16 @@
 dist: xenial   # required for Python >= 3.7
 language: python
 python:
-- 3.8
 - 3.7
 - 3.6
 install:
-  - pip install -r requirements_dev.txt
+  - pip install -U tox-travis
   - pip install codecov
-  - python setup.py develop
 env:
-  - SKNETWORK_DISABLE_CYTHONIZE=false
-  - SKNETWORK_DISABLE_CYTHONIZE=true
+  - SKNETWORK_DISABLE_NUMBA=false
+  - SKNETWORK_DISABLE_NUMBA=true
 script:
-  - py.test --doctest-modules --cov-report=xml --cov=sknetwork
+  - tox
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
@@ -23,5 +21,6 @@ deploy:
     tags: true
     repo: sknetwork-team/scikit-network
     python: 3.6
+    env: SKNETWORK_DISABLE_NUMBA=true
 after_success:
   - codecov

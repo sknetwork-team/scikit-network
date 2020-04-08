@@ -8,6 +8,7 @@ Created on March 2019
 
 import unittest
 
+from sknetwork import is_numba_available
 from sknetwork.hierarchy import Paris, BiParis
 from sknetwork.data.test_graphs import *
 
@@ -16,8 +17,14 @@ from sknetwork.data.test_graphs import *
 class TestParis(unittest.TestCase):
 
     def setUp(self):
-        self.paris = [Paris()]
-        self.biparis = [BiParis()]
+        self.paris = [Paris(engine='python')]
+        self.biparis = [BiParis(engine='python')]
+        if is_numba_available:
+            self.paris.append(Paris(engine='numba'))
+            self.biparis.append(BiParis(engine='numba'))
+        else:
+            with self.assertRaises(ValueError):
+                Paris(engine='numba')
 
     def test_undirected(self):
         adjacency = test_graph()
@@ -45,7 +52,7 @@ class TestParis(unittest.TestCase):
 
     def test_disconnected(self):
         adjacency = test_graph_disconnect()
-        paris = Paris()
+        paris = Paris(engine='python')
         dendrogram = paris.fit_transform(adjacency)
         self.assertEqual(dendrogram.shape, (9, 4))
 
