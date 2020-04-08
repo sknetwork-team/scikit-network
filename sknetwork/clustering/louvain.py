@@ -17,166 +17,9 @@ from sknetwork.clustering.louvain_core import fit_core
 from sknetwork.clustering.postprocess import reindex_clusters
 from sknetwork.linalg import normalize
 from sknetwork.utils.format import bipartite2directed, directed2undirected
-from sknetwork.utils.base import Algorithm
 from sknetwork.utils.check import check_format, check_random_state, check_probs, is_square
 from sknetwork.utils.membership import membership_matrix
 from sknetwork.utils.verbose import VerboseMixin
-
-
-class AggregateGraph:
-    """
-    A class of graphs suitable for the Louvain algorithm. Each node represents a cluster.
-
-    Parameters
-    ----------
-    adjacency :
-        Adjacency matrix of the graph.
-    weights_out :
-        Out-weights.
-    weights_in :
-        In-weights.
-
-    Attributes
-    ----------
-    n_nodes : int
-        Number of nodes.
-    adjacency_norm : sparse.csr_matrix
-        Normalized adjacency matrix (sums to 1).
-    probs_out : np.ndarray
-        Distribution of out-weights (sums to 1).
-    probs_in :  np.ndarray
-        Distribution of in-weights (sums to 1).
-    """
-
-    def __init__(self, adjacency: sparse.csr_matrix, weights_out: np.ndarray, weights_in: np.ndarray):
-        self.n_nodes = adjacency.shape[0]
-        self.adjacency_norm = adjacency / adjacency.data.sum()
-        self.probs_out = weights_out
-        self.probs_in = weights_in
-
-    def aggregate(self, membership_row: Union[sparse.csr_matrix, np.ndarray],
-                  membership_col: Union[None, sparse.csr_matrix, np.ndarray] = None):
-        """
-        Aggregates nodes belonging to the same cluster.
-
-        Parameters
-        ----------
-        membership_row :
-            membership matrix (rows).
-        membership_col :
-            membership matrix (columns).
-
-        Returns
-        -------
-        Aggregate graph.
-        """
-        if type(membership_row) == np.ndarray:
-            membership_row = membership_matrix(membership_row)
-
-        if membership_col is not None:
-            if type(membership_col) == np.ndarray:
-                membership_col = membership_matrix(membership_col)
-
-            self.adjacency_norm = membership_row.T.dot(self.adjacency_norm.dot(membership_col)).tocsr()
-            self.probs_in = np.array(membership_col.T.dot(self.probs_in).T)
-
-        else:
-            self.adjacency_norm = membership_row.T.dot(self.adjacency_norm.dot(membership_row)).tocsr()
-            if self.probs_in is not None:
-                self.probs_in = np.array(membership_row.T.dot(self.probs_in).T)
-
-        self.probs_out = np.array(membership_row.T.dot(self.probs_out).T)
-        self.n_nodes = self.adjacency_norm.shape[0]
-        return self
-
-
-class Optimizer(Algorithm):
-    """
-    A generic optimization algorithm.
-
-    Attributes
-    ----------
-    score_ : float
-        Total increase of the objective function.
-    """
-
-    def __init__(self):
-        super(Optimizer, self).__init__()
-
-        self.labels_ = None
-        self.score_ = None
-
-    def fit(self, graph: AggregateGraph):
-        """
-        Fit the clusters to the objective function.
-
-         Parameters
-         ----------
-         graph :
-             Graph to cluster.
-
-         Returns
-         -------
-         self : :class:̀Optimizer`
-
-         """
-        return self
-
-
-class GreedyModularity(Optimizer):
-    """
-    A greedy modularity optimizer.
-
-    See :class:`modularity`
-
-    Attributes
-    ----------
-    resolution : float
-        Resolution parameter.
-    tol : float
-        Minimum modularity increase to enter a new optimization pass.
-
-    """
-
-    def __init__(self, resolution: float = 1, tol: float = 1e-3):
-        Optimizer.__init__(self)
-        self.resolution = resolution
-        self.tol = tol
-
-        self.labels_ = None
-
-    def fit(self, graph: AggregateGraph):
-        """
-        Local optimization of modularity.
-
-        Parameters
-        ----------
-        graph :
-            The graph to cluster.
-
-        Returns
-        -------
-        self : :class:`Optimizer`
-        """
-
-        node_probs_in = graph.probs_in
-        node_probs_out = graph.probs_out
-
-        adjacency = 0.5 * directed2undirected(graph.adjacency_norm)
-
-        self_loops = adjacency.diagonal()
-
-        indptr: np.ndarray = adjacency.indptr
-        indices: np.ndarray = adjacency.indices
-        data: np.ndarray = adjacency.data
-
-        labels, total_increase = fit_core(self.resolution, self.tol, graph.n_nodes,
-                                          node_probs_out, node_probs_in, self_loops, data, indices, indptr)
-
-        self.score_ = total_increase
-        _, self.labels_ = np.unique(labels, return_inverse=True)
-
-        return self
 
 
 class Louvain(BaseClustering, VerboseMixin):
@@ -188,12 +31,6 @@ class Louvain(BaseClustering, VerboseMixin):
 
     Parameters
     ----------
-    algorithm :
-        The optimization algorithm.
-        Requires a fit method.
-        Requires `score\\_`  and `labels\\_` attributes.
-
-        If ``'default'``, uses greedy modularity optimization algorithm: :class:`GreedyModularity`.
     resolution :
         Resolution parameter.
     tol :
@@ -245,7 +82,7 @@ class Louvain(BaseClustering, VerboseMixin):
 
     """
 
-    def __init__(self, algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
+    def __init__(self, resolution: float = 1,
                  tol: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
                  shuffle_nodes: bool = False, sort_clusters: bool = True, return_membership: bool = True,
                  return_adjacency: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
@@ -254,15 +91,9 @@ class Louvain(BaseClustering, VerboseMixin):
         VerboseMixin.__init__(self, verbose)
 
         self.random_state = check_random_state(random_state)
-        if algorithm == 'default':
-            self.algorithm = GreedyModularity(resolution, tol)
-        elif isinstance(algorithm, Optimizer):
-            self.algorithm = algorithm
-        else:
-            raise TypeError('Algorithm must be \'auto\' or a valid algorithm.')
-        if type(n_aggregations) != int:
-            raise TypeError('The maximum number of iterations must be an integer.')
         self.tol_aggregation = tol_aggregation
+        self.resolution = resolution
+        self.tol = tol
         self.n_aggregations = n_aggregations
         self.shuffle_nodes = shuffle_nodes
         self.sort_clusters = sort_clusters
@@ -271,6 +102,85 @@ class Louvain(BaseClustering, VerboseMixin):
 
         self.membership_ = None
         self.adjacency_ = None
+
+    def _optimize(self, n_nodes, adjacency_norm, probs_out, probs_in):
+        """
+        One local optimization pass of the Louvain algorithm
+
+        Parameters
+        ----------
+        n_nodes :
+            the number of nodes in the adjacency
+        adjacency_norm :
+            the norm of the adjacency
+        probs_out :
+            the array of degrees of the adjacency
+        probs_in :
+            the array of degrees of the transpose of the adjacency
+
+        Returns
+        -------
+        labels :
+            the communities of each node after optimization
+        pass_increase :
+            the increase in modularity gained after optimization
+        """
+        node_probs_in = probs_in
+        node_probs_out = probs_out
+
+        adjacency = 0.5 * directed2undirected(adjacency_norm)
+
+        self_loops = adjacency.diagonal()
+
+        indptr: np.ndarray = adjacency.indptr
+        indices: np.ndarray = adjacency.indices
+        data: np.ndarray = adjacency.data
+
+        return fit_core(self.resolution, self.tol, n_nodes,
+                        node_probs_out, node_probs_in, self_loops, data, indices, indptr)
+
+    @staticmethod
+    def _aggregate(adjacency_norm, probs_out, probs_in,
+                   membership_row: Union[sparse.csr_matrix, np.ndarray],
+                   membership_col: Union[None, sparse.csr_matrix, np.ndarray] = None):
+        """
+        Aggregates nodes belonging to the same cluster.
+
+        Parameters
+        ----------
+        adjacency_norm :
+            the norm of the adjacency
+        probs_out :
+            the array of degrees of the adjacency
+        probs_in :
+            the array of degrees of the transpose of the adjacency
+        membership_row :
+            membership matrix (rows).
+        membership_col :
+            membership matrix (columns).
+
+        Returns
+        -------
+        Aggregate graph.
+        """
+        if type(membership_row) == np.ndarray:
+            membership_row = membership_matrix(membership_row)
+
+        if membership_col is not None:
+            if type(membership_col) == np.ndarray:
+                membership_col = membership_matrix(membership_col)
+
+            adjacency_norm = membership_row.T.dot(adjacency_norm.dot(membership_col)).tocsr()
+            probs_in = np.array(membership_col.T.dot(probs_in).T)
+
+        else:
+            adjacency_norm = membership_row.T.dot(adjacency_norm.dot(membership_row)).tocsr()
+            if probs_in is not None:
+                probs_in = np.array(membership_row.T.dot(probs_in).T)
+
+        probs_out = np.array(membership_row.T.dot(probs_out).T)
+        n_nodes = adjacency_norm.shape[0]
+        return n_nodes, adjacency_norm, probs_out, probs_in
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Louvain':
         """
@@ -288,38 +198,40 @@ class Louvain(BaseClustering, VerboseMixin):
         adjacency = check_format(adjacency)
         if not is_square(adjacency):
             raise ValueError('The adjacency matrix is not square. Use BiLouvain() instead.')
-        n = adjacency.shape[0]
+        n_nodes = adjacency.shape[0]
 
-        out_weights = check_probs('degree', adjacency)
-        in_weights = check_probs('degree', adjacency.T)
+        probs_out = check_probs('degree', adjacency)
+        probs_in = check_probs('degree', adjacency.T)
 
-        nodes = np.arange(n)
+        nodes = np.arange(n_nodes)
         if self.shuffle_nodes:
             nodes = self.random_state.permutation(nodes)
             adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
-        graph = AggregateGraph(adjacency, out_weights, in_weights)
+        adjacency_norm = adjacency / adjacency.data.sum()
 
-        membership = sparse.identity(n, format='csr')
+        membership = sparse.identity(n_nodes, format='csr')
         increase = True
         count_aggregations = 0
-        self.log.print("Starting with", graph.n_nodes, "nodes.")
+        self.log.print("Starting with", n_nodes, "nodes.")
         while increase:
             count_aggregations += 1
 
-            self.algorithm.fit(graph)
+            current_labels, pass_increase = self._optimize(n_nodes, adjacency_norm, probs_out, probs_in)
+            _, current_labels = np.unique(current_labels, return_inverse=True)
 
-            if self.algorithm.score_ <= self.tol_aggregation:
+            if pass_increase <= self.tol_aggregation:
                 increase = False
             else:
-                membership_agg = membership_matrix(self.algorithm.labels_)
+                membership_agg = membership_matrix(current_labels)
                 membership = membership.dot(membership_agg)
-                graph.aggregate(membership_agg)
+                n_nodes, adjacency_norm, probs_out, probs_in = self._aggregate(adjacency_norm, probs_out,
+                                                                               probs_in, membership_agg)
 
-                if graph.n_nodes == 1:
+                if n_nodes == 1:
                     break
-            self.log.print("Aggregation", count_aggregations, "completed with", graph.n_nodes, "clusters and ",
-                           self.algorithm.score_, "increment.")
+            self.log.print("Aggregation", count_aggregations, "completed with", n_nodes, "clusters and ",
+                           pass_increase, "increment.")
             if count_aggregations == self.n_aggregations:
                 break
 
@@ -351,12 +263,6 @@ class BiLouvain(Louvain):
 
     Parameters
     ----------
-    algorithm :
-        The optimization algorithm.
-        Requires a fit method.
-        Requires `score\\_`  and `labels\\_` attributes.
-
-        If ``'default'``, uses greedy modularity optimization algorithm: :class:`GreedyModularity`.
     resolution :
         Resolution parameter.
     tol :
@@ -410,12 +316,12 @@ class BiLouvain(Louvain):
       (Doctoral dissertation, Université d'Orléans).
     """
 
-    def __init__(self, algorithm: Union[str, Optimizer] = 'default', resolution: float = 1,
+    def __init__(self, resolution: float = 1,
                  tol: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
                  shuffle_nodes: bool = False, sort_clusters: bool = True, return_membership: bool = True,
                  return_biadjacency: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
                  verbose: bool = False):
-        Louvain.__init__(self, algorithm, resolution, tol, tol_aggregation, n_aggregations,
+        Louvain.__init__(self, resolution, tol, tol_aggregation, n_aggregations,
                          shuffle_nodes, sort_clusters, return_membership, return_biadjacency, random_state, verbose)
 
         self.return_biadjacency = return_biadjacency
@@ -444,7 +350,7 @@ class BiLouvain(Louvain):
         -------
         self: :class:`BiLouvain`
         """
-        louvain = Louvain(algorithm=self.algorithm, tol_aggregation=self.tol_aggregation,
+        louvain = Louvain(tol_aggregation=self.tol_aggregation,
                           n_aggregations=self.n_aggregations,
                           shuffle_nodes=self.shuffle_nodes, sort_clusters=self.sort_clusters,
                           return_membership=self.return_membership, return_adjacency=False,
