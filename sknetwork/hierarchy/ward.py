@@ -39,9 +39,7 @@ class Ward(BaseHierarchy):
 
     * Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
       Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2(1), 86-97.
-
     """
-
     def __init__(self, embedding_method: BaseEmbedding = GSVD(10)):
         super(Ward, self).__init__()
 
@@ -59,7 +57,6 @@ class Ward(BaseHierarchy):
         Returns
         -------
         self: :class:`Ward`
-
         """
         embedding = self.embedding_method.fit_transform(adjacency)
         ward = WardDense()
@@ -110,9 +107,7 @@ class BiWard(BaseHierarchy):
 
     * Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
       Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2(1), 86-97.
-
     """
-
     def __init__(self, embedding_method: BaseEmbedding = GSVD(10), cluster_row: bool = True,
                  cluster_col: bool = False, cluster_both: bool = False):
         super(BiWard, self).__init__()
@@ -141,7 +136,6 @@ class BiWard(BaseHierarchy):
         Returns
         -------
         self: :class:`BiWard`
-
         """
         method = self.embedding_method
         method.fit(biadjacency)

@@ -287,31 +287,25 @@ def split_dendrogram(dendrogram: np.ndarray, shape: tuple):
     size_col = {i + n1: 1 for i in range(n2)}
     id_row = {i: i for i in range(n1)}
     id_col = {i + n1: i for i in range(n2)}
+
+    vars_row = (id_row, id_row_new, size_row, dendrogram_row)
+    vars_col = (id_col, id_col_new, size_col, dendrogram_col)
+
     for t in range(n1 + n2 - 1):
         i = dendrogram[t, 0]
         j = dendrogram[t, 1]
 
-        if i in id_row and j in id_row:
-            size_row[n1 + n2 + t] = size_row.pop(i) + size_row.pop(j)
-            id_row[n1 + n2 + t] = id_row_new
-            dendrogram_row.append([id_row.pop(i), id_row.pop(j), dendrogram[t, 2], size_row[n1 + n2 + t]])
-            id_row_new += 1
-        elif i in id_row:
-            size_row[n1 + n2 + t] = size_row.pop(i)
-            id_row[n1 + n2 + t] = id_row.pop(i)
-        elif j in id_row:
-            size_row[n1 + n2 + t] = size_row.pop(j)
-            id_row[n1 + n2 + t] = id_row.pop(j)
+        for (ix, ix_new, size, dend) in [vars_row, vars_col]:
+            if i in ix and j in ix:
+                size[n1 + n2 + t] = size.pop(i) + size.pop(j)
+                ix[n1 + n2 + t] = ix_new
+                dend.append([ix.pop(i), ix.pop(j), dendrogram[t, 2], size[n1 + n2 + t]])
+                ix_new += 1
+            elif i in ix:
+                size[n1 + n2 + t] = size.pop(i)
+                ix[n1 + n2 + t] = ix.pop(i)
+            elif j in ix:
+                size[n1 + n2 + t] = size.pop(j)
+                ix[n1 + n2 + t] = ix.pop(j)
 
-        if i in id_col and j in id_col:
-            size_col[n1 + n2 + t] = size_col.pop(i) + size_col.pop(j)
-            id_col[n1 + n2 + t] = id_col_new
-            dendrogram_col.append([id_col.pop(i), id_col.pop(j), dendrogram[t, 2], size_col[n1 + n2 + t]])
-            id_col_new += 1
-        elif i in id_col:
-            size_col[n1 + n2 + t] = size_col.pop(i)
-            id_col[n1 + n2 + t] = id_col.pop(i)
-        elif j in id_col:
-            size_col[n1 + n2 + t] = size_col.pop(j)
-            id_col[n1 + n2 + t] = id_col.pop(j)
     return np.array(dendrogram_row), np.array(dendrogram_col)

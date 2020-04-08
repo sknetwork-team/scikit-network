@@ -17,8 +17,7 @@ from sknetwork.utils.check import check_format, is_square
 
 
 class LouvainHierarchy(BaseHierarchy):
-    """
-    Iterative clustering algorithm for hierarchical clustering.
+    """Iterative clustering algorithm for hierarchical clustering.
 
     Using the Louvain clustering algorithm on each previously obtained cluster yields a tree-like structure.
 
@@ -35,11 +34,9 @@ class LouvainHierarchy(BaseHierarchy):
     -----
     Each row of the dendrogram = children, distance, size of cluster :math:`\\sum` nodes.
 
-
     See Also
     --------
     scipy.cluster.hierarchy.dendrogram
-
     """
 
     def __init__(self, **kwargs):
