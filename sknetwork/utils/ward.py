@@ -26,7 +26,6 @@ class WardDense(Algorithm):
 
     * Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
       Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2(1), 86-97.
-
     """
 
     def __init__(self):
@@ -43,7 +42,6 @@ class WardDense(Algorithm):
         Returns
         -------
         self: :class:`WardDense`
-
         """
         self.dendrogram_ = ward(x)
 

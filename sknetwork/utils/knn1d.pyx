@@ -8,7 +8,6 @@ import numpy as np
 cimport numpy as np
 
 from libcpp.vector cimport vector
-#from cython.parallel cimport prange
 cimport cython
 
 ctypedef np.int_t int_type_t
@@ -27,9 +26,8 @@ def knn1d(np.float_t[:] x, int n_neighbors):
         Number of neighbors to return.
     Returns
     -------
-    list
-        List of nearest neighbors tuples (i, j).
-
+    tuple
+        List of source nodes and list of target nodes.
     """
     cdef int n
     cdef int i

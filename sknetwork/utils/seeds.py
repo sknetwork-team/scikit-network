@@ -27,11 +27,11 @@ def stack_seeds(n_row: int, n_col: int, seeds_row: Optional[Union[np.ndarray, di
 
 
 def seeds2probs(n: int, seeds: Union[dict, np.ndarray] = None) -> np.ndarray:
-    """
+    """Transform seeds into probability vector.
 
     Parameters
     ----------
-    n :
+    n : int
         Total number of samples.
     seeds :
         If ``None``, the uniform distribution is used.
@@ -41,7 +41,6 @@ def seeds2probs(n: int, seeds: Union[dict, np.ndarray] = None) -> np.ndarray:
     -------
     probs:
         A probability vector.
-
     """
     if seeds is None:
         return np.ones(n) / n

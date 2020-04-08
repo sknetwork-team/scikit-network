@@ -51,7 +51,7 @@ def is_symmetric(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1
 
 
 def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
-    """Returns an array of weights from a matrix and a desired distribution.
+    """Array of weights from a matrix and a desired distribution.
 
        Parameters
        ----------
@@ -77,7 +77,7 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
 
 
 def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
-    """Checks whether the matrix is an instance of a supported type (NumPy array or Scipy CSR matrix) and returns
+    """Check whether the matrix is an instance of a supported type (NumPy array or Scipy CSR matrix) and return
     the corresponding Scipy CSR matrix.
     """
     if type(adjacency) not in {sparse.csr_matrix, np.ndarray}:
@@ -87,7 +87,7 @@ def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_
 
 
 def check_is_proba(entry: Union[float, int]):
-    """Checks whether the number is non-negative and less than or equal to 1."""
+    """Check whether the number is non-negative and less than or equal to 1."""
     if type(entry) not in [float, int]:
         raise TypeError('Probabilities must be floats (or ints if 0 or 1).')
     if entry < 0 or entry > 1:
@@ -97,7 +97,7 @@ def check_is_proba(entry: Union[float, int]):
 
 def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_matrix, sparse.csc_matrix],
                   positive_entries: bool = False) -> np.ndarray:
-    """Checks whether the weights are a valid distribution for the adjacency and returns a probability vector.
+    """Check whether the weights are a valid distribution for the adjacency and return a probability vector.
 
     Parameters
     ----------
@@ -137,15 +137,15 @@ def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr
 
 def check_probs(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_matrix, sparse.csc_matrix],
                 positive_entries: bool = False) -> np.ndarray:
-    """Checks whether the weights are a valid distribution for the adjacency
-    and returns a normalized probability vector.
+    """Check whether the weights are a valid distribution for the adjacency
+    and return a normalized probability vector.
     """
     weights = check_weights(weights, adjacency, positive_entries)
     return weights / np.sum(weights)
 
 
 def check_random_state(random_state: Optional[Union[np.random.RandomState, int]]):
-    """Checks whether the argument is a seed or a NumPy random state. If None, numpy.random is used by default."""
+    """Check whether the argument is a seed or a NumPy random state. If None, numpy.random is used by default."""
     if random_state is None or random_state is np.random:
         return np.random
     elif type(random_state) == int:

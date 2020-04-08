@@ -7,9 +7,7 @@ Created on Dec 3, 2019
 
 
 class Log:
-    """
-    Log class for easier verbosity features
-    """
+    """Log class for easier verbosity features"""
     def __init__(self, verbose: bool = False):
         self.verbose = verbose
         self.log = ''
@@ -25,9 +23,7 @@ class Log:
 
 
 class VerboseMixin:
-    """
-    Mixin class for verbosity
-    """
+    """Mixin class for verbosity"""
     def __init__(self, verbose: bool = False):
         self.log = Log(verbose)
 

@@ -11,8 +11,7 @@ from scipy import sparse
 
 
 def membership_matrix(labels: np.ndarray, dtype=bool) -> sparse.csr_matrix:
-    """
-    Build a n x k matrix of the label assignments, with k the number of labels.
+    """Build a n x k matrix of the label assignments, with k the number of labels.
     Negative labels are ignored.
 
     Parameters
@@ -30,7 +29,6 @@ def membership_matrix(labels: np.ndarray, dtype=bool) -> sparse.csr_matrix:
     Notes
     -----
     The inverse operation is simply ``labels = membership.indices``.
-
     """
     n: int = len(labels)
     shape = (n, max(labels)+1)

@@ -17,14 +17,13 @@ from sknetwork.utils.base import Algorithm
 
 class BaseTransformer(Algorithm, ABC):
     """Base class for transformers."""
-
     def __init__(self, undirected: bool = False):
         self.undirected = undirected
 
         self.adjacency_ = None
 
     def fit_transform(self, x: np.ndarray) -> sparse.csr_matrix:
-        """Fits the model to the data and return the computed adjacency.
+        """Fit algorithm to the data and return the computed adjacency.
 
         Parameters
         ----------
@@ -34,7 +33,6 @@ class BaseTransformer(Algorithm, ABC):
         Returns
         -------
         adjacency : sparse.csr_matrix
-
         """
         self.fit(x)
         return self.adjacency_
@@ -79,10 +77,7 @@ class KNNDense(BaseTransformer):
     ----------
     Maneewongvatana, S., & Mount, D. M. (1999, December). It’s okay to be skinny, if your friends are fat.
     In Center for Geometric Computing 4th Annual Workshop on Computational Geometry (Vol. 2, pp. 1-8).
-
-
     """
-
     def __init__(self, n_neighbors: int = 5, undirected: bool = False, leaf_size: int = 16, p=2, eps: float = 0.01,
                  n_jobs=1):
         super(KNNDense, self).__init__(undirected)
@@ -94,7 +89,7 @@ class KNNDense(BaseTransformer):
         self.n_jobs = n_jobs
 
     def fit(self, x: np.ndarray) -> 'KNNDense':
-        """
+        """Fit algorithm to the data.
 
         Parameters
         ----------
@@ -103,9 +98,7 @@ class KNNDense(BaseTransformer):
 
         Returns
         -------
-
         self : :class:`KNNDense`
-
         """
         tree = cKDTree(x, self.leaf_size)
         _, neighbors = tree.query(x, self.n_neighbors + 1, self.eps, self.p, n_jobs=self.n_jobs)
@@ -146,7 +139,7 @@ class PNNDense(BaseTransformer):
         self.n_neighbors = n_neighbors
 
     def fit(self, x: np.ndarray) -> 'PNNDense':
-        """
+        """Fit algorithm to the data.
 
         Parameters
         ----------
@@ -155,11 +148,8 @@ class PNNDense(BaseTransformer):
 
         Returns
         -------
-
         self: :class:`PNNDense`
-
         """
-
         rows, cols = [], []
         for j in range(x.shape[1]):
             row, col = knn1d(x[:, j].astype(float), self.n_neighbors)

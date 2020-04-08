@@ -15,8 +15,7 @@ from sknetwork.linalg.sparse_lowrank import SparseLR
 
 def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
                         weight_sum: bool = True) -> Union[sparse.csr_matrix, SparseLR]:
-    """
-    Returns the adjacency matrix of the undirected graph associated with some directed graph.
+    """Adjacency matrix of the undirected graph associated with some directed graph.
 
     The new adjacency matrix becomes either:
 
@@ -56,8 +55,7 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
 
 
 def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union[sparse.csr_matrix, SparseLR]:
-    """
-    Returns the adjacency matrix of the directed graph associated with a bipartite graph
+    """Adjacency matrix of the directed graph associated with a bipartite graph
     (with edges from one part to the other).
 
     The returned adjacency matrix is:
@@ -87,8 +85,7 @@ def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union
 
 
 def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union[sparse.csr_matrix, SparseLR]:
-    """
-    Returns the adjacency matrix of a biadjacency adjacency defined by its biadjacency matrix.
+    """Adjacency matrix of a bigraph defined by its biadjacency matrix.
 
     The returned adjacency matrix is:
 

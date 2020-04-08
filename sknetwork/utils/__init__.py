@@ -8,7 +8,7 @@ from sknetwork.utils.ward import WardDense
 
 
 class Bunch(dict):
-    """Container object for datasets
+    """Container object for datasets.
     Dictionary-like object that exposes its keys as attributes.
 
     This code is taken from scikit-learn.
