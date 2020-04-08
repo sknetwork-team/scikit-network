@@ -57,5 +57,7 @@ Co-Neighborhood
 
 .. autofunction:: sknetwork.basics.co_neighbors_graph
 
+.. autoclass:: sknetwork.basics.CoNeighbors
+
 
 .. _SciPy: https://docs.scipy.org/doc/scipy/reference/sparse.csgraph.html

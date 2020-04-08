@@ -19,7 +19,11 @@ from sknetwork.utils.knn import KNNDense
 
 def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normalized: bool = True, method='knn',
                        n_neighbors: int = 5, n_components: int = 8) -> sparse.csr_matrix:
-    """Compute the co-neighborhood adjacency defined as
+    """Compute the co-neighborhood adjacency.
+
+    * Graphs
+    * Digraphs
+    * Bigraphs
 
     :math:`\\tilde{A} = AF^{-1}A^T`,
 
@@ -68,7 +72,11 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
 
 
 class CoNeighbors(LinearOperator):
-    """Co-neighborhood adjacency as a LinearOperator
+    """Co-neighborhood adjacency as a LinearOperator.
+
+    * Graphs
+    * Digraphs
+    * Bigraphs
 
     :math:`\\tilde{A} = AF^{-1}A^T`,
 

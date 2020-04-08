@@ -35,6 +35,9 @@ def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak',
     """
     Extract the connected components of the graph
 
+    * Graphs
+    * Digraphs
+
     Based on SciPy (scipy.sparse.csgraph.connected_components).
 
     Parameters
@@ -60,6 +63,10 @@ def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak',
 def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], return_labels: bool = False):
     """
     Extract the largest connected component of a graph. Bipartite graphs are treated as undirected ones.
+
+    * Graphs
+    * Digraphs
+    * Bigraphs
 
     Parameters
     ----------
@@ -112,19 +119,21 @@ def is_bipartite(adjacency: sparse.csr_matrix,
                  return_biadjacency: bool = False) -> Union[bool, Tuple[bool, Optional[sparse.csr_matrix]]]:
     """Check whether an undirected graph is bipartite and can return a possible biadjacency.
 
-        Parameters
-        ----------
-        adjacency:
-           The symmetric adjacency matrix of the graph.
-        return_biadjacency:
-            If ``True`` , a possible biadjacency is returned if the graph is bipartite (None is returned otherwise)
+    * Graphs
 
-        Returns
-        -------
-        is_bipartite: bool
-            A boolean denoting if the graph is bipartite
-        biadjacency: sparse.csr_matrix
-            A possible biadjacency of the bipartite graph (None if the graph is not bipartite)
+    Parameters
+    ----------
+    adjacency:
+       The symmetric adjacency matrix of the graph.
+    return_biadjacency:
+        If ``True`` , a possible biadjacency is returned if the graph is bipartite (None is returned otherwise)
+
+    Returns
+    -------
+    is_bipartite: bool
+        A boolean denoting if the graph is bipartite
+    biadjacency: sparse.csr_matrix
+        A possible biadjacency of the bipartite graph (None if the graph is not bipartite)
     """
     if not is_symmetric(adjacency):
         raise ValueError('The graph must be undirected.')
