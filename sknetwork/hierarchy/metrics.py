@@ -50,8 +50,10 @@ def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights
 
     out_weights = check_probs(weights, adjacency)
     in_weights = check_probs(weights, adjacency.T)
+    sym_adjacency = adjacency + adjacency.T
 
-    aggregate_graph = AggregateGraph(adjacency + adjacency.T, out_weights, in_weights)
+    aggregate_graph = AggregateGraph(out_weights, in_weights, sym_adjacency.data.astype(np.float),
+                                     sym_adjacency.indices, sym_adjacency.indptr, sym_adjacency.shape)
 
     height = np.zeros(n - 1)
     edge_sampling = np.zeros(n - 1)
@@ -128,7 +130,10 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     out_weights = check_probs(weights, adjacency)
     in_weights = check_probs(weights, adjacency.T)
 
-    aggregate_graph = AggregateGraph(adjacency + adjacency.T, out_weights, in_weights)
+    sym_adjacency = adjacency + adjacency.T
+
+    aggregate_graph = AggregateGraph(out_weights, in_weights, sym_adjacency.data.astype(np.float),
+                                     sym_adjacency.indices, sym_adjacency.indptr, sym_adjacency.shape)
 
     height = np.zeros(n - 1)
     edge_sampling = np.zeros(n - 1)
