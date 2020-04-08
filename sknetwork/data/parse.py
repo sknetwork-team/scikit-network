@@ -144,8 +144,8 @@ def parse_labels(file: str) -> np.ndarray:
 
     Returns
     -------
-    labels:
-        The labels on each row.
+    labels: np.ndarray
+        Labels.
     """
     rows = []
     with open(file, 'r', encoding='utf-8') as f:
@@ -170,8 +170,8 @@ def parse_hierarchical_labels(file: str, depth: int, full_path: bool = True, del
 
     Returns
     -------
-    labels:
-        An array of the labels.
+    labels: np.ndarray
+        Labels.
     """
     rows = []
     with open(file, 'r', encoding='utf-8') as f:

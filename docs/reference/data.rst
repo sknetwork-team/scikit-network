@@ -51,11 +51,7 @@ Parsing
 
 You can find some datasets on NetRep_.
 
-.. currentmodule:: sknetwork
-
 .. autofunction:: sknetwork.data.parse_tsv
-
-.. autofunction:: sknetwork.data.parse_labels
 
 .. _NetRep: http://networkrepository.com/
 
