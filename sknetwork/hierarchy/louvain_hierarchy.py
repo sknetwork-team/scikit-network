@@ -22,10 +22,12 @@ class LouvainHierarchy(BaseHierarchy):
 
     Using the Louvain clustering algorithm on each previously obtained cluster yields a tree-like structure.
 
+    Parameters
+    ----------
+    Parameters are the same as the ``sknetwork.clustering.Louvain``
+
     Attributes
     ----------
-    clustering_method : :class:`Louvain`
-        Sub-algorithm for clustering.
     dendrogram_ : numpy array of shape (n, 3)
         Dendrogram.
 
@@ -40,10 +42,10 @@ class LouvainHierarchy(BaseHierarchy):
 
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         super(LouvainHierarchy, self).__init__()
 
-        self.clustering_method = Louvain()
+        self._clustering_method = Louvain(**kwargs)
 
     def recursive_louvain(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
                           nodes: Optional[np.ndarray] = None):
@@ -61,7 +63,7 @@ class LouvainHierarchy(BaseHierarchy):
         -------
         tree: :class:`Tree`
         """
-        labels = self.clustering_method.fit_transform(adjacency)
+        labels = self._clustering_method.fit_transform(adjacency)
 
         clusters = np.unique(labels)
 
