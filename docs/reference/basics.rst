@@ -5,7 +5,7 @@ Basics
 
 .. currentmodule:: sknetwork
 
-This module contains well-known algorithms for shortest path computation, structure of the graph and searches (BFS, DFS).
+This module contains standard algorithms for shortest path computation, structure of the graph and searches (BFS, DFS).
 
 Most algorithms are adapted from SciPy_.
 

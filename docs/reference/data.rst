@@ -18,6 +18,8 @@ Toy graphs
 
 .. autofunction:: sknetwork.data.painters
 
+.. autofunction:: sknetwork.data.hourglass
+
 .. autofunction:: sknetwork.data.star_wars
 
 .. autofunction:: sknetwork.data.movie_actor

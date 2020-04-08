@@ -12,6 +12,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.utils import Bunch
+from sknetwork.utils.format import directed2undirected
 
 
 def block_model(sizes: np.ndarray, p_in: Union[float, np.ndarray] = .2, p_out: float = .05,
@@ -74,9 +75,9 @@ def erdos_renyie(n: int = 20, p: float = .3, seed: Optional[int] = None) -> spar
 
     Parameters
     ----------
-    n :
+    n : int
          Number of nodes.
-    p :
+    p : float
         Probability of connection between nodes.
     seed : Optional[int]
         Random seed.
@@ -86,8 +87,7 @@ def erdos_renyie(n: int = 20, p: float = .3, seed: Optional[int] = None) -> spar
     adjacency : sparse.csr_matrix
         Adjacency matrix.
     """
-    adjacency = block_model(np.array([n]), p, 0., seed, metadata=False)
-    return adjacency
+    return block_model(np.array([n]), p, 0., seed, metadata=False)
 
 
 def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
@@ -95,9 +95,9 @@ def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
 
     Parameters
     ----------
-    n :
+    n : int
         Number of nodes.
-    metadata :
+    metadata : bool
         If ``True``, return a `Bunch` object with metadata.
 
     Returns
@@ -126,9 +126,9 @@ def linear_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix,
 
     Parameters
     ----------
-    n :
+    n : int
         Number of nodes.
-    metadata :
+    metadata : bool
         If ``True``, return a `Bunch` object with metadata.
 
     Returns
@@ -151,9 +151,9 @@ def cyclic_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
 
     Parameters
     ----------
-    n :
+    n : int
         Number of nodes.
-    metadata :
+    metadata : bool
         If ``True``, return a `Bunch` object with metadata.
 
     Returns
@@ -183,22 +183,19 @@ def cyclic_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix,
 
     Parameters
     ----------
-    n :
+    n : int
         Number of nodes.
-    metadata :
+    metadata : bool
         If ``True``, return a `Bunch` object with metadata.
 
     Returns
     -------
     adjacency or graph : Union[sparse.csr_matrix, Bunch]
         Adjacency matrix or graph with metadata (positions).
-
     """
     graph = cyclic_digraph(n, True)
-    adjacency = graph.adjacency
-    adjacency = adjacency + adjacency.T
+    graph.adjacency = directed2undirected(graph.adjacency)
     if metadata:
-        graph.adjacency = adjacency
         return graph
     else:
-        return adjacency
+        return graph.adjacency

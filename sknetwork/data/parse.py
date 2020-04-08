@@ -17,8 +17,7 @@ from sknetwork.utils import Bunch
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
               named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True) -> Bunch:
-    """
-    A parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
+    """Parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
 
     Parameters
     ----------
@@ -136,8 +135,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
 
 
 def parse_labels(file: str) -> np.ndarray:
-    """
-    A parser for files with a single entry on each row.
+    """Parser for files with a single entry on each row.
 
     Parameters
     ----------
@@ -157,8 +155,7 @@ def parse_labels(file: str) -> np.ndarray:
 
 
 def parse_hierarchical_labels(file: str, depth: int, full_path: bool = True, delimiter: str = '|||'):
-    """
-    A parser for files with a single entry of the form ``'String1'<delimiter>...<delimiter>'StringN'`` on each row.
+    """Parser for files with a single entry of the form ``'String1'<delimiter>...<delimiter>'StringN'`` on each row.
 
     Parameters
     ----------

@@ -281,6 +281,34 @@ def painters(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         return adjacency
 
 
+def hourglass(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+    """Hourglass graph.
+
+    * Bipartite graph
+    * 4 nodes, 4 edges
+
+    Parameters
+    ----------
+    metadata :
+        If ``True``, return a `Bunch` object with metadata.
+
+    Returns
+    -------
+    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+        Adjacency matrix or graph with metadata (positions).
+    """
+    row = np.array([0, 0, 1, 1])
+    col = np.array([0, 1, 0, 1])
+    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(2, 2))
+
+    if metadata:
+        graph = Bunch()
+        graph.adjacency = adjacency
+        return graph
+    else:
+        return adjacency
+
+
 def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     """Bipartite graph connecting some Star Wars villains to the movies in which they appear.
 

@@ -48,7 +48,7 @@ def test_graph_disconnect():
     col = np.array([1, 3, 2, 5, 4, 5, 7, 9, 9, 9])
     data = np.array([1, 2.5, 1, 2, 2, 1, 2, 2, 1.5, 2])
     adjacency = sparse.csr_matrix((data, (row, col)), shape=(10, 10))
-    return adjacency + adjacency.T
+    return directed2undirected(adjacency)
 
 
 def test_bigraph_disconnect():

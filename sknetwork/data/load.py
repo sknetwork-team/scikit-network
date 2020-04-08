@@ -24,7 +24,7 @@ from sknetwork.utils import Bunch
 
 def get_data_home(data_home: Optional[str] = None):
     """
-    Returns a path to a storage folder depending on the dedicated environment variable and user input.
+    Return a path to a storage folder depending on the dedicated environment variable and user input.
 
     Parameters
     ----------
@@ -42,7 +42,7 @@ def get_data_home(data_home: Optional[str] = None):
 
 def clear_data_home(data_home: Optional[str] = None):
     """
-    Clears a storage folder depending on the dedicated environment variable and user input.
+    Clear storage folder depending on the dedicated environment variable and user input.
 
     Parameters
     ----------
@@ -196,8 +196,7 @@ def load_konect(dataset_name: str, data_home: Optional[str] = None, auto_numpy_b
 
 
 def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[str] = None):
-    """
-    Saves a Bunch to a collection of Numpy and Pickle files for faster subsequent loads.
+    """Save a Bunch to a collection of Numpy and Pickle files for faster subsequent loads.
 
     Parameters
     ----------
@@ -222,8 +221,7 @@ def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[str]
 
 
 def load_from_numpy_bundle(bundle_name: str, data_home: Optional[str] = None):
-    """
-    Loads a Bunch from a collection of Numpy and Pickle files (inverse function of ``save_to_numpy_bundle``).
+    """Load a Bunch from a collection of Numpy and Pickle files (inverse function of ``save_to_numpy_bundle``).
 
     Parameters
     ----------
