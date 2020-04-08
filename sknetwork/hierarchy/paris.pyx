@@ -21,6 +21,7 @@ from typing import Union
 from scipy import sparse
 
 from sknetwork.hierarchy.base import BaseHierarchy
+from sknetwork.hierarchy.postprocess import split_dendrogram
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.check import check_format, check_probs, is_square
 
@@ -287,61 +288,6 @@ class Paris(BaseHierarchy):
         dendrogram = np.array(dendrogram)
         self.dendrogram_ = dendrogram
         return self
-
-def split_dendrogram(dendrogram: np.ndarray, shape: tuple):
-    """
-    Split the dendrogram of a bipartite graph into 2 dendrograms, one for each part.
-
-    Parameters
-    ----------
-    dendrogram :
-        Dendrogram of the bipartite graph.
-    shape :
-        Shape of the biadjacency matrix.
-    Returns
-    -------
-    dendrogram_row :
-        Dendrogram for the rows.
-    dendrogram_col :
-        Dendrogram for the columns.
-    """
-    n1, n2 = shape
-    dendrogram_row = []
-    dendrogram_col = []
-    id_row_new = n1
-    id_col_new = n2
-    size_row = {i: 1 for i in range(n1)}
-    size_col = {i + n1: 1 for i in range(n2)}
-    id_row = {i: i for i in range(n1)}
-    id_col = {i + n1: i for i in range(n2)}
-    for t in range(n1 + n2 - 1):
-        i = dendrogram[t, 0]
-        j = dendrogram[t, 1]
-
-        if i in id_row and j in id_row:
-            size_row[n1 + n2 + t] = size_row.pop(i) + size_row.pop(j)
-            id_row[n1 + n2 + t] = id_row_new
-            dendrogram_row.append([id_row.pop(i), id_row.pop(j), dendrogram[t, 2], size_row[n1 + n2 + t]])
-            id_row_new += 1
-        elif i in id_row:
-            size_row[n1 + n2 + t] = size_row.pop(i)
-            id_row[n1 + n2 + t] = id_row.pop(i)
-        elif j in id_row:
-            size_row[n1 + n2 + t] = size_row.pop(j)
-            id_row[n1 + n2 + t] = id_row.pop(j)
-
-        if i in id_col and j in id_col:
-            size_col[n1 + n2 + t] = size_col.pop(i) + size_col.pop(j)
-            id_col[n1 + n2 + t] = id_col_new
-            dendrogram_col.append([id_col.pop(i), id_col.pop(j), dendrogram[t, 2], size_col[n1 + n2 + t]])
-            id_col_new += 1
-        elif i in id_col:
-            size_col[n1 + n2 + t] = size_col.pop(i)
-            id_col[n1 + n2 + t] = id_col.pop(i)
-        elif j in id_col:
-            size_col[n1 + n2 + t] = size_col.pop(j)
-            id_col[n1 + n2 + t] = id_col.pop(j)
-    return np.array(dendrogram_row), np.array(dendrogram_col)
 
 
 class BiParis(Paris):

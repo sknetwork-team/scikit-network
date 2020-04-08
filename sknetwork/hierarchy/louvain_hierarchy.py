@@ -10,7 +10,6 @@ from typing import Optional, Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.louvain import Louvain
 from sknetwork.hierarchy.base import BaseHierarchy
 from sknetwork.hierarchy.postprocess import get_dendrogram
@@ -21,18 +20,11 @@ class LouvainHierarchy(BaseHierarchy):
     """
     Iterative clustering algorithm for hierarchical clustering.
 
-    Using a standard clustering algorithm on each previously obtained cluster yields a tree-like structure.
-
-    Defaults to using Louvain.
-
-    Parameters
-    ----------
-    engine : str
-        ``'default'``, ``'python'`` or ``'numba'``. If ``'default'``, tests if numba is available.
+    Using the Louvain clustering algorithm on each previously obtained cluster yields a tree-like structure.
 
     Attributes
     ----------
-    clustering_method : :class:`BaseClustering`
+    clustering_method : :class:`Louvain`
         Sub-algorithm for clustering.
     dendrogram_ : numpy array of shape (n, 3)
         Dendrogram.
@@ -48,13 +40,10 @@ class LouvainHierarchy(BaseHierarchy):
 
     """
 
-    def __init__(self, clustering_method: Optional['BaseClustering'] = None):
+    def __init__(self):
         super(LouvainHierarchy, self).__init__()
 
-        if clustering_method is None:
-            self.clustering_method = Louvain()
-        else:
-            self.clustering_method = clustering_method
+        self.clustering_method = Louvain()
 
     def recursive_louvain(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
                           nodes: Optional[np.ndarray] = None):
