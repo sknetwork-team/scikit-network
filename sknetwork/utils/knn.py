@@ -160,15 +160,17 @@ class PNNDense(BaseTransformer):
 
         """
 
-        edgelist = []
+        rows, cols = [], []
         for j in range(x.shape[1]):
-            edgelist += knn1d(x[:, j].astype(float), self.n_neighbors)
-        edges = np.array(edgelist)
-        data = np.ones(edges.shape[0])
-        row = edges[:, 0]
-        col = edges[:, 1]
+            row, col = knn1d(x[:, j].astype(float), self.n_neighbors)
+            rows += row
+            cols += col
 
-        self.adjacency_ = sparse.csr_matrix((data, (row, col)))
+        rows = np.array(rows)
+        cols = np.array(cols)
+        data = np.ones(len(rows))
+
+        self.adjacency_ = sparse.csr_matrix((data, (rows, cols)))
         self.make_undirected()
 
         return self
