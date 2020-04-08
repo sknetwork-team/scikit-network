@@ -1168,7 +1168,7 @@ typedef npy_double __pyx_t_5numpy_double_t;
  */
 typedef npy_longdouble __pyx_t_5numpy_longdouble_t;
 
-/* "sknetwork/utils/knn1d.pyx":14
+/* "sknetwork/utils/knn1d.pyx":13
  * cimport cython
  * 
  * ctypedef np.int_t int_type_t             # <<<<<<<<<<<<<<
@@ -1177,7 +1177,7 @@ typedef npy_longdouble __pyx_t_5numpy_longdouble_t;
  */
 typedef __pyx_t_5numpy_int_t __pyx_t_9sknetwork_5utils_5knn1d_int_type_t;
 
-/* "sknetwork/utils/knn1d.pyx":15
+/* "sknetwork/utils/knn1d.pyx":14
  * 
  * ctypedef np.int_t int_type_t
  * ctypedef np.float_t float_type_t             # <<<<<<<<<<<<<<
@@ -2595,7 +2595,7 @@ static PyObject *__pyx_codeobj__27;
 static PyObject *__pyx_codeobj__34;
 /* Late includes */
 
-/* "sknetwork/utils/knn1d.pyx":19
+/* "sknetwork/utils/knn1d.pyx":18
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def knn1d(np.float_t[:] x, int n_neighbors):             # <<<<<<<<<<<<<<
@@ -2605,7 +2605,7 @@ static PyObject *__pyx_codeobj__34;
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9sknetwork_5utils_5knn1d_1knn1d(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9sknetwork_5utils_5knn1d_knn1d[] = "K nearest neighbors search for 1-dimensional arrays.\n\n    Parameters\n    ----------\n    x: np.ndarray\n        1-d data\n    n_neighbors: int\n        Number of neighbors to return.\n    Returns\n    -------\n    list\n        List of nearest neighbors tuples (i, j).\n\n    ";
+static char __pyx_doc_9sknetwork_5utils_5knn1d_knn1d[] = "K nearest neighbors search for 1-dimensional arrays.\n\n    Parameters\n    ----------\n    x: np.ndarray\n        1-d data\n    n_neighbors: int\n        Number of neighbors to return.\n    Returns\n    -------\n    tuple\n        List of source nodes and list of target nodes.\n    ";
 static PyMethodDef __pyx_mdef_9sknetwork_5utils_5knn1d_1knn1d = {"knn1d", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9sknetwork_5utils_5knn1d_1knn1d, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9sknetwork_5utils_5knn1d_knn1d};
 static PyObject *__pyx_pw_9sknetwork_5utils_5knn1d_1knn1d(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   __Pyx_memviewslice __pyx_v_x = { 0, 0, { 0 }, { 0 }, { 0 } };
@@ -2636,11 +2636,11 @@ static PyObject *__pyx_pw_9sknetwork_5utils_5knn1d_1knn1d(PyObject *__pyx_self, 
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_n_neighbors)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("knn1d", 1, 2, 2, 1); __PYX_ERR(0, 19, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("knn1d", 1, 2, 2, 1); __PYX_ERR(0, 18, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "knn1d") < 0)) __PYX_ERR(0, 19, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "knn1d") < 0)) __PYX_ERR(0, 18, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -2648,12 +2648,12 @@ static PyObject *__pyx_pw_9sknetwork_5utils_5knn1d_1knn1d(PyObject *__pyx_self, 
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_x = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_x.memview)) __PYX_ERR(0, 19, __pyx_L3_error)
-    __pyx_v_n_neighbors = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_n_neighbors == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L3_error)
+    __pyx_v_x = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_x.memview)) __PYX_ERR(0, 18, __pyx_L3_error)
+    __pyx_v_n_neighbors = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_n_neighbors == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 18, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("knn1d", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 19, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("knn1d", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 18, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("sknetwork.utils.knn1d.knn1d", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -2704,7 +2704,7 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
   int __pyx_t_17;
   __Pyx_RefNannySetupContext("knn1d", 0);
 
-  /* "sknetwork/utils/knn1d.pyx":53
+  /* "sknetwork/utils/knn1d.pyx":51
  *     cdef vector[float] deltas
  * 
  *     n = x.shape[0]             # <<<<<<<<<<<<<<
@@ -2713,19 +2713,19 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
  */
   __pyx_v_n = (__pyx_v_x.shape[0]);
 
-  /* "sknetwork/utils/knn1d.pyx":54
+  /* "sknetwork/utils/knn1d.pyx":52
  * 
  *     n = x.shape[0]
  *     tmp = np.argsort(x)             # <<<<<<<<<<<<<<
  *     for i in range(n):
  *         sorted_ix.push_back(tmp[i])
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_argsort); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_argsort); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_x, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_5numpy_float_t, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_5numpy_float_t, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_t_2 = __pyx_memoryview_fromslice(__pyx_v_x, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_5numpy_float_t, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_5numpy_float_t, 0);; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_4 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
@@ -2740,14 +2740,14 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, __pyx_t_2) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_5 = __pyx_convert_vector_from_py_int(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_t_5 = __pyx_convert_vector_from_py_int(__pyx_t_1); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 52, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_tmp = __pyx_t_5;
 
-  /* "sknetwork/utils/knn1d.pyx":55
+  /* "sknetwork/utils/knn1d.pyx":53
  *     n = x.shape[0]
  *     tmp = np.argsort(x)
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -2759,7 +2759,7 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
   for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
     __pyx_v_i = __pyx_t_8;
 
-    /* "sknetwork/utils/knn1d.pyx":56
+    /* "sknetwork/utils/knn1d.pyx":54
  *     tmp = np.argsort(x)
  *     for i in range(n):
  *         sorted_ix.push_back(tmp[i])             # <<<<<<<<<<<<<<
@@ -2770,11 +2770,11 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
       __pyx_v_sorted_ix.push_back((__pyx_v_tmp[__pyx_v_i]));
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 56, __pyx_L1_error)
+      __PYX_ERR(0, 54, __pyx_L1_error)
     }
   }
 
-  /* "sknetwork/utils/knn1d.pyx":58
+  /* "sknetwork/utils/knn1d.pyx":56
  *         sorted_ix.push_back(tmp[i])
  * 
  *     for i in range(n):             # <<<<<<<<<<<<<<
@@ -2786,7 +2786,7 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
   for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
     __pyx_v_i = __pyx_t_8;
 
-    /* "sknetwork/utils/knn1d.pyx":59
+    /* "sknetwork/utils/knn1d.pyx":57
  * 
  *     for i in range(n):
  *         deltas.clear()             # <<<<<<<<<<<<<<
@@ -2795,7 +2795,7 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
  */
     __pyx_v_deltas.clear();
 
-    /* "sknetwork/utils/knn1d.pyx":60
+    /* "sknetwork/utils/knn1d.pyx":58
  *     for i in range(n):
  *         deltas.clear()
  *         sorted_candidates.clear()             # <<<<<<<<<<<<<<
@@ -2804,7 +2804,7 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
  */
     __pyx_v_sorted_candidates.clear();
 
-    /* "sknetwork/utils/knn1d.pyx":62
+    /* "sknetwork/utils/knn1d.pyx":60
  *         sorted_candidates.clear()
  * 
  *         ix = sorted_ix[i]             # <<<<<<<<<<<<<<
@@ -2813,7 +2813,7 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
  */
     __pyx_v_ix = (__pyx_v_sorted_ix[__pyx_v_i]);
 
-    /* "sknetwork/utils/knn1d.pyx":63
+    /* "sknetwork/utils/knn1d.pyx":61
  * 
  *         ix = sorted_ix[i]
  *         low = max(0, i - n_neighbors)             # <<<<<<<<<<<<<<
@@ -2829,7 +2829,7 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
     }
     __pyx_v_low = __pyx_t_11;
 
-    /* "sknetwork/utils/knn1d.pyx":64
+    /* "sknetwork/utils/knn1d.pyx":62
  *         ix = sorted_ix[i]
  *         low = max(0, i - n_neighbors)
  *         hgh = min(n - 1, i + n_neighbors + 1)             # <<<<<<<<<<<<<<
@@ -2845,38 +2845,38 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
     }
     __pyx_v_hgh = __pyx_t_12;
 
-    /* "sknetwork/utils/knn1d.pyx":65
+    /* "sknetwork/utils/knn1d.pyx":63
  *         low = max(0, i - n_neighbors)
  *         hgh = min(n - 1, i + n_neighbors + 1)
  *         candidates = sorted_ix[low:hgh]             # <<<<<<<<<<<<<<
  * 
  *         for j in range(len(candidates)):
  */
-    __pyx_t_1 = __pyx_convert_vector_to_py_int(__pyx_v_sorted_ix); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 65, __pyx_L1_error)
+    __pyx_t_1 = __pyx_convert_vector_to_py_int(__pyx_v_sorted_ix); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = __Pyx_PyObject_GetSlice(__pyx_t_1, __pyx_v_low, __pyx_v_hgh, NULL, NULL, NULL, 1, 1, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 65, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetSlice(__pyx_t_1, __pyx_v_low, __pyx_v_hgh, NULL, NULL, NULL, 1, 1, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 63, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_5 = __pyx_convert_vector_from_py_int(__pyx_t_3); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 65, __pyx_L1_error)
+    __pyx_t_5 = __pyx_convert_vector_from_py_int(__pyx_t_3); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 63, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_v_candidates = __pyx_t_5;
 
-    /* "sknetwork/utils/knn1d.pyx":67
+    /* "sknetwork/utils/knn1d.pyx":65
  *         candidates = sorted_ix[low:hgh]
  * 
  *         for j in range(len(candidates)):             # <<<<<<<<<<<<<<
  *             deltas.push_back(abs(x[candidates[j]] - x[ix]))
  * 
  */
-    __pyx_t_3 = __pyx_convert_vector_to_py_int(__pyx_v_candidates); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 67, __pyx_L1_error)
+    __pyx_t_3 = __pyx_convert_vector_to_py_int(__pyx_v_candidates); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_13 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_13 == ((Py_ssize_t)-1))) __PYX_ERR(0, 67, __pyx_L1_error)
+    __pyx_t_13 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_13 == ((Py_ssize_t)-1))) __PYX_ERR(0, 65, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_t_14 = __pyx_t_13;
     for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_14; __pyx_t_9+=1) {
       __pyx_v_j = __pyx_t_9;
 
-      /* "sknetwork/utils/knn1d.pyx":68
+      /* "sknetwork/utils/knn1d.pyx":66
  * 
  *         for j in range(len(candidates)):
  *             deltas.push_back(abs(x[candidates[j]] - x[ix]))             # <<<<<<<<<<<<<<
@@ -2889,23 +2889,23 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
         __pyx_v_deltas.push_back(fabs(((*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_15 * __pyx_v_x.strides[0]) ))) - (*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_x.data + __pyx_t_16 * __pyx_v_x.strides[0]) ))))));
       } catch(...) {
         __Pyx_CppExn2PyErr();
-        __PYX_ERR(0, 68, __pyx_L1_error)
+        __PYX_ERR(0, 66, __pyx_L1_error)
       }
     }
 
-    /* "sknetwork/utils/knn1d.pyx":70
+    /* "sknetwork/utils/knn1d.pyx":68
  *             deltas.push_back(abs(x[candidates[j]] - x[ix]))
  * 
  *         sorted_deltas = np.argsort(deltas)             # <<<<<<<<<<<<<<
  *         for j in range(len(sorted_deltas)):
  *             val = candidates[sorted_deltas[j]]
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 68, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_argsort); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_argsort); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __pyx_convert_vector_to_py_float(__pyx_v_deltas); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __pyx_t_1 = __pyx_convert_vector_to_py_float(__pyx_v_deltas); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 68, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_4 = NULL;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -2920,29 +2920,29 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
     __pyx_t_3 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_4, __pyx_t_1) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_1);
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
+    if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 68, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_5 = __pyx_convert_vector_from_py_int(__pyx_t_3); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 70, __pyx_L1_error)
+    __pyx_t_5 = __pyx_convert_vector_from_py_int(__pyx_t_3); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 68, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_v_sorted_deltas = __pyx_t_5;
 
-    /* "sknetwork/utils/knn1d.pyx":71
+    /* "sknetwork/utils/knn1d.pyx":69
  * 
  *         sorted_deltas = np.argsort(deltas)
  *         for j in range(len(sorted_deltas)):             # <<<<<<<<<<<<<<
  *             val = candidates[sorted_deltas[j]]
  *             sorted_candidates.push_back(val)
  */
-    __pyx_t_3 = __pyx_convert_vector_to_py_int(__pyx_v_sorted_deltas); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 71, __pyx_L1_error)
+    __pyx_t_3 = __pyx_convert_vector_to_py_int(__pyx_v_sorted_deltas); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 69, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_13 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_13 == ((Py_ssize_t)-1))) __PYX_ERR(0, 71, __pyx_L1_error)
+    __pyx_t_13 = PyObject_Length(__pyx_t_3); if (unlikely(__pyx_t_13 == ((Py_ssize_t)-1))) __PYX_ERR(0, 69, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_t_14 = __pyx_t_13;
     for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_14; __pyx_t_9+=1) {
       __pyx_v_j = __pyx_t_9;
 
-      /* "sknetwork/utils/knn1d.pyx":72
+      /* "sknetwork/utils/knn1d.pyx":70
  *         sorted_deltas = np.argsort(deltas)
  *         for j in range(len(sorted_deltas)):
  *             val = candidates[sorted_deltas[j]]             # <<<<<<<<<<<<<<
@@ -2951,7 +2951,7 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
  */
       __pyx_v_val = (__pyx_v_candidates[(__pyx_v_sorted_deltas[__pyx_v_j])]);
 
-      /* "sknetwork/utils/knn1d.pyx":73
+      /* "sknetwork/utils/knn1d.pyx":71
  *         for j in range(len(sorted_deltas)):
  *             val = candidates[sorted_deltas[j]]
  *             sorted_candidates.push_back(val)             # <<<<<<<<<<<<<<
@@ -2962,42 +2962,42 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
         __pyx_v_sorted_candidates.push_back(__pyx_v_val);
       } catch(...) {
         __Pyx_CppExn2PyErr();
-        __PYX_ERR(0, 73, __pyx_L1_error)
+        __PYX_ERR(0, 71, __pyx_L1_error)
       }
     }
 
-    /* "sknetwork/utils/knn1d.pyx":74
+    /* "sknetwork/utils/knn1d.pyx":72
  *             val = candidates[sorted_deltas[j]]
  *             sorted_candidates.push_back(val)
  *         sorted_candidates = sorted_candidates[:n_neighbors+1]             # <<<<<<<<<<<<<<
  * 
  *         for j in range(len(sorted_candidates)):
  */
-    __pyx_t_3 = __pyx_convert_vector_to_py_int(__pyx_v_sorted_candidates); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 74, __pyx_L1_error)
+    __pyx_t_3 = __pyx_convert_vector_to_py_int(__pyx_v_sorted_candidates); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 72, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __Pyx_PyObject_GetSlice(__pyx_t_3, 0, (__pyx_v_n_neighbors + 1), NULL, NULL, NULL, 0, 1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 74, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetSlice(__pyx_t_3, 0, (__pyx_v_n_neighbors + 1), NULL, NULL, NULL, 0, 1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 72, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_5 = __pyx_convert_vector_from_py_int(__pyx_t_2); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 74, __pyx_L1_error)
+    __pyx_t_5 = __pyx_convert_vector_from_py_int(__pyx_t_2); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 72, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_v_sorted_candidates = __pyx_t_5;
 
-    /* "sknetwork/utils/knn1d.pyx":76
+    /* "sknetwork/utils/knn1d.pyx":74
  *         sorted_candidates = sorted_candidates[:n_neighbors+1]
  * 
  *         for j in range(len(sorted_candidates)):             # <<<<<<<<<<<<<<
  *             neigh = sorted_candidates[j]
  *             if neigh != ix:
  */
-    __pyx_t_2 = __pyx_convert_vector_to_py_int(__pyx_v_sorted_candidates); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 76, __pyx_L1_error)
+    __pyx_t_2 = __pyx_convert_vector_to_py_int(__pyx_v_sorted_candidates); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 74, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_13 = PyObject_Length(__pyx_t_2); if (unlikely(__pyx_t_13 == ((Py_ssize_t)-1))) __PYX_ERR(0, 76, __pyx_L1_error)
+    __pyx_t_13 = PyObject_Length(__pyx_t_2); if (unlikely(__pyx_t_13 == ((Py_ssize_t)-1))) __PYX_ERR(0, 74, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_14 = __pyx_t_13;
     for (__pyx_t_9 = 0; __pyx_t_9 < __pyx_t_14; __pyx_t_9+=1) {
       __pyx_v_j = __pyx_t_9;
 
-      /* "sknetwork/utils/knn1d.pyx":77
+      /* "sknetwork/utils/knn1d.pyx":75
  * 
  *         for j in range(len(sorted_candidates)):
  *             neigh = sorted_candidates[j]             # <<<<<<<<<<<<<<
@@ -3006,7 +3006,7 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
  */
       __pyx_v_neigh = (__pyx_v_sorted_candidates[__pyx_v_j]);
 
-      /* "sknetwork/utils/knn1d.pyx":78
+      /* "sknetwork/utils/knn1d.pyx":76
  *         for j in range(len(sorted_candidates)):
  *             neigh = sorted_candidates[j]
  *             if neigh != ix:             # <<<<<<<<<<<<<<
@@ -3016,7 +3016,7 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
       __pyx_t_17 = ((__pyx_v_neigh != __pyx_v_ix) != 0);
       if (__pyx_t_17) {
 
-        /* "sknetwork/utils/knn1d.pyx":79
+        /* "sknetwork/utils/knn1d.pyx":77
  *             neigh = sorted_candidates[j]
  *             if neigh != ix:
  *                 row.push_back(ix)             # <<<<<<<<<<<<<<
@@ -3027,10 +3027,10 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
           __pyx_v_row.push_back(__pyx_v_ix);
         } catch(...) {
           __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 79, __pyx_L1_error)
+          __PYX_ERR(0, 77, __pyx_L1_error)
         }
 
-        /* "sknetwork/utils/knn1d.pyx":80
+        /* "sknetwork/utils/knn1d.pyx":78
  *             if neigh != ix:
  *                 row.push_back(ix)
  *                 col.push_back(neigh)             # <<<<<<<<<<<<<<
@@ -3041,10 +3041,10 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
           __pyx_v_col.push_back(__pyx_v_neigh);
         } catch(...) {
           __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 80, __pyx_L1_error)
+          __PYX_ERR(0, 78, __pyx_L1_error)
         }
 
-        /* "sknetwork/utils/knn1d.pyx":78
+        /* "sknetwork/utils/knn1d.pyx":76
  *         for j in range(len(sorted_candidates)):
  *             neigh = sorted_candidates[j]
  *             if neigh != ix:             # <<<<<<<<<<<<<<
@@ -3055,17 +3055,17 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
     }
   }
 
-  /* "sknetwork/utils/knn1d.pyx":82
+  /* "sknetwork/utils/knn1d.pyx":80
  *                 col.push_back(neigh)
  * 
  *     return row, col             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __pyx_convert_vector_to_py_int(__pyx_v_row); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert_vector_to_py_int(__pyx_v_row); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __pyx_convert_vector_to_py_int(__pyx_v_col); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __pyx_t_3 = __pyx_convert_vector_to_py_int(__pyx_v_col); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 80, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_2);
@@ -3077,7 +3077,7 @@ static PyObject *__pyx_pf_9sknetwork_5utils_5knn1d_knn1d(CYTHON_UNUSED PyObject 
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "sknetwork/utils/knn1d.pyx":19
+  /* "sknetwork/utils/knn1d.pyx":18
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def knn1d(np.float_t[:] x, int n_neighbors):             # <<<<<<<<<<<<<<
@@ -19460,7 +19460,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 55, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 53, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 272, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(1, 856, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 1038, __pyx_L1_error)
@@ -19748,17 +19748,17 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__25);
   __Pyx_GIVEREF(__pyx_tuple__25);
 
-  /* "sknetwork/utils/knn1d.pyx":19
+  /* "sknetwork/utils/knn1d.pyx":18
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def knn1d(np.float_t[:] x, int n_neighbors):             # <<<<<<<<<<<<<<
  *     """K nearest neighbors search for 1-dimensional arrays.
  * 
  */
-  __pyx_tuple__26 = PyTuple_Pack(18, __pyx_n_s_x, __pyx_n_s_n_neighbors, __pyx_n_s_n, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_ix, __pyx_n_s_low, __pyx_n_s_hgh, __pyx_n_s_neigh, __pyx_n_s_val, __pyx_n_s_sorted_ix, __pyx_n_s_row, __pyx_n_s_col, __pyx_n_s_candidates, __pyx_n_s_sorted_candidates, __pyx_n_s_sorted_deltas, __pyx_n_s_tmp, __pyx_n_s_deltas); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_tuple__26 = PyTuple_Pack(18, __pyx_n_s_x, __pyx_n_s_n_neighbors, __pyx_n_s_n, __pyx_n_s_i, __pyx_n_s_j, __pyx_n_s_ix, __pyx_n_s_low, __pyx_n_s_hgh, __pyx_n_s_neigh, __pyx_n_s_val, __pyx_n_s_sorted_ix, __pyx_n_s_row, __pyx_n_s_col, __pyx_n_s_candidates, __pyx_n_s_sorted_candidates, __pyx_n_s_sorted_deltas, __pyx_n_s_tmp, __pyx_n_s_deltas); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__26);
   __Pyx_GIVEREF(__pyx_tuple__26);
-  __pyx_codeobj__27 = (PyObject*)__Pyx_PyCode_New(2, 0, 18, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__26, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_sknetwork_utils_knn1d_pyx, __pyx_n_s_knn1d, 19, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__27)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_codeobj__27 = (PyObject*)__Pyx_PyCode_New(2, 0, 18, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__26, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_sknetwork_utils_knn1d_pyx, __pyx_n_s_knn1d, 18, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__27)) __PYX_ERR(0, 18, __pyx_L1_error)
 
   /* "View.MemoryView":286
  *         return self.name
@@ -20204,16 +20204,16 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 7, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sknetwork/utils/knn1d.pyx":19
+  /* "sknetwork/utils/knn1d.pyx":18
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def knn1d(np.float_t[:] x, int n_neighbors):             # <<<<<<<<<<<<<<
  *     """K nearest neighbors search for 1-dimensional arrays.
  * 
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_9sknetwork_5utils_5knn1d_1knn1d, NULL, __pyx_n_s_sknetwork_utils_knn1d); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_9sknetwork_5utils_5knn1d_1knn1d, NULL, __pyx_n_s_sknetwork_utils_knn1d); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_knn1d, __pyx_t_1) < 0) __PYX_ERR(0, 19, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_knn1d, __pyx_t_1) < 0) __PYX_ERR(0, 18, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "sknetwork/utils/knn1d.pyx":1
