@@ -36,6 +36,12 @@ Ward
     :inherited-members:
     :members:
 
+Louvain hierarchy
+-----------------
+.. autoclass:: sknetwork.hierarchy.LouvainHierarchy
+    :inherited-members:
+    :members:
+
 Metrics
 -------
 .. autofunction:: sknetwork.hierarchy.dasgupta_score

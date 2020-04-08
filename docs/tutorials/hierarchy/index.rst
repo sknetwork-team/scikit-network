@@ -6,3 +6,4 @@ Hierarchy
 
    paris
    ward
+   louvain_hierarchy

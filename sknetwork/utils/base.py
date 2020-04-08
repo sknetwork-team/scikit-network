@@ -26,8 +26,7 @@ class Algorithm:
             else:
                 val = str(val)
             output += p + '=' + val + ', '
-
-        if arguments:
+        if output[-1] != '(':
             return output[:-2] + ')'
         else:
             return output + ')'
