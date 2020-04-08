@@ -11,41 +11,25 @@ score of importance to each node of the graph.
 PageRank
 --------
 .. autoclass:: sknetwork.ranking.PageRank
-    :inherited-members:
-    :members:
 
 .. autoclass:: sknetwork.ranking.BiPageRank
-    :inherited-members:
-    :members:
 
 .. autoclass:: sknetwork.ranking.CoPageRank
-    :inherited-members:
-    :members:
 
 Diffusion
 ---------
 .. autoclass:: sknetwork.ranking.Diffusion
-    :inherited-members:
-    :members:
 
 .. autoclass:: sknetwork.ranking.BiDiffusion
-    :inherited-members:
-    :members:
 
 HITS
 ----
 .. autoclass:: sknetwork.ranking.HITS
-    :inherited-members:
-    :members:
 
 Closeness centrality
 --------------------
 .. autoclass:: sknetwork.ranking.Closeness
-    :inherited-members:
-    :members:
 
 Harmonic centrality
 -------------------
 .. autoclass:: sknetwork.ranking.Harmonic
-    :inherited-members:
-    :members:

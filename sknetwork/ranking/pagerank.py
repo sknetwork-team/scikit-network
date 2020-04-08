@@ -22,8 +22,7 @@ from sknetwork.utils.verbose import VerboseMixin
 
 
 class RandomSurferOperator(LinearOperator, VerboseMixin):
-    """
-    Random surfer as a LinearOperator
+    """Random surfer as a LinearOperator
 
     Parameters
     ----------
@@ -41,7 +40,6 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
         Scaled transposed transition matrix.
     b : np.ndarray
         Scaled restart probability vector.
-
     """
     def __init__(self, adjacency: Union[sparse.csr_matrix, LinearOperator], damping_factor: float = 0.85, seeds=None,
                  verbose: bool = False):
@@ -79,9 +77,7 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
         -------
         score: np.ndarray
             Pagerank of the rows.
-
         """
-
         n: int = self.a.shape[0]
 
         if solver == 'bicgstab':
@@ -102,11 +98,13 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
 
 
 class PageRank(BaseRanking, VerboseMixin):
-    """
-    Compute the PageRank of each node, corresponding to its frequency of visit by a random walk.
+    """PageRank of each node, corresponding to its frequency of visit by a random walk.
 
     The random walk restarts with some fixed probability. The restart distribution can be personalized by the user.
     This variant is known as Personalized PageRank.
+
+    * Graphs
+    * Digraphs
 
     Parameters
     ----------
@@ -179,6 +177,8 @@ class PageRank(BaseRanking, VerboseMixin):
 class BiPageRank(PageRank):
     """Compute the PageRank of each node through a random walk in the bipartite graph.
 
+    * Bigraphs
+
     Parameters
     ----------
     damping_factor : float
@@ -194,7 +194,6 @@ class BiPageRank(PageRank):
         PageRank score of each row (copy of **scores_**).
     scores_col_ : np.ndarray
         PageRank score of each column.
-
 
     Example
     -------
@@ -230,7 +229,6 @@ class BiPageRank(PageRank):
         -------
         self: :class:`BiPageRank`
         """
-
         biadjacency = check_format(biadjacency)
         n_row, n_col = biadjacency.shape
         adjacency = bipartite2undirected(biadjacency)
@@ -249,6 +247,10 @@ class BiPageRank(PageRank):
 
 class CoPageRank(BiPageRank):
     """Compute the PageRank of each node through a two-hops random walk in the bipartite graph.
+    
+    * Graphs
+    * Digraphs
+    * Bigraphs
 
     Parameters
     ----------
@@ -265,7 +267,6 @@ class CoPageRank(BiPageRank):
         PageRank score of each row (copy of **scores_**).
     scores_col_ : np.ndarray
         PageRank score of each column.
-
 
     Example
     -------
