@@ -50,9 +50,9 @@ if HAVE_CYTHON:
             # Remove C file to force Cython recompile.
             os.remove(c_path)
 
-        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], extra_compile_args=['-O3']))
+        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path]))
 else:
-    ext_modules = [Extension(modules[index], [c_paths[index]], extra_compile_args=['-O3'])
+    ext_modules = [Extension(modules[index], [c_paths[index]])
                    for index in range(len(modules))]
 
 
@@ -87,5 +87,4 @@ setup(
     zip_safe=False,
     ext_modules=ext_modules,
     include_dirs=[numpy.get_include()],
-    extra_compile_args=["-std=c++11"],
 )
