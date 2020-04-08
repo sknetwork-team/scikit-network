@@ -16,8 +16,12 @@ from sknetwork.utils.check import check_format
 
 
 class HITS(BaseRanking):
-    """Compute the hub and authority scores of each node.
+    """Hub and authority scores of each node.
     For bipartite graphs, the hub score is computed on rows and the authority score on columns.
+
+    * Graphs
+    * Digraphs
+    * Bigraphs
 
     Parameters
     ----------
@@ -67,8 +71,7 @@ class HITS(BaseRanking):
         self.scores_col_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'HITS':
-        """
-        Compute HITS algorithm with a spectral method.
+        """Compute HITS algorithm with a spectral method.
 
         Parameters
         ----------

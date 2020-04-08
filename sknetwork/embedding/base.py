@@ -16,8 +16,6 @@ class BaseEmbedding(Algorithm, ABC):
 
     def __init__(self):
         self.embedding_ = None
-        self.embedding_row_ = None
-        self.embedding_col_ = None
 
     def fit_transform(self, *args, **kwargs):
         """Fit to data and returns the embedding of the rows.

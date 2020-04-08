@@ -11,22 +11,17 @@ Sparse + Low Rank structure
 ---------------------------
 
 .. autoclass:: sknetwork.linalg.SparseLR
-    :members:
 
 Solvers
 -------
 
 .. autoclass:: sknetwork.linalg.LanczosEig
-    :members:
 
 .. autoclass:: sknetwork.linalg.HalkoEig
-    :members:
 
 .. autoclass:: sknetwork.linalg.LanczosSVD
-    :members:
 
 .. autoclass:: sknetwork.linalg.HalkoSVD
-    :members:
 
 Randomized methods
 ------------------

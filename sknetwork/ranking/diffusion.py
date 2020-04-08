@@ -43,8 +43,10 @@ def limit_conditions(personalization: np.ndarray) -> Tuple:
 
 
 class Diffusion(BaseRanking, VerboseMixin):
-    """
-    Computes the temperature of each node, associated with the diffusion along the edges (heat equation).
+    """Temperature of each node, associated with the diffusion along the edges (heat equation).
+
+    * Graphs
+    * Digraphs
 
     Parameters
     ----------
@@ -82,8 +84,7 @@ class Diffusion(BaseRanking, VerboseMixin):
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds: Optional[Union[dict, np.ndarray]] = None, initial_state: Optional = None) -> 'Diffusion':
-        """
-        Compute the diffusion (temperature at equilibrium).
+        """Compute the diffusion (temperature at equilibrium).
 
         Parameters
         ----------
@@ -139,8 +140,9 @@ class Diffusion(BaseRanking, VerboseMixin):
 
 
 class BiDiffusion(Diffusion):
-    """Compute the temperature of each node of a bipartite graph,
-    associated with the diffusion along the edges (heat equation).
+    """Temperature of each node of a bipartite graph, associated with the diffusion along the edges (heat equation).
+
+    * Bigraphs
 
     Attributes
     ----------
@@ -170,8 +172,7 @@ class BiDiffusion(Diffusion):
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds_row: Optional[Union[dict, np.ndarray]] = None, seeds_col: Optional[Union[dict, np.ndarray]] = None,
             initial_state: Optional = None) -> 'BiDiffusion':
-        """
-        Compute the diffusion (temperature at equilibrium).
+        """Compute the diffusion (temperature at equilibrium).
 
         Parameters
         ----------

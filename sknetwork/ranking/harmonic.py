@@ -15,11 +15,13 @@ from sknetwork.utils.check import check_format, is_square
 
 
 class Harmonic(BaseRanking):
-    """
-    Compute the harmonic centrality of each node in a connected graph, corresponding to the average inverse length of
+    """Harmonic centrality of each node in a connected graph, corresponding to the average inverse length of
     the shortest paths from that node to all the other ones.
 
     For a directed graph, the harmonic centrality is computed in terms of outgoing paths.
+
+    * Graphs
+    * Digraphs
 
     Parameters
     ----------
@@ -54,8 +56,7 @@ class Harmonic(BaseRanking):
         self.n_jobs = n_jobs
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Harmonic':
-        """
-        Harmonic centrality for connected graphs.
+        """Harmonic centrality for connected graphs.
 
         Parameters
         ----------
