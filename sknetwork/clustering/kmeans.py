@@ -132,13 +132,13 @@ class BiKMeans(KMeans):
     labels_row_ : np.ndarray
         Labels of the rows (copy of **labels_**).
     labels_col_ : np.ndarray
-        Labels of the columns. Only valid if **cluster_both** = `True`.
+        Labels of the columns. Only valid if **co_cluster** = `True`.
     membership_ : sparse.csr_matrix
         Membership matrix of the rows.
     membership_row_ : sparse.csr_matrix
         Membership matrix of the rows (copy of **membership_**).
     membership_col_ : sparse.csr_matrix
-        Membership matrix of the columns. Only valid if **cluster_both** = `True`.
+        Membership matrix of the columns. Only valid if **co_cluster** = `True`.
     biadjacency_ : sparse.csr_matrix
         Biadjacency matrix of the graph between clusters.
 
