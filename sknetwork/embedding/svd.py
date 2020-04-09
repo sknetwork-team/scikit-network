@@ -232,7 +232,7 @@ class GSVD(BaseEmbedding):
         weights_row = adjacency_vector_reg.dot(np.ones(n_col))
         diag_row = diag_pinv(np.power(weights_row, self.factor_row))
         diag_col = diag_pinv(np.power(self.weights_col_, self.factor_col))
-        adjacency_vector_reg = diag_row.dot(diag_col.dot(adjacency_vector_reg.T).T)
+        adjacency_vector_reg = diag_row.dot(safe_sparse_dot(adjacency_vector_reg, diag_col))
 
         # projection in the embedding space
         diag = diag_pinv(np.sum(adjacency_vector_reg, axis=1))
@@ -319,5 +319,6 @@ class SVD(GSVD):
     """
     def __init__(self, n_components=2, regularization: Union[None, float] = None, relative_regularization: bool = True,
                  factor_singular: float = 0., normalized: bool = False, solver: Union[str, SVDSolver] = 'auto'):
-        super(SVD, self).__init__(n_components, regularization, relative_regularization, factor_singular, 0, 0,
-                                  normalized, solver)
+        super(SVD, self).__init__(n_components=n_components, regularization=regularization,
+                                  relative_regularization=relative_regularization, factor_singular=factor_singular,
+                                  factor_row=0., factor_col=0., normalized=normalized, solver=solver)
