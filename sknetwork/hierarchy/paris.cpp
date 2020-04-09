@@ -3,7 +3,13 @@
 /* BEGIN: Cython Metadata
 {
     "distutils": {
-        "depends": [],
+        "depends": [
+            "/home/nathan/PycharmProjects/scikit-network/venv-3.8/lib/python3.8/site-packages/numpy/core/include/numpy/arrayobject.h",
+            "/home/nathan/PycharmProjects/scikit-network/venv-3.8/lib/python3.8/site-packages/numpy/core/include/numpy/ufuncobject.h"
+        ],
+        "include_dirs": [
+            "/home/nathan/PycharmProjects/scikit-network/venv-3.8/lib/python3.8/site-packages/numpy/core/include"
+        ],
         "language": "c++",
         "name": "sknetwork.hierarchy.paris",
         "sources": [
@@ -865,10 +871,10 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "sknetwork\\hierarchy\\paris.pyx",
+  "sknetwork/hierarchy/paris.pyx",
   "stringsource",
-  "__init__.pxd",
-  "type.pxd",
+  "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd",
+  "venv-3.8/lib/python3.8/site-packages/Cython/Includes/cpython/type.pxd",
 };
 /* MemviewSliceStruct.proto */
 struct __pyx_memoryview_obj;
@@ -979,7 +985,7 @@ typedef struct {
 } __Pyx_BufFmt_Context;
 
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":776
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":776
  * # in Cython to enable them only on the right systems.
  * 
  * ctypedef npy_int8       int8_t             # <<<<<<<<<<<<<<
@@ -988,7 +994,7 @@ typedef struct {
  */
 typedef npy_int8 __pyx_t_5numpy_int8_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":777
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":777
  * 
  * ctypedef npy_int8       int8_t
  * ctypedef npy_int16      int16_t             # <<<<<<<<<<<<<<
@@ -997,7 +1003,7 @@ typedef npy_int8 __pyx_t_5numpy_int8_t;
  */
 typedef npy_int16 __pyx_t_5numpy_int16_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":778
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":778
  * ctypedef npy_int8       int8_t
  * ctypedef npy_int16      int16_t
  * ctypedef npy_int32      int32_t             # <<<<<<<<<<<<<<
@@ -1006,7 +1012,7 @@ typedef npy_int16 __pyx_t_5numpy_int16_t;
  */
 typedef npy_int32 __pyx_t_5numpy_int32_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":779
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":779
  * ctypedef npy_int16      int16_t
  * ctypedef npy_int32      int32_t
  * ctypedef npy_int64      int64_t             # <<<<<<<<<<<<<<
@@ -1015,7 +1021,7 @@ typedef npy_int32 __pyx_t_5numpy_int32_t;
  */
 typedef npy_int64 __pyx_t_5numpy_int64_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":783
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":783
  * #ctypedef npy_int128     int128_t
  * 
  * ctypedef npy_uint8      uint8_t             # <<<<<<<<<<<<<<
@@ -1024,7 +1030,7 @@ typedef npy_int64 __pyx_t_5numpy_int64_t;
  */
 typedef npy_uint8 __pyx_t_5numpy_uint8_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":784
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":784
  * 
  * ctypedef npy_uint8      uint8_t
  * ctypedef npy_uint16     uint16_t             # <<<<<<<<<<<<<<
@@ -1033,7 +1039,7 @@ typedef npy_uint8 __pyx_t_5numpy_uint8_t;
  */
 typedef npy_uint16 __pyx_t_5numpy_uint16_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":785
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":785
  * ctypedef npy_uint8      uint8_t
  * ctypedef npy_uint16     uint16_t
  * ctypedef npy_uint32     uint32_t             # <<<<<<<<<<<<<<
@@ -1042,7 +1048,7 @@ typedef npy_uint16 __pyx_t_5numpy_uint16_t;
  */
 typedef npy_uint32 __pyx_t_5numpy_uint32_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":786
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":786
  * ctypedef npy_uint16     uint16_t
  * ctypedef npy_uint32     uint32_t
  * ctypedef npy_uint64     uint64_t             # <<<<<<<<<<<<<<
@@ -1051,7 +1057,7 @@ typedef npy_uint32 __pyx_t_5numpy_uint32_t;
  */
 typedef npy_uint64 __pyx_t_5numpy_uint64_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":790
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":790
  * #ctypedef npy_uint128    uint128_t
  * 
  * ctypedef npy_float32    float32_t             # <<<<<<<<<<<<<<
@@ -1060,7 +1066,7 @@ typedef npy_uint64 __pyx_t_5numpy_uint64_t;
  */
 typedef npy_float32 __pyx_t_5numpy_float32_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":791
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":791
  * 
  * ctypedef npy_float32    float32_t
  * ctypedef npy_float64    float64_t             # <<<<<<<<<<<<<<
@@ -1069,7 +1075,7 @@ typedef npy_float32 __pyx_t_5numpy_float32_t;
  */
 typedef npy_float64 __pyx_t_5numpy_float64_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":800
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":800
  * # The int types are mapped a bit surprising --
  * # numpy.int corresponds to 'l' and numpy.long to 'q'
  * ctypedef npy_long       int_t             # <<<<<<<<<<<<<<
@@ -1078,7 +1084,7 @@ typedef npy_float64 __pyx_t_5numpy_float64_t;
  */
 typedef npy_long __pyx_t_5numpy_int_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":801
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":801
  * # numpy.int corresponds to 'l' and numpy.long to 'q'
  * ctypedef npy_long       int_t
  * ctypedef npy_longlong   long_t             # <<<<<<<<<<<<<<
@@ -1087,7 +1093,7 @@ typedef npy_long __pyx_t_5numpy_int_t;
  */
 typedef npy_longlong __pyx_t_5numpy_long_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":802
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":802
  * ctypedef npy_long       int_t
  * ctypedef npy_longlong   long_t
  * ctypedef npy_longlong   longlong_t             # <<<<<<<<<<<<<<
@@ -1096,7 +1102,7 @@ typedef npy_longlong __pyx_t_5numpy_long_t;
  */
 typedef npy_longlong __pyx_t_5numpy_longlong_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":804
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":804
  * ctypedef npy_longlong   longlong_t
  * 
  * ctypedef npy_ulong      uint_t             # <<<<<<<<<<<<<<
@@ -1105,7 +1111,7 @@ typedef npy_longlong __pyx_t_5numpy_longlong_t;
  */
 typedef npy_ulong __pyx_t_5numpy_uint_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":805
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":805
  * 
  * ctypedef npy_ulong      uint_t
  * ctypedef npy_ulonglong  ulong_t             # <<<<<<<<<<<<<<
@@ -1114,7 +1120,7 @@ typedef npy_ulong __pyx_t_5numpy_uint_t;
  */
 typedef npy_ulonglong __pyx_t_5numpy_ulong_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":806
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":806
  * ctypedef npy_ulong      uint_t
  * ctypedef npy_ulonglong  ulong_t
  * ctypedef npy_ulonglong  ulonglong_t             # <<<<<<<<<<<<<<
@@ -1123,7 +1129,7 @@ typedef npy_ulonglong __pyx_t_5numpy_ulong_t;
  */
 typedef npy_ulonglong __pyx_t_5numpy_ulonglong_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":808
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":808
  * ctypedef npy_ulonglong  ulonglong_t
  * 
  * ctypedef npy_intp       intp_t             # <<<<<<<<<<<<<<
@@ -1132,7 +1138,7 @@ typedef npy_ulonglong __pyx_t_5numpy_ulonglong_t;
  */
 typedef npy_intp __pyx_t_5numpy_intp_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":809
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":809
  * 
  * ctypedef npy_intp       intp_t
  * ctypedef npy_uintp      uintp_t             # <<<<<<<<<<<<<<
@@ -1141,7 +1147,7 @@ typedef npy_intp __pyx_t_5numpy_intp_t;
  */
 typedef npy_uintp __pyx_t_5numpy_uintp_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":811
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":811
  * ctypedef npy_uintp      uintp_t
  * 
  * ctypedef npy_double     float_t             # <<<<<<<<<<<<<<
@@ -1150,7 +1156,7 @@ typedef npy_uintp __pyx_t_5numpy_uintp_t;
  */
 typedef npy_double __pyx_t_5numpy_float_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":812
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":812
  * 
  * ctypedef npy_double     float_t
  * ctypedef npy_double     double_t             # <<<<<<<<<<<<<<
@@ -1159,7 +1165,7 @@ typedef npy_double __pyx_t_5numpy_float_t;
  */
 typedef npy_double __pyx_t_5numpy_double_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":813
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":813
  * ctypedef npy_double     float_t
  * ctypedef npy_double     double_t
  * ctypedef npy_longdouble longdouble_t             # <<<<<<<<<<<<<<
@@ -1217,7 +1223,7 @@ struct __pyx_MemviewEnum_obj;
 struct __pyx_memoryview_obj;
 struct __pyx_memoryviewslice_obj;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":815
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":815
  * ctypedef npy_longdouble longdouble_t
  * 
  * ctypedef npy_cfloat      cfloat_t             # <<<<<<<<<<<<<<
@@ -1226,7 +1232,7 @@ struct __pyx_memoryviewslice_obj;
  */
 typedef npy_cfloat __pyx_t_5numpy_cfloat_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":816
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":816
  * 
  * ctypedef npy_cfloat      cfloat_t
  * ctypedef npy_cdouble     cdouble_t             # <<<<<<<<<<<<<<
@@ -1235,7 +1241,7 @@ typedef npy_cfloat __pyx_t_5numpy_cfloat_t;
  */
 typedef npy_cdouble __pyx_t_5numpy_cdouble_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":817
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":817
  * ctypedef npy_cfloat      cfloat_t
  * ctypedef npy_cdouble     cdouble_t
  * ctypedef npy_clongdouble clongdouble_t             # <<<<<<<<<<<<<<
@@ -1244,7 +1250,7 @@ typedef npy_cdouble __pyx_t_5numpy_cdouble_t;
  */
 typedef npy_clongdouble __pyx_t_5numpy_clongdouble_t;
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":819
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":819
  * ctypedef npy_clongdouble clongdouble_t
  * 
  * ctypedef npy_cdouble     complex_t             # <<<<<<<<<<<<<<
@@ -1255,7 +1261,7 @@ typedef npy_cdouble __pyx_t_5numpy_complex_t;
 struct __pyx_ctuple_int__and_int;
 typedef struct __pyx_ctuple_int__and_int __pyx_ctuple_int__and_int;
 
-/* "sknetwork/hierarchy/paris.pyx":68
+/* "sknetwork/hierarchy/paris.pyx":67
  * 
  *     def __init__(self, np.float_t[:] out_weights, np.float_t[:] in_weights, np.float_t[:] data, int[:] indices,
  *                  int[:] indptr, (int, int) shape):             # <<<<<<<<<<<<<<
@@ -1271,8 +1277,8 @@ struct __pyx_ctuple_int__and_int {
  * 
  * 
  * cdef class AggregateGraph:             # <<<<<<<<<<<<<<
- *     """
- *     A class of graphs suitable for aggregation. Each node represents a cluster.
+ *     """A class of graphs suitable for aggregation. Each node represents a cluster.
+ * 
  */
 struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph {
   PyObject_HEAD
@@ -1367,8 +1373,8 @@ struct __pyx_memoryviewslice_obj {
  * 
  * 
  * cdef class AggregateGraph:             # <<<<<<<<<<<<<<
- *     """
- *     A class of graphs suitable for aggregation. Each node represents a cluster.
+ *     """A class of graphs suitable for aggregation. Each node represents a cluster.
+ * 
  */
 
 struct __pyx_vtabstruct_9sknetwork_9hierarchy_5paris_AggregateGraph {
@@ -2703,22 +2709,22 @@ static const char __pyx_k_sknetwork_hierarchy_paris[] = "sknetwork.hierarchy.par
 static const char __pyx_k_itemsize_0_for_cython_array[] = "itemsize <= 0 for cython.array";
 static const char __pyx_k_ndarray_is_not_C_contiguous[] = "ndarray is not C contiguous";
 static const char __pyx_k_pyx_unpickle_AggregateGraph[] = "__pyx_unpickle_AggregateGraph";
-static const char __pyx_k_sknetwork_hierarchy_paris_pyx[] = "sknetwork\\hierarchy\\paris.pyx";
+static const char __pyx_k_sknetwork_hierarchy_paris_pyx[] = "sknetwork/hierarchy/paris.pyx";
 static const char __pyx_k_unable_to_allocate_array_data[] = "unable to allocate array data.";
 static const char __pyx_k_strided_and_direct_or_indirect[] = "<strided and direct or indirect>";
-static const char __pyx_k_Agglomerative_clustering_algori[] = "\n    Agglomerative clustering algorithm that performs greedy merge of nodes based on their similarity.\n\n    The similarity between nodes :math:`i,j` is :math:`\\dfrac{A_{ij}}{w_i w_j}` where\n\n    * :math:`A_{ij}` is the weight of edge :math:`i,j`,\n    * :math:`w_i, w_j` are the weights of nodes :math:`i,j`\n\n    Parameters\n    ----------\n    weights :\n            Weights of nodes.\n            ``'degree'`` (default) or ``'uniform'``.\n    reorder :\n            If True, reorder the dendrogram in increasing order of heights.\n\n    Attributes\n    ----------\n    dendrogram_ : numpy array of shape (total number of nodes - 1, 4)\n        Dendrogram.\n\n    Examples\n    --------\n    >>> from sknetwork.data import house\n    >>> adjacency = house()\n    >>> paris = Paris()\n    >>> paris.fit(adjacency).dendrogram_\n    array([[3.        , 2.        , 0.16666667, 2.        ],\n           [1.        , 0.        , 0.25      , 2.        ],\n           [6.        , 4.        , 0.3125    , 3.        ],\n           [7.        , 5.        , 0.66666667, 5.        ]])\n\n    Notes\n    -----\n    Each row of the dendrogram = :math:`i, j`, distance, size of cluster :math:`i + j`.\n\n\n    See Also\n    --------\n    scipy.cluster.hierarchy.dendrogram\n\n    References\n    ----------\n    T. Bonald, B. Charpentier, A. Galland, A. Hollocou (2018).\n    `Hierarchical Graph Clustering using Node Pair Sampling.\n    <https://arxiv.org/abs/1806.01664>`_\n    Workshop on Mining and Learning with Graphs.\n    ";
 static const char __pyx_k_Created_on_March_2019_author_Th[] = "\nCreated on March 2019\n@author: Thomas Bonald <bonald@enst.fr>\n@author: Bertrand Charpentier <bertrand.charpentier@live.fr>\n@author: Quentin Lutz <qlutz@enst.fr>\n";
-static const char __pyx_k_Hierarchical_clustering_of_bipa[] = "\n    Hierarchical clustering of bipartite graphs by the Paris method.\n\n    Parameters\n    ----------\n    weights :\n        Weights of nodes.\n        ``'degree'`` (default) or ``'uniform'``.\n    reorder :\n            If ``True``, reorder the dendrogram in increasing order of heights.\n    Attributes\n    ----------\n    dendrogram_ :\n        Dendrogram for the rows.\n    dendrogram_row_ :\n        Dendrogram for the rows (copy of **dendrogram_**).\n    dendrogram_col_ :\n        Dendrogram for the columns.\n    dendrogram_full_ :\n        Dendrogram for both rows and columns, indexed in this order.\n\n    Examples\n    --------\n    >>> from sknetwork.data import star_wars\n    >>> biparis = BiParis(engine='python')\n    >>> biadjacency = star_wars()\n    >>> biparis.fit_transform(biadjacency).shape\n    (3, 4)\n\n    Notes\n    -----\n    Each row of the dendrogram = :math:`i, j`, height, size of cluster.\n\n    See Also\n    --------\n    scipy.cluster.hierarchy.dendrogram\n\n    References\n    ----------\n    T. Bonald, B. Charpentier, A. Galland, A. Hollocou (2018).\n    `Hierarchical Graph Clustering using Node Pair Sampling.\n    <https://arxiv.org/abs/1806.01664>`_\n    Workshop on Mining and Learning with Graphs.\n    ";
 static const char __pyx_k_The_graph_must_contain_at_least[] = "The graph must contain at least two nodes.";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
 static const char __pyx_k_sknetwork_hierarchy_postprocess[] = "sknetwork.hierarchy.postprocess";
 static const char __pyx_k_unknown_dtype_code_in_numpy_pxd[] = "unknown dtype code in numpy.pxd (%d)";
+static const char __pyx_k_Agglomerative_clustering_algorit[] = "Agglomerative clustering algorithm that performs greedy merge of nodes based on their similarity.\n\n    The similarity between nodes :math:`i,j` is :math:`\\dfrac{A_{ij}}{w_i w_j}` where\n\n    * :math:`A_{ij}` is the weight of edge :math:`i,j`,\n    * :math:`w_i, w_j` are the weights of nodes :math:`i,j`\n\n    Parameters\n    ----------\n    weights :\n            Weights of nodes.\n            ``'degree'`` (default) or ``'uniform'``.\n    reorder :\n            If True, reorder the dendrogram in increasing order of heights.\n\n    Attributes\n    ----------\n    dendrogram_ : numpy array of shape (total number of nodes - 1, 4)\n        Dendrogram.\n\n    Examples\n    --------\n    >>> from sknetwork.data import house\n    >>> adjacency = house()\n    >>> paris = Paris()\n    >>> paris.fit(adjacency).dendrogram_\n    array([[3.        , 2.        , 0.16666667, 2.        ],\n           [1.        , 0.        , 0.25      , 2.        ],\n           [6.        , 4.        , 0.3125    , 3.        ],\n           [7.        , 5.        , 0.66666667, 5.        ]])\n\n    Notes\n    -----\n    Each row of the dendrogram = :math:`i, j`, distance, size of cluster :math:`i + j`.\n\n\n    See Also\n    --------\n    scipy.cluster.hierarchy.dendrogram\n\n    References\n    ----------\n    T. Bonald, B. Charpentier, A. Galland, A. Hollocou (2018).\n    `Hierarchical Graph Clustering using Node Pair Sampling.\n    <https://arxiv.org/abs/1806.01664>`_\n    Workshop on Mining and Learning with Graphs.\n    ";
 static const char __pyx_k_Buffer_view_does_not_expose_stri[] = "Buffer view does not expose strides";
 static const char __pyx_k_Can_only_create_a_buffer_that_is[] = "Can only create a buffer that is contiguous in memory.";
 static const char __pyx_k_Cannot_assign_to_read_only_memor[] = "Cannot assign to read-only memoryview";
 static const char __pyx_k_Cannot_create_writable_memory_vi[] = "Cannot create writable memory view from read-only memoryview";
 static const char __pyx_k_Empty_shape_tuple_for_cython_arr[] = "Empty shape tuple for cython.array";
 static const char __pyx_k_Format_string_allocated_too_shor[] = "Format string allocated too short, see comment in numpy.pxd";
+static const char __pyx_k_Hierarchical_clustering_of_bipar[] = "Hierarchical clustering of bipartite graphs by the Paris method.\n\n    Parameters\n    ----------\n    weights :\n        Weights of nodes.\n        ``'degree'`` (default) or ``'uniform'``.\n    reorder :\n            If ``True``, reorder the dendrogram in increasing order of heights.\n    Attributes\n    ----------\n    dendrogram_ :\n        Dendrogram for the rows.\n    dendrogram_row_ :\n        Dendrogram for the rows (copy of **dendrogram_**).\n    dendrogram_col_ :\n        Dendrogram for the columns.\n    dendrogram_full_ :\n        Dendrogram for both rows and columns, indexed in this order.\n\n    Examples\n    --------\n    >>> from sknetwork.data import star_wars\n    >>> biparis = BiParis(engine='python')\n    >>> biadjacency = star_wars()\n    >>> biparis.fit_transform(biadjacency).shape\n    (3, 4)\n\n    Notes\n    -----\n    Each row of the dendrogram = :math:`i, j`, height, size of cluster.\n\n    See Also\n    --------\n    scipy.cluster.hierarchy.dendrogram\n\n    References\n    ----------\n    T. Bonald, B. Charpentier, A. Galland, A. Hollocou (2018).\n    `Hierarchical Graph Clustering using Node Pair Sampling.\n    <https://arxiv.org/abs/1806.01664>`_\n    Workshop on Mining and Learning with Graphs.\n    ";
 static const char __pyx_k_Incompatible_checksums_s_vs_0x97[] = "Incompatible checksums (%s vs 0x97f8528 = (cluster_in_weights, cluster_out_weights, cluster_sizes, neighbors, next_cluster))";
 static const char __pyx_k_Incompatible_checksums_s_vs_0xb0[] = "Incompatible checksums (%s vs 0xb068931 = (name))";
 static const char __pyx_k_Indirect_dimensions_not_supporte[] = "Indirect dimensions not supported";
@@ -2734,7 +2740,7 @@ static const char __pyx_k_numpy_core_umath_failed_to_impor[] = "numpy.core.umath
 static const char __pyx_k_unable_to_allocate_shape_and_str[] = "unable to allocate shape and strides.";
 static const char __pyx_k_Format_string_allocated_too_shor_2[] = "Format string allocated too short.";
 static PyObject *__pyx_n_s_ASCII;
-static PyObject *__pyx_kp_s_Agglomerative_clustering_algori;
+static PyObject *__pyx_kp_s_Agglomerative_clustering_algorit;
 static PyObject *__pyx_n_s_AggregateGraph;
 static PyObject *__pyx_n_s_BaseHierarchy;
 static PyObject *__pyx_n_s_BiParis;
@@ -2750,7 +2756,7 @@ static PyObject *__pyx_n_s_Ellipsis;
 static PyObject *__pyx_kp_s_Empty_shape_tuple_for_cython_arr;
 static PyObject *__pyx_kp_u_Format_string_allocated_too_shor;
 static PyObject *__pyx_kp_u_Format_string_allocated_too_shor_2;
-static PyObject *__pyx_kp_s_Hierarchical_clustering_of_bipa;
+static PyObject *__pyx_kp_s_Hierarchical_clustering_of_bipar;
 static PyObject *__pyx_n_s_ImportError;
 static PyObject *__pyx_kp_s_Incompatible_checksums_s_vs_0x97;
 static PyObject *__pyx_kp_s_Incompatible_checksums_s_vs_0xb0;
@@ -3043,7 +3049,7 @@ static PyObject *__pyx_codeobj__39;
 static PyObject *__pyx_codeobj__46;
 /* Late includes */
 
-/* "sknetwork/hierarchy/paris.pyx":67
+/* "sknetwork/hierarchy/paris.pyx":66
  *     cdef public dict cluster_in_weights
  * 
  *     def __init__(self, np.float_t[:] out_weights, np.float_t[:] in_weights, np.float_t[:] data, int[:] indices,             # <<<<<<<<<<<<<<
@@ -3094,35 +3100,35 @@ static int __pyx_pw_9sknetwork_9hierarchy_5paris_14AggregateGraph_1__init__(PyOb
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_in_weights)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 1); __PYX_ERR(0, 67, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 1); __PYX_ERR(0, 66, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_data)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 2); __PYX_ERR(0, 67, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 2); __PYX_ERR(0, 66, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_indices)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 3); __PYX_ERR(0, 67, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 3); __PYX_ERR(0, 66, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_indptr)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 4); __PYX_ERR(0, 67, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 4); __PYX_ERR(0, 66, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  5:
         if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_shape)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 5); __PYX_ERR(0, 67, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 5); __PYX_ERR(0, 66, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 67, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 66, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 6) {
       goto __pyx_L5_argtuple_error;
@@ -3134,16 +3140,16 @@ static int __pyx_pw_9sknetwork_9hierarchy_5paris_14AggregateGraph_1__init__(PyOb
       values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
       values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
     }
-    __pyx_v_out_weights = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_out_weights.memview)) __PYX_ERR(0, 67, __pyx_L3_error)
-    __pyx_v_in_weights = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_in_weights.memview)) __PYX_ERR(0, 67, __pyx_L3_error)
-    __pyx_v_data = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_data.memview)) __PYX_ERR(0, 67, __pyx_L3_error)
-    __pyx_v_indices = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_indices.memview)) __PYX_ERR(0, 67, __pyx_L3_error)
-    __pyx_v_indptr = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_indptr.memview)) __PYX_ERR(0, 68, __pyx_L3_error)
-    __pyx_v_shape = __pyx_convert__from_py___pyx_ctuple_int__and_int(values[5]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 68, __pyx_L3_error)
+    __pyx_v_out_weights = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_out_weights.memview)) __PYX_ERR(0, 66, __pyx_L3_error)
+    __pyx_v_in_weights = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_in_weights.memview)) __PYX_ERR(0, 66, __pyx_L3_error)
+    __pyx_v_data = __Pyx_PyObject_to_MemoryviewSlice_ds_nn___pyx_t_5numpy_float_t(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_data.memview)) __PYX_ERR(0, 66, __pyx_L3_error)
+    __pyx_v_indices = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_indices.memview)) __PYX_ERR(0, 66, __pyx_L3_error)
+    __pyx_v_indptr = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_indptr.memview)) __PYX_ERR(0, 67, __pyx_L3_error)
+    __pyx_v_shape = __pyx_convert__from_py___pyx_ctuple_int__and_int(values[5]); if (unlikely(PyErr_Occurred())) __PYX_ERR(0, 67, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 67, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 66, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("sknetwork.hierarchy.paris.AggregateGraph.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3189,7 +3195,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
   Py_ssize_t __pyx_t_21;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "sknetwork/hierarchy/paris.pyx":69
+  /* "sknetwork/hierarchy/paris.pyx":68
  *     def __init__(self, np.float_t[:] out_weights, np.float_t[:] in_weights, np.float_t[:] data, int[:] indices,
  *                  int[:] indptr, (int, int) shape):
  *         cdef int n = shape[0]             # <<<<<<<<<<<<<<
@@ -3198,26 +3204,26 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
  */
   __pyx_v_n = __pyx_v_shape.f0;
 
-  /* "sknetwork/hierarchy/paris.pyx":70
+  /* "sknetwork/hierarchy/paris.pyx":69
  *                  int[:] indptr, (int, int) shape):
  *         cdef int n = shape[0]
  *         cdef float total_weight = sum(data) / 2             # <<<<<<<<<<<<<<
  *         cdef int node
  * 
  */
-  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_data, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_5numpy_float_t, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_5numpy_float_t, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_t_1 = __pyx_memoryview_fromslice(__pyx_v_data, 1, (PyObject *(*)(char *)) __pyx_memview_get_nn___pyx_t_5numpy_float_t, (int (*)(char *, PyObject *)) __pyx_memview_set_nn___pyx_t_5numpy_float_t, 0);; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 69, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_builtin_sum, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_builtin_sum, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 69, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyInt_TrueDivideObjC(__pyx_t_2, __pyx_int_2, 2, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_TrueDivideObjC(__pyx_t_2, __pyx_int_2, 2, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 69, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_3 = __pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_3 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_t_3 = __pyx_PyFloat_AsFloat(__pyx_t_1); if (unlikely((__pyx_t_3 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 69, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_total_weight = __pyx_t_3;
 
-  /* "sknetwork/hierarchy/paris.pyx":73
+  /* "sknetwork/hierarchy/paris.pyx":72
  *         cdef int node
  * 
  *         self.next_cluster = n             # <<<<<<<<<<<<<<
@@ -3226,14 +3232,14 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
  */
   __pyx_v_self->next_cluster = __pyx_v_n;
 
-  /* "sknetwork/hierarchy/paris.pyx":74
+  /* "sknetwork/hierarchy/paris.pyx":73
  * 
  *         self.next_cluster = n
  *         self.neighbors = {}             # <<<<<<<<<<<<<<
  *         for node in range(n):
  *             # normalize so that the sum of edge weights is equal to 1
  */
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 74, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
   __Pyx_GOTREF(__pyx_v_self->neighbors);
@@ -3241,7 +3247,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
   __pyx_v_self->neighbors = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":75
+  /* "sknetwork/hierarchy/paris.pyx":74
  *         self.next_cluster = n
  *         self.neighbors = {}
  *         for node in range(n):             # <<<<<<<<<<<<<<
@@ -3253,7 +3259,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
   for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
     __pyx_v_node = __pyx_t_6;
 
-    /* "sknetwork/hierarchy/paris.pyx":78
+    /* "sknetwork/hierarchy/paris.pyx":77
  *             # normalize so that the sum of edge weights is equal to 1
  *             # remove self-loops
  *             self.neighbors[node] = {indices[i]: data[i] / total_weight for i in             # <<<<<<<<<<<<<<
@@ -3261,10 +3267,10 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
  *                                     if indices[i] != node}
  */
     { /* enter inner scope */
-      __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 78, __pyx_L7_error)
+      __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 77, __pyx_L7_error)
       __Pyx_GOTREF(__pyx_t_1);
 
-      /* "sknetwork/hierarchy/paris.pyx":79
+      /* "sknetwork/hierarchy/paris.pyx":78
  *             # remove self-loops
  *             self.neighbors[node] = {indices[i]: data[i] / total_weight for i in
  *                                     range(indptr[node], indptr[node + 1])             # <<<<<<<<<<<<<<
@@ -3279,9 +3285,9 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
       } else if (unlikely(__pyx_t_7 >= __pyx_v_indptr.shape[0])) __pyx_t_8 = 0;
       if (unlikely(__pyx_t_8 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_8);
-        __PYX_ERR(0, 79, __pyx_L7_error)
+        __PYX_ERR(0, 78, __pyx_L7_error)
       }
-      __pyx_t_2 = __Pyx_PyInt_From_int((*((int *) ( /* dim=0 */ (__pyx_v_indptr.data + __pyx_t_7 * __pyx_v_indptr.strides[0]) )))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 79, __pyx_L7_error)
+      __pyx_t_2 = __Pyx_PyInt_From_int((*((int *) ( /* dim=0 */ (__pyx_v_indptr.data + __pyx_t_7 * __pyx_v_indptr.strides[0]) )))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 78, __pyx_L7_error)
       __Pyx_GOTREF(__pyx_t_2);
       __pyx_t_9 = (__pyx_v_node + 1);
       __pyx_t_8 = -1;
@@ -3291,11 +3297,11 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
       } else if (unlikely(__pyx_t_9 >= __pyx_v_indptr.shape[0])) __pyx_t_8 = 0;
       if (unlikely(__pyx_t_8 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_8);
-        __PYX_ERR(0, 79, __pyx_L7_error)
+        __PYX_ERR(0, 78, __pyx_L7_error)
       }
-      __pyx_t_10 = __Pyx_PyInt_From_int((*((int *) ( /* dim=0 */ (__pyx_v_indptr.data + __pyx_t_9 * __pyx_v_indptr.strides[0]) )))); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 79, __pyx_L7_error)
+      __pyx_t_10 = __Pyx_PyInt_From_int((*((int *) ( /* dim=0 */ (__pyx_v_indptr.data + __pyx_t_9 * __pyx_v_indptr.strides[0]) )))); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 78, __pyx_L7_error)
       __Pyx_GOTREF(__pyx_t_10);
-      __pyx_t_11 = PyTuple_New(2); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 79, __pyx_L7_error)
+      __pyx_t_11 = PyTuple_New(2); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 78, __pyx_L7_error)
       __Pyx_GOTREF(__pyx_t_11);
       __Pyx_GIVEREF(__pyx_t_2);
       PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_t_2);
@@ -3303,16 +3309,16 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
       PyTuple_SET_ITEM(__pyx_t_11, 1, __pyx_t_10);
       __pyx_t_2 = 0;
       __pyx_t_10 = 0;
-      __pyx_t_10 = __Pyx_PyObject_Call(__pyx_builtin_range, __pyx_t_11, NULL); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 79, __pyx_L7_error)
+      __pyx_t_10 = __Pyx_PyObject_Call(__pyx_builtin_range, __pyx_t_11, NULL); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 78, __pyx_L7_error)
       __Pyx_GOTREF(__pyx_t_10);
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
       if (likely(PyList_CheckExact(__pyx_t_10)) || PyTuple_CheckExact(__pyx_t_10)) {
         __pyx_t_11 = __pyx_t_10; __Pyx_INCREF(__pyx_t_11); __pyx_t_12 = 0;
         __pyx_t_13 = NULL;
       } else {
-        __pyx_t_12 = -1; __pyx_t_11 = PyObject_GetIter(__pyx_t_10); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 79, __pyx_L7_error)
+        __pyx_t_12 = -1; __pyx_t_11 = PyObject_GetIter(__pyx_t_10); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 78, __pyx_L7_error)
         __Pyx_GOTREF(__pyx_t_11);
-        __pyx_t_13 = Py_TYPE(__pyx_t_11)->tp_iternext; if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 79, __pyx_L7_error)
+        __pyx_t_13 = Py_TYPE(__pyx_t_11)->tp_iternext; if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 78, __pyx_L7_error)
       }
       __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
       for (;;) {
@@ -3320,17 +3326,17 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
           if (likely(PyList_CheckExact(__pyx_t_11))) {
             if (__pyx_t_12 >= PyList_GET_SIZE(__pyx_t_11)) break;
             #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-            __pyx_t_10 = PyList_GET_ITEM(__pyx_t_11, __pyx_t_12); __Pyx_INCREF(__pyx_t_10); __pyx_t_12++; if (unlikely(0 < 0)) __PYX_ERR(0, 79, __pyx_L7_error)
+            __pyx_t_10 = PyList_GET_ITEM(__pyx_t_11, __pyx_t_12); __Pyx_INCREF(__pyx_t_10); __pyx_t_12++; if (unlikely(0 < 0)) __PYX_ERR(0, 78, __pyx_L7_error)
             #else
-            __pyx_t_10 = PySequence_ITEM(__pyx_t_11, __pyx_t_12); __pyx_t_12++; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 79, __pyx_L7_error)
+            __pyx_t_10 = PySequence_ITEM(__pyx_t_11, __pyx_t_12); __pyx_t_12++; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 78, __pyx_L7_error)
             __Pyx_GOTREF(__pyx_t_10);
             #endif
           } else {
             if (__pyx_t_12 >= PyTuple_GET_SIZE(__pyx_t_11)) break;
             #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-            __pyx_t_10 = PyTuple_GET_ITEM(__pyx_t_11, __pyx_t_12); __Pyx_INCREF(__pyx_t_10); __pyx_t_12++; if (unlikely(0 < 0)) __PYX_ERR(0, 79, __pyx_L7_error)
+            __pyx_t_10 = PyTuple_GET_ITEM(__pyx_t_11, __pyx_t_12); __Pyx_INCREF(__pyx_t_10); __pyx_t_12++; if (unlikely(0 < 0)) __PYX_ERR(0, 78, __pyx_L7_error)
             #else
-            __pyx_t_10 = PySequence_ITEM(__pyx_t_11, __pyx_t_12); __pyx_t_12++; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 79, __pyx_L7_error)
+            __pyx_t_10 = PySequence_ITEM(__pyx_t_11, __pyx_t_12); __pyx_t_12++; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 78, __pyx_L7_error)
             __Pyx_GOTREF(__pyx_t_10);
             #endif
           }
@@ -3340,7 +3346,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
             PyObject* exc_type = PyErr_Occurred();
             if (exc_type) {
               if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-              else __PYX_ERR(0, 79, __pyx_L7_error)
+              else __PYX_ERR(0, 78, __pyx_L7_error)
             }
             break;
           }
@@ -3349,14 +3355,14 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
         __Pyx_XDECREF_SET(__pyx_7genexpr__pyx_v_i, __pyx_t_10);
         __pyx_t_10 = 0;
 
-        /* "sknetwork/hierarchy/paris.pyx":80
+        /* "sknetwork/hierarchy/paris.pyx":79
  *             self.neighbors[node] = {indices[i]: data[i] / total_weight for i in
  *                                     range(indptr[node], indptr[node + 1])
  *                                     if indices[i] != node}             # <<<<<<<<<<<<<<
  *         self.cluster_sizes = {node: 1 for node in range(n)}
  *         self.cluster_out_weights = {node: out_weights[node] for node in range(n)}
  */
-        __pyx_t_14 = __Pyx_PyIndex_AsSsize_t(__pyx_7genexpr__pyx_v_i); if (unlikely((__pyx_t_14 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 80, __pyx_L7_error)
+        __pyx_t_14 = __Pyx_PyIndex_AsSsize_t(__pyx_7genexpr__pyx_v_i); if (unlikely((__pyx_t_14 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 79, __pyx_L7_error)
         __pyx_t_15 = __pyx_t_14;
         __pyx_t_8 = -1;
         if (__pyx_t_15 < 0) {
@@ -3365,19 +3371,19 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
         } else if (unlikely(__pyx_t_15 >= __pyx_v_indices.shape[0])) __pyx_t_8 = 0;
         if (unlikely(__pyx_t_8 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_8);
-          __PYX_ERR(0, 80, __pyx_L7_error)
+          __PYX_ERR(0, 79, __pyx_L7_error)
         }
         __pyx_t_16 = (((*((int *) ( /* dim=0 */ (__pyx_v_indices.data + __pyx_t_15 * __pyx_v_indices.strides[0]) ))) != __pyx_v_node) != 0);
         if (__pyx_t_16) {
 
-          /* "sknetwork/hierarchy/paris.pyx":78
+          /* "sknetwork/hierarchy/paris.pyx":77
  *             # normalize so that the sum of edge weights is equal to 1
  *             # remove self-loops
  *             self.neighbors[node] = {indices[i]: data[i] / total_weight for i in             # <<<<<<<<<<<<<<
  *                                     range(indptr[node], indptr[node + 1])
  *                                     if indices[i] != node}
  */
-          __pyx_t_14 = __Pyx_PyIndex_AsSsize_t(__pyx_7genexpr__pyx_v_i); if (unlikely((__pyx_t_14 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 78, __pyx_L7_error)
+          __pyx_t_14 = __Pyx_PyIndex_AsSsize_t(__pyx_7genexpr__pyx_v_i); if (unlikely((__pyx_t_14 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 77, __pyx_L7_error)
           __pyx_t_17 = __pyx_t_14;
           __pyx_t_8 = -1;
           if (__pyx_t_17 < 0) {
@@ -3386,11 +3392,11 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
           } else if (unlikely(__pyx_t_17 >= __pyx_v_indices.shape[0])) __pyx_t_8 = 0;
           if (unlikely(__pyx_t_8 != -1)) {
             __Pyx_RaiseBufferIndexError(__pyx_t_8);
-            __PYX_ERR(0, 78, __pyx_L7_error)
+            __PYX_ERR(0, 77, __pyx_L7_error)
           }
-          __pyx_t_10 = __Pyx_PyInt_From_int((*((int *) ( /* dim=0 */ (__pyx_v_indices.data + __pyx_t_17 * __pyx_v_indices.strides[0]) )))); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 78, __pyx_L7_error)
+          __pyx_t_10 = __Pyx_PyInt_From_int((*((int *) ( /* dim=0 */ (__pyx_v_indices.data + __pyx_t_17 * __pyx_v_indices.strides[0]) )))); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 77, __pyx_L7_error)
           __Pyx_GOTREF(__pyx_t_10);
-          __pyx_t_14 = __Pyx_PyIndex_AsSsize_t(__pyx_7genexpr__pyx_v_i); if (unlikely((__pyx_t_14 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 78, __pyx_L7_error)
+          __pyx_t_14 = __Pyx_PyIndex_AsSsize_t(__pyx_7genexpr__pyx_v_i); if (unlikely((__pyx_t_14 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 77, __pyx_L7_error)
           __pyx_t_18 = __pyx_t_14;
           __pyx_t_8 = -1;
           if (__pyx_t_18 < 0) {
@@ -3399,20 +3405,20 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
           } else if (unlikely(__pyx_t_18 >= __pyx_v_data.shape[0])) __pyx_t_8 = 0;
           if (unlikely(__pyx_t_8 != -1)) {
             __Pyx_RaiseBufferIndexError(__pyx_t_8);
-            __PYX_ERR(0, 78, __pyx_L7_error)
+            __PYX_ERR(0, 77, __pyx_L7_error)
           }
           __pyx_t_19 = (*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_data.data + __pyx_t_18 * __pyx_v_data.strides[0]) )));
           if (unlikely(__pyx_v_total_weight == 0)) {
             PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-            __PYX_ERR(0, 78, __pyx_L7_error)
+            __PYX_ERR(0, 77, __pyx_L7_error)
           }
-          __pyx_t_2 = PyFloat_FromDouble((__pyx_t_19 / ((__pyx_t_5numpy_float_t)__pyx_v_total_weight))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 78, __pyx_L7_error)
+          __pyx_t_2 = PyFloat_FromDouble((__pyx_t_19 / ((__pyx_t_5numpy_float_t)__pyx_v_total_weight))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 77, __pyx_L7_error)
           __Pyx_GOTREF(__pyx_t_2);
-          if (unlikely(PyDict_SetItem(__pyx_t_1, (PyObject*)__pyx_t_10, (PyObject*)__pyx_t_2))) __PYX_ERR(0, 78, __pyx_L7_error)
+          if (unlikely(PyDict_SetItem(__pyx_t_1, (PyObject*)__pyx_t_10, (PyObject*)__pyx_t_2))) __PYX_ERR(0, 77, __pyx_L7_error)
           __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-          /* "sknetwork/hierarchy/paris.pyx":80
+          /* "sknetwork/hierarchy/paris.pyx":79
  *             self.neighbors[node] = {indices[i]: data[i] / total_weight for i in
  *                                     range(indptr[node], indptr[node + 1])
  *                                     if indices[i] != node}             # <<<<<<<<<<<<<<
@@ -3421,7 +3427,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
  */
         }
 
-        /* "sknetwork/hierarchy/paris.pyx":78
+        /* "sknetwork/hierarchy/paris.pyx":77
  *             # normalize so that the sum of edge weights is equal to 1
  *             # remove self-loops
  *             self.neighbors[node] = {indices[i]: data[i] / total_weight for i in             # <<<<<<<<<<<<<<
@@ -3439,16 +3445,16 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
     } /* exit inner scope */
     if (unlikely(__pyx_v_self->neighbors == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 78, __pyx_L1_error)
+      __PYX_ERR(0, 77, __pyx_L1_error)
     }
-    __pyx_t_11 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 78, __pyx_L1_error)
+    __pyx_t_11 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 77, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_11);
-    if (unlikely(PyDict_SetItem(__pyx_v_self->neighbors, __pyx_t_11, __pyx_t_1) < 0)) __PYX_ERR(0, 78, __pyx_L1_error)
+    if (unlikely(PyDict_SetItem(__pyx_v_self->neighbors, __pyx_t_11, __pyx_t_1) < 0)) __PYX_ERR(0, 77, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
 
-  /* "sknetwork/hierarchy/paris.pyx":81
+  /* "sknetwork/hierarchy/paris.pyx":80
  *                                     range(indptr[node], indptr[node + 1])
  *                                     if indices[i] != node}
  *         self.cluster_sizes = {node: 1 for node in range(n)}             # <<<<<<<<<<<<<<
@@ -3456,15 +3462,15 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
  *         self.cluster_in_weights = {node: in_weights[node] for node in range(n)}
  */
   { /* enter inner scope */
-    __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 81, __pyx_L1_error)
+    __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 80, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_4 = __pyx_v_n;
     __pyx_t_5 = __pyx_t_4;
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_8genexpr1__pyx_v_node = __pyx_t_6;
-      __pyx_t_11 = __Pyx_PyInt_From_int(__pyx_8genexpr1__pyx_v_node); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 81, __pyx_L1_error)
+      __pyx_t_11 = __Pyx_PyInt_From_int(__pyx_8genexpr1__pyx_v_node); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 80, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
-      if (unlikely(PyDict_SetItem(__pyx_t_1, (PyObject*)__pyx_t_11, (PyObject*)__pyx_int_1))) __PYX_ERR(0, 81, __pyx_L1_error)
+      if (unlikely(PyDict_SetItem(__pyx_t_1, (PyObject*)__pyx_t_11, (PyObject*)__pyx_int_1))) __PYX_ERR(0, 80, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     }
   } /* exit inner scope */
@@ -3474,7 +3480,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
   __pyx_v_self->cluster_sizes = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":82
+  /* "sknetwork/hierarchy/paris.pyx":81
  *                                     if indices[i] != node}
  *         self.cluster_sizes = {node: 1 for node in range(n)}
  *         self.cluster_out_weights = {node: out_weights[node] for node in range(n)}             # <<<<<<<<<<<<<<
@@ -3482,13 +3488,13 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
  * 
  */
   { /* enter inner scope */
-    __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
+    __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 81, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_4 = __pyx_v_n;
     __pyx_t_5 = __pyx_t_4;
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_8genexpr2__pyx_v_node = __pyx_t_6;
-      __pyx_t_11 = __Pyx_PyInt_From_int(__pyx_8genexpr2__pyx_v_node); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 82, __pyx_L1_error)
+      __pyx_t_11 = __Pyx_PyInt_From_int(__pyx_8genexpr2__pyx_v_node); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 81, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
       __pyx_t_20 = __pyx_8genexpr2__pyx_v_node;
       __pyx_t_8 = -1;
@@ -3498,11 +3504,11 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
       } else if (unlikely(__pyx_t_20 >= __pyx_v_out_weights.shape[0])) __pyx_t_8 = 0;
       if (unlikely(__pyx_t_8 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_8);
-        __PYX_ERR(0, 82, __pyx_L1_error)
+        __PYX_ERR(0, 81, __pyx_L1_error)
       }
-      __pyx_t_2 = PyFloat_FromDouble((*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_out_weights.data + __pyx_t_20 * __pyx_v_out_weights.strides[0]) )))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 82, __pyx_L1_error)
+      __pyx_t_2 = PyFloat_FromDouble((*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_out_weights.data + __pyx_t_20 * __pyx_v_out_weights.strides[0]) )))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 81, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      if (unlikely(PyDict_SetItem(__pyx_t_1, (PyObject*)__pyx_t_11, (PyObject*)__pyx_t_2))) __PYX_ERR(0, 82, __pyx_L1_error)
+      if (unlikely(PyDict_SetItem(__pyx_t_1, (PyObject*)__pyx_t_11, (PyObject*)__pyx_t_2))) __PYX_ERR(0, 81, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     }
@@ -3513,7 +3519,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
   __pyx_v_self->cluster_out_weights = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":83
+  /* "sknetwork/hierarchy/paris.pyx":82
  *         self.cluster_sizes = {node: 1 for node in range(n)}
  *         self.cluster_out_weights = {node: out_weights[node] for node in range(n)}
  *         self.cluster_in_weights = {node: in_weights[node] for node in range(n)}             # <<<<<<<<<<<<<<
@@ -3521,13 +3527,13 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
  *     cdef float similarity(self, int node1, int node2):
  */
   { /* enter inner scope */
-    __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 83, __pyx_L1_error)
+    __pyx_t_1 = PyDict_New(); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_4 = __pyx_v_n;
     __pyx_t_5 = __pyx_t_4;
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_8genexpr3__pyx_v_node = __pyx_t_6;
-      __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_8genexpr3__pyx_v_node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 83, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_8genexpr3__pyx_v_node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __pyx_t_21 = __pyx_8genexpr3__pyx_v_node;
       __pyx_t_8 = -1;
@@ -3537,11 +3543,11 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
       } else if (unlikely(__pyx_t_21 >= __pyx_v_in_weights.shape[0])) __pyx_t_8 = 0;
       if (unlikely(__pyx_t_8 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_8);
-        __PYX_ERR(0, 83, __pyx_L1_error)
+        __PYX_ERR(0, 82, __pyx_L1_error)
       }
-      __pyx_t_11 = PyFloat_FromDouble((*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_in_weights.data + __pyx_t_21 * __pyx_v_in_weights.strides[0]) )))); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 83, __pyx_L1_error)
+      __pyx_t_11 = PyFloat_FromDouble((*((__pyx_t_5numpy_float_t *) ( /* dim=0 */ (__pyx_v_in_weights.data + __pyx_t_21 * __pyx_v_in_weights.strides[0]) )))); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_11);
-      if (unlikely(PyDict_SetItem(__pyx_t_1, (PyObject*)__pyx_t_2, (PyObject*)__pyx_t_11))) __PYX_ERR(0, 83, __pyx_L1_error)
+      if (unlikely(PyDict_SetItem(__pyx_t_1, (PyObject*)__pyx_t_2, (PyObject*)__pyx_t_11))) __PYX_ERR(0, 82, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
     }
@@ -3552,7 +3558,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
   __pyx_v_self->cluster_in_weights = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":67
+  /* "sknetwork/hierarchy/paris.pyx":66
  *     cdef public dict cluster_in_weights
  * 
  *     def __init__(self, np.float_t[:] out_weights, np.float_t[:] in_weights, np.float_t[:] data, int[:] indices,             # <<<<<<<<<<<<<<
@@ -3581,7 +3587,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph___init__(struc
   return __pyx_r;
 }
 
-/* "sknetwork/hierarchy/paris.pyx":85
+/* "sknetwork/hierarchy/paris.pyx":84
  *         self.cluster_in_weights = {node: in_weights[node] for node in range(n)}
  * 
  *     cdef float similarity(self, int node1, int node2):             # <<<<<<<<<<<<<<
@@ -3604,17 +3610,17 @@ static float __pyx_f_9sknetwork_9hierarchy_5paris_14AggregateGraph_similarity(st
   int __pyx_t_6;
   __Pyx_RefNannySetupContext("similarity", 0);
 
-  /* "sknetwork/hierarchy/paris.pyx":98
+  /* "sknetwork/hierarchy/paris.pyx":97
  *             Similarity.
  *         """
  *         cdef float sim = -float("inf")             # <<<<<<<<<<<<<<
  *         cdef float a = self.cluster_out_weights[node1] * self.cluster_in_weights[node2]
  *         cdef float b = self.cluster_out_weights[node2] * self.cluster_in_weights[node1]
  */
-  __pyx_t_1 = __Pyx_PyObject_AsDouble(__pyx_n_u_inf); if (unlikely(__pyx_t_1 == ((double)((double)-1)) && PyErr_Occurred())) __PYX_ERR(0, 98, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_AsDouble(__pyx_n_u_inf); if (unlikely(__pyx_t_1 == ((double)((double)-1)) && PyErr_Occurred())) __PYX_ERR(0, 97, __pyx_L1_error)
   __pyx_v_sim = (-__pyx_t_1);
 
-  /* "sknetwork/hierarchy/paris.pyx":99
+  /* "sknetwork/hierarchy/paris.pyx":98
  *         """
  *         cdef float sim = -float("inf")
  *         cdef float a = self.cluster_out_weights[node1] * self.cluster_in_weights[node2]             # <<<<<<<<<<<<<<
@@ -3623,31 +3629,31 @@ static float __pyx_f_9sknetwork_9hierarchy_5paris_14AggregateGraph_similarity(st
  */
   if (unlikely(__pyx_v_self->cluster_out_weights == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 99, __pyx_L1_error)
+    __PYX_ERR(0, 98, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 99, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 98, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_self->cluster_out_weights, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 99, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_self->cluster_out_weights, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 98, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (unlikely(__pyx_v_self->cluster_in_weights == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 99, __pyx_L1_error)
+    __PYX_ERR(0, 98, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 99, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 98, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyDict_GetItem(__pyx_v_self->cluster_in_weights, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 99, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_GetItem(__pyx_v_self->cluster_in_weights, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 98, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyNumber_Multiply(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 99, __pyx_L1_error)
+  __pyx_t_2 = PyNumber_Multiply(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 98, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_5 = __pyx_PyFloat_AsFloat(__pyx_t_2); if (unlikely((__pyx_t_5 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 99, __pyx_L1_error)
+  __pyx_t_5 = __pyx_PyFloat_AsFloat(__pyx_t_2); if (unlikely((__pyx_t_5 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 98, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_a = __pyx_t_5;
 
-  /* "sknetwork/hierarchy/paris.pyx":100
+  /* "sknetwork/hierarchy/paris.pyx":99
  *         cdef float sim = -float("inf")
  *         cdef float a = self.cluster_out_weights[node1] * self.cluster_in_weights[node2]
  *         cdef float b = self.cluster_out_weights[node2] * self.cluster_in_weights[node1]             # <<<<<<<<<<<<<<
@@ -3656,31 +3662,31 @@ static float __pyx_f_9sknetwork_9hierarchy_5paris_14AggregateGraph_similarity(st
  */
   if (unlikely(__pyx_v_self->cluster_out_weights == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 100, __pyx_L1_error)
+    __PYX_ERR(0, 99, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyDict_GetItem(__pyx_v_self->cluster_out_weights, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_GetItem(__pyx_v_self->cluster_out_weights, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (unlikely(__pyx_v_self->cluster_in_weights == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 100, __pyx_L1_error)
+    __PYX_ERR(0, 99, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_self->cluster_in_weights, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_self->cluster_in_weights, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyNumber_Multiply(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_2 = PyNumber_Multiply(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_5 = __pyx_PyFloat_AsFloat(__pyx_t_2); if (unlikely((__pyx_t_5 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_5 = __pyx_PyFloat_AsFloat(__pyx_t_2); if (unlikely((__pyx_t_5 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 99, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_b = __pyx_t_5;
 
-  /* "sknetwork/hierarchy/paris.pyx":101
+  /* "sknetwork/hierarchy/paris.pyx":100
  *         cdef float a = self.cluster_out_weights[node1] * self.cluster_in_weights[node2]
  *         cdef float b = self.cluster_out_weights[node2] * self.cluster_in_weights[node1]
  *         cdef float den = a + b             # <<<<<<<<<<<<<<
@@ -3689,7 +3695,7 @@ static float __pyx_f_9sknetwork_9hierarchy_5paris_14AggregateGraph_similarity(st
  */
   __pyx_v_den = (__pyx_v_a + __pyx_v_b);
 
-  /* "sknetwork/hierarchy/paris.pyx":103
+  /* "sknetwork/hierarchy/paris.pyx":102
  *         cdef float den = a + b
  * 
  *         if den > 0:             # <<<<<<<<<<<<<<
@@ -3699,7 +3705,7 @@ static float __pyx_f_9sknetwork_9hierarchy_5paris_14AggregateGraph_similarity(st
   __pyx_t_6 = ((__pyx_v_den > 0.0) != 0);
   if (__pyx_t_6) {
 
-    /* "sknetwork/hierarchy/paris.pyx":104
+    /* "sknetwork/hierarchy/paris.pyx":103
  * 
  *         if den > 0:
  *             sim = 2 * self.neighbors[node1][node2] / den             # <<<<<<<<<<<<<<
@@ -3708,30 +3714,30 @@ static float __pyx_f_9sknetwork_9hierarchy_5paris_14AggregateGraph_similarity(st
  */
     if (unlikely(__pyx_v_self->neighbors == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 104, __pyx_L1_error)
+      __PYX_ERR(0, 103, __pyx_L1_error)
     }
-    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 104, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 104, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 103, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_3, __pyx_v_node2, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 104, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_3, __pyx_v_node2, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-    __pyx_t_3 = PyNumber_Multiply(__pyx_int_2, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 104, __pyx_L1_error)
+    __pyx_t_3 = PyNumber_Multiply(__pyx_int_2, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 103, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_den); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 104, __pyx_L1_error)
+    __pyx_t_2 = PyFloat_FromDouble(__pyx_v_den); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 104, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 103, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_5 = __pyx_PyFloat_AsFloat(__pyx_t_4); if (unlikely((__pyx_t_5 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 104, __pyx_L1_error)
+    __pyx_t_5 = __pyx_PyFloat_AsFloat(__pyx_t_4); if (unlikely((__pyx_t_5 == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 103, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_v_sim = __pyx_t_5;
 
-    /* "sknetwork/hierarchy/paris.pyx":103
+    /* "sknetwork/hierarchy/paris.pyx":102
  *         cdef float den = a + b
  * 
  *         if den > 0:             # <<<<<<<<<<<<<<
@@ -3740,7 +3746,7 @@ static float __pyx_f_9sknetwork_9hierarchy_5paris_14AggregateGraph_similarity(st
  */
   }
 
-  /* "sknetwork/hierarchy/paris.pyx":105
+  /* "sknetwork/hierarchy/paris.pyx":104
  *         if den > 0:
  *             sim = 2 * self.neighbors[node1][node2] / den
  *         return sim             # <<<<<<<<<<<<<<
@@ -3750,7 +3756,7 @@ static float __pyx_f_9sknetwork_9hierarchy_5paris_14AggregateGraph_similarity(st
   __pyx_r = __pyx_v_sim;
   goto __pyx_L0;
 
-  /* "sknetwork/hierarchy/paris.pyx":85
+  /* "sknetwork/hierarchy/paris.pyx":84
  *         self.cluster_in_weights = {node: in_weights[node] for node in range(n)}
  * 
  *     cdef float similarity(self, int node1, int node2):             # <<<<<<<<<<<<<<
@@ -3770,7 +3776,7 @@ static float __pyx_f_9sknetwork_9hierarchy_5paris_14AggregateGraph_similarity(st
   return __pyx_r;
 }
 
-/* "sknetwork/hierarchy/paris.pyx":109
+/* "sknetwork/hierarchy/paris.pyx":108
  *     @cython.boundscheck(False)
  *     @cython.wraparound(False)
  *     cpdef AggregateGraph merge(self, int node1, int node2):             # <<<<<<<<<<<<<<
@@ -3808,13 +3814,13 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_merge); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 109, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_merge); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 108, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_9sknetwork_9hierarchy_5paris_14AggregateGraph_3merge)) {
         __Pyx_XDECREF(((PyObject *)__pyx_r));
-        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 109, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 108, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 109, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 108, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_5 = __pyx_t_1; __pyx_t_6 = NULL;
@@ -3832,7 +3838,7 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_t_3, __pyx_t_4};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 109, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 108, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3842,7 +3848,7 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[3] = {__pyx_t_6, __pyx_t_3, __pyx_t_4};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 109, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 2+__pyx_t_7); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 108, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -3850,7 +3856,7 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
         } else
         #endif
         {
-          __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 109, __pyx_L1_error)
+          __pyx_t_8 = PyTuple_New(2+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 108, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_8);
           if (__pyx_t_6) {
             __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_6); __pyx_t_6 = NULL;
@@ -3861,12 +3867,12 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
           PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_7, __pyx_t_4);
           __pyx_t_3 = 0;
           __pyx_t_4 = 0;
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 109, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_8, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 108, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
         }
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_9sknetwork_9hierarchy_5paris_AggregateGraph))))) __PYX_ERR(0, 109, __pyx_L1_error)
+        if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_9sknetwork_9hierarchy_5paris_AggregateGraph))))) __PYX_ERR(0, 108, __pyx_L1_error)
         __pyx_r = ((struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *)__pyx_t_2);
         __pyx_t_2 = 0;
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -3885,7 +3891,7 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
     #endif
   }
 
-  /* "sknetwork/hierarchy/paris.pyx":122
+  /* "sknetwork/hierarchy/paris.pyx":121
  *             The aggregate grate (without self-loop).
  *         """
  *         cdef int new_node = self.next_cluster             # <<<<<<<<<<<<<<
@@ -3895,26 +3901,26 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
   __pyx_t_7 = __pyx_v_self->next_cluster;
   __pyx_v_new_node = __pyx_t_7;
 
-  /* "sknetwork/hierarchy/paris.pyx":123
+  /* "sknetwork/hierarchy/paris.pyx":122
  *         """
  *         cdef int new_node = self.next_cluster
  *         self.neighbors[new_node] = {}             # <<<<<<<<<<<<<<
  *         cdef set common_neighbors = set(self.neighbors[node1].keys()) & set(self.neighbors[node2].keys()) - {node1, node2}
  *         for node in common_neighbors:
  */
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (unlikely(__pyx_v_self->neighbors == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 123, __pyx_L1_error)
+    __PYX_ERR(0, 122, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_new_node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_new_node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (unlikely(PyDict_SetItem(__pyx_v_self->neighbors, __pyx_t_2, __pyx_t_1) < 0)) __PYX_ERR(0, 123, __pyx_L1_error)
+  if (unlikely(PyDict_SetItem(__pyx_v_self->neighbors, __pyx_t_2, __pyx_t_1) < 0)) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":124
+  /* "sknetwork/hierarchy/paris.pyx":123
  *         cdef int new_node = self.next_cluster
  *         self.neighbors[new_node] = {}
  *         cdef set common_neighbors = set(self.neighbors[node1].keys()) & set(self.neighbors[node2].keys()) - {node1, node2}             # <<<<<<<<<<<<<<
@@ -3923,14 +3929,14 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  */
   if (unlikely(__pyx_v_self->neighbors == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 124, __pyx_L1_error)
+    __PYX_ERR(0, 123, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_keys); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_keys); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_5 = NULL;
@@ -3945,22 +3951,22 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
   }
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PySet_New(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_2 = PySet_New(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (unlikely(__pyx_v_self->neighbors == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 124, __pyx_L1_error)
+    __PYX_ERR(0, 123, __pyx_L1_error)
   }
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_5); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_5); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_keys); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_keys); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __pyx_t_8 = NULL;
@@ -3975,35 +3981,35 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
   }
   __pyx_t_1 = (__pyx_t_8) ? __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_8) : __Pyx_PyObject_CallNoArg(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = PySet_New(__pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_5 = PySet_New(__pyx_t_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_4 = PySet_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_4 = PySet_New(0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PySet_Add(__pyx_t_4, __pyx_t_1) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (PySet_Add(__pyx_t_4, __pyx_t_1) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PySet_Add(__pyx_t_4, __pyx_t_8) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (PySet_Add(__pyx_t_4, __pyx_t_8) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = PyNumber_Subtract(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_8 = PyNumber_Subtract(__pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyNumber_And(__pyx_t_2, __pyx_t_8); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_And(__pyx_t_2, __pyx_t_8); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  if (!(likely(PySet_CheckExact(__pyx_t_4))||((__pyx_t_4) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "set", Py_TYPE(__pyx_t_4)->tp_name), 0))) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (!(likely(PySet_CheckExact(__pyx_t_4))||((__pyx_t_4) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "set", Py_TYPE(__pyx_t_4)->tp_name), 0))) __PYX_ERR(0, 123, __pyx_L1_error)
   __pyx_v_common_neighbors = ((PyObject*)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":125
+  /* "sknetwork/hierarchy/paris.pyx":124
  *         self.neighbors[new_node] = {}
  *         cdef set common_neighbors = set(self.neighbors[node1].keys()) & set(self.neighbors[node2].keys()) - {node1, node2}
  *         for node in common_neighbors:             # <<<<<<<<<<<<<<
@@ -4011,7 +4017,7 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  *             self.neighbors[node][new_node] = self.neighbors[node].pop(node1) + self.neighbors[node].pop(node2)
  */
   __pyx_t_9 = 0;
-  __pyx_t_8 = __Pyx_set_iterator(__pyx_v_common_neighbors, 1, (&__pyx_t_10), (&__pyx_t_7)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 125, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_set_iterator(__pyx_v_common_neighbors, 1, (&__pyx_t_10), (&__pyx_t_7)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_4);
   __pyx_t_4 = __pyx_t_8;
@@ -4019,12 +4025,12 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
   while (1) {
     __pyx_t_11 = __Pyx_set_iter_next(__pyx_t_4, __pyx_t_10, &__pyx_t_9, &__pyx_t_8, __pyx_t_7);
     if (unlikely(__pyx_t_11 == 0)) break;
-    if (unlikely(__pyx_t_11 == -1)) __PYX_ERR(0, 125, __pyx_L1_error)
+    if (unlikely(__pyx_t_11 == -1)) __PYX_ERR(0, 124, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_XDECREF_SET(__pyx_v_node, __pyx_t_8);
     __pyx_t_8 = 0;
 
-    /* "sknetwork/hierarchy/paris.pyx":126
+    /* "sknetwork/hierarchy/paris.pyx":125
  *         cdef set common_neighbors = set(self.neighbors[node1].keys()) & set(self.neighbors[node2].keys()) - {node1, node2}
  *         for node in common_neighbors:
  *             self.neighbors[new_node][node] = self.neighbors[node1][node] + self.neighbors[node2][node]             # <<<<<<<<<<<<<<
@@ -4033,26 +4039,68 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  */
     if (unlikely(__pyx_v_self->neighbors == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 126, __pyx_L1_error)
+      __PYX_ERR(0, 125, __pyx_L1_error)
     }
-    __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 126, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 125, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
-    __pyx_t_2 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __pyx_t_8 = __Pyx_PyObject_GetItem(__pyx_t_2, __pyx_v_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 126, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_GetItem(__pyx_t_2, __pyx_v_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 125, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     if (unlikely(__pyx_v_self->neighbors == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 126, __pyx_L1_error)
+      __PYX_ERR(0, 125, __pyx_L1_error)
     }
-    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 126, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 125, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_t_5, __pyx_v_node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_t_5, __pyx_v_node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_t_5 = PyNumber_Add(__pyx_t_8, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 125, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (unlikely(__pyx_v_self->neighbors == Py_None)) {
+      PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
+      __PYX_ERR(0, 125, __pyx_L1_error)
+    }
+    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_new_node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 125, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_8);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    if (unlikely(PyObject_SetItem(__pyx_t_8, __pyx_v_node, __pyx_t_5) < 0)) __PYX_ERR(0, 125, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+    /* "sknetwork/hierarchy/paris.pyx":126
+ *         for node in common_neighbors:
+ *             self.neighbors[new_node][node] = self.neighbors[node1][node] + self.neighbors[node2][node]
+ *             self.neighbors[node][new_node] = self.neighbors[node].pop(node1) + self.neighbors[node].pop(node2)             # <<<<<<<<<<<<<<
+ *         cdef set node1_neighbors = set(self.neighbors[node1].keys()) - set(self.neighbors[node2].keys()) - {node2}
+ *         for node in node1_neighbors:
+ */
+    if (unlikely(__pyx_v_self->neighbors == Py_None)) {
+      PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
+      __PYX_ERR(0, 126, __pyx_L1_error)
+    }
+    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_v_node); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 126, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_8 = __Pyx_PyObject_PopIndex(__pyx_t_5, Py_None, __pyx_v_node1, 1, int, __Pyx_PyInt_From_int); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 126, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_8);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    if (unlikely(__pyx_v_self->neighbors == Py_None)) {
+      PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
+      __PYX_ERR(0, 126, __pyx_L1_error)
+    }
+    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_v_node); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 126, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_2 = __Pyx_PyObject_PopIndex(__pyx_t_5, Py_None, __pyx_v_node2, 1, int, __Pyx_PyInt_From_int); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_t_5 = PyNumber_Add(__pyx_t_8, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 126, __pyx_L1_error)
@@ -4063,57 +4111,15 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
       __PYX_ERR(0, 126, __pyx_L1_error)
     }
-    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_new_node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_v_node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 126, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 126, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_8);
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(PyObject_SetItem(__pyx_t_8, __pyx_v_node, __pyx_t_5) < 0)) __PYX_ERR(0, 126, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-
-    /* "sknetwork/hierarchy/paris.pyx":127
- *         for node in common_neighbors:
- *             self.neighbors[new_node][node] = self.neighbors[node1][node] + self.neighbors[node2][node]
- *             self.neighbors[node][new_node] = self.neighbors[node].pop(node1) + self.neighbors[node].pop(node2)             # <<<<<<<<<<<<<<
- *         cdef set node1_neighbors = set(self.neighbors[node1].keys()) - set(self.neighbors[node2].keys()) - {node2}
- *         for node in node1_neighbors:
- */
-    if (unlikely(__pyx_v_self->neighbors == Py_None)) {
-      PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 127, __pyx_L1_error)
-    }
-    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_v_node); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 127, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_8 = __Pyx_PyObject_PopIndex(__pyx_t_5, Py_None, __pyx_v_node1, 1, int, __Pyx_PyInt_From_int); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 127, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_8);
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    if (unlikely(__pyx_v_self->neighbors == Py_None)) {
-      PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 127, __pyx_L1_error)
-    }
-    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_v_node); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 127, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_2 = __Pyx_PyObject_PopIndex(__pyx_t_5, Py_None, __pyx_v_node2, 1, int, __Pyx_PyInt_From_int); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = PyNumber_Add(__pyx_t_8, __pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 127, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_5);
-    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(__pyx_v_self->neighbors == Py_None)) {
-      PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 127, __pyx_L1_error)
-    }
-    __pyx_t_2 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_v_node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_2);
-    if (unlikely(__Pyx_SetItemInt(__pyx_t_2, __pyx_v_new_node, __pyx_t_5, int, 1, __Pyx_PyInt_From_int, 0, 0, 0) < 0)) __PYX_ERR(0, 127, __pyx_L1_error)
+    if (unlikely(__Pyx_SetItemInt(__pyx_t_2, __pyx_v_new_node, __pyx_t_5, int, 1, __Pyx_PyInt_From_int, 0, 0, 0) < 0)) __PYX_ERR(0, 126, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":128
+  /* "sknetwork/hierarchy/paris.pyx":127
  *             self.neighbors[new_node][node] = self.neighbors[node1][node] + self.neighbors[node2][node]
  *             self.neighbors[node][new_node] = self.neighbors[node].pop(node1) + self.neighbors[node].pop(node2)
  *         cdef set node1_neighbors = set(self.neighbors[node1].keys()) - set(self.neighbors[node2].keys()) - {node2}             # <<<<<<<<<<<<<<
@@ -4122,14 +4128,14 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  */
   if (unlikely(__pyx_v_self->neighbors == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 128, __pyx_L1_error)
+    __PYX_ERR(0, 127, __pyx_L1_error)
   }
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_2 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_keys); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_keys); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -4144,22 +4150,22 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
   }
   __pyx_t_4 = (__pyx_t_2) ? __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_2) : __Pyx_PyObject_CallNoArg(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 128, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = PySet_New(__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_5 = PySet_New(__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (unlikely(__pyx_v_self->neighbors == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 128, __pyx_L1_error)
+    __PYX_ERR(0, 127, __pyx_L1_error)
   }
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_keys); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_keys); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __pyx_t_8 = NULL;
@@ -4174,31 +4180,31 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
   }
   __pyx_t_4 = (__pyx_t_8) ? __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_8) : __Pyx_PyObject_CallNoArg(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
-  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 128, __pyx_L1_error)
+  if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PySet_New(__pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_2 = PySet_New(__pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = PyNumber_Subtract(__pyx_t_5, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_4 = PyNumber_Subtract(__pyx_t_5, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = PySet_New(0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_5 = PySet_New(0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PySet_Add(__pyx_t_5, __pyx_t_2) < 0) __PYX_ERR(0, 128, __pyx_L1_error)
+  if (PySet_Add(__pyx_t_5, __pyx_t_2) < 0) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyNumber_Subtract(__pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __pyx_t_2 = PyNumber_Subtract(__pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (!(likely(PySet_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "set", Py_TYPE(__pyx_t_2)->tp_name), 0))) __PYX_ERR(0, 128, __pyx_L1_error)
+  if (!(likely(PySet_CheckExact(__pyx_t_2))||((__pyx_t_2) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "set", Py_TYPE(__pyx_t_2)->tp_name), 0))) __PYX_ERR(0, 127, __pyx_L1_error)
   __pyx_v_node1_neighbors = ((PyObject*)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":129
+  /* "sknetwork/hierarchy/paris.pyx":128
  *             self.neighbors[node][new_node] = self.neighbors[node].pop(node1) + self.neighbors[node].pop(node2)
  *         cdef set node1_neighbors = set(self.neighbors[node1].keys()) - set(self.neighbors[node2].keys()) - {node2}
  *         for node in node1_neighbors:             # <<<<<<<<<<<<<<
@@ -4206,7 +4212,7 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  *             self.neighbors[node][new_node] = self.neighbors[node].pop(node1)
  */
   __pyx_t_10 = 0;
-  __pyx_t_5 = __Pyx_set_iterator(__pyx_v_node1_neighbors, 1, (&__pyx_t_9), (&__pyx_t_7)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_set_iterator(__pyx_v_node1_neighbors, 1, (&__pyx_t_9), (&__pyx_t_7)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 128, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_2);
   __pyx_t_2 = __pyx_t_5;
@@ -4214,12 +4220,12 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
   while (1) {
     __pyx_t_11 = __Pyx_set_iter_next(__pyx_t_2, __pyx_t_9, &__pyx_t_10, &__pyx_t_5, __pyx_t_7);
     if (unlikely(__pyx_t_11 == 0)) break;
-    if (unlikely(__pyx_t_11 == -1)) __PYX_ERR(0, 129, __pyx_L1_error)
+    if (unlikely(__pyx_t_11 == -1)) __PYX_ERR(0, 128, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_XDECREF_SET(__pyx_v_node, __pyx_t_5);
     __pyx_t_5 = 0;
 
-    /* "sknetwork/hierarchy/paris.pyx":130
+    /* "sknetwork/hierarchy/paris.pyx":129
  *         cdef set node1_neighbors = set(self.neighbors[node1].keys()) - set(self.neighbors[node2].keys()) - {node2}
  *         for node in node1_neighbors:
  *             self.neighbors[new_node][node] = self.neighbors[node1][node]             # <<<<<<<<<<<<<<
@@ -4228,30 +4234,30 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  */
     if (unlikely(__pyx_v_self->neighbors == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 130, __pyx_L1_error)
+      __PYX_ERR(0, 129, __pyx_L1_error)
     }
-    __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 130, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 129, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_4 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 130, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 129, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_t_4, __pyx_v_node); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 130, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_t_4, __pyx_v_node); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 129, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     if (unlikely(__pyx_v_self->neighbors == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 130, __pyx_L1_error)
+      __PYX_ERR(0, 129, __pyx_L1_error)
     }
-    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_new_node); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 130, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_new_node); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 129, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 130, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 129, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    if (unlikely(PyObject_SetItem(__pyx_t_8, __pyx_v_node, __pyx_t_5) < 0)) __PYX_ERR(0, 130, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(__pyx_t_8, __pyx_v_node, __pyx_t_5) < 0)) __PYX_ERR(0, 129, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "sknetwork/hierarchy/paris.pyx":131
+    /* "sknetwork/hierarchy/paris.pyx":130
  *         for node in node1_neighbors:
  *             self.neighbors[new_node][node] = self.neighbors[node1][node]
  *             self.neighbors[node][new_node] = self.neighbors[node].pop(node1)             # <<<<<<<<<<<<<<
@@ -4260,26 +4266,26 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  */
     if (unlikely(__pyx_v_self->neighbors == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 131, __pyx_L1_error)
+      __PYX_ERR(0, 130, __pyx_L1_error)
     }
-    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_v_node); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 131, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_v_node); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 130, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_8 = __Pyx_PyObject_PopIndex(__pyx_t_5, Py_None, __pyx_v_node1, 1, int, __Pyx_PyInt_From_int); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 131, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_PopIndex(__pyx_t_5, Py_None, __pyx_v_node1, 1, int, __Pyx_PyInt_From_int); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 130, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     if (unlikely(__pyx_v_self->neighbors == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 131, __pyx_L1_error)
+      __PYX_ERR(0, 130, __pyx_L1_error)
     }
-    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_v_node); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 131, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_v_node); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 130, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    if (unlikely(__Pyx_SetItemInt(__pyx_t_5, __pyx_v_new_node, __pyx_t_8, int, 1, __Pyx_PyInt_From_int, 0, 0, 0) < 0)) __PYX_ERR(0, 131, __pyx_L1_error)
+    if (unlikely(__Pyx_SetItemInt(__pyx_t_5, __pyx_v_new_node, __pyx_t_8, int, 1, __Pyx_PyInt_From_int, 0, 0, 0) < 0)) __PYX_ERR(0, 130, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":132
+  /* "sknetwork/hierarchy/paris.pyx":131
  *             self.neighbors[new_node][node] = self.neighbors[node1][node]
  *             self.neighbors[node][new_node] = self.neighbors[node].pop(node1)
  *         cdef set node2_neighbors = set(self.neighbors[node2].keys()) - set(self.neighbors[node1].keys()) - {node1}             # <<<<<<<<<<<<<<
@@ -4288,14 +4294,14 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  */
   if (unlikely(__pyx_v_self->neighbors == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 132, __pyx_L1_error)
+    __PYX_ERR(0, 131, __pyx_L1_error)
   }
-  __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_keys); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_keys); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_5 = NULL;
@@ -4310,22 +4316,22 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
   }
   __pyx_t_2 = (__pyx_t_5) ? __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_t_5) : __Pyx_PyObject_CallNoArg(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = PySet_New(__pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_8 = PySet_New(__pyx_t_2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   if (unlikely(__pyx_v_self->neighbors == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 132, __pyx_L1_error)
+    __PYX_ERR(0, 131, __pyx_L1_error)
   }
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_keys); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_keys); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = NULL;
@@ -4340,31 +4346,31 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
   }
   __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = PySet_New(__pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_5 = PySet_New(__pyx_t_2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyNumber_Subtract(__pyx_t_8, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_2 = PyNumber_Subtract(__pyx_t_8, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_8 = PySet_New(0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_8 = PySet_New(0); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  if (PySet_Add(__pyx_t_8, __pyx_t_5) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
+  if (PySet_Add(__pyx_t_8, __pyx_t_5) < 0) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = PyNumber_Subtract(__pyx_t_2, __pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_5 = PyNumber_Subtract(__pyx_t_2, __pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 131, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  if (!(likely(PySet_CheckExact(__pyx_t_5))||((__pyx_t_5) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "set", Py_TYPE(__pyx_t_5)->tp_name), 0))) __PYX_ERR(0, 132, __pyx_L1_error)
+  if (!(likely(PySet_CheckExact(__pyx_t_5))||((__pyx_t_5) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "set", Py_TYPE(__pyx_t_5)->tp_name), 0))) __PYX_ERR(0, 131, __pyx_L1_error)
   __pyx_v_node2_neighbors = ((PyObject*)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":133
+  /* "sknetwork/hierarchy/paris.pyx":132
  *             self.neighbors[node][new_node] = self.neighbors[node].pop(node1)
  *         cdef set node2_neighbors = set(self.neighbors[node2].keys()) - set(self.neighbors[node1].keys()) - {node1}
  *         for node in node2_neighbors:             # <<<<<<<<<<<<<<
@@ -4372,7 +4378,7 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  *             self.neighbors[node][new_node] = self.neighbors[node].pop(node2)
  */
   __pyx_t_9 = 0;
-  __pyx_t_8 = __Pyx_set_iterator(__pyx_v_node2_neighbors, 1, (&__pyx_t_10), (&__pyx_t_7)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 133, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_set_iterator(__pyx_v_node2_neighbors, 1, (&__pyx_t_10), (&__pyx_t_7)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 132, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_XDECREF(__pyx_t_5);
   __pyx_t_5 = __pyx_t_8;
@@ -4380,12 +4386,12 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
   while (1) {
     __pyx_t_11 = __Pyx_set_iter_next(__pyx_t_5, __pyx_t_10, &__pyx_t_9, &__pyx_t_8, __pyx_t_7);
     if (unlikely(__pyx_t_11 == 0)) break;
-    if (unlikely(__pyx_t_11 == -1)) __PYX_ERR(0, 133, __pyx_L1_error)
+    if (unlikely(__pyx_t_11 == -1)) __PYX_ERR(0, 132, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_XDECREF_SET(__pyx_v_node, __pyx_t_8);
     __pyx_t_8 = 0;
 
-    /* "sknetwork/hierarchy/paris.pyx":134
+    /* "sknetwork/hierarchy/paris.pyx":133
  *         cdef set node2_neighbors = set(self.neighbors[node2].keys()) - set(self.neighbors[node1].keys()) - {node1}
  *         for node in node2_neighbors:
  *             self.neighbors[new_node][node] = self.neighbors[node2][node]             # <<<<<<<<<<<<<<
@@ -4394,30 +4400,30 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  */
     if (unlikely(__pyx_v_self->neighbors == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 134, __pyx_L1_error)
+      __PYX_ERR(0, 133, __pyx_L1_error)
     }
-    __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 134, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 133, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
-    __pyx_t_2 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 134, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 133, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-    __pyx_t_8 = __Pyx_PyObject_GetItem(__pyx_t_2, __pyx_v_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 134, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyObject_GetItem(__pyx_t_2, __pyx_v_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 133, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     if (unlikely(__pyx_v_self->neighbors == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 134, __pyx_L1_error)
+      __PYX_ERR(0, 133, __pyx_L1_error)
     }
-    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_new_node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 134, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_new_node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 133, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 134, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 133, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    if (unlikely(PyObject_SetItem(__pyx_t_4, __pyx_v_node, __pyx_t_8) < 0)) __PYX_ERR(0, 134, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(__pyx_t_4, __pyx_v_node, __pyx_t_8) < 0)) __PYX_ERR(0, 133, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-    /* "sknetwork/hierarchy/paris.pyx":135
+    /* "sknetwork/hierarchy/paris.pyx":134
  *         for node in node2_neighbors:
  *             self.neighbors[new_node][node] = self.neighbors[node2][node]
  *             self.neighbors[node][new_node] = self.neighbors[node].pop(node2)             # <<<<<<<<<<<<<<
@@ -4426,26 +4432,26 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  */
     if (unlikely(__pyx_v_self->neighbors == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 135, __pyx_L1_error)
+      __PYX_ERR(0, 134, __pyx_L1_error)
     }
-    __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_v_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 135, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_v_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 134, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
-    __pyx_t_4 = __Pyx_PyObject_PopIndex(__pyx_t_8, Py_None, __pyx_v_node2, 1, int, __Pyx_PyInt_From_int); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 135, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_PopIndex(__pyx_t_8, Py_None, __pyx_v_node2, 1, int, __Pyx_PyInt_From_int); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 134, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     if (unlikely(__pyx_v_self->neighbors == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 135, __pyx_L1_error)
+      __PYX_ERR(0, 134, __pyx_L1_error)
     }
-    __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_v_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 135, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_self->neighbors, __pyx_v_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 134, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
-    if (unlikely(__Pyx_SetItemInt(__pyx_t_8, __pyx_v_new_node, __pyx_t_4, int, 1, __Pyx_PyInt_From_int, 0, 0, 0) < 0)) __PYX_ERR(0, 135, __pyx_L1_error)
+    if (unlikely(__Pyx_SetItemInt(__pyx_t_8, __pyx_v_new_node, __pyx_t_4, int, 1, __Pyx_PyInt_From_int, 0, 0, 0) < 0)) __PYX_ERR(0, 134, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   }
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":136
+  /* "sknetwork/hierarchy/paris.pyx":135
  *             self.neighbors[new_node][node] = self.neighbors[node2][node]
  *             self.neighbors[node][new_node] = self.neighbors[node].pop(node2)
  *         del self.neighbors[node1]             # <<<<<<<<<<<<<<
@@ -4454,14 +4460,14 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  */
   if (unlikely(__pyx_v_self->neighbors == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 136, __pyx_L1_error)
+    __PYX_ERR(0, 135, __pyx_L1_error)
   }
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 135, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (unlikely(PyDict_DelItem(__pyx_v_self->neighbors, __pyx_t_5) < 0)) __PYX_ERR(0, 136, __pyx_L1_error)
+  if (unlikely(PyDict_DelItem(__pyx_v_self->neighbors, __pyx_t_5) < 0)) __PYX_ERR(0, 135, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":137
+  /* "sknetwork/hierarchy/paris.pyx":136
  *             self.neighbors[node][new_node] = self.neighbors[node].pop(node2)
  *         del self.neighbors[node1]
  *         del self.neighbors[node2]             # <<<<<<<<<<<<<<
@@ -4470,14 +4476,14 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  */
   if (unlikely(__pyx_v_self->neighbors == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 137, __pyx_L1_error)
+    __PYX_ERR(0, 136, __pyx_L1_error)
   }
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (unlikely(PyDict_DelItem(__pyx_v_self->neighbors, __pyx_t_5) < 0)) __PYX_ERR(0, 137, __pyx_L1_error)
+  if (unlikely(PyDict_DelItem(__pyx_v_self->neighbors, __pyx_t_5) < 0)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":138
+  /* "sknetwork/hierarchy/paris.pyx":137
  *         del self.neighbors[node1]
  *         del self.neighbors[node2]
  *         self.cluster_sizes[new_node] = self.cluster_sizes.pop(node1) + self.cluster_sizes.pop(node2)             # <<<<<<<<<<<<<<
@@ -4486,37 +4492,37 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  */
   if (unlikely(__pyx_v_self->cluster_sizes == Py_None)) {
     PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "pop");
-    __PYX_ERR(0, 138, __pyx_L1_error)
+    __PYX_ERR(0, 137, __pyx_L1_error)
   }
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = __Pyx_PyDict_Pop(__pyx_v_self->cluster_sizes, __pyx_t_5, ((PyObject *)NULL)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_Pop(__pyx_v_self->cluster_sizes, __pyx_t_5, ((PyObject *)NULL)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   if (unlikely(__pyx_v_self->cluster_sizes == Py_None)) {
     PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "pop");
-    __PYX_ERR(0, 138, __pyx_L1_error)
+    __PYX_ERR(0, 137, __pyx_L1_error)
   }
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_8 = __Pyx_PyDict_Pop(__pyx_v_self->cluster_sizes, __pyx_t_5, ((PyObject *)NULL)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyDict_Pop(__pyx_v_self->cluster_sizes, __pyx_t_5, ((PyObject *)NULL)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = PyNumber_Add(__pyx_t_4, __pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __pyx_t_5 = PyNumber_Add(__pyx_t_4, __pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   if (unlikely(__pyx_v_self->cluster_sizes == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 138, __pyx_L1_error)
+    __PYX_ERR(0, 137, __pyx_L1_error)
   }
-  __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_new_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 138, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_new_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  if (unlikely(PyDict_SetItem(__pyx_v_self->cluster_sizes, __pyx_t_8, __pyx_t_5) < 0)) __PYX_ERR(0, 138, __pyx_L1_error)
+  if (unlikely(PyDict_SetItem(__pyx_v_self->cluster_sizes, __pyx_t_8, __pyx_t_5) < 0)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":139
+  /* "sknetwork/hierarchy/paris.pyx":138
  *         del self.neighbors[node2]
  *         self.cluster_sizes[new_node] = self.cluster_sizes.pop(node1) + self.cluster_sizes.pop(node2)
  *         self.cluster_out_weights[new_node] = self.cluster_out_weights.pop(node1) + self.cluster_out_weights.pop(node2)             # <<<<<<<<<<<<<<
@@ -4525,37 +4531,37 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  */
   if (unlikely(__pyx_v_self->cluster_out_weights == Py_None)) {
     PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "pop");
-    __PYX_ERR(0, 139, __pyx_L1_error)
+    __PYX_ERR(0, 138, __pyx_L1_error)
   }
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 139, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_8 = __Pyx_PyDict_Pop(__pyx_v_self->cluster_out_weights, __pyx_t_5, ((PyObject *)NULL)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 139, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyDict_Pop(__pyx_v_self->cluster_out_weights, __pyx_t_5, ((PyObject *)NULL)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   if (unlikely(__pyx_v_self->cluster_out_weights == Py_None)) {
     PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "pop");
-    __PYX_ERR(0, 139, __pyx_L1_error)
+    __PYX_ERR(0, 138, __pyx_L1_error)
   }
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 139, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = __Pyx_PyDict_Pop(__pyx_v_self->cluster_out_weights, __pyx_t_5, ((PyObject *)NULL)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 139, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_Pop(__pyx_v_self->cluster_out_weights, __pyx_t_5, ((PyObject *)NULL)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = PyNumber_Add(__pyx_t_8, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 139, __pyx_L1_error)
+  __pyx_t_5 = PyNumber_Add(__pyx_t_8, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (unlikely(__pyx_v_self->cluster_out_weights == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 139, __pyx_L1_error)
+    __PYX_ERR(0, 138, __pyx_L1_error)
   }
-  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_new_node); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 139, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_new_node); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (unlikely(PyDict_SetItem(__pyx_v_self->cluster_out_weights, __pyx_t_4, __pyx_t_5) < 0)) __PYX_ERR(0, 139, __pyx_L1_error)
+  if (unlikely(PyDict_SetItem(__pyx_v_self->cluster_out_weights, __pyx_t_4, __pyx_t_5) < 0)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":140
+  /* "sknetwork/hierarchy/paris.pyx":139
  *         self.cluster_sizes[new_node] = self.cluster_sizes.pop(node1) + self.cluster_sizes.pop(node2)
  *         self.cluster_out_weights[new_node] = self.cluster_out_weights.pop(node1) + self.cluster_out_weights.pop(node2)
  *         self.cluster_in_weights[new_node] = self.cluster_in_weights.pop(node1) + self.cluster_in_weights.pop(node2)             # <<<<<<<<<<<<<<
@@ -4564,37 +4570,37 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  */
   if (unlikely(__pyx_v_self->cluster_in_weights == Py_None)) {
     PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "pop");
-    __PYX_ERR(0, 140, __pyx_L1_error)
+    __PYX_ERR(0, 139, __pyx_L1_error)
   }
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 140, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = __Pyx_PyDict_Pop(__pyx_v_self->cluster_in_weights, __pyx_t_5, ((PyObject *)NULL)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 140, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_Pop(__pyx_v_self->cluster_in_weights, __pyx_t_5, ((PyObject *)NULL)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   if (unlikely(__pyx_v_self->cluster_in_weights == Py_None)) {
     PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "pop");
-    __PYX_ERR(0, 140, __pyx_L1_error)
+    __PYX_ERR(0, 139, __pyx_L1_error)
   }
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 140, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_node2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_8 = __Pyx_PyDict_Pop(__pyx_v_self->cluster_in_weights, __pyx_t_5, ((PyObject *)NULL)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 140, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyDict_Pop(__pyx_v_self->cluster_in_weights, __pyx_t_5, ((PyObject *)NULL)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = PyNumber_Add(__pyx_t_4, __pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 140, __pyx_L1_error)
+  __pyx_t_5 = PyNumber_Add(__pyx_t_4, __pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   if (unlikely(__pyx_v_self->cluster_in_weights == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 140, __pyx_L1_error)
+    __PYX_ERR(0, 139, __pyx_L1_error)
   }
-  __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_new_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 140, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_new_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  if (unlikely(PyDict_SetItem(__pyx_v_self->cluster_in_weights, __pyx_t_8, __pyx_t_5) < 0)) __PYX_ERR(0, 140, __pyx_L1_error)
+  if (unlikely(PyDict_SetItem(__pyx_v_self->cluster_in_weights, __pyx_t_8, __pyx_t_5) < 0)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":141
+  /* "sknetwork/hierarchy/paris.pyx":140
  *         self.cluster_out_weights[new_node] = self.cluster_out_weights.pop(node1) + self.cluster_out_weights.pop(node2)
  *         self.cluster_in_weights[new_node] = self.cluster_in_weights.pop(node1) + self.cluster_in_weights.pop(node2)
  *         self.next_cluster += 1             # <<<<<<<<<<<<<<
@@ -4603,7 +4609,7 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
  */
   __pyx_v_self->next_cluster = (__pyx_v_self->next_cluster + 1);
 
-  /* "sknetwork/hierarchy/paris.pyx":142
+  /* "sknetwork/hierarchy/paris.pyx":141
  *         self.cluster_in_weights[new_node] = self.cluster_in_weights.pop(node1) + self.cluster_in_weights.pop(node2)
  *         self.next_cluster += 1
  *         return self             # <<<<<<<<<<<<<<
@@ -4615,7 +4621,7 @@ static struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *__pyx_f_9sk
   __pyx_r = __pyx_v_self;
   goto __pyx_L0;
 
-  /* "sknetwork/hierarchy/paris.pyx":109
+  /* "sknetwork/hierarchy/paris.pyx":108
  *     @cython.boundscheck(False)
  *     @cython.wraparound(False)
  *     cpdef AggregateGraph merge(self, int node1, int node2):             # <<<<<<<<<<<<<<
@@ -4676,11 +4682,11 @@ static PyObject *__pyx_pw_9sknetwork_9hierarchy_5paris_14AggregateGraph_3merge(P
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_node2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("merge", 1, 2, 2, 1); __PYX_ERR(0, 109, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("merge", 1, 2, 2, 1); __PYX_ERR(0, 108, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "merge") < 0)) __PYX_ERR(0, 109, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "merge") < 0)) __PYX_ERR(0, 108, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -4688,12 +4694,12 @@ static PyObject *__pyx_pw_9sknetwork_9hierarchy_5paris_14AggregateGraph_3merge(P
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_node1 = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_node1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 109, __pyx_L3_error)
-    __pyx_v_node2 = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_node2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 109, __pyx_L3_error)
+    __pyx_v_node1 = __Pyx_PyInt_As_int(values[0]); if (unlikely((__pyx_v_node1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 108, __pyx_L3_error)
+    __pyx_v_node2 = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_node2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 108, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("merge", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 109, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("merge", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 108, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("sknetwork.hierarchy.paris.AggregateGraph.merge", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -4712,7 +4718,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph_2merge(s
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("merge", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = ((PyObject *)__pyx_f_9sknetwork_9hierarchy_5paris_14AggregateGraph_merge(__pyx_v_self, __pyx_v_node1, __pyx_v_node2, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 109, __pyx_L1_error)
+  __pyx_t_1 = ((PyObject *)__pyx_f_9sknetwork_9hierarchy_5paris_14AggregateGraph_merge(__pyx_v_self, __pyx_v_node1, __pyx_v_node2, 1)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 108, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4729,7 +4735,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph_2merge(s
   return __pyx_r;
 }
 
-/* "sknetwork/hierarchy/paris.pyx":61
+/* "sknetwork/hierarchy/paris.pyx":60
  *         Dictionary of cluster in-weights (sums to 1).
  *     """
  *     cdef public int next_cluster             # <<<<<<<<<<<<<<
@@ -4756,7 +4762,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph_12next_c
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__get__", 0);
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->next_cluster); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 61, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->next_cluster); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 60, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4791,7 +4797,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph_12next_cluster
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 61, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 60, __pyx_L1_error)
   __pyx_v_self->next_cluster = __pyx_t_1;
 
   /* function exit code */
@@ -4805,7 +4811,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph_12next_cluster
   return __pyx_r;
 }
 
-/* "sknetwork/hierarchy/paris.pyx":62
+/* "sknetwork/hierarchy/paris.pyx":61
  *     """
  *     cdef public int next_cluster
  *     cdef public dict neighbors             # <<<<<<<<<<<<<<
@@ -4860,7 +4866,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph_9neighbors_2__
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__set__", 0);
-  if (!(likely(PyDict_CheckExact(__pyx_v_value))||((__pyx_v_value) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_v_value)->tp_name), 0))) __PYX_ERR(0, 62, __pyx_L1_error)
+  if (!(likely(PyDict_CheckExact(__pyx_v_value))||((__pyx_v_value) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_v_value)->tp_name), 0))) __PYX_ERR(0, 61, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -4910,7 +4916,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph_9neighbors_4__
   return __pyx_r;
 }
 
-/* "sknetwork/hierarchy/paris.pyx":64
+/* "sknetwork/hierarchy/paris.pyx":63
  *     cdef public dict neighbors
  *     cdef dict cluster_sizes
  *     cdef public dict cluster_out_weights             # <<<<<<<<<<<<<<
@@ -4965,7 +4971,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph_19cluster_out_
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__set__", 0);
-  if (!(likely(PyDict_CheckExact(__pyx_v_value))||((__pyx_v_value) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_v_value)->tp_name), 0))) __PYX_ERR(0, 64, __pyx_L1_error)
+  if (!(likely(PyDict_CheckExact(__pyx_v_value))||((__pyx_v_value) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_v_value)->tp_name), 0))) __PYX_ERR(0, 63, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -5015,7 +5021,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph_19cluster_out_
   return __pyx_r;
 }
 
-/* "sknetwork/hierarchy/paris.pyx":65
+/* "sknetwork/hierarchy/paris.pyx":64
  *     cdef dict cluster_sizes
  *     cdef public dict cluster_out_weights
  *     cdef public dict cluster_in_weights             # <<<<<<<<<<<<<<
@@ -5070,7 +5076,7 @@ static int __pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph_18cluster_in_w
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("__set__", 0);
-  if (!(likely(PyDict_CheckExact(__pyx_v_value))||((__pyx_v_value) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_v_value)->tp_name), 0))) __PYX_ERR(0, 65, __pyx_L1_error)
+  if (!(likely(PyDict_CheckExact(__pyx_v_value))||((__pyx_v_value) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "dict", Py_TYPE(__pyx_v_value)->tp_name), 0))) __PYX_ERR(0, 64, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -5446,7 +5452,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_14AggregateGraph_6__setst
   return __pyx_r;
 }
 
-/* "sknetwork/hierarchy/paris.pyx":195
+/* "sknetwork/hierarchy/paris.pyx":193
  *     """
  * 
  *     def __init__(self, weights: str = 'degree', reorder: bool = True):             # <<<<<<<<<<<<<<
@@ -5501,7 +5507,7 @@ static PyObject *__pyx_pw_9sknetwork_9hierarchy_5paris_5Paris_1__init__(PyObject
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 195, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 193, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -5520,13 +5526,13 @@ static PyObject *__pyx_pw_9sknetwork_9hierarchy_5paris_5Paris_1__init__(PyObject
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 195, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 193, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("sknetwork.hierarchy.paris.Paris.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_weights), (&PyUnicode_Type), 1, "weights", 1))) __PYX_ERR(0, 195, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_weights), (&PyUnicode_Type), 1, "weights", 1))) __PYX_ERR(0, 193, __pyx_L1_error)
   __pyx_r = __pyx_pf_9sknetwork_9hierarchy_5paris_5Paris___init__(__pyx_self, __pyx_v_self, __pyx_v_weights, __pyx_v_reorder);
 
   /* function exit code */
@@ -5546,16 +5552,16 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris___init__(CYTHON_UN
   PyObject *__pyx_t_3 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "sknetwork/hierarchy/paris.pyx":196
+  /* "sknetwork/hierarchy/paris.pyx":194
  * 
  *     def __init__(self, weights: str = 'degree', reorder: bool = True):
  *         super(Paris, self).__init__()             # <<<<<<<<<<<<<<
  * 
  *         self.weights = weights
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Paris); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Paris); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2);
@@ -5563,10 +5569,10 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris___init__(CYTHON_UN
   __Pyx_GIVEREF(__pyx_v_self);
   PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_v_self);
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_super, __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_super, __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_init); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 196, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_init); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -5581,30 +5587,30 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris___init__(CYTHON_UN
   }
   __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 196, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 194, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":198
+  /* "sknetwork/hierarchy/paris.pyx":196
  *         super(Paris, self).__init__()
  * 
  *         self.weights = weights             # <<<<<<<<<<<<<<
  *         self.reorder = reorder
  * 
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_weights, __pyx_v_weights) < 0) __PYX_ERR(0, 198, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_weights, __pyx_v_weights) < 0) __PYX_ERR(0, 196, __pyx_L1_error)
 
-  /* "sknetwork/hierarchy/paris.pyx":199
+  /* "sknetwork/hierarchy/paris.pyx":197
  * 
  *         self.weights = weights
  *         self.reorder = reorder             # <<<<<<<<<<<<<<
  * 
  *     @cython.boundscheck(False)
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_reorder, __pyx_v_reorder) < 0) __PYX_ERR(0, 199, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_reorder, __pyx_v_reorder) < 0) __PYX_ERR(0, 197, __pyx_L1_error)
 
-  /* "sknetwork/hierarchy/paris.pyx":195
+  /* "sknetwork/hierarchy/paris.pyx":193
  *     """
  * 
  *     def __init__(self, weights: str = 'degree', reorder: bool = True):             # <<<<<<<<<<<<<<
@@ -5627,17 +5633,17 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris___init__(CYTHON_UN
   return __pyx_r;
 }
 
-/* "sknetwork/hierarchy/paris.pyx":203
+/* "sknetwork/hierarchy/paris.pyx":201
  *     @cython.boundscheck(False)
  *     @cython.wraparound(False)
  *     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Paris':             # <<<<<<<<<<<<<<
- *         """
- *         Agglomerative clustering using the nearest neighbor chain.
+ *         """Agglomerative clustering using the nearest neighbor chain.
+ * 
  */
 
 /* Python wrapper */
 static PyObject *__pyx_pw_9sknetwork_9hierarchy_5paris_5Paris_3fit(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_9sknetwork_9hierarchy_5paris_5Paris_2fit[] = "\n        Agglomerative clustering using the nearest neighbor chain.\n\n        Parameters\n        ----------\n        adjacency :\n            Adjacency matrix of the graph.\n\n        Returns\n        -------\n        self: :class:`Paris`\n        ";
+static char __pyx_doc_9sknetwork_9hierarchy_5paris_5Paris_2fit[] = "Agglomerative clustering using the nearest neighbor chain.\n\n        Parameters\n        ----------\n        adjacency :\n            Adjacency matrix of the graph.\n\n        Returns\n        -------\n        self: :class:`Paris`\n        ";
 static PyMethodDef __pyx_mdef_9sknetwork_9hierarchy_5paris_5Paris_3fit = {"fit", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_9sknetwork_9hierarchy_5paris_5Paris_3fit, METH_VARARGS|METH_KEYWORDS, __pyx_doc_9sknetwork_9hierarchy_5paris_5Paris_2fit};
 static PyObject *__pyx_pw_9sknetwork_9hierarchy_5paris_5Paris_3fit(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_self = 0;
@@ -5668,11 +5674,11 @@ static PyObject *__pyx_pw_9sknetwork_9hierarchy_5paris_5Paris_3fit(PyObject *__p
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_adjacency)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("fit", 1, 2, 2, 1); __PYX_ERR(0, 203, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("fit", 1, 2, 2, 1); __PYX_ERR(0, 201, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "fit") < 0)) __PYX_ERR(0, 203, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "fit") < 0)) __PYX_ERR(0, 201, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -5685,7 +5691,7 @@ static PyObject *__pyx_pw_9sknetwork_9hierarchy_5paris_5Paris_3fit(PyObject *__p
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("fit", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 203, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("fit", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 201, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("sknetwork.hierarchy.paris.Paris.fit", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5741,14 +5747,14 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   __Pyx_RefNannySetupContext("fit", 0);
   __Pyx_INCREF(__pyx_v_adjacency);
 
-  /* "sknetwork/hierarchy/paris.pyx":216
+  /* "sknetwork/hierarchy/paris.pyx":213
  *         self: :class:`Paris`
  *         """
  *         adjacency = check_format(adjacency)             # <<<<<<<<<<<<<<
  *         if not is_square(adjacency):
  *             raise ValueError('The adjacency matrix is not square. Use BiParis() instead.')
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_check_format); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 216, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_check_format); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -5762,20 +5768,20 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_adjacency) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_adjacency);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 216, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 213, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF_SET(__pyx_v_adjacency, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":217
+  /* "sknetwork/hierarchy/paris.pyx":214
  *         """
  *         adjacency = check_format(adjacency)
  *         if not is_square(adjacency):             # <<<<<<<<<<<<<<
  *             raise ValueError('The adjacency matrix is not square. Use BiParis() instead.')
  *         n = adjacency.shape[0]
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_is_square); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_is_square); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 214, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -5789,28 +5795,28 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   }
   __pyx_t_1 = (__pyx_t_3) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_3, __pyx_v_adjacency) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_adjacency);
   __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 214, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_4 < 0)) __PYX_ERR(0, 214, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_5 = ((!__pyx_t_4) != 0);
   if (unlikely(__pyx_t_5)) {
 
-    /* "sknetwork/hierarchy/paris.pyx":218
+    /* "sknetwork/hierarchy/paris.pyx":215
  *         adjacency = check_format(adjacency)
  *         if not is_square(adjacency):
  *             raise ValueError('The adjacency matrix is not square. Use BiParis() instead.')             # <<<<<<<<<<<<<<
  *         n = adjacency.shape[0]
  *         sym_adjacency = adjacency + adjacency.T
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 218, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 215, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 218, __pyx_L1_error)
+    __PYX_ERR(0, 215, __pyx_L1_error)
 
-    /* "sknetwork/hierarchy/paris.pyx":217
+    /* "sknetwork/hierarchy/paris.pyx":214
  *         """
  *         adjacency = check_format(adjacency)
  *         if not is_square(adjacency):             # <<<<<<<<<<<<<<
@@ -5819,56 +5825,56 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
   }
 
-  /* "sknetwork/hierarchy/paris.pyx":219
+  /* "sknetwork/hierarchy/paris.pyx":216
  *         if not is_square(adjacency):
  *             raise ValueError('The adjacency matrix is not square. Use BiParis() instead.')
  *         n = adjacency.shape[0]             # <<<<<<<<<<<<<<
  *         sym_adjacency = adjacency + adjacency.T
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_adjacency, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_adjacency, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 216, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 216, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_n = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":220
+  /* "sknetwork/hierarchy/paris.pyx":217
  *             raise ValueError('The adjacency matrix is not square. Use BiParis() instead.')
  *         n = adjacency.shape[0]
  *         sym_adjacency = adjacency + adjacency.T             # <<<<<<<<<<<<<<
  * 
  *         weights = self.weights
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_adjacency, __pyx_n_s_T); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_adjacency, __pyx_n_s_T); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 217, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = PyNumber_Add(__pyx_v_adjacency, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Add(__pyx_v_adjacency, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_sym_adjacency = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":222
+  /* "sknetwork/hierarchy/paris.pyx":219
  *         sym_adjacency = adjacency + adjacency.T
  * 
  *         weights = self.weights             # <<<<<<<<<<<<<<
  *         out_weights = check_probs(weights, adjacency)
  *         in_weights = check_probs(weights, adjacency.T)
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_weights); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_weights); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_weights = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":223
+  /* "sknetwork/hierarchy/paris.pyx":220
  * 
  *         weights = self.weights
  *         out_weights = check_probs(weights, adjacency)             # <<<<<<<<<<<<<<
  *         in_weights = check_probs(weights, adjacency.T)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_check_probs); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 223, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_check_probs); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_3 = NULL;
   __pyx_t_6 = 0;
@@ -5885,7 +5891,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_v_weights, __pyx_v_adjacency};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 223, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
@@ -5893,13 +5899,13 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_v_weights, __pyx_v_adjacency};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 223, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
   #endif
   {
-    __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 223, __pyx_L1_error)
+    __pyx_t_7 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 220, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     if (__pyx_t_3) {
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_3); __pyx_t_3 = NULL;
@@ -5910,7 +5916,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
     __Pyx_INCREF(__pyx_v_adjacency);
     __Pyx_GIVEREF(__pyx_v_adjacency);
     PyTuple_SET_ITEM(__pyx_t_7, 1+__pyx_t_6, __pyx_v_adjacency);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 223, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   }
@@ -5918,16 +5924,16 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   __pyx_v_out_weights = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":224
+  /* "sknetwork/hierarchy/paris.pyx":221
  *         weights = self.weights
  *         out_weights = check_probs(weights, adjacency)
  *         in_weights = check_probs(weights, adjacency.T)             # <<<<<<<<<<<<<<
  * 
  *         if n <= 1:
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_check_probs); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 224, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_check_probs); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 221, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_adjacency, __pyx_n_s_T); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 224, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_adjacency, __pyx_n_s_T); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 221, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __pyx_t_3 = NULL;
   __pyx_t_6 = 0;
@@ -5944,7 +5950,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_v_weights, __pyx_t_7};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 224, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 221, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
@@ -5953,14 +5959,14 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_v_weights, __pyx_t_7};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 224, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 221, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   } else
   #endif
   {
-    __pyx_t_8 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 224, __pyx_L1_error)
+    __pyx_t_8 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 221, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     if (__pyx_t_3) {
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_3); __pyx_t_3 = NULL;
@@ -5971,7 +5977,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
     __Pyx_GIVEREF(__pyx_t_7);
     PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_6, __pyx_t_7);
     __pyx_t_7 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_8, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 224, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_8, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 221, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   }
@@ -5979,32 +5985,32 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   __pyx_v_in_weights = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":226
+  /* "sknetwork/hierarchy/paris.pyx":223
  *         in_weights = check_probs(weights, adjacency.T)
  * 
  *         if n <= 1:             # <<<<<<<<<<<<<<
  *             raise ValueError('The graph must contain at least two nodes.')
  * 
  */
-  __pyx_t_1 = PyObject_RichCompare(__pyx_v_n, __pyx_int_1, Py_LE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 226, __pyx_L1_error)
-  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 226, __pyx_L1_error)
+  __pyx_t_1 = PyObject_RichCompare(__pyx_v_n, __pyx_int_1, Py_LE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 223, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 223, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (unlikely(__pyx_t_5)) {
 
-    /* "sknetwork/hierarchy/paris.pyx":227
+    /* "sknetwork/hierarchy/paris.pyx":224
  * 
  *         if n <= 1:
  *             raise ValueError('The graph must contain at least two nodes.')             # <<<<<<<<<<<<<<
  * 
  *         aggregate_graph = AggregateGraph(out_weights, in_weights, sym_adjacency.data.astype(np.float), sym_adjacency.indices, sym_adjacency.indptr, sym_adjacency.shape)
  */
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 227, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 224, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(0, 227, __pyx_L1_error)
+    __PYX_ERR(0, 224, __pyx_L1_error)
 
-    /* "sknetwork/hierarchy/paris.pyx":226
+    /* "sknetwork/hierarchy/paris.pyx":223
  *         in_weights = check_probs(weights, adjacency.T)
  * 
  *         if n <= 1:             # <<<<<<<<<<<<<<
@@ -6013,21 +6019,21 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
   }
 
-  /* "sknetwork/hierarchy/paris.pyx":229
+  /* "sknetwork/hierarchy/paris.pyx":226
  *             raise ValueError('The graph must contain at least two nodes.')
  * 
  *         aggregate_graph = AggregateGraph(out_weights, in_weights, sym_adjacency.data.astype(np.float), sym_adjacency.indices, sym_adjacency.indptr, sym_adjacency.shape)             # <<<<<<<<<<<<<<
  * 
  *         cdef vector[(int, int)] connected_components
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_sym_adjacency, __pyx_n_s_data); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_sym_adjacency, __pyx_n_s_data); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_astype); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_astype); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_float); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_float); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -6043,16 +6049,16 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_8, __pyx_t_2, __pyx_t_7) : __Pyx_PyObject_CallOneArg(__pyx_t_8, __pyx_t_7);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 229, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_sym_adjacency, __pyx_n_s_indices); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_sym_adjacency, __pyx_n_s_indices); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_sym_adjacency, __pyx_n_s_indptr); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_sym_adjacency, __pyx_n_s_indptr); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_sym_adjacency, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_sym_adjacency, __pyx_n_s_shape); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_INCREF(__pyx_v_out_weights);
   __Pyx_GIVEREF(__pyx_v_out_weights);
@@ -6072,25 +6078,25 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   __pyx_t_8 = 0;
   __pyx_t_7 = 0;
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9sknetwork_9hierarchy_5paris_AggregateGraph), __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 229, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9sknetwork_9hierarchy_5paris_AggregateGraph), __pyx_t_3, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 226, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_aggregate_graph = ((struct __pyx_obj_9sknetwork_9hierarchy_5paris_AggregateGraph *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":232
+  /* "sknetwork/hierarchy/paris.pyx":229
  * 
  *         cdef vector[(int, int)] connected_components
  *         dendrogram = []             # <<<<<<<<<<<<<<
  *         cdef int node
  *         cdef int next_node
  */
-  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L1_error)
+  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 229, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_v_dendrogram = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":244
+  /* "sknetwork/hierarchy/paris.pyx":241
  *         cdef float max_sim
  * 
  *         while len(aggregate_graph.cluster_sizes):             # <<<<<<<<<<<<<<
@@ -6102,14 +6108,14 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
     __Pyx_INCREF(__pyx_t_2);
     if (unlikely(__pyx_t_2 == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-      __PYX_ERR(0, 244, __pyx_L1_error)
+      __PYX_ERR(0, 241, __pyx_L1_error)
     }
-    __pyx_t_9 = PyDict_Size(__pyx_t_2); if (unlikely(__pyx_t_9 == ((Py_ssize_t)-1))) __PYX_ERR(0, 244, __pyx_L1_error)
+    __pyx_t_9 = PyDict_Size(__pyx_t_2); if (unlikely(__pyx_t_9 == ((Py_ssize_t)-1))) __PYX_ERR(0, 241, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_5 = (__pyx_t_9 != 0);
     if (!__pyx_t_5) break;
 
-    /* "sknetwork/hierarchy/paris.pyx":245
+    /* "sknetwork/hierarchy/paris.pyx":242
  * 
  *         while len(aggregate_graph.cluster_sizes):
  *             for node in aggregate_graph.cluster_sizes:             # <<<<<<<<<<<<<<
@@ -6119,9 +6125,9 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
     __pyx_t_9 = 0;
     if (unlikely(__pyx_v_aggregate_graph->cluster_sizes == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not iterable");
-      __PYX_ERR(0, 245, __pyx_L1_error)
+      __PYX_ERR(0, 242, __pyx_L1_error)
     }
-    __pyx_t_3 = __Pyx_dict_iterator(__pyx_v_aggregate_graph->cluster_sizes, 1, ((PyObject *)NULL), (&__pyx_t_10), (&__pyx_t_6)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 245, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_dict_iterator(__pyx_v_aggregate_graph->cluster_sizes, 1, ((PyObject *)NULL), (&__pyx_t_10), (&__pyx_t_6)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 242, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_XDECREF(__pyx_t_2);
     __pyx_t_2 = __pyx_t_3;
@@ -6129,13 +6135,13 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
     while (1) {
       __pyx_t_11 = __Pyx_dict_iter_next(__pyx_t_2, __pyx_t_10, &__pyx_t_9, &__pyx_t_3, NULL, NULL, __pyx_t_6);
       if (unlikely(__pyx_t_11 == 0)) break;
-      if (unlikely(__pyx_t_11 == -1)) __PYX_ERR(0, 245, __pyx_L1_error)
+      if (unlikely(__pyx_t_11 == -1)) __PYX_ERR(0, 242, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 245, __pyx_L1_error)
+      __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 242, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_v_node = __pyx_t_11;
 
-      /* "sknetwork/hierarchy/paris.pyx":246
+      /* "sknetwork/hierarchy/paris.pyx":243
  *         while len(aggregate_graph.cluster_sizes):
  *             for node in aggregate_graph.cluster_sizes:
  *                 break             # <<<<<<<<<<<<<<
@@ -6147,7 +6153,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
     __pyx_L8_break:;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-    /* "sknetwork/hierarchy/paris.pyx":247
+    /* "sknetwork/hierarchy/paris.pyx":244
  *             for node in aggregate_graph.cluster_sizes:
  *                 break
  *             chain.clear()             # <<<<<<<<<<<<<<
@@ -6156,7 +6162,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
     __pyx_v_chain.clear();
 
-    /* "sknetwork/hierarchy/paris.pyx":248
+    /* "sknetwork/hierarchy/paris.pyx":245
  *                 break
  *             chain.clear()
  *             chain.push_back(node)             # <<<<<<<<<<<<<<
@@ -6167,10 +6173,10 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
       __pyx_v_chain.push_back(__pyx_v_node);
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(0, 248, __pyx_L1_error)
+      __PYX_ERR(0, 245, __pyx_L1_error)
     }
 
-    /* "sknetwork/hierarchy/paris.pyx":249
+    /* "sknetwork/hierarchy/paris.pyx":246
  *             chain.clear()
  *             chain.push_back(node)
  *             while chain.size():             # <<<<<<<<<<<<<<
@@ -6181,7 +6187,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
       __pyx_t_5 = (__pyx_v_chain.size() != 0);
       if (!__pyx_t_5) break;
 
-      /* "sknetwork/hierarchy/paris.pyx":250
+      /* "sknetwork/hierarchy/paris.pyx":247
  *             chain.push_back(node)
  *             while chain.size():
  *                 node = chain[chain.size() - 1]             # <<<<<<<<<<<<<<
@@ -6190,7 +6196,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
       __pyx_v_node = (__pyx_v_chain[(__pyx_v_chain.size() - 1)]);
 
-      /* "sknetwork/hierarchy/paris.pyx":251
+      /* "sknetwork/hierarchy/paris.pyx":248
  *             while chain.size():
  *                 node = chain[chain.size() - 1]
  *                 chain.pop_back()             # <<<<<<<<<<<<<<
@@ -6199,7 +6205,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
       __pyx_v_chain.pop_back();
 
-      /* "sknetwork/hierarchy/paris.pyx":252
+      /* "sknetwork/hierarchy/paris.pyx":249
  *                 node = chain[chain.size() - 1]
  *                 chain.pop_back()
  *                 if aggregate_graph.neighbors[node]:             # <<<<<<<<<<<<<<
@@ -6208,28 +6214,28 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
       if (unlikely(__pyx_v_aggregate_graph->neighbors == Py_None)) {
         PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-        __PYX_ERR(0, 252, __pyx_L1_error)
+        __PYX_ERR(0, 249, __pyx_L1_error)
       }
-      __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 252, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 249, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
-      __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_aggregate_graph->neighbors, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 252, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyDict_GetItem(__pyx_v_aggregate_graph->neighbors, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 249, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 252, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 249, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       if (__pyx_t_5) {
 
-        /* "sknetwork/hierarchy/paris.pyx":253
+        /* "sknetwork/hierarchy/paris.pyx":250
  *                 chain.pop_back()
  *                 if aggregate_graph.neighbors[node]:
  *                     max_sim = -float("inf")             # <<<<<<<<<<<<<<
  *                     for neighbor in aggregate_graph.neighbors[node]:
  *                         sim = aggregate_graph.similarity(node, neighbor)
  */
-        __pyx_t_12 = __Pyx_PyObject_AsDouble(__pyx_n_u_inf); if (unlikely(__pyx_t_12 == ((double)((double)-1)) && PyErr_Occurred())) __PYX_ERR(0, 253, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_PyObject_AsDouble(__pyx_n_u_inf); if (unlikely(__pyx_t_12 == ((double)((double)-1)) && PyErr_Occurred())) __PYX_ERR(0, 250, __pyx_L1_error)
         __pyx_v_max_sim = (-__pyx_t_12);
 
-        /* "sknetwork/hierarchy/paris.pyx":254
+        /* "sknetwork/hierarchy/paris.pyx":251
  *                 if aggregate_graph.neighbors[node]:
  *                     max_sim = -float("inf")
  *                     for neighbor in aggregate_graph.neighbors[node]:             # <<<<<<<<<<<<<<
@@ -6238,20 +6244,20 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
         if (unlikely(__pyx_v_aggregate_graph->neighbors == Py_None)) {
           PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-          __PYX_ERR(0, 254, __pyx_L1_error)
+          __PYX_ERR(0, 251, __pyx_L1_error)
         }
-        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 254, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 251, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_2 = __Pyx_PyDict_GetItem(__pyx_v_aggregate_graph->neighbors, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 254, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyDict_GetItem(__pyx_v_aggregate_graph->neighbors, __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 251, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         if (likely(PyList_CheckExact(__pyx_t_2)) || PyTuple_CheckExact(__pyx_t_2)) {
           __pyx_t_3 = __pyx_t_2; __Pyx_INCREF(__pyx_t_3); __pyx_t_10 = 0;
           __pyx_t_13 = NULL;
         } else {
-          __pyx_t_10 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 254, __pyx_L1_error)
+          __pyx_t_10 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 251, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_3);
-          __pyx_t_13 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 254, __pyx_L1_error)
+          __pyx_t_13 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 251, __pyx_L1_error)
         }
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         for (;;) {
@@ -6259,17 +6265,17 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
             if (likely(PyList_CheckExact(__pyx_t_3))) {
               if (__pyx_t_10 >= PyList_GET_SIZE(__pyx_t_3)) break;
               #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-              __pyx_t_2 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_10); __Pyx_INCREF(__pyx_t_2); __pyx_t_10++; if (unlikely(0 < 0)) __PYX_ERR(0, 254, __pyx_L1_error)
+              __pyx_t_2 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_10); __Pyx_INCREF(__pyx_t_2); __pyx_t_10++; if (unlikely(0 < 0)) __PYX_ERR(0, 251, __pyx_L1_error)
               #else
-              __pyx_t_2 = PySequence_ITEM(__pyx_t_3, __pyx_t_10); __pyx_t_10++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 254, __pyx_L1_error)
+              __pyx_t_2 = PySequence_ITEM(__pyx_t_3, __pyx_t_10); __pyx_t_10++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 251, __pyx_L1_error)
               __Pyx_GOTREF(__pyx_t_2);
               #endif
             } else {
               if (__pyx_t_10 >= PyTuple_GET_SIZE(__pyx_t_3)) break;
               #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-              __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_10); __Pyx_INCREF(__pyx_t_2); __pyx_t_10++; if (unlikely(0 < 0)) __PYX_ERR(0, 254, __pyx_L1_error)
+              __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_10); __Pyx_INCREF(__pyx_t_2); __pyx_t_10++; if (unlikely(0 < 0)) __PYX_ERR(0, 251, __pyx_L1_error)
               #else
-              __pyx_t_2 = PySequence_ITEM(__pyx_t_3, __pyx_t_10); __pyx_t_10++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 254, __pyx_L1_error)
+              __pyx_t_2 = PySequence_ITEM(__pyx_t_3, __pyx_t_10); __pyx_t_10++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 251, __pyx_L1_error)
               __Pyx_GOTREF(__pyx_t_2);
               #endif
             }
@@ -6279,17 +6285,17 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
               PyObject* exc_type = PyErr_Occurred();
               if (exc_type) {
                 if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-                else __PYX_ERR(0, 254, __pyx_L1_error)
+                else __PYX_ERR(0, 251, __pyx_L1_error)
               }
               break;
             }
             __Pyx_GOTREF(__pyx_t_2);
           }
-          __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 254, __pyx_L1_error)
+          __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 251, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
           __pyx_v_neighbor = __pyx_t_6;
 
-          /* "sknetwork/hierarchy/paris.pyx":255
+          /* "sknetwork/hierarchy/paris.pyx":252
  *                     max_sim = -float("inf")
  *                     for neighbor in aggregate_graph.neighbors[node]:
  *                         sim = aggregate_graph.similarity(node, neighbor)             # <<<<<<<<<<<<<<
@@ -6298,7 +6304,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
           __pyx_v_sim = ((struct __pyx_vtabstruct_9sknetwork_9hierarchy_5paris_AggregateGraph *)__pyx_v_aggregate_graph->__pyx_vtab)->similarity(__pyx_v_aggregate_graph, __pyx_v_node, __pyx_v_neighbor);
 
-          /* "sknetwork/hierarchy/paris.pyx":256
+          /* "sknetwork/hierarchy/paris.pyx":253
  *                     for neighbor in aggregate_graph.neighbors[node]:
  *                         sim = aggregate_graph.similarity(node, neighbor)
  *                         if sim > max_sim:             # <<<<<<<<<<<<<<
@@ -6308,7 +6314,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
           __pyx_t_5 = ((__pyx_v_sim > __pyx_v_max_sim) != 0);
           if (__pyx_t_5) {
 
-            /* "sknetwork/hierarchy/paris.pyx":257
+            /* "sknetwork/hierarchy/paris.pyx":254
  *                         sim = aggregate_graph.similarity(node, neighbor)
  *                         if sim > max_sim:
  *                             nearest_neighbor = neighbor             # <<<<<<<<<<<<<<
@@ -6317,7 +6323,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
             __pyx_v_nearest_neighbor = __pyx_v_neighbor;
 
-            /* "sknetwork/hierarchy/paris.pyx":258
+            /* "sknetwork/hierarchy/paris.pyx":255
  *                         if sim > max_sim:
  *                             nearest_neighbor = neighbor
  *                             max_sim = sim             # <<<<<<<<<<<<<<
@@ -6326,7 +6332,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
             __pyx_v_max_sim = __pyx_v_sim;
 
-            /* "sknetwork/hierarchy/paris.pyx":256
+            /* "sknetwork/hierarchy/paris.pyx":253
  *                     for neighbor in aggregate_graph.neighbors[node]:
  *                         sim = aggregate_graph.similarity(node, neighbor)
  *                         if sim > max_sim:             # <<<<<<<<<<<<<<
@@ -6336,7 +6342,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
             goto __pyx_L14;
           }
 
-          /* "sknetwork/hierarchy/paris.pyx":259
+          /* "sknetwork/hierarchy/paris.pyx":256
  *                             nearest_neighbor = neighbor
  *                             max_sim = sim
  *                         elif sim == max_sim:             # <<<<<<<<<<<<<<
@@ -6346,7 +6352,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
           __pyx_t_5 = ((__pyx_v_sim == __pyx_v_max_sim) != 0);
           if (__pyx_t_5) {
 
-            /* "sknetwork/hierarchy/paris.pyx":260
+            /* "sknetwork/hierarchy/paris.pyx":257
  *                             max_sim = sim
  *                         elif sim == max_sim:
  *                             nearest_neighbor = min(neighbor, nearest_neighbor)             # <<<<<<<<<<<<<<
@@ -6362,7 +6368,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
             }
             __pyx_v_nearest_neighbor = __pyx_t_14;
 
-            /* "sknetwork/hierarchy/paris.pyx":259
+            /* "sknetwork/hierarchy/paris.pyx":256
  *                             nearest_neighbor = neighbor
  *                             max_sim = sim
  *                         elif sim == max_sim:             # <<<<<<<<<<<<<<
@@ -6372,7 +6378,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
           }
           __pyx_L14:;
 
-          /* "sknetwork/hierarchy/paris.pyx":254
+          /* "sknetwork/hierarchy/paris.pyx":251
  *                 if aggregate_graph.neighbors[node]:
  *                     max_sim = -float("inf")
  *                     for neighbor in aggregate_graph.neighbors[node]:             # <<<<<<<<<<<<<<
@@ -6382,7 +6388,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
         }
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-        /* "sknetwork/hierarchy/paris.pyx":261
+        /* "sknetwork/hierarchy/paris.pyx":258
  *                         elif sim == max_sim:
  *                             nearest_neighbor = min(neighbor, nearest_neighbor)
  *                     if chain.size():             # <<<<<<<<<<<<<<
@@ -6392,7 +6398,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
         __pyx_t_5 = (__pyx_v_chain.size() != 0);
         if (__pyx_t_5) {
 
-          /* "sknetwork/hierarchy/paris.pyx":262
+          /* "sknetwork/hierarchy/paris.pyx":259
  *                             nearest_neighbor = min(neighbor, nearest_neighbor)
  *                     if chain.size():
  *                         nearest_neighbor_last = chain[chain.size() - 1]             # <<<<<<<<<<<<<<
@@ -6401,7 +6407,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
           __pyx_v_nearest_neighbor_last = (__pyx_v_chain[(__pyx_v_chain.size() - 1)]);
 
-          /* "sknetwork/hierarchy/paris.pyx":263
+          /* "sknetwork/hierarchy/paris.pyx":260
  *                     if chain.size():
  *                         nearest_neighbor_last = chain[chain.size() - 1]
  *                         chain.pop_back()             # <<<<<<<<<<<<<<
@@ -6410,7 +6416,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
           __pyx_v_chain.pop_back();
 
-          /* "sknetwork/hierarchy/paris.pyx":264
+          /* "sknetwork/hierarchy/paris.pyx":261
  *                         nearest_neighbor_last = chain[chain.size() - 1]
  *                         chain.pop_back()
  *                         if nearest_neighbor_last == nearest_neighbor:             # <<<<<<<<<<<<<<
@@ -6420,25 +6426,25 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
           __pyx_t_5 = ((__pyx_v_nearest_neighbor_last == __pyx_v_nearest_neighbor) != 0);
           if (__pyx_t_5) {
 
-            /* "sknetwork/hierarchy/paris.pyx":265
+            /* "sknetwork/hierarchy/paris.pyx":262
  *                         chain.pop_back()
  *                         if nearest_neighbor_last == nearest_neighbor:
  *                             dendrogram.append([node, nearest_neighbor, 1. / max_sim,             # <<<<<<<<<<<<<<
  *                                                aggregate_graph.cluster_sizes[node]
  *                                                + aggregate_graph.cluster_sizes[nearest_neighbor]])
  */
-            __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 265, __pyx_L1_error)
+            __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 262, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_3);
-            __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_nearest_neighbor); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 265, __pyx_L1_error)
+            __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_nearest_neighbor); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 262, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_2);
             if (unlikely(__pyx_v_max_sim == 0)) {
               PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-              __PYX_ERR(0, 265, __pyx_L1_error)
+              __PYX_ERR(0, 262, __pyx_L1_error)
             }
-            __pyx_t_7 = PyFloat_FromDouble((1. / ((double)__pyx_v_max_sim))); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 265, __pyx_L1_error)
+            __pyx_t_7 = PyFloat_FromDouble((1. / ((double)__pyx_v_max_sim))); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 262, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_7);
 
-            /* "sknetwork/hierarchy/paris.pyx":266
+            /* "sknetwork/hierarchy/paris.pyx":263
  *                         if nearest_neighbor_last == nearest_neighbor:
  *                             dendrogram.append([node, nearest_neighbor, 1. / max_sim,
  *                                                aggregate_graph.cluster_sizes[node]             # <<<<<<<<<<<<<<
@@ -6447,15 +6453,15 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
             if (unlikely(__pyx_v_aggregate_graph->cluster_sizes == Py_None)) {
               PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-              __PYX_ERR(0, 266, __pyx_L1_error)
+              __PYX_ERR(0, 263, __pyx_L1_error)
             }
-            __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 266, __pyx_L1_error)
+            __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 263, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_8);
-            __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_aggregate_graph->cluster_sizes, __pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 266, __pyx_L1_error)
+            __pyx_t_1 = __Pyx_PyDict_GetItem(__pyx_v_aggregate_graph->cluster_sizes, __pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 263, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_1);
             __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-            /* "sknetwork/hierarchy/paris.pyx":267
+            /* "sknetwork/hierarchy/paris.pyx":264
  *                             dendrogram.append([node, nearest_neighbor, 1. / max_sim,
  *                                                aggregate_graph.cluster_sizes[node]
  *                                                + aggregate_graph.cluster_sizes[nearest_neighbor]])             # <<<<<<<<<<<<<<
@@ -6464,26 +6470,26 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
             if (unlikely(__pyx_v_aggregate_graph->cluster_sizes == Py_None)) {
               PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-              __PYX_ERR(0, 267, __pyx_L1_error)
+              __PYX_ERR(0, 264, __pyx_L1_error)
             }
-            __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_nearest_neighbor); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 267, __pyx_L1_error)
+            __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_nearest_neighbor); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 264, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_8);
-            __pyx_t_15 = __Pyx_PyDict_GetItem(__pyx_v_aggregate_graph->cluster_sizes, __pyx_t_8); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 267, __pyx_L1_error)
+            __pyx_t_15 = __Pyx_PyDict_GetItem(__pyx_v_aggregate_graph->cluster_sizes, __pyx_t_8); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 264, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_15);
             __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-            __pyx_t_8 = PyNumber_Add(__pyx_t_1, __pyx_t_15); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 267, __pyx_L1_error)
+            __pyx_t_8 = PyNumber_Add(__pyx_t_1, __pyx_t_15); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 264, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_8);
             __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
             __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
 
-            /* "sknetwork/hierarchy/paris.pyx":265
+            /* "sknetwork/hierarchy/paris.pyx":262
  *                         chain.pop_back()
  *                         if nearest_neighbor_last == nearest_neighbor:
  *                             dendrogram.append([node, nearest_neighbor, 1. / max_sim,             # <<<<<<<<<<<<<<
  *                                                aggregate_graph.cluster_sizes[node]
  *                                                + aggregate_graph.cluster_sizes[nearest_neighbor]])
  */
-            __pyx_t_15 = PyList_New(4); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 265, __pyx_L1_error)
+            __pyx_t_15 = PyList_New(4); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 262, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_15);
             __Pyx_GIVEREF(__pyx_t_3);
             PyList_SET_ITEM(__pyx_t_15, 0, __pyx_t_3);
@@ -6497,21 +6503,21 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
             __pyx_t_2 = 0;
             __pyx_t_7 = 0;
             __pyx_t_8 = 0;
-            __pyx_t_16 = __Pyx_PyObject_Append(__pyx_v_dendrogram, __pyx_t_15); if (unlikely(__pyx_t_16 == ((int)-1))) __PYX_ERR(0, 265, __pyx_L1_error)
+            __pyx_t_16 = __Pyx_PyObject_Append(__pyx_v_dendrogram, __pyx_t_15); if (unlikely(__pyx_t_16 == ((int)-1))) __PYX_ERR(0, 262, __pyx_L1_error)
             __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
 
-            /* "sknetwork/hierarchy/paris.pyx":268
+            /* "sknetwork/hierarchy/paris.pyx":265
  *                                                aggregate_graph.cluster_sizes[node]
  *                                                + aggregate_graph.cluster_sizes[nearest_neighbor]])
  *                             aggregate_graph.merge(node, nearest_neighbor)             # <<<<<<<<<<<<<<
  *                         else:
  *                             chain.push_back(nearest_neighbor_last)
  */
-            __pyx_t_15 = ((PyObject *)((struct __pyx_vtabstruct_9sknetwork_9hierarchy_5paris_AggregateGraph *)__pyx_v_aggregate_graph->__pyx_vtab)->merge(__pyx_v_aggregate_graph, __pyx_v_node, __pyx_v_nearest_neighbor, 0)); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 268, __pyx_L1_error)
+            __pyx_t_15 = ((PyObject *)((struct __pyx_vtabstruct_9sknetwork_9hierarchy_5paris_AggregateGraph *)__pyx_v_aggregate_graph->__pyx_vtab)->merge(__pyx_v_aggregate_graph, __pyx_v_node, __pyx_v_nearest_neighbor, 0)); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 265, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_15);
             __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
 
-            /* "sknetwork/hierarchy/paris.pyx":264
+            /* "sknetwork/hierarchy/paris.pyx":261
  *                         nearest_neighbor_last = chain[chain.size() - 1]
  *                         chain.pop_back()
  *                         if nearest_neighbor_last == nearest_neighbor:             # <<<<<<<<<<<<<<
@@ -6521,7 +6527,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
             goto __pyx_L16;
           }
 
-          /* "sknetwork/hierarchy/paris.pyx":270
+          /* "sknetwork/hierarchy/paris.pyx":267
  *                             aggregate_graph.merge(node, nearest_neighbor)
  *                         else:
  *                             chain.push_back(nearest_neighbor_last)             # <<<<<<<<<<<<<<
@@ -6533,10 +6539,10 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
               __pyx_v_chain.push_back(__pyx_v_nearest_neighbor_last);
             } catch(...) {
               __Pyx_CppExn2PyErr();
-              __PYX_ERR(0, 270, __pyx_L1_error)
+              __PYX_ERR(0, 267, __pyx_L1_error)
             }
 
-            /* "sknetwork/hierarchy/paris.pyx":271
+            /* "sknetwork/hierarchy/paris.pyx":268
  *                         else:
  *                             chain.push_back(nearest_neighbor_last)
  *                             chain.push_back(node)             # <<<<<<<<<<<<<<
@@ -6547,10 +6553,10 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
               __pyx_v_chain.push_back(__pyx_v_node);
             } catch(...) {
               __Pyx_CppExn2PyErr();
-              __PYX_ERR(0, 271, __pyx_L1_error)
+              __PYX_ERR(0, 268, __pyx_L1_error)
             }
 
-            /* "sknetwork/hierarchy/paris.pyx":272
+            /* "sknetwork/hierarchy/paris.pyx":269
  *                             chain.push_back(nearest_neighbor_last)
  *                             chain.push_back(node)
  *                             chain.push_back(nearest_neighbor)             # <<<<<<<<<<<<<<
@@ -6561,12 +6567,12 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
               __pyx_v_chain.push_back(__pyx_v_nearest_neighbor);
             } catch(...) {
               __Pyx_CppExn2PyErr();
-              __PYX_ERR(0, 272, __pyx_L1_error)
+              __PYX_ERR(0, 269, __pyx_L1_error)
             }
           }
           __pyx_L16:;
 
-          /* "sknetwork/hierarchy/paris.pyx":261
+          /* "sknetwork/hierarchy/paris.pyx":258
  *                         elif sim == max_sim:
  *                             nearest_neighbor = min(neighbor, nearest_neighbor)
  *                     if chain.size():             # <<<<<<<<<<<<<<
@@ -6576,7 +6582,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
           goto __pyx_L15;
         }
 
-        /* "sknetwork/hierarchy/paris.pyx":274
+        /* "sknetwork/hierarchy/paris.pyx":271
  *                             chain.push_back(nearest_neighbor)
  *                     else:
  *                         chain.push_back(node)             # <<<<<<<<<<<<<<
@@ -6588,10 +6594,10 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
             __pyx_v_chain.push_back(__pyx_v_node);
           } catch(...) {
             __Pyx_CppExn2PyErr();
-            __PYX_ERR(0, 274, __pyx_L1_error)
+            __PYX_ERR(0, 271, __pyx_L1_error)
           }
 
-          /* "sknetwork/hierarchy/paris.pyx":275
+          /* "sknetwork/hierarchy/paris.pyx":272
  *                     else:
  *                         chain.push_back(node)
  *                         chain.push_back(nearest_neighbor)             # <<<<<<<<<<<<<<
@@ -6602,12 +6608,12 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
             __pyx_v_chain.push_back(__pyx_v_nearest_neighbor);
           } catch(...) {
             __Pyx_CppExn2PyErr();
-            __PYX_ERR(0, 275, __pyx_L1_error)
+            __PYX_ERR(0, 272, __pyx_L1_error)
           }
         }
         __pyx_L15:;
 
-        /* "sknetwork/hierarchy/paris.pyx":252
+        /* "sknetwork/hierarchy/paris.pyx":249
  *                 node = chain[chain.size() - 1]
  *                 chain.pop_back()
  *                 if aggregate_graph.neighbors[node]:             # <<<<<<<<<<<<<<
@@ -6617,7 +6623,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
         goto __pyx_L11;
       }
 
-      /* "sknetwork/hierarchy/paris.pyx":277
+      /* "sknetwork/hierarchy/paris.pyx":274
  *                         chain.push_back(nearest_neighbor)
  *                 else:
  *                     connected_components.push_back((node, aggregate_graph.cluster_sizes[node]))             # <<<<<<<<<<<<<<
@@ -6627,14 +6633,14 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
       /*else*/ {
         if (unlikely(__pyx_v_aggregate_graph->cluster_sizes == Py_None)) {
           PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-          __PYX_ERR(0, 277, __pyx_L1_error)
+          __PYX_ERR(0, 274, __pyx_L1_error)
         }
-        __pyx_t_15 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 277, __pyx_L1_error)
+        __pyx_t_15 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 274, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_15);
-        __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_aggregate_graph->cluster_sizes, __pyx_t_15); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 277, __pyx_L1_error)
+        __pyx_t_8 = __Pyx_PyDict_GetItem(__pyx_v_aggregate_graph->cluster_sizes, __pyx_t_15); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 274, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_8);
         __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-        __pyx_t_14 = __Pyx_PyInt_As_int(__pyx_t_8); if (unlikely((__pyx_t_14 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 277, __pyx_L1_error)
+        __pyx_t_14 = __Pyx_PyInt_As_int(__pyx_t_8); if (unlikely((__pyx_t_14 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 274, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
         __pyx_t_17.f0 = __pyx_v_node;
         __pyx_t_17.f1 = __pyx_t_14;
@@ -6642,10 +6648,10 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
           __pyx_v_connected_components.push_back(__pyx_t_17);
         } catch(...) {
           __Pyx_CppExn2PyErr();
-          __PYX_ERR(0, 277, __pyx_L1_error)
+          __PYX_ERR(0, 274, __pyx_L1_error)
         }
 
-        /* "sknetwork/hierarchy/paris.pyx":278
+        /* "sknetwork/hierarchy/paris.pyx":275
  *                 else:
  *                     connected_components.push_back((node, aggregate_graph.cluster_sizes[node]))
  *                     del aggregate_graph.cluster_sizes[node]             # <<<<<<<<<<<<<<
@@ -6654,18 +6660,18 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
         if (unlikely(__pyx_v_aggregate_graph->cluster_sizes == Py_None)) {
           PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-          __PYX_ERR(0, 278, __pyx_L1_error)
+          __PYX_ERR(0, 275, __pyx_L1_error)
         }
-        __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 278, __pyx_L1_error)
+        __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 275, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_8);
-        if (unlikely(PyDict_DelItem(__pyx_v_aggregate_graph->cluster_sizes, __pyx_t_8) < 0)) __PYX_ERR(0, 278, __pyx_L1_error)
+        if (unlikely(PyDict_DelItem(__pyx_v_aggregate_graph->cluster_sizes, __pyx_t_8) < 0)) __PYX_ERR(0, 275, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       }
       __pyx_L11:;
     }
   }
 
-  /* "sknetwork/hierarchy/paris.pyx":280
+  /* "sknetwork/hierarchy/paris.pyx":277
  *                     del aggregate_graph.cluster_sizes[node]
  * 
  *         node, cluster_size = connected_components[connected_components.size() - 1]             # <<<<<<<<<<<<<<
@@ -6678,7 +6684,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   __pyx_v_node = __pyx_t_14;
   __pyx_v_cluster_size = __pyx_t_6;
 
-  /* "sknetwork/hierarchy/paris.pyx":281
+  /* "sknetwork/hierarchy/paris.pyx":278
  * 
  *         node, cluster_size = connected_components[connected_components.size() - 1]
  *         connected_components.pop_back()             # <<<<<<<<<<<<<<
@@ -6687,7 +6693,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
   __pyx_v_connected_components.pop_back();
 
-  /* "sknetwork/hierarchy/paris.pyx":282
+  /* "sknetwork/hierarchy/paris.pyx":279
  *         node, cluster_size = connected_components[connected_components.size() - 1]
  *         connected_components.pop_back()
  *         for next_node, next_cluster_size in connected_components:             # <<<<<<<<<<<<<<
@@ -6699,7 +6705,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
     if (!(__pyx_t_18 != __pyx_v_connected_components.end())) break;
     __pyx_t_17 = *__pyx_t_18;
     ++__pyx_t_18;
-    __pyx_t_8 = __pyx_convert__to_py___pyx_ctuple_int__and_int(__pyx_t_17); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 282, __pyx_L1_error)
+    __pyx_t_8 = __pyx_convert__to_py___pyx_ctuple_int__and_int(__pyx_t_17); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 279, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     if ((likely(PyTuple_CheckExact(__pyx_t_8))) || (PyList_CheckExact(__pyx_t_8))) {
       PyObject* sequence = __pyx_t_8;
@@ -6707,7 +6713,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
       if (unlikely(size != 2)) {
         if (size > 2) __Pyx_RaiseTooManyValuesError(2);
         else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-        __PYX_ERR(0, 282, __pyx_L1_error)
+        __PYX_ERR(0, 279, __pyx_L1_error)
       }
       #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
       if (likely(PyTuple_CheckExact(sequence))) {
@@ -6720,15 +6726,15 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
       __Pyx_INCREF(__pyx_t_15);
       __Pyx_INCREF(__pyx_t_7);
       #else
-      __pyx_t_15 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 282, __pyx_L1_error)
+      __pyx_t_15 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 279, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_15);
-      __pyx_t_7 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 282, __pyx_L1_error)
+      __pyx_t_7 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 279, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       #endif
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
     } else {
       Py_ssize_t index = -1;
-      __pyx_t_2 = PyObject_GetIter(__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 282, __pyx_L1_error)
+      __pyx_t_2 = PyObject_GetIter(__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 279, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __pyx_t_19 = Py_TYPE(__pyx_t_2)->tp_iternext;
@@ -6736,7 +6742,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
       __Pyx_GOTREF(__pyx_t_15);
       index = 1; __pyx_t_7 = __pyx_t_19(__pyx_t_2); if (unlikely(!__pyx_t_7)) goto __pyx_L19_unpacking_failed;
       __Pyx_GOTREF(__pyx_t_7);
-      if (__Pyx_IternextUnpackEndCheck(__pyx_t_19(__pyx_t_2), 2) < 0) __PYX_ERR(0, 282, __pyx_L1_error)
+      if (__Pyx_IternextUnpackEndCheck(__pyx_t_19(__pyx_t_2), 2) < 0) __PYX_ERR(0, 279, __pyx_L1_error)
       __pyx_t_19 = NULL;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       goto __pyx_L20_unpacking_done;
@@ -6744,17 +6750,17 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_t_19 = NULL;
       if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-      __PYX_ERR(0, 282, __pyx_L1_error)
+      __PYX_ERR(0, 279, __pyx_L1_error)
       __pyx_L20_unpacking_done:;
     }
-    __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_15); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 282, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_15); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 279, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
-    __pyx_t_14 = __Pyx_PyInt_As_int(__pyx_t_7); if (unlikely((__pyx_t_14 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 282, __pyx_L1_error)
+    __pyx_t_14 = __Pyx_PyInt_As_int(__pyx_t_7); if (unlikely((__pyx_t_14 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 279, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __pyx_v_next_node = __pyx_t_6;
     __pyx_v_next_cluster_size = __pyx_t_14;
 
-    /* "sknetwork/hierarchy/paris.pyx":283
+    /* "sknetwork/hierarchy/paris.pyx":280
  *         connected_components.pop_back()
  *         for next_node, next_cluster_size in connected_components:
  *             cluster_size += next_cluster_size             # <<<<<<<<<<<<<<
@@ -6763,22 +6769,22 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
     __pyx_v_cluster_size = (__pyx_v_cluster_size + __pyx_v_next_cluster_size);
 
-    /* "sknetwork/hierarchy/paris.pyx":284
+    /* "sknetwork/hierarchy/paris.pyx":281
  *         for next_node, next_cluster_size in connected_components:
  *             cluster_size += next_cluster_size
  *             dendrogram.append([node, next_node, float("inf"), cluster_size])             # <<<<<<<<<<<<<<
  *             node = aggregate_graph.next_cluster
  *             aggregate_graph.next_cluster += 1
  */
-    __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 284, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyInt_From_int(__pyx_v_node); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 281, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
-    __pyx_t_7 = __Pyx_PyInt_From_int(__pyx_v_next_node); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 284, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyInt_From_int(__pyx_v_next_node); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 281, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_15 = __Pyx_PyNumber_Float(__pyx_n_u_inf); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 284, __pyx_L1_error)
+    __pyx_t_15 = __Pyx_PyNumber_Float(__pyx_n_u_inf); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 281, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_15);
-    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_cluster_size); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 284, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_cluster_size); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 281, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = PyList_New(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 284, __pyx_L1_error)
+    __pyx_t_3 = PyList_New(4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 281, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_GIVEREF(__pyx_t_8);
     PyList_SET_ITEM(__pyx_t_3, 0, __pyx_t_8);
@@ -6792,10 +6798,10 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
     __pyx_t_7 = 0;
     __pyx_t_15 = 0;
     __pyx_t_2 = 0;
-    __pyx_t_16 = __Pyx_PyObject_Append(__pyx_v_dendrogram, __pyx_t_3); if (unlikely(__pyx_t_16 == ((int)-1))) __PYX_ERR(0, 284, __pyx_L1_error)
+    __pyx_t_16 = __Pyx_PyObject_Append(__pyx_v_dendrogram, __pyx_t_3); if (unlikely(__pyx_t_16 == ((int)-1))) __PYX_ERR(0, 281, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "sknetwork/hierarchy/paris.pyx":285
+    /* "sknetwork/hierarchy/paris.pyx":282
  *             cluster_size += next_cluster_size
  *             dendrogram.append([node, next_node, float("inf"), cluster_size])
  *             node = aggregate_graph.next_cluster             # <<<<<<<<<<<<<<
@@ -6805,7 +6811,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
     __pyx_t_14 = __pyx_v_aggregate_graph->next_cluster;
     __pyx_v_node = __pyx_t_14;
 
-    /* "sknetwork/hierarchy/paris.pyx":286
+    /* "sknetwork/hierarchy/paris.pyx":283
  *             dendrogram.append([node, next_node, float("inf"), cluster_size])
  *             node = aggregate_graph.next_cluster
  *             aggregate_graph.next_cluster += 1             # <<<<<<<<<<<<<<
@@ -6814,7 +6820,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
     __pyx_v_aggregate_graph->next_cluster = (__pyx_v_aggregate_graph->next_cluster + 1);
 
-    /* "sknetwork/hierarchy/paris.pyx":282
+    /* "sknetwork/hierarchy/paris.pyx":279
  *         node, cluster_size = connected_components[connected_components.size() - 1]
  *         connected_components.pop_back()
  *         for next_node, next_cluster_size in connected_components:             # <<<<<<<<<<<<<<
@@ -6823,16 +6829,16 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
  */
   }
 
-  /* "sknetwork/hierarchy/paris.pyx":288
+  /* "sknetwork/hierarchy/paris.pyx":285
  *             aggregate_graph.next_cluster += 1
  * 
  *         dendrogram = np.array(dendrogram)             # <<<<<<<<<<<<<<
  *         self.dendrogram_ = dendrogram
  *         return self
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 288, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 285, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 288, __pyx_L1_error)
+  __pyx_t_15 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_15)) __PYX_ERR(0, 285, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_15);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -6847,22 +6853,22 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   }
   __pyx_t_3 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_15, __pyx_t_2, __pyx_v_dendrogram) : __Pyx_PyObject_CallOneArg(__pyx_t_15, __pyx_v_dendrogram);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 288, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 285, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_15); __pyx_t_15 = 0;
   __Pyx_DECREF_SET(__pyx_v_dendrogram, __pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":289
+  /* "sknetwork/hierarchy/paris.pyx":286
  * 
  *         dendrogram = np.array(dendrogram)
  *         self.dendrogram_ = dendrogram             # <<<<<<<<<<<<<<
  *         return self
  * 
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram, __pyx_v_dendrogram) < 0) __PYX_ERR(0, 289, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram, __pyx_v_dendrogram) < 0) __PYX_ERR(0, 286, __pyx_L1_error)
 
-  /* "sknetwork/hierarchy/paris.pyx":290
+  /* "sknetwork/hierarchy/paris.pyx":287
  *         dendrogram = np.array(dendrogram)
  *         self.dendrogram_ = dendrogram
  *         return self             # <<<<<<<<<<<<<<
@@ -6874,12 +6880,12 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   __pyx_r = __pyx_v_self;
   goto __pyx_L0;
 
-  /* "sknetwork/hierarchy/paris.pyx":203
+  /* "sknetwork/hierarchy/paris.pyx":201
  *     @cython.boundscheck(False)
  *     @cython.wraparound(False)
  *     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Paris':             # <<<<<<<<<<<<<<
- *         """
- *         Agglomerative clustering using the nearest neighbor chain.
+ *         """Agglomerative clustering using the nearest neighbor chain.
+ * 
  */
 
   /* function exit code */
@@ -6906,9 +6912,9 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_5Paris_2fit(CYTHON_UNUSED
   return __pyx_r;
 }
 
-/* "sknetwork/hierarchy/paris.pyx":339
+/* "sknetwork/hierarchy/paris.pyx":334
+ *     Workshop on Mining and Learning with Graphs.
  *     """
- * 
  *     def __init__(self, weights: str = 'degree', reorder: bool = True):             # <<<<<<<<<<<<<<
  *         Paris.__init__(self, weights, reorder)
  * 
@@ -6961,7 +6967,7 @@ static PyObject *__pyx_pw_9sknetwork_9hierarchy_5paris_7BiParis_1__init__(PyObje
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 339, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 334, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -6980,13 +6986,13 @@ static PyObject *__pyx_pw_9sknetwork_9hierarchy_5paris_7BiParis_1__init__(PyObje
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 339, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 0, 1, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 334, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("sknetwork.hierarchy.paris.BiParis.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_weights), (&PyUnicode_Type), 1, "weights", 1))) __PYX_ERR(0, 339, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_weights), (&PyUnicode_Type), 1, "weights", 1))) __PYX_ERR(0, 334, __pyx_L1_error)
   __pyx_r = __pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis___init__(__pyx_self, __pyx_v_self, __pyx_v_weights, __pyx_v_reorder);
 
   /* function exit code */
@@ -7008,16 +7014,16 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis___init__(CYTHON_
   PyObject *__pyx_t_5 = NULL;
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "sknetwork/hierarchy/paris.pyx":340
- * 
+  /* "sknetwork/hierarchy/paris.pyx":335
+ *     """
  *     def __init__(self, weights: str = 'degree', reorder: bool = True):
  *         Paris.__init__(self, weights, reorder)             # <<<<<<<<<<<<<<
  * 
  *         self.dendrogram_row_ = None
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Paris); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 340, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Paris); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 335, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_init); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 340, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_init); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 335, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -7035,7 +7041,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis___init__(CYTHON_
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[4] = {__pyx_t_2, __pyx_v_self, __pyx_v_weights, __pyx_v_reorder};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 340, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 335, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
@@ -7043,13 +7049,13 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis___init__(CYTHON_
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
     PyObject *__pyx_temp[4] = {__pyx_t_2, __pyx_v_self, __pyx_v_weights, __pyx_v_reorder};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 340, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_4, 3+__pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 335, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_1);
   } else
   #endif
   {
-    __pyx_t_5 = PyTuple_New(3+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 340, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(3+__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 335, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     if (__pyx_t_2) {
       __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_2); __pyx_t_2 = NULL;
@@ -7063,43 +7069,43 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis___init__(CYTHON_
     __Pyx_INCREF(__pyx_v_reorder);
     __Pyx_GIVEREF(__pyx_v_reorder);
     PyTuple_SET_ITEM(__pyx_t_5, 2+__pyx_t_4, __pyx_v_reorder);
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 340, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 335, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":342
+  /* "sknetwork/hierarchy/paris.pyx":337
  *         Paris.__init__(self, weights, reorder)
  * 
  *         self.dendrogram_row_ = None             # <<<<<<<<<<<<<<
  *         self.dendrogram_col_ = None
  *         self.dendrogram_full_ = None
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram_row, Py_None) < 0) __PYX_ERR(0, 342, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram_row, Py_None) < 0) __PYX_ERR(0, 337, __pyx_L1_error)
 
-  /* "sknetwork/hierarchy/paris.pyx":343
+  /* "sknetwork/hierarchy/paris.pyx":338
  * 
  *         self.dendrogram_row_ = None
  *         self.dendrogram_col_ = None             # <<<<<<<<<<<<<<
  *         self.dendrogram_full_ = None
  * 
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram_col, Py_None) < 0) __PYX_ERR(0, 343, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram_col, Py_None) < 0) __PYX_ERR(0, 338, __pyx_L1_error)
 
-  /* "sknetwork/hierarchy/paris.pyx":344
+  /* "sknetwork/hierarchy/paris.pyx":339
  *         self.dendrogram_row_ = None
  *         self.dendrogram_col_ = None
  *         self.dendrogram_full_ = None             # <<<<<<<<<<<<<<
  * 
  *     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiParis':
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram_full, Py_None) < 0) __PYX_ERR(0, 344, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram_full, Py_None) < 0) __PYX_ERR(0, 339, __pyx_L1_error)
 
-  /* "sknetwork/hierarchy/paris.pyx":339
+  /* "sknetwork/hierarchy/paris.pyx":334
+ *     Workshop on Mining and Learning with Graphs.
  *     """
- * 
  *     def __init__(self, weights: str = 'degree', reorder: bool = True):             # <<<<<<<<<<<<<<
  *         Paris.__init__(self, weights, reorder)
  * 
@@ -7121,7 +7127,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis___init__(CYTHON_
   return __pyx_r;
 }
 
-/* "sknetwork/hierarchy/paris.pyx":346
+/* "sknetwork/hierarchy/paris.pyx":341
  *         self.dendrogram_full_ = None
  * 
  *     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiParis':             # <<<<<<<<<<<<<<
@@ -7162,11 +7168,11 @@ static PyObject *__pyx_pw_9sknetwork_9hierarchy_5paris_7BiParis_3fit(PyObject *_
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_biadjacency)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("fit", 1, 2, 2, 1); __PYX_ERR(0, 346, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("fit", 1, 2, 2, 1); __PYX_ERR(0, 341, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "fit") < 0)) __PYX_ERR(0, 346, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "fit") < 0)) __PYX_ERR(0, 341, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -7179,7 +7185,7 @@ static PyObject *__pyx_pw_9sknetwork_9hierarchy_5paris_7BiParis_3fit(PyObject *_
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("fit", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 346, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("fit", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 341, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("sknetwork.hierarchy.paris.BiParis.fit", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -7210,40 +7216,40 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis_2fit(CYTHON_UNUS
   __Pyx_RefNannySetupContext("fit", 0);
   __Pyx_INCREF(__pyx_v_biadjacency);
 
-  /* "sknetwork/hierarchy/paris.pyx":362
+  /* "sknetwork/hierarchy/paris.pyx":357
  *         self: :class:`BiParis`
  *         """
  *         paris = Paris(weights=self.weights, reorder=self.reorder)             # <<<<<<<<<<<<<<
  *         biadjacency = check_format(biadjacency)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Paris); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 362, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Paris); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 362, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_weights); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 362, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_weights); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_weights, __pyx_t_3) < 0) __PYX_ERR(0, 362, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_weights, __pyx_t_3) < 0) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_reorder); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 362, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_reorder); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_reorder, __pyx_t_3) < 0) __PYX_ERR(0, 362, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_reorder, __pyx_t_3) < 0) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 362, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 357, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_paris = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":363
+  /* "sknetwork/hierarchy/paris.pyx":358
  *         """
  *         paris = Paris(weights=self.weights, reorder=self.reorder)
  *         biadjacency = check_format(biadjacency)             # <<<<<<<<<<<<<<
  * 
  *         adjacency = bipartite2undirected(biadjacency)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_check_format); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 363, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_check_format); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_1 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -7257,20 +7263,20 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis_2fit(CYTHON_UNUS
   }
   __pyx_t_3 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_1, __pyx_v_biadjacency) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_biadjacency);
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 363, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 358, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF_SET(__pyx_v_biadjacency, __pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":365
+  /* "sknetwork/hierarchy/paris.pyx":360
  *         biadjacency = check_format(biadjacency)
  * 
  *         adjacency = bipartite2undirected(biadjacency)             # <<<<<<<<<<<<<<
  *         dendrogram = paris.fit_transform(adjacency)
  *         dendrogram_row, dendrogram_col = split_dendrogram(dendrogram, biadjacency.shape)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_bipartite2undirected); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 365, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_bipartite2undirected); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 360, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_1 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -7284,20 +7290,20 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis_2fit(CYTHON_UNUS
   }
   __pyx_t_3 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_1, __pyx_v_biadjacency) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_biadjacency);
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 365, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 360, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_adjacency = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":366
+  /* "sknetwork/hierarchy/paris.pyx":361
  * 
  *         adjacency = bipartite2undirected(biadjacency)
  *         dendrogram = paris.fit_transform(adjacency)             # <<<<<<<<<<<<<<
  *         dendrogram_row, dendrogram_col = split_dendrogram(dendrogram, biadjacency.shape)
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_paris, __pyx_n_s_fit_transform); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 366, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_paris, __pyx_n_s_fit_transform); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 361, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_1 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
@@ -7311,22 +7317,22 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis_2fit(CYTHON_UNUS
   }
   __pyx_t_3 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_1, __pyx_v_adjacency) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_v_adjacency);
   __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 366, __pyx_L1_error)
+  if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 361, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_dendrogram = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":367
+  /* "sknetwork/hierarchy/paris.pyx":362
  *         adjacency = bipartite2undirected(biadjacency)
  *         dendrogram = paris.fit_transform(adjacency)
  *         dendrogram_row, dendrogram_col = split_dendrogram(dendrogram, biadjacency.shape)             # <<<<<<<<<<<<<<
  * 
  *         self.dendrogram_ = dendrogram_row
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_split_dendrogram); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 367, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_split_dendrogram); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 362, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_biadjacency, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 367, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_biadjacency, __pyx_n_s_shape); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 362, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_t_4 = NULL;
   __pyx_t_5 = 0;
@@ -7343,7 +7349,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis_2fit(CYTHON_UNUS
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_v_dendrogram, __pyx_t_1};
-    __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 367, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 362, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -7352,14 +7358,14 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis_2fit(CYTHON_UNUS
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_v_dendrogram, __pyx_t_1};
-    __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 367, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_5, 2+__pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 362, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   } else
   #endif
   {
-    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 367, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2+__pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 362, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     if (__pyx_t_4) {
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -7370,7 +7376,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis_2fit(CYTHON_UNUS
     __Pyx_GIVEREF(__pyx_t_1);
     PyTuple_SET_ITEM(__pyx_t_6, 1+__pyx_t_5, __pyx_t_1);
     __pyx_t_1 = 0;
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_6, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 367, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_6, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 362, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
@@ -7381,7 +7387,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis_2fit(CYTHON_UNUS
     if (unlikely(size != 2)) {
       if (size > 2) __Pyx_RaiseTooManyValuesError(2);
       else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-      __PYX_ERR(0, 367, __pyx_L1_error)
+      __PYX_ERR(0, 362, __pyx_L1_error)
     }
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
     if (likely(PyTuple_CheckExact(sequence))) {
@@ -7394,15 +7400,15 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis_2fit(CYTHON_UNUS
     __Pyx_INCREF(__pyx_t_2);
     __Pyx_INCREF(__pyx_t_6);
     #else
-    __pyx_t_2 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 367, __pyx_L1_error)
+    __pyx_t_2 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 362, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_6 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 367, __pyx_L1_error)
+    __pyx_t_6 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 362, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     #endif
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   } else {
     Py_ssize_t index = -1;
-    __pyx_t_1 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 367, __pyx_L1_error)
+    __pyx_t_1 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 362, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __pyx_t_7 = Py_TYPE(__pyx_t_1)->tp_iternext;
@@ -7410,7 +7416,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis_2fit(CYTHON_UNUS
     __Pyx_GOTREF(__pyx_t_2);
     index = 1; __pyx_t_6 = __pyx_t_7(__pyx_t_1); if (unlikely(!__pyx_t_6)) goto __pyx_L3_unpacking_failed;
     __Pyx_GOTREF(__pyx_t_6);
-    if (__Pyx_IternextUnpackEndCheck(__pyx_t_7(__pyx_t_1), 2) < 0) __PYX_ERR(0, 367, __pyx_L1_error)
+    if (__Pyx_IternextUnpackEndCheck(__pyx_t_7(__pyx_t_1), 2) < 0) __PYX_ERR(0, 362, __pyx_L1_error)
     __pyx_t_7 = NULL;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     goto __pyx_L4_unpacking_done;
@@ -7418,7 +7424,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis_2fit(CYTHON_UNUS
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_t_7 = NULL;
     if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-    __PYX_ERR(0, 367, __pyx_L1_error)
+    __PYX_ERR(0, 362, __pyx_L1_error)
     __pyx_L4_unpacking_done:;
   }
   __pyx_v_dendrogram_row = __pyx_t_2;
@@ -7426,43 +7432,43 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis_2fit(CYTHON_UNUS
   __pyx_v_dendrogram_col = __pyx_t_6;
   __pyx_t_6 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":369
+  /* "sknetwork/hierarchy/paris.pyx":364
  *         dendrogram_row, dendrogram_col = split_dendrogram(dendrogram, biadjacency.shape)
  * 
  *         self.dendrogram_ = dendrogram_row             # <<<<<<<<<<<<<<
  *         self.dendrogram_row_ = dendrogram_row
  *         self.dendrogram_col_ = dendrogram_col
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram, __pyx_v_dendrogram_row) < 0) __PYX_ERR(0, 369, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram, __pyx_v_dendrogram_row) < 0) __PYX_ERR(0, 364, __pyx_L1_error)
 
-  /* "sknetwork/hierarchy/paris.pyx":370
+  /* "sknetwork/hierarchy/paris.pyx":365
  * 
  *         self.dendrogram_ = dendrogram_row
  *         self.dendrogram_row_ = dendrogram_row             # <<<<<<<<<<<<<<
  *         self.dendrogram_col_ = dendrogram_col
  *         self.dendrogram_full_ = dendrogram
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram_row, __pyx_v_dendrogram_row) < 0) __PYX_ERR(0, 370, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram_row, __pyx_v_dendrogram_row) < 0) __PYX_ERR(0, 365, __pyx_L1_error)
 
-  /* "sknetwork/hierarchy/paris.pyx":371
+  /* "sknetwork/hierarchy/paris.pyx":366
  *         self.dendrogram_ = dendrogram_row
  *         self.dendrogram_row_ = dendrogram_row
  *         self.dendrogram_col_ = dendrogram_col             # <<<<<<<<<<<<<<
  *         self.dendrogram_full_ = dendrogram
  * 
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram_col, __pyx_v_dendrogram_col) < 0) __PYX_ERR(0, 371, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram_col, __pyx_v_dendrogram_col) < 0) __PYX_ERR(0, 366, __pyx_L1_error)
 
-  /* "sknetwork/hierarchy/paris.pyx":372
+  /* "sknetwork/hierarchy/paris.pyx":367
  *         self.dendrogram_row_ = dendrogram_row
  *         self.dendrogram_col_ = dendrogram_col
  *         self.dendrogram_full_ = dendrogram             # <<<<<<<<<<<<<<
  * 
  *         return self
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram_full, __pyx_v_dendrogram) < 0) __PYX_ERR(0, 372, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_dendrogram_full, __pyx_v_dendrogram) < 0) __PYX_ERR(0, 367, __pyx_L1_error)
 
-  /* "sknetwork/hierarchy/paris.pyx":374
+  /* "sknetwork/hierarchy/paris.pyx":369
  *         self.dendrogram_full_ = dendrogram
  * 
  *         return self             # <<<<<<<<<<<<<<
@@ -7472,7 +7478,7 @@ static PyObject *__pyx_pf_9sknetwork_9hierarchy_5paris_7BiParis_2fit(CYTHON_UNUS
   __pyx_r = __pyx_v_self;
   goto __pyx_L0;
 
-  /* "sknetwork/hierarchy/paris.pyx":346
+  /* "sknetwork/hierarchy/paris.pyx":341
  *         self.dendrogram_full_ = None
  * 
  *     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiParis':             # <<<<<<<<<<<<<<
@@ -7936,7 +7942,7 @@ static PyObject *__pyx_f_9sknetwork_9hierarchy_5paris___pyx_unpickle_AggregateGr
   return __pyx_r;
 }
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":258
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":258
  *         # experimental exception made for __getbuffer__ and __releasebuffer__
  *         # -- the details of this may change.
  *         def __getbuffer__(ndarray self, Py_buffer* info, int flags):             # <<<<<<<<<<<<<<
@@ -7985,7 +7991,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_v_info->obj = Py_None; __Pyx_INCREF(Py_None);
   __Pyx_GIVEREF(__pyx_v_info->obj);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":265
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":265
  * 
  *             cdef int i, ndim
  *             cdef int endian_detector = 1             # <<<<<<<<<<<<<<
@@ -7994,7 +8000,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_endian_detector = 1;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":266
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":266
  *             cdef int i, ndim
  *             cdef int endian_detector = 1
  *             cdef bint little_endian = ((<char*>&endian_detector)[0] != 0)             # <<<<<<<<<<<<<<
@@ -8003,7 +8009,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_little_endian = ((((char *)(&__pyx_v_endian_detector))[0]) != 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":268
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":268
  *             cdef bint little_endian = ((<char*>&endian_detector)[0] != 0)
  * 
  *             ndim = PyArray_NDIM(self)             # <<<<<<<<<<<<<<
@@ -8012,7 +8018,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_ndim = PyArray_NDIM(__pyx_v_self);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":270
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":270
  *             ndim = PyArray_NDIM(self)
  * 
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -8026,7 +8032,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     goto __pyx_L4_bool_binop_done;
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":271
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":271
  * 
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_ARRAY_C_CONTIGUOUS)):             # <<<<<<<<<<<<<<
@@ -8037,7 +8043,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_t_1 = __pyx_t_2;
   __pyx_L4_bool_binop_done:;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":270
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":270
  *             ndim = PyArray_NDIM(self)
  * 
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -8046,7 +8052,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   if (unlikely(__pyx_t_1)) {
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":272
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":272
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_ARRAY_C_CONTIGUOUS)):
  *                 raise ValueError(u"ndarray is not C contiguous")             # <<<<<<<<<<<<<<
@@ -8059,7 +8065,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __PYX_ERR(2, 272, __pyx_L1_error)
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":270
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":270
  *             ndim = PyArray_NDIM(self)
  * 
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -8068,7 +8074,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":274
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":274
  *                 raise ValueError(u"ndarray is not C contiguous")
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -8082,7 +8088,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     goto __pyx_L7_bool_binop_done;
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":275
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":275
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_ARRAY_F_CONTIGUOUS)):             # <<<<<<<<<<<<<<
@@ -8093,7 +8099,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_t_1 = __pyx_t_2;
   __pyx_L7_bool_binop_done:;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":274
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":274
  *                 raise ValueError(u"ndarray is not C contiguous")
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -8102,7 +8108,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   if (unlikely(__pyx_t_1)) {
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":276
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":276
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_ARRAY_F_CONTIGUOUS)):
  *                 raise ValueError(u"ndarray is not Fortran contiguous")             # <<<<<<<<<<<<<<
@@ -8115,7 +8121,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __PYX_ERR(2, 276, __pyx_L1_error)
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":274
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":274
  *                 raise ValueError(u"ndarray is not C contiguous")
  * 
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -8124,7 +8130,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":278
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":278
  *                 raise ValueError(u"ndarray is not Fortran contiguous")
  * 
  *             info.buf = PyArray_DATA(self)             # <<<<<<<<<<<<<<
@@ -8133,7 +8139,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->buf = PyArray_DATA(__pyx_v_self);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":279
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":279
  * 
  *             info.buf = PyArray_DATA(self)
  *             info.ndim = ndim             # <<<<<<<<<<<<<<
@@ -8142,7 +8148,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->ndim = __pyx_v_ndim;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":280
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":280
  *             info.buf = PyArray_DATA(self)
  *             info.ndim = ndim
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):             # <<<<<<<<<<<<<<
@@ -8152,7 +8158,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_t_1 = (((sizeof(npy_intp)) != (sizeof(Py_ssize_t))) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":283
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":283
  *                 # Allocate new buffer for strides and shape info.
  *                 # This is allocated as one block, strides first.
  *                 info.strides = <Py_ssize_t*>PyObject_Malloc(sizeof(Py_ssize_t) * 2 * <size_t>ndim)             # <<<<<<<<<<<<<<
@@ -8161,7 +8167,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     __pyx_v_info->strides = ((Py_ssize_t *)PyObject_Malloc((((sizeof(Py_ssize_t)) * 2) * ((size_t)__pyx_v_ndim))));
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":284
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":284
  *                 # This is allocated as one block, strides first.
  *                 info.strides = <Py_ssize_t*>PyObject_Malloc(sizeof(Py_ssize_t) * 2 * <size_t>ndim)
  *                 info.shape = info.strides + ndim             # <<<<<<<<<<<<<<
@@ -8170,7 +8176,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     __pyx_v_info->shape = (__pyx_v_info->strides + __pyx_v_ndim);
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":285
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":285
  *                 info.strides = <Py_ssize_t*>PyObject_Malloc(sizeof(Py_ssize_t) * 2 * <size_t>ndim)
  *                 info.shape = info.strides + ndim
  *                 for i in range(ndim):             # <<<<<<<<<<<<<<
@@ -8182,7 +8188,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_i = __pyx_t_6;
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":286
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":286
  *                 info.shape = info.strides + ndim
  *                 for i in range(ndim):
  *                     info.strides[i] = PyArray_STRIDES(self)[i]             # <<<<<<<<<<<<<<
@@ -8191,7 +8197,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
       (__pyx_v_info->strides[__pyx_v_i]) = (PyArray_STRIDES(__pyx_v_self)[__pyx_v_i]);
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":287
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":287
  *                 for i in range(ndim):
  *                     info.strides[i] = PyArray_STRIDES(self)[i]
  *                     info.shape[i] = PyArray_DIMS(self)[i]             # <<<<<<<<<<<<<<
@@ -8201,7 +8207,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       (__pyx_v_info->shape[__pyx_v_i]) = (PyArray_DIMS(__pyx_v_self)[__pyx_v_i]);
     }
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":280
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":280
  *             info.buf = PyArray_DATA(self)
  *             info.ndim = ndim
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):             # <<<<<<<<<<<<<<
@@ -8211,7 +8217,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     goto __pyx_L9;
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":289
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":289
  *                     info.shape[i] = PyArray_DIMS(self)[i]
  *             else:
  *                 info.strides = <Py_ssize_t*>PyArray_STRIDES(self)             # <<<<<<<<<<<<<<
@@ -8221,7 +8227,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   /*else*/ {
     __pyx_v_info->strides = ((Py_ssize_t *)PyArray_STRIDES(__pyx_v_self));
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":290
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":290
  *             else:
  *                 info.strides = <Py_ssize_t*>PyArray_STRIDES(self)
  *                 info.shape = <Py_ssize_t*>PyArray_DIMS(self)             # <<<<<<<<<<<<<<
@@ -8232,7 +8238,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   }
   __pyx_L9:;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":291
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":291
  *                 info.strides = <Py_ssize_t*>PyArray_STRIDES(self)
  *                 info.shape = <Py_ssize_t*>PyArray_DIMS(self)
  *             info.suboffsets = NULL             # <<<<<<<<<<<<<<
@@ -8241,7 +8247,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->suboffsets = NULL;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":292
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":292
  *                 info.shape = <Py_ssize_t*>PyArray_DIMS(self)
  *             info.suboffsets = NULL
  *             info.itemsize = PyArray_ITEMSIZE(self)             # <<<<<<<<<<<<<<
@@ -8250,7 +8256,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->itemsize = PyArray_ITEMSIZE(__pyx_v_self);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":293
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":293
  *             info.suboffsets = NULL
  *             info.itemsize = PyArray_ITEMSIZE(self)
  *             info.readonly = not PyArray_ISWRITEABLE(self)             # <<<<<<<<<<<<<<
@@ -8259,7 +8265,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_info->readonly = (!(PyArray_ISWRITEABLE(__pyx_v_self) != 0));
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":296
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":296
  * 
  *             cdef int t
  *             cdef char* f = NULL             # <<<<<<<<<<<<<<
@@ -8268,7 +8274,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   __pyx_v_f = NULL;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":297
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":297
  *             cdef int t
  *             cdef char* f = NULL
  *             cdef dtype descr = <dtype>PyArray_DESCR(self)             # <<<<<<<<<<<<<<
@@ -8281,7 +8287,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_v_descr = ((PyArray_Descr *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":300
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":300
  *             cdef int offset
  * 
  *             info.obj = self             # <<<<<<<<<<<<<<
@@ -8294,7 +8300,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __Pyx_DECREF(__pyx_v_info->obj);
   __pyx_v_info->obj = ((PyObject *)__pyx_v_self);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":302
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":302
  *             info.obj = self
  * 
  *             if not PyDataType_HASFIELDS(descr):             # <<<<<<<<<<<<<<
@@ -8304,7 +8310,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   __pyx_t_1 = ((!(PyDataType_HASFIELDS(__pyx_v_descr) != 0)) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":303
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":303
  * 
  *             if not PyDataType_HASFIELDS(descr):
  *                 t = descr.type_num             # <<<<<<<<<<<<<<
@@ -8314,7 +8320,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __pyx_t_4 = __pyx_v_descr->type_num;
     __pyx_v_t = __pyx_t_4;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":304
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":304
  *             if not PyDataType_HASFIELDS(descr):
  *                 t = descr.type_num
  *                 if ((descr.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -8334,7 +8340,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     }
     __pyx_L15_next_or:;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":305
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":305
  *                 t = descr.type_num
  *                 if ((descr.byteorder == c'>' and little_endian) or
  *                     (descr.byteorder == c'<' and not little_endian)):             # <<<<<<<<<<<<<<
@@ -8351,7 +8357,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __pyx_t_1 = __pyx_t_2;
     __pyx_L14_bool_binop_done:;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":304
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":304
  *             if not PyDataType_HASFIELDS(descr):
  *                 t = descr.type_num
  *                 if ((descr.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -8360,7 +8366,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     if (unlikely(__pyx_t_1)) {
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":306
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":306
  *                 if ((descr.byteorder == c'>' and little_endian) or
  *                     (descr.byteorder == c'<' and not little_endian)):
  *                     raise ValueError(u"Non-native byte order not supported")             # <<<<<<<<<<<<<<
@@ -8373,7 +8379,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __PYX_ERR(2, 306, __pyx_L1_error)
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":304
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":304
  *             if not PyDataType_HASFIELDS(descr):
  *                 t = descr.type_num
  *                 if ((descr.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -8382,7 +8388,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     }
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":307
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":307
  *                     (descr.byteorder == c'<' and not little_endian)):
  *                     raise ValueError(u"Non-native byte order not supported")
  *                 if   t == NPY_BYTE:        f = "b"             # <<<<<<<<<<<<<<
@@ -8395,7 +8401,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_UBYTE:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":308
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":308
  *                     raise ValueError(u"Non-native byte order not supported")
  *                 if   t == NPY_BYTE:        f = "b"
  *                 elif t == NPY_UBYTE:       f = "B"             # <<<<<<<<<<<<<<
@@ -8406,7 +8412,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_SHORT:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":309
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":309
  *                 if   t == NPY_BYTE:        f = "b"
  *                 elif t == NPY_UBYTE:       f = "B"
  *                 elif t == NPY_SHORT:       f = "h"             # <<<<<<<<<<<<<<
@@ -8417,7 +8423,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_USHORT:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":310
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":310
  *                 elif t == NPY_UBYTE:       f = "B"
  *                 elif t == NPY_SHORT:       f = "h"
  *                 elif t == NPY_USHORT:      f = "H"             # <<<<<<<<<<<<<<
@@ -8428,7 +8434,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_INT:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":311
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":311
  *                 elif t == NPY_SHORT:       f = "h"
  *                 elif t == NPY_USHORT:      f = "H"
  *                 elif t == NPY_INT:         f = "i"             # <<<<<<<<<<<<<<
@@ -8439,7 +8445,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_UINT:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":312
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":312
  *                 elif t == NPY_USHORT:      f = "H"
  *                 elif t == NPY_INT:         f = "i"
  *                 elif t == NPY_UINT:        f = "I"             # <<<<<<<<<<<<<<
@@ -8450,7 +8456,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_LONG:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":313
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":313
  *                 elif t == NPY_INT:         f = "i"
  *                 elif t == NPY_UINT:        f = "I"
  *                 elif t == NPY_LONG:        f = "l"             # <<<<<<<<<<<<<<
@@ -8461,7 +8467,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_ULONG:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":314
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":314
  *                 elif t == NPY_UINT:        f = "I"
  *                 elif t == NPY_LONG:        f = "l"
  *                 elif t == NPY_ULONG:       f = "L"             # <<<<<<<<<<<<<<
@@ -8472,7 +8478,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_LONGLONG:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":315
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":315
  *                 elif t == NPY_LONG:        f = "l"
  *                 elif t == NPY_ULONG:       f = "L"
  *                 elif t == NPY_LONGLONG:    f = "q"             # <<<<<<<<<<<<<<
@@ -8483,7 +8489,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_ULONGLONG:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":316
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":316
  *                 elif t == NPY_ULONG:       f = "L"
  *                 elif t == NPY_LONGLONG:    f = "q"
  *                 elif t == NPY_ULONGLONG:   f = "Q"             # <<<<<<<<<<<<<<
@@ -8494,7 +8500,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_FLOAT:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":317
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":317
  *                 elif t == NPY_LONGLONG:    f = "q"
  *                 elif t == NPY_ULONGLONG:   f = "Q"
  *                 elif t == NPY_FLOAT:       f = "f"             # <<<<<<<<<<<<<<
@@ -8505,7 +8511,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_DOUBLE:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":318
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":318
  *                 elif t == NPY_ULONGLONG:   f = "Q"
  *                 elif t == NPY_FLOAT:       f = "f"
  *                 elif t == NPY_DOUBLE:      f = "d"             # <<<<<<<<<<<<<<
@@ -8516,7 +8522,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_LONGDOUBLE:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":319
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":319
  *                 elif t == NPY_FLOAT:       f = "f"
  *                 elif t == NPY_DOUBLE:      f = "d"
  *                 elif t == NPY_LONGDOUBLE:  f = "g"             # <<<<<<<<<<<<<<
@@ -8527,7 +8533,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_CFLOAT:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":320
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":320
  *                 elif t == NPY_DOUBLE:      f = "d"
  *                 elif t == NPY_LONGDOUBLE:  f = "g"
  *                 elif t == NPY_CFLOAT:      f = "Zf"             # <<<<<<<<<<<<<<
@@ -8538,7 +8544,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_CDOUBLE:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":321
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":321
  *                 elif t == NPY_LONGDOUBLE:  f = "g"
  *                 elif t == NPY_CFLOAT:      f = "Zf"
  *                 elif t == NPY_CDOUBLE:     f = "Zd"             # <<<<<<<<<<<<<<
@@ -8549,7 +8555,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_CLONGDOUBLE:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":322
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":322
  *                 elif t == NPY_CFLOAT:      f = "Zf"
  *                 elif t == NPY_CDOUBLE:     f = "Zd"
  *                 elif t == NPY_CLONGDOUBLE: f = "Zg"             # <<<<<<<<<<<<<<
@@ -8560,7 +8566,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       case NPY_OBJECT:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":323
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":323
  *                 elif t == NPY_CDOUBLE:     f = "Zd"
  *                 elif t == NPY_CLONGDOUBLE: f = "Zg"
  *                 elif t == NPY_OBJECT:      f = "O"             # <<<<<<<<<<<<<<
@@ -8571,7 +8577,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
       default:
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":325
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":325
  *                 elif t == NPY_OBJECT:      f = "O"
  *                 else:
  *                     raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)             # <<<<<<<<<<<<<<
@@ -8592,7 +8598,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
       break;
     }
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":326
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":326
  *                 else:
  *                     raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)
  *                 info.format = f             # <<<<<<<<<<<<<<
@@ -8601,7 +8607,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     __pyx_v_info->format = __pyx_v_f;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":327
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":327
  *                     raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)
  *                 info.format = f
  *                 return             # <<<<<<<<<<<<<<
@@ -8611,7 +8617,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __pyx_r = 0;
     goto __pyx_L0;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":302
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":302
  *             info.obj = self
  * 
  *             if not PyDataType_HASFIELDS(descr):             # <<<<<<<<<<<<<<
@@ -8620,7 +8626,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":329
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":329
  *                 return
  *             else:
  *                 info.format = <char*>PyObject_Malloc(_buffer_format_string_len)             # <<<<<<<<<<<<<<
@@ -8630,7 +8636,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   /*else*/ {
     __pyx_v_info->format = ((char *)PyObject_Malloc(0xFF));
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":330
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":330
  *             else:
  *                 info.format = <char*>PyObject_Malloc(_buffer_format_string_len)
  *                 info.format[0] = c'^' # Native data types, manual alignment             # <<<<<<<<<<<<<<
@@ -8639,7 +8645,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     (__pyx_v_info->format[0]) = '^';
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":331
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":331
  *                 info.format = <char*>PyObject_Malloc(_buffer_format_string_len)
  *                 info.format[0] = c'^' # Native data types, manual alignment
  *                 offset = 0             # <<<<<<<<<<<<<<
@@ -8648,7 +8654,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
  */
     __pyx_v_offset = 0;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":332
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":332
  *                 info.format[0] = c'^' # Native data types, manual alignment
  *                 offset = 0
  *                 f = _util_dtypestring(descr, info.format + 1,             # <<<<<<<<<<<<<<
@@ -8658,7 +8664,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     __pyx_t_9 = __pyx_f_5numpy__util_dtypestring(__pyx_v_descr, (__pyx_v_info->format + 1), (__pyx_v_info->format + 0xFF), (&__pyx_v_offset)); if (unlikely(__pyx_t_9 == ((char *)NULL))) __PYX_ERR(2, 332, __pyx_L1_error)
     __pyx_v_f = __pyx_t_9;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":335
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":335
  *                                       info.format + _buffer_format_string_len,
  *                                       &offset)
  *                 f[0] = c'\0' # Terminate format string             # <<<<<<<<<<<<<<
@@ -8668,7 +8674,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
     (__pyx_v_f[0]) = '\x00';
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":258
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":258
  *         # experimental exception made for __getbuffer__ and __releasebuffer__
  *         # -- the details of this may change.
  *         def __getbuffer__(ndarray self, Py_buffer* info, int flags):             # <<<<<<<<<<<<<<
@@ -8700,7 +8706,7 @@ static int __pyx_pf_5numpy_7ndarray___getbuffer__(PyArrayObject *__pyx_v_self, P
   return __pyx_r;
 }
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":337
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":337
  *                 f[0] = c'\0' # Terminate format string
  * 
  *         def __releasebuffer__(ndarray self, Py_buffer* info):             # <<<<<<<<<<<<<<
@@ -8724,7 +8730,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("__releasebuffer__", 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":338
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":338
  * 
  *         def __releasebuffer__(ndarray self, Py_buffer* info):
  *             if PyArray_HASFIELDS(self):             # <<<<<<<<<<<<<<
@@ -8734,7 +8740,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
   __pyx_t_1 = (PyArray_HASFIELDS(__pyx_v_self) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":339
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":339
  *         def __releasebuffer__(ndarray self, Py_buffer* info):
  *             if PyArray_HASFIELDS(self):
  *                 PyObject_Free(info.format)             # <<<<<<<<<<<<<<
@@ -8743,7 +8749,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
  */
     PyObject_Free(__pyx_v_info->format);
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":338
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":338
  * 
  *         def __releasebuffer__(ndarray self, Py_buffer* info):
  *             if PyArray_HASFIELDS(self):             # <<<<<<<<<<<<<<
@@ -8752,7 +8758,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
  */
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":340
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":340
  *             if PyArray_HASFIELDS(self):
  *                 PyObject_Free(info.format)
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):             # <<<<<<<<<<<<<<
@@ -8762,7 +8768,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
   __pyx_t_1 = (((sizeof(npy_intp)) != (sizeof(Py_ssize_t))) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":341
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":341
  *                 PyObject_Free(info.format)
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):
  *                 PyObject_Free(info.strides)             # <<<<<<<<<<<<<<
@@ -8771,7 +8777,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
  */
     PyObject_Free(__pyx_v_info->strides);
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":340
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":340
  *             if PyArray_HASFIELDS(self):
  *                 PyObject_Free(info.format)
  *             if sizeof(npy_intp) != sizeof(Py_ssize_t):             # <<<<<<<<<<<<<<
@@ -8780,7 +8786,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
  */
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":337
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":337
  *                 f[0] = c'\0' # Terminate format string
  * 
  *         def __releasebuffer__(ndarray self, Py_buffer* info):             # <<<<<<<<<<<<<<
@@ -8792,7 +8798,7 @@ static void __pyx_pf_5numpy_7ndarray_2__releasebuffer__(PyArrayObject *__pyx_v_s
   __Pyx_RefNannyFinishContext();
 }
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":821
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":821
  * ctypedef npy_cdouble     complex_t
  * 
  * cdef inline object PyArray_MultiIterNew1(a):             # <<<<<<<<<<<<<<
@@ -8806,7 +8812,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew1", 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":822
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":822
  * 
  * cdef inline object PyArray_MultiIterNew1(a):
  *     return PyArray_MultiIterNew(1, <void*>a)             # <<<<<<<<<<<<<<
@@ -8820,7 +8826,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":821
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":821
  * ctypedef npy_cdouble     complex_t
  * 
  * cdef inline object PyArray_MultiIterNew1(a):             # <<<<<<<<<<<<<<
@@ -8839,7 +8845,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":824
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":824
  *     return PyArray_MultiIterNew(1, <void*>a)
  * 
  * cdef inline object PyArray_MultiIterNew2(a, b):             # <<<<<<<<<<<<<<
@@ -8853,7 +8859,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew2", 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":825
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":825
  * 
  * cdef inline object PyArray_MultiIterNew2(a, b):
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)             # <<<<<<<<<<<<<<
@@ -8867,7 +8873,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":824
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":824
  *     return PyArray_MultiIterNew(1, <void*>a)
  * 
  * cdef inline object PyArray_MultiIterNew2(a, b):             # <<<<<<<<<<<<<<
@@ -8886,7 +8892,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":827
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":827
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)
  * 
  * cdef inline object PyArray_MultiIterNew3(a, b, c):             # <<<<<<<<<<<<<<
@@ -8900,7 +8906,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew3", 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":828
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":828
  * 
  * cdef inline object PyArray_MultiIterNew3(a, b, c):
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)             # <<<<<<<<<<<<<<
@@ -8914,7 +8920,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":827
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":827
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)
  * 
  * cdef inline object PyArray_MultiIterNew3(a, b, c):             # <<<<<<<<<<<<<<
@@ -8933,7 +8939,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":830
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":830
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)
  * 
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):             # <<<<<<<<<<<<<<
@@ -8947,7 +8953,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew4", 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":831
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":831
  * 
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)             # <<<<<<<<<<<<<<
@@ -8961,7 +8967,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":830
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":830
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)
  * 
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):             # <<<<<<<<<<<<<<
@@ -8980,7 +8986,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":833
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":833
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)
  * 
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):             # <<<<<<<<<<<<<<
@@ -8994,7 +9000,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
   PyObject *__pyx_t_1 = NULL;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew5", 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":834
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":834
  * 
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)             # <<<<<<<<<<<<<<
@@ -9008,7 +9014,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":833
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":833
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)
  * 
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):             # <<<<<<<<<<<<<<
@@ -9027,7 +9033,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":836
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":836
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):             # <<<<<<<<<<<<<<
@@ -9041,7 +9047,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("PyDataType_SHAPE", 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":837
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":837
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  *     if PyDataType_HASSUBARRAY(d):             # <<<<<<<<<<<<<<
@@ -9051,7 +9057,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
   __pyx_t_1 = (PyDataType_HASSUBARRAY(__pyx_v_d) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":838
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":838
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  *     if PyDataType_HASSUBARRAY(d):
  *         return <tuple>d.subarray.shape             # <<<<<<<<<<<<<<
@@ -9063,7 +9069,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
     __pyx_r = ((PyObject*)__pyx_v_d->subarray->shape);
     goto __pyx_L0;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":837
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":837
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  *     if PyDataType_HASSUBARRAY(d):             # <<<<<<<<<<<<<<
@@ -9072,7 +9078,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
  */
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":840
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":840
  *         return <tuple>d.subarray.shape
  *     else:
  *         return ()             # <<<<<<<<<<<<<<
@@ -9086,7 +9092,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
     goto __pyx_L0;
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":836
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":836
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):             # <<<<<<<<<<<<<<
@@ -9101,7 +9107,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
   return __pyx_r;
 }
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":842
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":842
  *         return ()
  * 
  * cdef inline char* _util_dtypestring(dtype descr, char* f, char* end, int* offset) except NULL:             # <<<<<<<<<<<<<<
@@ -9130,7 +9136,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
   char *__pyx_t_9;
   __Pyx_RefNannySetupContext("_util_dtypestring", 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":847
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":847
  * 
  *     cdef dtype child
  *     cdef int endian_detector = 1             # <<<<<<<<<<<<<<
@@ -9139,7 +9145,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
   __pyx_v_endian_detector = 1;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":848
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":848
  *     cdef dtype child
  *     cdef int endian_detector = 1
  *     cdef bint little_endian = ((<char*>&endian_detector)[0] != 0)             # <<<<<<<<<<<<<<
@@ -9148,7 +9154,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
   __pyx_v_little_endian = ((((char *)(&__pyx_v_endian_detector))[0]) != 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":851
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":851
  *     cdef tuple fields
  * 
  *     for childname in descr.names:             # <<<<<<<<<<<<<<
@@ -9171,7 +9177,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __Pyx_XDECREF_SET(__pyx_v_childname, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":852
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":852
  * 
  *     for childname in descr.names:
  *         fields = descr.fields[childname]             # <<<<<<<<<<<<<<
@@ -9188,7 +9194,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __Pyx_XDECREF_SET(__pyx_v_fields, ((PyObject*)__pyx_t_3));
     __pyx_t_3 = 0;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":853
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":853
  *     for childname in descr.names:
  *         fields = descr.fields[childname]
  *         child, new_offset = fields             # <<<<<<<<<<<<<<
@@ -9223,7 +9229,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __Pyx_XDECREF_SET(__pyx_v_new_offset, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":855
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":855
  *         child, new_offset = fields
  * 
  *         if (end - f) - <int>(new_offset - offset[0]) < 15:             # <<<<<<<<<<<<<<
@@ -9240,7 +9246,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __pyx_t_6 = ((((__pyx_v_end - __pyx_v_f) - ((int)__pyx_t_5)) < 15) != 0);
     if (unlikely(__pyx_t_6)) {
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":856
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":856
  * 
  *         if (end - f) - <int>(new_offset - offset[0]) < 15:
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")             # <<<<<<<<<<<<<<
@@ -9253,7 +9259,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __PYX_ERR(2, 856, __pyx_L1_error)
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":855
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":855
  *         child, new_offset = fields
  * 
  *         if (end - f) - <int>(new_offset - offset[0]) < 15:             # <<<<<<<<<<<<<<
@@ -9262,7 +9268,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
     }
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":858
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":858
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")
  * 
  *         if ((child.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -9282,7 +9288,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     }
     __pyx_L8_next_or:;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":859
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":859
  * 
  *         if ((child.byteorder == c'>' and little_endian) or
  *             (child.byteorder == c'<' and not little_endian)):             # <<<<<<<<<<<<<<
@@ -9299,7 +9305,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __pyx_t_6 = __pyx_t_7;
     __pyx_L7_bool_binop_done:;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":858
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":858
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")
  * 
  *         if ((child.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -9308,7 +9314,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
     if (unlikely(__pyx_t_6)) {
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":860
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":860
  *         if ((child.byteorder == c'>' and little_endian) or
  *             (child.byteorder == c'<' and not little_endian)):
  *             raise ValueError(u"Non-native byte order not supported")             # <<<<<<<<<<<<<<
@@ -9321,7 +9327,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __PYX_ERR(2, 860, __pyx_L1_error)
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":858
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":858
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")
  * 
  *         if ((child.byteorder == c'>' and little_endian) or             # <<<<<<<<<<<<<<
@@ -9330,7 +9336,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
     }
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":870
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":870
  * 
  *         # Output padding bytes
  *         while offset[0] < new_offset:             # <<<<<<<<<<<<<<
@@ -9346,7 +9352,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       if (!__pyx_t_6) break;
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":871
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":871
  *         # Output padding bytes
  *         while offset[0] < new_offset:
  *             f[0] = 120 # "x"; pad byte             # <<<<<<<<<<<<<<
@@ -9355,7 +9361,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
       (__pyx_v_f[0]) = 0x78;
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":872
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":872
  *         while offset[0] < new_offset:
  *             f[0] = 120 # "x"; pad byte
  *             f += 1             # <<<<<<<<<<<<<<
@@ -9364,7 +9370,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
       __pyx_v_f = (__pyx_v_f + 1);
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":873
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":873
  *             f[0] = 120 # "x"; pad byte
  *             f += 1
  *             offset[0] += 1             # <<<<<<<<<<<<<<
@@ -9375,7 +9381,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       (__pyx_v_offset[__pyx_t_8]) = ((__pyx_v_offset[__pyx_t_8]) + 1);
     }
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":875
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":875
  *             offset[0] += 1
  * 
  *         offset[0] += child.itemsize             # <<<<<<<<<<<<<<
@@ -9385,7 +9391,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __pyx_t_8 = 0;
     (__pyx_v_offset[__pyx_t_8]) = ((__pyx_v_offset[__pyx_t_8]) + __pyx_v_child->elsize);
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":877
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":877
  *         offset[0] += child.itemsize
  * 
  *         if not PyDataType_HASFIELDS(child):             # <<<<<<<<<<<<<<
@@ -9395,7 +9401,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     __pyx_t_6 = ((!(PyDataType_HASFIELDS(__pyx_v_child) != 0)) != 0);
     if (__pyx_t_6) {
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":878
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":878
  * 
  *         if not PyDataType_HASFIELDS(child):
  *             t = child.type_num             # <<<<<<<<<<<<<<
@@ -9407,7 +9413,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       __Pyx_XDECREF_SET(__pyx_v_t, __pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":879
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":879
  *         if not PyDataType_HASFIELDS(child):
  *             t = child.type_num
  *             if end - f < 5:             # <<<<<<<<<<<<<<
@@ -9417,7 +9423,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       __pyx_t_6 = (((__pyx_v_end - __pyx_v_f) < 5) != 0);
       if (unlikely(__pyx_t_6)) {
 
-        /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":880
+        /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":880
  *             t = child.type_num
  *             if end - f < 5:
  *                 raise RuntimeError(u"Format string allocated too short.")             # <<<<<<<<<<<<<<
@@ -9430,7 +9436,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         __PYX_ERR(2, 880, __pyx_L1_error)
 
-        /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":879
+        /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":879
  *         if not PyDataType_HASFIELDS(child):
  *             t = child.type_num
  *             if end - f < 5:             # <<<<<<<<<<<<<<
@@ -9439,7 +9445,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":883
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":883
  * 
  *             # Until ticket #99 is fixed, use integers to avoid warnings
  *             if   t == NPY_BYTE:        f[0] =  98 #"b"             # <<<<<<<<<<<<<<
@@ -9457,7 +9463,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":884
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":884
  *             # Until ticket #99 is fixed, use integers to avoid warnings
  *             if   t == NPY_BYTE:        f[0] =  98 #"b"
  *             elif t == NPY_UBYTE:       f[0] =  66 #"B"             # <<<<<<<<<<<<<<
@@ -9475,7 +9481,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":885
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":885
  *             if   t == NPY_BYTE:        f[0] =  98 #"b"
  *             elif t == NPY_UBYTE:       f[0] =  66 #"B"
  *             elif t == NPY_SHORT:       f[0] = 104 #"h"             # <<<<<<<<<<<<<<
@@ -9493,7 +9499,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":886
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":886
  *             elif t == NPY_UBYTE:       f[0] =  66 #"B"
  *             elif t == NPY_SHORT:       f[0] = 104 #"h"
  *             elif t == NPY_USHORT:      f[0] =  72 #"H"             # <<<<<<<<<<<<<<
@@ -9511,7 +9517,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":887
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":887
  *             elif t == NPY_SHORT:       f[0] = 104 #"h"
  *             elif t == NPY_USHORT:      f[0] =  72 #"H"
  *             elif t == NPY_INT:         f[0] = 105 #"i"             # <<<<<<<<<<<<<<
@@ -9529,7 +9535,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":888
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":888
  *             elif t == NPY_USHORT:      f[0] =  72 #"H"
  *             elif t == NPY_INT:         f[0] = 105 #"i"
  *             elif t == NPY_UINT:        f[0] =  73 #"I"             # <<<<<<<<<<<<<<
@@ -9547,7 +9553,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":889
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":889
  *             elif t == NPY_INT:         f[0] = 105 #"i"
  *             elif t == NPY_UINT:        f[0] =  73 #"I"
  *             elif t == NPY_LONG:        f[0] = 108 #"l"             # <<<<<<<<<<<<<<
@@ -9565,7 +9571,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":890
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":890
  *             elif t == NPY_UINT:        f[0] =  73 #"I"
  *             elif t == NPY_LONG:        f[0] = 108 #"l"
  *             elif t == NPY_ULONG:       f[0] = 76  #"L"             # <<<<<<<<<<<<<<
@@ -9583,7 +9589,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":891
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":891
  *             elif t == NPY_LONG:        f[0] = 108 #"l"
  *             elif t == NPY_ULONG:       f[0] = 76  #"L"
  *             elif t == NPY_LONGLONG:    f[0] = 113 #"q"             # <<<<<<<<<<<<<<
@@ -9601,7 +9607,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":892
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":892
  *             elif t == NPY_ULONG:       f[0] = 76  #"L"
  *             elif t == NPY_LONGLONG:    f[0] = 113 #"q"
  *             elif t == NPY_ULONGLONG:   f[0] = 81  #"Q"             # <<<<<<<<<<<<<<
@@ -9619,7 +9625,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":893
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":893
  *             elif t == NPY_LONGLONG:    f[0] = 113 #"q"
  *             elif t == NPY_ULONGLONG:   f[0] = 81  #"Q"
  *             elif t == NPY_FLOAT:       f[0] = 102 #"f"             # <<<<<<<<<<<<<<
@@ -9637,7 +9643,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":894
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":894
  *             elif t == NPY_ULONGLONG:   f[0] = 81  #"Q"
  *             elif t == NPY_FLOAT:       f[0] = 102 #"f"
  *             elif t == NPY_DOUBLE:      f[0] = 100 #"d"             # <<<<<<<<<<<<<<
@@ -9655,7 +9661,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":895
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":895
  *             elif t == NPY_FLOAT:       f[0] = 102 #"f"
  *             elif t == NPY_DOUBLE:      f[0] = 100 #"d"
  *             elif t == NPY_LONGDOUBLE:  f[0] = 103 #"g"             # <<<<<<<<<<<<<<
@@ -9673,7 +9679,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":896
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":896
  *             elif t == NPY_DOUBLE:      f[0] = 100 #"d"
  *             elif t == NPY_LONGDOUBLE:  f[0] = 103 #"g"
  *             elif t == NPY_CFLOAT:      f[0] = 90; f[1] = 102; f += 1 # Zf             # <<<<<<<<<<<<<<
@@ -9693,7 +9699,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":897
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":897
  *             elif t == NPY_LONGDOUBLE:  f[0] = 103 #"g"
  *             elif t == NPY_CFLOAT:      f[0] = 90; f[1] = 102; f += 1 # Zf
  *             elif t == NPY_CDOUBLE:     f[0] = 90; f[1] = 100; f += 1 # Zd             # <<<<<<<<<<<<<<
@@ -9713,7 +9719,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":898
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":898
  *             elif t == NPY_CFLOAT:      f[0] = 90; f[1] = 102; f += 1 # Zf
  *             elif t == NPY_CDOUBLE:     f[0] = 90; f[1] = 100; f += 1 # Zd
  *             elif t == NPY_CLONGDOUBLE: f[0] = 90; f[1] = 103; f += 1 # Zg             # <<<<<<<<<<<<<<
@@ -9733,7 +9739,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":899
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":899
  *             elif t == NPY_CDOUBLE:     f[0] = 90; f[1] = 100; f += 1 # Zd
  *             elif t == NPY_CLONGDOUBLE: f[0] = 90; f[1] = 103; f += 1 # Zg
  *             elif t == NPY_OBJECT:      f[0] = 79 #"O"             # <<<<<<<<<<<<<<
@@ -9751,7 +9757,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
         goto __pyx_L15;
       }
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":901
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":901
  *             elif t == NPY_OBJECT:      f[0] = 79 #"O"
  *             else:
  *                 raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)             # <<<<<<<<<<<<<<
@@ -9770,7 +9776,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       }
       __pyx_L15:;
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":902
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":902
  *             else:
  *                 raise ValueError(u"unknown dtype code in numpy.pxd (%d)" % t)
  *             f += 1             # <<<<<<<<<<<<<<
@@ -9779,7 +9785,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
  */
       __pyx_v_f = (__pyx_v_f + 1);
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":877
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":877
  *         offset[0] += child.itemsize
  * 
  *         if not PyDataType_HASFIELDS(child):             # <<<<<<<<<<<<<<
@@ -9789,7 +9795,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
       goto __pyx_L13;
     }
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":906
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":906
  *             # Cython ignores struct boundary information ("T{...}"),
  *             # so don't output it
  *             f = _util_dtypestring(child, f, end, offset)             # <<<<<<<<<<<<<<
@@ -9802,7 +9808,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
     }
     __pyx_L13:;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":851
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":851
  *     cdef tuple fields
  * 
  *     for childname in descr.names:             # <<<<<<<<<<<<<<
@@ -9812,7 +9818,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":907
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":907
  *             # so don't output it
  *             f = _util_dtypestring(child, f, end, offset)
  *     return f             # <<<<<<<<<<<<<<
@@ -9822,7 +9828,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
   __pyx_r = __pyx_v_f;
   goto __pyx_L0;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":842
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":842
  *         return ()
  * 
  * cdef inline char* _util_dtypestring(dtype descr, char* f, char* end, int* offset) except NULL:             # <<<<<<<<<<<<<<
@@ -9847,7 +9853,7 @@ static CYTHON_INLINE char *__pyx_f_5numpy__util_dtypestring(PyArray_Descr *__pyx
   return __pyx_r;
 }
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1022
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1022
  *     int _import_umath() except -1
  * 
  * cdef inline void set_array_base(ndarray arr, object base):             # <<<<<<<<<<<<<<
@@ -9859,7 +9865,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("set_array_base", 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1023
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1023
  * 
  * cdef inline void set_array_base(ndarray arr, object base):
  *     Py_INCREF(base) # important to do this before stealing the reference below!             # <<<<<<<<<<<<<<
@@ -9868,7 +9874,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
  */
   Py_INCREF(__pyx_v_base);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1024
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1024
  * cdef inline void set_array_base(ndarray arr, object base):
  *     Py_INCREF(base) # important to do this before stealing the reference below!
  *     PyArray_SetBaseObject(arr, base)             # <<<<<<<<<<<<<<
@@ -9877,7 +9883,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
  */
   (void)(PyArray_SetBaseObject(__pyx_v_arr, __pyx_v_base));
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1022
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1022
  *     int _import_umath() except -1
  * 
  * cdef inline void set_array_base(ndarray arr, object base):             # <<<<<<<<<<<<<<
@@ -9889,7 +9895,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
   __Pyx_RefNannyFinishContext();
 }
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1026
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1026
  *     PyArray_SetBaseObject(arr, base)
  * 
  * cdef inline object get_array_base(ndarray arr):             # <<<<<<<<<<<<<<
@@ -9904,7 +9910,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("get_array_base", 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1027
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1027
  * 
  * cdef inline object get_array_base(ndarray arr):
  *     base = PyArray_BASE(arr)             # <<<<<<<<<<<<<<
@@ -9913,7 +9919,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
  */
   __pyx_v_base = PyArray_BASE(__pyx_v_arr);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1028
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1028
  * cdef inline object get_array_base(ndarray arr):
  *     base = PyArray_BASE(arr)
  *     if base is NULL:             # <<<<<<<<<<<<<<
@@ -9923,7 +9929,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   __pyx_t_1 = ((__pyx_v_base == NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1029
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1029
  *     base = PyArray_BASE(arr)
  *     if base is NULL:
  *         return None             # <<<<<<<<<<<<<<
@@ -9934,7 +9940,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1028
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1028
  * cdef inline object get_array_base(ndarray arr):
  *     base = PyArray_BASE(arr)
  *     if base is NULL:             # <<<<<<<<<<<<<<
@@ -9943,7 +9949,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
  */
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1030
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1030
  *     if base is NULL:
  *         return None
  *     return <object>base             # <<<<<<<<<<<<<<
@@ -9955,7 +9961,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   __pyx_r = ((PyObject *)__pyx_v_base);
   goto __pyx_L0;
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1026
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1026
  *     PyArray_SetBaseObject(arr, base)
  * 
  * cdef inline object get_array_base(ndarray arr):             # <<<<<<<<<<<<<<
@@ -9970,7 +9976,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   return __pyx_r;
 }
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1034
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1034
  * # Versions of the import_* functions which are more suitable for
  * # Cython code.
  * cdef inline int import_array() except -1:             # <<<<<<<<<<<<<<
@@ -9991,7 +9997,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
   PyObject *__pyx_t_8 = NULL;
   __Pyx_RefNannySetupContext("import_array", 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1035
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1035
  * # Cython code.
  * cdef inline int import_array() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -10007,7 +10013,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1036
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1036
  * cdef inline int import_array() except -1:
  *     try:
  *         _import_array()             # <<<<<<<<<<<<<<
@@ -10016,7 +10022,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
  */
       __pyx_t_4 = _import_array(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(2, 1036, __pyx_L3_error)
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1035
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1035
  * # Cython code.
  * cdef inline int import_array() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -10030,7 +10036,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     goto __pyx_L8_try_end;
     __pyx_L3_error:;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1037
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1037
  *     try:
  *         _import_array()
  *     except Exception:             # <<<<<<<<<<<<<<
@@ -10045,7 +10051,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_7);
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1038
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1038
  *         _import_array()
  *     except Exception:
  *         raise ImportError("numpy.core.multiarray failed to import")             # <<<<<<<<<<<<<<
@@ -10061,7 +10067,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1035
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1035
  * # Cython code.
  * cdef inline int import_array() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -10076,7 +10082,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     __pyx_L8_try_end:;
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1034
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1034
  * # Versions of the import_* functions which are more suitable for
  * # Cython code.
  * cdef inline int import_array() except -1:             # <<<<<<<<<<<<<<
@@ -10099,7 +10105,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
   return __pyx_r;
 }
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1040
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1040
  *         raise ImportError("numpy.core.multiarray failed to import")
  * 
  * cdef inline int import_umath() except -1:             # <<<<<<<<<<<<<<
@@ -10120,7 +10126,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
   PyObject *__pyx_t_8 = NULL;
   __Pyx_RefNannySetupContext("import_umath", 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1041
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1041
  * 
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -10136,7 +10142,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1042
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1042
  * cdef inline int import_umath() except -1:
  *     try:
  *         _import_umath()             # <<<<<<<<<<<<<<
@@ -10145,7 +10151,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
  */
       __pyx_t_4 = _import_umath(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(2, 1042, __pyx_L3_error)
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1041
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1041
  * 
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -10159,7 +10165,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     goto __pyx_L8_try_end;
     __pyx_L3_error:;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1043
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1043
  *     try:
  *         _import_umath()
  *     except Exception:             # <<<<<<<<<<<<<<
@@ -10174,7 +10180,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_7);
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1044
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1044
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
@@ -10190,7 +10196,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1041
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1041
  * 
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -10205,7 +10211,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     __pyx_L8_try_end:;
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1040
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1040
  *         raise ImportError("numpy.core.multiarray failed to import")
  * 
  * cdef inline int import_umath() except -1:             # <<<<<<<<<<<<<<
@@ -10228,7 +10234,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
   return __pyx_r;
 }
 
-/* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1046
+/* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1046
  *         raise ImportError("numpy.core.umath failed to import")
  * 
  * cdef inline int import_ufunc() except -1:             # <<<<<<<<<<<<<<
@@ -10249,7 +10255,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
   PyObject *__pyx_t_8 = NULL;
   __Pyx_RefNannySetupContext("import_ufunc", 0);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1047
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1047
  * 
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -10265,7 +10271,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1048
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1048
  * cdef inline int import_ufunc() except -1:
  *     try:
  *         _import_umath()             # <<<<<<<<<<<<<<
@@ -10274,7 +10280,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
  */
       __pyx_t_4 = _import_umath(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(2, 1048, __pyx_L3_error)
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1047
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1047
  * 
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -10288,7 +10294,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     goto __pyx_L8_try_end;
     __pyx_L3_error:;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1049
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1049
  *     try:
  *         _import_umath()
  *     except Exception:             # <<<<<<<<<<<<<<
@@ -10302,7 +10308,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_7);
 
-      /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1050
+      /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1050
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
@@ -10316,7 +10322,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1047
+    /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1047
  * 
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -10331,7 +10337,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     __pyx_L8_try_end:;
   }
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1046
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1046
  *         raise ImportError("numpy.core.umath failed to import")
  * 
  * cdef inline int import_ufunc() except -1:             # <<<<<<<<<<<<<<
@@ -23346,7 +23352,7 @@ static PyTypeObject __pyx_type_9sknetwork_9hierarchy_5paris_AggregateGraph = {
   0, /*tp_setattro*/
   0, /*tp_as_buffer*/
   Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-  "\n    A class of graphs suitable for aggregation. Each node represents a cluster.\n\n    Parameters\n    ----------\n    out_weights :\n        Out-weights (sums to 1).\n    in_weights :\n        In-weights (sums to 1).\n    data :\n        CSR format data array of the normalized adjacency matrix.\n    indices :\n        CSR format index array of the normalized adjacency matrix.\n    indptr :\n        CSR format index pointer array of the normalized adjacency matrix.\n    shape :\n        Matrix shape.\n\n    Attributes\n    ----------\n    neighbors : dict[dict]\n        Dictionary of dictionary of edge weights.\n    next_cluster : int\n        Index of the next cluster (resulting from aggregation).\n    cluster_sizes : dict\n        Dictionary of cluster sizes.\n    cluster_out_weights : dict\n        Dictionary of cluster out-weights (sums to 1).\n    cluster_in_weights : dict\n        Dictionary of cluster in-weights (sums to 1).\n    ", /*tp_doc*/
+  "A class of graphs suitable for aggregation. Each node represents a cluster.\n\n    Parameters\n    ----------\n    out_weights :\n        Out-weights (sums to 1).\n    in_weights :\n        In-weights (sums to 1).\n    data :\n        CSR format data array of the normalized adjacency matrix.\n    indices :\n        CSR format index array of the normalized adjacency matrix.\n    indptr :\n        CSR format index pointer array of the normalized adjacency matrix.\n    shape :\n        Matrix shape.\n\n    Attributes\n    ----------\n    neighbors : dict[dict]\n        Dictionary of dictionary of edge weights.\n    next_cluster : int\n        Index of the next cluster (resulting from aggregation).\n    cluster_sizes : dict\n        Dictionary of cluster sizes.\n    cluster_out_weights : dict\n        Dictionary of cluster out-weights (sums to 1).\n    cluster_in_weights : dict\n        Dictionary of cluster in-weights (sums to 1).\n    ", /*tp_doc*/
   __pyx_tp_traverse_9sknetwork_9hierarchy_5paris_AggregateGraph, /*tp_traverse*/
   __pyx_tp_clear_9sknetwork_9hierarchy_5paris_AggregateGraph, /*tp_clear*/
   0, /*tp_richcompare*/
@@ -24146,7 +24152,7 @@ static struct PyModuleDef __pyx_moduledef = {
 
 static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ASCII, __pyx_k_ASCII, sizeof(__pyx_k_ASCII), 0, 0, 1, 1},
-  {&__pyx_kp_s_Agglomerative_clustering_algori, __pyx_k_Agglomerative_clustering_algori, sizeof(__pyx_k_Agglomerative_clustering_algori), 0, 0, 1, 0},
+  {&__pyx_kp_s_Agglomerative_clustering_algorit, __pyx_k_Agglomerative_clustering_algorit, sizeof(__pyx_k_Agglomerative_clustering_algorit), 0, 0, 1, 0},
   {&__pyx_n_s_AggregateGraph, __pyx_k_AggregateGraph, sizeof(__pyx_k_AggregateGraph), 0, 0, 1, 1},
   {&__pyx_n_s_BaseHierarchy, __pyx_k_BaseHierarchy, sizeof(__pyx_k_BaseHierarchy), 0, 0, 1, 1},
   {&__pyx_n_s_BiParis, __pyx_k_BiParis, sizeof(__pyx_k_BiParis), 0, 0, 1, 1},
@@ -24162,7 +24168,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_Empty_shape_tuple_for_cython_arr, __pyx_k_Empty_shape_tuple_for_cython_arr, sizeof(__pyx_k_Empty_shape_tuple_for_cython_arr), 0, 0, 1, 0},
   {&__pyx_kp_u_Format_string_allocated_too_shor, __pyx_k_Format_string_allocated_too_shor, sizeof(__pyx_k_Format_string_allocated_too_shor), 0, 1, 0, 0},
   {&__pyx_kp_u_Format_string_allocated_too_shor_2, __pyx_k_Format_string_allocated_too_shor_2, sizeof(__pyx_k_Format_string_allocated_too_shor_2), 0, 1, 0, 0},
-  {&__pyx_kp_s_Hierarchical_clustering_of_bipa, __pyx_k_Hierarchical_clustering_of_bipa, sizeof(__pyx_k_Hierarchical_clustering_of_bipa), 0, 0, 1, 0},
+  {&__pyx_kp_s_Hierarchical_clustering_of_bipar, __pyx_k_Hierarchical_clustering_of_bipar, sizeof(__pyx_k_Hierarchical_clustering_of_bipar), 0, 0, 1, 0},
   {&__pyx_n_s_ImportError, __pyx_k_ImportError, sizeof(__pyx_k_ImportError), 0, 0, 1, 1},
   {&__pyx_kp_s_Incompatible_checksums_s_vs_0x97, __pyx_k_Incompatible_checksums_s_vs_0x97, sizeof(__pyx_k_Incompatible_checksums_s_vs_0x97), 0, 0, 1, 0},
   {&__pyx_kp_s_Incompatible_checksums_s_vs_0xb0, __pyx_k_Incompatible_checksums_s_vs_0xb0, sizeof(__pyx_k_Incompatible_checksums_s_vs_0xb0), 0, 0, 1, 0},
@@ -24334,10 +24340,10 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_sum = __Pyx_GetBuiltinName(__pyx_n_s_sum); if (!__pyx_builtin_sum) __PYX_ERR(0, 70, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 75, __pyx_L1_error)
-  __pyx_builtin_super = __Pyx_GetBuiltinName(__pyx_n_s_super); if (!__pyx_builtin_super) __PYX_ERR(0, 196, __pyx_L1_error)
-  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 218, __pyx_L1_error)
+  __pyx_builtin_sum = __Pyx_GetBuiltinName(__pyx_n_s_sum); if (!__pyx_builtin_sum) __PYX_ERR(0, 69, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 74, __pyx_L1_error)
+  __pyx_builtin_super = __Pyx_GetBuiltinName(__pyx_n_s_super); if (!__pyx_builtin_super) __PYX_ERR(0, 194, __pyx_L1_error)
+  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(0, 215, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(2, 856, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(2, 1038, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 148, __pyx_L1_error)
@@ -24355,29 +24361,29 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "sknetwork/hierarchy/paris.pyx":218
+  /* "sknetwork/hierarchy/paris.pyx":215
  *         adjacency = check_format(adjacency)
  *         if not is_square(adjacency):
  *             raise ValueError('The adjacency matrix is not square. Use BiParis() instead.')             # <<<<<<<<<<<<<<
  *         n = adjacency.shape[0]
  *         sym_adjacency = adjacency + adjacency.T
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_u_The_adjacency_matrix_is_not_squa); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 218, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_u_The_adjacency_matrix_is_not_squa); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
-  /* "sknetwork/hierarchy/paris.pyx":227
+  /* "sknetwork/hierarchy/paris.pyx":224
  * 
  *         if n <= 1:
  *             raise ValueError('The graph must contain at least two nodes.')             # <<<<<<<<<<<<<<
  * 
  *         aggregate_graph = AggregateGraph(out_weights, in_weights, sym_adjacency.data.astype(np.float), sym_adjacency.indices, sym_adjacency.indptr, sym_adjacency.shape)
  */
-  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_u_The_graph_must_contain_at_least); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 227, __pyx_L1_error)
+  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_u_The_graph_must_contain_at_least); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(0, 224, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":272
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":272
  *             if ((flags & pybuf.PyBUF_C_CONTIGUOUS == pybuf.PyBUF_C_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_ARRAY_C_CONTIGUOUS)):
  *                 raise ValueError(u"ndarray is not C contiguous")             # <<<<<<<<<<<<<<
@@ -24388,7 +24394,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":276
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":276
  *             if ((flags & pybuf.PyBUF_F_CONTIGUOUS == pybuf.PyBUF_F_CONTIGUOUS)
  *                 and not PyArray_CHKFLAGS(self, NPY_ARRAY_F_CONTIGUOUS)):
  *                 raise ValueError(u"ndarray is not Fortran contiguous")             # <<<<<<<<<<<<<<
@@ -24399,7 +24405,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__4);
   __Pyx_GIVEREF(__pyx_tuple__4);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":306
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":306
  *                 if ((descr.byteorder == c'>' and little_endian) or
  *                     (descr.byteorder == c'<' and not little_endian)):
  *                     raise ValueError(u"Non-native byte order not supported")             # <<<<<<<<<<<<<<
@@ -24410,7 +24416,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__5);
   __Pyx_GIVEREF(__pyx_tuple__5);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":856
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":856
  * 
  *         if (end - f) - <int>(new_offset - offset[0]) < 15:
  *             raise RuntimeError(u"Format string allocated too short, see comment in numpy.pxd")             # <<<<<<<<<<<<<<
@@ -24421,7 +24427,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__6);
   __Pyx_GIVEREF(__pyx_tuple__6);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":880
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":880
  *             t = child.type_num
  *             if end - f < 5:
  *                 raise RuntimeError(u"Format string allocated too short.")             # <<<<<<<<<<<<<<
@@ -24432,7 +24438,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__7);
   __Pyx_GIVEREF(__pyx_tuple__7);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1038
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1038
  *         _import_array()
  *     except Exception:
  *         raise ImportError("numpy.core.multiarray failed to import")             # <<<<<<<<<<<<<<
@@ -24443,7 +24449,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__8);
   __Pyx_GIVEREF(__pyx_tuple__8);
 
-  /* "../../../PycharmProjects/untitled/venv/lib/site-packages/Cython/Includes/numpy/__init__.pxd":1044
+  /* "venv-3.8/lib/python3.8/site-packages/Cython/Includes/numpy/__init__.pxd":1044
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
@@ -24646,59 +24652,59 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__27);
   __Pyx_GIVEREF(__pyx_tuple__27);
 
-  /* "sknetwork/hierarchy/paris.pyx":195
+  /* "sknetwork/hierarchy/paris.pyx":193
  *     """
  * 
  *     def __init__(self, weights: str = 'degree', reorder: bool = True):             # <<<<<<<<<<<<<<
  *         super(Paris, self).__init__()
  * 
  */
-  __pyx_tuple__28 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_weights, __pyx_n_s_reorder); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(0, 195, __pyx_L1_error)
+  __pyx_tuple__28 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_weights, __pyx_n_s_reorder); if (unlikely(!__pyx_tuple__28)) __PYX_ERR(0, 193, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__28);
   __Pyx_GIVEREF(__pyx_tuple__28);
-  __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__28, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_sknetwork_hierarchy_paris_pyx, __pyx_n_s_init, 195, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(0, 195, __pyx_L1_error)
-  __pyx_tuple__30 = PyTuple_Pack(2, ((PyObject*)__pyx_n_u_degree), ((PyObject *)Py_True)); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 195, __pyx_L1_error)
+  __pyx_codeobj__29 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__28, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_sknetwork_hierarchy_paris_pyx, __pyx_n_s_init, 193, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__29)) __PYX_ERR(0, 193, __pyx_L1_error)
+  __pyx_tuple__30 = PyTuple_Pack(2, ((PyObject*)__pyx_n_u_degree), ((PyObject *)Py_True)); if (unlikely(!__pyx_tuple__30)) __PYX_ERR(0, 193, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__30);
   __Pyx_GIVEREF(__pyx_tuple__30);
 
-  /* "sknetwork/hierarchy/paris.pyx":203
+  /* "sknetwork/hierarchy/paris.pyx":201
  *     @cython.boundscheck(False)
  *     @cython.wraparound(False)
  *     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Paris':             # <<<<<<<<<<<<<<
- *         """
- *         Agglomerative clustering using the nearest neighbor chain.
+ *         """Agglomerative clustering using the nearest neighbor chain.
+ * 
  */
-  __pyx_tuple__31 = PyTuple_Pack(20, __pyx_n_s_self, __pyx_n_s_adjacency, __pyx_n_s_n, __pyx_n_s_sym_adjacency, __pyx_n_s_weights, __pyx_n_s_out_weights, __pyx_n_s_in_weights, __pyx_n_s_aggregate_graph, __pyx_n_s_connected_components, __pyx_n_s_dendrogram_2, __pyx_n_s_node, __pyx_n_s_next_node, __pyx_n_s_cluster_size, __pyx_n_s_next_cluster_size, __pyx_n_s_neighbor, __pyx_n_s_nearest_neighbor, __pyx_n_s_nearest_neighbor_last, __pyx_n_s_chain, __pyx_n_s_sim, __pyx_n_s_max_sim); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_tuple__31 = PyTuple_Pack(20, __pyx_n_s_self, __pyx_n_s_adjacency, __pyx_n_s_n, __pyx_n_s_sym_adjacency, __pyx_n_s_weights, __pyx_n_s_out_weights, __pyx_n_s_in_weights, __pyx_n_s_aggregate_graph, __pyx_n_s_connected_components, __pyx_n_s_dendrogram_2, __pyx_n_s_node, __pyx_n_s_next_node, __pyx_n_s_cluster_size, __pyx_n_s_next_cluster_size, __pyx_n_s_neighbor, __pyx_n_s_nearest_neighbor, __pyx_n_s_nearest_neighbor_last, __pyx_n_s_chain, __pyx_n_s_sim, __pyx_n_s_max_sim); if (unlikely(!__pyx_tuple__31)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__31);
   __Pyx_GIVEREF(__pyx_tuple__31);
-  __pyx_codeobj__32 = (PyObject*)__Pyx_PyCode_New(2, 0, 20, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__31, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_sknetwork_hierarchy_paris_pyx, __pyx_n_s_fit, 203, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__32)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_codeobj__32 = (PyObject*)__Pyx_PyCode_New(2, 0, 20, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__31, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_sknetwork_hierarchy_paris_pyx, __pyx_n_s_fit, 201, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__32)) __PYX_ERR(0, 201, __pyx_L1_error)
 
-  /* "sknetwork/hierarchy/paris.pyx":339
+  /* "sknetwork/hierarchy/paris.pyx":334
+ *     Workshop on Mining and Learning with Graphs.
  *     """
- * 
  *     def __init__(self, weights: str = 'degree', reorder: bool = True):             # <<<<<<<<<<<<<<
  *         Paris.__init__(self, weights, reorder)
  * 
  */
-  __pyx_tuple__33 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_weights, __pyx_n_s_reorder); if (unlikely(!__pyx_tuple__33)) __PYX_ERR(0, 339, __pyx_L1_error)
+  __pyx_tuple__33 = PyTuple_Pack(3, __pyx_n_s_self, __pyx_n_s_weights, __pyx_n_s_reorder); if (unlikely(!__pyx_tuple__33)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__33);
   __Pyx_GIVEREF(__pyx_tuple__33);
-  __pyx_codeobj__34 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__33, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_sknetwork_hierarchy_paris_pyx, __pyx_n_s_init, 339, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__34)) __PYX_ERR(0, 339, __pyx_L1_error)
-  __pyx_tuple__35 = PyTuple_Pack(2, ((PyObject*)__pyx_n_u_degree), ((PyObject *)Py_True)); if (unlikely(!__pyx_tuple__35)) __PYX_ERR(0, 339, __pyx_L1_error)
+  __pyx_codeobj__34 = (PyObject*)__Pyx_PyCode_New(3, 0, 3, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__33, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_sknetwork_hierarchy_paris_pyx, __pyx_n_s_init, 334, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__34)) __PYX_ERR(0, 334, __pyx_L1_error)
+  __pyx_tuple__35 = PyTuple_Pack(2, ((PyObject*)__pyx_n_u_degree), ((PyObject *)Py_True)); if (unlikely(!__pyx_tuple__35)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__35);
   __Pyx_GIVEREF(__pyx_tuple__35);
 
-  /* "sknetwork/hierarchy/paris.pyx":346
+  /* "sknetwork/hierarchy/paris.pyx":341
  *         self.dendrogram_full_ = None
  * 
  *     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiParis':             # <<<<<<<<<<<<<<
  *         """Applies the Paris algorithm to
  * 
  */
-  __pyx_tuple__36 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_biadjacency, __pyx_n_s_paris, __pyx_n_s_adjacency, __pyx_n_s_dendrogram_2, __pyx_n_s_dendrogram_row_2, __pyx_n_s_dendrogram_col_2); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 346, __pyx_L1_error)
+  __pyx_tuple__36 = PyTuple_Pack(7, __pyx_n_s_self, __pyx_n_s_biadjacency, __pyx_n_s_paris, __pyx_n_s_adjacency, __pyx_n_s_dendrogram_2, __pyx_n_s_dendrogram_row_2, __pyx_n_s_dendrogram_col_2); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__36);
   __Pyx_GIVEREF(__pyx_tuple__36);
-  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(2, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_sknetwork_hierarchy_paris_pyx, __pyx_n_s_fit, 346, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 346, __pyx_L1_error)
+  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(2, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_sknetwork_hierarchy_paris_pyx, __pyx_n_s_fit, 341, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 341, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __pyx_unpickle_AggregateGraph(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
@@ -25317,61 +25323,61 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":145
+  /* "sknetwork/hierarchy/paris.pyx":144
  * 
  * 
  * class Paris(BaseHierarchy):             # <<<<<<<<<<<<<<
- *     """
- *     Agglomerative clustering algorithm that performs greedy merge of nodes based on their similarity.
+ *     """Agglomerative clustering algorithm that performs greedy merge of nodes based on their similarity.
+ * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_BaseHierarchy); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_BaseHierarchy); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_1);
   __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_t_2, __pyx_n_s_Paris, __pyx_n_s_Paris, (PyObject *) NULL, __pyx_n_s_sknetwork_hierarchy_paris, __pyx_kp_s_Agglomerative_clustering_algori); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_t_2, __pyx_n_s_Paris, __pyx_n_s_Paris, (PyObject *) NULL, __pyx_n_s_sknetwork_hierarchy_paris, __pyx_kp_s_Agglomerative_clustering_algorit); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
-  /* "sknetwork/hierarchy/paris.pyx":195
+  /* "sknetwork/hierarchy/paris.pyx":193
  *     """
  * 
  *     def __init__(self, weights: str = 'degree', reorder: bool = True):             # <<<<<<<<<<<<<<
  *         super(Paris, self).__init__()
  * 
  */
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 195, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 193, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_weights, __pyx_n_u_unicode) < 0) __PYX_ERR(0, 195, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_reorder, ((PyObject*)&PyBool_Type)) < 0) __PYX_ERR(0, 195, __pyx_L1_error)
-  __pyx_t_5 = __Pyx_CyFunction_NewEx(&__pyx_mdef_9sknetwork_9hierarchy_5paris_5Paris_1__init__, 0, __pyx_n_s_Paris___init, NULL, __pyx_n_s_sknetwork_hierarchy_paris, __pyx_d, ((PyObject *)__pyx_codeobj__29)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 195, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_weights, __pyx_n_u_unicode) < 0) __PYX_ERR(0, 193, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_reorder, ((PyObject*)&PyBool_Type)) < 0) __PYX_ERR(0, 193, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_NewEx(&__pyx_mdef_9sknetwork_9hierarchy_5paris_5Paris_1__init__, 0, __pyx_n_s_Paris___init, NULL, __pyx_n_s_sknetwork_hierarchy_paris, __pyx_d, ((PyObject *)__pyx_codeobj__29)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 193, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_5, __pyx_tuple__30);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_5, __pyx_t_4);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_3, __pyx_n_s_init, __pyx_t_5) < 0) __PYX_ERR(0, 195, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_3, __pyx_n_s_init, __pyx_t_5) < 0) __PYX_ERR(0, 193, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":203
+  /* "sknetwork/hierarchy/paris.pyx":201
  *     @cython.boundscheck(False)
  *     @cython.wraparound(False)
  *     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Paris':             # <<<<<<<<<<<<<<
- *         """
- *         Agglomerative clustering using the nearest neighbor chain.
+ *         """Agglomerative clustering using the nearest neighbor chain.
+ * 
  */
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_Union); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_Union); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_sparse); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_sparse); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_csr_matrix); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_csr_matrix); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_GIVEREF(__pyx_t_7);
   PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_7);
@@ -25379,90 +25385,90 @@ if (!__Pyx_RefNanny) {
   __Pyx_GIVEREF(((PyObject *)__pyx_ptype_5numpy_ndarray));
   PyTuple_SET_ITEM(__pyx_t_6, 1, ((PyObject *)__pyx_ptype_5numpy_ndarray));
   __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_t_4, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 203, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_t_4, __pyx_t_6); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_adjacency, __pyx_t_7) < 0) __PYX_ERR(0, 203, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_adjacency, __pyx_t_7) < 0) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_return, __pyx_n_u_Paris) < 0) __PYX_ERR(0, 203, __pyx_L1_error)
-  __pyx_t_7 = __Pyx_CyFunction_NewEx(&__pyx_mdef_9sknetwork_9hierarchy_5paris_5Paris_3fit, 0, __pyx_n_s_Paris_fit, NULL, __pyx_n_s_sknetwork_hierarchy_paris, __pyx_d, ((PyObject *)__pyx_codeobj__32)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 203, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_return, __pyx_n_u_Paris) < 0) __PYX_ERR(0, 201, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_NewEx(&__pyx_mdef_9sknetwork_9hierarchy_5paris_5Paris_3fit, 0, __pyx_n_s_Paris_fit, NULL, __pyx_n_s_sknetwork_hierarchy_paris, __pyx_d, ((PyObject *)__pyx_codeobj__32)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_7, __pyx_t_5);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_3, __pyx_n_s_fit, __pyx_t_7) < 0) __PYX_ERR(0, 203, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_3, __pyx_n_s_fit, __pyx_t_7) < 0) __PYX_ERR(0, 201, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":145
+  /* "sknetwork/hierarchy/paris.pyx":144
  * 
  * 
  * class Paris(BaseHierarchy):             # <<<<<<<<<<<<<<
- *     """
- *     Agglomerative clustering algorithm that performs greedy merge of nodes based on their similarity.
+ *     """Agglomerative clustering algorithm that performs greedy merge of nodes based on their similarity.
+ * 
  */
-  __pyx_t_7 = __Pyx_Py3ClassCreate(__pyx_t_1, __pyx_n_s_Paris, __pyx_t_2, __pyx_t_3, NULL, 0, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_Py3ClassCreate(__pyx_t_1, __pyx_n_s_Paris, __pyx_t_2, __pyx_t_3, NULL, 0, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Paris, __pyx_t_7) < 0) __PYX_ERR(0, 145, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Paris, __pyx_t_7) < 0) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":293
+  /* "sknetwork/hierarchy/paris.pyx":290
  * 
  * 
  * class BiParis(Paris):             # <<<<<<<<<<<<<<
- *     """
- *     Hierarchical clustering of bipartite graphs by the Paris method.
+ *     """Hierarchical clustering of bipartite graphs by the Paris method.
+ * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Paris); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 293, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_Paris); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 290, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 293, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 290, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_2);
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_CalculateMetaclass(NULL, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 293, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_CalculateMetaclass(NULL, __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 290, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_Py3MetaclassPrepare(__pyx_t_2, __pyx_t_1, __pyx_n_s_BiParis, __pyx_n_s_BiParis, (PyObject *) NULL, __pyx_n_s_sknetwork_hierarchy_paris, __pyx_kp_s_Hierarchical_clustering_of_bipa); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 293, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_Py3MetaclassPrepare(__pyx_t_2, __pyx_t_1, __pyx_n_s_BiParis, __pyx_n_s_BiParis, (PyObject *) NULL, __pyx_n_s_sknetwork_hierarchy_paris, __pyx_kp_s_Hierarchical_clustering_of_bipar); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 290, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
 
-  /* "sknetwork/hierarchy/paris.pyx":339
+  /* "sknetwork/hierarchy/paris.pyx":334
+ *     Workshop on Mining and Learning with Graphs.
  *     """
- * 
  *     def __init__(self, weights: str = 'degree', reorder: bool = True):             # <<<<<<<<<<<<<<
  *         Paris.__init__(self, weights, reorder)
  * 
  */
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 339, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_weights, __pyx_n_u_unicode) < 0) __PYX_ERR(0, 339, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_reorder, ((PyObject*)&PyBool_Type)) < 0) __PYX_ERR(0, 339, __pyx_L1_error)
-  __pyx_t_5 = __Pyx_CyFunction_NewEx(&__pyx_mdef_9sknetwork_9hierarchy_5paris_7BiParis_1__init__, 0, __pyx_n_s_BiParis___init, NULL, __pyx_n_s_sknetwork_hierarchy_paris, __pyx_d, ((PyObject *)__pyx_codeobj__34)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 339, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_weights, __pyx_n_u_unicode) < 0) __PYX_ERR(0, 334, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_reorder, ((PyObject*)&PyBool_Type)) < 0) __PYX_ERR(0, 334, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CyFunction_NewEx(&__pyx_mdef_9sknetwork_9hierarchy_5paris_7BiParis_1__init__, 0, __pyx_n_s_BiParis___init, NULL, __pyx_n_s_sknetwork_hierarchy_paris, __pyx_d, ((PyObject *)__pyx_codeobj__34)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_CyFunction_SetDefaultsTuple(__pyx_t_5, __pyx_tuple__35);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_5, __pyx_t_7);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_3, __pyx_n_s_init, __pyx_t_5) < 0) __PYX_ERR(0, 339, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_3, __pyx_n_s_init, __pyx_t_5) < 0) __PYX_ERR(0, 334, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":346
+  /* "sknetwork/hierarchy/paris.pyx":341
  *         self.dendrogram_full_ = None
  * 
  *     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiParis':             # <<<<<<<<<<<<<<
  *         """Applies the Paris algorithm to
  * 
  */
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 346, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_Union); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 346, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_Union); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_sparse); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 346, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_sparse); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_csr_matrix); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 346, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_csr_matrix); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 346, __pyx_L1_error)
+  __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_GIVEREF(__pyx_t_4);
   PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4);
@@ -25470,30 +25476,30 @@ if (!__Pyx_RefNanny) {
   __Pyx_GIVEREF(((PyObject *)__pyx_ptype_5numpy_ndarray));
   PyTuple_SET_ITEM(__pyx_t_6, 1, ((PyObject *)__pyx_ptype_5numpy_ndarray));
   __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_7, __pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 346, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_7, __pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_biadjacency, __pyx_t_4) < 0) __PYX_ERR(0, 346, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_biadjacency, __pyx_t_4) < 0) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_return, __pyx_n_u_BiParis) < 0) __PYX_ERR(0, 346, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_CyFunction_NewEx(&__pyx_mdef_9sknetwork_9hierarchy_5paris_7BiParis_3fit, 0, __pyx_n_s_BiParis_fit, NULL, __pyx_n_s_sknetwork_hierarchy_paris, __pyx_d, ((PyObject *)__pyx_codeobj__37)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 346, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_return, __pyx_n_u_BiParis) < 0) __PYX_ERR(0, 341, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_CyFunction_NewEx(&__pyx_mdef_9sknetwork_9hierarchy_5paris_7BiParis_3fit, 0, __pyx_n_s_BiParis_fit, NULL, __pyx_n_s_sknetwork_hierarchy_paris, __pyx_d, ((PyObject *)__pyx_codeobj__37)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_CyFunction_SetAnnotationsDict(__pyx_t_4, __pyx_t_5);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (__Pyx_SetNameInClass(__pyx_t_3, __pyx_n_s_fit, __pyx_t_4) < 0) __PYX_ERR(0, 346, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_3, __pyx_n_s_fit, __pyx_t_4) < 0) __PYX_ERR(0, 341, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "sknetwork/hierarchy/paris.pyx":293
+  /* "sknetwork/hierarchy/paris.pyx":290
  * 
  * 
  * class BiParis(Paris):             # <<<<<<<<<<<<<<
- *     """
- *     Hierarchical clustering of bipartite graphs by the Paris method.
+ *     """Hierarchical clustering of bipartite graphs by the Paris method.
+ * 
  */
-  __pyx_t_4 = __Pyx_Py3ClassCreate(__pyx_t_2, __pyx_n_s_BiParis, __pyx_t_1, __pyx_t_3, NULL, 0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 293, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_Py3ClassCreate(__pyx_t_2, __pyx_n_s_BiParis, __pyx_t_1, __pyx_t_3, NULL, 0, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 290, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_BiParis, __pyx_t_4) < 0) __PYX_ERR(0, 293, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_BiParis, __pyx_t_4) < 0) __PYX_ERR(0, 290, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;

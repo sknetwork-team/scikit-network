@@ -5,18 +5,19 @@
 import unittest
 
 from sknetwork.data import cyclic_digraph
-from sknetwork.utils.format import *
-from sknetwork.utils.check import has_nonnegative_entries, has_positive_entries,\
-    is_proba_array, make_weights, check_is_proba, check_weights,\
-    check_random_state, check_seeds, check_labels, check_n_jobs
+from sknetwork.utils.check import *
 
 
-# noinspection PyMissingOrEmptyDocstring
 class TestChecks(unittest.TestCase):
 
     def setUp(self):
+        """Simple graphs for tests."""
         self.adjacency = cyclic_digraph(3)
         self.dense_mat = np.identity(3)
+
+    def test_check_format(self):
+        with self.assertRaises(TypeError):
+            check_format(self.adjacency.tocsc())
 
     def test_non_negative_entries(self):
         self.assertTrue(has_nonnegative_entries(self.adjacency))
@@ -28,10 +29,9 @@ class TestChecks(unittest.TestCase):
             # noinspection PyTypeChecker
             has_positive_entries(self.adjacency)
 
-    def test_proba_array_1d(self):
+    def test_probas(self):
         self.assertTrue(is_proba_array(np.array([.5, .5])))
-
-    def test_error_proba_array(self):
+        self.assertEqual(0.5, check_is_proba(0.5))
         with self.assertRaises(TypeError):
             is_proba_array(np.ones((2, 2, 2)))
 
@@ -73,7 +73,13 @@ class TestChecks(unittest.TestCase):
         seeds_dict = {0: 0, 1: 1}
         labels_array = check_seeds(seeds_array, n)
         labels_dict = check_seeds(seeds_dict, n)
+
         self.assertTrue(np.allclose(labels_array, labels_dict))
+        with self.assertRaises(ValueError):
+            check_seeds(labels_array, 5)
+        with self.assertWarns(Warning):
+            seeds_dict[0] = -1
+            check_seeds(seeds_dict, n)
 
     def test_check_labels(self):
         with self.assertRaises(ValueError):
@@ -88,3 +94,20 @@ class TestChecks(unittest.TestCase):
         self.assertEqual(check_n_jobs(None), 1)
         self.assertEqual(check_n_jobs(-1), None)
         self.assertEqual(check_n_jobs(8), 8)
+
+    def test_check_n_neighbors(self):
+        with self.assertWarns(Warning):
+            check_n_neighbors(10, 5)
+
+    def test_adj_vector(self):
+        n = 10
+        vector1 = np.random.rand(n)
+        vector2 = sparse.csr_matrix(vector1)
+        adj1 = check_adjacency_vector(vector1)
+        adj2 = check_adjacency_vector(vector2)
+
+        self.assertAlmostEqual(np.linalg.norm(adj1 - adj2), 0)
+        self.assertEqual(adj1.shape, (1, n))
+
+        with self.assertRaises(ValueError):
+            check_adjacency_vector(vector1, 2 * n)
