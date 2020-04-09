@@ -130,19 +130,19 @@ class GSVD(BaseEmbedding):
 
         Parameters
         ----------
-        adjacency: array-like, shape = (n1, n2)
-            Adjacency matrix, where n1 = n2 is the number of nodes for a standard graph,
-            n1, n2 are the number of nodes in each part for a bipartite graph.
+        adjacency: array-like, shape = (n_row, n_col)
+            Adjacency matrix, where n_row = n_col is the number of nodes for a standard graph,
+            n_row, n_col are the number of nodes in each part for a bipartite graph.
 
         Returns
         -------
         self: :class:`GSVD`
         """
         adjacency = check_format(adjacency).asfptype()
-        n1, n2 = adjacency.shape
+        n_row, n_col = adjacency.shape
 
-        if self.n_components >= min(n1, n2) - 1:
-            n_components = min(n1, n2) - 1
+        if self.n_components >= min(n_row, n_col) - 1:
+            n_components = min(n_row, n_col) - 1
             warnings.warn(Warning("The dimension of the embedding must be less than the number of rows "
                                   "and the number of columns. Changed accordingly."))
         else:
@@ -158,13 +158,13 @@ class GSVD(BaseEmbedding):
         regularization = self.regularization
         if regularization:
             if self.relative_regularization:
-                regularization = regularization * np.sum(adjacency.data) / (n1 * n2)
-            adjacency_reg = SparseLR(adjacency, [(regularization * np.ones(n1), np.ones(n2))])
+                regularization = regularization * np.sum(adjacency.data) / (n_row * n_col)
+            adjacency_reg = SparseLR(adjacency, [(regularization * np.ones(n_row), np.ones(n_col))])
         else:
             adjacency_reg = adjacency
 
-        weights_row = adjacency_reg.dot(np.ones(n2))
-        weights_col = adjacency_reg.T.dot(np.ones(n1))
+        weights_row = adjacency_reg.dot(np.ones(n_col))
+        weights_col = adjacency_reg.T.dot(np.ones(n_row))
         diag_row = diag_pinv(np.power(weights_row, self.factor_row))
         diag_col = diag_pinv(np.power(weights_col, self.factor_col))
         self.solver.fit(safe_sparse_dot(diag_row, safe_sparse_dot(adjacency_reg, diag_col)), n_components)
@@ -317,7 +317,6 @@ class SVD(GSVD):
     <https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf>`_
     Encyclopedia of measurement and statistics, 907-912.
     """
-
     def __init__(self, n_components=2, regularization: Union[None, float] = None, relative_regularization: bool = True,
                  factor_singular: float = 0., normalized: bool = False, solver: Union[str, SVDSolver] = 'auto'):
         super(SVD, self).__init__(n_components, regularization, relative_regularization, factor_singular, 0, 0,
