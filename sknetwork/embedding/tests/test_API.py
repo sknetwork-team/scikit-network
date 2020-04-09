@@ -22,7 +22,7 @@ class TestEmbeddings(unittest.TestCase):
         for method in self.methods:
             with self.assertRaises(ValueError):
                 method.predict(adjacency[0])
-                
+
             embedding = method.fit_transform(adjacency)
 
             self.assertEqual(embedding.shape, (n, 2))

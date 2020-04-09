@@ -48,13 +48,19 @@ def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
     """
     if p == 1:
         norm = matrix.dot(np.ones(matrix.shape[1]))
-    elif p == 2 and isinstance(matrix, np.ndarray):
-        norm = np.linalg.norm(matrix, axis=1)
+    elif p == 2:
+        if isinstance(matrix, np.ndarray):
+            norm = np.linalg.norm(matrix, axis=1)
+        elif isinstance(matrix, sparse.csr_matrix):
+            square = matrix.copy()
+            square.data = square.data ** 2
+            norm = np.sqrt(square.dot(np.ones(matrix.shape[1])))
+        else:
+            raise NotImplementedError('Norm 2 is not available for LinearOperator.')
     else:
-        raise NotImplementedError('Only norms 1 and 2 are available at the moment.'
-                                  'Norm 2 is only available for Numpy arrays.')
+        raise NotImplementedError('Only norms 1 and 2 are available at the moment.')
 
     diag = diag_pinv(norm)
-    if hasattr(matrix, 'left_sparse_dot'):
+    if hasattr(matrix, 'left_sparse_dot') and callable(matrix.left_sparse_dot):
         return matrix.left_sparse_dot(diag)
     return diag.dot(matrix)
