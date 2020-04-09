@@ -154,8 +154,6 @@ class Paris(BaseHierarchy):
     weights :
             Weights of nodes.
             ``'degree'`` (default) or ``'uniform'``.
-    reorder :
-            If True, reorder the dendrogram in increasing order of heights.
 
     Attributes
     ----------
@@ -190,7 +188,7 @@ class Paris(BaseHierarchy):
     Workshop on Mining and Learning with Graphs.
     """
 
-    def __init__(self, weights: str = 'degree', reorder: bool = True):
+    def __init__(self, weights: str = 'degree'):
         super(Paris, self).__init__()
 
         self.weights = weights
@@ -295,8 +293,6 @@ class BiParis(Paris):
     weights :
         Weights of nodes.
         ``'degree'`` (default) or ``'uniform'``.
-    reorder :
-            If ``True``, reorder the dendrogram in increasing order of heights.
     Attributes
     ----------
     dendrogram_ :
