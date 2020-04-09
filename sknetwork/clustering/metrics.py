@@ -103,9 +103,9 @@ def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.n
     biadjacency:
         Biadjacency matrix of the graph (shape :math:`n_{row} \\times n_{col}`).
     labels:
-        Labels of rows, vector of size :math:`n_row`.
+        Labels of rows, vector of size :math:`n_{row}`.
     col_labels:
-        Labels of columns, vector of size :math:`n_col`.
+        Labels of columns, vector of size :math:`n_{col}`.
     weights :
         Weights of nodes.
         ``'degree'`` (default), ``'uniform'`` or custom weights.

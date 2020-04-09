@@ -27,7 +27,7 @@ class LouvainHierarchy(BaseHierarchy):
 
     Attributes
     ----------
-    dendrogram_ : numpy array of shape (n, 3)
+    dendrogram_ : np.ndarray
         Dendrogram.
 
     Notes
