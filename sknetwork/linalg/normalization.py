@@ -43,7 +43,7 @@ def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
 
     Returns
     -------
-    New matrix.
+    normalized matrix : same as input
 
     """
     if p == 1:

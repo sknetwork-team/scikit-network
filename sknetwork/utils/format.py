@@ -37,7 +37,7 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
 
     Returns
     -------
-    New adjacency matrix (symmetric).
+    Adjacency matrix (symmetric) : same as input
     """
     if type(adjacency) == sparse.csr_matrix:
         if weight_sum:
@@ -71,7 +71,7 @@ def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union
 
     Returns
     -------
-    Adjacency matrix.
+    Adjacency matrix : same as input
     """
     n_row, n_col = biadjacency.shape
     if type(biadjacency) == sparse.csr_matrix:
@@ -100,7 +100,7 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
 
     Returns
     -------
-    Adjacency matrix (symmetric).
+    Adjacency matrix (symmetric) : same as input
     """
     if type(biadjacency) == sparse.csr_matrix:
         return sparse.bmat([[None, biadjacency], [biadjacency.T, None]], format='csr')

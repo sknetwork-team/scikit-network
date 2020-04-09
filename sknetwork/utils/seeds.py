@@ -39,7 +39,7 @@ def seeds2probs(n: int, seeds: Union[dict, np.ndarray] = None) -> np.ndarray:
 
     Returns
     -------
-    probs:
+    probs: np.ndarray
         A probability vector.
     """
     if seeds is None:
