@@ -83,7 +83,8 @@ class KMeans(BaseClustering):
         -------
         self: :class:`KMeans`
         """
-        if self.n_clusters > adjacency.shape[0]:
+        n = adjacency.shape[0]
+        if self.n_clusters > n:
             raise ValueError('The number of clusters exceeds the number of nodes.')
 
         embedding = self.embedding_method.fit_transform(adjacency)
@@ -94,10 +95,11 @@ class KMeans(BaseClustering):
             labels = reindex_clusters(kmeans.labels_)
         else:
             labels = kmeans.labels_
+
         self.labels_ = labels
 
         if self.return_membership or self.return_adjacency:
-            membership = membership_matrix(labels)
+            membership = membership_matrix(labels).reshape((n, self.n_clusters))
             if self.return_membership:
                 self.membership_ = normalize(adjacency.dot(membership))
             if self.return_adjacency:
