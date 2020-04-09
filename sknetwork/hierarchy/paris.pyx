@@ -194,7 +194,6 @@ class Paris(BaseHierarchy):
         super(Paris, self).__init__()
 
         self.weights = weights
-        self.reorder = reorder
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -283,6 +282,7 @@ class Paris(BaseHierarchy):
             aggregate_graph.next_cluster += 1
 
         dendrogram = np.array(dendrogram)
+
         self.dendrogram_ = dendrogram
         return self
 
@@ -331,8 +331,8 @@ class BiParis(Paris):
     <https://arxiv.org/abs/1806.01664>`_
     Workshop on Mining and Learning with Graphs.
     """
-    def __init__(self, weights: str = 'degree', reorder: bool = True):
-        Paris.__init__(self, weights, reorder)
+    def __init__(self, weights: str = 'degree'):
+        Paris.__init__(self, weights)
 
         self.dendrogram_row_ = None
         self.dendrogram_col_ = None
@@ -354,7 +354,7 @@ class BiParis(Paris):
         -------
         self: :class:`BiParis`
         """
-        paris = Paris(weights=self.weights, reorder=self.reorder)
+        paris = Paris(weights=self.weights)
         biadjacency = check_format(biadjacency)
 
         adjacency = bipartite2undirected(biadjacency)
