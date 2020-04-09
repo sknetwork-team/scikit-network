@@ -2,8 +2,13 @@
 History
 =======
 
+0.13.1a (2020-04-09)
+--------------------
+
+* Minor bug
+
 0.13.0a (2020-04-09)
--------------------
+--------------------
 
 * Changed from Numba to Cython for better performance
 * Added visualization module
