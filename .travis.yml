@@ -23,5 +23,6 @@ deploy:
     tags: true
     repo: sknetwork-team/scikit-network
     python: 3.6
+  skip_existing: true
 after_success:
   - codecov
