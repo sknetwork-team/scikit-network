@@ -28,6 +28,13 @@ class TestClassificationAPI(unittest.TestCase):
             self.assertEqual(labels2.shape[0], n)
             self.assertTupleEqual(clf.membership_.shape, (n, 2))
 
+        seeds1 = {0: 0, 1: 1}
+        seeds2 = {0: 0, 1: 2}
+        for clf in classifiers:
+            labels1 = (clf.fit_transform(adjacency, seeds1) == 1)
+            labels2 = (clf.fit_transform(adjacency, seeds2) == 2)
+            self.assertTrue((labels1 == labels2).all())
+
     def test_bipartite(self):
         biadjacency = movie_actor(metadata=False)
         n_row, n_col = biadjacency.shape
