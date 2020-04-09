@@ -21,10 +21,7 @@ from sknetwork.utils.format import bipartite2undirected
 
 
 class LaplacianOperator(LinearOperator):
-    """
-    Regularized Laplacian matrix as a scipy LinearOperator.
-    """
-
+    """Regularized Laplacian matrix as a scipy LinearOperator."""
     def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
         LinearOperator.__init__(self, dtype=float, shape=adjacency.shape)
         self.regularization = regularization
@@ -54,7 +51,6 @@ class LaplacianOperator(LinearOperator):
         Returns
         -------
         self
-
         """
         self.dtype = np.dtype(dtype)
         self.laplacian = self.laplacian.astype(self.dtype)
@@ -64,9 +60,7 @@ class LaplacianOperator(LinearOperator):
 
 
 class NormalizedAdjacencyOperator(LinearOperator):
-    """Regularized normalized adjacency matrix as a scipy LinearOperator.
-    """
-
+    """Regularized normalized adjacency matrix as a scipy LinearOperator."""
     def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
         LinearOperator.__init__(self, dtype=float, shape=adjacency.shape)
         self.adjacency = adjacency
@@ -97,7 +91,6 @@ class NormalizedAdjacencyOperator(LinearOperator):
         Returns
         -------
         self
-
         """
         self.dtype = np.dtype(dtype)
         self.adjacency = self.adjacency.astype(self.dtype)
@@ -107,8 +100,7 @@ class NormalizedAdjacencyOperator(LinearOperator):
 
 
 class Spectral(BaseEmbedding):
-    """
-    Spectral embedding of graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`.
+    """Spectral embedding of graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`.
     Eigenvectors are considered in increasing order of eigenvalues, skipping the first eigenvector.
 
     * Graphs (see :class:`BiSpectral` for directed graphs and bipartite graphs).
@@ -166,7 +158,6 @@ class Spectral(BaseEmbedding):
     Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
     Neural computation.
     """
-
     def __init__(self, n_components: int = 2, normalized_laplacian=True,
                  regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
                  equalize: bool = False, barycenter: bool = True, normalized: bool = True,
@@ -208,7 +199,6 @@ class Spectral(BaseEmbedding):
         -------
         self: :class:`Spectral`
         """
-
         adjacency = check_format(adjacency).asfptype()
 
         if not is_square(adjacency):
@@ -421,7 +411,6 @@ class BiSpectral(Spectral):
     Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
     Neural computation.
     """
-
     def __init__(self, n_components: int = 2, normalized_laplacian=True,
                  regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
                  equalize: bool = False, barycenter: bool = True, normalized: bool = True,
