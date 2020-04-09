@@ -4,6 +4,8 @@ __pycache__/
 *$py.class
 
 # C extensions
+*.c
+*.cpp
 *.so
 
 # Distribution / packaging
@@ -119,3 +121,6 @@ venv-3.8/
 
 #allow notebooks for tutorials
 !/docs/tutorials/*/*.ipynb
+
+#html in src
+sknetwork/*/*.html

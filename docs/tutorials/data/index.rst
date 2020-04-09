@@ -4,6 +4,7 @@ Data
 
 .. toctree::
 
-    parsing
+    toy_graphs
+    models
     loading
-    knn
+    parsing

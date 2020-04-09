@@ -11,15 +11,17 @@ from scipy import sparse
 
 from sknetwork.basics import shortest_path
 from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.checks import check_format, is_square
+from sknetwork.utils.check import check_format, is_square
 
 
 class Harmonic(BaseRanking):
-    """
-    Compute the harmonic centrality of each node in a connected graph, corresponding to the average inverse length of
+    """Harmonic centrality of each node in a connected graph, corresponding to the average inverse length of
     the shortest paths from that node to all the other ones.
 
     For a directed graph, the harmonic centrality is computed in terms of outgoing paths.
+
+    * Graphs
+    * Digraphs
 
     Parameters
     ----------
@@ -34,10 +36,11 @@ class Harmonic(BaseRanking):
 
     Example
     -------
+    >>> from sknetwork.data import house
     >>> harmonic = Harmonic()
-    >>> adjacency = sparse.identity(3).tocsr()
+    >>> adjacency = house()
     >>> np.round(harmonic.fit(adjacency).scores_, 2)
-    array([0., 0., 0.])
+    array([3. , 3.5, 3. , 3. , 3.5])
 
     References
     ----------
@@ -53,8 +56,7 @@ class Harmonic(BaseRanking):
         self.n_jobs = n_jobs
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Harmonic':
-        """
-        Harmonic centrality for connected graphs.
+        """Harmonic centrality for connected graphs.
 
         Parameters
         ----------

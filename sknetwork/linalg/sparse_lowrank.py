@@ -28,9 +28,10 @@ class SparseLR(LinearOperator):
 
     References
     ----------
-    De Lara (2019). The Sparse + Low Rank trick for Matrix Factorization-Based Graph Algorithms,
+    De Lara (2019). `The Sparse + Low Rank trick for Matrix Factorization-Based Graph Algorithms.
+    <http://www.mlgworkshop.org/2019/papers/MLG2019_paper_1.pdf>`_
     Proceedings of the 15th International Workshop on Mining and Learning with Graphs (MLG).
-    http://www.mlgworkshop.org/2019/papers/MLG2019_paper_1.pdf
+
 
     """
 

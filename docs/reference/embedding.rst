@@ -7,21 +7,24 @@ Embedding
 
 This module contains graph embedding algorithms.
 
-The attribute ``.embedding_`` assigns a vector to each node of the graph.
+The attribute ``embedding_`` assigns a vector to each node of the graph.
 
 Spectral
 --------
 
 .. autoclass:: sknetwork.embedding.Spectral
-    :inherited-members:
-    :members:
-
-BiSpectral
-----------
 
 .. autoclass:: sknetwork.embedding.BiSpectral
-    :inherited-members:
-    :members:
+
+SVD
+---
+
+.. autoclass:: sknetwork.embedding.SVD
+
+GSVD
+----
+
+.. autoclass:: sknetwork.embedding.GSVD
 
 Metrics
 -------

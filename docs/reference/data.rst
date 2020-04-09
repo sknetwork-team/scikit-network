@@ -3,81 +3,55 @@
 Data
 ####
 
-Sources and tools for importing synthetic and real data.
+Sources and tools for importing data.
 
 Toy graphs
 **********
 
-.. currentmodule:: sknetwork
-
-Synthetic data
---------------
-
-Undirected graphs
-=================
-
-.. autofunction:: sknetwork.data.bow_tie
-
 .. autofunction:: sknetwork.data.house
 
-.. autofunction:: sknetwork.data.simple_directed_graph
-
-Directed graphs
-===============
-
-.. autofunction:: sknetwork.data.rock_paper_scissors
-
-.. autofunction:: sknetwork.data.line_graph
-
-Bipartite graphs
-================
-
-.. autofunction:: sknetwork.data.simple_bipartite_graph
-
-Real-world data
----------------
-
-Undirected graphs
-=================
+.. autofunction:: sknetwork.data.bow_tie
 
 .. autofunction:: sknetwork.data.karate_club
 
 .. autofunction:: sknetwork.data.miserables
 
-Directed graphs
-===============
-
 .. autofunction:: sknetwork.data.painters
 
-Bipartite graphs
-================
+.. autofunction:: sknetwork.data.hourglass
+
+.. autofunction:: sknetwork.data.star_wars
 
 .. autofunction:: sknetwork.data.movie_actor
 
-.. autofunction:: sknetwork.data.star_wars_villains
+Models
+******
 
-Random graph models
--------------------
+.. autofunction:: sknetwork.data.linear_graph
+
+.. autofunction:: sknetwork.data.linear_digraph
+
+.. autofunction:: sknetwork.data.cyclic_graph
+
+.. autofunction:: sknetwork.data.cyclic_digraph
+
+.. autofunction:: sknetwork.data.erdos_renyie
 
 .. autofunction:: sknetwork.data.block_model
 
 Loading
 *******
 
-.. autofunction:: sknetwork.data.load_wikilinks_dataset
+.. autofunction:: sknetwork.data.load_wikilinks
 
-.. autofunction:: sknetwork.data.load_konect_dataset
+.. autofunction:: sknetwork.data.load_konect
 
 Parsing
 *******
 
 You can find some datasets on NetRep_.
 
-.. currentmodule:: sknetwork
-
 .. autofunction:: sknetwork.data.parse_tsv
-
-.. autofunction:: sknetwork.data.parse_labels
 
 .. _NetRep: http://networkrepository.com/
 

@@ -2,9 +2,7 @@
 # coding: utf-8
 """
 Created on July 10 2019
-
-Authors:
-Nathan De Lara <nathan.delara@telecom-paris.fr>
+@author: Nathan De Lara <ndelara@enst.fr>
 """
 
 

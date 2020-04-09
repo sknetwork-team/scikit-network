@@ -15,12 +15,14 @@ Welcome to scikit-network's documentation!
    :maxdepth: 2
    :caption: Tutorials
 
+   tutorials/data/index
    tutorials/clustering/index
    tutorials/hierarchy/index
    tutorials/embedding/index
    tutorials/ranking/index
    tutorials/classification/index
-   tutorials/data/index
+   tutorials/utils/index
+   tutorials/visualization/index
 
 .. toctree::
    :maxdepth: 1

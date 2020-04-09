@@ -4,23 +4,26 @@
 
 import unittest
 
-import numpy as np
-from scipy import sparse
-
 from sknetwork.ranking.closeness import Closeness
-from sknetwork.data.graph_data import house
+from sknetwork.data.test_graphs import *
 
 
-# noinspection DuplicatedCode,PyMissingOrEmptyDocstring
 class TestDiffusion(unittest.TestCase):
 
-    def test_approximate(self):
-        self.closeness = Closeness(method='approximate', n_jobs=-1)
-        scores = self.closeness.fit_transform(house())
-        self.assertEqual((np.round(scores, 2) == [0.67, 0.8, 0.67, 0.67, 0.8]).sum(), 5)
+    def test_parallel(self):
+        adjacency = test_graph()
+        n = adjacency.shape[0]
 
-    def test_connected(self):
-        self.closeness = Closeness()
-        adjacency = sparse.identity(2, format='csr')
+        closeness = Closeness(method='approximate')
+        scores1 = closeness.fit_transform(adjacency)
+        closeness = Closeness(method='approximate', n_jobs=-1)
+        scores2 = closeness.fit_transform(adjacency)
+
+        self.assertEqual(scores1.shape, (n,))
+        self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0)
+
+    def test_disconnected(self):
+        adjacency = test_graph_disconnect()
+        closeness = Closeness()
         with self.assertRaises(ValueError):
-            self.closeness.fit(adjacency)
+            closeness.fit(adjacency)

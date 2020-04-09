@@ -1,12 +1,14 @@
-from sknetwork.utils.adjacency_formats import *
-from sknetwork.utils.kmeans import KMeans
-from sknetwork.utils.kneighbors import KNeighborsTransformer, FWKNeighborsTransformer
-from sknetwork.utils.projection_simplex import projection_simplex
-from sknetwork.utils.ward import Ward
+"""utils module"""
+from sknetwork.utils.format import *
+from sknetwork.utils.kmeans import KMeansDense
+from sknetwork.utils.knn import KNNDense, PNNDense
+from sknetwork.utils.membership import membership_matrix
+from sknetwork.utils.simplex import projection_simplex
+from sknetwork.utils.ward import WardDense
 
 
 class Bunch(dict):
-    """Container object for datasets
+    """Container object for datasets.
     Dictionary-like object that exposes its keys as attributes.
 
     This code is taken from scikit-learn.

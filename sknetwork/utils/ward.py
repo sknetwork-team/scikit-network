@@ -11,25 +11,26 @@ from scipy.cluster.hierarchy import ward
 from sknetwork.utils.base import Algorithm
 
 
-class Ward(Algorithm):
-    """Standard Ward hierarchical clustering based on SciPy.
+class WardDense(Algorithm):
+    """Hierarchical clustering by the Ward method based on SciPy.
 
     Attributes
     ----------
-    dendrogram_ : numpy array of shape (total number of nodes - 1, 4)
+    dendrogram_ : np.ndarray (n - 1, 4)
         Dendrogram.
 
     References
     ----------
-    Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
-    Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2(1), 86-97.
+    * Ward, J. H., Jr. (1963). Hierarchical grouping to optimize an objective function.
+      Journal of the American Statistical Association, 58, 236–244.
 
+    * Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
+      Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2(1), 86-97.
     """
-
     def __init__(self):
         self.dendrogram_ = None
 
-    def fit(self, x: np.ndarray) -> 'Ward':
+    def fit(self, x: np.ndarray) -> 'WardDense':
         """Apply algorithm to a dense matrix.
 
         Parameters
@@ -39,8 +40,7 @@ class Ward(Algorithm):
 
         Returns
         -------
-        self: :class:`Ward`
-
+        self: :class:`WardDense`
         """
         self.dendrogram_ = ward(x)
 

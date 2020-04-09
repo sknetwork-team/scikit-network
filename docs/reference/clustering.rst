@@ -7,33 +7,22 @@ Clustering
 
 This module contains clustering algorithms.
 
-The attribute ``.labels_``  assigns a label (cluster index) to each node of the graph.
+The attribute ``labels_``  assigns a label (cluster index) to each node of the graph.
 
 
 Louvain
 -------
 .. autoclass:: sknetwork.clustering.Louvain
-    :inherited-members:
-    :members:
 
 .. autoclass:: sknetwork.clustering.BiLouvain
-    :inherited-members:
-    :show-inheritance:
-    :members:
 
-.. autoclass:: sknetwork.clustering.GreedyModularity
-    :inherited-members:
-    :members:
 
-Spectral
---------
-.. autoclass:: sknetwork.clustering.SpectralClustering
-    :inherited-members:
-    :members:
+K-Means
+-------
+.. autoclass:: sknetwork.clustering.KMeans
 
-.. autoclass:: sknetwork.clustering.BiSpectralClustering
-    :inherited-members:
-    :members:
+.. autoclass:: sknetwork.clustering.BiKMeans
+
 
 Metrics
 -------
@@ -47,7 +36,6 @@ Metrics
 
 Post-processing
 ---------------
-.. autofunction:: sknetwork.clustering.post_processing.membership_matrix
 
-.. autofunction:: sknetwork.clustering.post_processing.reindex_clusters
+.. autofunction:: sknetwork.clustering.postprocess.reindex_clusters
 

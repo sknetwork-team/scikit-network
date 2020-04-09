@@ -5,5 +5,6 @@ Embedding
 .. toctree::
 
    spectral
+   gsvd
 
 

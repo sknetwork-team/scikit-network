@@ -7,8 +7,7 @@ import unittest
 from sknetwork.utils.verbose import VerboseMixin
 
 
-# noinspection PyMissingOrEmptyDocstring
-class TestChecks(unittest.TestCase):
+class TestVerbose(unittest.TestCase):
 
     def test_prints(self):
         verbose = VerboseMixin(verbose=True)

@@ -2,23 +2,20 @@
 # -*- coding: utf-8 -*-
 """
 Created on Nov 6 2018
-
-Authors:
-Nathan De Lara <ndelara@enst.fr>
-
+@author: Nathan De Lara <ndelara@enst.fr>
 Quality metrics for adjacency embeddings
 """
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.utils.checks import check_format, check_probs, is_square
+from sknetwork.linalg import normalize
+from sknetwork.utils.check import check_format, check_probs, is_square
 
 
-def cosine_modularity(adjacency, embedding: np.ndarray, col_embedding=None, resolution=1., weights='degree',
+def cosine_modularity(adjacency, embedding: np.ndarray, embedding_col=None, resolution=1., weights='degree',
                       return_all: bool = False):
-    """
-    Quality metric of an embedding :math:`x` defined by:
+    """Quality metric of an embedding :math:`x` defined by:
 
     :math:`Q = \\sum_{ij}\\left(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w_iw'_j}{w^2}\\right)
     \\left(\\dfrac{1 + \\pi(x_i)^T\\pi(x_j)}{2}\\right)`
@@ -38,7 +35,7 @@ def cosine_modularity(adjacency, embedding: np.ndarray, col_embedding=None, reso
         Adjacency matrix of the graph.
     embedding: np.ndarray
         Embedding of the nodes.
-    col_embedding: None or np.ndarray
+    embedding_col: None or np.ndarray
         For biadjacency matrices, embedding of the columns.
     resolution: float
         Resolution parameter.
@@ -56,25 +53,20 @@ def cosine_modularity(adjacency, embedding: np.ndarray, col_embedding=None, reso
     adjacency = check_format(adjacency)
     total_weight: float = adjacency.data.sum()
 
-    if col_embedding is None:
+    if embedding_col is None:
         if not is_square(adjacency):
-            raise ValueError('col_embedding cannot be None for non-square adjacency matrices.')
+            raise ValueError('embedding_col cannot be None for non-square adjacency matrices.')
         else:
-            col_embedding = embedding.copy()
+            embedding_col = embedding.copy()
 
-    row_norms = np.linalg.norm(embedding, axis=1)
-    col_norms = np.linalg.norm(col_embedding, axis=1)
+    embedding_row_norm = normalize(embedding, p=1)
+    embedding_col_norm = normalize(embedding_col, p=1)
 
-    norm_row_emb = embedding
-    norm_row_emb[(row_norms > 0)] /= row_norms[:, np.newaxis]
-    norm_col_emb = col_embedding
-    norm_col_emb[(col_norms > 0)] /= col_norms[:, np.newaxis]
+    probs_row = check_probs(weights, adjacency)
+    probs_col = check_probs(weights, adjacency.T)
 
-    row_probs = check_probs(weights, adjacency)
-    col_probs = check_probs(weights, adjacency.T)
-
-    fit: float = 0.5 * (1 + (np.multiply(norm_row_emb, adjacency.dot(norm_col_emb))).sum() / total_weight)
-    div: float = 0.5 * (1 + (embedding.T.dot(row_probs)).dot(col_embedding.T.dot(col_probs)))
+    fit: float = 0.5 * (1 + (np.multiply(embedding_row_norm, adjacency.dot(embedding_col_norm))).sum() / total_weight)
+    div: float = 0.5 * (1 + (embedding.T.dot(probs_row)).dot(embedding_col.T.dot(probs_col)))
 
     if return_all:
         return fit, div, fit - resolution * div

@@ -8,41 +8,42 @@ Utils
 Graph formats
 -------------
 
-.. autofunction:: sknetwork.utils.adjacency_formats.bipartite2directed
+.. autofunction:: sknetwork.utils.format.bipartite2directed
 
-.. autofunction:: sknetwork.utils.adjacency_formats.bipartite2undirected
+.. autofunction:: sknetwork.utils.format.bipartite2undirected
 
-.. autofunction:: sknetwork.utils.adjacency_formats.directed2undirected
+.. autofunction:: sknetwork.utils.format.directed2undirected
 
 
 Checks
 ------
 
-.. automodule:: sknetwork.utils.checks
-    :members:
+.. automodule:: sknetwork.utils.check
 
 
 Algorithms
 ----------
 
-.. autoclass:: sknetwork.utils.kmeans.KMeans
-    :members:
+.. autoclass:: sknetwork.utils.kmeans.KMeansDense
 
-.. autofunction:: sknetwork.utils.projection_simplex.projection_simplex
+.. autofunction:: sknetwork.utils.simplex.projection_simplex
 
-.. autoclass:: sknetwork.utils.ward.Ward
-    :members:
+.. autoclass:: sknetwork.utils.ward.WardDense
 
 
-Transformers
-------------
-.. autoclass:: sknetwork.utils.kneighbors.BaseTransformer
-    :members:
+Nearest-neighbors
+-----------------
 
-.. autoclass:: sknetwork.utils.kneighbors.KNeighborsTransformer
-    :members:
+.. autoclass:: sknetwork.utils.knn.KNNDense
 
-.. autoclass:: sknetwork.utils.kneighbors.FWKNeighborsTransformer
-    :members:
+.. autoclass:: sknetwork.utils.knn.PNNDense
+
+
+Miscellaneous
+-------------
+
+.. autofunction:: sknetwork.utils.membership_matrix
+
+.. automodule:: sknetwork.utils.seeds
 
 

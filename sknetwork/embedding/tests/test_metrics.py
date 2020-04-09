@@ -4,30 +4,27 @@
 
 import unittest
 
-import numpy as np
-from scipy import sparse
-
+from sknetwork.embedding import GSVD
 from sknetwork.embedding.metrics import cosine_modularity
-from sknetwork.data import star_wars_villains
+from sknetwork.data.test_graphs import test_bigraph, test_graph
 
 
 class TestClusteringMetrics(unittest.TestCase):
 
-    def test_cosine_modularity(self):
-        self.graph = sparse.csr_matrix(np.array([[0, 1, 1, 1],
-                                                 [1, 0, 0, 0],
-                                                 [1, 0, 0, 1],
-                                                 [1, 0, 1, 0]]))
-        self.bipartite: sparse.csr_matrix = star_wars_villains()
-        self.embedding = np.ones((4, 2))
-        self.features = np.ones((3, 2))
+    def test_cosine(self):
+        biadjacency = test_bigraph()
+        method = GSVD(3, solver='lanczos')
 
-        self.assertAlmostEqual(cosine_modularity(self.graph, self.embedding), 0.)
-        fit, div, modularity = cosine_modularity(self.graph, self.embedding, return_all=True)
-        self.assertAlmostEqual(fit, 1.)
-        self.assertAlmostEqual(div, 1.)
+        embedding = method.fit_transform(biadjacency)
+        embedding_col = method.embedding_col_
+        fit, div, modularity = cosine_modularity(biadjacency, embedding, embedding_col, return_all=True)
+        modularity = cosine_modularity(biadjacency, embedding, embedding_col, return_all=False)
+        self.assertAlmostEqual(modularity, fit - div)
 
-        self.assertAlmostEqual(cosine_modularity(self.bipartite, self.embedding, self.features), 0.)
-        fit, div, modularity = cosine_modularity(self.bipartite, self.embedding, self.features, return_all=True)
-        self.assertAlmostEqual(fit, 1.)
-        self.assertAlmostEqual(div, 1.)
+        adjacency = test_graph()
+        embedding = method.fit_transform(adjacency)
+        fit, div, modularity = cosine_modularity(adjacency, embedding, return_all=True)
+        self.assertAlmostEqual(modularity, fit - div)
+
+        with self.assertRaises(ValueError):
+            cosine_modularity(biadjacency, embedding)

@@ -8,7 +8,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering import modularity, bimodularity, cocitation_modularity, nsd
-from sknetwork.data import star_wars_villains
+from sknetwork.data import star_wars
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -27,10 +27,10 @@ class TestClusteringMetrics(unittest.TestCase):
         self.assertAlmostEqual(modularity(self.graph, self.unique_cluster), 0.)
 
     def test_bimodularity(self):
-        self.star_wars_graph: sparse.csr_matrix = star_wars_villains()
-        self.villain_labels = np.array([0, 0, 1, 1])
-        self.movie_labels = np.array([0, 1, 0])
-        self.assertEqual(bimodularity(self.star_wars_graph, self.villain_labels, self.movie_labels), 0.1875)
+        biadjacency = star_wars()
+        labels_row = np.array([0, 0, 1, 1])
+        labels_col = np.array([0, 1, 0])
+        self.assertEqual(bimodularity(biadjacency, labels_row, labels_col), 0.1875)
 
     def test_cocitation_modularity(self):
         self.assertAlmostEqual(cocitation_modularity(self.graph, self.labels), 0.0521, 3)

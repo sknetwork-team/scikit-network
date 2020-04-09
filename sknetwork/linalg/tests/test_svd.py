@@ -5,48 +5,48 @@
 import unittest
 
 import numpy as np
-from scipy import sparse
 
 from sknetwork.linalg import LanczosSVD, HalkoSVD, SparseLR
 from sknetwork.data import movie_actor
 
 
-# noinspection PyMissingOrEmptyDocstring
 def svd_err(matrix, u, v, sigma):
+    """Approximation error for singular vectors."""
     err = matrix.dot(v) - u * sigma
     return np.linalg.norm(err)
 
 
-# noinspection DuplicatedCode,PyMissingOrEmptyDocstring
+# noinspection DuplicatedCode
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):
-        self.biadjacency: sparse.csr_matrix = movie_actor()
-        n, m = self.biadjacency.shape
-        self.slr = SparseLR(self.biadjacency, [(np.random.rand(n), np.random.rand(m))])
+        """Simple biadjacency for tests."""
+        self.biadjacency = movie_actor()
+        n1, n2 = self.biadjacency.shape
+        self.slr = SparseLR(self.biadjacency, [(np.random.rand(n1), np.random.rand(n2))])
 
     def test_lanczos(self):
         solver = LanczosSVD()
         solver.fit(self.biadjacency, 2)
         self.assertEqual(len(solver.singular_values_), 2)
-        self.assertAlmostEqual(svd_err(self.biadjacency, solver.left_singular_vectors_, solver.right_singular_vectors_,
+        self.assertAlmostEqual(svd_err(self.biadjacency, solver.singular_vectors_left_, solver.singular_vectors_right_,
                                        solver.singular_values_), 0)
 
         solver.fit(self.slr, 2)
         self.assertEqual(len(solver.singular_values_), 2)
-        self.assertAlmostEqual(svd_err(self.slr, solver.left_singular_vectors_, solver.right_singular_vectors_,
+        self.assertAlmostEqual(svd_err(self.slr, solver.singular_vectors_left_, solver.singular_vectors_right_,
                                        solver.singular_values_), 0)
 
     def test_halko(self):
         solver = HalkoSVD()
         solver.fit(self.biadjacency, 2)
         self.assertEqual(len(solver.singular_values_), 2)
-        self.assertAlmostEqual(svd_err(self.biadjacency, solver.left_singular_vectors_, solver.right_singular_vectors_,
+        self.assertAlmostEqual(svd_err(self.biadjacency, solver.singular_vectors_left_, solver.singular_vectors_right_,
                                        solver.singular_values_), 0)
 
         solver.fit(self.slr, 2)
         self.assertEqual(len(solver.singular_values_), 2)
-        self.assertAlmostEqual(svd_err(self.slr, solver.left_singular_vectors_, solver.right_singular_vectors_,
+        self.assertAlmostEqual(svd_err(self.slr, solver.singular_vectors_left_, solver.singular_vectors_right_,
                                        solver.singular_values_), 0)
 
     def test_compare_solvers(self):

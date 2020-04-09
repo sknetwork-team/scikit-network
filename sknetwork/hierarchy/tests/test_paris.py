@@ -8,57 +8,52 @@ Created on March 2019
 
 import unittest
 
-import numpy as np
-from scipy import sparse
-
-from sknetwork import is_numba_available
-from sknetwork.hierarchy import Paris, BiParis, straight_cut
-from sknetwork.data import house, karate_club, star_wars_villains
+from sknetwork.hierarchy import Paris, BiParis
+from sknetwork.data.test_graphs import *
 
 
 # noinspection PyMissingOrEmptyDocstring
 class TestParis(unittest.TestCase):
 
     def setUp(self):
-        self.paris = Paris(engine='python')
-        self.biparis = BiParis(engine='python')
-        if is_numba_available:
-            self.paris_numba = Paris(engine='numba')
-            self.biparis_numba = BiParis(engine='numba')
-        else:
-            with self.assertRaises(ValueError):
-                Paris(engine='numba')
+        self.paris = [Paris()]
+        self.biparis = [BiParis()]
 
-    # noinspection PyTypeChecker
-    def test_unknown_types(self):
-        with self.assertRaises(TypeError):
-            self.paris.fit(sparse.identity(1))
-
-    # noinspection DuplicatedCode
     def test_undirected(self):
-        house_graph = house()
-        if is_numba_available:
-            self.paris_numba.fit(house_graph)
-            self.assertEqual(self.paris_numba.dendrogram_.shape[0], 4)
-            labels = straight_cut(self.paris_numba.dendrogram_, sorted_clusters=True)
-            self.assertTrue(np.array_equal(labels, np.array([0, 0, 1, 1, 0])))
-        self.paris.fit(house_graph)
-        self.assertEqual(self.paris.dendrogram_.shape[0], 4)
-        labels = straight_cut(self.paris.dendrogram_, sorted_clusters=True)
-        self.assertTrue(np.array_equal(labels, np.array([0, 0, 1, 1, 0])))
+        adjacency = test_graph()
+        n = adjacency.shape[0]
+        for paris in self.paris:
+            dendrogram = paris.fit_transform(adjacency)
+            self.assertEqual(dendrogram.shape, (n - 1, 4))
 
-        karate_club_graph = karate_club()
-        self.paris.fit(karate_club_graph)
-        self.assertEqual(self.paris.dendrogram_.shape[0], 33)
-        labels = straight_cut(self.paris.dendrogram_)
-        self.assertEqual(np.max(labels), 1)
+    def test_directed(self):
+        adjacency = test_digraph()
+        for paris in self.paris:
+            dendrogram = paris.fit_transform(adjacency)
+            n = adjacency.shape[0]
+            self.assertEqual(dendrogram.shape, (n - 1, 4))
 
     def test_bipartite(self):
-        star_wars_graph = star_wars_villains()
-        self.biparis.fit(star_wars_graph)
-        dendrogram = self.biparis.dendrogram_
-        self.assertEqual(dendrogram.shape, (6, 4))
-        if is_numba_available:
-            self.biparis_numba.fit(star_wars_graph)
-            dendrogram = self.biparis_numba.dendrogram_
-            self.assertEqual(dendrogram.shape, (6, 4))
+        biadjacency = test_bigraph()
+        for biparis in self.biparis:
+            biparis.fit(biadjacency)
+            n1, n2 = biadjacency.shape
+            self.assertEqual(biparis.dendrogram_.shape, (n1 - 1, 4))
+            self.assertEqual(biparis.dendrogram_row_.shape, (n1 - 1, 4))
+            self.assertEqual(biparis.dendrogram_col_.shape, (n2 - 1, 4))
+            self.assertEqual(biparis.dendrogram_full_.shape, (n1 + n2 - 1, 4))
+
+    def test_disconnected(self):
+        adjacency = test_graph_disconnect()
+        paris = Paris()
+        dendrogram = paris.fit_transform(adjacency)
+        self.assertEqual(dendrogram.shape, (9, 4))
+
+    def test_options(self):
+        paris = Paris(weights='uniform')
+        adjacency = test_graph()
+        dendrogram = paris.fit_transform(adjacency)
+        n = adjacency.shape[0]
+        self.assertEqual(dendrogram.shape, (n - 1, 4))
+
+

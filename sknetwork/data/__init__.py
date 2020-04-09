@@ -1,5 +1,5 @@
-from sknetwork.data.graph_data import *
-from sknetwork.data.graph_models import block_model
-from sknetwork.data.loading import load_wikilinks_dataset, load_konect_dataset,\
-    clear_data_home, get_data_home
-from sknetwork.data.parsing import parse_tsv, parse_labels
+"""data module"""
+from sknetwork.data.toy_graphs import *
+from sknetwork.data.models import *
+from sknetwork.data.load import load_wikilinks, load_konect, clear_data_home, get_data_home
+from sknetwork.data.parse import parse_tsv, parse_labels

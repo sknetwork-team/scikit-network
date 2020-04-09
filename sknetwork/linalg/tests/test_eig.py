@@ -10,16 +10,17 @@ from sknetwork.linalg import LanczosEig, HalkoEig, SparseLR
 from sknetwork.data import miserables, karate_club
 
 
-# noinspection PyMissingOrEmptyDocstring
 def eigenvector_err(matrix, eigenvectors, eigenvalues):
+    """Approximation error for eigenvectors."""
     err = matrix.dot(eigenvectors) - eigenvectors * eigenvalues
     return np.linalg.norm(err)
 
 
-# noinspection DuplicatedCode,PyMissingOrEmptyDocstring
+# noinspection DuplicatedCode
 class TestSolvers(unittest.TestCase):
 
     def setUp(self):
+        """Instanciate les Miserables and regularized version"""
         self.adjacency = miserables()
         self.random_state = np.random.RandomState(123)
         n = self.adjacency.shape[0]
@@ -36,11 +37,11 @@ class TestSolvers(unittest.TestCase):
         self.assertEqual(len(solver.eigenvalues_), 2)
         self.assertAlmostEqual(eigenvector_err(self.slr, solver.eigenvectors_, solver.eigenvalues_), 0)
 
-        karate = karate_club()
+        adjacency = karate_club()
         solver = LanczosEig('SM')
-        solver.fit(karate, 2)
+        solver.fit(adjacency, 2)
         self.assertEqual(len(solver.eigenvalues_), 2)
-        self.assertAlmostEqual(eigenvector_err(karate, solver.eigenvectors_, solver.eigenvalues_), 0)
+        self.assertAlmostEqual(eigenvector_err(adjacency, solver.eigenvectors_, solver.eigenvalues_), 0)
 
     def test_halko(self):
         solver = HalkoEig('LM', random_state=self.random_state)

@@ -12,20 +12,20 @@ from scipy import sparse
 
 from sknetwork.linalg import SVDSolver, HalkoSVD, LanczosSVD, auto_solver
 from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.checks import check_format
+from sknetwork.utils.check import check_format
 
 
 class HITS(BaseRanking):
-    """
-    Compute the hub and authority weights of each node.
-    For bipartite graphs, the hub score is computed on one part and the authority score on the other one.
+    """Hub and authority scores of each node.
+    For bipartite graphs, the hub score is computed on rows and the authority score on columns.
+
+    * Graphs
+    * Digraphs
+    * Bigraphs
 
     Parameters
     ----------
-    mode:
-        Either ``'hubs'`` or ``'authorities'``. Which of the weights to store in the ``.scores_`` attribute.
-        The other one is stored in ``.col_scores_``.
-    solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
+    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.
 
         * ``'auto'`` call the auto_solver function.
@@ -36,19 +36,18 @@ class HITS(BaseRanking):
     Attributes
     ----------
     scores_ : np.ndarray
-        Hub or authority score of each node, depending on the value of **mode**.
-    col_scores_ : np.ndarray
-        Hub or authority score of each node, depending on the value of **mode**.
+        Hub score of each row.
+    scores_row_ : np.ndarray
+        Hub score of each row (copy of **scores_row_**).
+    scores_col_ : np.ndarray
+        Authority score of each column.
 
     Example
     -------
-    >>> from sknetwork.data import star_wars_villains
     >>> hits = HITS()
-    >>> biadjacency: sparse.csr_matrix = star_wars_villains()
-    >>> np.round(hits.fit(biadjacency).scores_, 2)
-    array([0.5 , 0.23, 0.69, 0.46])
-    >>> np.round(hits.col_scores_, 2)
-    array([0.58, 0.47, 0.67])
+    >>> biadjacency = np.ones((4,3))
+    >>> hits.fit(biadjacency).scores_
+    array([0.5, 0.5, 0.5, 0.5])
 
     References
     ----------
@@ -68,11 +67,11 @@ class HITS(BaseRanking):
         else:
             self.solver = solver
 
-        self.col_scores_ = None
+        self.scores_row_ = None
+        self.scores_col_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'HITS':
-        """
-        Compute HITS algorithm with a spectral method.
+        """Compute HITS algorithm with a spectral method.
 
         Parameters
         ----------
@@ -93,8 +92,8 @@ class HITS(BaseRanking):
                 self.solver: SVDSolver = HalkoSVD()
 
         self.solver.fit(adjacency, 1)
-        hubs: np.ndarray = self.solver.left_singular_vectors_.reshape(-1)
-        authorities: np.ndarray = self.solver.right_singular_vectors_.reshape(-1)
+        hubs: np.ndarray = self.solver.singular_vectors_left_.reshape(-1)
+        authorities: np.ndarray = self.solver.singular_vectors_right_.reshape(-1)
 
         h_pos, h_neg = (hubs > 0).sum(), (hubs < 0).sum()
         a_pos, a_neg = (authorities > 0).sum(), (authorities < 0).sum()
@@ -109,13 +108,8 @@ class HITS(BaseRanking):
         else:
             authorities = np.clip(-authorities, a_min=0., a_max=None)
 
-        if self.mode == 'hubs':
-            self.scores_ = hubs
-            self.col_scores_ = authorities
-        elif self.mode == 'authorities':
-            self.scores_ = authorities
-            self.col_scores_ = hubs
-        else:
-            raise ValueError('Mode should be "hubs" or "authorities".')
+        self.scores_row_ = hubs
+        self.scores_col_ = authorities
+        self.scores_ = hubs
 
         return self

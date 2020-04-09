@@ -10,7 +10,10 @@ from scipy import sparse
 
 def breadth_first_search(adjacency: sparse.csr_matrix, starting_node: int,
                          directed: bool = True, return_predecessors: bool = True):
-    """Return a breadth-first ordering starting with specified node.
+    """Breadth-first ordering starting with specified node.
+
+    * Graphs
+    * Digraphs
 
     Based on SciPy (scipy.sparse.csgraph.breadth_first_order)
 
@@ -41,7 +44,10 @@ def breadth_first_search(adjacency: sparse.csr_matrix, starting_node: int,
 
 def depth_first_search(adjacency: sparse.csr_matrix, starting_node: int,
                        directed: bool = True, return_predecessors: bool = True):
-    """Return a depth-first ordering starting with specified node.
+    """Depth-first ordering starting with specified node.
+
+    * Graphs
+    * Digraphs
 
     Based on SciPy (scipy.sparse.csgraph.depth_first_order)
 

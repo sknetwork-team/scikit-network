@@ -5,11 +5,9 @@ Basics
 
 .. currentmodule:: sknetwork
 
-This module contains well-known algorithms for shortest path computation, structure of the graph and searches (BFS, DFS).
+This module contains standard algorithms for shortest path computation, structure of the graph and searches (BFS, DFS).
 
 Most algorithms are adapted from SciPy_.
-
-.. automodule:: sknetwork.basics
 
 Shortest paths
 --------------
@@ -31,11 +29,6 @@ all-pairs problem):
 +----------------+------------------------------+ For use on graphs without              |
 |    Johnson     | :math:`O(n^2 \log n + nm)`   | negative-weight cycles only            |
 +----------------+------------------------------+----------------------------------------+
-
-Random Walk
------------
-
-.. autofunction:: sknetwork.basics.transition_matrix
 
 
 Searches
@@ -63,6 +56,8 @@ Co-Neighborhood
 ---------------
 
 .. autofunction:: sknetwork.basics.co_neighbors_graph
+
+.. autoclass:: sknetwork.basics.CoNeighbors
 
 
 .. _SciPy: https://docs.scipy.org/doc/scipy/reference/sparse.csgraph.html

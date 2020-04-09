@@ -6,52 +6,62 @@ import unittest
 
 import numpy as np
 
-from sknetwork.ranking.pagerank import PageRank, BiPageRank
-from sknetwork.data import rock_paper_scissors, movie_actor
+from sknetwork.basics import co_neighbors_graph
+from sknetwork.data.models import cyclic_digraph
+from sknetwork.data.test_graphs import test_bigraph
+from sknetwork.ranking.pagerank import PageRank, CoPageRank
 
 
-# noinspection PyMissingOrEmptyDocstring
 class TestPageRank(unittest.TestCase):
 
-    def test_pagerank(self):
-        ground_truth = np.ones(3) / 3
-        adjacency = rock_paper_scissors()
+    def setUp(self) -> None:
+        """Cycle graph for tests."""
+        self.n = 5
+        self.adjacency = cyclic_digraph(self.n)
+        self.truth = np.ones(self.n) / self.n
 
-        pagerank_sps = PageRank(solver='spsolve')
-        pagerank_sps.fit(adjacency)
-        scores = pagerank_sps.scores_
-        self.assertAlmostEqual(np.linalg.norm(scores - ground_truth), 0.)
+    def test_solvers(self):
+        pr = PageRank()
+        scores = pr.fit_transform(self.adjacency)
+        self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
 
-        pagerank_sps.fit(adjacency, personalization=np.array([0, 1, 0]))
-        pagerank_sps.fit(adjacency, personalization={1: 1})
+        pr = PageRank(solver='lanczos')
+        scores = pr.fit_transform(self.adjacency)
+        self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
 
-        pagerank_high_damping = PageRank(damping_factor=0.99)
-        pagerank_high_damping.fit(adjacency)
-        scores = pagerank_high_damping.scores_
-        self.assertAlmostEqual(np.linalg.norm(scores - ground_truth), 0., places=1)
+        pr = PageRank(solver='lsqr')
+        scores = pr.fit_transform(self.adjacency)
+        self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
 
-        pagerank_lcz = PageRank(solver='lanczos')
-        pagerank_lcz.fit(adjacency)
-        scores = pagerank_lcz.scores_
-        self.assertAlmostEqual(np.linalg.norm(scores - ground_truth), 0.)
+    def test_seeding(self):
+        pr = PageRank()
+        seeds_array = np.zeros(self.n)
+        seeds_array[0] = 1.
+        seeds_dict = {0: 1}
 
-        pagerank_lsq = PageRank(solver='lsqr')
-        pagerank_lsq.fit(adjacency)
-        scores = pagerank_lsq.scores_
-        self.assertAlmostEqual(np.linalg.norm(scores - ground_truth), 0.)
+        scores1 = pr.fit_transform(self.adjacency, seeds_array)
+        scores2 = pr.fit_transform(self.adjacency, seeds_dict)
+        self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0.)
 
-        pagerank_naive = PageRank(solver=None)
-        pagerank_naive.fit(adjacency)
+    def test_damping(self):
+        pr = PageRank(damping_factor=0.99)
+        scores = pr.fit_transform(self.adjacency)
+        self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
 
-    def test_bipartite(self):
-        bipagerank = BiPageRank()
-        biadjacency = movie_actor()
-        n1, n2 = biadjacency.shape
+        pr = PageRank(damping_factor=0.01)
+        scores = pr.fit_transform(self.adjacency)
+        self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
 
-        bipagerank.fit(biadjacency, {0: 1})
-        row_scores = bipagerank.row_scores_
-        self.assertEqual(len(row_scores), n1)
-        col_scores = bipagerank.col_scores_
-        self.assertEqual(len(col_scores), n2)
-        scores = bipagerank.scores_
-        self.assertEqual(len(scores), n1 + n2)
+    def test_copagerank(self):
+        seeds = {0: 1}
+        biadjacency = test_bigraph()
+
+        adjacency = co_neighbors_graph(biadjacency, method='exact')
+        scores1 = CoPageRank().fit_transform(biadjacency, seeds)
+        scores2 = PageRank().fit_transform(adjacency, seeds)
+        self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0.)
+
+        adjacency = co_neighbors_graph(biadjacency.T.tocsr(), method='exact')
+        scores1 = CoPageRank().fit(biadjacency, seeds_col=seeds).scores_col_
+        scores2 = PageRank().fit_transform(adjacency, seeds)
+        self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0.)

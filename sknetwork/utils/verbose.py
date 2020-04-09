@@ -7,14 +7,13 @@ Created on Dec 3, 2019
 
 
 class Log:
-    """
-    Log class for easier verbosity features
-    """
+    """Log class for easier verbosity features"""
     def __init__(self, verbose: bool = False):
         self.verbose = verbose
         self.log = ''
 
     def print(self, *args):
+        """Fill log with text."""
         if self.verbose:
             print(*args)
         self.log += ' '.join(map(str, args)) + '\n'
@@ -24,13 +23,11 @@ class Log:
 
 
 class VerboseMixin:
-    """
-    Mixin class for verbosity
-    """
+    """Mixin class for verbosity"""
     def __init__(self, verbose: bool = False):
         self.log = Log(verbose)
 
-    def scipy_solver_info(self, info: int):
+    def _scipy_solver_info(self, info: int):
         """Fill log with scipy info."""
         if info == 0:
             self.log.print('Successful exit.')

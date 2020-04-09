@@ -7,26 +7,24 @@ Classification
 
 This module contains node classification algorithms.
 
-The attribute ``.labels_``  assigns a label to each node of the graph.
+The attribute ``labels_``  assigns a label to each node of the graph.
 
-MaxRank
--------
-.. autoclass:: sknetwork.classification.MaxRank
-    :inherited-members:
-    :members:
+PageRank
+--------
+.. autoclass:: sknetwork.classification.PageRankClassifier
 
-.. autoclass:: sknetwork.classification.BiMaxRank
-    :show-inheritance:
-    :inherited-members:
-    :members:
+.. autoclass:: sknetwork.classification.BiPageRankClassifier
 
-MaxDiff
--------
-.. autoclass:: sknetwork.classification.MaxDiff
-    :inherited-members:
-    :members:
+.. autoclass:: sknetwork.classification.CoPageRankClassifier
 
-.. autoclass:: sknetwork.classification.BiMaxDiff
-    :show-inheritance:
-    :inherited-members:
-    :members:
+Diffusion
+---------
+.. autoclass:: sknetwork.classification.DiffusionClassifier
+
+.. autoclass:: sknetwork.classification.BiDiffusionClassifier
+
+Nearest neighbors
+-----------------
+.. autoclass:: sknetwork.classification.KNN
+
+.. autoclass:: sknetwork.classification.BiKNN

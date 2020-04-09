@@ -6,13 +6,13 @@ Reference
 .. toctree::
 
     introduction
+    data
     clustering
     hierarchy
     embedding
     ranking
     classification
-    soft_classification
     linalg
     basics
-    data
     utils
+    visualization
