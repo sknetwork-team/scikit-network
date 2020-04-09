@@ -5,8 +5,11 @@
 
 
 from setuptools import find_packages
+import distutils.util
 from distutils.core import setup, Extension
+from distutils.command.build_ext import build_ext
 import os
+import sys
 
 import numpy
 
@@ -26,6 +29,57 @@ test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 pyx_paths = ["sknetwork/utils/knn1d.pyx", "sknetwork/clustering/louvain_core.pyx", "sknetwork/hierarchy/paris.pyx"]
 c_paths = ["sknetwork/utils/knn1d.cpp", "sknetwork/clustering/louvain_core.cpp", "sknetwork/hierarchy/paris.cpp"]
 modules = ['sknetwork.utils.knn1d', 'sknetwork.clustering.louvain_core', 'sknetwork.hierarchy.paris']
+
+
+#taken from https://github.com/huggingface/neuralcoref/blob/master/setup.py on 09/04/2020
+def is_new_osx():
+    """Check whether we're on OSX >= 10.10"""
+    name = distutils.util.get_platform()
+    if sys.platform != "darwin":
+        return False
+    elif name.startswith("macosx-10"):
+        minor_version = int(name.split("-")[1].split(".")[1])
+        if minor_version >= 7:
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
+COMPILE_OPTIONS = {
+    "msvc": ["/Ox", "/EHsc"],
+    "mingw32": ["-O2", "-Wno-strict-prototypes", "-Wno-unused-function"],
+    "other": ["-O2", "-Wno-strict-prototypes", "-Wno-unused-function"],
+}
+
+
+LINK_OPTIONS = {"msvc": [], "mingw32": [], "other": []}
+
+if is_new_osx():
+    COMPILE_OPTIONS["other"].append("-stdlib=libc++")
+    LINK_OPTIONS["other"].append("-lc++")
+    # g++ (used by unix compiler on mac) links to libstdc++ as a default lib.
+    # See: https://stackoverflow.com/questions/1653047/avoid-linking-to-libstdc
+    LINK_OPTIONS["other"].append("-nodefaultlibs")
+
+
+class build_ext_options:
+    def build_options(self):
+        for e in self.extensions:
+            e.extra_compile_args += COMPILE_OPTIONS.get(
+                self.compiler.compiler_type, COMPILE_OPTIONS["other"]
+            )
+        for e in self.extensions:
+            e.extra_link_args += LINK_OPTIONS.get(
+                self.compiler.compiler_type, LINK_OPTIONS["other"]
+            )
+
+
+class build_ext_subclass(build_ext, build_ext_options):
+    def build_extensions(self):
+        build_ext_options.build_options(self)
+        build_ext.build_extensions(self)
 
 
 if os.environ.get('SKNETWORK_DISABLE_CYTHONIZE') is None:
@@ -50,9 +104,9 @@ if HAVE_CYTHON:
             # Remove C file to force Cython recompile.
             os.remove(c_path)
 
-        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path]))
+        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()]))
 else:
-    ext_modules = [Extension(modules[index], [c_paths[index]])
+    ext_modules = [Extension(modules[index], [c_paths[index]], include_dirs=[numpy.get_include()])
                    for index in range(len(modules))]
 
 
@@ -87,4 +141,5 @@ setup(
     zip_safe=False,
     ext_modules=ext_modules,
     include_dirs=[numpy.get_include()],
+    cmdclass={"build_ext": build_ext_subclass}
 )
