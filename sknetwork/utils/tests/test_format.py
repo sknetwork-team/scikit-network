@@ -16,14 +16,24 @@ class TestFormats(unittest.TestCase):
         self.biadjacency = star_wars()
 
     def test_dir2undir(self):
-        adjacency = cyclic_digraph(3)
-        undirected_graph = directed2undirected(adjacency)
-        self.assertEqual(undirected_graph.shape, adjacency.shape)
-        self.assertTrue(is_symmetric(undirected_graph))
+        n = 3
+        adjacency = cyclic_digraph(n)
+        ref = directed2undirected(adjacency)
+        self.assertEqual(ref.shape, adjacency.shape)
+        self.assertTrue(is_symmetric(ref))
 
         adjacency = house()
+        n = adjacency.shape[0]
         error = 0.5 * directed2undirected(adjacency) - adjacency
         self.assertEqual(error.nnz, 0)
+
+        slr = SparseLR(adjacency, [(np.zeros(n), np.zeros(n))])
+        slr = 0.5 * directed2undirected(slr)
+        self.assertEqual(slr.shape, (n, n))
+
+        x = np.random.randn(n)
+        error = np.linalg.norm(slr.dot(x) - adjacency.dot(x))
+        self.assertAlmostEqual(error, 0)
 
     def test_bip2dir(self):
         n_row, n_col = self.biadjacency.shape
