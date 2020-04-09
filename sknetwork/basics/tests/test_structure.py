@@ -7,12 +7,16 @@ import unittest
 import numpy as np
 from scipy import sparse
 
-from sknetwork.basics.structure import largest_connected_component, is_bipartite
+from sknetwork.basics.structure import largest_connected_component, is_bipartite, is_connected
 from sknetwork.data import star_wars, cyclic_digraph
 from sknetwork.utils.format import bipartite2undirected, directed2undirected
 
 
 class TestStructure(unittest.TestCase):
+
+    def test_is_connected(self):
+        biadjacency = star_wars()
+        self.assertTrue(is_connected(biadjacency))
 
     def test_largest_cc(self):
         adjacency = cyclic_digraph(3)
@@ -32,9 +36,12 @@ class TestStructure(unittest.TestCase):
         self.assertEqual(np.linalg.norm(indices[0] - np.array([0, 1, 2, 3])), 0)
         self.assertEqual(np.linalg.norm(indices[1] - np.array([0, 1, 2])), 0)
 
+        self.assertTrue(isinstance(largest_connected_component(adjacency, return_labels=False), sparse.csr_matrix))
+
     def test_is_bipartite(self):
         biadjacency = star_wars(metadata=False)
         adjacency = bipartite2undirected(biadjacency)
+        self.assertTrue(is_bipartite(adjacency))
 
         bipartite, pred = is_bipartite(adjacency, return_biadjacency=True)
         self.assertEqual(bipartite, True)
@@ -49,3 +56,8 @@ class TestStructure(unittest.TestCase):
         bipartite, biadjacency = is_bipartite(adjacency, return_biadjacency=True)
         self.assertEqual(bipartite, False)
         self.assertIsNone(biadjacency)
+
+        with self.assertRaises(ValueError):
+            is_bipartite(cyclic_digraph(3))
+
+        self.assertTrue(~is_bipartite(sparse.eye(3)))

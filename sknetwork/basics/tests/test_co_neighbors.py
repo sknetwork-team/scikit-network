@@ -45,12 +45,14 @@ class TestCoNeighbors(unittest.TestCase):
         operator = CoNeighbors(self.biadjacency)
         transition = normalize(operator)
         x = transition.dot(np.ones(transition.shape[1]))
-        self.assertAlmostEqual(np.linalg.norm(x - np.ones(operator.shape[0])), 0)
 
-        operator = CoNeighbors(self.biadjacency, normalized=False)
+        self.assertAlmostEqual(np.linalg.norm(x - np.ones(operator.shape[0])), 0)
         operator.astype(np.float)
         operator.right_sparse_dot(sparse.eye(operator.shape[1], format='csr'))
+
+        operator1 = CoNeighbors(self.biadjacency, normalized=False)
+        operator2 = CoNeighbors(self.biadjacency, normalized=False)
         x = np.random.randn(operator.shape[1])
-        x1 = -operator.dot(x)
-        x2 = (-1 * operator).dot(x)
+        x1 = (-operator1).dot(x)
+        x2 = (operator2 * -1).dot(x)
         self.assertAlmostEqual(np.linalg.norm(x1 - x2), 0)

@@ -108,7 +108,7 @@ class CoNeighbors(LinearOperator):
         self.backward = adjacency
 
     def __neg__(self):
-        self.backward = -self.backward
+        self.backward *= -1
         return self
 
     def __mul__(self, other):
