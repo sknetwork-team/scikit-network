@@ -166,8 +166,7 @@ def aggregate_dendrogram(dendrogram: np.ndarray, n_clusters: int = 2, return_cou
 
 
 def get_index(tree):
-    """
-    Reindexing of a dendrogram from the leaves
+    """Reindex a dendrogram from the leaves
 
     Parameters
     ----------
@@ -186,8 +185,7 @@ def get_index(tree):
 
 
 def get_dendrogram(tree, dendrogram=None, index=None, depth=0, size=None, copy_tree=False):
-    """
-    Reorder a dendrogram in a format compliant with SciPy's visualization from a tree.
+    """Get dendrogram from tree.
 
     Parameters
     ----------
@@ -246,8 +244,7 @@ def get_dendrogram(tree, dendrogram=None, index=None, depth=0, size=None, copy_t
 
 
 def shift_height(dendrogram):
-    """
-    Shift dendrogram to all non-negative heights for SciPy's visualization.
+    """Shift dendrogram to all non-negative heights.
 
     Parameters
     ----------
@@ -264,8 +261,7 @@ def shift_height(dendrogram):
 
 
 def split_dendrogram(dendrogram: np.ndarray, shape: tuple):
-    """
-    Split the dendrogram of a bipartite graph into 2 dendrograms, one for each part.
+    """Split the dendrogram of a bipartite graph into 2 dendrograms, one for each part.
 
     Parameters
     ----------
