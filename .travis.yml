@@ -16,8 +16,8 @@ matrix:
       os: osx
       language: generic
       install:
-          - pip install -r requirements_dev.txt
-          - pip install codecov
+          - pip3 install -r requirements_dev.txt
+          - pip3 install codecov
           - python setup.py develop
       script:
           - py.test --doctest-modules --cov-report=xml --cov=sknetwork
