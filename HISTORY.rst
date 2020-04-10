@@ -2,6 +2,20 @@
 History
 =======
 
+0.13.1a (2020-04-09)
+--------------------
+
+* Minor bug
+
+0.13.0a (2020-04-09)
+--------------------
+
+* Changed from Numba to Cython for better performance
+* Added visualization module
+* Added k-nearest neighbors classifier
+* Added Louvain hierarchy
+* Various API change (including soft classification moved to clustering)
+
 0.12.1 (2020-01-20)
 -------------------
 
