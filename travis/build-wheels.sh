@@ -1,12 +1,10 @@
 #!/bin/bash
 set -e -x
 
-for PYBIN in /opt/python/*/bin; do
-    echo "${PYBIN}"
-done
+versions="/opt/python/cp36-cp36m/bin /opt/python/cp37-cp37m/bin /opt/python/cp38-cp38/bin"
 
 # Compile wheels
-for PYBIN in /opt/python/*/bin; do
+for PYBIN in $versions; do
     "${PYBIN}/pip" install -r /io/requirements_dev.txt
     "${PYBIN}/pip" wheel /io/ -w wheelhouse/
 done
