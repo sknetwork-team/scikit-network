@@ -1,6 +1,6 @@
 language: python
 
-matrix:
+jobs:
   include:
     # perform a linux build
       - if: branch = feat/manylinux
