@@ -16,11 +16,11 @@ matrix:
       os: osx
       language: generic
       install:
-          - pip3 install -r requirements_dev.txt --user
-          - pip3 install codecov --user
-          - python3 setup.py develop
+          - pip3.6 install -r requirements_dev.txt --user
+          - pip3.6 install codecov --user
+          - python3.6 setup.py develop
       script:
-          - python3 -m pytest
+          - python3.6 -m pytest
     - if: branch = master
       dist: xenial   # required for Python >= 3.7
       python: 3.6
