@@ -14,7 +14,7 @@ matrix:
           - ls wheelhouse/
     - if: branch = feat/manylinux
       os: osx
-      python: 3.6
+      language: generic
       install:
           - pip install -r requirements_dev.txt
           - pip install codecov
