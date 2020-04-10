@@ -17,5 +17,5 @@ done
 # Install packages and test
 for PYBIN in $versions; do
     "${PYBIN}/pip" install scikit-network --no-index -f /io/wheelhouse
-    (cd "$HOME"; "${PYBIN}/py.test" py.test --doctest-modules --cov-report=xml --cov=sknetwork)
+    (cd "$HOME"; "${PYBIN}/nosetests" sknetwork)
 done
