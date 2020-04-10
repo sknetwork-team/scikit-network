@@ -114,12 +114,12 @@ def cut_balanced(dendrogram: np.ndarray, max_cluster_size: int = 2, sort_cluster
     if max_cluster_size < 2 or max_cluster_size > n:
         raise ValueError("The maximum cluster size must be between 2 and the number of nodes.")
 
-    cluster = {node: [node] for node in range(n)}
+    cluster = {i: [i] for i in range(n)}
     for t in range(n - 1):
-        left = int(dendrogram[t][0])
-        right = int(dendrogram[t][1])
-        if left in cluster and right in cluster and len(cluster[left]) + len(cluster[right]) <= max_cluster_size:
-            cluster[n + t] = cluster.pop(left) + cluster.pop(right)
+        i = int(dendrogram[t][0])
+        j = int(dendrogram[t][1])
+        if i in cluster and j in cluster and len(cluster[i]) + len(cluster[j]) <= max_cluster_size:
+            cluster[n + t] = cluster.pop(i) + cluster.pop(j)
 
     return get_labels(dendrogram, cluster, sort_clusters, return_dendrogram)
 
