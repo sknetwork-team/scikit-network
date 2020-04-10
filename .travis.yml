@@ -4,14 +4,35 @@ python:
 - 3.8
 - 3.7
 - 3.6
+matrix:
+  include:
+    - sudo: required
+      services:
+        - docker
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+           PLAT=manylinux1_x86_64
+    - sudo: required
+      services:
+        - docker
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux1_i686
+           PRE_CMD=linux32
+           PLAT=manylinux1_i686
+    - sudo: required
+      services:
+        - docker
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
+           PLAT=manylinux2010_x86_64
 install:
   - pip install -r requirements_dev.txt
   - pip install codecov
+  - docker pull $DOCKER_IMAGE
   - python setup.py develop
 env:
   - SKNETWORK_DISABLE_CYTHONIZE=false
   - SKNETWORK_DISABLE_CYTHONIZE=true
 script:
+  - docker run --rm -e PLAT=$PLAT -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-wheels.sh
+  - ls wheelhouse/
   - py.test --doctest-modules --cov-report=xml --cov=sknetwork
 deploy:
   provider: pypi
@@ -19,7 +40,6 @@ deploy:
   user: sharpenb
   password:
     secure: COLNZTrwU2dpuy7AZsBDn6bmPHigMH21suxxNsY1bHwQQKEfWDA9PIt3t2jM3QQSWQRPT6aAwsfFCokAGFUSgmyL3ahdphK+K5ZQ/V6A/nAxpFXWGQY2efL51/JrcKpuCJJsaReB7Rtsvt80LQmJd2nV4rKOu74noDceNbDqcY58kYmfB1nBO84/xqgFMN7RBfEeFe6AH2tetXPgqVNU6RWX9bKnivnH3/lBz4uHET30pLCclHRdcHX+UHxIOjBjT7pGmjLlkyVlO73cRhJX0b1ejeiMOrKJEfo9ZhlFUxcJcqbPmdhNeoLA3LOnc11eaCDOthnDcBY3fC/tEmmqL7qYptbdaO9JGaNve/yWasY3BFCbx1McwFdwgQEZ8dYc2OBntGa3d9eoNvsNLWK37suk1ruSN34PsWwRsQrCV0uMK1QH1FjfEOdGsA/mn7aUpCd+M/QcIfOE8iskvnzqqDbp13Nzmu0r7id5TsoQCmVwTaV0D4bnd92N9lxl5BbnEqGyru7Non/nc0TeLSRqrp+kNXHeUPgVa8gohUWWGRV2fOfeRXG4TJucneifpNtH0STzd/AMCFix7g1fTeAs0UAhqbC88ESWL0kTzT+v8ZuYQCkMBxrYn2Lo7bb1TNWoBWscgAPmCB0cIl4mgaafG5uSo+pTSAduVHCwW81iFqI=
-  skip_existing: true
   on:
     tags: true
     repo: sknetwork-team/scikit-network
