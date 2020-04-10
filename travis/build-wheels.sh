@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e -x
 
+for PYBIN in /opt/python/*/bin; do
+    echo "${PYBIN}"
+done
+
 # Compile wheels
 for PYBIN in /opt/python/*/bin; do
     "${PYBIN}/pip" install -r /io/requirements_dev.txt
