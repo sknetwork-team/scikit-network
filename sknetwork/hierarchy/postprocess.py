@@ -72,6 +72,9 @@ def cut_straight(dendrogram: np.ndarray, n_clusters: int = 2, sort_clusters: boo
     if n_clusters < 1 or n_clusters > n:
         raise ValueError("The number of clusters must be between 1 and the number of nodes.")
 
+    if return_dendrogram and not np.all(np.diff(dendrogram[:, 2]) >= 0):
+        raise ValueError("The third column of the dendrogram must be non-decreasing.")
+
     cluster = {i: [i] for i in range(n)}
     cut = np.sort(dendrogram[:, 2])[n - n_clusters]
     for t in range(n - 1):
@@ -189,24 +192,24 @@ def get_dendrogram(tree, dendrogram=None, index=None, depth=0, size=None, copy_t
 
     Parameters
     ----------
-    tree:
+    tree :
         The initial tree
-    dendrogram:
+    dendrogram :
         Intermediary dendrogram for recursive use
-    index:
+    index :
         Intermediary index for recursive use
-    depth:
+    depth :
         Current depth for recursive use
-    size:
+    size :
         Current leaf count for recursive use
-    copy_tree:
-        If True, ensures the passed tree remains unchanged.
+    copy_tree :
+        If ``True``, ensure the passed tree remains unchanged.
 
     Returns
     -------
-    dendrogram:
+    dendrogram`:
         The reordered dendrogram
-    index:
+    index :
         The indexing array
     """
     if copy_tree:
@@ -248,7 +251,7 @@ def shift_height(dendrogram):
 
     Parameters
     ----------
-    dendrogram:
+    dendrogram :
         The dendrogram to offset
 
     Returns

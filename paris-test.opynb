@@ -1,0 +1,1141 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "collapsed": true
+   },
+   "source": [
+    "# Paris"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "This notebook illustrates the hierarchical clustering of graphs by the [Paris algorithm](https://scikit-network.readthedocs.io/en/latest/reference/hierarchy.html)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from IPython.display import SVG"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%matplotlib inline"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "from scipy.cluster.hierarchy import dendrogram as display_dendrogram"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false,
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "from sknetwork.data import karate_club, painters, movie_actor\n",
+    "from sknetwork.hierarchy import Paris, BiParis, cut_straight, dasgupta_score, tree_sampling_divergence\n",
+    "from sknetwork.visualization import svg_graph, svg_digraph, svg_bigraph"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from sknetwork.hierarchy import Ward, LouvainHierarchy"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Graphs"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Loading**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [],
+   "source": [
+    "graph = karate_club(metadata=True)\n",
+    "adjacency = graph.adjacency\n",
+    "position = graph.position"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Clustering**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [],
+   "source": [
+    "hierarchy = Paris()\n",
+    "dendrogram = hierarchy.fit_transform(adjacency)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([20,  5, 10,  4,  6,  3,  0,  1, 11, 12,  2,  8,  9, 14, 23, 15, 21,\n",
+       "       16,  7, 18, 19, 17, 24, 13, 25, 22, 27, 26, 28, 30, 31, 29, 32])"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "np.argsort(dendrogram[:,2])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Visualization**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "STANDARD_COLORS = np.array(['blue', 'red', 'green', 'orange', ' purple', 'gray', 'yellow', 'fuchsia', 'olive', 'aqua'])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def get_index(dendrogram, reorder = True):\n",
+    "    n = dendrogram.shape[0] + 1\n",
+    "    tree = {i: [i] for i in range(n)}\n",
+    "    for t in range(n - 1):\n",
+    "        i = int(dendrogram[t, 0])\n",
+    "        j = int(dendrogram[t, 1])\n",
+    "        left = tree.pop(i)\n",
+    "        right = tree.pop(j)\n",
+    "        if reorder and len(left) < len(right):\n",
+    "            tree[n + t] = right + left\n",
+    "        else:\n",
+    "            tree[n + t] =  left + right\n",
+    "    return list(tree.values())[0]    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def svg_dendrogram_top(dendrogram, names = None, width=400, height=300, margin = 10, margin_text = 5, \n",
+    "    line_width=2, n_clusters=2, color='black', font_size = 12, reorder = True):\n",
+    "    labels = cut_straight(dendrogram, n_clusters, return_dendrogram=False)\n",
+    "    index = get_index(dendrogram, reorder)\n",
+    "    n = len(index)\n",
+    "    unit_height = height / dendrogram[-1,2]\n",
+    "    unit_width = width / n\n",
+    "    height_basis = margin + height\n",
+    "    position = {index[i]: (margin + i * unit_width, height_basis) for i in range(n)}\n",
+    "    label = {i: l for i, l in enumerate(labels)}\n",
+    "    width += 2 * margin\n",
+    "    height += 2 * margin\n",
+    "    if names is not None:\n",
+    "        text_length = np.max(np.array([len(str(name)) for name in names]))\n",
+    "        height += text_length * font_size * .5 + margin_text\n",
+    "        \n",
+    "    image = \"\"\"<svg width=\"{}\" height=\"{}\">\"\"\".format(width, height)\n",
+    "    \n",
+    "    # text\n",
+    "    if names is not None:\n",
+    "        for i in range(n):\n",
+    "            x, y = position[i]\n",
+    "            x -= margin_text\n",
+    "            y += margin_text\n",
+    "            image += \"\"\"<text x=\"{}\" y=\"{}\"  transform=\"rotate(60, {}, {})\" font-size=\"{}\">{}</text>\"\"\"\\\n",
+    "                .format(x, y, x, y, font_size, str(names[i]))\n",
+    "    \n",
+    "    # tree\n",
+    "    for t in range(n - 1):\n",
+    "        i = int(dendrogram[t, 0])\n",
+    "        j = int(dendrogram[t, 1])\n",
+    "        x1, y1 = position.pop(i)\n",
+    "        x2, y2 = position.pop(j)\n",
+    "        l1 = label.pop(i)\n",
+    "        l2 = label.pop(j)\n",
+    "        if l1 == l2:\n",
+    "            line_color = STANDARD_COLORS[l1]\n",
+    "        else:\n",
+    "            line_color = color\n",
+    "        x = .5 * (x1 + x2)\n",
+    "        y = height_basis - dendrogram[t, 2] * unit_height\n",
+    "        image += \"\"\"<path stroke-width=\"{}\" stroke=\"{}\" d=\"M {} {} {} {}\" />\"\"\".format(line_width, line_color, x1, y1, x1, y)\n",
+    "        image += \"\"\"<path stroke-width=\"{}\" stroke=\"{}\" d=\"M {} {} {} {}\" />\"\"\".format(line_width, line_color, x2, y2, x2, y)\n",
+    "        image += \"\"\"<path stroke-width=\"{}\" stroke=\"{}\" d=\"M {} {} {} {}\" />\"\"\".format(line_width, line_color, x1, y, x2, y)\n",
+    "        position[n + t] = (x, y)\n",
+    "        label[n + t] = l1\n",
+    "        \n",
+    "    image += '</svg>'\n",
+    "    return image"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def svg_dendrogram_left(dendrogram, names = None, width=400, height=300, margin = 10, margin_text = 5, \n",
+    "    line_width=2, n_clusters=2, color='black', font_size = 12, reorder = True):\n",
+    "    labels = cut_straight(dendrogram, n_clusters, return_dendrogram=False)\n",
+    "    index = get_index(dendrogram, reorder)\n",
+    "    n = len(index)\n",
+    "    unit_height = height / n\n",
+    "    unit_width = width / dendrogram[-1,2] \n",
+    "    width_basis = width + margin\n",
+    "    position = {index[i]: (width_basis, margin + i * unit_height) for i in range(n)}\n",
+    "    label = {i: l for i, l in enumerate(labels)}\n",
+    "    width += 2 * margin\n",
+    "    height += 2 * margin\n",
+    "    if names is not None:\n",
+    "        text_length = np.max(np.array([len(str(name)) for name in names]))\n",
+    "        width += text_length * font_size * .5 + margin_text\n",
+    "        \n",
+    "    image = \"\"\"<svg width=\"{}\" height=\"{}\">\"\"\".format(width, height)\n",
+    "    \n",
+    "    # text\n",
+    "    if names is not None:\n",
+    "        for i in range(n):\n",
+    "            x, y = position[i]\n",
+    "            x += margin_text\n",
+    "            image += \"\"\"<text x=\"{}\" y=\"{}\" font-size=\"{}\">{}</text>\"\"\"\\\n",
+    "                .format(x, y, font_size, str(names[i]))\n",
+    "    \n",
+    "    # tree\n",
+    "    for t in range(n - 1):\n",
+    "        i = int(dendrogram[t, 0])\n",
+    "        j = int(dendrogram[t, 1])\n",
+    "        x1, y1 = position.pop(i)\n",
+    "        x2, y2 = position.pop(j)\n",
+    "        l1 = label.pop(i)\n",
+    "        l2 = label.pop(j)\n",
+    "        if l1 == l2:\n",
+    "            line_color = STANDARD_COLORS[l1]\n",
+    "        else:\n",
+    "            line_color = color\n",
+    "        y = .5 * (y1 + y2)\n",
+    "        x = width_basis - dendrogram[t, 2] * unit_width\n",
+    "        image += \"\"\"<path stroke-width=\"{}\" stroke=\"{}\" d=\"M {} {} {} {}\" />\"\"\".format(line_width, line_color, x1, y1, x, y1)\n",
+    "        image += \"\"\"<path stroke-width=\"{}\" stroke=\"{}\" d=\"M {} {} {} {}\" />\"\"\".format(line_width, line_color, x2, y2, x, y2)\n",
+    "        image += \"\"\"<path stroke-width=\"{}\" stroke=\"{}\" d=\"M {} {} {} {}\" />\"\"\".format(line_width, line_color, x, y1, x, y2)\n",
+    "        position[n + t] = (x, y)\n",
+    "        label[n + t] = l1\n",
+    "        \n",
+    "    image += '</svg>'\n",
+    "    return image"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def svg_dendrogram(dendrogram, names=None, rotate=False, width=400, height=300, margin = 10, margin_text = 5, \n",
+    "    line_width=2, n_clusters=2, color='black', font_size = 12, reorder=True):\n",
+    "    if rotate:\n",
+    "        return svg_dendrogram_left(dendrogram, names, width, height, margin, margin_text, line_width, n_clusters, color, font_size, reorder)\n",
+    "    else:\n",
+    "        return svg_dendrogram_top(dendrogram, names, width, height, margin, margin_text, line_width, n_clusters, color, font_size, reorder)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "image = svg_dendrogram(dendrogram, n_clusters=4, names = np.arange(34), rotate=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/svg+xml": [
+       "<svg height=\"320\" width=\"437.0\"><text font-size=\"12\" x=\"415\" y=\"195.29411764705884\">0</text><text font-size=\"12\" x=\"415\" y=\"212.94117647058826\">1</text><text font-size=\"12\" x=\"415\" y=\"248.23529411764707\">2</text><text font-size=\"12\" x=\"415\" y=\"168.82352941176472\">3</text><text font-size=\"12\" x=\"415\" y=\"301.1764705882353\">4</text><text font-size=\"12\" x=\"415\" y=\"274.7058823529412\">5</text><text font-size=\"12\" x=\"415\" y=\"283.5294117647059\">6</text><text font-size=\"12\" x=\"415\" y=\"177.64705882352942\">7</text><text font-size=\"12\" x=\"415\" y=\"80.58823529411765\">8</text><text font-size=\"12\" x=\"415\" y=\"239.41176470588238\">9</text><text font-size=\"12\" x=\"415\" y=\"292.3529411764706\">10</text><text font-size=\"12\" x=\"415\" y=\"186.47058823529414\">11</text><text font-size=\"12\" x=\"415\" y=\"160.0\">12</text><text font-size=\"12\" x=\"415\" y=\"257.05882352941177\">13</text><text font-size=\"12\" x=\"415\" y=\"18.823529411764707\">14</text><text font-size=\"12\" x=\"415\" y=\"27.647058823529413\">15</text><text font-size=\"12\" x=\"415\" y=\"265.88235294117646\">16</text><text font-size=\"12\" x=\"415\" y=\"204.11764705882354\">17</text><text font-size=\"12\" x=\"415\" y=\"36.470588235294116\">18</text><text font-size=\"12\" x=\"415\" y=\"230.58823529411765\">19</text><text font-size=\"12\" x=\"415\" y=\"62.94117647058824\">20</text><text font-size=\"12\" x=\"415\" y=\"221.76470588235296\">21</text><text font-size=\"12\" x=\"415\" y=\"45.294117647058826\">22</text><text font-size=\"12\" x=\"415\" y=\"89.41176470588236\">23</text><text font-size=\"12\" x=\"415\" y=\"151.1764705882353\">24</text><text font-size=\"12\" x=\"415\" y=\"142.3529411764706\">25</text><text font-size=\"12\" x=\"415\" y=\"115.88235294117648\">26</text><text font-size=\"12\" x=\"415\" y=\"98.23529411764707\">27</text><text font-size=\"12\" x=\"415\" y=\"133.52941176470588\">28</text><text font-size=\"12\" x=\"415\" y=\"107.05882352941177\">29</text><text font-size=\"12\" x=\"415\" y=\"71.76470588235294\">30</text><text font-size=\"12\" x=\"415\" y=\"124.70588235294119\">31</text><text font-size=\"12\" x=\"415\" y=\"10.0\">32</text><text font-size=\"12\" x=\"415\" y=\"54.117647058823536\">33</text><path d=\"M 410 186.47058823529414 399.4806042695657 186.47058823529414\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 195.29411764705884 399.4806042695657 195.29411764705884\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 399.4806042695657 186.47058823529414 399.4806042695657 195.29411764705884\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 204.11764705882354 398.16568023734163 204.11764705882354\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 212.94117647058826 398.16568023734163 212.94117647058826\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 398.16568023734163 204.11764705882354 398.16568023734163 212.94117647058826\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 239.41176470588238 396.85075565849803 239.41176470588238\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 248.23529411764707 396.85075565849803 248.23529411764707\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 396.85075565849803 239.41176470588238 396.85075565849803 248.23529411764707\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 160.0 402.11045320217426 160.0\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 168.82352941176472 402.11045320217426 168.82352941176472\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 402.11045320217426 160.0 402.11045320217426 168.82352941176472\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 292.3529411764706 404.08284011867084 292.3529411764706\" stroke=\"orange\" stroke-width=\"2\"/><path d=\"M 410 301.1764705882353 404.08284011867084 301.1764705882353\" stroke=\"orange\" stroke-width=\"2\"/><path d=\"M 404.08284011867084 292.3529411764706 404.08284011867084 301.1764705882353\" stroke=\"orange\" stroke-width=\"2\"/><path d=\"M 410 265.88235294117646 404.74030213478284 265.88235294117646\" stroke=\"orange\" stroke-width=\"2\"/><path d=\"M 410 274.7058823529412 404.74030213478284 274.7058823529412\" stroke=\"orange\" stroke-width=\"2\"/><path d=\"M 404.74030213478284 265.88235294117646 404.74030213478284 274.7058823529412\" stroke=\"orange\" stroke-width=\"2\"/><path d=\"M 404.74030213478284 270.29411764705884 402.11045320217426 270.29411764705884\" stroke=\"orange\" stroke-width=\"2\"/><path d=\"M 410 283.5294117647059 402.11045320217426 283.5294117647059\" stroke=\"orange\" stroke-width=\"2\"/><path d=\"M 402.11045320217426 270.29411764705884 402.11045320217426 283.5294117647059\" stroke=\"orange\" stroke-width=\"2\"/><path d=\"M 402.11045320217426 164.41176470588238 388.96120853913135 164.41176470588238\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 177.64705882352942 388.96120853913135 177.64705882352942\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 388.96120853913135 164.41176470588238 388.96120853913135 177.64705882352942\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 71.76470588235294 396.85075565849803 71.76470588235294\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 410 80.58823529411765 396.85075565849803 80.58823529411765\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 396.85075565849803 71.76470588235294 396.85075565849803 80.58823529411765\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 410 221.76470588235296 395.5358316664666 221.76470588235296\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 398.16568023734163 208.5294117647059 395.5358316664666 208.5294117647059\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 395.5358316664666 221.76470588235296 395.5358316664666 208.5294117647059\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 142.3529411764706 404.08284011867084 142.3529411764706\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 410 151.1764705882353 404.08284011867084 151.1764705882353\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 404.08284011867084 142.3529411764706 404.08284011867084 151.1764705882353\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 410 124.70588235294119 398.16568023734163 124.70588235294119\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 410 133.52941176470588 398.16568023734163 133.52941176470588\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 398.16568023734163 124.70588235294119 398.16568023734163 133.52941176470588\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 410 89.41176470588236 396.85075565849803 89.41176470588236\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 410 98.23529411764707 396.85075565849803 98.23529411764707\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 396.85075565849803 89.41176470588236 396.85075565849803 98.23529411764707\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 396.85075565849803 243.82352941176472 370.552264563937 243.82352941176472\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 257.05882352941177 370.552264563937 257.05882352941177\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 370.552264563937 243.82352941176472 370.552264563937 257.05882352941177\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 10.0 394.2209064043485 10.0\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 410 18.823529411764707 394.2209064043485 18.823529411764707\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 394.2209064043485 10.0 394.2209064043485 18.823529411764707\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 394.2209064043485 14.411764705882353 391.5910581469759 14.411764705882353\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 410 27.647058823529413 391.5910581469759 27.647058823529413\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 391.5910581469759 14.411764705882353 391.5910581469759 27.647058823529413\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 391.5910581469759 21.029411764705884 388.96120853913135 21.029411764705884\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 410 36.470588235294116 388.96120853913135 36.470588235294116\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 388.96120853913135 21.029411764705884 388.96120853913135 36.470588235294116\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 395.5358316664666 215.14705882352945 384.35897290706635 215.14705882352945\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 230.58823529411765 384.35897290706635 230.58823529411765\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 384.35897290706635 215.14705882352945 384.35897290706635 230.58823529411765\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 410 54.117647058823536 387.64628448279177 54.117647058823536\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 410 62.94117647058824 387.64628448279177 62.94117647058824\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 387.64628448279177 54.117647058823536 387.64628448279177 62.94117647058824\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 388.96120853913135 28.75 386.3313604746833 28.75\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 410 45.294117647058826 386.3313604746833 45.294117647058826\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 386.3313604746833 28.75 386.3313604746833 45.294117647058826\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 410 107.05882352941177 404.74030213478284 107.05882352941177\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 410 115.88235294117648 404.74030213478284 115.88235294117648\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 404.74030213478284 107.05882352941177 404.74030213478284 115.88235294117648\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 402.11045320217426 276.9117647058824 390.2761322819685 276.9117647058824\" stroke=\"orange\" stroke-width=\"2\"/><path d=\"M 404.08284011867084 296.7647058823529 390.2761322819685 296.7647058823529\" stroke=\"orange\" stroke-width=\"2\"/><path d=\"M 390.2761322819685 276.9117647058824 390.2761322819685 296.7647058823529\" stroke=\"orange\" stroke-width=\"2\"/><path d=\"M 388.96120853913135 171.0294117647059 365.29256896558354 171.0294117647059\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 399.4806042695657 190.8823529411765 365.29256896558354 190.8823529411765\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 365.29256896558354 171.0294117647059 365.29256896558354 190.8823529411765\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 398.16568023734163 129.11764705882354 392.24851937933187 129.11764705882354\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 404.08284011867084 146.76470588235296 392.24851937933187 146.76470588235296\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 392.24851937933187 129.11764705882354 392.24851937933187 146.76470588235296\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 396.85075565849803 93.82352941176472 374.49703875866373 93.82352941176472\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 404.74030213478284 111.47058823529412 374.49703875866373 111.47058823529412\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 374.49703875866373 93.82352941176472 374.49703875866373 111.47058823529412\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 386.3313604746833 37.02205882352941 368.36072519127197 37.02205882352941\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 387.64628448279177 58.529411764705884 368.36072519127197 58.529411764705884\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 368.36072519127197 37.02205882352941 368.36072519127197 58.529411764705884\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 368.36072519127197 47.77573529411765 352.3076894707405 47.77573529411765\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 396.85075565849803 76.1764705882353 352.3076894707405 76.1764705882353\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 352.3076894707405 47.77573529411765 352.3076894707405 76.1764705882353\" stroke=\"red\" stroke-width=\"2\"/><path d=\"M 384.35897290706635 222.86764705882354 359.1562504469075 222.86764705882354\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 365.29256896558354 180.95588235294122 359.1562504469075 180.95588235294122\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 359.1562504469075 222.86764705882354 359.1562504469075 180.95588235294122\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 359.1562504469075 201.91176470588238 338.1487659514197 201.91176470588238\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 370.552264563937 250.44117647058823 338.1487659514197 250.44117647058823\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 338.1487659514197 201.91176470588238 338.1487659514197 250.44117647058823\" stroke=\"blue\" stroke-width=\"2\"/><path d=\"M 338.1487659514197 226.1764705882353 246.94936518149112 226.1764705882353\" stroke=\"black\" stroke-width=\"2\"/><path d=\"M 390.2761322819685 286.8382352941177 246.94936518149112 286.8382352941177\" stroke=\"black\" stroke-width=\"2\"/><path d=\"M 246.94936518149112 226.1764705882353 246.94936518149112 286.8382352941177\" stroke=\"black\" stroke-width=\"2\"/><path d=\"M 374.49703875866373 102.64705882352942 336.03549817691453 102.64705882352942\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 392.24851937933187 137.94117647058823 336.03549817691453 137.94117647058823\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 336.03549817691453 102.64705882352942 336.03549817691453 137.94117647058823\" stroke=\"green\" stroke-width=\"2\"/><path d=\"M 336.03549817691453 120.29411764705883 304.8060388371653 120.29411764705883\" stroke=\"black\" stroke-width=\"2\"/><path d=\"M 352.3076894707405 61.97610294117648 304.8060388371653 61.97610294117648\" stroke=\"black\" stroke-width=\"2\"/><path d=\"M 304.8060388371653 120.29411764705883 304.8060388371653 61.97610294117648\" stroke=\"black\" stroke-width=\"2\"/><path d=\"M 304.8060388371653 91.13511029411765 10.0 91.13511029411765\" stroke=\"black\" stroke-width=\"2\"/><path d=\"M 246.94936518149112 256.50735294117646 10.0 256.50735294117646\" stroke=\"black\" stroke-width=\"2\"/><path d=\"M 10.0 91.13511029411765 10.0 256.50735294117646\" stroke=\"black\" stroke-width=\"2\"/></svg>"
+      ],
+      "text/plain": [
+       "<IPython.core.display.SVG object>"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "SVG(image)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Cuts of the dendrogram**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    },
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[0 0 0 0 3 3 3 0 1 0 3 0 0 0 1 1 3 0 1 0 1 0 1 2 2 2 2 2 2 2 1 2 1 1]\n"
+     ]
+    }
+   ],
+   "source": [
+    "labels = cut_straight(dendrogram, 4)\n",
+    "print(labels)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "[0 0 0 0 3 3 3 0 1 0 3 0 0 0 1 1 3 0 1 0 1 0 1 2 2 2 2 2 2 2 1 2 1 1]\n"
+     ]
+    }
+   ],
+   "source": [
+    "labels = cut_straight(dendrogram, n_clusters = 4)\n",
+    "print(labels)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [
+    {
+     "ename": "ValueError",
+     "evalue": "Linkage 'Z' uses the same cluster more than once.",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+      "\u001b[0;31mValueError\u001b[0m                                Traceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-19-b38abe75bd5b>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[1;32m      1\u001b[0m \u001b[0mlabels\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mdendrogram_aggregate\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mcut_straight\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mdendrogram\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mn_clusters\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;36m4\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mreturn_dendrogram\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mTrue\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 2\u001b[0;31m \u001b[0m_\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mdisplay_dendrogram\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mdendrogram_aggregate\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m",
+      "\u001b[0;32m/usr/local/lib/python3.7/site-packages/scipy/cluster/hierarchy.py\u001b[0m in \u001b[0;36mdendrogram\u001b[0;34m(Z, p, truncate_mode, color_threshold, get_leaves, orientation, labels, count_sort, distance_sort, show_leaf_counts, no_plot, no_labels, leaf_font_size, leaf_rotation, leaf_label_func, show_contracted, link_color_func, ax, above_threshold_color)\u001b[0m\n\u001b[1;32m   3276\u001b[0m                          \"'bottom', or 'right'\")\n\u001b[1;32m   3277\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 3278\u001b[0;31m     \u001b[0mis_valid_linkage\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mZ\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mthrow\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;32mTrue\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mname\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;34m'Z'\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   3279\u001b[0m     \u001b[0mZs\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mZ\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mshape\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   3280\u001b[0m     \u001b[0mn\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mZs\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;36m0\u001b[0m\u001b[0;34m]\u001b[0m \u001b[0;34m+\u001b[0m \u001b[0;36m1\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m/usr/local/lib/python3.7/site-packages/scipy/cluster/hierarchy.py\u001b[0m in \u001b[0;36mis_valid_linkage\u001b[0;34m(Z, warning, throw, name)\u001b[0m\n\u001b[1;32m   2280\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0m_check_hierarchy_uses_cluster_more_than_once\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mZ\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2281\u001b[0m             raise ValueError('Linkage %suses the same cluster more than once.'\n\u001b[0;32m-> 2282\u001b[0;31m                              % name_str)\n\u001b[0m\u001b[1;32m   2283\u001b[0m     \u001b[0;32mexcept\u001b[0m \u001b[0mException\u001b[0m \u001b[0;32mas\u001b[0m \u001b[0me\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2284\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0mthrow\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;31mValueError\u001b[0m: Linkage 'Z' uses the same cluster more than once."
+     ]
+    }
+   ],
+   "source": [
+    "labels, dendrogram_aggregate = cut_straight(dendrogram, n_clusters = 4, return_dendrogram=True)\n",
+    "_ = display_dendrogram(dendrogram_aggregate)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[ 0.        ,  0.        ,  0.36057693,  8.        ],\n",
+       "       [ 4.        ,  1.        ,  0.51282053, 17.        ],\n",
+       "       [ 5.        ,  0.        ,  1.94999989, 34.        ]])"
+      ]
+     },
+     "execution_count": 20,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "dendrogram_aggregate"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def cut_straight(dendrogram: np.ndarray, n_clusters: int = 2, sort_clusters: bool = True,\n",
+    "                 return_dendrogram: bool = False):\n",
+    "    \"\"\"Cut a dendrogram and return the corresponding clustering.\n",
+    "\n",
+    "    Parameters\n",
+    "    ----------\n",
+    "    dendrogram:\n",
+    "        Dendrogram\n",
+    "    n_clusters :\n",
+    "        Number of clusters.\n",
+    "    sort_clusters :\n",
+    "        If ``True``,  sorts clusters in decreasing order of size.\n",
+    "    return_dendrogram :\n",
+    "        If ``True``, returns the dendrogram formed by the clusters up to the root.\n",
+    "    Returns\n",
+    "    -------\n",
+    "    labels : np.ndarray\n",
+    "        Cluster of each node.\n",
+    "    dendrogram_aggregate : np.ndarray\n",
+    "        Dendrogram starting from clusters (leaves = clusters).\n",
+    "    \"\"\"\n",
+    "    if len(dendrogram.shape) != 2 or dendrogram.shape[1] != 4:\n",
+    "        raise ValueError(\"Check the shape of the dendrogram.\")\n",
+    "\n",
+    "    n = dendrogram.shape[0] + 1\n",
+    "    if n_clusters < 1 or n_clusters > n:\n",
+    "        raise ValueError(\"The number of clusters must be between 1 and the number of nodes.\")\n",
+    "\n",
+    "    cluster = {i: [i] for i in range(n)}\n",
+    "    cut = np.sort(dendrogram[:, 2])[n - n_clusters]\n",
+    "    for t in range(n - 1):\n",
+    "        i = int(dendrogram[t][0])\n",
+    "        j = int(dendrogram[t][1])\n",
+    "        if dendrogram[t][2] < cut and i in cluster and j in cluster:\n",
+    "            cluster[n + t] = cluster.pop(i) + cluster.pop(j)\n",
+    "\n",
+    "    return cluster\n",
+    "    #return get_labels(dendrogram, cluster, sort_clusters, return_dendrogram)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "cluster = cut_straight(dendrogram, n_clusters = 4, return_dendrogram=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{55: [16, 5, 6, 10, 4],\n",
+       " 60: [32, 14, 15, 18, 22, 33, 20, 30, 8],\n",
+       " 62: [21, 17, 1, 19, 12, 3, 7, 11, 0, 9, 2, 13],\n",
+       " 64: [23, 27, 29, 26, 31, 28, 25, 24]}"
+      ]
+     },
+     "execution_count": 24,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "cluster"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\n",
+    "def get_labels(dendrogram: np.ndarray, cluster: dict, sort_clusters: bool, return_dendrogram: bool):\n",
+    "    \"\"\"Returns the labels from clusters.\"\"\"\n",
+    "    n = dendrogram.shape[0] + 1\n",
+    "    n_clusters = len(cluster)\n",
+    "    clusters = np.array(list(cluster.values()))\n",
+    "    index = None\n",
+    "    if sort_clusters:\n",
+    "        sizes = np.array([len(nodes) for nodes in clusters])\n",
+    "        index = np.argsort(-sizes)\n",
+    "        clusters = clusters[index]\n",
+    "\n",
+    "    labels = np.zeros(n, dtype=int)\n",
+    "    for label, nodes in enumerate(clusters):\n",
+    "        labels[nodes] = label\n",
+    "\n",
+    "    if return_dendrogram:\n",
+    "        indices_clusters = np.array(list(cluster.keys()))\n",
+    "        if sort_clusters:\n",
+    "            indices_clusters = indices_clusters[index]\n",
+    "        index_new = np.zeros(2 * n - 1, int)\n",
+    "        index_new[np.array(indices_clusters)] = np.arange(n_clusters)\n",
+    "        index_new[- n_clusters + 1:] = np.arange(n_clusters, 2 * n_clusters - 1)\n",
+    "        dendrogram_new = dendrogram[- n_clusters + 1:].copy()\n",
+    "        dendrogram_new[:, 0] = index_new[dendrogram_new[:, 0].astype(int)]\n",
+    "        dendrogram_new[:, 1] = index_new[dendrogram_new[:, 1].astype(int)]\n",
+    "        return labels, dendrogram_new\n",
+    "    else:\n",
+    "        return labels\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(array([2, 2, 2, 2, 0, 0, 0, 2, 1, 2, 0, 2, 2, 2, 1, 1, 0, 2, 1, 2, 1, 2,\n",
+       "        1, 3, 3, 3, 3, 3, 3, 3, 1, 3, 1, 1]),\n",
+       " array([[ 0.        ,  0.        ,  0.36057693,  8.        ],\n",
+       "        [ 4.        ,  1.        ,  0.51282053, 17.        ],\n",
+       "        [ 5.        ,  0.        ,  1.94999989, 34.        ]]))"
+      ]
+     },
+     "execution_count": 29,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "get_labels(dendrogram, cluster, False, True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "n = 34"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "63"
+      ]
+     },
+     "execution_count": 39,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "2 * n - 1 - 4"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "n_clusters = len(cluster)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "indices_clusters = np.array(list(cluster.keys()))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "index_new = np.zeros(2 * n - 1, int)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 35,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "index_new[np.array(indices_clusters)] = np.arange(n_clusters)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 36,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n",
+       "       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n",
+       "       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 3, 0,\n",
+       "       0])"
+      ]
+     },
+     "execution_count": 36,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "index_new"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "index_new[- n_clusters + 1:] = np.arange(n_clusters, 2 * n_clusters - 1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 38,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n",
+       "       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,\n",
+       "       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 4, 5,\n",
+       "       6])"
+      ]
+     },
+     "execution_count": 38,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "index_new"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 28,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{55: [16, 5, 6, 10, 4],\n",
+       " 60: [32, 14, 15, 18, 22, 33, 20, 30, 8],\n",
+       " 62: [21, 17, 1, 19, 12, 3, 7, 11, 0, 9, 2, 13],\n",
+       " 64: [23, 27, 29, 26, 31, 28, 25, 24]}"
+      ]
+     },
+     "execution_count": 28,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "cluster"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Visualization**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 104,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [],
+   "source": [
+    "image = svg_graph(adjacency, position, labels=labels, width = 200, height = 200)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [
+    {
+     "data": {
+      "image/svg+xml": [
+       "<svg height=\"240\" width=\"240\"><path d=\"M 142 140 186 118\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 135 102\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 162 134\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 137 177\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 115 190\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 142 191\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 180 130\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 151 90\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 104 174\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 71 148\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 177 164\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 151 109\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 204 150\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 175 102\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 220 141\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 140 86 90\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 186 118 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 186 118 135 102\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 186 118 162 134\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 186 118 180 130\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 186 118 151 109\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 186 118 204 150\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 186 118 175 102\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 186 118 220 141\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 186 118 182 78\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 135 102 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 135 102 186 118\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 135 102 162 134\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 135 102 180 130\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 135 102 151 90\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 135 102 108 73\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 135 102 151 109\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 135 102 71 75\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 135 102 108 86\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 135 102 140 55\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 162 134 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 162 134 186 118\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 162 134 135 102\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 162 134 180 130\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 162 134 177 164\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 162 134 151 109\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 137 177 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 137 177 142 191\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 137 177 104 174\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 115 190 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 115 190 142 191\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 115 190 104 174\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 115 190 120 220\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 191 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 191 137 177\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 191 115 190\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 142 191 120 220\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 180 130 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 180 130 186 118\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 180 130 135 102\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 180 130 162 134\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 151 90 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 151 90 135 102\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 151 90 182 78\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 151 90 140 55\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 151 90 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 108 73 135 102\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 108 73 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 104 174 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 104 174 137 177\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 104 174 115 190\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 71 148 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 177 164 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 177 164 162 134\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 151 109 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 151 109 186 118\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 151 109 135 102\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 151 109 162 134\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 151 109 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 184 35 140 55\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 184 35 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 146 24 140 55\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 146 24 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 120 220 115 190\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 120 220 142 191\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 204 150 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 204 150 186 118\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 166 29 140 55\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 166 29 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 175 102 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 175 102 186 118\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 175 102 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 193 47 140 55\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 193 47 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 220 141 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 220 141 186 118\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 124 28 140 55\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 124 28 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 75 52 24 67\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 75 52 71 75\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 75 52 95 36\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 75 52 140 55\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 75 52 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 20 84 24 67\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 20 84 71 75\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 20 84 86 90\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 24 67 75 52\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 24 67 20 84\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 24 67 86 90\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 91 20 95 36\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 91 20 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 71 75 135 102\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 71 75 75 52\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 71 75 20 84\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 71 75 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 108 86 135 102\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 108 86 86 90\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 108 86 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 95 36 75 52\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 95 36 91 20\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 95 36 140 55\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 95 36 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 182 78 186 118\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 182 78 151 90\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 182 78 140 55\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 182 78 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 86 90 142 140\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 86 90 20 84\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 86 90 24 67\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 86 90 108 86\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 86 90 140 55\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 86 90 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 140 55 135 102\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 140 55 151 90\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 140 55 184 35\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 140 55 146 24\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 140 55 166 29\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 140 55 193 47\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 140 55 124 28\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 140 55 75 52\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 140 55 95 36\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 140 55 182 78\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 140 55 86 90\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 140 55 133 61\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 151 90\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 108 73\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 151 109\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 184 35\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 146 24\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 166 29\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 175 102\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 193 47\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 124 28\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 75 52\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 91 20\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 71 75\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 108 86\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 95 36\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 182 78\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 86 90\" stroke=\"black\" stroke-width=\"1\"/><path d=\"M 133 61 140 55\" stroke=\"black\" stroke-width=\"1\"/><circle cx=\"142\" cy=\"140\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"186\" cy=\"118\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"135\" cy=\"102\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"162\" cy=\"134\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"137\" cy=\"177\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"115\" cy=\"190\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"142\" cy=\"191\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"180\" cy=\"130\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"151\" cy=\"90\" r=\"7.0\" style=\"fill:red;stroke:black;stroke-width:1.0\"/><circle cx=\"108\" cy=\"73\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"104\" cy=\"174\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"71\" cy=\"148\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"177\" cy=\"164\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"151\" cy=\"109\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"184\" cy=\"35\" r=\"7.0\" style=\"fill:red;stroke:black;stroke-width:1.0\"/><circle cx=\"146\" cy=\"24\" r=\"7.0\" style=\"fill:red;stroke:black;stroke-width:1.0\"/><circle cx=\"120\" cy=\"220\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"204\" cy=\"150\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"166\" cy=\"29\" r=\"7.0\" style=\"fill:red;stroke:black;stroke-width:1.0\"/><circle cx=\"175\" cy=\"102\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"193\" cy=\"47\" r=\"7.0\" style=\"fill:red;stroke:black;stroke-width:1.0\"/><circle cx=\"220\" cy=\"141\" r=\"7.0\" style=\"fill:blue;stroke:black;stroke-width:1.0\"/><circle cx=\"124\" cy=\"28\" r=\"7.0\" style=\"fill:red;stroke:black;stroke-width:1.0\"/><circle cx=\"75\" cy=\"52\" r=\"7.0\" style=\"fill:orange;stroke:black;stroke-width:1.0\"/><circle cx=\"20\" cy=\"84\" r=\"7.0\" style=\"fill:green;stroke:black;stroke-width:1.0\"/><circle cx=\"24\" cy=\"67\" r=\"7.0\" style=\"fill:green;stroke:black;stroke-width:1.0\"/><circle cx=\"91\" cy=\"20\" r=\"7.0\" style=\"fill:orange;stroke:black;stroke-width:1.0\"/><circle cx=\"71\" cy=\"75\" r=\"7.0\" style=\"fill:orange;stroke:black;stroke-width:1.0\"/><circle cx=\"108\" cy=\"86\" r=\"7.0\" style=\"fill:green;stroke:black;stroke-width:1.0\"/><circle cx=\"95\" cy=\"36\" r=\"7.0\" style=\"fill:orange;stroke:black;stroke-width:1.0\"/><circle cx=\"182\" cy=\"78\" r=\"7.0\" style=\"fill:red;stroke:black;stroke-width:1.0\"/><circle cx=\"86\" cy=\"90\" r=\"7.0\" style=\"fill:green;stroke:black;stroke-width:1.0\"/><circle cx=\"140\" cy=\"55\" r=\"7.0\" style=\"fill:red;stroke:black;stroke-width:1.0\"/><circle cx=\"133\" cy=\"61\" r=\"7.0\" style=\"fill:red;stroke:black;stroke-width:1.0\"/></svg>"
+      ],
+      "text/plain": [
+       "<IPython.core.display.SVG object>"
+      ]
+     },
+     "execution_count": 29,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "SVG(image)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Metrics**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [],
+   "source": [
+    "dasgupta_score(adjacency, dendrogram)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [],
+   "source": [
+    "tree_sampling_divergence(adjacency, dendrogram)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Digraphs"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Loading**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [],
+   "source": [
+    "graph = painters(metadata=True)\n",
+    "adjacency = graph.adjacency\n",
+    "position = graph.position\n",
+    "names = graph.names"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Clustering**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [],
+   "source": [
+    "paris = Paris()\n",
+    "dendrogram = paris.fit_transform(adjacency)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Visualization**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [],
+   "source": [
+    "_ = show_dendrogram(dendrogram, labels = names, orientation = 'left')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Cuts of the dendrogram**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [],
+   "source": [
+    "# cut with 3 clusters\n",
+    "labels = cut_straight(dendrogram, n_clusters = 3)\n",
+    "print(labels)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Visualization**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [],
+   "source": [
+    "image = svg_digraph(adjacency, position, names=names, labels=labels)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SVG(image)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Metrics**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [],
+   "source": [
+    "dasgupta_score(adjacency, dendrogram)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false
+    }
+   },
+   "outputs": [],
+   "source": [
+    "tree_sampling_divergence(adjacency, dendrogram)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Bigraphs"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Loading**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false,
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "graph = movie_actor(metadata=True)\n",
+    "biadjacency = graph.biadjacency\n",
+    "names_row = graph.names_row\n",
+    "names_col = graph.names_col"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Clustering**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false,
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "biparis = BiParis()\n",
+    "biparis.fit(biadjacency)\n",
+    "dendrogram_row = biparis.dendrogram_row_\n",
+    "dendrogram_col = biparis.dendrogram_col_\n",
+    "dendrogram_full = biparis.dendrogram_full_"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Visualization**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false,
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "_ = show_dendrogram(dendrogram_row, labels = names_row, orientation = 'left')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "_ = show_dendrogram(dendrogram_col, labels = names_col, orientation = 'left')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Cuts of the dendrogram**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "pycharm": {
+     "is_executing": false,
+     "name": "#%%\n"
+    }
+   },
+   "outputs": [],
+   "source": [
+    "labels = cut_straight(dendrogram_full, n_clusters = 4)\n",
+    "n_row = biadjacency.shape[0]\n",
+    "labels_row = labels[:n_row]\n",
+    "labels_col = labels[n_row:]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Visualization**"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "image = svg_bigraph(biadjacency, names_row, names_col, labels_row, labels_col)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "SVG(image)"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.7"
+  },
+  "pycharm": {
+   "stem_cell": {
+    "cell_type": "raw",
+    "metadata": {
+     "collapsed": false
+    },
+    "source": []
+   }
+  },
+  "toc": {
+   "base_numbering": 1,
+   "nav_menu": {},
+   "number_sections": true,
+   "sideBar": true,
+   "skip_h1_title": false,
+   "title_cell": "Table of Contents",
+   "title_sidebar": "Contents",
+   "toc_cell": false,
+   "toc_position": {},
+   "toc_section_display": true,
+   "toc_window_display": false
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 1
+}

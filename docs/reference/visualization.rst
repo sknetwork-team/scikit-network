@@ -7,12 +7,16 @@ Visualization
 
 This module contains visualization tools.
 
-SVG
----
+Graphs
+------
 
-.. autofunction:: sknetwork.visualization.svg.svg_graph
+.. autofunction:: sknetwork.visualization.graphs.svg_graph
 
-.. autofunction:: sknetwork.visualization.svg.svg_digraph
+.. autofunction:: sknetwork.visualization.graphs.svg_digraph
 
-.. autofunction:: sknetwork.visualization.svg.svg_bigraph
+.. autofunction:: sknetwork.visualization.graphs.svg_bigraph
 
+Dendrograms
+-----------
+
+.. autofunction:: sknetwork.visualization.dendrograms.svg_dendrogram
