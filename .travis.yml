@@ -20,7 +20,7 @@ matrix:
           - pip3 install codecov --user
           - python3 setup.py develop
       script:
-          - py.test --doctest-modules --cov-report=xml --cov=sknetwork
+          - python3 -m pytest
     - if: branch = master
       dist: xenial   # required for Python >= 3.7
       python: 3.6
