@@ -2,6 +2,12 @@ dist: xenial   # required for Python >= 3.7
 language: python
 matrix:
   include:
+    -   sudo: required
+      services:
+        - docker
+      env: DOCKER_IMAGE=quay.io/pypa/manylinux1_i686
+           PRE_CMD=linux32
+           PLAT=manylinux1_i686
     - sudo: required
       services:
         - docker

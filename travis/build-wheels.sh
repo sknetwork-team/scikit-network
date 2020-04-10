@@ -15,7 +15,7 @@ for whl in wheelhouse/*.whl; do
 done
 
 # Install packages and test
-for PYBIN in /opt/python/*/bin/; do
+for PYBIN in $versions; do
     "${PYBIN}/pip" install scikit-network --no-index -f /io/wheelhouse
     (cd "$HOME"; "${PYBIN}/nosetests" sknetwork)
 done
