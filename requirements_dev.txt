@@ -8,7 +8,6 @@ nbsphinx==0.6.0
 ipython==7.13.0
 jupyter_client==6.1.2
 ipykernel==5.2.0
-matplotlib==3.2.1
 codecov==2.0.22
 sphinx-rtd-theme==0.4.3
 nose
