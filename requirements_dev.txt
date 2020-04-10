@@ -13,6 +13,7 @@ networkx==2.4
 matplotlib==3.2.1
 codecov==2.0.22
 sphinx-rtd-theme==0.4.3
+nose
 
 pytest-runner==5.2
 pytest==5.4.1
