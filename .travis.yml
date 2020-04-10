@@ -20,6 +20,7 @@ jobs:
   exclude:
     - if: branch = master
       dist: xenial   # required for Python >= 3.7
+      python: 3.7
 install:
   - docker pull $DOCKER_IMAGE
   - pip install -r requirements_dev.txt
