@@ -22,6 +22,24 @@ matrix:
           - python setup.py develop
       script:
           - py.test --doctest-modules --cov-report=xml --cov=sknetwork
+    - if: branch != master
+      dist: xenial   # required for Python >= 3.7
+      python: 3.7
+      install:
+          - pip install -r requirements_dev.txt
+          - pip install codecov
+          - python setup.py develop
+      script:
+          - py.test --doctest-modules --cov-report=xml --cov=sknetwork
+    - if: branch != master
+      dist: xenial   # required for Python >= 3.7
+      python: 3.8
+      install:
+          - pip install -r requirements_dev.txt
+          - pip install codecov
+          - python setup.py develop
+      script:
+          - py.test --doctest-modules --cov-report=xml --cov=sknetwork
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
