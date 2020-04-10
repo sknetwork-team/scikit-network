@@ -72,11 +72,16 @@ def cut_straight(dendrogram: np.ndarray, n_clusters: int = 2, sort_clusters: boo
     if n_clusters < 1 or n_clusters > n:
         raise ValueError("The number of clusters must be between 1 and the number of nodes.")
 
-    cluster = {node: [node] for node in range(n)}
-    for t in range(n - n_clusters):
-        left = int(dendrogram[t][0])
-        right = int(dendrogram[t][1])
-        cluster[n + t] = cluster.pop(left) + cluster.pop(right)
+    if return_dendrogram and not np.all(np.diff(dendrogram[:, 2]) >= 0):
+        raise ValueError("The third column of the dendrogram must be non-decreasing.")
+
+    cluster = {i: [i] for i in range(n)}
+    cut = np.sort(dendrogram[:, 2])[n - n_clusters]
+    for t in range(n - 1):
+        i = int(dendrogram[t][0])
+        j = int(dendrogram[t][1])
+        if dendrogram[t][2] < cut and i in cluster and j in cluster:
+            cluster[n + t] = cluster.pop(i) + cluster.pop(j)
 
     return get_labels(dendrogram, cluster, sort_clusters, return_dendrogram)
 
@@ -109,12 +114,12 @@ def cut_balanced(dendrogram: np.ndarray, max_cluster_size: int = 2, sort_cluster
     if max_cluster_size < 2 or max_cluster_size > n:
         raise ValueError("The maximum cluster size must be between 2 and the number of nodes.")
 
-    cluster = {node: [node] for node in range(n)}
+    cluster = {i: [i] for i in range(n)}
     for t in range(n - 1):
-        left = int(dendrogram[t][0])
-        right = int(dendrogram[t][1])
-        if left in cluster and right in cluster and len(cluster[left]) + len(cluster[right]) <= max_cluster_size:
-            cluster[n + t] = cluster.pop(left) + cluster.pop(right)
+        i = int(dendrogram[t][0])
+        j = int(dendrogram[t][1])
+        if i in cluster and j in cluster and len(cluster[i]) + len(cluster[j]) <= max_cluster_size:
+            cluster[n + t] = cluster.pop(i) + cluster.pop(j)
 
     return get_labels(dendrogram, cluster, sort_clusters, return_dendrogram)
 
@@ -164,8 +169,7 @@ def aggregate_dendrogram(dendrogram: np.ndarray, n_clusters: int = 2, return_cou
 
 
 def get_index(tree):
-    """
-    Reindexing of a dendrogram from the leaves
+    """Reindex a dendrogram from the leaves
 
     Parameters
     ----------
@@ -184,29 +188,28 @@ def get_index(tree):
 
 
 def get_dendrogram(tree, dendrogram=None, index=None, depth=0, size=None, copy_tree=False):
-    """
-    Reorder a dendrogram in a format compliant with SciPy's visualization from a tree.
+    """Get dendrogram from tree.
 
     Parameters
     ----------
-    tree:
+    tree :
         The initial tree
-    dendrogram:
+    dendrogram :
         Intermediary dendrogram for recursive use
-    index:
+    index :
         Intermediary index for recursive use
-    depth:
+    depth :
         Current depth for recursive use
-    size:
+    size :
         Current leaf count for recursive use
-    copy_tree:
-        If True, ensures the passed tree remains unchanged.
+    copy_tree :
+        If ``True``, ensure the passed tree remains unchanged.
 
     Returns
     -------
-    dendrogram:
+    dendrogram`:
         The reordered dendrogram
-    index:
+    index :
         The indexing array
     """
     if copy_tree:
@@ -244,12 +247,11 @@ def get_dendrogram(tree, dendrogram=None, index=None, depth=0, size=None, copy_t
 
 
 def shift_height(dendrogram):
-    """
-    Shift dendrogram to all non-negative heights for SciPy's visualization.
+    """Shift dendrogram to all non-negative heights.
 
     Parameters
     ----------
-    dendrogram:
+    dendrogram :
         The dendrogram to offset
 
     Returns
@@ -262,8 +264,7 @@ def shift_height(dendrogram):
 
 
 def split_dendrogram(dendrogram: np.ndarray, shape: tuple):
-    """
-    Split the dendrogram of a bipartite graph into 2 dendrograms, one for each part.
+    """Split the dendrogram of a bipartite graph into 2 dendrograms, one for each part.
 
     Parameters
     ----------
