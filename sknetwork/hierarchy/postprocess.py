@@ -72,11 +72,13 @@ def cut_straight(dendrogram: np.ndarray, n_clusters: int = 2, sort_clusters: boo
     if n_clusters < 1 or n_clusters > n:
         raise ValueError("The number of clusters must be between 1 and the number of nodes.")
 
-    cluster = {node: [node] for node in range(n)}
-    for t in range(n - n_clusters):
-        left = int(dendrogram[t][0])
-        right = int(dendrogram[t][1])
-        cluster[n + t] = cluster.pop(left) + cluster.pop(right)
+    cluster = {i: [i] for i in range(n)}
+    cut = np.sort(dendrogram[:, 2])[n - n_clusters]
+    for t in range(n - 1):
+        i = int(dendrogram[t][0])
+        j = int(dendrogram[t][1])
+        if dendrogram[t][2] < cut and i in cluster and j in cluster:
+            cluster[n + t] = cluster.pop(i) + cluster.pop(j)
 
     return get_labels(dendrogram, cluster, sort_clusters, return_dendrogram)
 
