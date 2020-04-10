@@ -15,20 +15,20 @@ jobs:
           - 3.7
           - 3.6
   exclude:
-      - if: branch = master
-        dist: xenial   # required for Python >= 3.7
-        language: python
-        python:
-            - 3.8
-            - 3.7
-            - 3.6
-        install:
-            - pip install -r requirements_dev.txt
-            - pip install codecov
-            - python setup.py develop
-        env:
-            - SKNETWORK_DISABLE_CYTHONIZE=false
-            - SKNETWORK_DISABLE_CYTHONIZE=true
+    - if: branch = master
+      dist: xenial   # required for Python >= 3.7
+      language: python
+      python:
+          - 3.8
+          - 3.7
+          - 3.6
+      install:
+          - pip install -r requirements_dev.txt
+          - pip install codecov
+          - python setup.py develop
+      env:
+          - SKNETWORK_DISABLE_CYTHONIZE=false
+          - SKNETWORK_DISABLE_CYTHONIZE=true
 install:
   - pip install codecov
   - docker pull $DOCKER_IMAGE
