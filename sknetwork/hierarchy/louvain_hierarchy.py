@@ -17,28 +17,11 @@ from sknetwork.utils.check import check_format, is_square
 
 
 class LouvainHierarchy(BaseHierarchy):
-    """Hierarchical clustering by successive instances of Louvain (top-down).
-
-    * Graphs
-    * Digraphs
+    """Hierarchical clustering by successive instances of Louvain.
 
     Parameters
     ----------
-    resolution :
-        Resolution parameter.
-    tol_optimization :
-        Minimum increase in the objective function to enter a new optimization pass.
-    tol_aggregation :
-        Minimum increase in the objective function to enter a new aggregation pass.
-    n_aggregations :
-        Maximum number of aggregations.
-        A negative value is interpreted as no limit.
-    shuffle_nodes :
-        Enables node shuffling before optimization.
-    random_state :
-        Random number generator or random seed. If None, numpy.random is used.
-    verbose :
-        Verbose mode.
+    Parameters are the same as the ``sknetwork.clustering.Louvain``
 
     Attributes
     ----------
@@ -59,9 +42,9 @@ class LouvainHierarchy(BaseHierarchy):
 
         self._clustering_method = Louvain(**kwargs)
 
-    def _recursive_louvain(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-                           nodes: Optional[np.ndarray] = None):
-        """Recursive function for fit.
+    def recursive_louvain(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
+                          nodes: Optional[np.ndarray] = None):
+        """Recursive function for fit. Returns a tree rather than a dendrogram.
 
         Parameters
         ----------
@@ -94,11 +77,11 @@ class LouvainHierarchy(BaseHierarchy):
                 mask = (labels == cluster)
                 subgraph_nodes = nodes[mask]
                 subgraph = adjacency[mask, :][:, mask]
-                result.append(self._recursive_louvain(subgraph, subgraph_nodes))
+                result.append(self.recursive_louvain(subgraph, subgraph_nodes))
             return result
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'LouvainHierarchy':
-        """Fit algorithm to data.
+        """Hierarchical clustering using several Louvain instances.
 
         Parameters
         ----------
@@ -113,7 +96,7 @@ class LouvainHierarchy(BaseHierarchy):
         if not is_square(adjacency):
             raise ValueError('The adjacency matrix is not square.')
 
-        tree = self._recursive_louvain(adjacency)
+        tree = self.recursive_louvain(adjacency)
         dendrogram, _ = get_dendrogram(tree)
         dendrogram = np.array(dendrogram)
         dendrogram[:, 2] -= min(dendrogram[:, 2])

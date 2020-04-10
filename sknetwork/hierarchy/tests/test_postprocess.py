@@ -8,7 +8,7 @@ Created on March 2019
 
 import unittest
 
-from sknetwork.hierarchy import Ward, cut_straight, cut_balanced, aggregate_dendrogram
+from sknetwork.hierarchy import Paris, cut_straight, cut_balanced, aggregate_dendrogram
 from sknetwork.data import karate_club
 
 
@@ -16,9 +16,9 @@ from sknetwork.data import karate_club
 class TestCuts(unittest.TestCase):
 
     def setUp(self):
-        ward = Ward()
+        paris = Paris()
         adjacency = karate_club()
-        self.dendrogram = ward.fit_transform(adjacency)
+        self.dendrogram = paris.fit_transform(adjacency)
 
     def test_cuts(self):
         labels = cut_straight(self.dendrogram)
@@ -26,15 +26,15 @@ class TestCuts(unittest.TestCase):
         labels = cut_straight(self.dendrogram, n_clusters=5)
         self.assertEqual(len(set(labels)), 5)
         labels = cut_balanced(self.dendrogram)
-        self.assertEqual(len(set(labels)), 22)
+        self.assertEqual(len(set(labels)), 21)
 
     def test_options(self):
         labels = cut_straight(self.dendrogram, sort_clusters=False)
         self.assertEqual(len(set(labels)), 2)
         labels = cut_balanced(self.dendrogram, sort_clusters=False)
-        self.assertEqual(len(set(labels)), 22)
+        self.assertEqual(len(set(labels)), 21)
         labels = cut_balanced(self.dendrogram, max_cluster_size=10)
-        self.assertEqual(len(set(labels)), 6)
+        self.assertEqual(len(set(labels)), 5)
         labels, dendrogram = cut_straight(self.dendrogram, n_clusters=7, return_dendrogram=True)
         self.assertEqual(dendrogram.shape, (6, 4))
 

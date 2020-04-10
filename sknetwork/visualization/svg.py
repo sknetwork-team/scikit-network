@@ -116,17 +116,14 @@ def get_edge_widths(weights: np.ndarray, edge_width: float, edge_width_min: floa
 def svg_node(pos_node: np.ndarray, size: float, color: str, stroke_width: float = 1, stroke_color: str = 'black') \
         -> str:
     """Return svg code for a node."""
-    x, y = pos_node.astype(int)
     return """<circle cx="{}" cy="{}" r="{}" style="fill:{};stroke:{};stroke-width:{}"/>"""\
-        .format(x, y, size, color, stroke_color, stroke_width)
+        .format(pos_node[0], pos_node[1], size, color, stroke_color, stroke_width)
 
 
 def svg_edge(pos_1: np.ndarray, pos_2: np.ndarray, stroke_width: float = 1, stroke_color: str = 'black') -> str:
     """Return svg code for an edge."""
-    x1, y1 = pos_1.astype(int)
-    x2, y2 = pos_2.astype(int)
     return """<path stroke-width="{}" stroke="{}" d="M {} {} {} {}" />"""\
-        .format(stroke_width, stroke_color, x1, y1, x2, y2)
+        .format(stroke_width, stroke_color, pos_1[0], pos_1[1], pos_2[0], pos_2[1])
 
 
 def svg_edge_directed(pos_1: np.ndarray, pos_2: np.ndarray, stroke_width: float = 1, stroke_color: str = 'black',
@@ -135,24 +132,21 @@ def svg_edge_directed(pos_1: np.ndarray, pos_2: np.ndarray, stroke_width: float 
     vec = pos_2 - pos_1
     norm = np.linalg.norm(vec)
     if norm:
-        x, y = ((vec / norm) * node_size).astype(int)
-        x1, y1 = pos_1.astype(int)
-        x2, y2 = pos_2.astype(int)
+        vec = (vec / norm) * node_size
         return """<path stroke-width="{}" stroke="{}" d="M {} {} {} {}" marker-end="url(#arrow)"/>"""\
-            .format(stroke_width, stroke_color, x1, y1, x2 - x, y2 - y)
+            .format(stroke_width, stroke_color, pos_1[0], pos_1[1], pos_2[0] - vec[0], pos_2[1] - vec[1])
     else:
         return ""
 
 
 def svg_text(pos, text, font_size=12, align_right=False):
     """Return svg code for text."""
-    x, y = pos.astype(int)
     if align_right:
         return """<text text-anchor="end" x="{}" y="{}" font-size="{}">{}</text>"""\
-            .format(x, y, font_size, str(text))
+            .format(pos[0], pos[1], font_size, str(text))
     else:
         return """<text x="{}" y="{}" font-size="{}">{}</text>"""\
-            .format(x, y, font_size, str(text))
+            .format(pos[0], pos[1], font_size, str(text))
 
 
 def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optional[np.ndarray] = None,

@@ -113,9 +113,6 @@ To run a subset of tests::
 
 $ py.test tests.test_sknetwork
 
-Do not hesitate to check the Wiki_.
-
-.. _Wiki: https://github.com/sknetwork-team/scikit-network/wiki
 
 Deploying
 ---------
