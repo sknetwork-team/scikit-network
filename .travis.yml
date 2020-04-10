@@ -1,12 +1,34 @@
 dist: xenial   # required for Python >= 3.7
 language: python
-matrix:
+jobs:
   include:
-    - sudo: required
+    - if: branch = master
+      sudo: required
       services:
         - docker
       env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
            PLAT=manylinux2010_x86_64
+    - if: branch = master
+      os: osx
+      python:
+          - 3.8
+          - 3.7
+          - 3.6
+  exclude:
+      - if: branch = master
+        dist: xenial   # required for Python >= 3.7
+        language: python
+        python:
+            - 3.8
+            - 3.7
+            - 3.6
+        install:
+            - pip install -r requirements_dev.txt
+            - pip install codecov
+            - python setup.py develop
+        env:
+            - SKNETWORK_DISABLE_CYTHONIZE=false
+            - SKNETWORK_DISABLE_CYTHONIZE=true
 install:
   - pip install codecov
   - docker pull $DOCKER_IMAGE
