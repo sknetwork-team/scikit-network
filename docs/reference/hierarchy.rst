@@ -29,8 +29,8 @@ Ward
 
 .. autoclass:: sknetwork.hierarchy.BiWard
 
-Louvain hierarchy
------------------
+Louvain
+-------
 .. autoclass:: sknetwork.hierarchy.LouvainHierarchy
 
 Metrics

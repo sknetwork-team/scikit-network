@@ -17,9 +17,7 @@ from sknetwork.utils.check import check_format, is_square
 
 
 class LouvainHierarchy(BaseHierarchy):
-    """Iterative clustering algorithm for hierarchical clustering.
-
-    Using the Louvain clustering algorithm on each previously obtained cluster yields a tree-like structure.
+    """Hierarchical clustering by successive instances of Louvain.
 
     Parameters
     ----------
@@ -32,7 +30,7 @@ class LouvainHierarchy(BaseHierarchy):
 
     Notes
     -----
-    Each row of the dendrogram = children, distance, size of cluster :math:`\\sum` nodes.
+    Each row of the dendrogram = children, distance, size of cluster.
 
     See Also
     --------
@@ -46,8 +44,7 @@ class LouvainHierarchy(BaseHierarchy):
 
     def recursive_louvain(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
                           nodes: Optional[np.ndarray] = None):
-        """
-        Recursive function for fit. Returns a tree rather than a dendrogram.
+        """Recursive function for fit. Returns a tree rather than a dendrogram.
 
         Parameters
         ----------
@@ -84,8 +81,7 @@ class LouvainHierarchy(BaseHierarchy):
             return result
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'LouvainHierarchy':
-        """
-        Hierarchical clustering using several Louvain instances.
+        """Hierarchical clustering using several Louvain instances.
 
         Parameters
         ----------
