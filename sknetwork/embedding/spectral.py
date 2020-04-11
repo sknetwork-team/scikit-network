@@ -151,8 +151,8 @@ class Spectral(BaseEmbedding):
     Example
     -------
     >>> from sknetwork.embedding import Spectral
-    >>> spectral = Spectral()
     >>> from sknetwork.data import karate_club
+    >>> spectral = Spectral()
     >>> adjacency = karate_club()
     >>> embedding = spectral.fit_transform(adjacency)
     >>> embedding.shape
@@ -410,8 +410,8 @@ class BiSpectral(Spectral):
     Example
     -------
     >>> from sknetwork.embedding import BiSpectral
-    >>> bispectral = BiSpectral()
     >>> from sknetwork.data import movie_actor
+    >>> bispectral = BiSpectral()
     >>> biadjacency = movie_actor()
     >>> embedding = bispectral.fit_transform(biadjacency)
     >>> embedding.shape

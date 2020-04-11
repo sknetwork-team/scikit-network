@@ -166,8 +166,8 @@ class Paris(BaseHierarchy):
     Examples
     --------
     >>> from sknetwork.hierarchy import Paris
-    >>> paris = Paris()
     >>> from sknetwork.data import house
+    >>> paris = Paris()
     >>> adjacency = house()
     >>> paris.fit_transform(adjacency)
     array([[3.        , 2.        , 0.16666667, 2.        ],
@@ -313,8 +313,8 @@ class BiParis(Paris):
     Examples
     --------
     >>> from sknetwork.hierarchy import BiParis
-    >>> biparis = BiParis()
     >>> from sknetwork.data import star_wars
+    >>> biparis = BiParis()
     >>> biadjacency = star_wars()
     >>> biparis.fit_transform(biadjacency)
     array([[1.        , 2.        , 0.37499999, 2.        ],
