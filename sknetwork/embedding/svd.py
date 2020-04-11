@@ -230,19 +230,19 @@ class GSVD(BaseEmbedding):
         self._check_adj_vector(adjacency_vectors)
 
         # regularization
-        adjacency_vector_reg = adjacency_vectors.astype(float)
+        adjacency_vectors_reg = adjacency_vectors.astype(float)
         if self.regularization_:
-            adjacency_vector_reg += self.regularization_
+            adjacency_vectors_reg += self.regularization_
 
         # weighting
-        weights_row = adjacency_vector_reg.dot(np.ones(n_col))
+        weights_row = adjacency_vectors_reg.dot(np.ones(n_col))
         diag_row = diag_pinv(np.power(weights_row, self.factor_row))
         diag_col = diag_pinv(np.power(self.weights_col_, self.factor_col))
-        adjacency_vector_reg = diag_row.dot(safe_sparse_dot(adjacency_vector_reg, diag_col))
+        adjacency_vectors_reg = diag_row.dot(safe_sparse_dot(adjacency_vectors_reg, diag_col))
 
         # projection in the embedding space
-        diag = diag_pinv(np.sum(adjacency_vector_reg, axis=1))
-        averaging = diag.dot(adjacency_vector_reg)
+        diag = diag_pinv(np.sum(adjacency_vectors_reg, axis=1))
+        averaging = diag.dot(adjacency_vectors_reg)
         embedding_vectors = diag_row.dot(averaging.dot(singular_vectors_right))
 
         # scaling
@@ -265,7 +265,7 @@ class SVD(GSVD):
     * Bigraphs
 
     Parameters
-    -----------
+    ----------
     n_components : int
         Dimension of the embedding.
     regularization : ``None`` or float (default = ``None``)
