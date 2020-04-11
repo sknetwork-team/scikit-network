@@ -48,10 +48,10 @@ class KMeans(BaseClustering):
 
     Example
     -------
-    >>> from sknetwork.data import karate_club
-    >>> adjacency = karate_club()
     >>> from sknetwork.clustering import KMeans
     >>> kmeans = KMeans(n_clusters=3)
+    >>> from sknetwork.data import karate_club
+    >>> adjacency = karate_club()
     >>> labels = kmeans.fit_transform(adjacency)
     >>> len(set(labels))
     3
@@ -148,10 +148,10 @@ class BiKMeans(KMeans):
 
     Example
     -------
-    >>> from sknetwork.data import movie_actor
-    >>> biadjacency = movie_actor()
     >>> from sknetwork.clustering import BiKMeans
     >>> bikmeans = BiKMeans()
+    >>> from sknetwork.data import movie_actor
+    >>> biadjacency = movie_actor()
     >>> labels = bikmeans.fit_transform(biadjacency)
     >>> len(labels)
     15

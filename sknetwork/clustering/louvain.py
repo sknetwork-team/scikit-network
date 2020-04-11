@@ -63,10 +63,10 @@ class Louvain(BaseClustering, VerboseMixin):
 
     Example
     -------
-    >>> from sknetwork.data import karate_club
-    >>> adjacency = karate_club()
     >>> from sknetwork.clustering import Louvain
     >>> louvain = Louvain()
+    >>> from sknetwork.data import karate_club
+    >>> adjacency = karate_club()
     >>> labels = louvain.fit_transform(adjacency)
     >>> len(set(labels))
     4
@@ -301,10 +301,10 @@ class BiLouvain(Louvain):
 
     Example
     -------
-    >>> from sknetwork.data import movie_actor
-    >>> biadjacency = movie_actor()
     >>> from sknetwork.clustering import BiLouvain
     >>> bilouvain = BiLouvain()
+    >>> from sknetwork.data import movie_actor
+    >>> biadjacency = movie_actor()
     >>> labels = bilouvain.fit_transform(biadjacency)
     >>> len(labels)
     15

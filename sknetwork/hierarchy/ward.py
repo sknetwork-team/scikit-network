@@ -29,10 +29,10 @@ class Ward(BaseHierarchy):
 
     Examples
     --------
-    >>> from sknetwork.data import karate_club
-    >>> adjacency = karate_club()
     >>> from sknetwork.hierarchy import Ward
     >>> ward = Ward()
+    >>> from sknetwork.data import karate_club
+    >>> adjacency = karate_club()
     >>> dendrogram = ward.fit_transform(adjacency)
     >>> dendrogram.shape
     (33, 4)
@@ -101,10 +101,10 @@ class BiWard(BaseHierarchy):
 
     Examples
     --------
-    >>> from sknetwork.data import movie_actor
-    >>> biadjacency = movie_actor()
     >>> from sknetwork.hierarchy import BiWard
     >>> biward = BiWard()
+    >>> from sknetwork.data import movie_actor
+    >>> biadjacency = movie_actor()
     >>> biward.fit_transform(biadjacency).shape
     (14, 4)
 

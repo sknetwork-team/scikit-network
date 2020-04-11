@@ -47,10 +47,10 @@ class LouvainHierarchy(BaseHierarchy):
 
     Example
     -------
-    >>> from sknetwork.data import karate_club
-    >>> adjacency = karate_club()
     >>> from sknetwork.hierarchy import LouvainHierarchy
     >>> louvain = LouvainHierarchy()
+    >>> from sknetwork.data import karate_club
+    >>> adjacency = karate_club()
     >>> dendrogram = louvain.fit_transform(adjacency)
     >>> dendrogram.shape
     (33, 4)

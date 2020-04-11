@@ -57,9 +57,9 @@ def cosine_modularity(adjacency, embedding: np.ndarray, embedding_col=None, reso
 
     Example
     -------
+    >>> from sknetwork.embedding import cosine_modularity
     >>> from sknetwork.data import house
     >>> adjacency = house()
-    >>> from sknetwork.embedding import cosine_modularity
     >>> embedding = np.array([[1, -2], [2, -1], [2, 1], [1, 2], [0, -1]])
     >>> np.round(cosine_modularity(adjacency, embedding), 2)
     -0.81

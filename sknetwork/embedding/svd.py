@@ -81,10 +81,10 @@ class GSVD(BaseEmbedding):
 
     Example
     -------
-    >>> from sknetwork.data import karate_club
-    >>> adjacency = karate_club()
     >>> from sknetwork.embedding import GSVD
     >>> gsvd = GSVD()
+    >>> from sknetwork.data import karate_club
+    >>> adjacency = karate_club()
     >>> embedding = gsvd.fit_transform(adjacency)
     >>> embedding.shape
     (34, 2)
@@ -311,10 +311,10 @@ class SVD(GSVD):
 
     Example
     -------
-    >>> from sknetwork.data import karate_club
-    >>> adjacency = karate_club()
     >>> from sknetwork.embedding import SVD
     >>> svd = SVD()
+    >>> from sknetwork.data import karate_club
+    >>> adjacency = karate_club()
     >>> embedding = svd.fit_transform(adjacency)
     >>> embedding.shape
     (34, 2)

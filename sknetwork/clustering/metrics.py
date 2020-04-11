@@ -68,9 +68,9 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
 
     Example
     -------
+    >>> from sknetwork.clustering import modularity
     >>> from sknetwork.data import house
     >>> adjacency = house()
-    >>> from sknetwork.clustering import modularity
     >>> labels = np.array([0, 0, 1, 1, 0])
     >>> np.round(modularity(adjacency, labels), 2)
     0.11
@@ -142,9 +142,9 @@ def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.n
 
     Example
     -------
+    >>> from sknetwork.clustering import bimodularity
     >>> from sknetwork.data import star_wars
     >>> biadjacency = star_wars()
-    >>> from sknetwork.clustering import bimodularity
     >>> labels = np.array([1, 1, 0, 0])
     >>> labels_col = np.array([1, 0, 0])
     >>> np.round(bimodularity(biadjacency, labels, labels_col), 2)
@@ -208,9 +208,9 @@ def comodularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.nda
 
     Example
     -------
+    >>> from sknetwork.clustering import comodularity
     >>> from sknetwork.data import house
     >>> adjacency = house()
-    >>> from sknetwork.clustering import comodularity
     >>> labels = np.array([0, 0, 1, 1, 0])
     >>> np.round(comodularity(adjacency, labels), 2)
     0.06

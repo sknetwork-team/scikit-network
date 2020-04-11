@@ -64,11 +64,13 @@ class Diffusion(BaseRanking, VerboseMixin):
 
     Example
     -------
-    >>> from sknetwork.data import house
+    >>> from sknetwork.ranking import Diffusion
     >>> diffusion = Diffusion()
+    >>> from sknetwork.data import house
     >>> adjacency = house()
     >>> seeds = {0: 1, 2: 0}
-    >>> np.round(diffusion.fit_transform(adjacency, seeds), 2)
+    >>> scores = diffusion.fit_transform(adjacency, seeds)
+    >>> np.round(scores, 2)
     array([1.  , 0.54, 0.  , 0.31, 0.62])
 
     References
