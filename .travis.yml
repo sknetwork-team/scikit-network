@@ -1,29 +1,28 @@
+dist: xenial   # required for Python >= 3.7
 language: python
-
-jobs:
-  include:
-    # perform a linux build
-    - services: docker
-    # and a mac build
-    - os: osx
-      language: shell
-    # and a windows build
-    - os: windows
-      language: shell
-      before_install:
-        - choco install python --version 3.8.0
-        - export PATH="/c/Python38:/c/Python38/Scripts:$PATH"
-        # make sure it's on PATH as 'python3'
-        - ln -s /c/Python38/python.exe /c/Python38/python3.exe
-
+python:
+- 3.8
+- 3.7
+- 3.6
 install:
-  - python3 -m pip install cibuildwheel==1.3.0
-
+  - pip install -r requirements_dev.txt
+  - pip install codecov
+  - python setup.py develop
 env:
-    global:
-        CIBW_BEFORE_BUILD="pip install -r requirements_dev.txt && pip install ."
-        CIBW_BUILD=cp36-* cp37-* cp38-*
-
+  - SKNETWORK_DISABLE_CYTHONIZE=false
+  - SKNETWORK_DISABLE_CYTHONIZE=true
 script:
-  # build the wheels, put them into './wheelhouse'
-  - python3 -m cibuildwheel --output-dir wheelhouse
+  - py.test --doctest-modules --cov-report=xml --cov=sknetwork
+deploy:
+  provider: pypi
+  distributions: sdist bdist_wheel
+  user: sharpenb
+  password:
+    secure: COLNZTrwU2dpuy7AZsBDn6bmPHigMH21suxxNsY1bHwQQKEfWDA9PIt3t2jM3QQSWQRPT6aAwsfFCokAGFUSgmyL3ahdphK+K5ZQ/V6A/nAxpFXWGQY2efL51/JrcKpuCJJsaReB7Rtsvt80LQmJd2nV4rKOu74noDceNbDqcY58kYmfB1nBO84/xqgFMN7RBfEeFe6AH2tetXPgqVNU6RWX9bKnivnH3/lBz4uHET30pLCclHRdcHX+UHxIOjBjT7pGmjLlkyVlO73cRhJX0b1ejeiMOrKJEfo9ZhlFUxcJcqbPmdhNeoLA3LOnc11eaCDOthnDcBY3fC/tEmmqL7qYptbdaO9JGaNve/yWasY3BFCbx1McwFdwgQEZ8dYc2OBntGa3d9eoNvsNLWK37suk1ruSN34PsWwRsQrCV0uMK1QH1FjfEOdGsA/mn7aUpCd+M/QcIfOE8iskvnzqqDbp13Nzmu0r7id5TsoQCmVwTaV0D4bnd92N9lxl5BbnEqGyru7Non/nc0TeLSRqrp+kNXHeUPgVa8gohUWWGRV2fOfeRXG4TJucneifpNtH0STzd/AMCFix7g1fTeAs0UAhqbC88ESWL0kTzT+v8ZuYQCkMBxrYn2Lo7bb1TNWoBWscgAPmCB0cIl4mgaafG5uSo+pTSAduVHCwW81iFqI=
+  on:
+    tags: true
+    repo: sknetwork-team/scikit-network
+    python: 3.6
+  skip_existing: true
+after_success:
+  - codecov
