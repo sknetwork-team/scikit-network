@@ -25,6 +25,7 @@ matrix:
           script:
               # build the wheels, put them into './wheelhouse'
               - python3 -m cibuildwheel --output-dir wheelhouse
+              - ls wheelhouse/
         # and a windows build
         - os: windows
           language: shell
@@ -42,5 +43,6 @@ matrix:
           script:
               # build the wheels, put them into './wheelhouse'
               - python3 -m cibuildwheel --output-dir wheelhouse
+              - ls wheelhouse/
 
 
