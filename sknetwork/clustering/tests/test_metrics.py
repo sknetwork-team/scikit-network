@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering import modularity, bimodularity, cocitation_modularity, nsd
+from sknetwork.clustering import modularity, bimodularity, comodularity, normalized_std
 from sknetwork.data import star_wars
 
 
@@ -33,12 +33,12 @@ class TestClusteringMetrics(unittest.TestCase):
         self.assertEqual(bimodularity(biadjacency, labels_row, labels_col), 0.1875)
 
     def test_cocitation_modularity(self):
-        self.assertAlmostEqual(cocitation_modularity(self.graph, self.labels), 0.0521, 3)
-        self.assertAlmostEqual(cocitation_modularity(self.graph, self.unique_cluster), 0.)
+        self.assertAlmostEqual(comodularity(self.graph, self.labels), 0.0521, 3)
+        self.assertAlmostEqual(comodularity(self.graph, self.unique_cluster), 0.)
 
     def test_nsd(self):
         balanced = np.arange(5)
-        self.assertEqual(1, nsd(balanced))
+        self.assertEqual(1, normalized_std(balanced))
         unbalanced = np.zeros(5)
         unbalanced[0] = 1
-        self.assertGreaterEqual(nsd(unbalanced), 0)
+        self.assertGreaterEqual(normalized_std(unbalanced), 0)

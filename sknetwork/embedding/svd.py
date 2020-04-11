@@ -30,9 +30,9 @@ class GSVD(BaseEmbedding):
 
     Parameters
     -----------
-    n_components: int
+    n_components : int
         Dimension of the embedding.
-    regularization: ``None`` or float (default = ``None``)
+    regularization : ``None`` or float (default = ``None``)
         Implicitly add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
@@ -52,7 +52,7 @@ class GSVD(BaseEmbedding):
     normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
+    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.
 
         * ``'auto'``: call the auto_solver function.
@@ -81,10 +81,13 @@ class GSVD(BaseEmbedding):
 
     Example
     -------
-    >>> gsvd = GSVD(3)
-    >>> embedding = gsvd.fit_transform(np.ones((7,5)))
+    >>> from sknetwork.data import karate_club
+    >>> adjacency = karate_club()
+    >>> from sknetwork.embedding import GSVD
+    >>> gsvd = GSVD()
+    >>> embedding = gsvd.fit_transform(adjacency)
     >>> embedding.shape
-    (7, 3)
+    (34, 2)
 
     References
     ----------
@@ -130,9 +133,8 @@ class GSVD(BaseEmbedding):
 
         Parameters
         ----------
-        adjacency: array-like, shape = (n_row, n_col)
-            Adjacency matrix, where n_row = n_col is the number of nodes for a standard graph,
-            n_row, n_col are the number of nodes in each part for a bipartite graph.
+        adjacency :
+            Adjacency or biadjacency matrix of the graph.
 
         Returns
         -------
@@ -264,9 +266,9 @@ class SVD(GSVD):
 
     Parameters
     -----------
-    n_components: int
+    n_components : int
         Dimension of the embedding.
-    regularization: ``None`` or float (default = ``None``)
+    regularization : ``None`` or float (default = ``None``)
         Implicitly add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
@@ -282,7 +284,7 @@ class SVD(GSVD):
     normalized : bool (default = ``False``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
+    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.
 
         * ``'auto'``: call the auto_solver function.
@@ -309,10 +311,13 @@ class SVD(GSVD):
 
     Example
     -------
-    >>> svd = SVD(3)
-    >>> embedding = svd.fit_transform(np.ones((6,5)))
+    >>> from sknetwork.data import karate_club
+    >>> adjacency = karate_club()
+    >>> from sknetwork.embedding import SVD
+    >>> svd = SVD()
+    >>> embedding = svd.fit_transform(adjacency)
     >>> embedding.shape
-    (6, 3)
+    (34, 2)
 
     References
     ----------

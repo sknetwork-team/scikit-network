@@ -31,9 +31,7 @@ def _instanciate_vars(adjacency: sparse.csr_matrix, weights: str = 'uniform'):
 
 
 def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights: str = 'uniform') -> float:
-    """Dasgupta's score of a hierarchy, defined as 1 - Dasgupta's cost.
-
-    The higher the score, the better.
+    """Dasgupta's score of a hierarchy (quality metric).
 
     Parameters
     ----------
@@ -89,8 +87,6 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
                              normalized: bool = True) -> float:
     """Tree sampling divergence of a hierarchy (quality metric).
 
-    The higher the score, the better.
-
     Parameters
     ----------
     adjacency :
@@ -100,7 +96,7 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     weights :
         Weights of nodes.
         ``'degree'`` (default) or ``'uniform'``.
-    normalized:
+    normalized :
         If ``True``, normalized by the mutual information of the graph.
 
     Returns

@@ -49,6 +49,7 @@ class LouvainHierarchy(BaseHierarchy):
     -------
     >>> from sknetwork.data import karate_club
     >>> adjacency = karate_club()
+    >>> from sknetwork.hierarchy import LouvainHierarchy
     >>> louvain = LouvainHierarchy()
     >>> dendrogram = louvain.fit_transform(adjacency)
     >>> dendrogram.shape
@@ -56,7 +57,7 @@ class LouvainHierarchy(BaseHierarchy):
 
     Notes
     -----
-    Each row of the dendrogram = children, distance, size of cluster.
+    Each row of the dendrogram = merge nodes, distance, size of cluster.
 
     See Also
     --------

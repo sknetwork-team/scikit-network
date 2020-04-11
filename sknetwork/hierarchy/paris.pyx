@@ -144,6 +144,9 @@ cdef class AggregateGraph:
 class Paris(BaseHierarchy):
     """Agglomerative clustering algorithm that performs greedy merge of nodes based on their similarity.
 
+    * Graphs
+    * Digraphs
+
     The similarity between nodes :math:`i,j` is :math:`\\dfrac{A_{ij}}{w_i w_j}` where
 
     * :math:`A_{ij}` is the weight of edge :math:`i,j`,
@@ -164,8 +167,9 @@ class Paris(BaseHierarchy):
     --------
     >>> from sknetwork.data import house
     >>> adjacency = house()
+    >>> from sknetwork.hierarchy import Paris
     >>> paris = Paris()
-    >>> paris.fit(adjacency).dendrogram_
+    >>> paris.fit_transform(adjacency)
     array([[3.        , 2.        , 0.16666667, 2.        ],
            [1.        , 0.        , 0.25      , 2.        ],
            [6.        , 4.        , 0.3125    , 3.        ],
@@ -178,7 +182,7 @@ class Paris(BaseHierarchy):
 
     See Also
     --------
-    scipy.cluster.hierarchy.dendrogram
+    scipy.cluster.hierarchy.linkage
 
     References
     ----------
@@ -288,6 +292,8 @@ class Paris(BaseHierarchy):
 class BiParis(Paris):
     """Hierarchical clustering of bipartite graphs by the Paris method.
 
+    * Bigraphs
+
     Parameters
     ----------
     weights :
@@ -307,10 +313,13 @@ class BiParis(Paris):
     Examples
     --------
     >>> from sknetwork.data import star_wars
-    >>> biparis = BiParis(engine='python')
     >>> biadjacency = star_wars()
-    >>> biparis.fit_transform(biadjacency).shape
-    (3, 4)
+    >>> from sknetwork.hierarchy import BiParis
+    >>> biparis = BiParis()
+    >>> biparis.fit_transform(biadjacency)
+    array([[1.        , 2.        , 0.37499999, 2.        ],
+           [4.        , 0.        , 0.546875  , 3.        ],
+           [5.        , 3.        , 0.74999998, 4.        ]])
 
     Notes
     -----
@@ -318,7 +327,7 @@ class BiParis(Paris):
 
     See Also
     --------
-    scipy.cluster.hierarchy.dendrogram
+    scipy.cluster.hierarchy.linkage
 
     References
     ----------

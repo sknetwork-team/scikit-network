@@ -19,6 +19,9 @@ from sknetwork.utils.ward import WardDense
 class Ward(BaseHierarchy):
     """Hierarchical clustering by the Ward method.
 
+    * Graphs
+    * Digraphs
+
     Parameters
     ----------
     embedding_method :
@@ -27,8 +30,9 @@ class Ward(BaseHierarchy):
     Examples
     --------
     >>> from sknetwork.data import karate_club
-    >>> ward = Ward()
     >>> adjacency = karate_club()
+    >>> from sknetwork.hierarchy import Ward
+    >>> ward = Ward()
     >>> dendrogram = ward.fit_transform(adjacency)
     >>> dendrogram.shape
     (33, 4)
@@ -71,6 +75,8 @@ class Ward(BaseHierarchy):
 class BiWard(BaseHierarchy):
     """Hierarchical clustering of bipartite graphs by the Ward method.
 
+    * Bigraphs
+
     Parameters
     ----------
     embedding_method :
@@ -96,8 +102,9 @@ class BiWard(BaseHierarchy):
     Examples
     --------
     >>> from sknetwork.data import movie_actor
-    >>> biward = BiWard()
     >>> biadjacency = movie_actor()
+    >>> from sknetwork.hierarchy import BiWard
+    >>> biward = BiWard()
     >>> biward.fit_transform(biadjacency).shape
     (14, 4)
 

@@ -103,7 +103,9 @@ class Spectral(BaseEmbedding):
     """Spectral embedding of graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`.
     Eigenvectors are considered in increasing order of eigenvalues, skipping the first eigenvector.
 
-    * Graphs (see :class:`BiSpectral` for directed graphs and bipartite graphs).
+    * Graphs
+
+    See :class:`BiSpectral` for digraphs and bigraphs.
 
     Parameters
     ----------
@@ -148,10 +150,13 @@ class Spectral(BaseEmbedding):
 
     Example
     -------
+    >>> from sknetwork.data import karate_club
+    >>> adjacency = karate_club()
+    >>> from sknetwork.embedding import Spectral
     >>> spectral = Spectral()
-    >>> embedding = spectral.fit_transform(np.ones((4, 4)))
+    >>> embedding = spectral.fit_transform(adjacency)
     >>> embedding.shape
-    (4, 2)
+    (34, 2)
 
     References
     ----------
@@ -354,6 +359,9 @@ class BiSpectral(Spectral):
     with :math:`A` the adjacency matrix of the graph. Eigenvectors are considered in increasing order of eigenvalues,
     skipping the first eigenvector.
 
+    * Digraphs
+    * Bigraphs
+
     Parameters
     ----------
     n_components : int (default = 2)
@@ -401,10 +409,13 @@ class BiSpectral(Spectral):
 
     Example
     -------
+    >>> from sknetwork.data import movie_actor
+    >>> biadjacency = movie_actor()
+    >>> from sknetwork.embedding import BiSpectral
     >>> bispectral = BiSpectral()
-    >>> embedding = bispectral.fit_transform(np.ones((5, 4)))
+    >>> embedding = bispectral.fit_transform(biadjacency)
     >>> embedding.shape
-    (5, 2)
+    (15, 2)
 
     References
     ----------

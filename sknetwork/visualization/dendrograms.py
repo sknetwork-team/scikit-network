@@ -153,7 +153,7 @@ def svg_dendrogram(dendrogram: np.ndarray, names: Optional[np.ndarray] = None, r
                    height: float = 300, margin: float = 10, margin_text: float = 5, scale: float = 1,
                    line_width: float = 2, n_clusters: int = 2, color: str = 'black', font_size: int = 12,
                    reorder: bool = False):
-    """Dendrogram as SVG image.
+    """Return SVG image of a dendrogram.
 
     Parameters
     ----------
@@ -183,6 +183,14 @@ def svg_dendrogram(dendrogram: np.ndarray, names: Optional[np.ndarray] = None, r
         Font size.
     reorder :
         If ``True``, reorder leaves so that left subtree has more leaves than right subtree.
+
+    Example
+    -------
+    >>> dendrogram = np.array([[0, 1, 1, 2], [2, 3, 2, 3]])
+    >>> from sknetwork.visualization import svg_dendrogram
+    >>> image = svg_dendrogram(dendrogram)
+    >>> image[1:4]
+    'svg'
     """
 
     if rotate:

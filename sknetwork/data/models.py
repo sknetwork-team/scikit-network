@@ -15,7 +15,7 @@ from sknetwork.utils import Bunch
 from sknetwork.utils.format import directed2undirected
 
 
-def block_model(sizes: np.ndarray, p_in: Union[float, np.ndarray] = .2, p_out: float = .05,
+def block_model(sizes: np.ndarray, p_in: Union[float, list, np.ndarray] = .2, p_out: float = .05,
                 seed: Optional[int] = None, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     """Stochastic block model.
 
@@ -36,6 +36,14 @@ def block_model(sizes: np.ndarray, p_in: Union[float, np.ndarray] = .2, p_out: f
     -------
     adjacency or graph : Union[sparse.csr_matrix, Bunch]
         Adjacency matrix or graph with metadata (labels).
+
+    Example
+    -------
+    >>> from sknetwork.data import block_model
+    >>> sizes = np.array([4, 5])
+    >>> adjacency = block_model(sizes)
+    >>> adjacency.shape
+    (9, 9)
     """
     np.random.seed(seed)
     sizes = np.array(sizes)
@@ -86,6 +94,13 @@ def erdos_renyie(n: int = 20, p: float = .3, seed: Optional[int] = None) -> spar
     -------
     adjacency : sparse.csr_matrix
         Adjacency matrix.
+
+    Example
+    -------
+    >>> from sknetwork.data import erdos_renyie
+    >>> adjacency = erdos_renyie(7)
+    >>> adjacency.shape
+    (7, 7)
     """
     return block_model(np.array([n]), p, 0., seed, metadata=False)
 
@@ -105,6 +120,12 @@ def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
     adjacency or graph : Union[sparse.csr_matrix, Bunch]
         Adjacency matrix or graph with metadata (positions).
 
+    Example
+    -------
+    >>> from sknetwork.data import linear_digraph
+    >>> adjacency = linear_digraph(5)
+    >>> adjacency.shape
+    (5, 5)
     """
     row = np.arange(n - 1)
     col = np.arange(1, n)
@@ -135,6 +156,13 @@ def linear_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix,
     -------
     adjacency or graph : Union[sparse.csr_matrix, Bunch]
         Adjacency matrix or graph with metadata (positions).
+
+    Example
+    -------
+    >>> from sknetwork.data import linear_graph
+    >>> adjacency = linear_graph(5)
+    >>> adjacency.shape
+    (5, 5)
     """
     graph = linear_digraph(n, True)
     adjacency = graph.adjacency
@@ -161,6 +189,12 @@ def cyclic_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
     adjacency or graph : Union[sparse.csr_matrix, Bunch]
         Adjacency matrix or graph with metadata (positions).
 
+    Example
+    -------
+    >>> from sknetwork.data import cyclic_digraph
+    >>> adjacency = cyclic_digraph(5)
+    >>> adjacency.shape
+    (5, 5)
     """
     row = np.arange(n)
     col = np.array(list(np.arange(1, n)) + [0])
@@ -192,6 +226,13 @@ def cyclic_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix,
     -------
     adjacency or graph : Union[sparse.csr_matrix, Bunch]
         Adjacency matrix or graph with metadata (positions).
+
+    Example
+    -------
+    >>> from sknetwork.data import cyclic_graph
+    >>> adjacency = cyclic_graph(5)
+    >>> adjacency.shape
+    (5, 5)
     """
     graph = cyclic_digraph(n, True)
     graph.adjacency = directed2undirected(graph.adjacency)

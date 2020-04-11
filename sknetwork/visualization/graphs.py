@@ -163,7 +163,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
               node_width_max: float = 3, node_color: str = 'blue', edge_width: float = 1, edge_width_min: float = 0.5,
               edge_width_max: float = 20, edge_weight: bool = True, edge_color: Optional[str] = None,
               font_size: int = 12, directed: bool = False) -> str:
-    """Return svg code for a graph.
+    """Return SVG image of a graph.
 
     Parameters
     ----------
@@ -227,8 +227,11 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
 
     Example
     -------
-    >>> adjacency = sparse.csr_matrix(np.ones((3,3)))
-    >>> position = np.random.random((3,2))
+    >>> from sknetwork.data import karate_club
+    >>> graph = karate_club(True)
+    >>> adjacency = graph.adjacency
+    >>> position = graph.position
+    >>> from sknetwork.visualization import svg_graph
     >>> image = svg_graph(adjacency, position)
     >>> image[1:4]
     'svg'
@@ -303,7 +306,7 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
                 node_color: str = 'blue', edge_width: float = 1, edge_width_min: float = 0.5,
                 edge_width_max: float = 3, edge_weight: bool = True, edge_color: Optional[str] = None,
                 font_size: int = 12) -> str:
-    """Return svg code for a directed graph.
+    """Return SVG image of a digraph.
 
     Parameters
     ----------
@@ -365,9 +368,12 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
 
     Example
     -------
-    >>> adjacency = sparse.csr_matrix(np.ones((3,3)))
-    >>> position = np.random.random((3,2))
-    >>> image = svg_digraph(adjacency, position)
+    >>> from sknetwork.data import painters
+    >>> graph = painters(True)
+    >>> adjacency = graph.adjacency
+    >>> position = graph.position
+    >>> from sknetwork.visualization import svg_digraph
+    >>> image = svg_graph(adjacency, position)
     >>> image[1:4]
     'svg'
     """
@@ -394,7 +400,7 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
                 color_row: str = 'blue', color_col: str = 'red', edge_width: float = 1, edge_width_min: float = 0.5,
                 edge_width_max: float = 10, edge_color: str = 'black', edge_weight: bool = True,
                 font_size: int = 12) -> str:
-    """Return svg code for a bipartite graph.
+    """Return SVG image of a bigraph.
 
     Parameters
     ----------
@@ -472,7 +478,9 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
 
     Example
     -------
-    >>> biadjacency = sparse.csr_matrix(np.ones((4,3)))
+    >>> from sknetwork.data import movie_actor
+    >>> biadjacency = movie_actor()
+    >>> from sknetwork.visualization import svg_bigraph
     >>> image = svg_bigraph(biadjacency)
     >>> image[1:4]
     'svg'
