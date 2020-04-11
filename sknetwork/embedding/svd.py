@@ -241,8 +241,7 @@ class GSVD(BaseEmbedding):
         adjacency_vectors_reg = diag_row.dot(safe_sparse_dot(adjacency_vectors_reg, diag_col))
 
         # projection in the embedding space
-        diag = diag_pinv(np.sum(adjacency_vectors_reg, axis=1))
-        averaging = diag.dot(adjacency_vectors_reg)
+        averaging = adjacency_vectors_reg
         embedding_vectors = diag_row.dot(averaging.dot(singular_vectors_right))
 
         # scaling
