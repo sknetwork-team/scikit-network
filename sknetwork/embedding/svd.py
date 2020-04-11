@@ -197,6 +197,11 @@ class GSVD(BaseEmbedding):
 
         return self
 
+    @staticmethod
+    def _check_adj_vector(adjacency_vectors: np.ndarray):
+        if not np.all(adjacency_vectors >= 0):
+            raise ValueError('The adjacency vector must be non-negative.')
+
     def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """Predict the embedding of new rows, defined by their adjacency vectors.
 
@@ -220,8 +225,7 @@ class GSVD(BaseEmbedding):
         n_col, _ = self.embedding_col_.shape
 
         adjacency_vectors = check_adjacency_vector(adjacency_vectors, n_col)
-        if not np.all(adjacency_vectors >= 0):
-            raise ValueError('The adjacency vector must be non-negative.')
+        self._check_adj_vector(adjacency_vectors)
 
         # regularization
         adjacency_vector_reg = adjacency_vectors.astype(float)
@@ -322,3 +326,7 @@ class SVD(GSVD):
         super(SVD, self).__init__(n_components=n_components, regularization=regularization,
                                   relative_regularization=relative_regularization, factor_singular=factor_singular,
                                   factor_row=0., factor_col=0., normalized=normalized, solver=solver)
+
+    @staticmethod
+    def _check_adj_vector(adjacency_vectors: np.ndarray):
+        return
