@@ -29,7 +29,8 @@ class Ward(BaseHierarchy):
     >>> from sknetwork.data import karate_club
     >>> ward = Ward()
     >>> adjacency = karate_club()
-    >>> ward.fit_transform(adjacency).shape
+    >>> dendrogram = ward.fit_transform(adjacency)
+    >>> dendrogram.shape
     (33, 4)
 
     References

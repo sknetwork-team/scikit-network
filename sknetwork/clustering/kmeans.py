@@ -51,7 +51,8 @@ class KMeans(BaseClustering):
     >>> from sknetwork.data import karate_club
     >>> adjacency = karate_club()
     >>> kmeans = KMeans(n_clusters=3)
-    >>> len(set(kmeans.fit_transform(adjacency)))
+    >>> labels = kmeans.fit_transform(adjacency)
+    >>> len(set(labels))
     3
 
     """

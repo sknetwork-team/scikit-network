@@ -23,7 +23,7 @@ from sknetwork.utils.verbose import VerboseMixin
 
 
 class Louvain(BaseClustering, VerboseMixin):
-    """Louvain algorithm for clustering graphs.
+    """Louvain algorithm for clustering graphs by maximization of modularity.
 
     * Graphs
     * Digraphs
@@ -63,9 +63,12 @@ class Louvain(BaseClustering, VerboseMixin):
 
     Example
     -------
+    >>> from sknetwork.data import karate_club
+    >>> adjacency = karate_club()
     >>> louvain = Louvain()
-    >>> (louvain.fit_transform(np.ones((3,3))) == np.array([0, 1, 2])).all()
-    True
+    >>> labels = louvain.fit_transform(adjacency)
+    >>> len(labels)
+    34
 
     References
     ----------

@@ -45,6 +45,15 @@ class LouvainHierarchy(BaseHierarchy):
     dendrogram_ : np.ndarray
         Dendrogram.
 
+    Example
+    -------
+    >>> from sknetwork.data import karate_club
+    >>> adjacency = karate_club()
+    >>> louvain = LouvainHierarchy()
+    >>> dendrogram = louvain.fit_transform(adjacency)
+    >>> dendrogram.shape
+    (33, 4)
+
     Notes
     -----
     Each row of the dendrogram = children, distance, size of cluster.
