@@ -50,12 +50,14 @@ class LouvainHierarchy(BaseHierarchy):
     Example
     -------
     >>> from sknetwork.hierarchy import LouvainHierarchy
-    >>> from sknetwork.data import karate_club
-    >>> louvain_hierarchy = LouvainHierarchy()
-    >>> adjacency = karate_club()
-    >>> dendrogram = louvain_hierarchy.fit_transform(adjacency)
-    >>> dendrogram.shape
-    (33, 4)
+    >>> from sknetwork.data import house
+    >>> louvain = LouvainHierarchy()
+    >>> adjacency = house()
+    >>> louvain.fit_transform(adjacency)
+    array([[4., 1., 0., 2.],
+           [5., 0., 0., 3.],
+           [3., 2., 0., 2.],
+           [7., 6., 1., 5.]])
 
     Notes
     -----
