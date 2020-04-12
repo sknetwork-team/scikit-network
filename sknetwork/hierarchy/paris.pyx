@@ -299,6 +299,7 @@ class BiParis(Paris):
     weights :
         Weights of nodes.
         ``'degree'`` (default) or ``'uniform'``.
+
     Attributes
     ----------
     dendrogram_ :
@@ -344,11 +345,11 @@ class BiParis(Paris):
         self.dendrogram_full_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiParis':
-        """Applies the Paris algorithm to
+        """Apply the Paris algorithm to
 
         :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`
 
-        where :math:`B` is the input treated as a biadjacency matrix.
+        where :math:`B` is the biadjacency matrix of the graph.
 
         Parameters
         ----------

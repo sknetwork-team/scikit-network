@@ -17,7 +17,6 @@ class TestMetrics(unittest.TestCase):
     def setUp(self):
         self.paris = Paris()
 
-
     def test_undirected(self):
         adjacency = test_graph()
         dendrogram = self.paris.fit_transform(adjacency)

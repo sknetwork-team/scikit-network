@@ -81,8 +81,6 @@ class BiWard(BaseHierarchy):
     ----------
     embedding_method :
         Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
-    cluster_row :
-        If ``True``, return a dendrogram for the rows (default = ``True``).
     cluster_col :
         If ``True``, return a dendrogram for the columns (default = ``False``).
     cluster_both :
@@ -116,7 +114,7 @@ class BiWard(BaseHierarchy):
     * Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
       Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2(1), 86-97.
     """
-    def __init__(self, embedding_method: BaseEmbedding = GSVD(10), cluster_row: bool = True,
+    def __init__(self, embedding_method: BaseEmbedding = GSVD(10),
                  cluster_col: bool = False, cluster_both: bool = False):
         super(BiWard, self).__init__()
 
@@ -124,7 +122,6 @@ class BiWard(BaseHierarchy):
             raise ValueError('The embedding method is not valid for bipartite graphs.')
 
         self.embedding_method = embedding_method
-        self.cluster_row = cluster_row
         self.cluster_col = cluster_col
         self.cluster_both = cluster_both
 
@@ -151,10 +148,8 @@ class BiWard(BaseHierarchy):
         embedding_col = method.embedding_col_
 
         ward = WardDense()
-
-        if self.cluster_row:
-            ward.fit(embedding_row)
-            self.dendrogram_row_ = ward.dendrogram_
+        ward.fit(embedding_row)
+        self.dendrogram_row_ = ward.dendrogram_
 
         if self.cluster_col:
             ward.fit(embedding_col)

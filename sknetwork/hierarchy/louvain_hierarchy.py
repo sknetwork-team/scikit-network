@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on January, 22nd 2020
+Created on March 2020
 @author: Quentin Lutz <qlutz@enst.fr>
+@author: Thomas Bonald <tbonald@enst.fr>
 """
 
 from typing import Optional, Union
@@ -12,8 +13,9 @@ from scipy import sparse
 
 from sknetwork.clustering.louvain import Louvain
 from sknetwork.hierarchy.base import BaseHierarchy
-from sknetwork.hierarchy.postprocess import get_dendrogram
+from sknetwork.hierarchy.postprocess import get_dendrogram, split_dendrogram
 from sknetwork.utils.check import check_format, is_square
+from sknetwork.utils.format import bipartite2undirected
 
 
 class LouvainHierarchy(BaseHierarchy):
@@ -49,9 +51,9 @@ class LouvainHierarchy(BaseHierarchy):
     -------
     >>> from sknetwork.hierarchy import LouvainHierarchy
     >>> from sknetwork.data import karate_club
-    >>> louvain = LouvainHierarchy()
+    >>> louvain_hierarchy = LouvainHierarchy()
     >>> adjacency = karate_club()
-    >>> dendrogram = louvain.fit_transform(adjacency)
+    >>> dendrogram = louvain_hierarchy.fit_transform(adjacency)
     >>> dendrogram.shape
     (33, 4)
 
@@ -84,27 +86,29 @@ class LouvainHierarchy(BaseHierarchy):
         -------
         tree: :class:`Tree`
         """
-        labels = self._clustering_method.fit_transform(adjacency)
+        n = adjacency.shape[0]
+        if nodes is None:
+            nodes = np.arange(n)
+
+        if adjacency.nnz:
+            labels = self._clustering_method.fit_transform(adjacency)
+        else:
+            labels = np.zeros(n)
 
         clusters = np.unique(labels)
 
-        if nodes is None:
-            nodes = np.arange(adjacency.shape[0])
-
         result = []
-
         if len(clusters) == 1:
             if len(nodes) > 1:
                 return [[node] for node in nodes]
             else:
                 return [nodes[0]]
-
         else:
             for cluster in clusters:
                 mask = (labels == cluster)
-                subgraph_nodes = nodes[mask]
-                subgraph = adjacency[mask, :][:, mask]
-                result.append(self._recursive_louvain(subgraph, subgraph_nodes))
+                nodes_cluster = nodes[mask]
+                adjacency_cluster = adjacency[mask, :][:, mask]
+                result.append(self._recursive_louvain(adjacency_cluster, nodes_cluster))
             return result
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'LouvainHierarchy':
@@ -129,5 +133,97 @@ class LouvainHierarchy(BaseHierarchy):
         dendrogram[:, 2] -= min(dendrogram[:, 2])
 
         self.dendrogram_ = dendrogram
+
+        return self
+
+
+class BiLouvainHierarchy(LouvainHierarchy):
+    """Hierarchical clustering of bipartite graphs by successive instances of Louvain (top-down).
+
+    * Bigraphs
+
+    Parameters
+    ----------
+    resolution :
+        Resolution parameter.
+    tol_optimization :
+        Minimum increase in the objective function to enter a new optimization pass.
+    tol_aggregation :
+        Minimum increase in the objective function to enter a new aggregation pass.
+    n_aggregations :
+        Maximum number of aggregations.
+        A negative value is interpreted as no limit.
+    shuffle_nodes :
+        Enables node shuffling before optimization.
+    random_state :
+        Random number generator or random seed. If None, numpy.random is used.
+    verbose :
+        Verbose mode.
+
+    Attributes
+    ----------
+    dendrogram_ :
+        Dendrogram for the rows.
+    dendrogram_row_ :
+        Dendrogram for the rows (copy of **dendrogram_**).
+    dendrogram_col_ :
+        Dendrogram for the columns.
+    dendrogram_full_ :
+        Dendrogram for both rows and columns, indexed in this order.
+
+    Examples
+    --------
+    >>> from sknetwork.hierarchy import BiLouvainHierarchy
+    >>> from sknetwork.data import star_wars
+    >>> bilouvain = BiLouvainHierarchy()
+    >>> biadjacency = star_wars()
+    >>> bilouvain.fit_transform(biadjacency)
+    array([[3., 2., 1., 2.],
+           [1., 0., 1., 2.],
+           [5., 4., 2., 4.]])
+
+    Notes
+    -----
+    Each row of the dendrogram = :math:`i, j`, height, size of cluster.
+
+    See Also
+    --------
+    scipy.cluster.hierarchy.linkage
+    """
+    def __init__(self, **kwargs):
+        super(BiLouvainHierarchy, self).__init__()
+
+        self.louvain_hierarchy = LouvainHierarchy(**kwargs)
+
+        self.dendrogram_row_ = None
+        self.dendrogram_col_ = None
+        self.dendrogram_full_ = None
+
+    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiLouvainHierarchy':
+        """Applies Louvain hierarchical clustering to
+
+        :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`
+
+        where :math:`B` is the biadjacency matrix of the graphs.
+
+        Parameters
+        ----------
+        biadjacency:
+            Biadjacency matrix of the graph.
+
+        Returns
+        -------
+        self: :class:`BiLouvainHierarchy`
+        """
+        biadjacency = check_format(biadjacency)
+
+        adjacency = bipartite2undirected(biadjacency)
+        dendrogram = self.louvain_hierarchy.fit_transform(adjacency)
+        dendrogram_row, dendrogram_col = split_dendrogram(dendrogram, biadjacency.shape)
+
+        self.dendrogram_ = dendrogram_row
+        self.dendrogram_row_ = dendrogram_row
+        self.dendrogram_col_ = dendrogram_col
+        self.dendrogram_full_ = dendrogram
 
         return self
