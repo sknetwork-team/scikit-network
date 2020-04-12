@@ -65,9 +65,9 @@ class Louvain(BaseClustering, VerboseMixin):
     -------
     >>> from sknetwork.clustering import Louvain
     >>> from sknetwork.data import karate_club
-    >>> louvain_hierarchy = Louvain()
+    >>> louvain = Louvain()
     >>> adjacency = karate_club()
-    >>> labels = louvain_hierarchy.fit_transform(adjacency)
+    >>> labels = louvain.fit_transform(adjacency)
     >>> len(set(labels))
     4
 

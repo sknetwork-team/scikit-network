@@ -28,6 +28,8 @@ Louvain
 -------
 .. autoclass:: sknetwork.hierarchy.LouvainHierarchy
 
+.. autoclass:: sknetwork.hierarchy.BiLouvainHierarchy
+
 Metrics
 -------
 .. autofunction:: sknetwork.hierarchy.dasgupta_score
