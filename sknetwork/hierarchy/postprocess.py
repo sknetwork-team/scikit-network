@@ -64,6 +64,13 @@ def cut_straight(dendrogram: np.ndarray, n_clusters: int = 2, sort_clusters: boo
         Cluster of each node.
     dendrogram_aggregate : np.ndarray
         Dendrogram starting from clusters (leaves = clusters).
+
+    Example
+    -------
+    >>> from sknetwork.hierarchy import cut_straight
+    >>> dendrogram = np.array([[0, 1, 0, 2], [2, 3, 1, 3]])
+    >>> cut_straight(dendrogram)
+    array([0, 0, 1])
     """
     if len(dendrogram.shape) != 2 or dendrogram.shape[1] != 4:
         raise ValueError("Check the shape of the dendrogram.")
@@ -106,6 +113,13 @@ def cut_balanced(dendrogram: np.ndarray, max_cluster_size: int = 2, sort_cluster
         Label of each node.
     dendrogram_aggregate : np.ndarray
         Dendrogram starting from clusters (leaves = clusters).
+
+    Example
+    -------
+    >>> from sknetwork.hierarchy import cut_balanced
+    >>> dendrogram = np.array([[0, 1, 0, 2], [2, 3, 1, 3]])
+    >>> cut_balanced(dendrogram)
+    array([0, 0, 1])
     """
     if len(dendrogram.shape) != 2 or dendrogram.shape[1] != 4:
         raise ValueError("Check the shape of the dendrogram.")
