@@ -117,7 +117,7 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
         If normalized, returns a value between 0 and 1.
 
    Example
-    -------
+   -------
     >>> from sknetwork.hierarchy import tree_sampling_divergence, Paris
     >>> from sknetwork.data import house
     >>> paris = Paris()
