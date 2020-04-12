@@ -405,7 +405,7 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     Parameters
     ----------
     biadjacency :
-        Adjacency matrix of the graph.
+        Biadjacency matrix of the graph.
     names_row :
         Names of the rows.
     names_col :

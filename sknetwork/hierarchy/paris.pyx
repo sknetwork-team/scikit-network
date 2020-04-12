@@ -169,11 +169,12 @@ class Paris(BaseHierarchy):
     >>> from sknetwork.data import house
     >>> paris = Paris()
     >>> adjacency = house()
-    >>> paris.fit_transform(adjacency)
-    array([[3.        , 2.        , 0.16666667, 2.        ],
+    >>> dendrogram = paris.fit_transform(adjacency)
+    >>> np.round(dendrogram, 2)
+    array([[3.        , 2.        , 0.17      , 2.        ],
            [1.        , 0.        , 0.25      , 2.        ],
-           [6.        , 4.        , 0.3125    , 3.        ],
-           [7.        , 5.        , 0.66666667, 5.        ]])
+           [6.        , 4.        , 0.31      , 3.        ],
+           [7.        , 5.        , 0.67      , 5.        ]])
 
     Notes
     -----
@@ -317,10 +318,11 @@ class BiParis(Paris):
     >>> from sknetwork.data import star_wars
     >>> biparis = BiParis()
     >>> biadjacency = star_wars()
-    >>> biparis.fit_transform(biadjacency)
-    array([[1.        , 2.        , 0.37499999, 2.        ],
-           [4.        , 0.        , 0.546875  , 3.        ],
-           [5.        , 3.        , 0.74999998, 4.        ]])
+    >>> dendrogram = biparis.fit_transform(biadjacency)
+    >>> np.round(dendrogram, 2)
+    array([[1.        , 2.        , 0.37      , 2.        ],
+           [4.        , 0.        , 0.55      , 3.        ],
+           [5.        , 3.        , 0.75      , 4.        ]])
 
     Notes
     -----

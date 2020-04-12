@@ -18,7 +18,7 @@ class BaseHierarchy(Algorithm, ABC):
         self.dendrogram_ = None
 
     def fit_transform(self, *args, **kwargs) -> np.ndarray:
-        """Fit algorithm to the data and return the dendrogram. Same parameters as the ``fit`` method.
+        """Fit algorithm to data and return the dendrogram. Same parameters as the ``fit`` method.
 
         Returns
         -------
