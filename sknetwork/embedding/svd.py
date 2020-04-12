@@ -209,12 +209,13 @@ class GSVD(BaseEmbedding):
 
         Parameters
         ----------
-        adjacency_vectors : array, shape (n_col,) (single vector) or (n_vectors, n_col)
+        adjacency_vectors :
             Adjacency vectors of nodes.
+            Array of shape (n_col,) (single vector) or (n_vectors, n_col)
 
         Returns
         -------
-        embedding_vectors : array, shape (n_components,) (single vector) or (n_vectors, n_components)
+        embedding_vectors : np.ndarray
             Embedding of the nodes.
         """
         singular_vectors_right = self.singular_vectors_right_

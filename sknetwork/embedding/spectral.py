@@ -300,12 +300,13 @@ class Spectral(BaseEmbedding):
 
         Parameters
         ----------
-        adjacency_vectors : array, shape (n,) (single vector) or (n_vectors, n)
+        adjacency_vectors :
             Adjacency vectors of nodes.
+            Array of shape (n_col,) (single vector) or (n_vectors, n_col)
 
         Returns
         -------
-        embedding_vectors : array, shape (n_components,) (single vector) or (n_vectors, n_components)
+        embedding_vectors : np.ndarray
             Embedding of the nodes.
         """
         eigenvectors = self.eigenvectors_
@@ -463,12 +464,13 @@ class BiSpectral(Spectral):
 
         Parameters
         ----------
-        adjacency_vectors : array, shape (n_col,) (single vector) or (n_vectors, n_col)
+        adjacency_vectors :
             Adjacency vectors of nodes.
+            Array of shape (n_col,) (single vector) or (n_vectors, n_col)
 
         Returns
         -------
-        embedding_vectors : array, shape (n_components,) (single vector) or (n_vectors, n_components)
+        embedding_vectors : np.ndarray
             Embedding of the nodes.
         """
         if self.eigenvectors_ is None:
