@@ -48,6 +48,17 @@ def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights
     score : float
         Dasgupta's score of the hierarchy, normalized to get a value between 0 and 1.
 
+    Example
+    -------
+    >>> from sknetwork.hierarchy import dasgupta_score, Paris
+    >>> from sknetwork.data import house
+    >>> paris = Paris()
+    >>> adjacency = house()
+    >>> dendrogram = paris.fit_transform(adjacency)
+    >>> score = dasgupta_score(adjacency, dendrogram)
+    >>> np.round(score, 2)
+    0.33
+
     References
     ----------
     Dasgupta, S. (2016). A cost function for similarity-based hierarchical clustering.
@@ -104,6 +115,17 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     score : float
         The tree sampling divergence of the hierarchy.
         If normalized, returns a value between 0 and 1.
+
+   Example
+    -------
+    >>> from sknetwork.hierarchy import tree_sampling_divergence, Paris
+    >>> from sknetwork.data import house
+    >>> paris = Paris()
+    >>> adjacency = house()
+    >>> dendrogram = paris.fit_transform(adjacency)
+    >>> score = tree_sampling_divergence(adjacency, dendrogram)
+    >>> np.round(score, 2)
+    0.52
 
     References
     ----------
