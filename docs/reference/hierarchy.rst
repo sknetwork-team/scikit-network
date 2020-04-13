@@ -32,6 +32,8 @@ Ward
 
 Metrics
 -------
+.. autofunction:: sknetwork.hierarchy.dasgupta_cost
+
 .. autofunction:: sknetwork.hierarchy.dasgupta_score
 
 .. autofunction:: sknetwork.hierarchy.tree_sampling_divergence
