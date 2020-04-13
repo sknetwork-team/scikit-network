@@ -160,7 +160,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
               width: float = 400, height: float = 300, margin: float = 20, margin_text: float = 3,
               scale: float = 1, node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20,
               node_weight: bool = False, node_weights: Optional[np.ndarray] = None, node_width: float = 1,
-              node_width_max: float = 3, node_color: str = 'blue', edge_width: float = 1, edge_width_min: float = 0.5,
+              node_width_max: float = 3, node_color: str = 'gray', edge_width: float = 1, edge_width_min: float = 0.5,
               edge_width_max: float = 20, edge_weight: bool = True, edge_color: Optional[str] = None,
               font_size: int = 12, directed: bool = False) -> str:
     """Return SVG image of a graph.
@@ -174,7 +174,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
     names :
         Names of the nodes.
     labels :
-        Labels of the nodes.
+        Labels of the nodes (negative values mean no label).
     scores :
         Scores of the nodes (measure of importance).
     seeds :
@@ -218,7 +218,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
     font_size :
         Font size.
     directed :
-        If True, considers the graph as directed.
+        If ``True``, considers the graph as directed.
 
     Returns
     -------
@@ -303,7 +303,7 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
                 margin: float = 20, margin_text: float = 10, scale: float = 1,
                 node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20, node_weight: bool = False,
                 node_weights: Optional[np.ndarray] = None, node_width: float = 1, node_width_max: float = 3,
-                node_color: str = 'blue', edge_width: float = 1, edge_width_min: float = 0.5,
+                node_color: str = 'gray', edge_width: float = 1, edge_width_min: float = 0.5,
                 edge_width_max: float = 3, edge_weight: bool = True, edge_color: Optional[str] = None,
                 font_size: int = 12) -> str:
     """Return SVG image of a digraph.
@@ -317,7 +317,7 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
     names :
         Names of the nodes.
     labels :
-        Labels of the nodes.
+        Labels of the nodes (negative values mean no label).
     scores :
         Scores of the nodes (measure of importance).
     seeds :
@@ -397,7 +397,7 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
                 node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20, node_weight: bool = False,
                 node_weights_row: Optional[np.ndarray] = None, node_weights_col: Optional[np.ndarray] = None,
                 node_width: float = 1, node_width_max: float = 3,
-                color_row: str = 'blue', color_col: str = 'red', edge_width: float = 1, edge_width_min: float = 0.5,
+                color_row: str = 'gray', color_col: str = 'gray', edge_width: float = 1, edge_width_min: float = 0.5,
                 edge_width_max: float = 10, edge_color: str = 'black', edge_weight: bool = True,
                 font_size: int = 12) -> str:
     """Return SVG image of a bigraph.
@@ -411,9 +411,9 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     names_col :
         Names of the columns.
     labels_row :
-        Labels of the rows.
+        Labels of the rows (negative values mean no label).
     labels_col :
-        Labels of the columns.
+        Labels of the columns (negative values mean no label).
     scores_row :
         Scores of the rows (measure of importance).
     scores_col :
