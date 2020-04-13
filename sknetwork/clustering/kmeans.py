@@ -219,9 +219,9 @@ class BiKMeans(KMeans):
             self.labels_row_ = labels
 
         if self.return_membership:
-            membership_row = membership_matrix(self.labels_row_)
+            membership_row = membership_matrix(self.labels_row_).reshape((n_row, self.n_clusters))
             if self.labels_col_ is not None:
-                membership_col = membership_matrix(self.labels_col_)
+                membership_col = membership_matrix(self.labels_col_).reshape((n_col, self.n_clusters))
                 self.membership_row_ = normalize(biadjacency.dot(membership_col))
                 self.membership_col_ = normalize(biadjacency.T.dot(membership_row))
             else:
@@ -229,10 +229,10 @@ class BiKMeans(KMeans):
             self.membership_ = self.membership_row_
 
         if self.return_biadjacency:
-            membership_row = membership_matrix(self.labels_row_)
+            membership_row = membership_matrix(self.labels_row_).reshape((n_row, self.n_clusters))
             biadjacency_ = sparse.csr_matrix(membership_row.T.dot(biadjacency))
             if self.labels_col_ is not None:
-                membership_col = membership_matrix(self.labels_col_)
+                membership_col = membership_matrix(self.labels_col_).reshape((n_col, self.n_clusters))
                 biadjacency_ = biadjacency_.dot(membership_col)
             self.biadjacency_ = biadjacency_
 
