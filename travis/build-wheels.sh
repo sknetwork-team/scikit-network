@@ -1,6 +1,10 @@
 #!/bin/bash
+# Script to be used on Linux docker images upon release
+
+
 set -e -x
 
+# Add/remove Python versions here (desired distribution must be present on the quay.io docker images)
 versions="/opt/python/cp36-cp36m/bin /opt/python/cp37-cp37m/bin /opt/python/cp38-cp38/bin"
 
 # Compile wheels
