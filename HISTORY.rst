@@ -20,8 +20,11 @@ History
 * Added visualization module
 * Added k-nearest neighbors classifier
 * Added Louvain hierarchy
-* Various API change (including soft classification moved to clustering)
-* Predict method for embedding algorithms
+* Added predict method in embedding
+* Added soft clustering to clustering algorithms
+* Added soft classification to classification algorithms
+* Added graphs in data module
+* Various API change
 
 0.12.1 (2020-01-20)
 -------------------
