@@ -55,18 +55,18 @@ def rescale(position, width, height, margin, node_size_max, node_weight):
 
 def get_colors(n: int, labels: np.ndarray, scores: np.ndarray, color: str) -> np.ndarray:
     """Return the colors using either labels or scores or default color."""
+    colors = np.array(n * [color])
     if labels is not None:
         colors_label = STANDARD_COLORS.copy()
-        colors = colors_label[labels % len(colors_label)]
+        index = labels >= 0
+        colors[index] = colors_label[labels[index] % len(colors_label)]
     elif scores is not None:
         colors_score = COOLWARM_RGB.copy()
         n_colors = colors_score.shape[0]
         colors_score_svg = np.array(['rgb' + str(tuple(colors_score[i])) for i in range(n_colors)])
         scores = (min_max_scaling(scores) * (n_colors - 1)).astype(int)
         colors = colors_score_svg[scores]
-    else:
-        colors = n * [color]
-    return np.array(colors)
+    return colors
 
 
 def get_node_widths(n: int, seeds: Union[dict, list], node_width: float, node_width_max: float) -> np.ndarray:
