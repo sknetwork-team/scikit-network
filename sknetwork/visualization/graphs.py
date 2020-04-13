@@ -55,7 +55,7 @@ def rescale(position, width, height, margin, node_size_max, node_weight):
 
 def get_colors(n: int, labels: np.ndarray, scores: np.ndarray, color: str) -> np.ndarray:
     """Return the colors using either labels or scores or default color."""
-    colors = np.array(n * [color])
+    colors = np.array(n * [color]).astype('U64')
     if labels is not None:
         colors_label = STANDARD_COLORS.copy()
         index = labels >= 0
