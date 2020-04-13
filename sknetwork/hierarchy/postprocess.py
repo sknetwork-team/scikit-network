@@ -260,23 +260,6 @@ def get_dendrogram(tree, dendrogram=None, index=None, depth=0, size=None, copy_t
             return dendrogram, index
 
 
-def shift_height(dendrogram):
-    """Shift dendrogram to all non-negative heights.
-
-    Parameters
-    ----------
-    dendrogram :
-        The dendrogram to offset
-
-    Returns
-    -------
-    The offset dendrogram
-    """
-    dendrogram = np.array(dendrogram)
-    dendrogram[:, 2] += np.max(np.abs(dendrogram[:, 2])) + 1
-    return dendrogram.astype(float)
-
-
 def split_dendrogram(dendrogram: np.ndarray, shape: tuple):
     """Split the dendrogram of a bipartite graph into 2 dendrograms, one for each part.
 
