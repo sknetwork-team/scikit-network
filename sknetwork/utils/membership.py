@@ -5,12 +5,13 @@ Created on July 10, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
+from typing import Optional
 
 import numpy as np
 from scipy import sparse
 
 
-def membership_matrix(labels: np.ndarray, dtype=bool) -> sparse.csr_matrix:
+def membership_matrix(labels: np.ndarray, dtype=bool, n_labels: Optional[int] = None) -> sparse.csr_matrix:
     """Build a n x k matrix of the label assignments, with k the number of labels.
     Negative labels are ignored.
 
@@ -20,6 +21,8 @@ def membership_matrix(labels: np.ndarray, dtype=bool) -> sparse.csr_matrix:
         Label of each node.
     dtype :
         Type of the entries. Boolean by default.
+    n_labels : int
+        Number of labels.
 
     Returns
     -------
@@ -31,7 +34,10 @@ def membership_matrix(labels: np.ndarray, dtype=bool) -> sparse.csr_matrix:
     The inverse operation is simply ``labels = membership.indices``.
     """
     n: int = len(labels)
-    shape = (n, max(labels)+1)
+    if n_labels is None:
+        shape = (n, max(labels)+1)
+    else:
+        shape = (n, n_labels)
     ix = (labels >= 0)
     data = np.ones(ix.sum())
     row = np.arange(n)[ix]
