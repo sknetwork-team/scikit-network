@@ -13,14 +13,15 @@ from sknetwork.hierarchy import cut_straight
 from sknetwork.visualization.colors import STANDARD_COLORS
 
 
-def get_index(dendrogram, reorder = True):
+def get_index(dendrogram, reorder=True):
+    """Index nodes for pretty dendrogram."""
     n = dendrogram.shape[0] + 1
     tree = {i: [i] for i in range(n)}
     for t in range(n - 1):
         i = int(dendrogram[t, 0])
         j = int(dendrogram[t, 1])
-        left = tree.pop(i)
-        right = tree.pop(j)
+        left: list = tree.pop(i)
+        right: list = tree.pop(j)
         if reorder and len(left) < len(right):
             tree[n + t] = right + left
         else:
@@ -199,4 +200,3 @@ def svg_dendrogram(dendrogram: np.ndarray, names: Optional[np.ndarray] = None, r
     else:
         return svg_dendrogram_top(dendrogram, names, width, height, margin, margin_text, scale, line_width, n_clusters,
                                   color, font_size, reorder)
-
