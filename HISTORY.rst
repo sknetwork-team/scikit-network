@@ -2,6 +2,12 @@
 History
 =======
 
+0.13.2 (2020-04-13)
+-------------------
+
+* Added wheels for multiple platforms (OSX, Windows (32 & 64 bits) and many Linux) and Python version (3.6/3.7/3.8)
+* Documentation update (SVG dendrograms, tutorial updates)
+
 0.13.1a (2020-04-09)
 --------------------
 
@@ -15,6 +21,7 @@ History
 * Added k-nearest neighbors classifier
 * Added Louvain hierarchy
 * Various API change (including soft classification moved to clustering)
+* Predict method for embedding algorithms
 
 0.12.1 (2020-01-20)
 -------------------
