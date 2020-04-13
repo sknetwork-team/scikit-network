@@ -34,7 +34,7 @@ ipykernel==5.2.0
 matplotlib==3.2.1
 
 # tests on Linux images (upon release)
-nose
+nose==1.3.7
 
 # main test packages
 pytest-runner==5.2
