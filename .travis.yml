@@ -79,6 +79,8 @@ matrix:
                 - python setup.py develop
             script:
                 - py.test --doctest-modules --cov-report=xml --cov=sknetwork
+            after_success:
+                - codecov
         -   if: branch != master
             dist: xenial   # required for Python >= 3.7
             python: 3.7
@@ -88,6 +90,8 @@ matrix:
                 - python setup.py develop
             script:
                 - py.test --doctest-modules --cov-report=xml --cov=sknetwork
+            after_success:
+                - codecov
         -   if: branch != master
             dist: xenial
             python: 3.8
@@ -97,5 +101,7 @@ matrix:
                 - python setup.py develop
             script:
                 - py.test --doctest-modules --cov-report=xml --cov=sknetwork
+            after_success:
+                - codecov
 
 
