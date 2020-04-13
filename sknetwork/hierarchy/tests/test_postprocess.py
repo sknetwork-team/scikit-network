@@ -35,8 +35,6 @@ class TestCuts(unittest.TestCase):
         self.assertEqual(len(set(labels)), 21)
         labels = cut_balanced(self.dendrogram, max_cluster_size=10)
         self.assertEqual(len(set(labels)), 5)
-        labels, dendrogram = cut_straight(self.dendrogram, n_clusters=7, return_dendrogram=True)
-        self.assertEqual(dendrogram.shape, (6, 4))
 
     def test_aggregation(self):
         aggregated = aggregate_dendrogram(self.dendrogram, n_clusters=3)

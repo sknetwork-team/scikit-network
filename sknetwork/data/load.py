@@ -73,6 +73,13 @@ def load_wikilinks(dataset_name: str, data_home: Optional[str] = None,
     Returns
     -------
     graph : :class:`Bunch`
+
+    Example
+    -------
+    >>> from sknetwork.data import load_wikilinks
+    >>> graph = load_wikilinks('wikivitals')
+    >>> graph.adjacency.shape
+    (10012, 10012)
     """
     if data_home is None:
         data_home = get_data_home()
@@ -143,6 +150,12 @@ def load_konect(dataset_name: str, data_home: Optional[str] = None, auto_numpy_b
              * `meta`: a dictionary containing the metadata as specified by Konect
              * each attribute specified by Konect (ent.* file)
 
+    Example
+    -------
+    >>> from sknetwork.data import load_konect
+    >>> graph = load_konect('dolphins')
+    >>> graph.adjacency.shape
+    (62, 62)
     """
     if data_home is None:
         data_home = get_data_home()

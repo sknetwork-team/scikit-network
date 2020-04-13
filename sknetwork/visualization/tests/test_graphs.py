@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tests for hits.py"""
+"""tests for visualization/graphs.py"""
 
 import unittest
 
@@ -8,7 +8,7 @@ import numpy as np
 
 from sknetwork.data.test_graphs import test_graph_disconnect, test_bigraph_disconnect
 from sknetwork.data.toy_graphs import karate_club, painters, movie_actor
-from sknetwork.visualization.svg import svg_graph, svg_digraph, svg_bigraph
+from sknetwork.visualization.graphs import svg_graph, svg_digraph, svg_bigraph
 
 
 # noinspection DuplicatedCode

@@ -6,6 +6,8 @@ Created on Nov, 2019
 """
 from abc import ABC
 
+import numpy as np
+
 from sknetwork.utils.base import Algorithm
 
 
@@ -24,8 +26,14 @@ class BaseClassifier(Algorithm, ABC):
         self.labels_ = None
         self.membership_ = None
 
-    def fit_transform(self, *args, **kwargs):
-        """Fit algorithm to the data and return the labels. Use the same inputs as the ``fit`` method."""
+    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
+
+        Returns
+        -------
+        labels : np.ndarray
+            Labels.
+        """
         self.fit(*args, **kwargs)
         return self.labels_
 

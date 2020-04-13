@@ -7,7 +7,7 @@ Created on March 2019
 
 import unittest
 
-from sknetwork.hierarchy import Paris, tree_sampling_divergence, dasgupta_score
+from sknetwork.hierarchy import Paris, dasgupta_cost, dasgupta_score, tree_sampling_divergence
 from sknetwork.data.test_graphs import *
 
 
@@ -17,10 +17,10 @@ class TestMetrics(unittest.TestCase):
     def setUp(self):
         self.paris = Paris()
 
-
     def test_undirected(self):
         adjacency = test_graph()
         dendrogram = self.paris.fit_transform(adjacency)
+        self.assertAlmostEqual(dasgupta_cost(adjacency, dendrogram), 3.25, 2)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.675, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.533, 2)
 

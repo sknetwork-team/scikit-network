@@ -87,13 +87,14 @@ class DiffusionClassifier(RankClassifier):
 
     Example
     -------
+    >>> from sknetwork.classification import DiffusionClassifier
     >>> from sknetwork.data import karate_club
-    >>> diff = DiffusionClassifier()
+    >>> diffusion = DiffusionClassifier()
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = diff.fit_transform(adjacency, seeds)
+    >>> labels_pred = diffusion.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.97
 
@@ -141,11 +142,12 @@ class BiDiffusionClassifier(RankBiClassifier):
 
     Example
     -------
+    >>> from sknetwork.classification import BiDiffusionClassifier
     >>> from sknetwork.data import star_wars
-    >>> bidiff = BiDiffusionClassifier()
+    >>> bidiffusion = BiDiffusionClassifier()
     >>> biadjacency = star_wars()
     >>> seeds = {0: 1, 2: 0}
-    >>> bidiff.fit_transform(biadjacency, seeds)
+    >>> bidiffusion.fit_transform(biadjacency, seeds)
     array([1, 1, 0, 0])
     """
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):

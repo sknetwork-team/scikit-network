@@ -44,10 +44,13 @@ class HITS(BaseRanking):
 
     Example
     -------
+    >>> from sknetwork.ranking import HITS
+    >>> from sknetwork.data import star_wars
     >>> hits = HITS()
-    >>> biadjacency = np.ones((4,3))
-    >>> hits.fit(biadjacency).scores_
-    array([0.5, 0.5, 0.5, 0.5])
+    >>> biadjacency = star_wars()
+    >>> scores = hits.fit_transform(biadjacency)
+    >>> np.round(scores, 2)
+    array([0.5 , 0.23, 0.69, 0.46])
 
     References
     ----------

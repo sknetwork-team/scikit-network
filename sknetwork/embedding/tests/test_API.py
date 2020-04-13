@@ -33,14 +33,14 @@ class TestEmbeddings(unittest.TestCase):
 
             self.assertEqual(pred1.shape, (2,))
             self.assertAlmostEqual(np.linalg.norm(pred1 - pred2), 0)
-            # self.assertAlmostEqual(np.linalg.norm(pred1 - ref), 0)
+            self.assertAlmostEqual(np.linalg.norm(pred1 - ref), 0)
 
             pred1 = method.predict(adjacency)
             pred2 = method.predict(adjacency.toarray())
 
             self.assertTupleEqual(pred1.shape, (n, 2))
             self.assertAlmostEqual(np.linalg.norm(pred1 - pred2), 0)
-            # self.assertAlmostEqual(np.linalg.norm(pred1 - embedding), 0)
+            self.assertAlmostEqual(np.linalg.norm(pred1 - embedding), 0)
 
     def test_bimethods(self):
 

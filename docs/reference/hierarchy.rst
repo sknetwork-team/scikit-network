@@ -7,15 +7,10 @@ Hierarchy
 
 This module contains hierarchical clustering algorithms. The attribute ``dendrogram_`` gives the dendrogram.
 
-A dendrogram is an array of size :math:`(n-1) \times 4` representing the successive merges of nodes:
-
-* The first two columns contain the indices of the merges nodes.
-* The third column gives the distance between these nodes.
-* The last column gives the size of the corresponding cluster (in number of nodes) after the merge.
-
+A dendrogram is an array of size :math:`(n-1) \times 4` representing the successive merges of nodes.
+Each row gives the two merged nodes, their distance and the size of the resulting cluster.
 Any new node resulting from a merge takes the first available index
 (e.g., the first merge corresponds to node :math:`n`).
-
 
 Paris
 -----
@@ -23,18 +18,22 @@ Paris
 
 .. autoclass:: sknetwork.hierarchy.BiParis
 
+Louvain
+-------
+.. autoclass:: sknetwork.hierarchy.LouvainHierarchy
+
+.. autoclass:: sknetwork.hierarchy.BiLouvainHierarchy
+
 Ward
 ----
 .. autoclass:: sknetwork.hierarchy.Ward
 
 .. autoclass:: sknetwork.hierarchy.BiWard
 
-Louvain hierarchy
------------------
-.. autoclass:: sknetwork.hierarchy.LouvainHierarchy
-
 Metrics
 -------
+.. autofunction:: sknetwork.hierarchy.dasgupta_cost
+
 .. autofunction:: sknetwork.hierarchy.dasgupta_score
 
 .. autofunction:: sknetwork.hierarchy.tree_sampling_divergence

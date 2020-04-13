@@ -14,7 +14,7 @@ from scipy import sparse
 
 from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.louvain_core import fit_core
-from sknetwork.clustering.postprocess import reindex_clusters
+from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.linalg import normalize
 from sknetwork.utils.format import bipartite2directed, directed2undirected
 from sknetwork.utils.check import check_format, check_random_state, check_probs, is_square
@@ -23,7 +23,7 @@ from sknetwork.utils.verbose import VerboseMixin
 
 
 class Louvain(BaseClustering, VerboseMixin):
-    """Louvain algorithm for clustering graphs.
+    """Louvain algorithm for clustering graphs by maximization of modularity.
 
     * Graphs
     * Digraphs
@@ -63,9 +63,13 @@ class Louvain(BaseClustering, VerboseMixin):
 
     Example
     -------
+    >>> from sknetwork.clustering import Louvain
+    >>> from sknetwork.data import karate_club
     >>> louvain = Louvain()
-    >>> (louvain.fit_transform(np.ones((3,3))) == np.array([0, 1, 2])).all()
-    True
+    >>> adjacency = karate_club()
+    >>> labels = louvain.fit_transform(adjacency)
+    >>> len(set(labels))
+    4
 
     References
     ----------
@@ -231,7 +235,7 @@ class Louvain(BaseClustering, VerboseMixin):
                 break
 
         if self.sort_clusters:
-            labels = reindex_clusters(membership.indices)
+            labels = reindex_labels(membership.indices)
         else:
             labels = membership.indices
         if self.shuffle_nodes:
@@ -297,9 +301,13 @@ class BiLouvain(Louvain):
 
     Example
     -------
+    >>> from sknetwork.clustering import BiLouvain
+    >>> from sknetwork.data import movie_actor
     >>> bilouvain = BiLouvain()
-    >>> (bilouvain.fit_transform(np.ones((4,3))) == np.array([0, 1, 2, 3])).all()
-    True
+    >>> biadjacency = movie_actor()
+    >>> labels = bilouvain.fit_transform(biadjacency)
+    >>> len(labels)
+    15
 
     References
     ----------

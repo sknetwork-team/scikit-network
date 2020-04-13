@@ -30,14 +30,15 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
 
     Parameters
     ----------
-    adjacency:
+    adjacency :
         Adjacency matrix.
-    weight_sum:
-        If True, return the sum of the weights in both directions of each edge.
+    weight_sum :
+        If ``True``, return the sum of the weights in both directions of each edge.
 
     Returns
     -------
-    Adjacency matrix (symmetric) : same as input
+    adjacency_ :
+        New adjacency matrix (same format as input).
     """
     if type(adjacency) == sparse.csr_matrix:
         if weight_sum:
@@ -66,12 +67,13 @@ def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union
 
     Parameters
     ----------
-    biadjacency:
+    biadjacency :
         Biadjacency matrix of the graph.
 
     Returns
     -------
-    Adjacency matrix : same as input
+    adjacency :
+        Adjacency matrix (same format as input).
     """
     n_row, n_col = biadjacency.shape
     if type(biadjacency) == sparse.csr_matrix:
@@ -100,7 +102,8 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
 
     Returns
     -------
-    Adjacency matrix (symmetric) : same as input
+    adjacency :
+        Adjacency matrix (same format as input).
     """
     if type(biadjacency) == sparse.csr_matrix:
         return sparse.bmat([[None, biadjacency], [biadjacency.T, None]], format='csr')

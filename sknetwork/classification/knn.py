@@ -55,8 +55,9 @@ class KNN(BaseClassifier):
 
     Example
     -------
-    >>> from sknetwork.data import karate_club
+    >>> from sknetwork.classification import KNN
     >>> from sknetwork.embedding import GSVD
+    >>> from sknetwork.data import karate_club
     >>> knn = KNN(GSVD(3), n_neighbors=1)
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
@@ -195,6 +196,7 @@ class BiKNN(KNN):
 
     Example
     -------
+    >>> from sknetwork.classification import BiKNN
     >>> from sknetwork.data import movie_actor
     >>> biknn = BiKNN(n_neighbors=2)
     >>> graph = movie_actor(metadata=True)

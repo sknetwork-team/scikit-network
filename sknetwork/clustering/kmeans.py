@@ -12,7 +12,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering.base import BaseClustering
-from sknetwork.clustering.postprocess import reindex_clusters
+from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.embedding import BaseEmbedding, GSVD
 from sknetwork.linalg import normalize
 from sknetwork.utils.kmeans import KMeansDense
@@ -48,10 +48,12 @@ class KMeans(BaseClustering):
 
     Example
     -------
+    >>> from sknetwork.clustering import KMeans
     >>> from sknetwork.data import karate_club
-    >>> adjacency = karate_club()
     >>> kmeans = KMeans(n_clusters=3)
-    >>> len(set(kmeans.fit_transform(adjacency)))
+    >>> adjacency = karate_club()
+    >>> labels = kmeans.fit_transform(adjacency)
+    >>> len(set(labels))
     3
 
     """
@@ -92,14 +94,14 @@ class KMeans(BaseClustering):
         kmeans.fit(embedding)
 
         if self.sort_clusters:
-            labels = reindex_clusters(kmeans.labels_)
+            labels = reindex_labels(kmeans.labels_)
         else:
             labels = kmeans.labels_
 
         self.labels_ = labels
 
         if self.return_membership or self.return_adjacency:
-            membership = membership_matrix(labels).reshape((n, self.n_clusters))
+            membership = membership_matrix(labels, n_labels=self.n_clusters)
             if self.return_membership:
                 self.membership_ = normalize(adjacency.dot(membership))
             if self.return_adjacency:
@@ -146,11 +148,13 @@ class BiKMeans(KMeans):
 
     Example
     -------
+    >>> from sknetwork.clustering import BiKMeans
     >>> from sknetwork.data import movie_actor
+    >>> bikmeans = BiKMeans()
     >>> biadjacency = movie_actor()
-    >>> bikmeans = BiKMeans(n_clusters=3)
-    >>> len(set(bikmeans.fit_transform(biadjacency)))
-    3
+    >>> labels = bikmeans.fit_transform(biadjacency)
+    >>> len(labels)
+    15
     """
 
     def __init__(self, n_clusters: int = 2, embedding_method: BaseEmbedding = GSVD(10), co_cluster: bool = False,
@@ -202,7 +206,7 @@ class BiKMeans(KMeans):
         kmeans.fit(embedding)
 
         if self.sort_clusters:
-            labels = reindex_clusters(kmeans.labels_)
+            labels = reindex_labels(kmeans.labels_)
         else:
             labels = kmeans.labels_
 
@@ -215,9 +219,9 @@ class BiKMeans(KMeans):
             self.labels_row_ = labels
 
         if self.return_membership:
-            membership_row = membership_matrix(self.labels_row_)
+            membership_row = membership_matrix(self.labels_row_, n_labels=self.n_clusters)
             if self.labels_col_ is not None:
-                membership_col = membership_matrix(self.labels_col_)
+                membership_col = membership_matrix(self.labels_col_, n_labels=self.n_clusters)
                 self.membership_row_ = normalize(biadjacency.dot(membership_col))
                 self.membership_col_ = normalize(biadjacency.T.dot(membership_row))
             else:
@@ -225,10 +229,10 @@ class BiKMeans(KMeans):
             self.membership_ = self.membership_row_
 
         if self.return_biadjacency:
-            membership_row = membership_matrix(self.labels_row_)
+            membership_row = membership_matrix(self.labels_row_, n_labels=self.n_clusters)
             biadjacency_ = sparse.csr_matrix(membership_row.T.dot(biadjacency))
             if self.labels_col_ is not None:
-                membership_col = membership_matrix(self.labels_col_)
+                membership_col = membership_matrix(self.labels_col_, n_labels=self.n_clusters)
                 biadjacency_ = biadjacency_.dot(membership_col)
             self.biadjacency_ = biadjacency_
 

@@ -42,6 +42,7 @@ class PageRankClassifier(RankClassifier):
 
     Example
     -------
+    >>> from sknetwork.classification import PageRankClassifier
     >>> from sknetwork.data import karate_club
     >>> pagerank = PageRankClassifier()
     >>> graph = karate_club(metadata=True)
@@ -99,6 +100,7 @@ class BiPageRankClassifier(RankBiClassifier):
 
     Example
     -------
+    >>> from sknetwork.classification import BiPageRankClassifier
     >>> from sknetwork.data import star_wars
     >>> bipagerank = BiPageRankClassifier()
     >>> biadjacency = star_wars()
@@ -148,6 +150,7 @@ class CoPageRankClassifier(RankBiClassifier):
 
     Example
     -------
+    >>> from sknetwork.classification import CoPageRankClassifier
     >>> from sknetwork.data import star_wars
     >>> copagerank = CoPageRankClassifier()
     >>> biadjacency = star_wars()

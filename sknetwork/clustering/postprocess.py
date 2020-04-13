@@ -9,24 +9,32 @@ Created on July 10, 2019
 import numpy as np
 
 
-def reindex_clusters(labels: np.ndarray, assume_range: bool = True) -> np.ndarray:
+def reindex_labels(labels: np.ndarray, consecutive: bool = True) -> np.ndarray:
     """Reindex clusters in decreasing order of size.
 
     Parameters
     ----------
-    labels:
+    labels :
         label of each node.
-    assume_range:
-        If True, the labels are assumed to be between 0 and k-1, this leads to faster computation.
+    consecutive :
+        If ``True``, the set of labels must be from 0 to :math:`k - 1`, where :math:`k` is the number of labels.
+        Lead to faster computation.
     Returns
     -------
-    new_labels: np.ndarray
-        new label of each node.
+    new_labels : np.ndarray
+        New label of each node.
+
+    Example
+    -------
+    >>> from sknetwork.clustering import reindex_labels
+    >>> labels = np.array([0, 1, 1])
+    >>> reindex_labels(labels)
+    array([1, 0, 0])
     """
-    if not assume_range:
+    if not consecutive:
         _, labels = np.unique(labels, return_inverse=True)
-    unique_values, counts = np.unique(labels, return_counts=True)
-    sorted_values = unique_values[np.argsort(-counts)]
-    _, new_index = np.unique(sorted_values, return_index=True)
-    new_labels = new_index[labels.astype(int)]
-    return new_labels
+    labels_unique, counts = np.unique(labels, return_counts=True)
+    sorted_values = labels_unique[np.argsort(-counts)]
+    _, index = np.unique(sorted_values, return_index=True)
+    labels_ = index[labels.astype(int)]
+    return labels_

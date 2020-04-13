@@ -124,11 +124,13 @@ class PageRank(BaseRanking, VerboseMixin):
 
     Example
     -------
+    >>> from sknetwork.ranking import PageRank
     >>> from sknetwork.data import house
     >>> pagerank = PageRank()
     >>> adjacency = house()
     >>> seeds = {0: 1}
-    >>> np.round(pagerank.fit_transform(adjacency, seeds), 2)
+    >>> scores = pagerank.fit_transform(adjacency, seeds)
+    >>> np.round(scores, 2)
     array([0.29, 0.24, 0.12, 0.12, 0.24])
 
     References
@@ -197,11 +199,13 @@ class BiPageRank(PageRank):
 
     Example
     -------
+    >>> from sknetwork.ranking import BiPageRank
     >>> from sknetwork.data import star_wars
     >>> bipagerank = BiPageRank()
     >>> biadjacency = star_wars()
     >>> seeds = {0: 1}
-    >>> np.round(bipagerank.fit_transform(biadjacency, seeds), 2)
+    >>> scores = bipagerank.fit_transform(biadjacency, seeds)
+    >>> np.round(scores, 2)
     array([0.45, 0.11, 0.28, 0.17])
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10):
@@ -247,7 +251,7 @@ class BiPageRank(PageRank):
 
 class CoPageRank(BiPageRank):
     """Compute the PageRank of each node through a two-hops random walk in the bipartite graph.
-    
+
     * Graphs
     * Digraphs
     * Bigraphs
@@ -270,11 +274,13 @@ class CoPageRank(BiPageRank):
 
     Example
     -------
+    >>> from sknetwork.ranking import CoPageRank
     >>> from sknetwork.data import star_wars
     >>> copagerank = CoPageRank()
     >>> biadjacency = star_wars()
     >>> seeds = {0: 1}
-    >>> np.round(copagerank.fit_transform(biadjacency, seeds), 2)
+    >>> scores = copagerank.fit_transform(biadjacency, seeds)
+    >>> np.round(scores, 2)
     array([0.38, 0.12, 0.31, 0.2 ])
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10):

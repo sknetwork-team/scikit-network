@@ -4,5 +4,6 @@ Visualization
 
 .. toctree::
 
-    svg
+    graphs
+    dendrograms
 

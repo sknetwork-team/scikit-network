@@ -7,7 +7,6 @@ Quality metrics for adjacency embeddings
 """
 
 import numpy as np
-from scipy import sparse
 
 from sknetwork.linalg import normalize
 from sknetwork.utils.check import check_format, check_probs, is_square
@@ -17,38 +16,53 @@ def cosine_modularity(adjacency, embedding: np.ndarray, embedding_col=None, reso
                       return_all: bool = False):
     """Quality metric of an embedding :math:`x` defined by:
 
-    :math:`Q = \\sum_{ij}\\left(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w_iw'_j}{w^2}\\right)
-    \\left(\\dfrac{1 + \\pi(x_i)^T\\pi(x_j)}{2}\\right)`
+    :math:`Q = \\sum_{ij}\\left(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w^+_iw^-_j}{w^2}\\right)
+    \\left(\\dfrac{1 + \\cos(x_i, x_j)}{2}\\right)`
 
-    where :math:`\\pi(x_i)` is the projection of :math:`x_i` onto the unit-sphere.
+    where
+
+    * :math:`w^+_i, w^-_i` are the out-weight, in-weight of node :math:`i` (for digraphs),\n
+    * :math:`w = 1^TA1` is the total weight of the graph.
 
     For bipartite graphs with column embedding :math:`y`, the metric is
 
-    :math:`Q = \\sum_{ij}\\left(\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{w_iw'_j}{w^2}\\right)
-    \\left(\\dfrac{1 + \\pi(x_i)^T\\pi(y_j)}{2}\\right)`
+    :math:`Q = \\sum_{ij}\\left(\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{w_{1,i}w_{2,j}}{w^2}\\right)
+    \\left(\\dfrac{1 + \\cos(x_i, y_j)}{2}\\right)`
 
-    This metric is normalized to lie between -1 and 1 (for :math:`\\gamma = 1`).
+    where
+
+    * :math:`w_{1,i}, w_{2,j}` are the weights of nodes :math:`i` (row) and :math:`j` (column),\n
+    * :math:`w = 1^TB1` is the total weight of the graph.
 
     Parameters
     ----------
-    adjacency: sparse.csr_matrix or np.ndarray
+    adjacency :
         Adjacency matrix of the graph.
-    embedding: np.ndarray
+    embedding :
         Embedding of the nodes.
-    embedding_col: None or np.ndarray
-        For biadjacency matrices, embedding of the columns.
-    resolution: float
+    embedding_col :
+        Embedding of the columns (for bipartite graphs).
+    resolution :
         Resolution parameter.
-    weights: ``'degree'`` or ``'uniform'``
+    weights : ``'degree'`` or ``'uniform'``
         Weights of the nodes.
-    return_all: bool, default = ``False``
-        whether to return (fit, div, :math:`Q`) or :math:`Q`
+    return_all :
+        If ``True``, also return fit and diversity
 
     Returns
     -------
     modularity : float
     fit: float, optional
     diversity: float, optional
+
+    Example
+    -------
+    >>> from sknetwork.embedding import cosine_modularity
+    >>> from sknetwork.data import house
+    >>> adjacency = house()
+    >>> embedding = np.array([[1, -2], [2, -1], [2, 1], [1, 2], [0, -1]])
+    >>> np.round(cosine_modularity(adjacency, embedding), 2)
+    -0.81
     """
     adjacency = check_format(adjacency)
     total_weight: float = adjacency.data.sum()

@@ -19,6 +19,9 @@ from sknetwork.utils.ward import WardDense
 class Ward(BaseHierarchy):
     """Hierarchical clustering by the Ward method.
 
+    * Graphs
+    * Digraphs
+
     Parameters
     ----------
     embedding_method :
@@ -26,10 +29,12 @@ class Ward(BaseHierarchy):
 
     Examples
     --------
+    >>> from sknetwork.hierarchy import Ward
     >>> from sknetwork.data import karate_club
     >>> ward = Ward()
     >>> adjacency = karate_club()
-    >>> ward.fit_transform(adjacency).shape
+    >>> dendrogram = ward.fit_transform(adjacency)
+    >>> dendrogram.shape
     (33, 4)
 
     References
@@ -70,12 +75,12 @@ class Ward(BaseHierarchy):
 class BiWard(BaseHierarchy):
     """Hierarchical clustering of bipartite graphs by the Ward method.
 
+    * Bigraphs
+
     Parameters
     ----------
     embedding_method :
         Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
-    cluster_row :
-        If ``True``, return a dendrogram for the rows (default = ``True``).
     cluster_col :
         If ``True``, return a dendrogram for the columns (default = ``False``).
     cluster_both :
@@ -94,6 +99,7 @@ class BiWard(BaseHierarchy):
 
     Examples
     --------
+    >>> from sknetwork.hierarchy import BiWard
     >>> from sknetwork.data import movie_actor
     >>> biward = BiWard()
     >>> biadjacency = movie_actor()
@@ -108,7 +114,7 @@ class BiWard(BaseHierarchy):
     * Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
       Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2(1), 86-97.
     """
-    def __init__(self, embedding_method: BaseEmbedding = GSVD(10), cluster_row: bool = True,
+    def __init__(self, embedding_method: BaseEmbedding = GSVD(10),
                  cluster_col: bool = False, cluster_both: bool = False):
         super(BiWard, self).__init__()
 
@@ -116,7 +122,6 @@ class BiWard(BaseHierarchy):
             raise ValueError('The embedding method is not valid for bipartite graphs.')
 
         self.embedding_method = embedding_method
-        self.cluster_row = cluster_row
         self.cluster_col = cluster_col
         self.cluster_both = cluster_both
 
@@ -143,10 +148,8 @@ class BiWard(BaseHierarchy):
         embedding_col = method.embedding_col_
 
         ward = WardDense()
-
-        if self.cluster_row:
-            ward.fit(embedding_row)
-            self.dendrogram_row_ = ward.dendrogram_
+        ward.fit(embedding_row)
+        self.dendrogram_row_ = ward.dendrogram_
 
         if self.cluster_col:
             ward.fit(embedding_col)

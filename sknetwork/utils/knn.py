@@ -71,7 +71,7 @@ class KNNDense(BaseTransformer):
     Attributes
     ----------
     adjacency_ :
-        Adjacency matrix of the computed graph.
+        Adjacency matrix of the graph.
 
     References
     ----------
@@ -129,8 +129,8 @@ class PNNDense(BaseTransformer):
 
     Attributes
     ----------
-    adjacency_:
-        Adjacency matrix of the computed graph.
+    adjacency_ :
+        Adjacency matrix of the  graph.
     """
 
     def __init__(self, n_neighbors: int = 1, undirected: bool = False):

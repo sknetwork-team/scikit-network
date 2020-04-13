@@ -41,10 +41,12 @@ class Closeness(BaseRanking):
 
     Example
     -------
+    >>> from sknetwork.ranking import Closeness
     >>> from sknetwork.data import cyclic_digraph
     >>> closeness = Closeness()
     >>> adjacency = cyclic_digraph(3)
-    >>> np.round(closeness.fit(adjacency).scores_, 2)
+    >>> scores = closeness.fit_transform(adjacency)
+    >>> np.round(scores, 2)
     array([0.67, 0.67, 0.67])
 
     References

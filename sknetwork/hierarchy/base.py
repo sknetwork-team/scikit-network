@@ -6,6 +6,8 @@ Created on Nov, 2019
 """
 from abc import ABC
 
+import numpy as np
+
 from sknetwork.utils.base import Algorithm
 
 
@@ -15,7 +17,13 @@ class BaseHierarchy(Algorithm, ABC):
     def __init__(self):
         self.dendrogram_ = None
 
-    def fit_transform(self, *args, **kwargs):
-        """Fit algorithm to the data and returns the dendrogram. Use the same inputs as the ``fit`` method."""
+    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to data and return the dendrogram. Same parameters as the ``fit`` method.
+
+        Returns
+        -------
+        dendrogram : np.ndarray
+            Dendrogram.
+        """
         self.fit(*args, **kwargs)
         return self.dendrogram_

@@ -30,9 +30,9 @@ class GSVD(BaseEmbedding):
 
     Parameters
     -----------
-    n_components: int
+    n_components : int
         Dimension of the embedding.
-    regularization: ``None`` or float (default = ``None``)
+    regularization : ``None`` or float (default = ``None``)
         Implicitly add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
@@ -52,7 +52,7 @@ class GSVD(BaseEmbedding):
     normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
+    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.
 
         * ``'auto'``: call the auto_solver function.
@@ -81,10 +81,13 @@ class GSVD(BaseEmbedding):
 
     Example
     -------
-    >>> gsvd = GSVD(3)
-    >>> embedding = gsvd.fit_transform(np.ones((7,5)))
+    >>> from sknetwork.embedding import GSVD
+    >>> from sknetwork.data import karate_club
+    >>> gsvd = GSVD()
+    >>> adjacency = karate_club()
+    >>> embedding = gsvd.fit_transform(adjacency)
     >>> embedding.shape
-    (7, 3)
+    (34, 2)
 
     References
     ----------
@@ -130,9 +133,8 @@ class GSVD(BaseEmbedding):
 
         Parameters
         ----------
-        adjacency: array-like, shape = (n_row, n_col)
-            Adjacency matrix, where n_row = n_col is the number of nodes for a standard graph,
-            n_row, n_col are the number of nodes in each part for a bipartite graph.
+        adjacency :
+            Adjacency or biadjacency matrix of the graph.
 
         Returns
         -------
@@ -197,17 +199,23 @@ class GSVD(BaseEmbedding):
 
         return self
 
+    @staticmethod
+    def _check_adj_vector(adjacency_vectors: np.ndarray):
+        if not np.all(adjacency_vectors >= 0):
+            raise ValueError('The adjacency vector must be non-negative.')
+
     def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """Predict the embedding of new rows, defined by their adjacency vectors.
 
         Parameters
         ----------
-        adjacency_vectors : array, shape (n_col,) (single vector) or (n_vectors, n_col)
+        adjacency_vectors :
             Adjacency vectors of nodes.
+            Array of shape (n_col,) (single vector) or (n_vectors, n_col)
 
         Returns
         -------
-        embedding_vectors : array, shape (n_components,) (single vector) or (n_vectors, n_components)
+        embedding_vectors : np.ndarray
             Embedding of the nodes.
         """
         singular_vectors_right = self.singular_vectors_right_
@@ -220,23 +228,21 @@ class GSVD(BaseEmbedding):
         n_col, _ = self.embedding_col_.shape
 
         adjacency_vectors = check_adjacency_vector(adjacency_vectors, n_col)
-        if not np.all(adjacency_vectors >= 0):
-            raise ValueError('The adjacency vector must be non-negative.')
+        self._check_adj_vector(adjacency_vectors)
 
         # regularization
-        adjacency_vector_reg = adjacency_vectors.astype(float)
+        adjacency_vectors_reg = adjacency_vectors.astype(float)
         if self.regularization_:
-            adjacency_vector_reg += self.regularization_
+            adjacency_vectors_reg += self.regularization_
 
         # weighting
-        weights_row = adjacency_vector_reg.dot(np.ones(n_col))
+        weights_row = adjacency_vectors_reg.dot(np.ones(n_col))
         diag_row = diag_pinv(np.power(weights_row, self.factor_row))
         diag_col = diag_pinv(np.power(self.weights_col_, self.factor_col))
-        adjacency_vector_reg = diag_row.dot(safe_sparse_dot(adjacency_vector_reg, diag_col))
+        adjacency_vectors_reg = diag_row.dot(safe_sparse_dot(adjacency_vectors_reg, diag_col))
 
         # projection in the embedding space
-        diag = diag_pinv(np.sum(adjacency_vector_reg, axis=1))
-        averaging = diag.dot(adjacency_vector_reg)
+        averaging = adjacency_vectors_reg
         embedding_vectors = diag_row.dot(averaging.dot(singular_vectors_right))
 
         # scaling
@@ -259,10 +265,10 @@ class SVD(GSVD):
     * Bigraphs
 
     Parameters
-    -----------
-    n_components: int
+    ----------
+    n_components : int
         Dimension of the embedding.
-    regularization: ``None`` or float (default = ``None``)
+    regularization : ``None`` or float (default = ``None``)
         Implicitly add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
@@ -278,7 +284,7 @@ class SVD(GSVD):
     normalized : bool (default = ``False``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
+    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.
 
         * ``'auto'``: call the auto_solver function.
@@ -305,10 +311,13 @@ class SVD(GSVD):
 
     Example
     -------
-    >>> svd = SVD(3)
-    >>> embedding = svd.fit_transform(np.ones((6,5)))
+    >>> from sknetwork.embedding import SVD
+    >>> from sknetwork.data import karate_club
+    >>> svd = SVD()
+    >>> adjacency = karate_club()
+    >>> embedding = svd.fit_transform(adjacency)
     >>> embedding.shape
-    (6, 3)
+    (34, 2)
 
     References
     ----------
@@ -322,3 +331,7 @@ class SVD(GSVD):
         super(SVD, self).__init__(n_components=n_components, regularization=regularization,
                                   relative_regularization=relative_regularization, factor_singular=factor_singular,
                                   factor_row=0., factor_col=0., normalized=normalized, solver=solver)
+
+    @staticmethod
+    def _check_adj_vector(adjacency_vectors: np.ndarray):
+        return

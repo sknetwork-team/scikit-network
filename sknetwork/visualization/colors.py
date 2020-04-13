@@ -9,7 +9,7 @@ Thomas Bonald <bonald@enst.fr>
 import numpy as np
 
 # standard SVG colors
-STANDARD_COLORS = np.array(['blue', 'red', 'green', 'orange', ' purple', 'gray', 'yellow', 'fuchsia', 'olive', 'aqua'])
+STANDARD_COLORS = np.array(['blue', 'red', 'green', 'orange', 'purple', 'yellow', 'fuchsia', 'olive', 'aqua', 'brown'])
 
 # 100 RGB colors of coolwarm color map.
 COOLWARM_RGB = np.array([[58,  76, 192], [60,  79, 195], [64,  84, 199], [66,  88, 202], [70,  93, 207], [72,  96, 209],

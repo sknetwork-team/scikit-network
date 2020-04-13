@@ -103,7 +103,9 @@ class Spectral(BaseEmbedding):
     """Spectral embedding of graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`.
     Eigenvectors are considered in increasing order of eigenvalues, skipping the first eigenvector.
 
-    * Graphs (see :class:`BiSpectral` for directed graphs and bipartite graphs).
+    * Graphs
+
+    See :class:`BiSpectral` for digraphs and bigraphs.
 
     Parameters
     ----------
@@ -148,10 +150,13 @@ class Spectral(BaseEmbedding):
 
     Example
     -------
+    >>> from sknetwork.embedding import Spectral
+    >>> from sknetwork.data import karate_club
     >>> spectral = Spectral()
-    >>> embedding = spectral.fit_transform(np.ones((4, 4)))
+    >>> adjacency = karate_club()
+    >>> embedding = spectral.fit_transform(adjacency)
     >>> embedding.shape
-    (4, 2)
+    (34, 2)
 
     References
     ----------
@@ -295,12 +300,13 @@ class Spectral(BaseEmbedding):
 
         Parameters
         ----------
-        adjacency_vectors : array, shape (n,) (single vector) or (n_vectors, n)
+        adjacency_vectors :
             Adjacency vectors of nodes.
+            Array of shape (n_col,) (single vector) or (n_vectors, n_col)
 
         Returns
         -------
-        embedding_vectors : array, shape (n_components,) (single vector) or (n_vectors, n_components)
+        embedding_vectors : np.ndarray
             Embedding of the nodes.
         """
         eigenvectors = self.eigenvectors_
@@ -354,6 +360,9 @@ class BiSpectral(Spectral):
     with :math:`A` the adjacency matrix of the graph. Eigenvectors are considered in increasing order of eigenvalues,
     skipping the first eigenvector.
 
+    * Digraphs
+    * Bigraphs
+
     Parameters
     ----------
     n_components : int (default = 2)
@@ -401,10 +410,13 @@ class BiSpectral(Spectral):
 
     Example
     -------
+    >>> from sknetwork.embedding import BiSpectral
+    >>> from sknetwork.data import movie_actor
     >>> bispectral = BiSpectral()
-    >>> embedding = bispectral.fit_transform(np.ones((5, 4)))
+    >>> biadjacency = movie_actor()
+    >>> embedding = bispectral.fit_transform(biadjacency)
     >>> embedding.shape
-    (5, 2)
+    (15, 2)
 
     References
     ----------
@@ -452,12 +464,13 @@ class BiSpectral(Spectral):
 
         Parameters
         ----------
-        adjacency_vectors : array, shape (n_col,) (single vector) or (n_vectors, n_col)
+        adjacency_vectors :
             Adjacency vectors of nodes.
+            Array of shape (n_col,) (single vector) or (n_vectors, n_col)
 
         Returns
         -------
-        embedding_vectors : array, shape (n_components,) (single vector) or (n_vectors, n_components)
+        embedding_vectors : np.ndarray
             Embedding of the nodes.
         """
         if self.eigenvectors_ is None:

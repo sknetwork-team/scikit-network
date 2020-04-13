@@ -6,6 +6,8 @@ Created on Nov, 2019
 """
 from abc import ABC
 
+import numpy as np
+
 from sknetwork.utils.base import Algorithm
 
 
@@ -15,8 +17,13 @@ class BaseRanking(Algorithm, ABC):
     def __init__(self):
         self.scores_ = None
 
-    def fit_transform(self, *args, **kwargs):
-        """Fit algorithm to the data and return the score of each node.
-        Uses the same inputs as this class ``fit`` method."""
+    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to data and return the scores. Same parameters as the ``fit`` method.
+
+        Returns
+        -------
+        scores : np.ndarray
+            Scores.
+        """
         self.fit(*args, **kwargs)
         return self.scores_
