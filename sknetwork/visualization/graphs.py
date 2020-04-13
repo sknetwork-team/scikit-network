@@ -53,11 +53,16 @@ def rescale(position, width, height, margin, node_size_max, node_weight):
     return position, width, height
 
 
-def get_colors(n: int, labels: np.ndarray, scores: np.ndarray, color: str) -> np.ndarray:
+def get_colors(n: int, labels: Union[dict, np.ndarray, None], scores: np.ndarray, color: str) -> np.ndarray:
     """Return the colors using either labels or scores or default color."""
     colors = np.array(n * [color]).astype('U64')
     if labels is not None:
         colors_label = STANDARD_COLORS.copy()
+        if isinstance(labels, dict):
+            index = np.array(list(labels.keys()))
+            values = np.array(list(labels.values())).astype(int)
+            labels = -np.ones(n, dtype=int)
+            labels[index] = values
         index = labels >= 0
         colors[index] = colors_label[labels[index] % len(colors_label)]
     elif scores is not None:
@@ -156,9 +161,10 @@ def svg_text(pos, text, font_size=12, align_right=False):
 
 
 def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optional[np.ndarray] = None,
-              labels: Optional[np.ndarray] = None, scores: Optional[np.ndarray] = None, seeds: Union[list, dict] = None,
-              width: float = 400, height: float = 300, margin: float = 20, margin_text: float = 3,
-              scale: float = 1, node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20,
+              labels: Optional[Union[dict, np.ndarray]] = None, scores: Optional[np.ndarray] = None,
+              seeds: Union[list, dict] = None, width: float = 400, height: float = 300,
+              margin: float = 20, margin_text: float = 3, scale: float = 1,
+              node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20,
               node_weight: bool = False, node_weights: Optional[np.ndarray] = None, node_width: float = 1,
               node_width_max: float = 3, node_color: str = 'gray', edge_width: float = 1, edge_width_min: float = 0.5,
               edge_width_max: float = 20, edge_weight: bool = True, edge_color: Optional[str] = None,
@@ -298,7 +304,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
 
 
 def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optional[np.ndarray] = None,
-                labels: Optional[np.ndarray] = None, scores: Optional[np.ndarray] = None,
+                labels: Optional[Union[dict, np.ndarray]] = None, scores: Optional[np.ndarray] = None,
                 seeds: Union[list, dict] = None, width: float = 400, height: float = 300,
                 margin: float = 20, margin_text: float = 10, scale: float = 1,
                 node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20, node_weight: bool = False,
@@ -388,7 +394,8 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
 
 def svg_bigraph(biadjacency: sparse.csr_matrix,
                 names_row: Optional[np.ndarray] = None, names_col: Optional[np.ndarray] = None,
-                labels_row: Optional[np.ndarray] = None, labels_col: Optional[np.ndarray] = None,
+                labels_row: Optional[Union[dict, np.ndarray]] = None,
+                labels_col: Optional[Union[dict, np.ndarray]] = None,
                 scores_row: Optional[np.ndarray] = None, scores_col: Optional[np.ndarray] = None,
                 seeds_row: Union[list, dict] = None, seeds_col: Union[list, dict] = None,
                 position_row: Optional[np.ndarray] = None, position_col: Optional[np.ndarray] = None,
