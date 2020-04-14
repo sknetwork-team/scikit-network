@@ -19,7 +19,7 @@
         :target: https://codecov.io/gh/sknetwork-team/scikit-network
 
 
-simple_graph and efficient tools for the analysis of large graphs.
+Fast algorithms for the analysis of massive graphs.
 
 
 * Free software: BSD license
