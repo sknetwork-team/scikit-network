@@ -44,6 +44,8 @@ Miscellaneous
 
 .. autofunction:: sknetwork.utils.membership_matrix
 
-.. automodule:: sknetwork.utils.seeds
+.. autofunction:: sknetwork.utils.seeds.seeds2probs
+
+.. autofunction:: sknetwork.utils.seeds.stack_seeds
 
 
