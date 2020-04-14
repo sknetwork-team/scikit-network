@@ -349,11 +349,10 @@ class BiLouvain(Louvain):
         -------
         self: :class:`BiLouvain`
         """
-        louvain = Louvain(tol_aggregation=self.tol_aggregation,
-                          n_aggregations=self.n_aggregations,
-                          shuffle_nodes=self.shuffle_nodes, sort_clusters=self.sort_clusters,
-                          return_membership=self.return_membership, return_adjacency=False,
-                          random_state=self.random_state, verbose=self.log.verbose)
+        louvain = Louvain(resolution=self.resolution, tol_aggregation=self.tol_aggregation,
+                          n_aggregations=self.n_aggregations, shuffle_nodes=self.shuffle_nodes,
+                          sort_clusters=self.sort_clusters, return_membership=self.return_membership,
+                          return_adjacency=False, random_state=self.random_state, verbose=self.log.verbose)
         biadjacency = check_format(biadjacency)
         n_row, _ = biadjacency.shape
 
