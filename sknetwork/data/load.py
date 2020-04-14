@@ -81,6 +81,8 @@ def load_wikilinks(dataset_name: str, data_home: Optional[str] = None,
     >>> graph.adjacency.shape
     (10012, 10012)
     """
+    if dataset_name == '':
+        raise ValueError("Please specify the dataset. Possible datasets are 'wikivitals' and 'wikihumans'.")
     if data_home is None:
         data_home = get_data_home()
     data_path = data_home + '/' + dataset_name + '/'
@@ -102,7 +104,7 @@ def load_wikilinks(dataset_name: str, data_home: Optional[str] = None,
 
     if 'adjacency.npz' in files:
         graph.adjacency = sparse.load_npz(data_path + '/adjacency.npz')
-    elif 'biadjacency.npz' in files:
+    if 'biadjacency.npz' in files:
         graph.biadjacency = sparse.load_npz(data_path + '/biadjacency.npz')
     if 'feature_names.npy' in files:
         graph.names_col = np.load(data_path + '/feature_names.npy')
@@ -157,6 +159,10 @@ def load_konect(dataset_name: str, data_home: Optional[str] = None, auto_numpy_b
     >>> graph.adjacency.shape
     (62, 62)
     """
+    if dataset_name == '':
+        raise ValueError("Please specify the dataset. "
+                         + "\nExamples include 'actor-movie' and 'ego-facebook'."
+                         + "\n See 'http://konect.uni-koblenz.de' for the full list.")
     if data_home is None:
         data_home = get_data_home()
     data_path = data_home + '/' + dataset_name + '/'
