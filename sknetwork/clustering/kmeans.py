@@ -11,7 +11,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering.base import BaseClustering
+from sknetwork.clustering.base import BaseClustering, BaseBiClustering
 from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.embedding import BaseEmbedding, GSVD
 from sknetwork.linalg import normalize
@@ -60,18 +60,14 @@ class KMeans(BaseClustering):
 
     def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10), sort_clusters: bool = True,
                  return_membership: bool = True, return_adjacency: bool = True):
-        super(KMeans, self).__init__()
+        super(KMeans, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
+                                     return_adjacency=return_adjacency)
 
         if not hasattr(embedding_method, 'embedding_'):
             raise TypeError('The embedding method must have an attribute embedding_.')
 
         self.n_clusters = n_clusters
         self.embedding_method = embedding_method
-        self.sort_clusters = sort_clusters
-        self.return_membership = return_membership
-        self.return_adjacency = return_adjacency
-
-        self.adjacency_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'KMeans':
         """Apply embedding method followed by K-means.
@@ -99,18 +95,12 @@ class KMeans(BaseClustering):
             labels = kmeans.labels_
 
         self.labels_ = labels
-
-        if self.return_membership or self.return_adjacency:
-            membership = membership_matrix(labels, n_labels=self.n_clusters)
-            if self.return_membership:
-                self.membership_ = normalize(adjacency.dot(membership))
-            if self.return_adjacency:
-                self.adjacency_ = membership.T.dot(adjacency.dot(membership))
+        self._secondary_outputs(adjacency)
 
         return self
 
 
-class BiKMeans(KMeans):
+class BiKMeans(BaseBiClustering, KMeans):
     """KMeans clustering of bipartite graphs applied in the embedding space.
 
     * Bigraphs
@@ -159,7 +149,10 @@ class BiKMeans(KMeans):
 
     def __init__(self, n_clusters: int = 2, embedding_method: BaseEmbedding = GSVD(10), co_cluster: bool = False,
                  sort_clusters: bool = True, return_membership: bool = True, return_biadjacency: bool = True):
-        KMeans.__init__(self, n_clusters, embedding_method, sort_clusters, return_membership, False)
+        BaseBiClustering.__init__(self, sort_clusters=sort_clusters, return_membership=return_membership,
+                                  return_biadjacency=return_biadjacency)
+        KMeans.__init__(self, n_clusters=n_clusters, embedding_method=embedding_method, sort_clusters=sort_clusters,
+                        return_membership=return_membership, return_adjacency=False)
 
         if not hasattr(embedding_method, 'embedding_'):
             raise TypeError('The embedding method must have an attribute embedding_.')
@@ -167,15 +160,6 @@ class BiKMeans(KMeans):
             raise ValueError('The embedding method must have an attribute embedding_col_.')
 
         self.co_cluster = co_cluster
-        self.return_biadjacency = return_biadjacency
-
-        self.labels_ = None
-        self.labels_row_ = None
-        self.labels_col_ = None
-        self.membership_ = None
-        self.membership_row_ = None
-        self.membership_col_ = None
-        self.biadjacency_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiKMeans':
         """Apply embedding method followed by clustering to the graph.
@@ -210,12 +194,10 @@ class BiKMeans(KMeans):
         else:
             labels = kmeans.labels_
 
+        self.labels_ = labels
         if self.co_cluster:
-            self.labels_ = labels[:n_row]
-            self.labels_row_ = labels[:n_row]
-            self.labels_col_ = labels[n_row:]
+            self._split_labels(n_row)
         else:
-            self.labels_ = labels
             self.labels_row_ = labels
 
         if self.return_membership:
