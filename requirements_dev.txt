@@ -27,7 +27,7 @@ nbsphinx==0.6.0
 
 # used to run Jupyter notebooks (necessary for nbsphinx)
 ipython==7.13.0
-jupyter_client==6.1.2
+jupyter_client==6.1.3
 ipykernel==5.2.0
 
 # necessary for wheels to compile upon release (to be removed of possible)
