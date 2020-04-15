@@ -21,7 +21,7 @@ from typing import Union
 from scipy import sparse
 
 from sknetwork.hierarchy.base import BaseHierarchy
-from sknetwork.hierarchy.postprocess import split_dendrogram
+from sknetwork.hierarchy.postprocess import reorder_dendrogram, split_dendrogram
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.check import check_format, check_probs, is_square
 
@@ -155,8 +155,10 @@ class Paris(BaseHierarchy):
     Parameters
     ----------
     weights :
-            Weights of nodes.
-            ``'degree'`` (default) or ``'uniform'``.
+        Weights of nodes.
+        ``'degree'`` (default) or ``'uniform'``.
+    reorder :
+        If ``True``, reorder the dendrogram in non-decreasing order of height.
 
     Attributes
     ----------
@@ -193,10 +195,11 @@ class Paris(BaseHierarchy):
     Workshop on Mining and Learning with Graphs.
     """
 
-    def __init__(self, weights: str = 'degree'):
+    def __init__(self, weights: str = 'degree', reorder: bool = True):
         super(Paris, self).__init__()
 
         self.weights = weights
+        self.reorder = reorder
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -285,7 +288,8 @@ class Paris(BaseHierarchy):
             aggregate_graph.next_cluster += 1
 
         dendrogram = np.array(dendrogram)
-
+        if self.reorder:
+            dendrogram = reorder_dendrogram(dendrogram)
         self.dendrogram_ = dendrogram
         return self
 
@@ -300,6 +304,8 @@ class BiParis(Paris):
     weights :
         Weights of nodes.
         ``'degree'`` (default) or ``'uniform'``.
+    reorder :
+        If ``True``, reorder the dendrogram in non-decreasing order of height.
 
     Attributes
     ----------
@@ -339,8 +345,8 @@ class BiParis(Paris):
     <https://arxiv.org/abs/1806.01664>`_
     Workshop on Mining and Learning with Graphs.
     """
-    def __init__(self, weights: str = 'degree'):
-        Paris.__init__(self, weights)
+    def __init__(self, weights: str = 'degree', reorder: bool = True):
+        Paris.__init__(self, weights, reorder)
 
         self.dendrogram_row_ = None
         self.dendrogram_col_ = None

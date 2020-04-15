@@ -14,6 +14,21 @@ from typing import Union, Tuple
 import numpy as np
 
 
+def reorder_dendrogram(dendrogram: np.ndarray):
+    """Reorder the dendrogram in non-decreasing order of height."""
+    n = dendrogram.shape[0] + 1
+    order = np.zeros((2, n - 1),float)
+    order[0] = np.max(dendrogram[:,:2], axis = 1)
+    order[1] = dendrogram[:, 2]
+    index = np.lexsort(order)
+    dendrogram_new = dendrogram[index]
+    index_new = np.arange(2 * n - 1)
+    index_new[n + index] = np.arange(n, 2 * n - 1)
+    dendrogram_new[:, 0] = index_new[dendrogram_new[:, 0].astype(int)]
+    dendrogram_new[:, 1] = index_new[dendrogram_new[:, 1].astype(int)]
+    return dendrogram_new
+
+
 def get_labels(dendrogram: np.ndarray, cluster: dict, sort_clusters: bool, return_dendrogram: bool):
     """Returns the labels from clusters."""
     n = dendrogram.shape[0] + 1

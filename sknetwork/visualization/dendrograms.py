@@ -30,7 +30,7 @@ def get_index(dendrogram, reorder=True):
 
 
 def svg_dendrogram_top(dendrogram, names, width, height, margin, margin_text, scale, line_width, n_clusters, color,
-                       font_size, reorder):
+                       font_size, reorder, rotate_names):
     """Dendrogram as SVG image with root on top."""
 
     # scaling
@@ -60,8 +60,13 @@ def svg_dendrogram_top(dendrogram, names, width, height, margin, margin_text, sc
             x, y = position[i]
             x -= margin_text
             y += margin_text
-            image += """<text x="{}" y="{}"  transform="rotate(60, {}, {})" font-size="{}">{}</text>""" \
-                .format(x, y, x, y, font_size, str(names[i]))
+            if rotate_names:
+                image += """<text x="{}" y="{}"  transform="rotate(60, {}, {})" font-size="{}">{}</text>""" \
+                    .format(x, y, x, y, font_size, str(names[i]))
+            else:
+                y += margin_text
+                image += """<text x="{}" y="{}"  font-size="{}">{}</text>""" \
+                    .format(x, y, font_size, str(names[i]))
 
     # tree
     for t in range(n - 1):
@@ -153,7 +158,7 @@ def svg_dendrogram_left(dendrogram, names, width, height, margin, margin_text, s
 def svg_dendrogram(dendrogram: np.ndarray, names: Optional[np.ndarray] = None, rotate: bool = False, width: float = 400,
                    height: float = 300, margin: float = 10, margin_text: float = 5, scale: float = 1,
                    line_width: float = 2, n_clusters: int = 2, color: str = 'black', font_size: int = 12,
-                   reorder: bool = False):
+                   reorder: bool = False, rotate_names: bool = True):
     """Return SVG image of a dendrogram.
 
     Parameters
@@ -184,6 +189,8 @@ def svg_dendrogram(dendrogram: np.ndarray, names: Optional[np.ndarray] = None, r
         Font size.
     reorder :
         If ``True``, reorder leaves so that left subtree has more leaves than right subtree.
+    rotate_names :
+        If ``True``, rotate names of leaves (only valid if **rotate** is ``False``).
 
     Example
     -------
@@ -199,4 +206,4 @@ def svg_dendrogram(dendrogram: np.ndarray, names: Optional[np.ndarray] = None, r
                                    color, font_size, reorder)
     else:
         return svg_dendrogram_top(dendrogram, names, width, height, margin, margin_text, scale, line_width, n_clusters,
-                                  color, font_size, reorder)
+                                  color, font_size, reorder, rotate_names)

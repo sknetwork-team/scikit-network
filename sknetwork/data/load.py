@@ -53,7 +53,7 @@ def clear_data_home(data_home: Optional[str] = None):
 
 
 def load_netset(dataset: str, data_home: Optional[str] = None,
-                max_depth: int = 1, full_label: bool = True) -> Bunch:
+                depth: int = 1, full_name: bool = True) -> Bunch:
     """Load a dataset from the `NetSets database
     <https://graphs.telecom-paristech.fr/>`_.
 
@@ -63,11 +63,11 @@ def load_netset(dataset: str, data_home: Optional[str] = None,
         The name of the dataset (all low-case). Examples include 'openflights', 'cinema' and 'wikivitals'.
     data_home : str
         The folder to be used for dataset storage.
-    max_depth : int
-        Maximum depth to use for the labels (if relevant).
-    full_label : bool
+    depth : int
+        Maximum depth to use for hierarchical labels (if relevant).
+    full_name : bool
         If ``True``, return the full name of the label, at maximum depth;
-        otherwise, return only the deepest name in the hierarchy.
+        If ``True``, return only the deepest name in the hierarchy.
 
     Returns
     -------
@@ -112,9 +112,6 @@ def load_netset(dataset: str, data_home: Optional[str] = None,
         graph.names_row = np.load(data_path + '/names_row.npy')
     if 'names_col.npy' in files:
         graph.names_col = np.load(data_path + '/names_col.npy')
-    # old name, depreciated
-    if 'feature_names.npy' in files:
-        graph.names_col = np.load(data_path + '/feature_names.npy')
     if 'labels.npy' in files:
         graph.labels = np.load(data_path + '/labels.npy')
     if 'labels_row.npy' in files:
@@ -128,10 +125,10 @@ def load_netset(dataset: str, data_home: Optional[str] = None,
         tags = []
         for tag in target_names:
             parts = tag.strip().split('.')
-            if full_label:
-                tags.append(".".join(parts[:min(max_depth, len(parts))]))
+            if full_name:
+                tags.append(".".join(parts[:min(depth, len(parts))]))
             else:
-                tags.append(parts[:min(max_depth, len(parts))][-1])
+                tags.append(parts[:min(depth, len(parts))][-1])
         tags = np.array(tags)
         names_label, graph.labels = np.unique(tags, return_inverse=True)
         graph.labels_name = {i: name for i, name in enumerate(names_label)}
