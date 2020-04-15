@@ -52,9 +52,3 @@ class TestToys(unittest.TestCase):
         self.assertEqual(graph.biadjacency.shape, (15, 16))
         self.assertEqual(len(graph.names), 15)
         self.assertEqual(len(graph.names_col), 16)
-
-        biadjacency = hourglass()
-        self.assertEqual(biadjacency.shape, (2, 2))
-
-        graph = hourglass(True)
-        self.assertEqual(graph.biadjacency.shape, (2, 2))

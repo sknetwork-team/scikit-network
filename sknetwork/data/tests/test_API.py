@@ -7,8 +7,6 @@ import unittest
 from urllib.error import URLError
 import warnings
 
-from scipy import sparse
-
 from sknetwork.data.toy_graphs import *
 from sknetwork.data.load import *
 from sknetwork.utils import Bunch
@@ -17,7 +15,7 @@ from sknetwork.utils import Bunch
 class TestDataAPI(unittest.TestCase):
 
     def test_toy_graphs(self):
-        toy_graphs = [karate_club, painters, bow_tie, hourglass, house, miserables]
+        toy_graphs = [karate_club, painters, bow_tie, house, miserables]
         for toy_graph in toy_graphs:
             self.assertEqual(type(toy_graph()), sparse.csr_matrix)
             self.assertEqual(type(toy_graph(metadata=True)), Bunch)
