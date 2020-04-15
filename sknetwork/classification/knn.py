@@ -34,8 +34,8 @@ class KNN(BaseClassifier):
     n_neighbors :
         Number of nearest neighbors to consider.
     factor_distance :
-        Power weighting factor :math:``\\alpha`` applied to the distance to each neighbor.
-        Neighbor at distance :math:``d`` has weight :math:``1 / d^\\alpha``. Default is 2.
+        Power weighting factor :math:`\\alpha` applied to the distance to each neighbor.
+        Neighbor at distance :math:``d`` has weight :math:`1 / d^\\alpha`. Default is 2.
     leaf_size :
         Leaf size passed to KDTree.
     p :
