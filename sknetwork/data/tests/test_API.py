@@ -26,7 +26,7 @@ class TestDataAPI(unittest.TestCase):
         tmp_data_dir = tempfile.gettempdir() + '/stub'
         clear_data_home(tmp_data_dir)
         try:
-            graph = load_wikilinks('stub', tmp_data_dir)
+            graph = load_netset('stub', tmp_data_dir)
             self.assertEqual(type(graph), Bunch)
         except URLError:
             warnings.warn('Could not reach Telecom Graphs. Corresponding test has not been performed.', RuntimeWarning)

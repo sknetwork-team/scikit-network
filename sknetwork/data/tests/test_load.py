@@ -7,7 +7,7 @@ import unittest
 import tempfile
 import warnings
 
-from sknetwork.data import load_wikilinks, load_konect, clear_data_home
+from sknetwork.data import load_netset, load_konect, clear_data_home
 
 
 class TestLoader(unittest.TestCase):
@@ -16,7 +16,7 @@ class TestLoader(unittest.TestCase):
         tmp_data_dir = tempfile.gettempdir() + '/stub'
         clear_data_home(tmp_data_dir)
         try:
-            graph = load_wikilinks('stub', tmp_data_dir)
+            graph = load_netset('stub', tmp_data_dir)
         except URLError:
             warnings.warn('Could not reach Telecom Graphs. Corresponding test has not been performed.', RuntimeWarning)
             return
@@ -30,7 +30,7 @@ class TestLoader(unittest.TestCase):
         clear_data_home(tmp_data_dir)
         try:
             with self.assertRaises(ValueError):
-                load_wikilinks('junk', tmp_data_dir)
+                load_netset('junk', tmp_data_dir)
         except URLError:
             warnings.warn('Could not reach Telecom Graphs. Corresponding test has not been performed.', RuntimeWarning)
             return

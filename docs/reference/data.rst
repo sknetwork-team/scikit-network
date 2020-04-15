@@ -42,7 +42,7 @@ Models
 Loading
 *******
 
-.. autofunction:: sknetwork.data.load_wikilinks
+.. autofunction:: sknetwork.data.load_netset
 
 .. autofunction:: sknetwork.data.load_konect
 

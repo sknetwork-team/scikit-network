@@ -3,7 +3,6 @@
 """
 Created on November 15, 2019
 @author: Quentin Lutz <qlutz@enst.fr>
-This module's code is freely adapted from TorchKGE's torchkge.data.DataLoader.py code.
 """
 
 import pickle
@@ -53,15 +52,15 @@ def clear_data_home(data_home: Optional[str] = None):
     shutil.rmtree(data_home)
 
 
-def load_wikilinks(dataset_name: str, data_home: Optional[str] = None,
-                   max_depth: int = 1, full_label: bool = True) -> Bunch:
-    """Load a dataset from the `WikiLinks database
-    <https://graphs.telecom-paristech.fr/Home_page.html#wikilinks-section>`_.
+def load_netset(dataset: str, data_home: Optional[str] = None,
+                max_depth: int = 1, full_label: bool = True) -> Bunch:
+    """Load a dataset from the `NetSets database
+    <https://graphs.telecom-paristech.fr/>`_.
 
     Parameters
     ----------
-    dataset_name : str
-        The name of the dataset (all lowcase). Currently, 'wikivitals' and 'wikihumans' are available.
+    dataset : str
+        The name of the dataset (all low-case). Examples include 'openflights', 'cinema' and 'wikivitals'.
     data_home : str
         The folder to be used for dataset storage.
     max_depth : int
@@ -76,28 +75,29 @@ def load_wikilinks(dataset_name: str, data_home: Optional[str] = None,
 
     Example
     -------
-    >>> from sknetwork.data import load_wikilinks
-    >>> graph = load_wikilinks('wikivitals')
+    >>> from sknetwork.data import load_netset
+    >>> graph = load_netset('openflights')
     >>> graph.adjacency.shape
-    (10012, 10012)
+    (3097, 3097)
     """
-    if dataset_name == '':
-        raise ValueError("Please specify the dataset. Possible datasets are 'wikivitals' and 'wikihumans'.")
+    if dataset == '':
+        raise ValueError("Please specify the dataset (e.g., 'openflights' or 'wikivitals').")
     if data_home is None:
         data_home = get_data_home()
-    data_path = data_home + '/' + dataset_name + '/'
+    data_path = data_home + '/' + dataset + '/'
     if not exists(data_path):
         makedirs(data_path, exist_ok=True)
         try:
-            urlretrieve("https://graphs.telecom-paristech.fr/npz_datasets/" + dataset_name + '_npz.tar.gz',
-                        data_home + '/' + dataset_name + '_npz.tar.gz')
+            urlretrieve("https://graphs.telecom-paristech.fr/datasets_npz/" + dataset + '_npz.tar.gz',
+                        data_home + '/' + dataset + '_npz.tar.gz')
         except HTTPError:
-            rmdir(data_home + '/' + dataset_name)
-            raise ValueError('Invalid dataset ' + dataset_name + '.'
-                             + "\nPossible datasets are 'wikivitals' and 'wikihumans'.")
-        with tarfile.open(data_home + '/' + dataset_name + '_npz.tar.gz', 'r:gz') as tar_ref:
+            rmdir(data_home + '/' + dataset)
+            raise ValueError('Invalid dataset ' + dataset + '.'
+                             + "\nAvailable datasets include 'openflights' and 'wikivitals'."
+                             + "\nSee <https://graphs.telecom-paristech.fr/>")
+        with tarfile.open(data_home + '/' + dataset + '_npz.tar.gz', 'r:gz') as tar_ref:
             tar_ref.extractall(data_home)
-        remove(data_home + '/' + dataset_name + '_npz.tar.gz')
+        remove(data_home + '/' + dataset + '_npz.tar.gz')
 
     graph = Bunch()
     files = [file for file in listdir(data_path)]
@@ -106,12 +106,23 @@ def load_wikilinks(dataset_name: str, data_home: Optional[str] = None,
         graph.adjacency = sparse.load_npz(data_path + '/adjacency.npz')
     if 'biadjacency.npz' in files:
         graph.biadjacency = sparse.load_npz(data_path + '/biadjacency.npz')
-    if 'feature_names.npy' in files:
-        graph.names_col = np.load(data_path + '/feature_names.npy')
     if 'names.npy' in files:
         graph.names = np.load(data_path + '/names.npy')
-        if hasattr(graph, 'biadjacency'):
-            graph.names_row = graph.names
+    if 'names_row.npy' in files:
+        graph.names_row = np.load(data_path + '/names_row.npy')
+    if 'names_col.npy' in files:
+        graph.names_col = np.load(data_path + '/names_col.npy')
+    # old name, depreciated
+    if 'feature_names.npy' in files:
+        graph.names_col = np.load(data_path + '/feature_names.npy')
+    if 'labels.npy' in files:
+        graph.labels = np.load(data_path + '/labels.npy')
+    if 'labels_row.npy' in files:
+        graph.labels_row = np.load(data_path + '/labels_row.npy')
+    if 'labels_col.npy' in files:
+        graph.labels_col = np.load(data_path + '/labels_col.npy')
+    if 'position.npy' in files:
+        graph.position = np.load(data_path + '/position.npy')
     if 'target_names.npy' in files:
         target_names = np.load(data_path + '/target_names.npy')
         tags = []
@@ -128,18 +139,18 @@ def load_wikilinks(dataset_name: str, data_home: Optional[str] = None,
     return graph
 
 
-def load_konect(dataset_name: str, data_home: Optional[str] = None, auto_numpy_bundle: bool = True) -> Bunch:
+def load_konect(dataset: str, data_home: Optional[str] = None, auto_numpy_bundle: bool = True) -> Bunch:
     """Load a dataset from the `Konect database
     <http://konect.uni-koblenz.de>`_.
 
     Parameters
     ----------
-    dataset_name: str
+    dataset : str
         The name of the dataset as specified in the download link (e.g. for the Actor movies dataset, the corresponding
         name is ``'actor-movie'``).
-    data_home: str
+    data_home : str
         The folder to be used for dataset storage
-    auto_numpy_bundle: bool
+    auto_numpy_bundle : bool
         Denotes if the dataset should be stored in its default format (False) or using Numpy files for faster
         subsequent access to the dataset (True).
 
@@ -159,32 +170,32 @@ def load_konect(dataset_name: str, data_home: Optional[str] = None, auto_numpy_b
     >>> graph.adjacency.shape
     (62, 62)
     """
-    if dataset_name == '':
+    if dataset == '':
         raise ValueError("Please specify the dataset. "
                          + "\nExamples include 'actor-movie' and 'ego-facebook'."
                          + "\n See 'http://konect.uni-koblenz.de' for the full list.")
     if data_home is None:
         data_home = get_data_home()
-    data_path = data_home + '/' + dataset_name + '/'
+    data_path = data_home + '/' + dataset + '/'
     if not exists(data_path):
         makedirs(data_path, exist_ok=True)
         try:
-            urlretrieve('http://konect.uni-koblenz.de/downloads/tsv/' + dataset_name + '.tar.bz2',
-                        data_home + '/' + dataset_name + '.tar.bz2')
-            with tarfile.open(data_home + '/' + dataset_name + '.tar.bz2', 'r:bz2') as tar_ref:
+            urlretrieve('http://konect.uni-koblenz.de/downloads/tsv/' + dataset + '.tar.bz2',
+                        data_home + '/' + dataset + '.tar.bz2')
+            with tarfile.open(data_home + '/' + dataset + '.tar.bz2', 'r:bz2') as tar_ref:
                 tar_ref.extractall(data_home)
         except (HTTPError, tarfile.ReadError):
-            rmdir(data_home + '/' + dataset_name)
-            raise ValueError('Invalid dataset ' + dataset_name + '.'
+            rmdir(data_home + '/' + dataset)
+            raise ValueError('Invalid dataset ' + dataset + '.'
                              + "\nExamples include 'actor-movie' and 'ego-facebook'."
                              + "\n See 'http://konect.uni-koblenz.de' for the full list.")
         finally:
-            remove(data_home + '/' + dataset_name + '.tar.bz2')
-    elif exists(data_path + '/' + dataset_name + '_bundle'):
-        return load_from_numpy_bundle(dataset_name + '_bundle', data_path)
+            remove(data_home + '/' + dataset + '.tar.bz2')
+    elif exists(data_path + '/' + dataset + '_bundle'):
+        return load_from_numpy_bundle(dataset + '_bundle', data_path)
 
     data = Bunch()
-    files = [file for file in listdir(data_path) if dataset_name in file]
+    files = [file for file in listdir(data_path) if dataset in file]
 
     matrix = [file for file in files if 'out.' in file]
     if matrix:
@@ -202,14 +213,14 @@ def load_konect(dataset_name: str, data_home: Optional[str] = None, auto_numpy_b
         file = metadata[0]
         data.meta = parse_metadata(data_path + file)
 
-    attributes = [file for file in files if 'ent.' + dataset_name in file]
+    attributes = [file for file in files if 'ent.' + dataset in file]
     if attributes:
         for file in attributes:
             attribute_name = file.split('.')[-1]
             data[attribute_name] = parse_labels(data_path + file)
 
     if auto_numpy_bundle:
-        save_to_numpy_bundle(data, dataset_name + '_bundle', data_path)
+        save_to_numpy_bundle(data, dataset + '_bundle', data_path)
 
     return data
 
