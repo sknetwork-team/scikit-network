@@ -52,7 +52,7 @@ def svg_dendrogram_top(dendrogram, names, width, height, margin, margin_text, sc
         text_length = np.max(np.array([len(str(name)) for name in names]))
         height += text_length * font_size * .5 + margin_text
 
-    svg = """<svg width="{}" height="{}">""".format(width, height)
+    svg = """<svg width="{}" height="{}"  xmlns="http://www.w3.org/2000/svg">""".format(width, height)
 
     # text
     if names is not None:
@@ -118,7 +118,7 @@ def svg_dendrogram_left(dendrogram, names, width, height, margin, margin_text, s
         text_length = np.max(np.array([len(str(name)) for name in names]))
         width += text_length * font_size * .5 + margin_text
 
-    svg = """<svg width="{}" height="{}">""".format(width, height)
+    svg = """<svg width="{}" height="{}"  xmlns="http://www.w3.org/2000/svg">""".format(width, height)
 
     # text
     if names is not None:

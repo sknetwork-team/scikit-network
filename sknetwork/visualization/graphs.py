@@ -279,7 +279,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
     height *= scale
     width *= scale
 
-    svg = """<svg width="{}" height="{}">""".format(width, height)
+    svg = """<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">""".format(width, height)
     if directed:
         svg += """<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" >"""
         svg += """<path d="M0,0 L0,6 L9,3 z" fill="{}"/></marker></defs>""".format(edge_color)
@@ -560,7 +560,7 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     position_row = position[:n_row]
     position_col = position[n_row:]
 
-    svg = """<svg width="{}" height="{}">""".format(width, height)
+    svg = """<svg width="{}" height="{}"  xmlns="http://www.w3.org/2000/svg">""".format(width, height)
     # edges
     for i in range(len(biadjacency.row)):
         svg += svg_edge(position_row[biadjacency.row[i]], position_col[biadjacency.col[i]], edge_widths[i], edge_color)
