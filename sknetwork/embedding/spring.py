@@ -28,7 +28,7 @@ class FruchtermanReingold(BaseEmbedding):
     tol: float
         Minimum relative change in positions to continue updating.
     pos_init: str
-        How to initialize the layout. If 'spectral', use GSVD in dimension 2, otherwise, use random initialization.
+        How to initialize the layout. If 'gsvd', use GSVD in dimension 2, otherwise, use random initialization.
 
     Attributes
     ----------
@@ -37,10 +37,9 @@ class FruchtermanReingold(BaseEmbedding):
 
     Notes
     -----
-    This is a simple implementation designed to display small graphs in 2D.
-    It will be improved in further release.
+    Simple implementation designed to display small graphs in 2D.
     """
-    def __init__(self, strength: float = None, n_iter: int = 50, tol: float = 1e-4, pos_init: str = 'spectral'):
+    def __init__(self, strength: float = None, n_iter: int = 50, tol: float = 1e-4, pos_init: str = 'gsvd'):
         super(FruchtermanReingold, self).__init__()
         self.strength = strength
         self.n_iter = n_iter
@@ -49,16 +48,16 @@ class FruchtermanReingold(BaseEmbedding):
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], pos_init: np.ndarray = None,
             n_iter: int = None) -> 'FruchtermanReingold':
-        """Compute layout
+        """Compute layout.
 
         Parameters
         ----------
-        adjacency:
+        adjacency :
             Adjacency matrix of the graph, treated as undirected.
-        pos_init: np.ndarray
+        pos_init : np.ndarray
             Custom initial positions of the nodes. Shape must be (n, 2).
             If None, use the value of self.pos_init.
-        n_iter: int
+        n_iter : int
             Number of iterations to update positions.
             If None, use the value of self.n_iter.
 
@@ -73,7 +72,7 @@ class FruchtermanReingold(BaseEmbedding):
         n = adjacency.shape[0]
 
         if pos_init is None:
-            if self.pos_init == 'spectral':
+            if self.pos_init == 'gsvd':
                 pos = GSVD(n_components=2).fit_transform(adjacency)
             else:
                 pos = np.random.randn(n, 2)
@@ -83,7 +82,7 @@ class FruchtermanReingold(BaseEmbedding):
             else:
                 raise ValueError('Initial position has invalid shape.')
         else:
-            raise TypeError('Unknown initial position, try "spectral" or "random".')
+            raise TypeError('Unknown initial position, try "gsvd" or "random".')
 
         if n_iter is None:
             n_iter = self.n_iter
