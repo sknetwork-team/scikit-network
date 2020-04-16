@@ -52,8 +52,7 @@ def clear_data_home(data_home: Optional[str] = None):
     shutil.rmtree(data_home)
 
 
-def load_netset(dataset: str, data_home: Optional[str] = None,
-                depth: int = 1, full_name: bool = True) -> Bunch:
+def load_netset(dataset: str, data_home: Optional[str] = None) -> Bunch:
     """Load a dataset from the `NetSets database
     <https://graphs.telecom-paristech.fr/>`_.
 
@@ -63,11 +62,6 @@ def load_netset(dataset: str, data_home: Optional[str] = None,
         The name of the dataset (all low-case). Examples include 'openflights', 'cinema' and 'wikivitals'.
     data_home : str
         The folder to be used for dataset storage.
-    depth : int
-        Maximum depth to use for hierarchical labels (if relevant).
-    full_name : bool
-        If ``True``, return the full name of the label, at maximum depth;
-        If ``True``, return only the deepest name in the hierarchy.
 
     Returns
     -------
@@ -118,20 +112,12 @@ def load_netset(dataset: str, data_home: Optional[str] = None,
         graph.labels_row = np.load(data_path + '/labels_row.npy')
     if 'labels_col.npy' in files:
         graph.labels_col = np.load(data_path + '/labels_col.npy')
+    if 'labels_hierarchy.npy' in files:
+        graph.labels_hierarchy = np.load(data_path + '/labels_hierarchy.npy')
+    if 'names_labels_hierarchy.npy' in files:
+        graph.names_labels_hierarchy = np.load(data_path + '/names_labels_hierarchy.npy')
     if 'position.npy' in files:
         graph.position = np.load(data_path + '/position.npy')
-    if 'target_names.npy' in files:
-        target_names = np.load(data_path + '/target_names.npy')
-        tags = []
-        for tag in target_names:
-            parts = tag.strip().split('.')
-            if full_name:
-                tags.append(".".join(parts[:min(depth, len(parts))]))
-            else:
-                tags.append(parts[:min(depth, len(parts))][-1])
-        tags = np.array(tags)
-        names_label, graph.labels = np.unique(tags, return_inverse=True)
-        graph.labels_name = {i: name for i, name in enumerate(names_label)}
 
     return graph
 
