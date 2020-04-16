@@ -114,6 +114,8 @@ def load_netset(dataset: str, data_home: Optional[str] = None) -> Bunch:
         graph.labels_col = np.load(data_path + '/labels_col.npy')
     if 'labels_hierarchy.npy' in files:
         graph.labels_hierarchy = np.load(data_path + '/labels_hierarchy.npy')
+    if 'names_labels.npy' in files:
+        graph.names_labels = np.load(data_path + '/names_labels.npy')
     if 'names_labels_hierarchy.npy' in files:
         graph.names_labels_hierarchy = np.load(data_path + '/names_labels_hierarchy.npy')
     if 'position.npy' in files:
