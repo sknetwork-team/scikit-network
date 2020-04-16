@@ -10,7 +10,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.embedding.svd import GSVD
+from sknetwork.embedding.spectral import Spectral
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.utils.check import check_format, check_square, is_symmetric
 from sknetwork.utils.format import directed2undirected
@@ -28,7 +28,8 @@ class FruchtermanReingold(BaseEmbedding):
     tol: float
         Minimum relative change in positions to continue updating.
     pos_init: str
-        How to initialize the layout. If 'gsvd', use GSVD in dimension 2, otherwise, use random initialization.
+        How to initialize the layout. If 'spectral', use Spectral embedding in dimension 2,
+        otherwise, use random initialization.
 
     Attributes
     ----------
@@ -39,7 +40,7 @@ class FruchtermanReingold(BaseEmbedding):
     -----
     Simple implementation designed to display small graphs in 2D.
     """
-    def __init__(self, strength: float = None, n_iter: int = 50, tol: float = 1e-4, pos_init: str = 'gsvd'):
+    def __init__(self, strength: float = None, n_iter: int = 50, tol: float = 1e-4, pos_init: str = 'spectral'):
         super(FruchtermanReingold, self).__init__()
         self.strength = strength
         self.n_iter = n_iter
@@ -72,8 +73,8 @@ class FruchtermanReingold(BaseEmbedding):
         n = adjacency.shape[0]
 
         if pos_init is None:
-            if self.pos_init == 'gsvd':
-                pos = GSVD(n_components=2).fit_transform(adjacency)
+            if self.pos_init == 'spectral':
+                pos = Spectral(n_components=2).fit_transform(adjacency)
             else:
                 pos = np.random.randn(n, 2)
         elif isinstance(pos_init, np.ndarray):
@@ -82,7 +83,7 @@ class FruchtermanReingold(BaseEmbedding):
             else:
                 raise ValueError('Initial position has invalid shape.')
         else:
-            raise TypeError('Unknown initial position, try "gsvd" or "random".')
+            raise TypeError('Unknown initial position, try "spectral" or "random".')
 
         if n_iter is None:
             n_iter = self.n_iter
@@ -96,6 +97,7 @@ class FruchtermanReingold(BaseEmbedding):
         delta_y: float = pos[:, 1].max() - pos[:, 1].min()
         step_max: float = 0.1 * max(delta_x, delta_y)
         step: float = step_max / (n_iter + 1)
+
         delta = np.zeros((n, 2))
         for iteration in range(n_iter):
             delta *= 0
@@ -108,9 +110,9 @@ class FruchtermanReingold(BaseEmbedding):
                 distance = np.where(distance < 0.01, 0.01, distance)
 
                 attraction = np.zeros(n)
-                attraction[indices] *= data * distance[indices] / strength
+                attraction[indices] += data * distance[indices] / strength
 
-                repulsion = (strength * distance)**2
+                repulsion = (strength / distance)**2
 
                 delta[i]: np.ndarray = (grad * (repulsion - attraction)[:, np.newaxis]).sum(axis=0)  # shape (2,)
             length = np.linalg.norm(delta, axis=0)
