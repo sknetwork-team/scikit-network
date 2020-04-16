@@ -21,6 +21,12 @@ Diffusion
 
 .. autoclass:: sknetwork.classification.BiDiffusionClassifier
 
+Propagation
+-----------
+.. autoclass:: sknetwork.classification.Propagation
+
+.. autoclass:: sknetwork.classification.BiPropagation
+
 Nearest neighbors
 -----------------
 .. autoclass:: sknetwork.classification.KNN
