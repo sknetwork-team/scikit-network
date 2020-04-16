@@ -13,7 +13,7 @@ from scipy import sparse
 
 from sknetwork.linalg import diag_pinv
 from sknetwork.utils.format import bipartite2directed
-from sknetwork.utils.check import check_format, check_probs, is_square
+from sknetwork.utils.check import check_format, check_probs, check_square
 from sknetwork.utils.membership import membership_matrix
 
 
@@ -76,8 +76,7 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
     0.11
     """
     adjacency = check_format(adjacency).astype(float)
-    if not is_square(adjacency):
-        raise ValueError('The adjacency is not square.')
+    check_square(adjacency)
 
     if len(labels) != adjacency.shape[0]:
         raise ValueError('Dimension mismatch between labels and adjacency matrix.')

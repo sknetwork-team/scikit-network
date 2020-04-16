@@ -12,7 +12,7 @@ from scipy import sparse
 
 from sknetwork.basics import shortest_path, is_connected
 from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.check import check_format, is_square
+from sknetwork.utils.check import check_format, check_square
 
 
 class Closeness(BaseRanking):
@@ -78,10 +78,8 @@ class Closeness(BaseRanking):
         self: :class:`Closeness`
         """
         adjacency = check_format(adjacency)
+        check_square(adjacency)
         n = adjacency.shape[0]
-        if not is_square(adjacency):
-            raise ValueError("The adjacency is not square. Please use 'bipartite2undirected' or "
-                             "'bipartite2directed'.")
 
         if not is_connected(adjacency):
             raise ValueError("The graph must be connected.")

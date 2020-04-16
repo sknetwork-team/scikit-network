@@ -16,7 +16,7 @@ from sknetwork.clustering.base import BaseClustering, BaseBiClustering
 from sknetwork.clustering.louvain_core import fit_core
 from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.utils.format import bipartite2directed, directed2undirected
-from sknetwork.utils.check import check_format, check_random_state, check_probs, is_square
+from sknetwork.utils.check import check_format, check_random_state, check_probs, check_square
 from sknetwork.utils.membership import membership_matrix
 from sknetwork.utils.verbose import VerboseMixin
 
@@ -187,8 +187,7 @@ class Louvain(BaseClustering, VerboseMixin):
         self: :class:`Louvain`
         """
         adjacency = check_format(adjacency)
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix is not square. Use BiLouvain() instead.')
+        check_square(adjacency)
         n_nodes = adjacency.shape[0]
 
         probs_out = check_probs('degree', adjacency)

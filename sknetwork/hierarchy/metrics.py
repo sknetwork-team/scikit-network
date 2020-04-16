@@ -9,7 +9,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.hierarchy.paris import AggregateGraph
-from sknetwork.utils.check import check_format, check_probs, is_square
+from sknetwork.utils.check import check_format, check_probs, check_square
 from sknetwork.utils.format import directed2undirected
 
 
@@ -74,8 +74,7 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights:
     Proceedings of ACM symposium on Theory of Computing.
     """
     adjacency = check_format(adjacency)
-    if not is_square(adjacency):
-        raise ValueError('The adjacency matrix is not square.')
+    check_square(adjacency)
 
     n = adjacency.shape[0]
     if n <= 1:
@@ -197,8 +196,7 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     Proceedings of IJCAI.
     """
     adjacency = check_format(adjacency)
-    if not is_square(adjacency):
-        raise ValueError('The adjacency matrix is not square.')
+    check_square(adjacency)
 
     n = adjacency.shape[0]
     if n <= 1:

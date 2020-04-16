@@ -12,7 +12,7 @@ import numpy as np
 from scipy import sparse, linalg
 
 from sknetwork.linalg.sparse_lowrank import SparseLR
-from sknetwork.utils.check import check_random_state
+from sknetwork.utils.check import check_random_state, check_square
 
 
 def safe_sparse_dot(a, b):
@@ -319,14 +319,10 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
     Halko, et al., 2009
     http://arxiv.org/abs/arXiv:0909.4061
     """
-
+    check_square(adjacency=matrix)
     random_state = check_random_state(random_state)
     n_random = n_components + n_oversamples
-    n_row, n_col = matrix.shape
     lambda_max = 0.
-
-    if n_row != n_col:
-        raise ValueError('The input matrix is not square.')
 
     if which == 'SM':
         lambda_max: float = 1.1 * randomized_eig(matrix, n_components=1)[0][0]

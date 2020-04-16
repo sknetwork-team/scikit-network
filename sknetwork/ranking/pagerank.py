@@ -16,7 +16,7 @@ from sknetwork.basics import CoNeighbors
 from sknetwork.linalg.normalization import normalize
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.format import bipartite2undirected
-from sknetwork.utils.check import check_format, is_square
+from sknetwork.utils.check import check_format, check_square
 from sknetwork.utils.seeds import seeds2probs, stack_seeds
 from sknetwork.utils.verbose import VerboseMixin
 
@@ -167,8 +167,7 @@ class PageRank(BaseRanking, VerboseMixin):
         """
         if not isinstance(adjacency, LinearOperator):
             adjacency = check_format(adjacency)
-        if not is_square(adjacency):
-            raise ValueError("The adjacency is not square. See BiPageRank.")
+        check_square(adjacency)
 
         rso = RandomSurferOperator(adjacency, self.damping_factor, seeds, False)
         self.scores_ = rso.solve(self.solver, self.n_iter)

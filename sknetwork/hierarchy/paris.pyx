@@ -22,8 +22,8 @@ from scipy import sparse
 
 from sknetwork.hierarchy.base import BaseHierarchy
 from sknetwork.hierarchy.postprocess import reorder_dendrogram, split_dendrogram
-from sknetwork.utils.format import bipartite2undirected
-from sknetwork.utils.check import check_format, check_probs, is_square
+from sknetwork.utils.format import bipartite2undirected, directed2undirected
+from sknetwork.utils.check import check_format, check_probs, check_square
 
 
 cdef class AggregateGraph:
@@ -216,10 +216,9 @@ class Paris(BaseHierarchy):
         self: :class:`Paris`
         """
         adjacency = check_format(adjacency)
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix is not square. Use BiParis() instead.')
+        check_square(adjacency)
         n = adjacency.shape[0]
-        sym_adjacency = adjacency + adjacency.T
+        sym_adjacency = directed2undirected(adjacency)
 
         weights = self.weights
         out_weights = check_probs(weights, adjacency)

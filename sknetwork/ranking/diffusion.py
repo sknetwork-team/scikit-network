@@ -13,7 +13,7 @@ from scipy import sparse
 from scipy.sparse.linalg import bicgstab
 from sknetwork.linalg.normalization import normalize
 from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.check import check_format, check_seeds, is_square
+from sknetwork.utils.check import check_format, check_seeds, check_square
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.seeds import stack_seeds
 from sknetwork.utils.verbose import VerboseMixin
@@ -102,9 +102,8 @@ class Diffusion(BaseRanking, VerboseMixin):
         self: :class:`Diffusion`
         """
         adjacency = check_format(adjacency)
+        check_square(adjacency)
         n: int = adjacency.shape[0]
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix should be square. See BiDiffusion.')
         if seeds is None:
             self.scores_ = np.ones(n) / n
             return self

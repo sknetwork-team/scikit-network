@@ -14,7 +14,7 @@ from scipy import sparse
 from sknetwork.clustering.louvain import Louvain
 from sknetwork.hierarchy.base import BaseHierarchy
 from sknetwork.hierarchy.postprocess import get_dendrogram, reorder_dendrogram, split_dendrogram
-from sknetwork.utils.check import check_format, is_square
+from sknetwork.utils.check import check_format, check_square
 from sknetwork.utils.format import bipartite2undirected
 
 
@@ -126,8 +126,7 @@ class LouvainHierarchy(BaseHierarchy):
         self: :class:`LouvainHierarchy`
         """
         adjacency = check_format(adjacency)
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix is not square.')
+        check_square(adjacency)
 
         tree = self._recursive_louvain(adjacency)
         dendrogram, _ = get_dendrogram(tree)
