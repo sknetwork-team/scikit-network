@@ -3,9 +3,7 @@
 Classification
 **************
 
-.. currentmodule:: sknetwork
-
-This module contains node classification algorithms.
+Node classification algorithms.
 
 The attribute ``labels_``  assigns a label to each node of the graph.
 

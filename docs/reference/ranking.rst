@@ -3,10 +3,9 @@
 Ranking
 *******
 
-.. currentmodule:: sknetwork
+Node ranking algorithms.
 
-This module contains ranking algorithms. The attribute ``scores_`` assigns a
-score of importance to each node of the graph.
+The attribute ``scores_`` assigns a score of importance to each node of the graph.
 
 PageRank
 --------

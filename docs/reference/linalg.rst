@@ -3,9 +3,7 @@
 Linear algebra
 **************
 
-.. currentmodule:: sknetwork
-
-Module for linear Algebra.
+Tools of linear algebra.
 
 Sparse + Low Rank structure
 ---------------------------
