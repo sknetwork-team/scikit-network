@@ -263,11 +263,10 @@ def normalized_std(labels: np.ndarray) -> float:
     >>> labels = np.array([0, 0, 1, 1])
     >>> normalized_std(labels)
     1.0
-
     """
     n = labels.shape[0]
-    _, counts = np.unique(labels, return_counts=True)
-    k = counts.shape[0]
-    if k == 0:
+    unique_clusters, counts = np.unique(labels, return_counts=True)
+    n_clust = len(unique_clusters)
+    if n_clust < 2:
         raise ValueError('There must be at least two different clusters.')
-    return 1 - np.std(counts) / np.sqrt(n ** 2 * (k - 1) / k ** 2)
+    return 1 - np.std(counts) / np.sqrt(n ** 2 * (n_clust - 1) / n_clust ** 2)
