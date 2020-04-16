@@ -5,6 +5,7 @@
 import unittest
 
 from sknetwork.data import cyclic_digraph
+from sknetwork.data.test_graphs import test_graph_disconnect
 from sknetwork.utils.check import *
 
 
@@ -18,6 +19,14 @@ class TestChecks(unittest.TestCase):
     def test_check_format(self):
         with self.assertRaises(TypeError):
             check_format(self.adjacency.tocsc())
+
+    def test_check_square(self):
+        with self.assertRaises(ValueError):
+            check_square(np.ones((3, 7)))
+
+    def test_check_connected(self):
+        with self.assertRaises(ValueError):
+            check_connected(test_graph_disconnect())
 
     def test_non_negative_entries(self):
         self.assertTrue(has_nonnegative_entries(self.adjacency))

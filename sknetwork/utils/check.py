@@ -66,6 +66,27 @@ def check_symmetry(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float =
         raise ValueError('The adjacency is expected to be symmetric.')
 
 
+def is_connected(adjacency: sparse.csr_matrix) -> bool:
+    """
+    Check whether a graph is weakly connected. Bipartite graphs are treated as undirected ones.
+
+    Parameters
+    ----------
+    adjacency:
+        Adjacency matrix of the graph.
+    """
+    n_cc = sparse.csgraph.connected_components(adjacency, (not is_symmetric(adjacency)), 'weak', False)
+    return n_cc == 1
+
+
+def check_connected(adjacency: Union[sparse.csr_matrix, np.ndarray]):
+    """Check is a graph is connected and return an error otherwise."""
+    if is_connected(adjacency):
+        return
+    else:
+        raise ValueError('The adjacency is expected to be connected.')
+
+
 def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
     """Array of weights from a matrix and a desired distribution.
 

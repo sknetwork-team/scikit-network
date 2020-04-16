@@ -13,10 +13,9 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 
-from sknetwork.basics.structure import is_connected
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv, normalize
-from sknetwork.utils.check import check_format, check_square, check_symmetry, check_adjacency_vector
+from sknetwork.utils.check import check_format, check_square, check_symmetry, check_adjacency_vector, is_connected
 from sknetwork.utils.format import bipartite2undirected
 
 
