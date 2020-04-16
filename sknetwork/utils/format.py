@@ -42,9 +42,11 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
     """
     if type(adjacency) == sparse.csr_matrix:
         if weight_sum:
-            return sparse.csr_matrix(adjacency + adjacency.T)
+            new_adjacency = adjacency + adjacency.T
         else:
-            return adjacency.maximum(adjacency.T)
+            new_adjacency = adjacency.maximum(adjacency.T)
+        new_adjacency.tocsr().sort_indices()
+        return new_adjacency
     elif type(adjacency) == SparseLR:
         if weight_sum:
             new_tuples = [(y, x) for (x, y) in adjacency.low_rank_tuples]
@@ -77,7 +79,9 @@ def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union
     """
     n_row, n_col = biadjacency.shape
     if type(biadjacency) == sparse.csr_matrix:
-        return sparse.bmat([[None, biadjacency], [sparse.csr_matrix((n_col, n_row)), None]], format='csr')
+        adjacency = sparse.bmat([[None, biadjacency], [sparse.csr_matrix((n_col, n_row)), None]], format='csr')
+        adjacency.sort_indices()
+        return adjacency
     elif type(biadjacency) == SparseLR:
         new_tuples = [(np.hstack((x, np.zeros(n_col))), np.hstack((np.zeros(n_row), y)))
                       for (x, y) in biadjacency.low_rank_tuples]
@@ -106,7 +110,9 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
         Adjacency matrix (same format as input).
     """
     if type(biadjacency) == sparse.csr_matrix:
-        return sparse.bmat([[None, biadjacency], [biadjacency.T, None]], format='csr')
+        adjacency = sparse.bmat([[None, biadjacency], [biadjacency.T, None]], format='csr')
+        adjacency.sort_indices()
+        return adjacency
     elif type(biadjacency) == SparseLR:
         n_row, n_col = biadjacency.shape
         new_tuples = []
