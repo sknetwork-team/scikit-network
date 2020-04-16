@@ -13,6 +13,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering import BiLouvain
+from sknetwork.embedding import FruchtermanReingold
 from sknetwork.visualization.colors import STANDARD_COLORS, COOLWARM_RGB
 
 
@@ -160,7 +161,7 @@ def svg_text(pos, text, font_size=12, align_right=False):
             .format(x, y, font_size, str(text))
 
 
-def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optional[np.ndarray] = None,
+def svg_graph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = None,  names: Optional[np.ndarray] = None,
               labels: Optional[Union[dict, np.ndarray]] = None, scores: Optional[np.ndarray] = None,
               seeds: Union[list, dict] = None, width: float = 400, height: float = 300,
               margin: float = 20, margin_text: float = 3, scale: float = 1,
@@ -248,6 +249,13 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
     adjacency = sparse.coo_matrix(adjacency)
     n_edges = len(adjacency.row)
 
+    # position
+    if position is None:
+        if n > 500:
+            raise Warning('Calculating the layout of large graphs may be slow.')
+        fr = FruchtermanReingold()
+        position = fr.fit_transform(adjacency)
+
     # colors
     colors = get_colors(n, labels, scores, node_color)
     if edge_color is None:
@@ -310,7 +318,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
         return svg
 
 
-def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optional[np.ndarray] = None,
+def svg_digraph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = None, names: Optional[np.ndarray] = None,
                 labels: Optional[Union[dict, np.ndarray]] = None, scores: Optional[np.ndarray] = None,
                 seeds: Union[list, dict] = None, width: float = 400, height: float = 300,
                 margin: float = 20, margin_text: float = 10, scale: float = 1,
