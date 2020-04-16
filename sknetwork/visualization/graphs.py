@@ -246,12 +246,10 @@ def svg_graph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = Non
     'svg'
     """
     n = adjacency.shape[0]
-    adjacency = sparse.coo_matrix(adjacency)
-    n_edges = len(adjacency.row)
 
     # position
     if position is None:
-        if n > 500:
+        if n > 100:
             raise Warning('Calculating the layout of large graphs may be slow.')
         fr = FruchtermanReingold()
         position = fr.fit_transform(adjacency)
@@ -273,7 +271,8 @@ def svg_graph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = Non
     node_widths = get_node_widths(n, seeds, node_width, node_width_max)
 
     # edge widths
-    edge_widths = get_edge_widths(adjacency.data, edge_width, edge_width_min, edge_width_max, edge_weight)
+    adjacency_ = sparse.coo_matrix(adjacency)
+    edge_widths = get_edge_widths(adjacency_.data, edge_width, edge_width_min, edge_width_max, edge_weight)
 
     # rescaling
     position, width, height = rescale(position, width, height, margin, node_size_max, node_weight)
@@ -293,9 +292,10 @@ def svg_graph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = Non
         svg += """<path d="M0,0 L0,6 L9,3 z" fill="{}"/></marker></defs>""".format(edge_color)
 
     # edges
+    n_edges = len(adjacency_.row)
     for ix in range(n_edges):
-        i = adjacency.row[ix]
-        j = adjacency.col[ix]
+        i = adjacency_.row[ix]
+        j = adjacency_.col[ix]
         if directed:
             svg += svg_edge_directed(pos_1=position[i], pos_2=position[j], stroke_width=edge_widths[ix],
                                      stroke_color=edge_color, node_size=node_sizes[j])
@@ -527,8 +527,6 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
         position_row[index_row, 1] = np.arange(n_row)
         position_col[index_col, 1] = np.arange(n_col) + .5 * (n_row - n_col)
 
-    biadjacency = sparse.coo_matrix(biadjacency)
-
     # colors
     colors_row = get_colors(n_row, labels_row, scores_row, color_row)
     colors_col = get_colors(n_col, labels_col, scores_col, color_col)
@@ -546,7 +544,8 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     node_widths_col = get_node_widths(n_col, seeds_col, node_width, node_width_max)
 
     # edge widths
-    edge_widths = get_edge_widths(biadjacency.data, edge_width, edge_width_min, edge_width_max, edge_weight)
+    biadjacency_ = sparse.coo_matrix(biadjacency)
+    edge_widths = get_edge_widths(biadjacency_.data, edge_width, edge_width_min, edge_width_max, edge_weight)
 
     position = np.vstack((position_row, position_col))
 
@@ -570,8 +569,9 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
 
     svg = """<svg width="{}" height="{}">""".format(width, height)
     # edges
-    for i in range(len(biadjacency.row)):
-        svg += svg_edge(position_row[biadjacency.row[i]], position_col[biadjacency.col[i]], edge_widths[i], edge_color)
+    for i in range(len(biadjacency_.row)):
+        svg += svg_edge(position_row[biadjacency_.row[i]], position_col[biadjacency_.col[i]],
+                        edge_widths[i], edge_color)
     # nodes
     for i in range(n_row):
         svg += svg_node(position_row[i], node_sizes_row[i], colors_row[i], node_widths_row[i])
