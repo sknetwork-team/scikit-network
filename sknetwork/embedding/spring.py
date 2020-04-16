@@ -17,8 +17,29 @@ from sknetwork.utils.format import directed2undirected
 
 
 class FruchtermanReingold(BaseEmbedding):
-    """Basic spring layout for displaying small graphs."""
+    """Spring layout for displaying small graphs.
 
+    Parameters
+    ----------
+    strength: float
+        Intensity of the force that moves the nodes.
+    n_iter: int
+        Number of iterations to update positions.
+    tol: float
+        Minimum relative change in positions to continue updating.
+    pos_init: str
+        How to initialize the layout. If 'spectral', use GSVD in dimension 2, otherwise, use random initialization.
+
+    Attributes
+    ----------
+    embedding_: np.ndarray
+        Layout in 2D.
+
+    Notes
+    -----
+    This is a simple implementation designed to display small graphs in 2D.
+    It will be improved in further release.
+    """
     def __init__(self, strength: float = None, n_iter: int = 50, tol: float = 1e-4, pos_init: str = 'spectral'):
         super(FruchtermanReingold, self).__init__()
         self.strength = strength
@@ -28,7 +49,23 @@ class FruchtermanReingold(BaseEmbedding):
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], pos_init: np.ndarray = None,
             n_iter: int = None) -> 'FruchtermanReingold':
-        """Compute layout"""
+        """Compute layout
+
+        Parameters
+        ----------
+        adjacency:
+            Adjacency matrix of the graph, treated as undirected.
+        pos_init: np.ndarray
+            Custom initial positions of the nodes. Shape must be (n, 2).
+            If None, use the value of self.pos_init.
+        n_iter: int
+            Number of iterations to update positions.
+            If None, use the value of self.n_iter.
+
+        Returns
+        -------
+        self
+        """
         adjacency = check_format(adjacency)
         check_square(adjacency)
         if not is_symmetric(adjacency):

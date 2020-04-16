@@ -26,6 +26,11 @@ GSVD
 
 .. autoclass:: sknetwork.embedding.GSVD
 
+Layouts
+-------
+
+.. autoclass:: sknetwork.embedding.FruchtermanReingold
+
 Metrics
 -------
 .. autofunction:: sknetwork.embedding.cosine_modularity
