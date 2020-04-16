@@ -168,7 +168,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
               node_weight: bool = False, node_weights: Optional[np.ndarray] = None, node_width: float = 1,
               node_width_max: float = 3, node_color: str = 'gray', edge_width: float = 1, edge_width_min: float = 0.5,
               edge_width_max: float = 20, edge_weight: bool = True, edge_color: Optional[str] = None,
-              font_size: int = 12, directed: bool = False) -> str:
+              font_size: int = 12, directed: bool = False, filename: Optional[str] = None) -> str:
     """Return SVG image of a graph.
 
     Parameters
@@ -225,6 +225,8 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
         Font size.
     directed :
         If ``True``, considers the graph as directed.
+    filename :
+        Filename for saving image (optional).
 
     Returns
     -------
@@ -300,7 +302,12 @@ def svg_graph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optiona
         for i in range(n):
             svg += svg_text(position[i] + node_sizes[i] + (margin_text, 0), names[i], font_size)
     svg += """</svg>"""
-    return svg
+
+    if filename is not None:
+        with open(filename + '.svg', 'w') as f:
+            f.write(svg)
+    else:
+        return svg
 
 
 def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optional[np.ndarray] = None,
@@ -311,7 +318,7 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
                 node_weights: Optional[np.ndarray] = None, node_width: float = 1, node_width_max: float = 3,
                 node_color: str = 'gray', edge_width: float = 1, edge_width_min: float = 0.5,
                 edge_width_max: float = 3, edge_weight: bool = True, edge_color: Optional[str] = None,
-                font_size: int = 12) -> str:
+                font_size: int = 12, filename: Optional[str] = None) -> str:
     """Return SVG image of a digraph.
 
     Parameters
@@ -366,6 +373,8 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
         Default color of edges (svg color).
     font_size :
         Font size.
+    filename :
+        Filename for saving image (optional).
 
     Returns
     -------
@@ -389,7 +398,7 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: np.ndarray, names: Optio
                      node_weight=node_weight, node_weights=node_weights, node_width=node_width,
                      node_width_max=node_width_max, node_color=node_color, edge_width=edge_width,
                      edge_width_min=edge_width_min, edge_width_max=edge_width_max, edge_weight=edge_weight,
-                     edge_color=edge_color, font_size=font_size, directed=True)
+                     edge_color=edge_color, font_size=font_size, directed=True, filename=filename)
 
 
 def svg_bigraph(biadjacency: sparse.csr_matrix,
@@ -406,7 +415,7 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
                 node_width: float = 1, node_width_max: float = 3,
                 color_row: str = 'gray', color_col: str = 'gray', edge_width: float = 1, edge_width_min: float = 0.5,
                 edge_width_max: float = 10, edge_color: str = 'black', edge_weight: bool = True,
-                font_size: int = 12) -> str:
+                font_size: int = 12, filename: Optional[str] = None) -> str:
     """Return SVG image of a bigraph.
 
     Parameters
@@ -477,6 +486,8 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
         Default color of edges (svg color).
     font_size :
         Font size.
+    filename :
+        Filename for saving image (optional).
 
     Returns
     -------
@@ -566,4 +577,9 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
         for i in range(n_col):
             svg += svg_text(position_col[i] + (margin_text + node_sizes_col[i], 0), names_col[i], font_size)
     svg += """</svg>"""
-    return svg
+
+    if filename is not None:
+        with open(filename + '.svg', 'w') as f:
+            f.write(svg)
+    else:
+        return svg

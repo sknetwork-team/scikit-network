@@ -3,9 +3,7 @@
 Visualization
 *************
 
-.. currentmodule:: sknetwork
-
-This module contains visualization tools.
+Visualization tools.
 
 Graphs
 ------

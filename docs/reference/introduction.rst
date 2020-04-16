@@ -23,7 +23,7 @@ Data format
 -----------
 
 Each graph is represented by its adjacency matrix, either as a dense ``numpy array`` or a sparse ``scipy CSR matrix``.
-A bipartite graph may be represented by its biadjacency matrix, in the same format.
+A bipartite graph can be represented by its biadjacency matrix, in the same format.
 
 About the documentation
 -----------------------

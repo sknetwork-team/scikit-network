@@ -3,9 +3,7 @@
 Clustering
 **********
 
-.. currentmodule:: sknetwork
-
-This module contains clustering algorithms.
+Clustering algorithms.
 
 The attribute ``labels_``  assigns a label (cluster index) to each node of the graph.
 

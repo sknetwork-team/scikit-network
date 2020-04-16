@@ -3,9 +3,9 @@
 Hierarchy
 *********
 
-.. currentmodule:: sknetwork
+Hierarchical clustering algorithms.
 
-This module contains hierarchical clustering algorithms. The attribute ``dendrogram_`` gives the dendrogram.
+The attribute ``dendrogram_`` gives the dendrogram.
 
 A dendrogram is an array of size :math:`(n-1) \times 4` representing the successive merges of nodes.
 Each row gives the two merged nodes, their distance and the size of the resulting cluster.
