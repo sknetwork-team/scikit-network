@@ -21,7 +21,7 @@ class TestPolynome(unittest.TestCase):
         polynome = Polynome(adjacency, np.arange(3))
         x = np.random.randn(n)
 
-        y1 = 2 * polynome.dot(x)
+        y1 = (2 * polynome).dot(x)
         y2 = (-polynome).dot(x)
         self.assertAlmostEqual(np.linalg.norm(0.5 * y1 + y2), 0)
 
