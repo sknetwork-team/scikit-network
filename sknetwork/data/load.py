@@ -268,19 +268,30 @@ def load_from_numpy_bundle(bundle_name: str, data_home: Optional[str] = None):
         return data
 
 
-def save(bundle_name: str, data: Union[sparse.csr_matrix, Bunch]):
+def save(folder: str, data: Union[sparse.csr_matrix, Bunch]):
     """Save a Bunch or a CSR matrix in the current directory to a collection of Numpy and Pickle files for faster
     subsequent loads.
 
     Parameters
     ----------
-    bundle_name : str
+    folder : str
         The name to be used for the bundle folder
-    data : Bunch
+    data : Union[sparse.csr_matrix, Bunch]
         The data to save
+
+    Example
+    -------
+    >>> from sknetwork.data import save
+    >>> graph = Bunch()
+    >>> graph.adjacency = sparse.csr_matrix(np.random.random((10, 10)) < 0.2)
+    >>> graph.names = np.array(list('abcdefghij'))
+    >>> save('random_data', graph)
+    >>> 'random_data' in listdir('.')
+    True
     """
-    if exists(bundle_name):
-        shutil.rmtree(bundle_name)
+    folder = expanduser(folder)
+    if exists(folder):
+        shutil.rmtree(folder)
     if isinstance(data, sparse.csr_matrix):
         bunch = Bunch()
         if is_square(data):
@@ -288,20 +299,31 @@ def save(bundle_name: str, data: Union[sparse.csr_matrix, Bunch]):
         else:
             bunch.biadjacency = data
         data = bunch
-    save_to_numpy_bundle(data, bundle_name, './')
+    save_to_numpy_bundle(data, folder, './')
 
 
-def load(bundle_name: str):
+def load(folder: str):
     """Load a Bunch from a previously created bundle from the current directory (inverse function of ``save``).
 
     Parameters
     ----------
-    bundle_name: str
+    folder: str
         The name used for the bundle folder
 
     Returns
     -------
     data: Bunch
         The original data
+
+    Example
+    -------
+    >>> from sknetwork.data import save
+    >>> graph = Bunch()
+    >>> graph.adjacency = sparse.csr_matrix(np.random.random((10, 10)) < 0.2)
+    >>> graph.names = np.array(list('abcdefghij'))
+    >>> save('random_data', graph)
+    >>> loaded_graph = load('random_data')
+    >>> loaded_graph.names[0]
+    'a'
     """
-    return load_from_numpy_bundle(bundle_name, './')
+    return load_from_numpy_bundle(folder, './')
