@@ -3,7 +3,7 @@
 Data
 ####
 
-Sources and tools for importing data.
+Tools for importing and exporting data.
 
 Toy graphs
 **********
@@ -17,8 +17,6 @@ Toy graphs
 .. autofunction:: sknetwork.data.miserables
 
 .. autofunction:: sknetwork.data.painters
-
-.. autofunction:: sknetwork.data.hourglass
 
 .. autofunction:: sknetwork.data.star_wars
 
@@ -39,19 +37,26 @@ Models
 
 .. autofunction:: sknetwork.data.block_model
 
-Loading
-*******
+Load
+****
 
-.. autofunction:: sknetwork.data.load_wikilinks
+.. autofunction:: sknetwork.data.load_netset
 
 .. autofunction:: sknetwork.data.load_konect
 
-Parsing
-*******
+Parse
+*****
 
 You can find some datasets on NetRep_.
 
 .. autofunction:: sknetwork.data.parse_tsv
 
 .. _NetRep: http://networkrepository.com/
+
+Save
+****
+
+.. autofunction:: sknetwork.data.save
+
+.. autofunction:: sknetwork.data.load
 

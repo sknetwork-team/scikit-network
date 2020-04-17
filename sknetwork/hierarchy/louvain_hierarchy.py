@@ -13,8 +13,8 @@ from scipy import sparse
 
 from sknetwork.clustering.louvain import Louvain
 from sknetwork.hierarchy.base import BaseHierarchy
-from sknetwork.hierarchy.postprocess import get_dendrogram, split_dendrogram
-from sknetwork.utils.check import check_format, is_square
+from sknetwork.hierarchy.postprocess import get_dendrogram, reorder_dendrogram, split_dendrogram
+from sknetwork.utils.check import check_format, check_square
 from sknetwork.utils.format import bipartite2undirected
 
 
@@ -54,10 +54,10 @@ class LouvainHierarchy(BaseHierarchy):
     >>> louvain = LouvainHierarchy()
     >>> adjacency = house()
     >>> louvain.fit_transform(adjacency)
-    array([[4., 1., 0., 2.],
-           [5., 0., 0., 3.],
-           [3., 2., 0., 2.],
-           [7., 6., 1., 5.]])
+    array([[3., 2., 0., 2.],
+           [4., 1., 0., 2.],
+           [6., 0., 0., 3.],
+           [5., 7., 1., 5.]])
 
     Notes
     -----
@@ -126,15 +126,14 @@ class LouvainHierarchy(BaseHierarchy):
         self: :class:`LouvainHierarchy`
         """
         adjacency = check_format(adjacency)
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix is not square.')
+        check_square(adjacency)
 
         tree = self._recursive_louvain(adjacency)
         dendrogram, _ = get_dendrogram(tree)
         dendrogram = np.array(dendrogram)
         dendrogram[:, 2] -= min(dendrogram[:, 2])
 
-        self.dendrogram_ = dendrogram
+        self.dendrogram_ = reorder_dendrogram(dendrogram)
 
         return self
 

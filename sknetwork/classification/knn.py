@@ -34,8 +34,8 @@ class KNN(BaseClassifier):
     n_neighbors :
         Number of nearest neighbors to consider.
     factor_distance :
-        Power weighting factor :math:``\\alpha`` applied to the distance to each neighbor.
-        Neighbor at distance :math:``d`` has weight :math:``1 / d^\\alpha``. Default is 2.
+        Power weighting factor :math:`\\alpha` applied to the distance to each neighbor.
+        Neighbor at distance :math:``d`` has weight :math:`1 / d^\\alpha`. Default is 2.
     leaf_size :
         Leaf size passed to KDTree.
     p :
@@ -206,8 +206,6 @@ class BiKNN(KNN):
     15
     >>> len(biknn.labels_col_)
     16
-
-
     """
     def __init__(self, embedding_method: BaseEmbedding = GSVD(10), n_neighbors: int = 5,
                  factor_distance: float = 2, leaf_size: int = 16, p: float = 2, tol_nn: float = 0.01, n_jobs: int = 1):

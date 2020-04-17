@@ -40,14 +40,51 @@ def is_proba_array(entry: np.ndarray) -> bool:
 
 
 def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """Check whether the matrix is square."""
+    """True if the matrix is square."""
     return adjacency.shape[0] == adjacency.shape[1]
+
+
+def check_square(adjacency: Union[sparse.csr_matrix, np.ndarray]):
+    """Check is a matrix is square and return an error otherwise."""
+    if is_square(adjacency):
+        return
+    else:
+        raise ValueError('The adjacency is expected to be square.')
 
 
 def is_symmetric(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1e-10) -> bool:
     """Check whether the matrix is symmetric."""
     sym_error = adjacency - adjacency.T
     return np.all(np.abs(sym_error.data) <= tol)
+
+
+def check_symmetry(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1e-10):
+    """Check is a matrix is symmetric and return an error otherwise."""
+    if is_symmetric(adjacency, tol):
+        return
+    else:
+        raise ValueError('The adjacency is expected to be symmetric.')
+
+
+def is_connected(adjacency: sparse.csr_matrix) -> bool:
+    """
+    Check whether a graph is weakly connected. Bipartite graphs are treated as undirected ones.
+
+    Parameters
+    ----------
+    adjacency:
+        Adjacency matrix of the graph.
+    """
+    n_cc = sparse.csgraph.connected_components(adjacency, (not is_symmetric(adjacency)), 'weak', False)
+    return n_cc == 1
+
+
+def check_connected(adjacency: Union[sparse.csr_matrix, np.ndarray]):
+    """Check is a graph is connected and return an error otherwise."""
+    if is_connected(adjacency):
+        return
+    else:
+        raise ValueError('The adjacency is expected to be connected.')
 
 
 def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:

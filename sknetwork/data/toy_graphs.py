@@ -135,7 +135,7 @@ def karate_club(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
          33, 33, 32, 33, 32, 33, 25, 27, 29, 32, 33, 25, 27, 31, 31, 29, 33,
          33, 31, 33, 32, 33, 32, 33, 32, 33, 33])
     adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(34, 34))
-    adjacency = adjacency + adjacency.T
+    adjacency = sparse.csr_matrix(adjacency + adjacency.T)
 
     if metadata:
         labels = np.array(
@@ -326,7 +326,7 @@ def hourglass(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     Returns
     -------
     biadjacency or graph : Union[sparse.csr_matrix, Bunch]
-        Biadjacency matrix or graph with metadata (names).
+        Biadjacency matrix or graph.
 
     Example
     -------
@@ -335,10 +335,7 @@ def hourglass(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     >>> biadjacency.shape
     (2, 2)
     """
-    row = np.array([0, 0, 1, 1])
-    col = np.array([0, 1, 0, 1])
-    biadjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(2, 2))
-
+    biadjacency = sparse.csr_matrix(np.ones((2, 2)))
     if metadata:
         graph = Bunch()
         graph.biadjacency = biadjacency

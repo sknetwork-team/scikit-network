@@ -3,9 +3,7 @@
 Embedding
 *********
 
-.. currentmodule:: sknetwork
-
-This module contains graph embedding algorithms.
+Graph embedding algorithms.
 
 The attribute ``embedding_`` assigns a vector to each node of the graph.
 
@@ -25,6 +23,11 @@ GSVD
 ----
 
 .. autoclass:: sknetwork.embedding.GSVD
+
+Spring
+------
+
+.. autoclass:: sknetwork.embedding.Spring
 
 Metrics
 -------

@@ -3,8 +3,6 @@
 Basics
 ******
 
-.. currentmodule:: sknetwork
-
 This module contains standard algorithms for shortest path computation, structure of the graph and searches (BFS, DFS).
 
 Most algorithms are adapted from SciPy_.
@@ -42,8 +40,6 @@ Searches
 
 Structure
 ---------
-
-.. autofunction:: sknetwork.basics.is_connected
 
 .. autofunction:: sknetwork.basics.connected_components
 

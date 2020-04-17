@@ -100,12 +100,9 @@ class DiffusionClassifier(RankClassifier):
 
     References
     ----------
-    In 2010 International Conference on Advances in Social Networks Analysis and Mining (pp. 192-199). IEEE.
     Zhu, X., Lafferty, J., & Rosenfeld, R. (2005). `Semi-supervised learning with graphs
     <http://pages.cs.wisc.edu/~jerryzhu/machineteaching/pub/thesis.pdf>`_
     (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
-
-
     """
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = Diffusion(n_iter, verbose)

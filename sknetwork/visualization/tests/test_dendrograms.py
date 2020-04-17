@@ -8,7 +8,7 @@ import numpy as np
 
 from sknetwork.data.toy_graphs import karate_club, painters
 from sknetwork.hierarchy import Paris
-from sknetwork.visualization.dendrograms import svg_dendrogram
+from sknetwork.visualization.dendrograms import svg_dendrogram, svg_dendrogram_top
 
 
 # noinspection DuplicatedCode
@@ -24,6 +24,11 @@ class TestVisualization(unittest.TestCase):
         image = svg_dendrogram(dendrogram, names=np.arange(n), width=200, height=200, margin=10, margin_text=5, scale=3,
                                n_clusters=3, color='green', font_size=14, reorder=True, rotate=True)
         self.assertEqual(image[1:4], 'svg')
+        image = svg_dendrogram(dendrogram, names=np.arange(n), width=200, height=200, margin=10, margin_text=5, scale=3,
+                               n_clusters=3, color='green', font_size=14, reorder=False, rotate=True)
+        self.assertEqual(image[1:4], 'svg')
+        svg_dendrogram_top(dendrogram, names=np.arange(n), width=200, height=200, margin=10, margin_text=5, scale=3,
+                           n_clusters=3, color='green', font_size=14, reorder=False, rotate_names=True, line_width=0.1)
 
     def test_directed(self):
         graph = painters(True)
@@ -36,4 +41,3 @@ class TestVisualization(unittest.TestCase):
         image = svg_dendrogram(dendrogram, names=names, width=200, height=200, margin=10, margin_text=5, scale=3,
                                n_clusters=3, color='green', font_size=14, reorder=True, rotate=True)
         self.assertEqual(image[1:4], 'svg')
-

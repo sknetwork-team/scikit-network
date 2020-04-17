@@ -40,10 +40,10 @@ class Ward(BaseHierarchy):
     References
     ----------
     * Ward, J. H., Jr. (1963). Hierarchical grouping to optimize an objective function.
-      Journal of the American Statistical Association, 58, 236–244.
+      Journal of the American Statistical Association.
 
     * Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
-      Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2(1), 86-97.
+      Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery.
     """
     def __init__(self, embedding_method: BaseEmbedding = GSVD(10)):
         super(Ward, self).__init__()

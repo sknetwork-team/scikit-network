@@ -27,6 +27,9 @@ class TestCuts(unittest.TestCase):
         self.assertEqual(len(set(labels)), 5)
         labels = cut_balanced(self.dendrogram)
         self.assertEqual(len(set(labels)), 21)
+        labels, new_dendrogram = cut_balanced(self.dendrogram, return_dendrogram=True)
+        self.assertEqual(len(set(labels)), 21)
+        self.assertTupleEqual(new_dendrogram.shape, (20, 4))
 
     def test_options(self):
         labels = cut_straight(self.dendrogram, sort_clusters=False)

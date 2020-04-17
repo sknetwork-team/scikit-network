@@ -13,10 +13,9 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 
-from sknetwork.basics.structure import is_connected
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv, normalize
-from sknetwork.utils.check import check_format, is_square, is_symmetric, check_adjacency_vector
+from sknetwork.utils.check import check_format, check_square, check_symmetry, check_adjacency_vector, is_connected
 from sknetwork.utils.format import bipartite2undirected
 
 
@@ -205,14 +204,8 @@ class Spectral(BaseEmbedding):
         self: :class:`Spectral`
         """
         adjacency = check_format(adjacency).asfptype()
-
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix is not square. See BiSpectral for biadjacency matrices.')
-
-        if not is_symmetric(adjacency):
-            raise ValueError('The adjacency matrix is not symmetric.'
-                             'Either convert it to a symmetric matrix or use BiSpectral.')
-
+        check_square(adjacency)
+        check_symmetry(adjacency)
         n = adjacency.shape[0]
 
         if self.solver == 'auto':

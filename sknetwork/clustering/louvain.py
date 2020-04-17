@@ -12,12 +12,11 @@ from typing import Union, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering.base import BaseClustering
+from sknetwork.clustering.base import BaseClustering, BaseBiClustering
 from sknetwork.clustering.louvain_core import fit_core
 from sknetwork.clustering.postprocess import reindex_labels
-from sknetwork.linalg import normalize
 from sknetwork.utils.format import bipartite2directed, directed2undirected
-from sknetwork.utils.check import check_format, check_random_state, check_probs, is_square
+from sknetwork.utils.check import check_format, check_random_state, check_probs, check_square
 from sknetwork.utils.membership import membership_matrix
 from sknetwork.utils.verbose import VerboseMixin
 
@@ -82,15 +81,13 @@ class Louvain(BaseClustering, VerboseMixin):
       `Directed Louvain: maximizing modularity in directed networks
       <https://hal.archives-ouvertes.fr/hal-01231784/document>`_
       (Doctoral dissertation, Université d'Orléans).
-
     """
-
-    def __init__(self, resolution: float = 1,
-                 tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
-                 shuffle_nodes: bool = False, sort_clusters: bool = True, return_membership: bool = True,
-                 return_adjacency: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
-                 verbose: bool = False):
-        super(Louvain, self).__init__()
+    def __init__(self, resolution: float = 1, tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3,
+                 n_aggregations: int = -1, shuffle_nodes: bool = False, sort_clusters: bool = True,
+                 return_membership: bool = True, return_adjacency: bool = True,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
+        super(Louvain, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
+                                      return_adjacency=return_adjacency)
         VerboseMixin.__init__(self, verbose)
 
         self.random_state = check_random_state(random_state)
@@ -99,11 +96,6 @@ class Louvain(BaseClustering, VerboseMixin):
         self.tol = tol_optimization
         self.n_aggregations = n_aggregations
         self.shuffle_nodes = shuffle_nodes
-        self.sort_clusters = sort_clusters
-        self.return_membership = return_membership
-        self.return_adjacency = return_adjacency
-
-        self.adjacency_ = None
 
     def _optimize(self, n_nodes, adjacency_norm, probs_out, probs_in):
         """One local optimization pass of the Louvain algorithm
@@ -195,8 +187,7 @@ class Louvain(BaseClustering, VerboseMixin):
         self: :class:`Louvain`
         """
         adjacency = check_format(adjacency)
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix is not square. Use BiLouvain() instead.')
+        check_square(adjacency)
         n_nodes = adjacency.shape[0]
 
         probs_out = check_probs('degree', adjacency)
@@ -244,18 +235,12 @@ class Louvain(BaseClustering, VerboseMixin):
             labels = labels[reverse]
 
         self.labels_ = labels
-
-        if self.return_membership or self.return_adjacency:
-            membership = membership_matrix(labels)
-            if self.return_membership:
-                self.membership_ = normalize(adjacency.dot(membership))
-            if self.return_adjacency:
-                self.adjacency_ = sparse.csr_matrix(membership.T.dot(adjacency.dot(membership)))
+        self._secondary_outputs(adjacency)
 
         return self
 
 
-class BiLouvain(Louvain):
+class BiLouvain(BaseBiClustering, Louvain):
     """BiLouvain algorithm for the clustering of bipartite graphs.
 
     * Bigraphs
@@ -322,16 +307,11 @@ class BiLouvain(Louvain):
                  shuffle_nodes: bool = False, sort_clusters: bool = True, return_membership: bool = True,
                  return_biadjacency: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
                  verbose: bool = False):
-        Louvain.__init__(self, resolution, tol_optimization, tol_aggregation, n_aggregations,
-                         shuffle_nodes, sort_clusters, return_membership, return_biadjacency, random_state, verbose)
-
-        self.return_biadjacency = return_biadjacency
-
-        self.labels_row_ = None
-        self.labels_col_ = None
-        self.membership_row_ = None
-        self.membership_col_ = None
-        self.biadjacency_ = None
+        BaseBiClustering.__init__(self, sort_clusters=sort_clusters, return_membership=return_membership,
+                                  return_biadjacency=return_biadjacency)
+        Louvain.__init__(self, resolution=resolution, tol_optimization=tol_optimization, verbose=verbose,
+                         tol_aggregation=tol_aggregation, n_aggregations=n_aggregations, shuffle_nodes=shuffle_nodes,
+                         sort_clusters=sort_clusters, return_membership=return_membership, random_state=random_state)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiLouvain':
         """Apply the Louvain algorithm to the corresponding directed graph, with adjacency matrix:
@@ -349,32 +329,18 @@ class BiLouvain(Louvain):
         -------
         self: :class:`BiLouvain`
         """
-        louvain = Louvain(tol_aggregation=self.tol_aggregation,
-                          n_aggregations=self.n_aggregations,
-                          shuffle_nodes=self.shuffle_nodes, sort_clusters=self.sort_clusters,
-                          return_membership=self.return_membership, return_adjacency=False,
-                          random_state=self.random_state, verbose=self.log.verbose)
+        louvain = Louvain(resolution=self.resolution, tol_aggregation=self.tol_aggregation,
+                          n_aggregations=self.n_aggregations, shuffle_nodes=self.shuffle_nodes,
+                          sort_clusters=self.sort_clusters, return_membership=self.return_membership,
+                          return_adjacency=False, random_state=self.random_state, verbose=self.log.verbose)
         biadjacency = check_format(biadjacency)
         n_row, _ = biadjacency.shape
 
         adjacency = bipartite2directed(biadjacency)
         louvain.fit(adjacency)
 
-        self.labels_ = louvain.labels_[:n_row]
-        self.labels_row_ = louvain.labels_[:n_row]
-        self.labels_col_ = louvain.labels_[n_row:]
-
-        if self.return_membership:
-            membership_row = membership_matrix(self.labels_row_)
-            membership_col = membership_matrix(self.labels_col_)
-            self.membership_row_ = normalize(biadjacency.dot(membership_col))
-            self.membership_col_ = normalize(biadjacency.T.dot(membership_row))
-
-        if self.return_biadjacency:
-            membership_row = membership_matrix(self.labels_row_)
-            membership_col = membership_matrix(self.labels_col_)
-            biadjacency_ = sparse.csr_matrix(membership_row.T.dot(biadjacency))
-            biadjacency_ = biadjacency_.dot(membership_col)
-            self.biadjacency_ = biadjacency_
+        self.labels_ = louvain.labels_
+        self._split_labels(n_row)
+        self._secondary_outputs(biadjacency)
 
         return self

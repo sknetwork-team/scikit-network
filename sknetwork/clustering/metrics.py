@@ -13,7 +13,7 @@ from scipy import sparse
 
 from sknetwork.linalg import diag_pinv
 from sknetwork.utils.format import bipartite2directed
-from sknetwork.utils.check import check_format, check_probs, is_square
+from sknetwork.utils.check import check_format, check_probs, check_square
 from sknetwork.utils.membership import membership_matrix
 
 
@@ -76,8 +76,7 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
     0.11
     """
     adjacency = check_format(adjacency).astype(float)
-    if not is_square(adjacency):
-        raise ValueError('The adjacency is not square.')
+    check_square(adjacency)
 
     if len(labels) != adjacency.shape[0]:
         raise ValueError('Dimension mismatch between labels and adjacency matrix.')
@@ -264,11 +263,10 @@ def normalized_std(labels: np.ndarray) -> float:
     >>> labels = np.array([0, 0, 1, 1])
     >>> normalized_std(labels)
     1.0
-
     """
     n = labels.shape[0]
-    _, counts = np.unique(labels, return_counts=True)
-    k = counts.shape[0]
-    if k == 0:
+    unique_clusters, counts = np.unique(labels, return_counts=True)
+    n_clust = len(unique_clusters)
+    if n_clust < 2:
         raise ValueError('There must be at least two different clusters.')
-    return 1 - np.std(counts) / np.sqrt(n ** 2 * (k - 1) / k ** 2)
+    return 1 - np.std(counts) / np.sqrt(n ** 2 * (n_clust - 1) / n_clust ** 2)

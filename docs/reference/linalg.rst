@@ -3,12 +3,10 @@
 Linear algebra
 **************
 
-.. currentmodule:: sknetwork
+Tools of linear algebra.
 
-Module for linear Algebra.
-
-Sparse + Low Rank structure
----------------------------
+Sparse + Low Rank
+-----------------
 
 .. autoclass:: sknetwork.linalg.SparseLR
 
