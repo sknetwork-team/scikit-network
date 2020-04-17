@@ -3,7 +3,7 @@
 Data
 ####
 
-Sources and tools for importing data.
+Tools for importing and exporting data.
 
 Toy graphs
 **********
@@ -52,4 +52,11 @@ You can find some datasets on NetRep_.
 .. autofunction:: sknetwork.data.parse_tsv
 
 .. _NetRep: http://networkrepository.com/
+
+Save
+****
+
+.. autofunction:: sknetwork.data.save
+
+.. autofunction:: sknetwork.data.load
 
