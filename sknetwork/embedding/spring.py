@@ -40,6 +40,16 @@ class Spring(BaseEmbedding):
     embedding_ : np.ndarray
         Layout in 2D.
 
+    Example
+    -------
+    >>> from sknetwork.embedding import Spring
+    >>> from sknetwork.data import karate_club
+    >>> spring = Spring()
+    >>> adjacency = karate_club()
+    >>> embedding = spring.fit_transform(adjacency)
+    >>> embedding.shape
+    (34, 2)
+
     Notes
     -----
     Simple implementation designed to display small graphs in 2D.
