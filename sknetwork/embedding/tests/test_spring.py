@@ -21,8 +21,17 @@ class TestEmbeddings(unittest.TestCase):
         adjacency = test_graph()
         n = adjacency.shape[0]
 
-        spring = Spring(position_init='random')
+        spring = Spring(strength=0.1, position_init='spectral', tol=1e3)
         layout = spring.fit_transform(adjacency)
         self.assertEqual((n, 2), layout.shape)
         layout = spring.fit_transform(adjacency, position_init=layout)
         self.assertEqual((n, 2), layout.shape)
+
+    def test_errors(self):
+        adjacency = test_graph()
+        with self.assertRaises(ValueError):
+            Spring(position_init='toto')
+            Spring().fit(adjacency, position_init=np.ones(2, 2))
+        with self.assertRaises(TypeError):
+            # noinspection PyTypeChecker
+            Spring().fit(adjacency, position_init='toto')

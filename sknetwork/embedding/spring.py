@@ -66,7 +66,7 @@ class Spring(BaseEmbedding):
         self.n_iter = n_iter
         self.tol = tol
         if position_init not in ['random', 'spectral']:
-            raise TypeError('Unknown initial position, try "spectral" or "random".')
+            raise ValueError('Unknown initial position, try "spectral" or "random".')
         else:
             self.position_init = position_init
 
