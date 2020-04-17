@@ -6,7 +6,7 @@ Created on Apr 2020
 """
 
 import numpy as np
-from scipy import sparse, linalg
+from scipy import sparse
 
 from sknetwork.linalg.sparse_lowrank import SparseLR
 

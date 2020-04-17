@@ -5,6 +5,11 @@ Linear algebra
 
 Tools of linear algebra.
 
+Polynomes
+---------
+
+.. autoclass:: sknetwork.linalg.Polynome
+
 Sparse + Low Rank
 -----------------
 
