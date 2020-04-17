@@ -124,3 +124,7 @@ venv-3.8/
 
 #html in src
 sknetwork/*/*.html
+
+docs/tutorials/data/mygraph/
+
+*.npz
