@@ -5,8 +5,8 @@ Linear algebra
 
 Tools of linear algebra.
 
-Sparse + Low Rank structure
----------------------------
+Sparse + Low Rank
+-----------------
 
 .. autoclass:: sknetwork.linalg.SparseLR
 
