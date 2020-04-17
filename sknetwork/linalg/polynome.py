@@ -55,12 +55,10 @@ class Polynome(LinearOperator):
         self.coeffs = coeffs
 
     def __neg__(self):
-        self.coeffs *= -1
-        return self
+        return Polynome(self.adjacency, -self.coeffs)
 
     def __mul__(self, other):
-        self.coeffs *= other
-        return self
+        return Polynome(self.adjacency, other * self.coeffs)
 
     def _matvec(self, matrix: np.ndarray):
         """Right dot product with a dense matrix.
