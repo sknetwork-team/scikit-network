@@ -6,5 +6,6 @@ Data
 
     toy_graphs
     models
-    loading
-    parsing
+    load
+    parse
+    save

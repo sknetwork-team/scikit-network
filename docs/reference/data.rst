@@ -37,15 +37,15 @@ Models
 
 .. autofunction:: sknetwork.data.block_model
 
-Loading
-*******
+Load
+****
 
 .. autofunction:: sknetwork.data.load_netset
 
 .. autofunction:: sknetwork.data.load_konect
 
-Parsing
-*******
+Parse
+*****
 
 You can find some datasets on NetRep_.
 
