@@ -206,8 +206,6 @@ class BiKNN(KNN):
     15
     >>> len(biknn.labels_col_)
     16
-
-
     """
     def __init__(self, embedding_method: BaseEmbedding = GSVD(10), n_neighbors: int = 5,
                  factor_distance: float = 2, leaf_size: int = 16, p: float = 2, tol_nn: float = 0.01, n_jobs: int = 1):

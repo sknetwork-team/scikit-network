@@ -55,10 +55,9 @@ class PageRankClassifier(RankClassifier):
 
     References
     ----------
-    Lin, F., & Cohen, W. W. (2010, August). `Semi-supervised classification of network data using very few labels.
+    Lin, F., & Cohen, W. W. (2010). `Semi-supervised classification of network data using very few labels.
     <https://lti.cs.cmu.edu/sites/default/files/research/reports/2009/cmulti09017.pdf>`_
-    In 2010 International Conference on Advances in Social Networks Analysis and Mining (pp. 192-199). IEEE.
-
+    In IEEE International Conference on Advances in Social Networks Analysis and Mining.
     """
 
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10,

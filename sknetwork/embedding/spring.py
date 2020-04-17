@@ -46,9 +46,9 @@ class Spring(BaseEmbedding):
 
     References
     ----------
-    Fruchterman, Thomas M. J.; Reingold, Edward M. (1991),
-    "Graph Drawing by Force-Directed Placement",
-    Software – Practice & Experience,
+    Fruchterman, T. M. J.,  Reingold, E. M. (1991).
+    "Graph Drawing by Force-Directed Placement".
+    Software – Practice & Experience.
     """
     def __init__(self, strength: float = None, n_iter: int = 50, tol: float = 1e-4, position_init: str = 'random'):
         super(Spring, self).__init__()
