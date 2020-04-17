@@ -77,7 +77,7 @@ class Spring(BaseEmbedding):
 
         Returns
         -------
-        self
+        self: :class:`Spring`
         """
         adjacency = check_format(adjacency)
         check_square(adjacency)
@@ -85,6 +85,7 @@ class Spring(BaseEmbedding):
             adjacency = directed2undirected(adjacency)
         n = adjacency.shape[0]
 
+        position = np.zeros((n, 2))
         if position_init is None:
             if self.position_init == 'random':
                 position = np.random.randn(n, 2)
