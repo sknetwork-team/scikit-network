@@ -10,7 +10,7 @@ import tarfile
 import shutil
 from os import environ, makedirs, remove, listdir, rmdir
 from os.path import exists, expanduser, join
-from typing import Optional
+from typing import Optional, Union
 from urllib.error import HTTPError
 from urllib.request import urlretrieve
 
@@ -19,6 +19,7 @@ from scipy import sparse
 
 from sknetwork.data.parse import parse_tsv, parse_labels, parse_header, parse_metadata
 from sknetwork.utils import Bunch
+from sknetwork.utils.check import is_square
 
 
 def get_data_home(data_home: Optional[str] = None):
@@ -211,7 +212,7 @@ def load_konect(dataset: str, data_home: Optional[str] = None, auto_numpy_bundle
 
 
 def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[str] = None):
-    """Save a Bunch to a collection of Numpy and Pickle files for faster subsequent loads.
+    """Save a Bunch in the specified data home to a collection of Numpy and Pickle files for faster subsequent loads.
 
     Parameters
     ----------
@@ -265,3 +266,42 @@ def load_from_numpy_bundle(bundle_name: str, data_home: Optional[str] = None):
             elif file_extension == 'p':
                 data[file_name] = pickle.load(open(data_path + '/' + file, 'rb'))
         return data
+
+
+def save(bundle_name: str, data: Union[sparse.csr_matrix, Bunch]):
+    """Save a Bunch or a CSR matrix in the current directory to a collection of Numpy and Pickle files for faster
+    subsequent loads.
+
+    Parameters
+    ----------
+    bundle_name: str
+        The name to be used for the bundle folder
+    data: Bunch
+        The data to save
+    """
+    if exists(bundle_name):
+        shutil.rmtree(bundle_name)
+    if isinstance(data, sparse.csr_matrix):
+        bunch = Bunch()
+        if is_square(data):
+            bunch.adjacency = data
+        else:
+            bunch.biadjacency = data
+        data = bunch
+    save_to_numpy_bundle(data, bundle_name, './')
+
+
+def load(bundle_name: str):
+    """Load a Bunch from a previously created bundle from the current directory (inverse function of ``save``).
+
+    Parameters
+    ----------
+    bundle_name: str
+        The name used for the bundle folder
+
+    Returns
+    -------
+    data: Bunch
+        The original data
+    """
+    return load_from_numpy_bundle(bundle_name, './')
