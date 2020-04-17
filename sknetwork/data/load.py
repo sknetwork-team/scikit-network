@@ -274,9 +274,9 @@ def save(bundle_name: str, data: Union[sparse.csr_matrix, Bunch]):
 
     Parameters
     ----------
-    bundle_name: str
+    bundle_name : str
         The name to be used for the bundle folder
-    data: Bunch
+    data : Bunch
         The data to save
     """
     if exists(bundle_name):
