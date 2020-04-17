@@ -51,7 +51,7 @@ class TestVisualization(unittest.TestCase):
         names_col = graph.names_col
         image = svg_bigraph(biadjacency, names_row, names_col)
         self.assertEqual(image[1:4], 'svg')
-        image = svg_bigraph(biadjacency, cluster=False)
+        image = svg_bigraph(biadjacency, reorder=False)
         self.assertEqual(image[1:4], 'svg')
         n_row, n_col = biadjacency.shape
         position_row = np.random.random((n_row, 2))

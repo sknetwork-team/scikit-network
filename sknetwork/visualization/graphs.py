@@ -414,7 +414,7 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
                 scores_row: Optional[np.ndarray] = None, scores_col: Optional[np.ndarray] = None,
                 seeds_row: Union[list, dict] = None, seeds_col: Union[list, dict] = None,
                 position_row: Optional[np.ndarray] = None, position_col: Optional[np.ndarray] = None,
-                cluster: bool = True, width: float = 400,
+                reorder: bool = True, width: float = 400,
                 height: float = 300, margin: float = 20, margin_text: float = 3, scale: float = 1,
                 node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20, node_weight: bool = False,
                 node_weights_row: Optional[np.ndarray] = None, node_weights_col: Optional[np.ndarray] = None,
@@ -448,7 +448,7 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
         Positions of the rows.
     position_col :
         Positions of the columns.
-    cluster :
+    reorder :
         Use clustering to order nodes.
     width :
         Width of the image.
@@ -514,7 +514,7 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     if position_row is None or position_col is None:
         position_row = np.zeros((n_row, 2))
         position_col = np.ones((n_col, 2))
-        if cluster:
+        if reorder:
             bilouvain = BiLouvain()
             bilouvain.fit(biadjacency)
             index_row = np.argsort(bilouvain.labels_row_)
