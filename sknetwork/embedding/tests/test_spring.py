@@ -4,7 +4,7 @@
 
 import unittest
 
-from sknetwork.embedding import FruchtermanReingold
+from sknetwork.embedding import Spring
 from sknetwork.data.test_graphs import *
 
 
@@ -13,7 +13,7 @@ class TestEmbeddings(unittest.TestCase):
     def test_shape(self):
         for adjacency in [test_graph(), test_digraph()]:
             n = adjacency.shape[0]
-            spring = FruchtermanReingold()
+            spring = Spring()
             layout = spring.fit_transform(adjacency)
             self.assertEqual((n, 2), layout.shape)
 
@@ -21,7 +21,8 @@ class TestEmbeddings(unittest.TestCase):
         adjacency = test_graph()
         n = adjacency.shape[0]
 
-        spring = FruchtermanReingold(pos_init='anystring')
+        spring = Spring(position_init='random')
         layout = spring.fit_transform(adjacency)
-        layout = spring.fit_transform(adjacency, pos_init=layout)
+        self.assertEqual((n, 2), layout.shape)
+        layout = spring.fit_transform(adjacency, position_init=layout)
         self.assertEqual((n, 2), layout.shape)

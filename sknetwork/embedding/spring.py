@@ -5,62 +5,75 @@ Created on Apr 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding.spectral import Spectral
 from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.utils.check import check_format, check_square, is_symmetric
+from sknetwork.utils.check import check_adjacency_vector, check_format, check_square, is_symmetric
 from sknetwork.utils.format import directed2undirected
+from sknetwork.linalg import normalize
 
 
-class FruchtermanReingold(BaseEmbedding):
+class Spring(BaseEmbedding):
     """Spring layout for displaying small graphs.
+
+    * Graphs
+    * Digraphs
 
     Parameters
     ----------
-    strength: float
+    strength : float
         Intensity of the force that moves the nodes.
-    n_iter: int
+    n_iter : int
         Number of iterations to update positions.
-    tol: float
+    tol : float
         Minimum relative change in positions to continue updating.
-    pos_init: str
+    position_init : str
         How to initialize the layout. If 'spectral', use Spectral embedding in dimension 2,
         otherwise, use random initialization.
 
     Attributes
     ----------
-    embedding_: np.ndarray
+    embedding_ : np.ndarray
         Layout in 2D.
 
     Notes
     -----
     Simple implementation designed to display small graphs in 2D.
+
+    References
+    ----------
+    Fruchterman, Thomas M. J.; Reingold, Edward M. (1991),
+    "Graph Drawing by Force-Directed Placement",
+    Software – Practice & Experience,
     """
-    def __init__(self, strength: float = None, n_iter: int = 50, tol: float = 1e-4, pos_init: str = 'spectral'):
-        super(FruchtermanReingold, self).__init__()
+    def __init__(self, strength: float = None, n_iter: int = 50, tol: float = 1e-4, position_init: str = 'random'):
+        super(Spring, self).__init__()
         self.strength = strength
         self.n_iter = n_iter
         self.tol = tol
-        self.pos_init = pos_init
+        if position_init not in ['random', 'spectral']:
+            raise TypeError('Unknown initial position, try "spectral" or "random".')
+        else:
+            self.position_init = position_init
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], pos_init: np.ndarray = None,
-            n_iter: int = None) -> 'FruchtermanReingold':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], position_init: Optional[np.ndarray] = None,
+            n_iter: Optional[int] = None) -> 'Spring':
         """Compute layout.
 
         Parameters
         ----------
         adjacency :
             Adjacency matrix of the graph, treated as undirected.
-        pos_init : np.ndarray
+        position_init : np.ndarray
             Custom initial positions of the nodes. Shape must be (n, 2).
-            If None, use the value of self.pos_init.
+            If ``None``, use the value of self.pos_init.
         n_iter : int
             Number of iterations to update positions.
-            If None, use the value of self.n_iter.
+            If ``None``, use the value of self.n_iter.
 
         Returns
         -------
@@ -72,18 +85,18 @@ class FruchtermanReingold(BaseEmbedding):
             adjacency = directed2undirected(adjacency)
         n = adjacency.shape[0]
 
-        if pos_init is None:
-            if self.pos_init == 'spectral':
-                pos = Spectral(n_components=2).fit_transform(adjacency)
-            else:
-                pos = np.random.randn(n, 2)
-        elif isinstance(pos_init, np.ndarray):
-            if pos_init.shape == (n, 2):
-                pos = pos_init.copy()
+        if position_init is None:
+            if self.position_init == 'random':
+                position = np.random.randn(n, 2)
+            elif self.position_init == 'spectral':
+                position = Spectral(n_components=2, normalized=False).fit_transform(adjacency)
+        elif isinstance(position_init, np.ndarray):
+            if position_init.shape == (n, 2):
+                position = position_init.copy()
             else:
                 raise ValueError('Initial position has invalid shape.')
         else:
-            raise TypeError('Unknown initial position, try "spectral" or "random".')
+            raise TypeError('Initial position must be a numpy array.')
 
         if n_iter is None:
             n_iter = self.n_iter
@@ -93,8 +106,8 @@ class FruchtermanReingold(BaseEmbedding):
         else:
             strength = self.strength
 
-        delta_x: float = pos[:, 0].max() - pos[:, 0].min()
-        delta_y: float = pos[:, 1].max() - pos[:, 1].min()
+        delta_x: float = position[:, 0].max() - position[:, 0].min()
+        delta_y: float = position[:, 1].max() - position[:, 1].min()
         step_max: float = 0.1 * max(delta_x, delta_y)
         step: float = step_max / (n_iter + 1)
 
@@ -105,7 +118,7 @@ class FruchtermanReingold(BaseEmbedding):
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i+1]]
                 data = adjacency.data[adjacency.indptr[i]:adjacency.indptr[i+1]]
 
-                grad: np.ndarray = (pos[i] - pos)  # shape (n, 2)
+                grad: np.ndarray = (position[i] - position)  # shape (n, 2)
                 distance: np.ndarray = np.linalg.norm(grad, axis=1)  # shape (n,)
                 distance = np.where(distance < 0.01, 0.01, distance)
 
@@ -118,11 +131,39 @@ class FruchtermanReingold(BaseEmbedding):
             length = np.linalg.norm(delta, axis=0)
             length = np.where(length < 0.01, 0.1, length)
             delta = delta * step_max / length
-            pos += delta
+            position += delta
             step_max -= step
             err: float = np.linalg.norm(delta) / n
             if err < self.tol:
                 break
 
-        self.embedding_ = pos
+        self.embedding_ = position
         return self
+
+    def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
+        """Predict the embedding of new rows, defined by their adjacency vectors.
+
+        Parameters
+        ----------
+        adjacency_vectors :
+            Adjacency vectors of nodes.
+            Array of shape (n_col,) (single vector) or (n_vectors, n_col)
+
+        Returns
+        -------
+        embedding_vectors : np.ndarray
+            Embedding of the nodes.
+        """
+        embedding = self.embedding_
+        n = embedding.shape[0]
+        if embedding is None:
+            raise ValueError("This instance of Spring embedding is not fitted yet."
+                             " Call 'fit' with appropriate arguments before using this method.")
+
+        adjacency_vectors = check_adjacency_vector(adjacency_vectors, n)
+        embedding_vectors = normalize(adjacency_vectors).dot(embedding)
+
+        if embedding_vectors.shape[0] == 1:
+            embedding_vectors = embedding_vectors.ravel()
+
+        return embedding_vectors

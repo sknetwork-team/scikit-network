@@ -4,7 +4,7 @@
 
 import unittest
 
-from sknetwork.embedding import Spectral, BiSpectral, SVD, GSVD, FruchtermanReingold
+from sknetwork.embedding import Spectral, BiSpectral, SVD, GSVD, Spring
 from sknetwork.data.test_graphs import *
 
 
@@ -42,9 +42,18 @@ class TestEmbeddings(unittest.TestCase):
             self.assertAlmostEqual(np.linalg.norm(pred1 - pred2), 0)
             self.assertAlmostEqual(np.linalg.norm(pred1 - embedding), 0)
 
-        method = FruchtermanReingold()
+        method = Spring()
         embedding = method.fit_transform(adjacency)
         self.assertEqual(embedding.shape, (n, 2))
+        pred1 = method.predict(adjacency[0])
+        pred2 = method.predict(adjacency[0].toarray())
+        self.assertEqual(pred1.shape, (2,))
+        self.assertAlmostEqual(np.linalg.norm(pred1 - pred2), 0)
+
+        pred1 = method.predict(adjacency)
+        pred2 = method.predict(adjacency.toarray())
+        self.assertTupleEqual(pred1.shape, (n, 2))
+        self.assertAlmostEqual(np.linalg.norm(pred1 - pred2), 0)
 
     def test_bimethods(self):
 

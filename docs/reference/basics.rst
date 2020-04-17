@@ -41,8 +41,6 @@ Searches
 Structure
 ---------
 
-.. autofunction:: sknetwork.basics.is_connected
-
 .. autofunction:: sknetwork.basics.connected_components
 
 .. autofunction:: sknetwork.basics.largest_connected_component

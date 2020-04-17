@@ -24,10 +24,10 @@ GSVD
 
 .. autoclass:: sknetwork.embedding.GSVD
 
-Layouts
--------
+Spring
+------
 
-.. autoclass:: sknetwork.embedding.FruchtermanReingold
+.. autoclass:: sknetwork.embedding.Spring
 
 Metrics
 -------

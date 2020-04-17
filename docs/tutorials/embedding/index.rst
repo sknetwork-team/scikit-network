@@ -7,5 +7,7 @@ Embedding
    spectral
    svd
    gsvd
+   spring
+
 
 

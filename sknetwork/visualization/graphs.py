@@ -13,7 +13,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering import BiLouvain
-from sknetwork.embedding import FruchtermanReingold
+from sknetwork.embedding import Spring
 from sknetwork.visualization.colors import STANDARD_COLORS, COOLWARM_RGB
 
 
@@ -249,10 +249,8 @@ def svg_graph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = Non
 
     # position
     if position is None:
-        if n > 100:
-            raise Warning('Calculating the layout of large graphs may be slow.')
-        fr = FruchtermanReingold()
-        position = fr.fit_transform(adjacency)
+        spring = Spring()
+        position = spring.fit_transform(adjacency)
 
     # colors
     colors = get_colors(n, labels, scores, node_color)
