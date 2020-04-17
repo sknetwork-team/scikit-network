@@ -126,5 +126,5 @@ venv-3.8/
 sknetwork/*/*.html
 
 docs/tutorials/data/mygraph/
-
+*.npy
 *.npz
