@@ -133,9 +133,7 @@ class Louvain(BaseClustering, VerboseMixin):
                         node_probs_out, node_probs_in, self_loops, data, indices, indptr)
 
     @staticmethod
-    def _aggregate(adjacency_norm, probs_out, probs_in,
-                   membership_row: Union[sparse.csr_matrix, np.ndarray],
-                   membership_col: Union[None, sparse.csr_matrix, np.ndarray] = None):
+    def _aggregate(adjacency_norm, probs_out, probs_in, membership: Union[sparse.csr_matrix, np.ndarray]):
         """Aggregate nodes belonging to the same cluster.
 
         Parameters
@@ -146,31 +144,18 @@ class Louvain(BaseClustering, VerboseMixin):
             the array of degrees of the adjacency
         probs_in :
             the array of degrees of the transpose of the adjacency
-        membership_row :
+        membership :
             membership matrix (rows).
-        membership_col :
-            membership matrix (columns).
 
         Returns
         -------
         Aggregate graph.
         """
-        if type(membership_row) == np.ndarray:
-            membership_row = membership_matrix(membership_row)
+        adjacency_norm = (membership.T.dot(adjacency_norm.dot(membership))).tocsr()
+        if probs_in is not None:
+            probs_in = np.array(membership.T.dot(probs_in).T)
 
-        if membership_col is not None:
-            if type(membership_col) == np.ndarray:
-                membership_col = membership_matrix(membership_col)
-
-            adjacency_norm = membership_row.T.dot(adjacency_norm.dot(membership_col)).tocsr()
-            probs_in = np.array(membership_col.T.dot(probs_in).T)
-
-        else:
-            adjacency_norm = membership_row.T.dot(adjacency_norm.dot(membership_row)).tocsr()
-            if probs_in is not None:
-                probs_in = np.array(membership_row.T.dot(probs_in).T)
-
-        probs_out = np.array(membership_row.T.dot(probs_out).T)
+        probs_out = np.array(membership.T.dot(probs_out).T)
         n_nodes = adjacency_norm.shape[0]
         return n_nodes, adjacency_norm, probs_out, probs_in
 

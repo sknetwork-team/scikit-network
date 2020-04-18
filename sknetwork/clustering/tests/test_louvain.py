@@ -9,38 +9,12 @@ from sknetwork.data.test_graphs import *
 from sknetwork.data import karate_club
 
 
-# noinspection PyMissingOrEmptyDocstring
 class TestLouvainClustering(unittest.TestCase):
-
-    def setUp(self):
-        self.louvain = Louvain()
-        self.bilouvain = BiLouvain()
-
-    def test_undirected(self):
-        adjacency = test_graph()
-        labels = self.louvain.fit_transform(adjacency)
-        self.assertEqual(labels.shape, (10,))
-        self.assertAlmostEqual(modularity(adjacency, labels), 0.495, 2)
-
-    def test_directed(self):
-        adjacency = test_digraph()
-        labels = self.louvain.fit_transform(adjacency)
-        self.assertEqual(labels.shape, (10,))
-        self.assertAlmostEqual(modularity(adjacency, labels), 0.475, 2)
-
-    def test_bipartite(self):
-        biadjacency = test_bigraph()
-        n1, n2 = biadjacency.shape
-        self.bilouvain.fit(biadjacency)
-        labels_row = self.bilouvain.labels_row_
-        labels_col = self.bilouvain.labels_col_
-        self.assertEqual(labels_row.shape, (n1,))
-        self.assertEqual(labels_col.shape, (n2,))
 
     def test_disconnected(self):
         adjacency = test_graph_disconnect()
         n = adjacency.shape[0]
-        labels = self.louvain.fit_transform(adjacency)
+        labels = Louvain().fit_transform(adjacency)
         self.assertEqual(len(labels), n)
 
     def test_options(self):
@@ -66,3 +40,6 @@ class TestLouvainClustering(unittest.TestCase):
         labels = louvain.fit_transform(adjacency)
         n_labels = len(set(labels))
         self.assertEqual(louvain.adjacency_.shape, (n_labels, n_labels))
+
+        # aggregate graph
+        Louvain(n_aggregations=1, sort_clusters=False).fit(adjacency)
