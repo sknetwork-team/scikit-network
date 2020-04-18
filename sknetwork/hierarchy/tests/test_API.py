@@ -31,7 +31,7 @@ class TestHierarchyAPI(unittest.TestCase):
         biadjacency = test_bigraph()
         n_row, n_col = biadjacency.shape
 
-        hierarchy = [BiParis(), BiWard(GSVD(3), cluster_col=True), BiLouvainHierarchy()]
+        hierarchy = [BiParis(), BiWard(GSVD(3), cluster_col=True, cluster_both=True), BiLouvainHierarchy()]
         for algo in hierarchy:
             algo.fit_transform(biadjacency)
             self.assertTupleEqual(algo.dendrogram_row_.shape, (n_row - 1, 4))

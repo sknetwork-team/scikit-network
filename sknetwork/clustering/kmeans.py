@@ -60,10 +60,6 @@ class KMeans(BaseClustering):
                  return_membership: bool = True, return_aggregate: bool = True):
         super(KMeans, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
                                      return_aggregate=return_aggregate)
-
-        if not hasattr(embedding_method, 'embedding_'):
-            raise TypeError('The embedding method must have an attribute embedding_.')
-
         self.n_clusters = n_clusters
         self.embedding_method = embedding_method
 
@@ -150,12 +146,6 @@ class BiKMeans(KMeans, BaseBiClustering):
         super(BiKMeans, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
                                        return_aggregate=return_aggregate, n_clusters=n_clusters,
                                        embedding_method=embedding_method)
-
-        if not hasattr(embedding_method, 'embedding_'):
-            raise TypeError('The embedding method must have an attribute embedding_.')
-        if (co_cluster or return_membership) and not hasattr(embedding_method, 'embedding_col_'):
-            raise ValueError('The embedding method must have an attribute embedding_col_.')
-
         self.co_cluster = co_cluster
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiKMeans':
