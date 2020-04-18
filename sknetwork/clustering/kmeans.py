@@ -55,9 +55,7 @@ class KMeans(BaseClustering):
     >>> labels = kmeans.fit_transform(adjacency)
     >>> len(set(labels))
     3
-
     """
-
     def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10), sort_clusters: bool = True,
                  return_membership: bool = True, return_adjacency: bool = True):
         super(KMeans, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
@@ -196,7 +194,7 @@ class BiKMeans(BaseBiClustering, KMeans):
 
         self.labels_ = labels
         if self.co_cluster:
-            self._split_labels(n_row)
+            self._split_vars(n_row)
         else:
             self.labels_row_ = labels
 

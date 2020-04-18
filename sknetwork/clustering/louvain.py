@@ -340,7 +340,7 @@ class BiLouvain(BaseBiClustering, Louvain):
         louvain.fit(adjacency)
 
         self.labels_ = louvain.labels_
-        self._split_labels(n_row)
+        self._split_vars(n_row)
         self._secondary_outputs(biadjacency)
 
         return self

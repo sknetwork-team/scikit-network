@@ -165,11 +165,9 @@ class Spring(BaseEmbedding):
         embedding_vectors : np.ndarray
             Embedding of the nodes.
         """
+        self._check_fitted()
         embedding = self.embedding_
         n = embedding.shape[0]
-        if embedding is None:
-            raise ValueError("This instance of Spring embedding is not fitted yet."
-                             " Call 'fit' with appropriate arguments before using this method.")
 
         adjacency_vectors = check_adjacency_vector(adjacency_vectors, n)
         embedding_vectors = normalize(adjacency_vectors).dot(embedding)

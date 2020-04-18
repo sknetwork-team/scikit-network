@@ -88,7 +88,7 @@ class BaseBiClustering(BaseClustering, ABC):
         self.membership_col_ = None
         self.biadjacency_ = None
 
-    def _split_labels(self, n_row):
+    def _split_vars(self, n_row):
         """Split labels_ into labels_row_ and labels_col_"""
         self.labels_row_ = self.labels_[:n_row]
         self.labels_col_ = self.labels_[n_row:]
