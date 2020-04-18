@@ -35,10 +35,6 @@ class SVDSolver(Algorithm, ABC):
         self.singular_vectors_right_ = None
         self.singular_values_ = None
 
-    def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator, SparseLR], n_components: int):
-        """Perform singular value decomposition on input matrix."""
-        raise NotImplementedError
-
 
 class LanczosSVD(SVDSolver):
     """SVD solver using Lanczos method on :math:`AA^T` or :math:`A^TA`.

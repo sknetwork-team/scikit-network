@@ -41,10 +41,6 @@ class EigSolver(Algorithm, ABC):
         self.eigenvectors_ = None
         self.eigenvalues_ = None
 
-    def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator, SparseLR], n_components: int):
-        """Solve eigenvalue decomposition"""
-        raise NotImplementedError
-
 
 class LanczosEig(EigSolver):
     """Eigenvalue solver using Lanczos method.
