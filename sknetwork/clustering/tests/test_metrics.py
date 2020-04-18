@@ -40,6 +40,7 @@ class TestClusteringMetrics(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             bimodularity(biadjacency, labels_row[:2], labels_col)
+        with self.assertRaises(ValueError):
             bimodularity(biadjacency, labels_row, labels_col[:2])
 
     def test_nsd(self):

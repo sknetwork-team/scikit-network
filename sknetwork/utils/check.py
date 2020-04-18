@@ -271,3 +271,11 @@ def check_adjacency_vector(adjacency_vectors: Union[sparse.csr_matrix, np.ndarra
             raise ValueError('The adjacency vector must be of length equal to the number nodes in the initial graph.')
 
     return adjacency_vectors
+
+
+def check_n_clusters(n_clusters: int, n_row: int):
+    """Check that the number of clusters"""
+    if n_clusters > n_row:
+        raise ValueError('The number of clusters exceeds the number of rows.')
+    else:
+        return

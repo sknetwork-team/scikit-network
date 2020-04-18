@@ -138,3 +138,7 @@ class TestChecks(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             check_adjacency_vector(vector1, 2 * n)
+
+    def test_check_n_clusters(self):
+        with self.assertRaises(ValueError):
+            check_n_clusters(3, 2)

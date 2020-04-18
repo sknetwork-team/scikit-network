@@ -15,6 +15,7 @@ from sknetwork.clustering.base import BaseClustering, BaseBiClustering
 from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.embedding import BaseEmbedding, BaseBiEmbedding, GSVD
 from sknetwork.linalg import normalize
+from sknetwork.utils.check import check_n_clusters
 from sknetwork.utils.kmeans import KMeansDense
 from sknetwork.utils.membership import membership_matrix
 
@@ -76,8 +77,7 @@ class KMeans(BaseClustering):
         self: :class:`KMeans`
         """
         n = adjacency.shape[0]
-        if self.n_clusters > n:
-            raise ValueError('The number of clusters exceeds the number of nodes.')
+        check_n_clusters(self.n_clusters, n)
 
         embedding = self.embedding_method.fit_transform(adjacency)
         kmeans = KMeansDense(self.n_clusters)
@@ -161,9 +161,7 @@ class BiKMeans(KMeans, BaseBiClustering):
         self: :class:`BiKMeans`
         """
         n_row, n_col = biadjacency.shape
-
-        if self.n_clusters > n_row:
-            raise ValueError('The number of clusters exceeds the number of rows.')
+        check_n_clusters(self.n_clusters, n_row)
 
         method = self.embedding_method
         method.fit(biadjacency)
