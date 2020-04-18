@@ -19,7 +19,6 @@ class TestFormats(unittest.TestCase):
         n = 3
         adjacency = cyclic_digraph(n)
         ref = directed2undirected(adjacency)
-        print(ref)
         self.assertEqual(ref.shape, adjacency.shape)
         self.assertTrue(is_symmetric(ref))
 
