@@ -15,7 +15,7 @@ class TestPolynome(unittest.TestCase):
         with self.assertRaises(ValueError):
             Polynome(adjacency, np.array([]))
 
-    def test_neg_mul(self):
+    def test_operations(self):
         adjacency = test_graph()
         n = adjacency.shape[0]
         polynome = Polynome(adjacency, np.arange(3))
