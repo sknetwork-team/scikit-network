@@ -11,8 +11,9 @@ from typing import Union, Tuple, Optional
 import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import bicgstab
+
 from sknetwork.linalg.normalization import normalize
-from sknetwork.ranking.base import BaseRanking
+from sknetwork.ranking.base import BaseRanking, BaseBiRanking
 from sknetwork.utils.check import check_format, check_seeds, check_square
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.seeds import stack_seeds
@@ -140,7 +141,7 @@ class Diffusion(BaseRanking, VerboseMixin):
         return self
 
 
-class BiDiffusion(Diffusion):
+class BiDiffusion(Diffusion, BaseBiRanking):
     """Temperature of each node of a bipartite graph, associated with the diffusion along the edges (heat equation).
 
     * Bigraphs
@@ -169,9 +170,6 @@ class BiDiffusion(Diffusion):
     def __init__(self, n_iter: int = 0, verbose: bool = False):
         super(BiDiffusion, self).__init__(n_iter, verbose)
 
-        self.scores_row_ = None
-        self.scores_col_ = None
-
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds_row: Optional[Union[dict, np.ndarray]] = None, seeds_col: Optional[Union[dict, np.ndarray]] = None,
             initial_state: Optional = None) -> 'BiDiffusion':
@@ -198,9 +196,6 @@ class BiDiffusion(Diffusion):
 
         adjacency = bipartite2undirected(biadjacency)
         Diffusion.fit(self, adjacency, seeds)
-
-        self.scores_row_ = self.scores_[:n_row]
-        self.scores_col_ = self.scores_[n_row:]
-        self.scores_ = self.scores_row_
+        self._split_vars(n_row)
 
         return self

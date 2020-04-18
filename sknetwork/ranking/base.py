@@ -27,3 +27,17 @@ class BaseRanking(Algorithm, ABC):
         """
         self.fit(*args, **kwargs)
         return self.scores_
+
+
+class BaseBiRanking(BaseRanking, ABC):
+    """Base class for ranking algorithms."""
+
+    def __init__(self):
+        super(BaseBiRanking, self).__init__()
+        self.scores_row_ = None
+        self.scores_col_ = None
+
+    def _split_vars(self, n_row):
+        self.scores_row_ = self.scores_[:n_row]
+        self.scores_col_ = self.scores_[n_row:]
+        self.scores_ = self.scores_row_

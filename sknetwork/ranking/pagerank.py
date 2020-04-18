@@ -14,7 +14,7 @@ from scipy.sparse.linalg import eigs, LinearOperator, lsqr, bicgstab
 
 from sknetwork.basics import CoNeighbors
 from sknetwork.linalg.normalization import normalize
-from sknetwork.ranking.base import BaseRanking
+from sknetwork.ranking.base import BaseRanking, BaseBiRanking
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.check import check_format, check_square
 from sknetwork.utils.seeds import seeds2probs, stack_seeds
@@ -175,7 +175,7 @@ class PageRank(BaseRanking, VerboseMixin):
         return self
 
 
-class BiPageRank(PageRank):
+class BiPageRank(PageRank, BaseBiRanking):
     """Compute the PageRank of each node through a random walk in the bipartite graph.
 
     * Bigraphs
@@ -208,10 +208,7 @@ class BiPageRank(PageRank):
     array([0.45, 0.11, 0.28, 0.17])
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10):
-        PageRank.__init__(self, damping_factor, solver, n_iter)
-
-        self.scores_row_ = None
-        self.scores_col_ = None
+        super(BiPageRank, self).__init__(damping_factor, solver, n_iter)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds_row: Optional[Union[dict, np.ndarray]] = None, seeds_col: Optional[Union[dict, np.ndarray]] = None) \
@@ -238,11 +235,10 @@ class BiPageRank(PageRank):
         seeds = stack_seeds(n_row, n_col, seeds_row, seeds_col)
 
         PageRank.fit(self, adjacency, seeds)
-        scores_row = self.scores_[:n_row]
-        scores_col = self.scores_[n_row:]
+        self._split_vars(n_row)
 
-        self.scores_row_ = scores_row / np.sum(scores_row)
-        self.scores_col_ = scores_col / np.sum(scores_col)
+        self.scores_row_ /= self.scores_row_.sum()
+        self.scores_col_ /= self.scores_col_.sum()
         self.scores_ = self.scores_row_
 
         return self
