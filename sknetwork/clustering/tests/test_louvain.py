@@ -62,7 +62,7 @@ class TestLouvainClustering(unittest.TestCase):
         self.assertEqual(len(set(labels)), 9)
 
         # aggregate graph
-        louvain = Louvain(return_adjacency=True)
+        louvain = Louvain(return_aggregate=True)
         labels = louvain.fit_transform(adjacency)
         n_labels = len(set(labels))
         self.assertEqual(louvain.adjacency_.shape, (n_labels, n_labels))

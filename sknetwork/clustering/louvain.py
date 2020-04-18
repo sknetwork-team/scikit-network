@@ -44,7 +44,7 @@ class Louvain(BaseClustering, VerboseMixin):
             If ``True``, sort labels in decreasing order of cluster size.
     return_membership :
             If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
-    return_adjacency :
+    return_aggregate :
             If ``True``, return the adjacency matrix of the graph between clusters.
     random_state :
         Random number generator or random seed. If None, numpy.random is used.
@@ -84,10 +84,10 @@ class Louvain(BaseClustering, VerboseMixin):
     """
     def __init__(self, resolution: float = 1, tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3,
                  n_aggregations: int = -1, shuffle_nodes: bool = False, sort_clusters: bool = True,
-                 return_membership: bool = True, return_adjacency: bool = True,
+                 return_membership: bool = True, return_aggregate: bool = True,
                  random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
         super(Louvain, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
-                                      return_adjacency=return_adjacency)
+                                      return_aggregate=return_aggregate)
         VerboseMixin.__init__(self, verbose)
 
         self.random_state = check_random_state(random_state)
@@ -240,7 +240,7 @@ class Louvain(BaseClustering, VerboseMixin):
         return self
 
 
-class BiLouvain(BaseBiClustering, Louvain):
+class BiLouvain(Louvain, BaseBiClustering):
     """BiLouvain algorithm for the clustering of bipartite graphs.
 
     * Bigraphs
@@ -262,7 +262,7 @@ class BiLouvain(BaseBiClustering, Louvain):
             If ``True``, sort labels in decreasing order of cluster size.
     return_membership :
             If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
-    return_biadjacency :
+    return_aggregate :
         If ``True``, return the biadjacency matrix of the graph between clusters.
     random_state :
         Random number generator or random seed. If None, numpy.random is used.
@@ -302,16 +302,15 @@ class BiLouvain(BaseBiClustering, Louvain):
       (Doctoral dissertation, Université d'Orléans).
     """
 
-    def __init__(self, resolution: float = 1,
-                 tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
-                 shuffle_nodes: bool = False, sort_clusters: bool = True, return_membership: bool = True,
-                 return_biadjacency: bool = True, random_state: Optional[Union[np.random.RandomState, int]] = None,
-                 verbose: bool = False):
-        BaseBiClustering.__init__(self, sort_clusters=sort_clusters, return_membership=return_membership,
-                                  return_biadjacency=return_biadjacency)
-        Louvain.__init__(self, resolution=resolution, tol_optimization=tol_optimization, verbose=verbose,
-                         tol_aggregation=tol_aggregation, n_aggregations=n_aggregations, shuffle_nodes=shuffle_nodes,
-                         sort_clusters=sort_clusters, return_membership=return_membership, random_state=random_state)
+    def __init__(self, resolution: float = 1, tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3,
+                 n_aggregations: int = -1, shuffle_nodes: bool = False, sort_clusters: bool = True,
+                 return_membership: bool = True, return_aggregate: bool = True,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
+        super(BiLouvain, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
+                                        return_aggregate=return_aggregate, resolution=resolution,
+                                        tol_optimization=tol_optimization, verbose=verbose,
+                                        tol_aggregation=tol_aggregation, n_aggregations=n_aggregations,
+                                        shuffle_nodes=shuffle_nodes, random_state=random_state)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiLouvain':
         """Apply the Louvain algorithm to the corresponding directed graph, with adjacency matrix:
@@ -332,7 +331,7 @@ class BiLouvain(BaseBiClustering, Louvain):
         louvain = Louvain(resolution=self.resolution, tol_aggregation=self.tol_aggregation,
                           n_aggregations=self.n_aggregations, shuffle_nodes=self.shuffle_nodes,
                           sort_clusters=self.sort_clusters, return_membership=self.return_membership,
-                          return_adjacency=False, random_state=self.random_state, verbose=self.log.verbose)
+                          return_aggregate=False, random_state=self.random_state, verbose=self.log.verbose)
         biadjacency = check_format(biadjacency)
         n_row, _ = biadjacency.shape
 
