@@ -126,10 +126,8 @@ class RankClassifier(BaseClassifier, VerboseMixin):
 
 class RankBiClassifier(RankClassifier, BaseBiClassifier):
     """Generic class for ranking based classifiers on bipartite graphs."""
-
     def __init__(self, algorithm: BaseRanking, n_jobs: Optional[int] = None, verbose: bool = False):
-        BaseBiClassifier.__init__(self)
-        RankClassifier.__init__(self, algorithm, n_jobs, verbose)
+        super(RankBiClassifier, self).__init__(algorithm=algorithm, n_jobs=n_jobs, verbose=verbose)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds_row: Union[np.ndarray, dict], seeds_col: Union[np.ndarray, dict, None] = None) -> 'RankClassifier':
