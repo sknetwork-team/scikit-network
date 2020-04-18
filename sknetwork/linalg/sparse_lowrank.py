@@ -153,9 +153,6 @@ class SparseLR(LinearOperator):
         """
         self.sparse_mat = self.sparse_mat.astype(dtype)
         self.low_rank_tuples = [(x.astype(dtype), y.astype(dtype)) for (x, y) in self.low_rank_tuples]
-        if type(dtype) == np.dtype:
-            self.dtype = dtype
-        else:
-            self.dtype = np.dtype(dtype)
+        self.dtype = np.dtype(dtype)
 
         return self

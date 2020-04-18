@@ -6,6 +6,7 @@ Created on July 10 2019
 Authors:
 Nathan De Lara <nathan.delara@telecom-paris.fr>
 """
+from abc import ABC
 from typing import Union
 
 import numpy as np
@@ -17,9 +18,8 @@ from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.utils.base import Algorithm
 
 
-class SVDSolver(Algorithm):
-    """
-    A generic class for SVD-solvers.
+class SVDSolver(Algorithm, ABC):
+    """Generic class for SVD-solvers.
 
     Attributes
     ----------
@@ -30,32 +30,18 @@ class SVDSolver(Algorithm):
     singular_values_: np.ndarray
         Singular values.
     """
-
     def __init__(self):
         self.singular_vectors_left_ = None
         self.singular_vectors_right_ = None
         self.singular_values_ = None
 
     def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator, SparseLR], n_components: int):
-        """Perform singular value decomposition on input matrix.
-
-        Parameters
-        ----------
-        matrix:
-            Matrix to decompose.
-        n_components
-            Number of singular values to compute
-
-        Returns
-        -------
-        self: :class:`SVDSolver`
-        """
-        return self
+        """Perform singular value decomposition on input matrix."""
+        raise NotImplementedError
 
 
 class LanczosSVD(SVDSolver):
-    """
-    An SVD solver using Lanczos method on :math:`AA^T` or :math:`A^TA`.
+    """SVD solver using Lanczos method on :math:`AA^T` or :math:`A^TA`.
 
     Attributes
     ----------
@@ -72,7 +58,7 @@ class LanczosSVD(SVDSolver):
     """
 
     def __init__(self):
-        SVDSolver.__init__(self)
+        super(LanczosSVD, self).__init__()
 
     def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator], n_components: int):
         """Perform singular value decomposition on input matrix.
@@ -99,8 +85,7 @@ class LanczosSVD(SVDSolver):
 
 
 class HalkoSVD(SVDSolver):
-    """
-    An SVD solver using Halko's randomized method.
+    """SVD solver using Halko's randomized method.
 
     Parameters
     ----------
@@ -139,7 +124,7 @@ class HalkoSVD(SVDSolver):
 
     def __init__(self, n_oversamples: int = 10, n_iter='auto', transpose='auto',
                  power_iteration_normalizer: Union[str, None] = 'auto', flip_sign: bool = True, random_state=None):
-        SVDSolver.__init__(self)
+        super(HalkoSVD, self).__init__()
         self.n_oversamples = n_oversamples
         self.n_iter = n_iter
         self.transpose = transpose
@@ -160,7 +145,6 @@ class HalkoSVD(SVDSolver):
         Returns
         -------
         self: :class:`SVDSolver`
-
         """
         u, s, vt = randomized_svd(matrix, n_components, self.n_oversamples, self.n_iter, self.transpose,
                                   self.power_iteration_normalizer, self.flip_sign, self.random_state)
