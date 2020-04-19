@@ -35,6 +35,8 @@ class Polynome(LinearOperator):
     >>> x = np.ones(2)
     >>> polynome.dot(x)
     array([3., 3.])
+    >>> polynome.T.dot(x)
+    array([3., 3.])
 
     Notes
     -----
@@ -67,3 +69,10 @@ class Polynome(LinearOperator):
         for a in self.coeffs[::-1][1:]:
             y = self.adjacency.dot(y) + a
         return y
+
+    def _transpose(self):
+        """Transposed operator."""
+        return Polynome(self.adjacency.T.tocsr(), self.coeffs)
+
+    def _adjoint(self):
+        return self.transpose()

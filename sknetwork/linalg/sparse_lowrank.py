@@ -96,12 +96,7 @@ class SparseLR(LinearOperator):
         return prod
 
     def _transpose(self):
-        """Transposed matrix.
-
-        Returns
-        -------
-        SparseLR object
-        """
+        """Transposed operator."""
         transposed_sparse = sparse.csr_matrix(self.sparse_mat.T)
         transposed_tuples = [(y, x) for (x, y) in self.low_rank_tuples]
         return SparseLR(transposed_sparse, transposed_tuples)
@@ -110,47 +105,15 @@ class SparseLR(LinearOperator):
         return self.transpose()
 
     def left_sparse_dot(self, matrix: sparse.csr_matrix):
-        """Left dot product with a sparse matrix
-
-        Parameters
-        ----------
-        matrix:
-            Matrix
-
-        Returns
-        -------
-        SparseLR object
-
-        """
+        """Left dot product with a sparse matrix."""
         return SparseLR(matrix.dot(self.sparse_mat), [(matrix.dot(x), y) for (x, y) in self.low_rank_tuples])
 
     def right_sparse_dot(self, matrix: sparse.csr_matrix):
-        """Right dot product with a sparse matrix
-
-        Parameters
-        ----------
-        matrix:
-            Matrix
-
-        Returns
-        -------
-        SparseLR object
-
-        """
+        """Right dot product with a sparse matrix."""
         return SparseLR(self.sparse_mat.dot(matrix), [(x, matrix.T.dot(y)) for (x, y) in self.low_rank_tuples])
 
     def astype(self, dtype: Union[str, np.dtype]):
-        """Change dtype of the object.
-
-        Parameters
-        ----------
-        dtype
-
-        Returns
-        -------
-        SparseLR object
-
-        """
+        """Change dtype of the object."""
         self.sparse_mat = self.sparse_mat.astype(dtype)
         self.low_rank_tuples = [(x.astype(dtype), y.astype(dtype)) for (x, y) in self.low_rank_tuples]
         self.dtype = np.dtype(dtype)
