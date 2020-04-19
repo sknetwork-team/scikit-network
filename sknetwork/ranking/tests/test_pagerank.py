@@ -21,17 +21,13 @@ class TestPageRank(unittest.TestCase):
         self.truth = np.ones(self.n) / self.n
 
     def test_solvers(self):
-        pr = PageRank()
-        scores = pr.fit_transform(self.adjacency)
-        self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
+        for solver in ['naive', 'diteration', 'lanczos', 'bicgstab']:
+            pr = PageRank(solver=solver)
+            scores = pr.fit_transform(self.adjacency)
+            self.assertAlmostEqual(0, np.linalg.norm(scores - self.truth), places=4)
 
-        pr = PageRank(solver='lanczos')
-        scores = pr.fit_transform(self.adjacency)
-        self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
-
-        pr = PageRank(solver='lsqr')
-        scores = pr.fit_transform(self.adjacency)
-        self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
+        with self.assertRaises(ValueError):
+            PageRank(solver='toto').fit_transform(self.adjacency)
 
     def test_seeding(self):
         pr = PageRank()
@@ -65,3 +61,6 @@ class TestPageRank(unittest.TestCase):
         scores1 = CoPageRank().fit(biadjacency, seeds_col=seeds).scores_col_
         scores2 = PageRank().fit_transform(adjacency, seeds)
         self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0.)
+
+        with self.assertRaises(ValueError):
+            CoPageRank(solver='diteration').fit_transform(biadjacency, seeds)

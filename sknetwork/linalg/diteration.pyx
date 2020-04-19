@@ -35,4 +35,4 @@ def diffusion(int[:] indptr, int[:] indices, np.float_t[:] data, np.float_t[:] s
                     for jj in range(indptr[i], indptr[i+1]):
                         j = indices[jj]
                         fluid[j] += damping_factor * tmp * data[jj]
-    return np.array(fluid), np.array(scores)
+    return np.array(scores)
