@@ -23,7 +23,7 @@ Sphinx==3.0.1
 sphinx-rtd-theme==0.4.3
 
 # used to produce doc from Jupyter notebooks (aka. tutorials)
-nbsphinx==0.6.0
+nbsphinx==0.6.1
 
 # used to run Jupyter notebooks (necessary for nbsphinx)
 ipython==7.13.0
