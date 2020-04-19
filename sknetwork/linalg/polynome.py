@@ -73,6 +73,3 @@ class Polynome(LinearOperator):
     def _transpose(self):
         """Transposed operator."""
         return Polynome(self.adjacency.T.tocsr(), self.coeffs)
-
-    def _adjoint(self):
-        return self.transpose()
