@@ -18,7 +18,6 @@ ctypedef np.float_t float_type_t
 def diffusion(int[:] indptr, int[:] indices, np.float_t[:] data, np.float_t[:] scores, np.float_t[:] fluid,
               float_type_t damping_factor):
     """One loop of fluid diffusion."""
-    cdef vector[int] outnodes
 
     cdef int n = len(fluid)
     cdef int i
@@ -35,4 +34,4 @@ def diffusion(int[:] indptr, int[:] indices, np.float_t[:] data, np.float_t[:] s
             for jj in range(indptr[i], indptr[i+1]):
                 j = indices[jj]
                 fluid[j] += damping_factor * tmp * data[jj]
-    return fluid, scores
+    return np.array(fluid), np.array(scores)

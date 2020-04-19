@@ -18,4 +18,4 @@ class TestDIter(unittest.TestCase):
         ref = np.ones(n) / n
         scores = pagerank(adjacency, ref)
 
-        self.assertEqual(np.linalg.norm(ref - scores), 0)
+        self.assertAlmostEqual(0, np.linalg.norm(ref - scores), places=4)
