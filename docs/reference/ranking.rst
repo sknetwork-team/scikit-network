@@ -32,3 +32,8 @@ Closeness centrality
 Harmonic centrality
 -------------------
 .. autoclass:: sknetwork.ranking.Harmonic
+
+Post-processing
+---------------
+
+.. autofunction:: sknetwork.ranking.top_k

@@ -12,8 +12,13 @@ from sknetwork.utils.base import Algorithm
 
 
 class BaseRanking(Algorithm, ABC):
-    """Base class for ranking algorithms."""
+    """Base class for ranking algorithms.
 
+    Attributes
+    ----------
+    scores_ : np.ndarray
+        PageRank score of each node.
+    """
     def __init__(self):
         self.scores_ = None
 
@@ -30,8 +35,17 @@ class BaseRanking(Algorithm, ABC):
 
 
 class BaseBiRanking(BaseRanking, ABC):
-    """Base class for ranking algorithms."""
+    """Base class for ranking algorithms.
 
+    Attributes
+    ----------
+    scores_ : np.ndarray
+        PageRank score of each node.
+    scores_row_ : np.ndarray
+        PageRank score of each row (copy of **scores_**).
+    scores_col_ : np.ndarray
+        PageRank score of each column.
+    """
     def __init__(self):
         super(BaseBiRanking, self).__init__()
         self.scores_row_ = None

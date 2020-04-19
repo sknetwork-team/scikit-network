@@ -58,9 +58,9 @@ class BuildExtSubclass(build_ext):
 
 
 # Cython generation/C++ compilation
-pyx_paths = ["sknetwork/utils/knn1d.pyx", "sknetwork/clustering/louvain_core.pyx", "sknetwork/hierarchy/paris.pyx"]
-c_paths = ["sknetwork/utils/knn1d.cpp", "sknetwork/clustering/louvain_core.cpp", "sknetwork/hierarchy/paris.cpp"]
-modules = ['sknetwork.utils.knn1d', 'sknetwork.clustering.louvain_core', 'sknetwork.hierarchy.paris']
+pyx_paths = ["sknetwork/utils/knn1d.pyx", "sknetwork/clustering/louvain_core.pyx", "sknetwork/hierarchy/paris.pyx", "sknetwork/linalg/diteration.pyx"]
+c_paths = ["sknetwork/utils/knn1d.cpp", "sknetwork/clustering/louvain_core.cpp", "sknetwork/hierarchy/paris.cpp", "sknetwork/linalg/diteration.cpp"]
+modules = ['sknetwork.utils.knn1d', 'sknetwork.clustering.louvain_core', 'sknetwork.hierarchy.paris', 'sknetwork.linalg.diteration']
 
 
 if os.environ.get('SKNETWORK_DISABLE_CYTHONIZE') is None:
@@ -85,7 +85,8 @@ if HAVE_CYTHON:
             # Remove C file to force Cython recompile.
             os.remove(c_path)
 
-        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()]))
+        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()]),
+                                 annotate=True)
 else:
     ext_modules = [Extension(modules[index], [c_paths[index]], include_dirs=[numpy.get_include()])
                    for index in range(len(modules))]
