@@ -11,37 +11,9 @@ from typing import Union, Tuple
 import numpy as np
 from scipy import sparse, linalg
 
+from sknetwork.linalg.basics import safe_sparse_dot
 from sknetwork.linalg.sparse_lowrank import SparseLR
-from sknetwork.utils.check import check_random_state
-
-
-def safe_sparse_dot(a, b):
-    """
-    Dot product that handles the sparse matrix case correctly
-    Uses BLAS GEMM as replacement for numpy.dot where possible
-    to avoid unnecessary copies.
-    Parameters
-    ----------
-    a : array or sparse matrix or SparseLR
-    b : array or sparse matrix or SparseLR
-    Returns
-    -------
-    dot_product : array or sparse matrix
-        sparse if ``a`` or ``b`` is sparse.
-    """
-    if type(a) == SparseLR and type(b) == np.ndarray:
-        return a.dot(b)
-    if type(b) == SparseLR and type(a) == np.ndarray:
-        return b.T.dot(a.T).T
-    if type(a) == SparseLR and type(b) == SparseLR:
-        raise NotImplementedError
-    if type(a) == SparseLR and type(b) == sparse.csr_matrix:
-        return a.right_sparse_dot(b)
-    if type(b) == SparseLR and type(a) == sparse.csr_matrix:
-        return b.left_sparse_dot(a)
-    if type(a) == np.ndarray:
-        return b.T.dot(a.T).T
-    return a.dot(b)
+from sknetwork.utils.check import check_random_state, check_square
 
 
 def randomized_range_finder(matrix: np.ndarray, size: int, n_iter: int, power_iteration_normalizer='auto',
@@ -176,66 +148,66 @@ def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='a
                    power_iteration_normalizer: Union[str, None] = 'auto', flip_sign: bool = True, random_state=None):
     """Truncated randomized SVD
 
-        Parameters
-        ----------
-        matrix : ndarray or sparse matrix
-            Matrix to decompose
-        n_components : int
-            Number of singular values and vectors to extract.
-        n_oversamples : int (default=10)
-            Additional number of random vectors to sample the range of M so as
-            to ensure proper conditioning. The total number of random vectors
-            used to find the range of M is n_components + n_oversamples. Smaller
-            number can improve speed but can negatively impact the quality of
-            approximation of singular vectors and singular values.
-        n_iter : int or 'auto' (default is 'auto')
-            See :meth:`randomized_range_finder`
-        power_iteration_normalizer : ``'auto'`` (default), ``'QR'``, ``'LU'``, ``None``
-            See :meth:`randomized_range_finder`
-        transpose : True, False or 'auto' (default)
-            Whether the algorithm should be applied to ``matrix.T`` instead of ``matrix``. The
-            result should approximately be the same. The 'auto' mode will
-            trigger the transposition if ``matrix.shape[1] > matrix.shape[0]`` since this
-            implementation of randomized SVD tends to be a little faster in that case.
-        flip_sign : boolean, (default=True)
-            The output of a singular value decomposition is only unique up to a
-            permutation of the signs of the singular vectors. If `flip_sign` is
-            set to `True`, the sign ambiguity is resolved by making the largest
-            loadings for each component in the left singular vectors positive.
-        random_state : int, RandomState instance or None, optional (default=None)
-            See :meth:`randomized_range_finder`
+    Parameters
+    ----------
+    matrix : ndarray or sparse matrix
+        Matrix to decompose
+    n_components : int
+        Number of singular values and vectors to extract.
+    n_oversamples : int (default=10)
+        Additional number of random vectors to sample the range of M so as
+        to ensure proper conditioning. The total number of random vectors
+        used to find the range of M is n_components + n_oversamples. Smaller
+        number can improve speed but can negatively impact the quality of
+        approximation of singular vectors and singular values.
+    n_iter : int or 'auto' (default is 'auto')
+        See :meth:`randomized_range_finder`
+    power_iteration_normalizer : ``'auto'`` (default), ``'QR'``, ``'LU'``, ``None``
+        See :meth:`randomized_range_finder`
+    transpose : True, False or 'auto' (default)
+        Whether the algorithm should be applied to ``matrix.T`` instead of ``matrix``. The
+        result should approximately be the same. The 'auto' mode will
+        trigger the transposition if ``matrix.shape[1] > matrix.shape[0]`` since this
+        implementation of randomized SVD tends to be a little faster in that case.
+    flip_sign : boolean, (default=True)
+        The output of a singular value decomposition is only unique up to a
+        permutation of the signs of the singular vectors. If `flip_sign` is
+        set to `True`, the sign ambiguity is resolved by making the largest
+        loadings for each component in the left singular vectors positive.
+    random_state : int, RandomState instance or None, optional (default=None)
+        See :meth:`randomized_range_finder`
 
-        Returns
-        -------
-        left_singular_vectors: np.ndarray
-        singular_values: np.ndarray
-        right_singular_vectors: np.ndarray
+    Returns
+    -------
+    left_singular_vectors: np.ndarray
+    singular_values: np.ndarray
+    right_singular_vectors: np.ndarray
 
-        Notes
-        -----
-        This algorithm finds a (usually very good) approximate truncated
-        singular value decomposition using randomization to speed up the
-        computations. It is particularly fast on large matrices on which
-        you wish to extract only a small number of components. In order to
-        obtain further speed up, ``n_iter`` can be set <=2 (at the cost of
-        loss of precision).
+    Notes
+    -----
+    This algorithm finds a (usually very good) approximate truncated
+    singular value decomposition using randomization to speed up the
+    computations. It is particularly fast on large matrices on which
+    you wish to extract only a small number of components. In order to
+    obtain further speed up, ``n_iter`` can be set <=2 (at the cost of
+    loss of precision).
 
-        References
-        ----------
-        * Finding structure with randomness: Stochastic algorithms for constructing
-          approximate matrix decompositions
-          Halko, et al., 2009 http://arxiv.org/abs/arXiv:0909.4061
-          (algorithm 5.1)
-        * A randomized algorithm for the decomposition of matrices
-          Per-Gunnar Martinsson, Vladimir Rokhlin and Mark Tygert
-        * An implementation of a randomized algorithm for principal component
-          analysis
-          A. Szlam et al. 2014
-        """
+    References
+    ----------
+    * Finding structure with randomness: Stochastic algorithms for constructing
+      approximate matrix decompositions
+      Halko, et al., 2009 http://arxiv.org/abs/arXiv:0909.4061
+      (algorithm 5.1)
+    * A randomized algorithm for the decomposition of matrices
+      Per-Gunnar Martinsson, Vladimir Rokhlin and Mark Tygert
+    * An implementation of a randomized algorithm for principal component
+      analysis
+      A. Szlam et al. 2014
+    """
 
     random_state = check_random_state(random_state)
     n_random = n_components + n_oversamples
-    n_samples, n_features = matrix.shape
+    n_row, n_col = matrix.shape
 
     if n_iter == 'auto':
         # Checks if the number of iterations is explicitly specified
@@ -243,7 +215,7 @@ def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='a
         n_iter = 7 if n_components < .1 * min(matrix.shape) else 4
 
     if transpose == 'auto':
-        transpose = n_samples < n_features
+        transpose = n_row < n_col
     if transpose:
         # this implementation is a bit faster with smaller shape[1]
         matrix = matrix.T
@@ -282,7 +254,7 @@ def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='a
 
 def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 10, n_iter='auto',
                    power_iteration_normalizer: Union[str, None] = 'auto', random_state=None, one_pass: bool = False):
-    """Randomized eigenvalue decomposition.
+    """Truncated randomized eigenvalue decomposition.
 
     Parameters
     ----------
@@ -320,14 +292,10 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
     Halko, et al., 2009
     http://arxiv.org/abs/arXiv:0909.4061
     """
-
+    check_square(adjacency=matrix)
     random_state = check_random_state(random_state)
     n_random = n_components + n_oversamples
-    n_samples, n_features = matrix.shape
     lambda_max = 0.
-
-    if n_samples != n_features:
-        raise ValueError('The input matrix is not square.')
 
     if which == 'SM':
         lambda_max: float = 1.1 * randomized_eig(matrix, n_components=1)[0][0]

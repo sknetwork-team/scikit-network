@@ -8,9 +8,7 @@ Created on March 2019
 
 import unittest
 
-import numpy as np
-
-from sknetwork.hierarchy import Paris, cut_straight, cut_balanced
+from sknetwork.hierarchy import Paris, cut_straight, cut_balanced, aggregate_dendrogram
 from sknetwork.data import karate_club
 
 
@@ -18,7 +16,7 @@ from sknetwork.data import karate_club
 class TestCuts(unittest.TestCase):
 
     def setUp(self):
-        paris = Paris(engine='python')
+        paris = Paris()
         adjacency = karate_club()
         self.dendrogram = paris.fit_transform(adjacency)
 
@@ -29,6 +27,9 @@ class TestCuts(unittest.TestCase):
         self.assertEqual(len(set(labels)), 5)
         labels = cut_balanced(self.dendrogram)
         self.assertEqual(len(set(labels)), 21)
+        labels, new_dendrogram = cut_balanced(self.dendrogram, return_dendrogram=True)
+        self.assertEqual(len(set(labels)), 21)
+        self.assertTupleEqual(new_dendrogram.shape, (20, 4))
 
     def test_options(self):
         labels = cut_straight(self.dendrogram, sort_clusters=False)
@@ -37,6 +38,12 @@ class TestCuts(unittest.TestCase):
         self.assertEqual(len(set(labels)), 21)
         labels = cut_balanced(self.dendrogram, max_cluster_size=10)
         self.assertEqual(len(set(labels)), 5)
-        labels, dendrogram = cut_straight(self.dendrogram, n_clusters=7, return_dendrogram=True)
-        self.assertEqual(dendrogram.shape, (6, 4))
+
+    def test_aggregation(self):
+        aggregated = aggregate_dendrogram(self.dendrogram, n_clusters=3)
+        self.assertEqual(len(aggregated), 2)
+
+        aggregated, counts = aggregate_dendrogram(self.dendrogram, n_clusters=3, return_counts=True)
+        self.assertEqual(len(aggregated), 2)
+        self.assertEqual(len(counts), 3)
 

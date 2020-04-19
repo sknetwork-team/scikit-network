@@ -2,9 +2,7 @@
 # coding: utf-8
 """
 Created on July 10 2019
-
-Authors:
-Nathan De Lara <nathan.delara@telecom-paris.fr>
+@author: Nathan De Lara <ndelara@enst.fr>
 """
 
 
@@ -19,11 +17,17 @@ def auto_solver(nnz: int, threshold: int = 1e4) -> str:
     threshold: int
         Threshold beyond which randomized methods are applied.
 
+    Examples
+    --------
+    >>> auto_solver(1000)
+    'lanczos'
+    >>> auto_solver(100000)
+    'halko'
+
     Returns
     -------
     solver name: str
         'halko' or ' lanczos'
-
     """
     if nnz > threshold:
         return 'halko'

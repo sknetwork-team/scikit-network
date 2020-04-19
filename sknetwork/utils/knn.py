@@ -10,21 +10,20 @@ import numpy as np
 from scipy import sparse
 from scipy.spatial import cKDTree
 
-from sknetwork import njit, prange
+from sknetwork.utils.knn1d import knn1d
 from sknetwork.utils.format import directed2undirected
 from sknetwork.utils.base import Algorithm
 
 
 class BaseTransformer(Algorithm, ABC):
     """Base class for transformers."""
-
     def __init__(self, undirected: bool = False):
         self.undirected = undirected
 
         self.adjacency_ = None
 
     def fit_transform(self, x: np.ndarray) -> sparse.csr_matrix:
-        """Fits the model to the data and return the computed adjacency.
+        """Fit algorithm to the data and return the computed adjacency.
 
         Parameters
         ----------
@@ -34,7 +33,6 @@ class BaseTransformer(Algorithm, ABC):
         Returns
         -------
         adjacency : sparse.csr_matrix
-
         """
         self.fit(x)
         return self.adjacency_
@@ -65,24 +63,21 @@ class KNNDense(BaseTransformer):
         2 is the usual Euclidean distance infinity is the maximum-coordinate-difference distance.
         A finite large p may cause a ValueError if overflow can occur.
     eps :
-        Return approximate nearest neighbors; the k-th returned value is guaranteed to be no further than (1+tol_nn) times
-        the distance to the real k-th nearest neighbor.
+        Return approximate nearest neighbors; the k-th returned value is guaranteed to be no further than (1+tol_nn)
+        times the distance to the real k-th nearest neighbor.
     n_jobs :
         Number of jobs to schedule for parallel processing. If -1 is given all processors are used.
 
     Attributes
     ----------
     adjacency_ :
-        Adjacency matrix of the computed graph.
+        Adjacency matrix of the graph.
 
     References
     ----------
     Maneewongvatana, S., & Mount, D. M. (1999, December). It’s okay to be skinny, if your friends are fat.
     In Center for Geometric Computing 4th Annual Workshop on Computational Geometry (Vol. 2, pp. 1-8).
-
-
     """
-
     def __init__(self, n_neighbors: int = 5, undirected: bool = False, leaf_size: int = 16, p=2, eps: float = 0.01,
                  n_jobs=1):
         super(KNNDense, self).__init__(undirected)
@@ -94,7 +89,7 @@ class KNNDense(BaseTransformer):
         self.n_jobs = n_jobs
 
     def fit(self, x: np.ndarray) -> 'KNNDense':
-        """
+        """Fit algorithm to the data.
 
         Parameters
         ----------
@@ -103,9 +98,7 @@ class KNNDense(BaseTransformer):
 
         Returns
         -------
-
         self : :class:`KNNDense`
-
         """
         tree = cKDTree(x, self.leaf_size)
         _, neighbors = tree.query(x, self.n_neighbors + 1, self.eps, self.p, n_jobs=self.n_jobs)
@@ -122,40 +115,6 @@ class KNNDense(BaseTransformer):
         return self
 
 
-@njit
-def knn1d(x: np.ndarray, n_neighbors: int) -> list:
-    """K nearest neighbors search for 1-dimensional arrays.
-
-    Parameters
-    ----------
-    x : np.ndarray
-        1-d data
-    n_neighbors : int
-        Number of neighbors to return.
-    Returns
-    -------
-    list :
-        List of nearest neighbors tuples (i, j).
-
-    """
-    sorted_ix = np.argsort(x)
-    edgelist = []
-
-    n: int = x.shape[0]
-    for i in prange(n):
-        ix = sorted_ix[i]
-        low: int = max(0, i - n_neighbors)
-        hgh: int = min(n - 1, i + n_neighbors + 1)
-        candidates = sorted_ix[low:hgh]
-
-        deltas = np.abs(x[candidates] - x[ix])
-        sorted_candidates = candidates[np.argsort(deltas)]
-        sorted_candidates = sorted_candidates[:n_neighbors+1]
-        edgelist.extend([(ix, neigh) for neigh in sorted_candidates if neigh != ix])
-
-    return edgelist
-
-
 class PNNDense(BaseTransformer):
     """Extract adjacency from vector data through parallel k-nearest-neighbor search.
     KNN is applied independently on each column of the input matrix.
@@ -170,8 +129,8 @@ class PNNDense(BaseTransformer):
 
     Attributes
     ----------
-    adjacency_:
-        Adjacency matrix of the computed graph.
+    adjacency_ :
+        Adjacency matrix of the  graph.
     """
 
     def __init__(self, n_neighbors: int = 1, undirected: bool = False):
@@ -180,7 +139,7 @@ class PNNDense(BaseTransformer):
         self.n_neighbors = n_neighbors
 
     def fit(self, x: np.ndarray) -> 'PNNDense':
-        """
+        """Fit algorithm to the data.
 
         Parameters
         ----------
@@ -189,20 +148,19 @@ class PNNDense(BaseTransformer):
 
         Returns
         -------
-
         self: :class:`PNNDense`
-
         """
-
-        edgelist = []
+        rows, cols = [], []
         for j in range(x.shape[1]):
-            edgelist += knn1d(x[:, j], self.n_neighbors)
-        edges = np.array(edgelist)
-        data = np.ones(edges.shape[0])
-        row = edges[:, 0]
-        col = edges[:, 1]
+            row, col = knn1d(x[:, j].astype(float), self.n_neighbors)
+            rows += row
+            cols += col
 
-        self.adjacency_ = sparse.csr_matrix((data, (row, col)))
+        rows = np.array(rows)
+        cols = np.array(cols)
+        data = np.ones(len(rows))
+
+        self.adjacency_ = sparse.csr_matrix((data, (rows, cols)))
         self.make_undirected()
 
         return self

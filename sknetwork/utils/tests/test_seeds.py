@@ -20,6 +20,10 @@ class TestSeeds(unittest.TestCase):
         probs2 = seeds2probs(n, seeds_dict)
         self.assertTrue(np.allclose(probs1, probs2))
 
+        bad_input = np.array([0, 0, -1, 0])
+        with self.assertRaises(ValueError):
+            seeds2probs(n, bad_input)
+
     def test_stack_seeds(self):
         n_row, n_col = 4, 3
         seeds_row_array = np.array([0, 1, -1, 0])
@@ -38,5 +42,10 @@ class TestSeeds(unittest.TestCase):
 
         seeds1 = stack_seeds(n_row, n_col, seeds_row_array, None)
         seeds2 = stack_seeds(n_row, n_col, seeds_row_dict, None)
+
+        self.assertTrue(np.allclose(seeds1, seeds2))
+
+        seeds1 = stack_seeds(n_col, n_row, None, seeds_row_array)
+        seeds2 = stack_seeds(n_col, n_row, None, seeds_row_dict)
 
         self.assertTrue(np.allclose(seeds1, seeds2))

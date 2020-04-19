@@ -3,30 +3,28 @@
 Linear algebra
 **************
 
-.. currentmodule:: sknetwork
+Tools of linear algebra.
 
-Module for linear Algebra.
+Polynomes
+---------
 
-Sparse + Low Rank structure
----------------------------
+.. autoclass:: sknetwork.linalg.Polynome
+
+Sparse + Low Rank
+-----------------
 
 .. autoclass:: sknetwork.linalg.SparseLR
-    :members:
 
 Solvers
 -------
 
 .. autoclass:: sknetwork.linalg.LanczosEig
-    :members:
 
 .. autoclass:: sknetwork.linalg.HalkoEig
-    :members:
 
 .. autoclass:: sknetwork.linalg.LanczosSVD
-    :members:
 
 .. autoclass:: sknetwork.linalg.HalkoSVD
-    :members:
 
 Randomized methods
 ------------------

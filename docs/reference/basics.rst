@@ -3,9 +3,7 @@
 Basics
 ******
 
-.. currentmodule:: sknetwork
-
-This module contains well-known algorithms for shortest path computation, structure of the graph and searches (BFS, DFS).
+This module contains standard algorithms for shortest path computation, structure of the graph and searches (BFS, DFS).
 
 Most algorithms are adapted from SciPy_.
 
@@ -43,8 +41,6 @@ Searches
 Structure
 ---------
 
-.. autofunction:: sknetwork.basics.is_connected
-
 .. autofunction:: sknetwork.basics.connected_components
 
 .. autofunction:: sknetwork.basics.largest_connected_component
@@ -56,6 +52,8 @@ Co-Neighborhood
 ---------------
 
 .. autofunction:: sknetwork.basics.co_neighbors_graph
+
+.. autoclass:: sknetwork.basics.CoNeighbors
 
 
 .. _SciPy: https://docs.scipy.org/doc/scipy/reference/sparse.csgraph.html

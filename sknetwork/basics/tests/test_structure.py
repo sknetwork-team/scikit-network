@@ -32,9 +32,12 @@ class TestStructure(unittest.TestCase):
         self.assertEqual(np.linalg.norm(indices[0] - np.array([0, 1, 2, 3])), 0)
         self.assertEqual(np.linalg.norm(indices[1] - np.array([0, 1, 2])), 0)
 
+        self.assertTrue(isinstance(largest_connected_component(adjacency, return_labels=False), sparse.csr_matrix))
+
     def test_is_bipartite(self):
         biadjacency = star_wars(metadata=False)
         adjacency = bipartite2undirected(biadjacency)
+        self.assertTrue(is_bipartite(adjacency))
 
         bipartite, pred = is_bipartite(adjacency, return_biadjacency=True)
         self.assertEqual(bipartite, True)
@@ -49,3 +52,8 @@ class TestStructure(unittest.TestCase):
         bipartite, biadjacency = is_bipartite(adjacency, return_biadjacency=True)
         self.assertEqual(bipartite, False)
         self.assertIsNone(biadjacency)
+
+        with self.assertRaises(ValueError):
+            is_bipartite(cyclic_digraph(3))
+
+        self.assertTrue(~is_bipartite(sparse.eye(3)))

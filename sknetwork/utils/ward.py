@@ -16,7 +16,7 @@ class WardDense(Algorithm):
 
     Attributes
     ----------
-    dendrogram_ : numpy array of shape (total number of nodes - 1, 4)
+    dendrogram_ : np.ndarray (n - 1, 4)
         Dendrogram.
 
     References
@@ -26,9 +26,7 @@ class WardDense(Algorithm):
 
     * Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
       Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2(1), 86-97.
-
     """
-
     def __init__(self):
         self.dendrogram_ = None
 
@@ -43,7 +41,6 @@ class WardDense(Algorithm):
         Returns
         -------
         self: :class:`WardDense`
-
         """
         self.dendrogram_ = ward(x)
 

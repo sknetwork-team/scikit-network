@@ -5,7 +5,7 @@ Created on Apr 19 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 
-from typing import Union
+from typing import Union, Tuple
 
 import numpy as np
 from scipy import sparse
@@ -26,25 +26,37 @@ class SparseLR(LinearOperator):
         List of tuple of arrays representing the low rank components [(x1, y1), (x2, y2),...].
         Each low rank component is of the form :math:`xy^T`.
 
+    Examples
+    --------
+    >>> from scipy import sparse
+    >>> from sknetwork.linalg import SparseLR
+    >>> adjacency = sparse.eye(2, format='csr')
+    >>> slr = SparseLR(adjacency, (np.ones(2), np.ones(2)))
+    >>> x = np.ones(2)
+    >>> slr.dot(x)
+    array([3., 3.])
+
     References
     ----------
-    De Lara (2019). The Sparse + Low Rank trick for Matrix Factorization-Based Graph Algorithms,
+    De Lara (2019). `The Sparse + Low Rank trick for Matrix Factorization-Based Graph Algorithms.
+    <http://www.mlgworkshop.org/2019/papers/MLG2019_paper_1.pdf>`_
     Proceedings of the 15th International Workshop on Mining and Learning with Graphs (MLG).
-    http://www.mlgworkshop.org/2019/papers/MLG2019_paper_1.pdf
-
     """
-
-    def __init__(self, sparse_mat: Union[sparse.csr_matrix, sparse.csc_matrix], low_rank_tuples: list, dtype=float):
+    def __init__(self, sparse_mat: Union[sparse.csr_matrix, sparse.csc_matrix], low_rank_tuples: Union[list, Tuple],
+                 dtype=float):
+        n_row, n_col = sparse_mat.shape
         self.sparse_mat = sparse_mat.tocsr().astype(dtype)
-        self.low_rank_tuples = []
-        super(SparseLR, self).__init__(dtype=dtype, shape=self.sparse_mat.shape)
+        super(SparseLR, self).__init__(dtype=dtype, shape=(n_row, n_col))
 
+        if isinstance(low_rank_tuples, Tuple):
+            low_rank_tuples = [low_rank_tuples]
+        self.low_rank_tuples = []
         for x, y in low_rank_tuples:
-            if x.shape == (self.shape[0],) and y.shape == (self.shape[1],):
+            if x.shape == (n_row,) and y.shape == (n_col,):
                 self.low_rank_tuples.append((x.astype(self.dtype), y.astype(self.dtype)))
             else:
-                raise ValueError(
-                    'For each low rank tuple, x (resp. y) should be a vector of length n_rows (resp. n_cols)')
+                raise ValueError('For each low rank tuple, x (resp. y) should be a vector of length {} (resp. {})'
+                                 .format(n_row, n_col))
 
     def __neg__(self):
         return SparseLR(-self.sparse_mat, [(-x, y) for (x, y) in self.low_rank_tuples])
@@ -84,12 +96,7 @@ class SparseLR(LinearOperator):
         return prod
 
     def _transpose(self):
-        """Transposed matrix.
-
-        Returns
-        -------
-        SparseLR object
-        """
+        """Transposed operator."""
         transposed_sparse = sparse.csr_matrix(self.sparse_mat.T)
         transposed_tuples = [(y, x) for (x, y) in self.low_rank_tuples]
         return SparseLR(transposed_sparse, transposed_tuples)
@@ -98,52 +105,17 @@ class SparseLR(LinearOperator):
         return self.transpose()
 
     def left_sparse_dot(self, matrix: sparse.csr_matrix):
-        """Left dot product with a sparse matrix
-
-        Parameters
-        ----------
-        matrix:
-            Matrix
-
-        Returns
-        -------
-        SparseLR object
-
-        """
+        """Left dot product with a sparse matrix."""
         return SparseLR(matrix.dot(self.sparse_mat), [(matrix.dot(x), y) for (x, y) in self.low_rank_tuples])
 
     def right_sparse_dot(self, matrix: sparse.csr_matrix):
-        """Right dot product with a sparse matrix
-
-        Parameters
-        ----------
-        matrix:
-            Matrix
-
-        Returns
-        -------
-        SparseLR object
-
-        """
+        """Right dot product with a sparse matrix."""
         return SparseLR(self.sparse_mat.dot(matrix), [(x, matrix.T.dot(y)) for (x, y) in self.low_rank_tuples])
 
     def astype(self, dtype: Union[str, np.dtype]):
-        """Change dtype of the object.
-
-        Parameters
-        ----------
-        dtype
-
-        Returns
-        -------
-        SparseLR object
-
-        """
+        """Change dtype of the object."""
         self.sparse_mat = self.sparse_mat.astype(dtype)
         self.low_rank_tuples = [(x.astype(dtype), y.astype(dtype)) for (x, y) in self.low_rank_tuples]
-        if type(dtype) == np.dtype:
-            self.dtype = dtype
-        else:
-            self.dtype = np.dtype(dtype)
+        self.dtype = np.dtype(dtype)
 
         return self

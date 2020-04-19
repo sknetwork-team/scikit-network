@@ -20,13 +20,20 @@ class TestClassificationAPI(unittest.TestCase):
         seeds_dict = {0: 0, 1: 1}
 
         classifiers = [PageRankClassifier(), DiffusionClassifier(), KNN(embedding_method=GSVD(3), n_neighbors=1),
-                       CoPageRankClassifier()]
+                       CoPageRankClassifier(), Propagation()]
         for clf in classifiers:
             labels1 = clf.fit_transform(adjacency, seeds_array)
             labels2 = clf.fit_transform(adjacency, seeds_dict)
             self.assertTrue(np.allclose(labels1, labels2))
             self.assertEqual(labels2.shape[0], n)
             self.assertTupleEqual(clf.membership_.shape, (n, 2))
+
+        seeds1 = {0: 0, 1: 1}
+        seeds2 = {0: 0, 1: 2}
+        for clf in classifiers:
+            labels1 = (clf.fit_transform(adjacency, seeds1) == 1)
+            labels2 = (clf.fit_transform(adjacency, seeds2) == 2)
+            self.assertTrue((labels1 == labels2).all())
 
     def test_bipartite(self):
         biadjacency = movie_actor(metadata=False)
@@ -37,7 +44,7 @@ class TestClassificationAPI(unittest.TestCase):
         seeds_col_dict = {0: 0}
 
         classifiers = [BiPageRankClassifier(), BiDiffusionClassifier(), BiKNN(embedding_method=GSVD(3), n_neighbors=1),
-                       CoPageRankClassifier()]
+                       CoPageRankClassifier(), BiPropagation()]
         for clf in classifiers:
             clf.fit(biadjacency, seeds_row_array)
             labels_row1, labels_col1 = clf.labels_row_, clf.labels_col_

@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 
-from sknetwork.clustering import reindex_clusters
+from sknetwork.clustering import reindex_labels
 
 
 class TestClusteringPostProcessing(unittest.TestCase):
@@ -15,9 +15,9 @@ class TestClusteringPostProcessing(unittest.TestCase):
         truth = np.array([1, 1, 2, 0, 0, 0])
 
         labels = np.array([0, 0, 1, 2, 2, 2])
-        output = reindex_clusters(labels)
+        output = reindex_labels(labels)
         self.assertTrue(np.array_equal(truth, output))
 
         labels = np.array([0, 0, 5, 2, 2, 2])
-        output = reindex_clusters(labels, assume_range=False)
+        output = reindex_labels(labels, consecutive=False)
         self.assertTrue(np.array_equal(truth, output))

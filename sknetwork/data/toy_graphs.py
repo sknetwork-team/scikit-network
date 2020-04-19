@@ -29,6 +29,14 @@ def house(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     -------
     adjacency or graph : Union[sparse.csr_matrix, Bunch]
         Adjacency matrix or graph with metadata (positions).
+
+    Example
+    -------
+    >>> from sknetwork.data import house
+    >>> adjacency = house()
+    >>> adjacency.shape
+    (5, 5)
+
     """
     row = np.array([0, 0, 1, 1, 2, 3])
     col = np.array([1, 4, 2, 4, 3, 4])
@@ -61,6 +69,13 @@ def bow_tie(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     -------
     adjacency or graph : Union[sparse.csr_matrix, Bunch]
         Adjacency matrix or graph with metadata (positions).
+
+    Example
+    -------
+    >>> from sknetwork.data import bow_tie
+    >>> adjacency = bow_tie()
+    >>> adjacency.shape
+    (5, 5)
     """
     row = np.array([0, 0, 0, 0, 1, 3])
     col = np.array([1, 2, 3, 4, 2, 4])
@@ -95,6 +110,13 @@ def karate_club(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     adjacency or graph : Union[sparse.csr_matrix, Bunch]
         Adjacency matrix or graph with metadata (labels, positions).
 
+    Example
+    -------
+    >>> from sknetwork.data import karate_club
+    >>> adjacency = karate_club()
+    >>> adjacency.shape
+    (34, 34)
+
     References
     ----------
     Zachary's karate club graph
@@ -113,7 +135,7 @@ def karate_club(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
          33, 33, 32, 33, 32, 33, 25, 27, 29, 32, 33, 25, 27, 31, 31, 29, 33,
          33, 31, 33, 32, 33, 32, 33, 32, 33, 33])
     adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(34, 34))
-    adjacency = adjacency + adjacency.T
+    adjacency = sparse.csr_matrix(adjacency + adjacency.T)
 
     if metadata:
         labels = np.array(
@@ -151,6 +173,13 @@ def miserables(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     -------
     adjacency or graph : Union[sparse.csr_matrix, Bunch]
         Adjacency matrix or graph with metadata (names, positions).
+
+    Example
+    -------
+    >>> from sknetwork.data import miserables
+    >>> adjacency = miserables()
+    >>> adjacency.shape
+    (77, 77)
     """
     row = np.array(
         [0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  2,  3, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11,
@@ -250,6 +279,13 @@ def painters(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     -------
     adjacency or graph : Union[sparse.csr_matrix, Bunch]
         Adjacency matrix or graph with metadata (names, positions).
+
+    Example
+    -------
+    >>> from sknetwork.data import painters
+    >>> adjacency = painters()
+    >>> adjacency.shape
+    (14, 14)
     """
     row = np.array(
         [0, 0, 1, 1, 2, 3, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5,
@@ -281,6 +317,33 @@ def painters(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         return adjacency
 
 
+def hourglass(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+    """Hourglass graph.
+
+    * Bipartite graph
+    * 4 nodes, 4 edges
+
+    Returns
+    -------
+    biadjacency or graph : Union[sparse.csr_matrix, Bunch]
+        Biadjacency matrix or graph.
+
+    Example
+    -------
+    >>> from sknetwork.data import hourglass
+    >>> biadjacency = hourglass()
+    >>> biadjacency.shape
+    (2, 2)
+    """
+    biadjacency = sparse.csr_matrix(np.ones((2, 2)))
+    if metadata:
+        graph = Bunch()
+        graph.biadjacency = biadjacency
+        return graph
+    else:
+        return biadjacency
+
+
 def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     """Bipartite graph connecting some Star Wars villains to the movies in which they appear.
 
@@ -297,6 +360,13 @@ def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     -------
     biadjacency or graph : Union[sparse.csr_matrix, Bunch]
         Biadjacency matrix or graph with metadata (names).
+
+    Example
+    -------
+    >>> from sknetwork.data import star_wars
+    >>> biadjacency = star_wars()
+    >>> biadjacency.shape
+    (4, 3)
    """
     row = np.array([0, 0, 1, 2, 2, 2, 3, 3])
     col = np.array([0, 2, 0, 0, 1, 2, 1, 2])
@@ -333,6 +403,13 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     -------
     biadjacency or graph : Union[sparse.csr_matrix, Bunch]
         Biadjacency matrix or graph with metadata (names).
+
+    Example
+    -------
+    >>> from sknetwork.data import movie_actor
+    >>> biadjacency = movie_actor()
+    >>> biadjacency.shape
+    (15, 16)
     """
     row = np.array(
         [0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 4, 4, 5, 5, 6,

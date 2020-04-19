@@ -26,3 +26,14 @@ class TestNormalization(unittest.TestCase):
         self.assertAlmostEqual(np.linalg.norm(mat1.dot(x) - x), 0)
         self.assertAlmostEqual(np.linalg.norm(mat2.dot(x) - x), 0)
         self.assertAlmostEqual(np.linalg.norm(mat3.dot(x) - x), 0)
+
+        mat1 = np.random.rand(n**2).reshape((n, n))
+        mat2 = sparse.csr_matrix(mat1)
+        mat1 = normalize(mat1, p=2)
+        mat2 = normalize(mat2, p=2)
+        self.assertAlmostEqual(np.linalg.norm(mat1.dot(x) - mat2.dot(x)), 0)
+
+        with self.assertRaises(NotImplementedError):
+            normalize(mat3, p=2)
+        with self.assertRaises(NotImplementedError):
+            normalize(mat1, p=3)

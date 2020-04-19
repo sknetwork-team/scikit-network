@@ -46,9 +46,7 @@ class KMeansDense(Algorithm):
     * Arthur, D., & Vassilvitskii, S. (2007, January). k-means++: The advantages of careful seeding.
       In Proceedings of the eighteenth annual ACM-SIAM symposium on Discrete algorithms (pp. 1027-1035).
       Society for Industrial and Applied Mathematics.
-
     """
-
     def __init__(self, n_clusters: int = 8, init: str = '++', n_init: int = 10, tol: float = 1e-4):
         self.n_clusters = n_clusters
         self.init = init
@@ -59,7 +57,7 @@ class KMeansDense(Algorithm):
         self.cluster_centers_ = None
 
     def fit(self, x: np.ndarray) -> 'KMeansDense':
-        """Apply KMeans algorithm to the data.
+        """Fit algorithm to the data.
 
         Parameters
         ----------
@@ -69,7 +67,6 @@ class KMeansDense(Algorithm):
         Returns
         -------
         self: :class:`KMeansDense`
-
         """
         centroids, labels = kmeans2(data=x, k=self.n_clusters, iter=self.n_init, thresh=self.tol, minit=self.init)
         self.cluster_centers_ = centroids

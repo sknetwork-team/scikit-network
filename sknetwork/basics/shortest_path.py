@@ -21,6 +21,9 @@ def shortest_path(adjacency: sparse.csr_matrix, method: str = 'auto', directed: 
                   n_jobs: Optional[int] = None):
     """Compute the shortest paths in the graph.
 
+    * Graphs
+    * Digraphs
+
     Based on SciPy (scipy.sparse.csgraph.shortest_path)
 
     Parameters

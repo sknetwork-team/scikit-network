@@ -27,9 +27,7 @@ def process_seeds(labels_seeds, temperature_max: float = 1):
     -------
     personalizations: list
         Personalization vectors.
-
     """
-
     personalizations = []
     classes, _ = check_labels(labels_seeds)
 
@@ -54,7 +52,6 @@ def process_scores(scores: np.ndarray) -> np.ndarray:
     Returns
     -------
     scores: np.ndarray
-
     """
     scores -= np.mean(scores, axis=0)
     scores = np.exp(scores)
@@ -87,31 +84,31 @@ class DiffusionClassifier(RankClassifier):
 
     Example
     -------
+    >>> from sknetwork.classification import DiffusionClassifier
     >>> from sknetwork.data import karate_club
-    >>> diff = DiffusionClassifier()
+    >>> diffusion = DiffusionClassifier()
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = diff.fit_transform(adjacency, seeds)
+    >>> labels_pred = diffusion.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.97
 
     References
     ----------
-    Lin, F., & Cohen, W. W. (2010, August). `Semi-supervised classification of network data using very few labels.
-    <https://lti.cs.cmu.edu/sites/default/files/research/reports/2009/cmulti09017.pdf>`_
-    In 2010 International Conference on Advances in Social Networks Analysis and Mining (pp. 192-199). IEEE.
-
+    Zhu, X., Lafferty, J., & Rosenfeld, R. (2005). `Semi-supervised learning with graphs
+    <http://pages.cs.wisc.edu/~jerryzhu/machineteaching/pub/thesis.pdf>`_
+    (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
     """
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = Diffusion(n_iter, verbose)
-        RankClassifier.__init__(self, algorithm, n_jobs, verbose)
+        super(DiffusionClassifier, self).__init__(algorithm, n_jobs, verbose)
         self._process_seeds = process_seeds
         self._process_scores = process_scores
 
 
-class BiDiffusionClassifier(RankBiClassifier):
+class BiDiffusionClassifier(DiffusionClassifier, RankBiClassifier):
     """Node classification using multiple diffusions.
 
     * Bigraphs
@@ -139,22 +136,13 @@ class BiDiffusionClassifier(RankBiClassifier):
 
     Example
     -------
+    >>> from sknetwork.classification import BiDiffusionClassifier
     >>> from sknetwork.data import star_wars
-    >>> bidiff = BiDiffusionClassifier()
+    >>> bidiffusion = BiDiffusionClassifier()
     >>> biadjacency = star_wars()
     >>> seeds = {0: 1, 2: 0}
-    >>> bidiff.fit_transform(biadjacency, seeds)
+    >>> bidiffusion.fit_transform(biadjacency, seeds)
     array([1, 1, 0, 0])
-
-    References
-    ----------
-    Lin, F., & Cohen, W. W. (2010, August). `Semi-supervised classification of network data using very few labels.
-    <https://lti.cs.cmu.edu/sites/default/files/research/reports/2009/cmulti09017.pdf>`_
-    In 2010 International Conference on Advances in Social Networks Analysis and Mining (pp. 192-199). IEEE.
-
     """
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):
-        algorithm = Diffusion(n_iter, verbose)
-        RankBiClassifier.__init__(self, algorithm, n_jobs, verbose)
-        self._process_seeds = process_seeds
-        self._process_scores = process_scores
+        super(BiDiffusionClassifier, self).__init__(n_iter=n_iter, n_jobs=n_jobs, verbose=verbose)

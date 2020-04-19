@@ -11,15 +11,17 @@ from scipy import sparse
 
 from sknetwork.basics import shortest_path
 from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.check import check_format, is_square
+from sknetwork.utils.check import check_format, check_square
 
 
 class Harmonic(BaseRanking):
-    """
-    Compute the harmonic centrality of each node in a connected graph, corresponding to the average inverse length of
+    """Harmonic centrality of each node in a connected graph, corresponding to the average inverse length of
     the shortest paths from that node to all the other ones.
 
     For a directed graph, the harmonic centrality is computed in terms of outgoing paths.
+
+    * Graphs
+    * Digraphs
 
     Parameters
     ----------
@@ -34,10 +36,12 @@ class Harmonic(BaseRanking):
 
     Example
     -------
+    >>> from sknetwork.ranking import Harmonic
     >>> from sknetwork.data import house
     >>> harmonic = Harmonic()
     >>> adjacency = house()
-    >>> np.round(harmonic.fit(adjacency).scores_, 2)
+    >>> scores = harmonic.fit_transform(adjacency)
+    >>> np.round(scores, 2)
     array([3. , 3.5, 3. , 3. , 3.5])
 
     References
@@ -54,8 +58,7 @@ class Harmonic(BaseRanking):
         self.n_jobs = n_jobs
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Harmonic':
-        """
-        Harmonic centrality for connected graphs.
+        """Harmonic centrality for connected graphs.
 
         Parameters
         ----------
@@ -67,11 +70,8 @@ class Harmonic(BaseRanking):
         self: :class:`Harmonic`
         """
         adjacency = check_format(adjacency)
+        check_square(adjacency)
         n = adjacency.shape[0]
-        if not is_square(adjacency):
-            raise ValueError("The adjacency is not square. Please use 'bipartite2undirected' or "
-                             "'bipartite2directed'.")
-
         indices = np.arange(n)
 
         paths = shortest_path(adjacency, n_jobs=self.n_jobs, indices=indices)

@@ -10,23 +10,25 @@ from typing import Union, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork.basics import shortest_path, is_connected
+from sknetwork.basics import shortest_path
 from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.check import check_format, is_square
+from sknetwork.utils.check import check_format, check_square, check_connected
 
 
 class Closeness(BaseRanking):
-    """
-    Compute the closeness centrality of each node in a connected graph, corresponding to the average length of the
+    """Closeness centrality of each node in a connected graph, corresponding to the average length of the
     shortest paths from that node to all the other ones.
 
     For a directed graph, the closeness centrality is computed in terms of outgoing paths.
+
+    * Graphs
+    * Digraphs
 
     Parameters
     ----------
     method :
         Denotes if the results should be exact or approximate.
-    tol:
+    tol: float
         If ``method=='approximate'``, the allowed tolerance on each score entry.
     n_jobs:
         If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
@@ -39,10 +41,12 @@ class Closeness(BaseRanking):
 
     Example
     -------
+    >>> from sknetwork.ranking import Closeness
     >>> from sknetwork.data import cyclic_digraph
     >>> closeness = Closeness()
     >>> adjacency = cyclic_digraph(3)
-    >>> np.round(closeness.fit(adjacency).scores_, 2)
+    >>> scores = closeness.fit_transform(adjacency)
+    >>> np.round(scores, 2)
     array([0.67, 0.67, 0.67])
 
     References
@@ -62,8 +66,7 @@ class Closeness(BaseRanking):
         self.n_jobs = n_jobs
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Closeness':
-        """
-        Closeness centrality for connected graphs.
+        """Closeness centrality for connected graphs.
 
         Parameters
         ----------
@@ -75,13 +78,9 @@ class Closeness(BaseRanking):
         self: :class:`Closeness`
         """
         adjacency = check_format(adjacency)
+        check_square(adjacency)
+        check_connected(adjacency)
         n = adjacency.shape[0]
-        if not is_square(adjacency):
-            raise ValueError("The adjacency is not square. Please use 'bipartite2undirected' or "
-                             "'bipartite2directed'.")
-
-        if not is_connected(adjacency):
-            raise ValueError("The graph must be connected.")
 
         if self.method == 'exact':
             nb_samples = n

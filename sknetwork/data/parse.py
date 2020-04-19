@@ -17,8 +17,7 @@ from sknetwork.utils import Bunch
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
               named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True) -> Bunch:
-    """
-    A parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
+    """Parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
 
     Parameters
     ----------
@@ -136,8 +135,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
 
 
 def parse_labels(file: str) -> np.ndarray:
-    """
-    A parser for files with a single entry on each row.
+    """Parser for files with a single entry on each row.
 
     Parameters
     ----------
@@ -146,44 +144,13 @@ def parse_labels(file: str) -> np.ndarray:
 
     Returns
     -------
-    labels:
-        The labels on each row.
+    labels: np.ndarray
+        Labels.
     """
     rows = []
     with open(file, 'r', encoding='utf-8') as f:
         for row in f:
             rows.append(row.strip())
-    return np.array(rows)
-
-
-def parse_hierarchical_labels(file: str, depth: int, full_path: bool = True, delimiter: str = '|||'):
-    """
-    A parser for files with a single entry of the form ``'String1'<delimiter>...<delimiter>'StringN'`` on each row.
-
-    Parameters
-    ----------
-    file : str
-        The path to the dataset
-    depth: int
-        The maximum depth to search
-    full_path: bool
-        Denotes if only the deepest label possible should be returned or if all super categories should be considered
-    delimiter: str
-        The delimiter on each row
-
-    Returns
-    -------
-    labels:
-        An array of the labels.
-    """
-    rows = []
-    with open(file, 'r', encoding='utf-8') as f:
-        for row in f:
-            parts = row.strip().split(delimiter)
-            if full_path:
-                rows.append(".".join(parts[:min(depth, len(parts))]))
-            else:
-                rows.append(parts[:min(depth, len(parts))][-1])
     return np.array(rows)
 
 

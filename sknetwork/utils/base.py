@@ -8,8 +8,7 @@ import inspect
 
 
 class Algorithm:
-    """Base class for all algorithms.
-    """
+    """Base class for all algorithms."""
     def __repr__(self):
         # parameters not to display
         arg_black_list = ['self', 'random_state', 'verbose']
@@ -26,8 +25,7 @@ class Algorithm:
             else:
                 val = str(val)
             output += p + '=' + val + ', '
-
-        if arguments:
+        if output[-1] != '(':
             return output[:-2] + ')'
         else:
             return output + ')'

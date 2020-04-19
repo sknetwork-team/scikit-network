@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 from scipy.spatial import cKDTree
 
-from sknetwork.classification import BaseClassifier
+from sknetwork.classification import BaseClassifier, BaseBiClassifier
 from sknetwork.embedding import BaseEmbedding, GSVD
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_seeds, check_n_neighbors, check_n_jobs
@@ -34,8 +34,8 @@ class KNN(BaseClassifier):
     n_neighbors :
         Number of nearest neighbors to consider.
     factor_distance :
-        Power weighting factor :math:``\\alpha`` applied to the distance to each neighbor.
-        Neighbor at distance :math:``d`` has weight :math:``1 / d^\\alpha``. Default is 2.
+        Power weighting factor :math:`\\alpha` applied to the distance to each neighbor.
+        Neighbor at distance :math:``d`` has weight :math:`1 / d^\\alpha`. Default is 2.
     leaf_size :
         Leaf size passed to KDTree.
     p :
@@ -55,8 +55,9 @@ class KNN(BaseClassifier):
 
     Example
     -------
-    >>> from sknetwork.data import karate_club
+    >>> from sknetwork.classification import KNN
     >>> from sknetwork.embedding import GSVD
+    >>> from sknetwork.data import karate_club
     >>> knn = KNN(GSVD(3), n_neighbors=1)
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
@@ -65,7 +66,6 @@ class KNN(BaseClassifier):
     >>> labels_pred = knn.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.97
-
     """
     def __init__(self, embedding_method: BaseEmbedding = GSVD(10), n_neighbors: int = 5,
                  factor_distance: float = 2, leaf_size: int = 16, p: float = 2, tol_nn: float = 0.01,
@@ -154,7 +154,7 @@ class KNN(BaseClassifier):
         return self
 
 
-class BiKNN(KNN):
+class BiKNN(KNN, BaseBiClassifier):
     """Node classification by K-nearest neighbors in the embedding space.
 
     * Bigraphs
@@ -195,6 +195,7 @@ class BiKNN(KNN):
 
     Example
     -------
+    >>> from sknetwork.classification import BiKNN
     >>> from sknetwork.data import movie_actor
     >>> biknn = BiKNN(n_neighbors=2)
     >>> graph = movie_actor(metadata=True)
@@ -204,17 +205,10 @@ class BiKNN(KNN):
     15
     >>> len(biknn.labels_col_)
     16
-
-
     """
     def __init__(self, embedding_method: BaseEmbedding = GSVD(10), n_neighbors: int = 5,
                  factor_distance: float = 2, leaf_size: int = 16, p: float = 2, tol_nn: float = 0.01, n_jobs: int = 1):
         super(BiKNN, self).__init__(embedding_method, n_neighbors, factor_distance, leaf_size, p, tol_nn, n_jobs)
-
-        self.labels_row_ = None
-        self.labels_col_ = None
-        self.membership_row_ = None
-        self.membership_col_ = None
 
     def _instanciate_vars(self, biadjacency: Union[sparse.csr_matrix, np.ndarray], seeds_row: Union[np.ndarray, dict],
                           seeds_col: Optional[Union[np.ndarray, dict]] = None):
@@ -252,12 +246,8 @@ class BiKNN(KNN):
         index_seed, index_remain, labels_seed, embedding = self._instanciate_vars(biadjacency, seeds_row, seeds_col)
 
         membership, labels = self._fit_core(n_row + n_col, labels_seed, embedding, index_seed, index_remain)
-
-        self.labels_row_ = labels[:n_row]
-        self.labels_col_ = labels[n_row:]
-        self.labels_ = self.labels_row_
-        self.membership_row_ = membership[:n_row]
-        self.membership_col_ = membership[n_row:]
-        self.membership_ = self.membership_row_
+        self.membership_ = membership
+        self.labels_ = labels
+        self._split_vars(n_row)
 
         return self

@@ -10,23 +10,37 @@ from typing import Union, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork import is_numba_available
-
 
 def has_nonnegative_entries(entry: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """Check whether the array has non negative entries."""
+    """Boolean indicating whether the array has non negative entries."""
     if type(entry) == sparse.csr_matrix:
         return np.all(entry.data >= 0)
     else:
         return np.all(entry >= 0)
 
 
+def check_nonnegative(entry: Union[sparse.csr_matrix, np.ndarray]):
+    """Check whether the array has non negative entries."""
+    if not has_nonnegative_entries(entry):
+        raise ValueError('Only nonnegative values are expected.')
+    else:
+        return
+
+
 def has_positive_entries(entry: np.ndarray) -> bool:
-    """Check whether the array has positive entries."""
+    """Boolean indicating whether the array has positive entries."""
     if type(entry) != np.ndarray:
         raise TypeError('Entry must be a dense NumPy array.')
     else:
         return np.all(entry > 0)
+
+
+def check_positive(entry: Union[sparse.csr_matrix, np.ndarray]):
+    """Check whether the array has positive entries."""
+    if not has_positive_entries(entry):
+        raise ValueError('Only positive values are expected.')
+    else:
+        return
 
 
 def is_proba_array(entry: np.ndarray) -> bool:
@@ -42,8 +56,16 @@ def is_proba_array(entry: np.ndarray) -> bool:
 
 
 def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """Check whether the matrix is square."""
+    """True if the matrix is square."""
     return adjacency.shape[0] == adjacency.shape[1]
+
+
+def check_square(adjacency: Union[sparse.csr_matrix, np.ndarray]):
+    """Check is a matrix is square and return an error otherwise."""
+    if is_square(adjacency):
+        return
+    else:
+        raise ValueError('The adjacency is expected to be square.')
 
 
 def is_symmetric(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1e-10) -> bool:
@@ -52,8 +74,37 @@ def is_symmetric(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1
     return np.all(np.abs(sym_error.data) <= tol)
 
 
+def check_symmetry(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1e-10):
+    """Check is a matrix is symmetric and return an error otherwise."""
+    if is_symmetric(adjacency, tol):
+        return
+    else:
+        raise ValueError('The adjacency is expected to be symmetric.')
+
+
+def is_connected(adjacency: sparse.csr_matrix) -> bool:
+    """
+    Check whether a graph is weakly connected. Bipartite graphs are treated as undirected ones.
+
+    Parameters
+    ----------
+    adjacency:
+        Adjacency matrix of the graph.
+    """
+    n_cc = sparse.csgraph.connected_components(adjacency, (not is_symmetric(adjacency)), 'weak', False)
+    return n_cc == 1
+
+
+def check_connected(adjacency: Union[sparse.csr_matrix, np.ndarray]):
+    """Check is a graph is connected and return an error otherwise."""
+    if is_connected(adjacency):
+        return
+    else:
+        raise ValueError('The adjacency is expected to be connected.')
+
+
 def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
-    """Returns an array of weights from a matrix and a desired distribution.
+    """Array of weights from a matrix and a desired distribution.
 
        Parameters
        ----------
@@ -78,29 +129,8 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
     return node_weights_vec
 
 
-def check_engine(engine: str) -> str:
-    """Checks if the desired engine is available and returns Numba whenever possible rather than Python if asked for
-    the ``'default'`` engine.
-    """
-    if engine == 'default':
-        if is_numba_available:
-            engine = 'numba'
-        else:
-            engine = 'python'
-    elif engine == 'numba':
-        if is_numba_available:
-            engine = 'numba'
-        else:
-            raise ValueError('Numba is not available')
-    elif engine == 'python':
-        engine = 'python'
-    else:
-        raise ValueError('Engine must be default, python or numba.')
-    return engine
-
-
 def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
-    """Checks whether the matrix is an instance of a supported type (NumPy array or Scipy CSR matrix) and returns
+    """Check whether the matrix is an instance of a supported type (NumPy array or Scipy CSR matrix) and return
     the corresponding Scipy CSR matrix.
     """
     if type(adjacency) not in {sparse.csr_matrix, np.ndarray}:
@@ -110,7 +140,7 @@ def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_
 
 
 def check_is_proba(entry: Union[float, int]):
-    """Checks whether the number is non-negative and less than or equal to 1."""
+    """Check whether the number is non-negative and less than or equal to 1."""
     if type(entry) not in [float, int]:
         raise TypeError('Probabilities must be floats (or ints if 0 or 1).')
     if entry < 0 or entry > 1:
@@ -120,7 +150,7 @@ def check_is_proba(entry: Union[float, int]):
 
 def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_matrix, sparse.csc_matrix],
                   positive_entries: bool = False) -> np.ndarray:
-    """Checks whether the weights are a valid distribution for the adjacency and returns a probability vector.
+    """Check whether the weights are a valid distribution for the adjacency and return a probability vector.
 
     Parameters
     ----------
@@ -160,15 +190,15 @@ def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr
 
 def check_probs(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_matrix, sparse.csc_matrix],
                 positive_entries: bool = False) -> np.ndarray:
-    """Checks whether the weights are a valid distribution for the adjacency
-    and returns a normalized probability vector.
+    """Check whether the weights are a valid distribution for the adjacency
+    and return a normalized probability vector.
     """
     weights = check_weights(weights, adjacency, positive_entries)
     return weights / np.sum(weights)
 
 
 def check_random_state(random_state: Optional[Union[np.random.RandomState, int]]):
-    """Checks whether the argument is a seed or a NumPy random state. If None, numpy.random is used by default."""
+    """Check whether the argument is a seed or a NumPy random state. If None, numpy.random is used by default."""
     if random_state is None or random_state is np.random:
         return np.random
     elif type(random_state) == int:
@@ -241,3 +271,11 @@ def check_adjacency_vector(adjacency_vectors: Union[sparse.csr_matrix, np.ndarra
             raise ValueError('The adjacency vector must be of length equal to the number nodes in the initial graph.')
 
     return adjacency_vectors
+
+
+def check_n_clusters(n_clusters: int, n_row: int):
+    """Check that the number of clusters"""
+    if n_clusters > n_row:
+        raise ValueError('The number of clusters exceeds the number of rows.')
+    else:
+        return

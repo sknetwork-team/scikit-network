@@ -12,22 +12,27 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.linalg import SparseLR, SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv
-from sknetwork.utils.check import check_format, check_adjacency_vector
+from sknetwork.embedding.base import BaseBiEmbedding
+from sknetwork.linalg import SparseLR, SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv,\
+    normalize
+from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative
 
 
-class GSVD(BaseEmbedding):
+class GSVD(BaseBiEmbedding):
     """Graph embedding by Generalized Singular Value Decomposition of the adjacency or biadjacency matrix :math:`A`.
     This is equivalent to the Singular Value Decomposition of the matrix :math:`D_1^{- \\alpha_1}AD_2^{- \\alpha_2}`
     where :math:`D_1, D_2` are the diagonal matrices of row weights and columns weights, respectively, and
     :math:`\\alpha_1, \\alpha_2` are parameters.
 
+    * Graphs
+    * Digraphs
+    * Bigraphs
+
     Parameters
     -----------
-    n_components: int
+    n_components : int
         Dimension of the embedding.
-    regularization: ``None`` or float (default = ``None``)
+    regularization : ``None`` or float (default = ``None``)
         Implicitly add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
@@ -44,10 +49,10 @@ class GSVD(BaseEmbedding):
         * :math:`V` is the matrix of right singular vectors, shape (n_col, n_components)
         * :math:`\\Sigma` is the diagonal matrix of singular values, shape (n_components, n_components)
 
-    normalize : bool (default = ``True``)
+    normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
+    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.
 
         * ``'auto'``: call the auto_solver function.
@@ -76,10 +81,13 @@ class GSVD(BaseEmbedding):
 
     Example
     -------
-    >>> gsvd = GSVD(3)
-    >>> embedding = gsvd.fit_transform(np.ones((7,5)))
+    >>> from sknetwork.embedding import GSVD
+    >>> from sknetwork.data import karate_club
+    >>> gsvd = GSVD()
+    >>> adjacency = karate_club()
+    >>> embedding = gsvd.fit_transform(adjacency)
     >>> embedding.shape
-    (7, 3)
+    (34, 2)
 
     References
     ----------
@@ -88,9 +96,8 @@ class GSVD(BaseEmbedding):
     <https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf>`_
     Encyclopedia of measurement and statistics, 907-912.
     """
-
     def __init__(self, n_components=2, regularization: Union[None, float] = None, relative_regularization: bool = True,
-                 factor_row: float = 0.5, factor_col: float = 0.5, factor_singular: float = 0., normalize: bool = True,
+                 factor_row: float = 0.5, factor_col: float = 0.5, factor_singular: float = 0., normalized: bool = True,
                  solver: Union[str, SVDSolver] = 'auto'):
         super(GSVD, self).__init__()
 
@@ -103,7 +110,7 @@ class GSVD(BaseEmbedding):
         self.factor_row = factor_row
         self.factor_col = factor_col
         self.factor_singular = factor_singular
-        self.normalize = normalize
+        self.normalized = normalized
         if solver == 'halko':
             self.solver: SVDSolver = HalkoSVD()
         elif solver == 'lanczos':
@@ -111,9 +118,6 @@ class GSVD(BaseEmbedding):
         else:
             self.solver = solver
 
-        self.embedding_ = None
-        self.embedding_row_ = None
-        self.embedding_col_ = None
         self.singular_values_ = None
         self.singular_vectors_left_ = None
         self.singular_vectors_right_ = None
@@ -121,24 +125,22 @@ class GSVD(BaseEmbedding):
         self.weights_col_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'GSVD':
-        """
-        Compute the GSVD of the adjacency or biadjacency matrix.
+        """Compute the GSVD of the adjacency or biadjacency matrix.
 
         Parameters
         ----------
-        adjacency: array-like, shape = (n1, n2)
-            Adjacency matrix, where n1 = n2 is the number of nodes for a standard graph,
-            n1, n2 are the number of nodes in each part for a bipartite graph.
+        adjacency :
+            Adjacency or biadjacency matrix of the graph.
 
         Returns
         -------
         self: :class:`GSVD`
         """
         adjacency = check_format(adjacency).asfptype()
-        n1, n2 = adjacency.shape
+        n_row, n_col = adjacency.shape
 
-        if self.n_components >= min(n1, n2) - 1:
-            n_components = min(n1, n2) - 1
+        if self.n_components >= min(n_row, n_col) - 1:
+            n_components = min(n_row, n_col) - 1
             warnings.warn(Warning("The dimension of the embedding must be less than the number of rows "
                                   "and the number of columns. Changed accordingly."))
         else:
@@ -154,13 +156,13 @@ class GSVD(BaseEmbedding):
         regularization = self.regularization
         if regularization:
             if self.relative_regularization:
-                regularization = regularization * np.sum(adjacency.data) / (n1 * n2)
-            adjacency_reg = SparseLR(adjacency, [(regularization * np.ones(n1), np.ones(n2))])
+                regularization = regularization * np.sum(adjacency.data) / (n_row * n_col)
+            adjacency_reg = SparseLR(adjacency, [(regularization * np.ones(n_row), np.ones(n_col))])
         else:
             adjacency_reg = adjacency
 
-        weights_row = adjacency_reg.dot(np.ones(n2))
-        weights_col = adjacency_reg.T.dot(np.ones(n1))
+        weights_row = adjacency_reg.dot(np.ones(n_col))
+        weights_col = adjacency_reg.T.dot(np.ones(n_row))
         diag_row = diag_pinv(np.power(weights_row, self.factor_row))
         diag_col = diag_pinv(np.power(weights_col, self.factor_col))
         self.solver.fit(safe_sparse_dot(diag_row, safe_sparse_dot(adjacency_reg, diag_col)), n_components)
@@ -178,9 +180,9 @@ class GSVD(BaseEmbedding):
         embedding_row = singular_left_diag.dot(embedding_row.T).T
         embedding_col = singular_right_diag.dot(embedding_col.T).T
 
-        if self.normalize:
-            embedding_row = diag_pinv(np.linalg.norm(embedding_row, axis=1)).dot(embedding_row)
-            embedding_col = diag_pinv(np.linalg.norm(embedding_col, axis=1)).dot(embedding_col)
+        if self.normalized:
+            embedding_row = normalize(embedding_row, p=2)
+            embedding_col = normalize(embedding_col, p=2)
 
         self.embedding_row_ = embedding_row
         self.embedding_col_ = embedding_col
@@ -193,53 +195,54 @@ class GSVD(BaseEmbedding):
 
         return self
 
+    @staticmethod
+    def _check_adj_vector(adjacency_vectors: np.ndarray):
+        check_nonnegative(adjacency_vectors)
+
     def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """Predict the embedding of new rows, defined by their adjacency vectors.
 
         Parameters
         ----------
-        adjacency_vectors : array, shape (n_col,) (single vector) or (n_vectors, n_col)
+        adjacency_vectors :
             Adjacency vectors of nodes.
+            Array of shape (n_col,) (single vector) or (n_vectors, n_col)
 
         Returns
         -------
-        embedding_vectors : array, shape (n_components,) (single vector) or (n_vectors, n_components)
+        embedding_vectors : np.ndarray
             Embedding of the nodes.
         """
+        self._check_fitted()
         singular_vectors_right = self.singular_vectors_right_
-        if singular_vectors_right is None:
-            raise ValueError("This instance of SVD embedding is not fitted yet."
-                             " Call 'fit' with appropriate arguments before using this method.")
         singular_values = self.singular_values_
 
         n_row, _ = self.embedding_row_.shape
         n_col, _ = self.embedding_col_.shape
 
         adjacency_vectors = check_adjacency_vector(adjacency_vectors, n_col)
-        if not np.all(adjacency_vectors >= 0):
-            raise ValueError('The adjacency vector must be non-negative.')
+        self._check_adj_vector(adjacency_vectors)
 
         # regularization
-        adjacency_vector_reg = adjacency_vectors.astype(float)
+        adjacency_vectors_reg = adjacency_vectors.astype(float)
         if self.regularization_:
-            adjacency_vector_reg += self.regularization_
+            adjacency_vectors_reg += self.regularization_
 
         # weighting
-        weights_row = adjacency_vector_reg.dot(np.ones(n_col))
+        weights_row = adjacency_vectors_reg.dot(np.ones(n_col))
         diag_row = diag_pinv(np.power(weights_row, self.factor_row))
         diag_col = diag_pinv(np.power(self.weights_col_, self.factor_col))
-        adjacency_vector_reg = diag_row.dot(diag_col.dot(adjacency_vector_reg.T).T)
+        adjacency_vectors_reg = diag_row.dot(safe_sparse_dot(adjacency_vectors_reg, diag_col))
 
         # projection in the embedding space
-        diag = diag_pinv(np.sum(adjacency_vector_reg, axis=1))
-        averaging = diag.dot(adjacency_vector_reg)
+        averaging = adjacency_vectors_reg
         embedding_vectors = diag_row.dot(averaging.dot(singular_vectors_right))
 
         # scaling
         embedding_vectors /= np.power(singular_values, self.factor_singular)
 
-        if self.normalize:
-            embedding_vectors = diag_pinv(np.linalg.norm(embedding_vectors, axis=1)).dot(embedding_vectors)
+        if self.normalized:
+            embedding_vectors = normalize(embedding_vectors, p=2)
 
         if embedding_vectors.shape[0] == 1:
             embedding_vectors = embedding_vectors.ravel()
@@ -250,11 +253,15 @@ class GSVD(BaseEmbedding):
 class SVD(GSVD):
     """Graph embedding by Singular Value Decomposition of the adjacency or biadjacency matrix.
 
+    * Graphs
+    * Digraphs
+    * Bigraphs
+
     Parameters
-    -----------
-    n_components: int
+    ----------
+    n_components : int
         Dimension of the embedding.
-    regularization: ``None`` or float (default = ``None``)
+    regularization : ``None`` or float (default = ``None``)
         Implicitly add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
@@ -267,10 +274,10 @@ class SVD(GSVD):
         * :math:`V` is the matrix of right singular vectors, shape (n_col, n_components)
         * :math:`\\Sigma` is the diagonal matrix of singular values, shape (n_components, n_components)
 
-    normalize : bool (default = ``False``)
+    normalized : bool (default = ``False``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver: ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
+    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
         Which singular value solver to use.
 
         * ``'auto'``: call the auto_solver function.
@@ -280,11 +287,11 @@ class SVD(GSVD):
 
     Attributes
     ----------
-    embedding_ : np.ndarray, shape = (n1, n_components)
+    embedding_ : np.ndarray, shape = (n_row, n_components)
         Embedding of the rows.
-    embedding_row_ : np.ndarray, shape = (n1, n_components)
+    embedding_row_ : np.ndarray, shape = (n_row, n_components)
         Embedding of the rows (copy of **embedding_**).
-    embedding_col_ : np.ndarray, shape = (n2, n_components)
+    embedding_col_ : np.ndarray, shape = (n_col, n_components)
         Embedding of the columns.
     singular_values_ : np.ndarray, shape = (n_components)
         Singular values.
@@ -297,10 +304,13 @@ class SVD(GSVD):
 
     Example
     -------
-    >>> svd = SVD(3)
-    >>> embedding = svd.fit_transform(np.ones((6,5)))
+    >>> from sknetwork.embedding import SVD
+    >>> from sknetwork.data import karate_club
+    >>> svd = SVD()
+    >>> adjacency = karate_club()
+    >>> embedding = svd.fit_transform(adjacency)
     >>> embedding.shape
-    (6, 3)
+    (34, 2)
 
     References
     ----------
@@ -309,16 +319,12 @@ class SVD(GSVD):
     <https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf>`_
     Encyclopedia of measurement and statistics, 907-912.
     """
-
     def __init__(self, n_components=2, regularization: Union[None, float] = None, relative_regularization: bool = True,
-                 factor_singular: float = 0., normalize: bool = False, solver: Union[str, SVDSolver] = 'auto'):
-        GSVD.__init__(self, n_components, regularization, relative_regularization, factor_singular, 0, 0, normalize,
-                      solver)
+                 factor_singular: float = 0., normalized: bool = False, solver: Union[str, SVDSolver] = 'auto'):
+        super(SVD, self).__init__(n_components=n_components, regularization=regularization,
+                                  relative_regularization=relative_regularization, factor_singular=factor_singular,
+                                  factor_row=0., factor_col=0., normalized=normalized, solver=solver)
 
-        self.embedding_ = None
-        self.embedding_row_ = None
-        self.embedding_col_ = None
-        self.singular_values_ = None
-        self.singular_vectors_left_ = None
-        self.singular_vectors_right_ = None
-        self.regularization_ = None
+    @staticmethod
+    def _check_adj_vector(adjacency_vectors: np.ndarray):
+        return

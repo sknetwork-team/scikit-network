@@ -3,38 +3,32 @@
 Classification
 **************
 
-.. currentmodule:: sknetwork
-
-This module contains node classification algorithms.
+Node classification algorithms.
 
 The attribute ``labels_``  assigns a label to each node of the graph.
 
 PageRank
 --------
 .. autoclass:: sknetwork.classification.PageRankClassifier
-    :inherited-members:
-    :members:
 
 .. autoclass:: sknetwork.classification.BiPageRankClassifier
-    :inherited-members:
-    :members:
+
+.. autoclass:: sknetwork.classification.CoPageRankClassifier
 
 Diffusion
 ---------
 .. autoclass:: sknetwork.classification.DiffusionClassifier
-    :inherited-members:
-    :members:
 
 .. autoclass:: sknetwork.classification.BiDiffusionClassifier
-    :inherited-members:
-    :members:
+
+Propagation
+-----------
+.. autoclass:: sknetwork.classification.Propagation
+
+.. autoclass:: sknetwork.classification.BiPropagation
 
 Nearest neighbors
 -----------------
 .. autoclass:: sknetwork.classification.KNN
-    :inherited-members:
-    :members:
 
 .. autoclass:: sknetwork.classification.BiKNN
-    :inherited-members:
-    :members:

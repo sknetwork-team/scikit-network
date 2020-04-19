@@ -13,20 +13,17 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 
-from sknetwork.basics.structure import is_connected
-from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv
-from sknetwork.utils.check import check_format, is_square, is_symmetric, check_adjacency_vector
+from sknetwork.embedding.base import BaseEmbedding, BaseBiEmbedding
+from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv, normalize
+from sknetwork.utils.check import check_format, check_square, check_symmetry, check_adjacency_vector, is_connected,\
+    check_nonnegative
 from sknetwork.utils.format import bipartite2undirected
 
 
 class LaplacianOperator(LinearOperator):
-    """
-    Regularized Laplacian matrix as a scipy LinearOperator.
-    """
-
+    """Regularized Laplacian matrix as a scipy LinearOperator."""
     def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
-        LinearOperator.__init__(self, dtype=float, shape=adjacency.shape)
+        super(LaplacianOperator, self).__init__(dtype=float, shape=adjacency.shape)
         self.regularization = regularization
         self.weights = adjacency.dot(np.ones(adjacency.shape[1]))
         self.laplacian = sparse.diags(self.weights, format='csr') - adjacency
@@ -45,17 +42,7 @@ class LaplacianOperator(LinearOperator):
         return self
 
     def astype(self, dtype: Union[str, np.dtype]):
-        """Change dtype of the object.
-
-        Parameters
-        ----------
-        dtype
-
-        Returns
-        -------
-        self
-
-        """
+        """Change dtype of the object."""
         self.dtype = np.dtype(dtype)
         self.laplacian = self.laplacian.astype(self.dtype)
         self.weights = self.weights.astype(self.dtype)
@@ -64,11 +51,9 @@ class LaplacianOperator(LinearOperator):
 
 
 class NormalizedAdjacencyOperator(LinearOperator):
-    """Regularized normalized adjacency matrix as a scipy LinearOperator.
-    """
-
+    """Regularized normalized adjacency matrix as a scipy LinearOperator."""
     def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
-        LinearOperator.__init__(self, dtype=float, shape=adjacency.shape)
+        super(NormalizedAdjacencyOperator, self).__init__(dtype=float, shape=adjacency.shape)
         self.adjacency = adjacency
         self.regularization = regularization
 
@@ -88,17 +73,7 @@ class NormalizedAdjacencyOperator(LinearOperator):
         return self
 
     def astype(self, dtype: Union[str, np.dtype]):
-        """Change dtype of the object.
-
-        Parameters
-        ----------
-        dtype
-
-        Returns
-        -------
-        self
-
-        """
+        """Change dtype of the object."""
         self.dtype = np.dtype(dtype)
         self.adjacency = self.adjacency.astype(self.dtype)
         self.weights_sqrt = self.weights_sqrt.astype(self.dtype)
@@ -107,11 +82,12 @@ class NormalizedAdjacencyOperator(LinearOperator):
 
 
 class Spectral(BaseEmbedding):
-    """
-    Spectral embedding of graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`.
+    """Spectral embedding of graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`.
     Eigenvectors are considered in increasing order of eigenvalues, skipping the first eigenvector.
 
-    The graph must be undirected (see :class:`BiSpectral` for directed graphs and bipartite graphs).
+    * Graphs
+
+    See :class:`BiSpectral` for digraphs and bigraphs.
 
     Parameters
     ----------
@@ -132,7 +108,7 @@ class Spectral(BaseEmbedding):
     barycenter : bool (default = ``True``)
         If ``True``, use the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
         with :math:`P = D^{-1}A`. Otherwise, use :math:`U`.
-    normalize : bool (default = ``True``)
+    normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
@@ -156,20 +132,22 @@ class Spectral(BaseEmbedding):
 
     Example
     -------
+    >>> from sknetwork.embedding import Spectral
+    >>> from sknetwork.data import karate_club
     >>> spectral = Spectral()
-    >>> embedding = spectral.fit_transform(np.ones((4, 4)))
+    >>> adjacency = karate_club()
+    >>> embedding = spectral.fit_transform(adjacency)
     >>> embedding.shape
-    (4, 2)
+    (34, 2)
 
     References
     ----------
     Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
     Neural computation.
     """
-
     def __init__(self, n_components: int = 2, normalized_laplacian=True,
                  regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
-                 equalize: bool = False, barycenter: bool = True, normalize: bool = True,
+                 equalize: bool = False, barycenter: bool = True, normalized: bool = True,
                  solver: Union[str, EigSolver] = 'auto'):
         super(Spectral, self).__init__()
 
@@ -184,7 +162,7 @@ class Spectral(BaseEmbedding):
 
         self.equalize = equalize
         self.barycenter = barycenter
-        self.normalize = normalize
+        self.normalized = normalized
         if solver == 'halko':
             self.solver: EigSolver = HalkoEig()
         elif solver == 'lanczos':
@@ -192,7 +170,6 @@ class Spectral(BaseEmbedding):
         else:
             self.solver = solver
 
-        self.embedding_ = None
         self.eigenvalues_ = None
         self.eigenvectors_ = None
         self.regularization_ = None
@@ -209,16 +186,9 @@ class Spectral(BaseEmbedding):
         -------
         self: :class:`Spectral`
         """
-
         adjacency = check_format(adjacency).asfptype()
-
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix is not square. See BiSpectral for biadjacency matrices.')
-
-        if not is_symmetric(adjacency):
-            raise ValueError('The adjacency matrix is not symmetric.'
-                             'Either convert it to a symmetric matrix or use BiSpectral.')
-
+        check_square(adjacency)
+        check_symmetry(adjacency)
         n = adjacency.shape[0]
 
         if self.solver == 'auto':
@@ -291,8 +261,8 @@ class Spectral(BaseEmbedding):
                 subtract = weights_inv_diag.dot(subtract)
             embedding -= subtract
 
-        if self.normalize:
-            embedding = diag_pinv(np.linalg.norm(embedding, axis=1)).dot(embedding)
+        if self.normalized:
+            embedding = normalize(embedding, p=2)
 
         self.embedding_ = embedding
         self.eigenvalues_ = eigenvalues
@@ -306,27 +276,22 @@ class Spectral(BaseEmbedding):
 
         Parameters
         ----------
-        adjacency_vectors : array, shape (n,) (single vector) or (n_vectors, n)
+        adjacency_vectors :
             Adjacency vectors of nodes.
+            Array of shape (n_col,) (single vector) or (n_vectors, n_col)
 
         Returns
         -------
-        embedding_vectors : array, shape (n_components,) (single vector) or (n_vectors, n_components)
+        embedding_vectors : np.ndarray
             Embedding of the nodes.
         """
+        self._check_fitted()
         eigenvectors = self.eigenvectors_
         eigenvalues = self.eigenvalues_
-
-        if eigenvectors is None:
-            raise ValueError("This instance of Spectral embedding is not fitted yet."
-                             " Call 'fit' with appropriate arguments before using this method.")
-        else:
-            n = eigenvectors.shape[0]
+        n = eigenvectors.shape[0]
 
         adjacency_vectors = check_adjacency_vector(adjacency_vectors, n)
-
-        if not np.all(adjacency_vectors >= 0):
-            raise ValueError('The adjacency vector must be non-negative.')
+        check_nonnegative(adjacency_vectors)
 
         # regularization
         adjacency_vector_reg = adjacency_vectors.astype(float)
@@ -350,8 +315,8 @@ class Spectral(BaseEmbedding):
         if self.equalize:
             embedding_vectors = diag_pinv(np.sqrt(eigenvalues)).dot(embedding_vectors.T).T
 
-        if self.normalize:
-            embedding_vectors = diag_pinv(np.linalg.norm(embedding_vectors, axis=1)).dot(embedding_vectors)
+        if self.normalized:
+            embedding_vectors = normalize(embedding_vectors, p=2)
 
         if embedding_vectors.shape[0] == 1:
             embedding_vectors = embedding_vectors.ravel()
@@ -359,11 +324,13 @@ class Spectral(BaseEmbedding):
         return embedding_vectors
 
 
-class BiSpectral(Spectral):
-    """
-    Spectral embedding of bipartite graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`
-    with :math:`A` the adjacency matrix of the graph. Eigenvectors are considered in increasing order of eigenvalues,
-    skipping the first eigenvector.
+class BiSpectral(Spectral, BaseBiEmbedding):
+    """Spectral embedding of bipartite graphs, based the spectral decomposition of the Laplacian matrix
+    :math:`L = D - A` with :math:`A` the adjacency matrix of the graph. Eigenvectors are considered in increasing order
+    of eigenvalues, skipping the first eigenvector.
+
+    * Digraphs
+    * Bigraphs
 
     Parameters
     ----------
@@ -384,7 +351,7 @@ class BiSpectral(Spectral):
     barycenter : bool (default = ``True``)
         If ``True``, use the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
         with :math:`P = D^{-1}A`. Otherwise use :math:`U`.
-    normalize : bool (default = ``True``)
+    normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
@@ -412,32 +379,26 @@ class BiSpectral(Spectral):
 
     Example
     -------
+    >>> from sknetwork.embedding import BiSpectral
+    >>> from sknetwork.data import movie_actor
     >>> bispectral = BiSpectral()
-    >>> embedding = bispectral.fit_transform(np.ones((5, 4)))
+    >>> biadjacency = movie_actor()
+    >>> embedding = bispectral.fit_transform(biadjacency)
     >>> embedding.shape
-    (5, 2)
+    (15, 2)
 
     References
     ----------
     Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
     Neural computation.
     """
-
     def __init__(self, n_components: int = 2, normalized_laplacian=True,
                  regularization: Union[None, float] = 0.01, relative_regularization: bool = True,
-                 equalize: bool = False, barycenter: bool = True, normalize: bool = True,
+                 equalize: bool = False, barycenter: bool = True, normalized: bool = True,
                  solver: Union[str, EigSolver] = 'auto'):
-        Spectral.__init__(self, n_components, normalized_laplacian, regularization, relative_regularization, equalize,
-                          barycenter, normalize, solver)
+        super(BiSpectral, self).__init__(n_components, normalized_laplacian, regularization, relative_regularization,
+                                         equalize, barycenter, normalized, solver)
 
-        self.embedding_ = None
-        self.embedding_row_ = None
-        self.embedding_col_ = None
-        self.eigenvalues_ = None
-        self.eigenvectors_ = None
-        self.regularization_ = None
-
-    # noinspection DuplicatedCode
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiSpectral':
         """Spectral embedding of the bipartite graph considered as undirected, with adjacency matrix:
 
@@ -454,20 +415,10 @@ class BiSpectral(Spectral):
         -------
         self: :class:`BiSpectral`
         """
-        spectral = Spectral(n_components=self.n_components, normalized_laplacian=self.normalized_laplacian,
-                            regularization=self.regularization, relative_regularization=self.relative_regularization,
-                            equalize=self.equalize, barycenter=self.barycenter, normalize=self.normalize,
-                            solver=self.solver)
         biadjacency = check_format(biadjacency)
         n_row, _ = biadjacency.shape
-        spectral.fit(bipartite2undirected(biadjacency))
-
-        self.embedding_row_ = spectral.embedding_[:n_row]
-        self.embedding_col_ = spectral.embedding_[n_row:]
-        self.embedding_ = self.embedding_row_
-        self.eigenvalues_ = spectral.eigenvalues_
-        self.eigenvectors_ = spectral.eigenvectors_
-        self.regularization_ = spectral.regularization_
+        Spectral.fit(self, bipartite2undirected(biadjacency))
+        self._split_vars(n_row)
 
         return self
 
@@ -476,28 +427,23 @@ class BiSpectral(Spectral):
 
         Parameters
         ----------
-        adjacency_vectors : array, shape (n_col,) (single vector) or (n_vectors, n_col)
+        adjacency_vectors :
             Adjacency vectors of nodes.
+            Array of shape (n_col,) (single vector) or (n_vectors, n_col)
 
         Returns
         -------
-        embedding_vectors : array, shape (n_components,) (single vector) or (n_vectors, n_components)
+        embedding_vectors : np.ndarray
             Embedding of the nodes.
         """
-        eigenvectors = self.eigenvectors_
-        if eigenvectors is None:
-            raise ValueError("This instance of BiSpectral embedding is not fitted yet."
-                             " Call 'fit' with appropriate arguments before using this method.")
+        self._check_fitted()
+        n_row, _ = self.embedding_row_.shape
+        n_col, _ = self.embedding_col_.shape
 
-        n1, _ = self.embedding_row_.shape
-        n2, _ = self.embedding_col_.shape
+        adjacency_vectors = check_adjacency_vector(adjacency_vectors, n_col)
+        check_nonnegative(adjacency_vectors)
 
-        adjacency_vectors = check_adjacency_vector(adjacency_vectors, n2)
-
-        if not np.all(adjacency_vectors >= 0):
-            raise ValueError('The adjacency vector must be non-negative.')
-
-        adjacency_vectors = np.hstack((np.zeros((adjacency_vectors.shape[0], n1)), adjacency_vectors))
+        adjacency_vectors = np.hstack((np.zeros((adjacency_vectors.shape[0], n_row)), adjacency_vectors))
         embedding_vectors = Spectral.predict(self, adjacency_vectors)
 
         if embedding_vectors.shape[0] == 1:

@@ -26,8 +26,8 @@ class PageRankClassifier(RankClassifier):
     ----------
     damping_factor:
         Damping factor for personalized PageRank.
-    solver : str
-        Which solver to use: 'spsolve', 'lanczos' (default), 'lsqr' or 'halko'.
+    solver : :obj:`str`
+        Which solver to use: 'bicgstab', 'lanczos', 'lsqr' or 'halko'.
         Otherwise, the random walk is emulated for a certain number of iterations.
     n_iter : int
         If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
@@ -42,6 +42,7 @@ class PageRankClassifier(RankClassifier):
 
     Example
     -------
+    >>> from sknetwork.classification import PageRankClassifier
     >>> from sknetwork.data import karate_club
     >>> pagerank = PageRankClassifier()
     >>> graph = karate_club(metadata=True)
@@ -54,19 +55,17 @@ class PageRankClassifier(RankClassifier):
 
     References
     ----------
-    Lin, F., & Cohen, W. W. (2010, August). `Semi-supervised classification of network data using very few labels.
+    Lin, F., & Cohen, W. W. (2010). `Semi-supervised classification of network data using very few labels.
     <https://lti.cs.cmu.edu/sites/default/files/research/reports/2009/cmulti09017.pdf>`_
-    In 2010 International Conference on Advances in Social Networks Analysis and Mining (pp. 192-199). IEEE.
-
+    In IEEE International Conference on Advances in Social Networks Analysis and Mining.
     """
-
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'bicgstab', n_iter: int = 10,
+    def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10,
                  n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = PageRank(damping_factor, solver, n_iter)
         super(PageRankClassifier, self).__init__(algorithm, n_jobs, verbose)
 
 
-class BiPageRankClassifier(RankBiClassifier):
+class BiPageRankClassifier(PageRankClassifier, RankBiClassifier):
     """Node classification for bipartite graphs by multiple personalized PageRanks .
 
     * Bigraphs
@@ -99,6 +98,7 @@ class BiPageRankClassifier(RankBiClassifier):
 
     Example
     -------
+    >>> from sknetwork.classification import BiPageRankClassifier
     >>> from sknetwork.data import star_wars
     >>> bipagerank = BiPageRankClassifier()
     >>> biadjacency = star_wars()
@@ -109,12 +109,13 @@ class BiPageRankClassifier(RankBiClassifier):
 
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10,
                  n_jobs: Optional[int] = None, verbose: bool = False):
-        algorithm = PageRank(damping_factor, solver, n_iter)
-        super(BiPageRankClassifier, self).__init__(algorithm, n_jobs, verbose)
+        super(BiPageRankClassifier, self).__init__(damping_factor=damping_factor, solver=solver, n_iter=n_iter,
+                                                   n_jobs=n_jobs, verbose=verbose)
 
 
 class CoPageRankClassifier(RankBiClassifier):
-    """Node classification for bipartite graphs by multiple personalized CoPageRanks .
+    """Node classification for bipartite graphs by multiple personalized :class:`CoPageRank`.
+
     * Graphs
     * Digraphs
     * Bigraphs
@@ -147,6 +148,7 @@ class CoPageRankClassifier(RankBiClassifier):
 
     Example
     -------
+    >>> from sknetwork.classification import CoPageRankClassifier
     >>> from sknetwork.data import star_wars
     >>> copagerank = CoPageRankClassifier()
     >>> biadjacency = star_wars()

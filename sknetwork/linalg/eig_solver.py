@@ -2,10 +2,9 @@
 # coding: utf-8
 """
 Created on July 9 2019
-
-Authors:
-Nathan De Lara <nathan.delara@telecom-paris.fr>
+@author: Nathan De Lara <ndelara@enst.fr>
 """
+from abc import ABC
 from typing import Union
 
 import numpy as np
@@ -18,9 +17,8 @@ from sknetwork.utils.base import Algorithm
 from sknetwork.utils.check import check_random_state
 
 
-class EigSolver(Algorithm):
-    """
-    A generic class for eigensolvers.
+class EigSolver(Algorithm, ABC):
+    """Generic class for eigensolvers.
 
     Parameters
     ----------
@@ -37,34 +35,15 @@ class EigSolver(Algorithm):
     eigenvalues_: np.ndarray
         Eigenvalues associated to each eigenvector.
     """
-
     def __init__(self, which='LM'):
         self.which = which
 
         self.eigenvectors_ = None
         self.eigenvalues_ = None
 
-    def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator, SparseLR], n_components: int):
-        """Perform eigenvalue decomposition on input matrix.
-
-        Parameters
-        ----------
-        matrix:
-            Matrix to decompose.
-        n_components
-            Number of eigenvectors to compute
-
-        Returns
-        -------
-        self: :class:`EigSolver`
-
-        """
-        return self
-
 
 class LanczosEig(EigSolver):
-    """
-    An eigenvalue solver using Lanczos method.
+    """Eigenvalue solver using Lanczos method.
 
     Parameters
     ----------
@@ -86,9 +65,8 @@ class LanczosEig(EigSolver):
     scipy.sparse.linalg.eigsh
 
     """
-
     def __init__(self, which='LM'):
-        EigSolver.__init__(self, which=which)
+        super(LanczosEig, self).__init__(which=which)
 
     def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator], n_components: int):
         """Perform eigenvalue decomposition on symmetric input matrix.
@@ -118,8 +96,7 @@ class LanczosEig(EigSolver):
 
 
 class HalkoEig(EigSolver):
-    """
-    An eigenvalue solver using Halko's randomized method.
+    """Eigenvalue solver using Halko's randomized method.
 
     Parameters
     ----------
@@ -143,12 +120,10 @@ class HalkoEig(EigSolver):
     one_pass: bool (default=False)
         whether to use algorithm 5.6 instead of 5.3. 5.6 requires less access to the original matrix,
         while 5.3 is more accurate.
-
     """
-
     def __init__(self, which='LM', n_oversamples: int = 10, n_iter='auto',
                  power_iteration_normalizer: Union[str, None] = 'auto', random_state=None, one_pass: bool = False):
-        EigSolver.__init__(self, which=which)
+        super(HalkoEig, self).__init__(which=which)
         self.n_oversamples = n_oversamples
         self.n_iter = n_iter
         self.power_iteration_normalizer = power_iteration_normalizer
@@ -168,7 +143,6 @@ class HalkoEig(EigSolver):
         Returns
         -------
         self: :class:`EigSolver`
-
         """
         eigenvalues, eigenvectors = randomized_eig(matrix, n_components, self.which, self.n_oversamples, self.n_iter,
                                                    self.power_iteration_normalizer, self.random_state, self.one_pass)

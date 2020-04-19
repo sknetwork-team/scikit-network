@@ -31,20 +31,36 @@ def diag_pinv(weights: np.ndarray) -> sparse.csr_matrix:
     return diag
 
 
-def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator]) -> sparse.csr_matrix:
-    """Normalize a matrix so that rows sum to 1 (or 0).
+def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1):
+    """Normalize rows of a matrix. Null rows remain null.
 
     Parameters
     ----------
     matrix :
         Input matrix.
+    p :
+        Order of the norm
 
     Returns
     -------
-    New matrix.
+    normalized matrix : same as input
 
     """
-    diag = diag_pinv(matrix.dot(np.ones(matrix.shape[1])))
-    if hasattr(matrix, 'left_sparse_dot'):
+    if p == 1:
+        norm = matrix.dot(np.ones(matrix.shape[1]))
+    elif p == 2:
+        if isinstance(matrix, np.ndarray):
+            norm = np.linalg.norm(matrix, axis=1)
+        elif isinstance(matrix, sparse.csr_matrix):
+            square = matrix.copy()
+            square.data = square.data ** 2
+            norm = np.sqrt(square.dot(np.ones(matrix.shape[1])))
+        else:
+            raise NotImplementedError('Norm 2 is not available for LinearOperator.')
+    else:
+        raise NotImplementedError('Only norms 1 and 2 are available at the moment.')
+
+    diag = diag_pinv(norm)
+    if hasattr(matrix, 'left_sparse_dot') and callable(matrix.left_sparse_dot):
         return matrix.left_sparse_dot(diag)
     return diag.dot(matrix)

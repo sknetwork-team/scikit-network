@@ -11,13 +11,17 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.linalg import SVDSolver, HalkoSVD, LanczosSVD, auto_solver
-from sknetwork.ranking.base import BaseRanking
+from sknetwork.ranking.base import BaseBiRanking
 from sknetwork.utils.check import check_format
 
 
-class HITS(BaseRanking):
-    """Compute the hub and authority scores of each node.
+class HITS(BaseBiRanking):
+    """Hub and authority scores of each node.
     For bipartite graphs, the hub score is computed on rows and the authority score on columns.
+
+    * Graphs
+    * Digraphs
+    * Bigraphs
 
     Parameters
     ----------
@@ -40,22 +44,22 @@ class HITS(BaseRanking):
 
     Example
     -------
+    >>> from sknetwork.ranking import HITS
+    >>> from sknetwork.data import star_wars
     >>> hits = HITS()
-    >>> biadjacency = np.ones((4,3))
-    >>> hits.fit(biadjacency).scores_
-    array([0.5, 0.5, 0.5, 0.5])
+    >>> biadjacency = star_wars()
+    >>> scores = hits.fit_transform(biadjacency)
+    >>> np.round(scores, 2)
+    array([0.5 , 0.23, 0.69, 0.46])
 
     References
     ----------
     Kleinberg, J. M. (1999). Authoritative sources in a hyperlinked environment.
     Journal of the ACM (JACM), 46(5), 604-632.
-
     """
-
-    def __init__(self, mode: str = 'hubs', solver: Union[str, SVDSolver] = 'auto'):
+    def __init__(self, solver: Union[str, SVDSolver] = 'auto'):
         super(HITS, self).__init__()
 
-        self.mode = mode
         if solver == 'halko':
             self.solver: SVDSolver = HalkoSVD()
         elif solver == 'lanczos':
@@ -63,12 +67,8 @@ class HITS(BaseRanking):
         else:
             self.solver = solver
 
-        self.scores_row_ = None
-        self.scores_col_ = None
-
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'HITS':
-        """
-        Compute HITS algorithm with a spectral method.
+        """Compute HITS algorithm with a spectral method.
 
         Parameters
         ----------

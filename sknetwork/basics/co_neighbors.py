@@ -19,7 +19,11 @@ from sknetwork.utils.knn import KNNDense
 
 def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normalized: bool = True, method='knn',
                        n_neighbors: int = 5, n_components: int = 8) -> sparse.csr_matrix:
-    """Compute the co-neighborhood adjacency defined as
+    """Compute the co-neighborhood adjacency.
+
+    * Graphs
+    * Digraphs
+    * Bigraphs
 
     :math:`\\tilde{A} = AF^{-1}A^T`,
 
@@ -46,7 +50,6 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
     -------
     adjacency : sparse.csr_matrix
         Adjacency of the co-neighborhood.
-
     """
     adjacency = check_format(adjacency)
 
@@ -68,7 +71,11 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
 
 
 class CoNeighbors(LinearOperator):
-    """Co-neighborhood adjacency as a LinearOperator
+    """Co-neighborhood adjacency as a LinearOperator.
+
+    * Graphs
+    * Digraphs
+    * Bigraphs
 
     :math:`\\tilde{A} = AF^{-1}A^T`,
 
@@ -100,7 +107,7 @@ class CoNeighbors(LinearOperator):
         self.backward = adjacency
 
     def __neg__(self):
-        self.backward = -self.backward
+        self.backward *= -1
         return self
 
     def __mul__(self, other):
@@ -111,12 +118,7 @@ class CoNeighbors(LinearOperator):
         return self.backward.dot(self.forward.dot(matrix))
 
     def _transpose(self):
-        """Transposed matrix.
-
-        Returns
-        -------
-        CoNeighbors object
-        """
+        """Transposed operator"""
         operator = CoNeighbors(self.backward)
         operator.backward = self.forward.T.tocsr()
         operator.forward = self.backward.T.tocsr()

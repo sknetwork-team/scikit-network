@@ -3,16 +3,18 @@
 Visualization
 *************
 
-.. currentmodule:: sknetwork
+Visualization tools.
 
-This module contains visualization tools.
+Graphs
+------
 
-SVG
----
+.. autofunction:: sknetwork.visualization.graphs.svg_graph
 
-.. autofunction:: sknetwork.visualization.svg.svg_graph
+.. autofunction:: sknetwork.visualization.graphs.svg_digraph
 
-.. autofunction:: sknetwork.visualization.svg.svg_digraph
+.. autofunction:: sknetwork.visualization.graphs.svg_bigraph
 
-.. autofunction:: sknetwork.visualization.svg.svg_bigraph
+Dendrograms
+-----------
 
+.. autofunction:: sknetwork.visualization.dendrograms.svg_dendrogram

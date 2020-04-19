@@ -11,9 +11,10 @@ from typing import Union, Tuple, Optional
 import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import bicgstab
+
 from sknetwork.linalg.normalization import normalize
-from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.check import check_format, check_seeds, is_square
+from sknetwork.ranking.base import BaseRanking, BaseBiRanking
+from sknetwork.utils.check import check_format, check_seeds, check_square
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.seeds import stack_seeds
 from sknetwork.utils.verbose import VerboseMixin
@@ -43,8 +44,10 @@ def limit_conditions(personalization: np.ndarray) -> Tuple:
 
 
 class Diffusion(BaseRanking, VerboseMixin):
-    """
-    Computes the temperature of each node, associated with the diffusion along the edges (heat equation).
+    """Temperature of each node, associated with the diffusion along the edges (heat equation).
+
+    * Graphs
+    * Digraphs
 
     Parameters
     ----------
@@ -62,11 +65,13 @@ class Diffusion(BaseRanking, VerboseMixin):
 
     Example
     -------
+    >>> from sknetwork.ranking import Diffusion
     >>> from sknetwork.data import house
     >>> diffusion = Diffusion()
     >>> adjacency = house()
     >>> seeds = {0: 1, 2: 0}
-    >>> np.round(diffusion.fit_transform(adjacency, seeds), 2)
+    >>> scores = diffusion.fit_transform(adjacency, seeds)
+    >>> np.round(scores, 2)
     array([1.  , 0.54, 0.  , 0.31, 0.62])
 
     References
@@ -82,8 +87,7 @@ class Diffusion(BaseRanking, VerboseMixin):
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds: Optional[Union[dict, np.ndarray]] = None, initial_state: Optional = None) -> 'Diffusion':
-        """
-        Compute the diffusion (temperature at equilibrium).
+        """Compute the diffusion (temperature at equilibrium).
 
         Parameters
         ----------
@@ -99,9 +103,8 @@ class Diffusion(BaseRanking, VerboseMixin):
         self: :class:`Diffusion`
         """
         adjacency = check_format(adjacency)
+        check_square(adjacency)
         n: int = adjacency.shape[0]
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix should be square. See BiDiffusion.')
         if seeds is None:
             self.scores_ = np.ones(n) / n
             return self
@@ -138,9 +141,10 @@ class Diffusion(BaseRanking, VerboseMixin):
         return self
 
 
-class BiDiffusion(Diffusion):
-    """Compute the temperature of each node of a bipartite graph,
-    associated with the diffusion along the edges (heat equation).
+class BiDiffusion(Diffusion, BaseBiRanking):
+    """Temperature of each node of a bipartite graph, associated with the diffusion along the edges (heat equation).
+
+    * Bigraphs
 
     Attributes
     ----------
@@ -153,25 +157,23 @@ class BiDiffusion(Diffusion):
 
     Example
     -------
+    >>> from sknetwork.ranking import BiDiffusion
     >>> from sknetwork.data import star_wars
     >>> bidiffusion = BiDiffusion()
     >>> biadjacency = star_wars()
     >>> seeds = {0: 1, 2: 0}
-    >>> np.round(bidiffusion.fit_transform(biadjacency, seeds), 2)
+    >>> scores = bidiffusion.fit_transform(biadjacency, seeds)
+    >>> np.round(scores, 2)
     array([1.  , 0.5 , 0.  , 0.29])
     """
 
     def __init__(self, n_iter: int = 0, verbose: bool = False):
         super(BiDiffusion, self).__init__(n_iter, verbose)
 
-        self.scores_row_ = None
-        self.scores_col_ = None
-
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds_row: Optional[Union[dict, np.ndarray]] = None, seeds_col: Optional[Union[dict, np.ndarray]] = None,
             initial_state: Optional = None) -> 'BiDiffusion':
-        """
-        Compute the diffusion (temperature at equilibrium).
+        """Compute the diffusion (temperature at equilibrium).
 
         Parameters
         ----------
@@ -194,9 +196,6 @@ class BiDiffusion(Diffusion):
 
         adjacency = bipartite2undirected(biadjacency)
         Diffusion.fit(self, adjacency, seeds)
-
-        self.scores_row_ = self.scores_[:n_row]
-        self.scores_col_ = self.scores_[n_row:]
-        self.scores_ = self.scores_row_
+        self._split_vars(n_row)
 
         return self

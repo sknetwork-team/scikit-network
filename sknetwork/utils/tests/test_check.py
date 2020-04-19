@@ -5,22 +5,45 @@
 import unittest
 
 from sknetwork.data import cyclic_digraph
-from sknetwork.utils.format import *
-from sknetwork.utils.check import has_nonnegative_entries, has_positive_entries,\
-    is_proba_array, make_weights, check_engine, check_is_proba, check_weights,\
-    check_random_state, check_seeds, check_labels, check_n_jobs
+from sknetwork.data.test_graphs import test_graph_disconnect
+from sknetwork.utils.check import *
+from sknetwork.utils.format import check_csr_or_slr
 
 
-# noinspection PyMissingOrEmptyDocstring
 class TestChecks(unittest.TestCase):
 
     def setUp(self):
+        """Simple graphs for tests."""
         self.adjacency = cyclic_digraph(3)
         self.dense_mat = np.identity(3)
 
-    def test_non_negative_entries(self):
+    def test_check_format(self):
+        with self.assertRaises(TypeError):
+            check_format(self.adjacency.tocsc())
+
+    def test_check_csr_slr(self):
+        with self.assertRaises(TypeError):
+            check_csr_or_slr(np.ones(3))
+
+    def test_check_square(self):
+        with self.assertRaises(ValueError):
+            check_square(np.ones((3, 7)))
+
+    def test_check_connected(self):
+        with self.assertRaises(ValueError):
+            check_connected(test_graph_disconnect())
+
+    def test_check_symmetry(self):
+        with self.assertRaises(ValueError):
+            check_symmetry(self.adjacency)
+
+    def test_nonnegative_entries(self):
         self.assertTrue(has_nonnegative_entries(self.adjacency))
         self.assertTrue(has_nonnegative_entries(self.dense_mat))
+
+    def test_check_nonnegative(self):
+        with self.assertRaises(ValueError):
+            check_nonnegative(-self.dense_mat)
 
     def test_positive_entries(self):
         self.assertFalse(has_positive_entries(self.dense_mat))
@@ -28,20 +51,20 @@ class TestChecks(unittest.TestCase):
             # noinspection PyTypeChecker
             has_positive_entries(self.adjacency)
 
-    def test_proba_array_1d(self):
-        self.assertTrue(is_proba_array(np.array([.5, .5])))
+    def test_check_positive(self):
+        check_positive(np.ones(3))
+        with self.assertRaises(ValueError):
+            check_positive(-self.dense_mat)
 
-    def test_error_proba_array(self):
+    def test_probas(self):
+        self.assertTrue(is_proba_array(np.array([.5, .5])))
+        self.assertEqual(0.5, check_is_proba(0.5))
         with self.assertRaises(TypeError):
             is_proba_array(np.ones((2, 2, 2)))
 
     def test_error_make_weights(self):
         with self.assertRaises(ValueError):
             make_weights(distribution='junk', adjacency=self.adjacency)
-
-    def test_error_check_engine(self):
-        with self.assertRaises(ValueError):
-            check_engine('junk')
 
     def test_error_check_is_proba(self):
         with self.assertRaises(TypeError):
@@ -77,7 +100,13 @@ class TestChecks(unittest.TestCase):
         seeds_dict = {0: 0, 1: 1}
         labels_array = check_seeds(seeds_array, n)
         labels_dict = check_seeds(seeds_dict, n)
+
         self.assertTrue(np.allclose(labels_array, labels_dict))
+        with self.assertRaises(ValueError):
+            check_seeds(labels_array, 5)
+        with self.assertWarns(Warning):
+            seeds_dict[0] = -1
+            check_seeds(seeds_dict, n)
 
     def test_check_labels(self):
         with self.assertRaises(ValueError):
@@ -92,3 +121,24 @@ class TestChecks(unittest.TestCase):
         self.assertEqual(check_n_jobs(None), 1)
         self.assertEqual(check_n_jobs(-1), None)
         self.assertEqual(check_n_jobs(8), 8)
+
+    def test_check_n_neighbors(self):
+        with self.assertWarns(Warning):
+            check_n_neighbors(10, 5)
+
+    def test_adj_vector(self):
+        n = 10
+        vector1 = np.random.rand(n)
+        vector2 = sparse.csr_matrix(vector1)
+        adj1 = check_adjacency_vector(vector1)
+        adj2 = check_adjacency_vector(vector2)
+
+        self.assertAlmostEqual(np.linalg.norm(adj1 - adj2), 0)
+        self.assertEqual(adj1.shape, (1, n))
+
+        with self.assertRaises(ValueError):
+            check_adjacency_vector(vector1, 2 * n)
+
+    def test_check_n_clusters(self):
+        with self.assertRaises(ValueError):
+            check_n_clusters(3, 2)

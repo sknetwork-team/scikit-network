@@ -14,16 +14,15 @@ from scipy.sparse.linalg import eigs, LinearOperator, lsqr, bicgstab
 
 from sknetwork.basics import CoNeighbors
 from sknetwork.linalg.normalization import normalize
-from sknetwork.ranking.base import BaseRanking
+from sknetwork.ranking.base import BaseRanking, BaseBiRanking
 from sknetwork.utils.format import bipartite2undirected
-from sknetwork.utils.check import check_format, is_square
+from sknetwork.utils.check import check_format, check_square
 from sknetwork.utils.seeds import seeds2probs, stack_seeds
 from sknetwork.utils.verbose import VerboseMixin
 
 
 class RandomSurferOperator(LinearOperator, VerboseMixin):
-    """
-    Random surfer as a LinearOperator
+    """Random surfer as a LinearOperator
 
     Parameters
     ----------
@@ -41,7 +40,6 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
         Scaled transposed transition matrix.
     b : np.ndarray
         Scaled restart probability vector.
-
     """
     def __init__(self, adjacency: Union[sparse.csr_matrix, LinearOperator], damping_factor: float = 0.85, seeds=None,
                  verbose: bool = False):
@@ -79,9 +77,7 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
         -------
         score: np.ndarray
             Pagerank of the rows.
-
         """
-
         n: int = self.a.shape[0]
 
         if solver == 'bicgstab':
@@ -102,11 +98,13 @@ class RandomSurferOperator(LinearOperator, VerboseMixin):
 
 
 class PageRank(BaseRanking, VerboseMixin):
-    """
-    Compute the PageRank of each node, corresponding to its frequency of visit by a random walk.
+    """PageRank of each node, corresponding to its frequency of visit by a random walk.
 
     The random walk restarts with some fixed probability. The restart distribution can be personalized by the user.
     This variant is known as Personalized PageRank.
+
+    * Graphs
+    * Digraphs
 
     Parameters
     ----------
@@ -126,11 +124,13 @@ class PageRank(BaseRanking, VerboseMixin):
 
     Example
     -------
+    >>> from sknetwork.ranking import PageRank
     >>> from sknetwork.data import house
     >>> pagerank = PageRank()
     >>> adjacency = house()
     >>> seeds = {0: 1}
-    >>> np.round(pagerank.fit_transform(adjacency, seeds), 2)
+    >>> scores = pagerank.fit_transform(adjacency, seeds)
+    >>> np.round(scores, 2)
     array([0.29, 0.24, 0.12, 0.12, 0.24])
 
     References
@@ -167,8 +167,7 @@ class PageRank(BaseRanking, VerboseMixin):
         """
         if not isinstance(adjacency, LinearOperator):
             adjacency = check_format(adjacency)
-        if not is_square(adjacency):
-            raise ValueError("The adjacency is not square. See BiPageRank.")
+        check_square(adjacency)
 
         rso = RandomSurferOperator(adjacency, self.damping_factor, seeds, False)
         self.scores_ = rso.solve(self.solver, self.n_iter)
@@ -176,8 +175,10 @@ class PageRank(BaseRanking, VerboseMixin):
         return self
 
 
-class BiPageRank(PageRank):
+class BiPageRank(PageRank, BaseBiRanking):
     """Compute the PageRank of each node through a random walk in the bipartite graph.
+
+    * Bigraphs
 
     Parameters
     ----------
@@ -195,21 +196,19 @@ class BiPageRank(PageRank):
     scores_col_ : np.ndarray
         PageRank score of each column.
 
-
     Example
     -------
+    >>> from sknetwork.ranking import BiPageRank
     >>> from sknetwork.data import star_wars
     >>> bipagerank = BiPageRank()
     >>> biadjacency = star_wars()
     >>> seeds = {0: 1}
-    >>> np.round(bipagerank.fit_transform(biadjacency, seeds), 2)
+    >>> scores = bipagerank.fit_transform(biadjacency, seeds)
+    >>> np.round(scores, 2)
     array([0.45, 0.11, 0.28, 0.17])
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10):
-        PageRank.__init__(self, damping_factor, solver, n_iter)
-
-        self.scores_row_ = None
-        self.scores_col_ = None
+        super(BiPageRank, self).__init__(damping_factor, solver, n_iter)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds_row: Optional[Union[dict, np.ndarray]] = None, seeds_col: Optional[Union[dict, np.ndarray]] = None) \
@@ -230,18 +229,16 @@ class BiPageRank(PageRank):
         -------
         self: :class:`BiPageRank`
         """
-
         biadjacency = check_format(biadjacency)
         n_row, n_col = biadjacency.shape
         adjacency = bipartite2undirected(biadjacency)
         seeds = stack_seeds(n_row, n_col, seeds_row, seeds_col)
 
         PageRank.fit(self, adjacency, seeds)
-        scores_row = self.scores_[:n_row]
-        scores_col = self.scores_[n_row:]
+        self._split_vars(n_row)
 
-        self.scores_row_ = scores_row / np.sum(scores_row)
-        self.scores_col_ = scores_col / np.sum(scores_col)
+        self.scores_row_ /= self.scores_row_.sum()
+        self.scores_col_ /= self.scores_col_.sum()
         self.scores_ = self.scores_row_
 
         return self
@@ -249,6 +246,10 @@ class BiPageRank(PageRank):
 
 class CoPageRank(BiPageRank):
     """Compute the PageRank of each node through a two-hops random walk in the bipartite graph.
+
+    * Graphs
+    * Digraphs
+    * Bigraphs
 
     Parameters
     ----------
@@ -266,14 +267,15 @@ class CoPageRank(BiPageRank):
     scores_col_ : np.ndarray
         PageRank score of each column.
 
-
     Example
     -------
+    >>> from sknetwork.ranking import CoPageRank
     >>> from sknetwork.data import star_wars
     >>> copagerank = CoPageRank()
     >>> biadjacency = star_wars()
     >>> seeds = {0: 1}
-    >>> np.round(copagerank.fit_transform(biadjacency, seeds), 2)
+    >>> scores = copagerank.fit_transform(biadjacency, seeds)
+    >>> np.round(scores, 2)
     array([0.38, 0.12, 0.31, 0.2 ])
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10):
