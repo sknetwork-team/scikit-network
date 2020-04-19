@@ -21,6 +21,5 @@ def pagerank(adjacency: sparse.csr_matrix, seeds, damping_factor: float = 0.85, 
 
     scores = np.zeros(n)
     fluid = (1 - damping_factor) * seeds
-    for i in range(n_iter):
-        fluid, scores = diffusion(indptr, indices, data, scores, fluid, damping_factor)
+    fluid, scores = diffusion(indptr, indices, data, scores, fluid, damping_factor, n_iter)
     return scores / scores.sum()
