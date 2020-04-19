@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# distutils: language = c++
+# cython: language_level=3
 """
 Created on Apr 2020
 @author: Nathan de Lara <ndelara@enst.fr>
