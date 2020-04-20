@@ -57,13 +57,13 @@ class HITS(BaseBiRanking):
     Kleinberg, J. M. (1999). Authoritative sources in a hyperlinked environment.
     Journal of the ACM (JACM), 46(5), 604-632.
     """
-    def __init__(self, solver: Union[str, SVDSolver] = 'auto'):
+    def __init__(self, solver: Union[str, SVDSolver] = 'auto', **kwargs):
         super(HITS, self).__init__()
 
         if solver == 'halko':
-            self.solver: SVDSolver = HalkoSVD()
+            self.solver: SVDSolver = HalkoSVD(**kwargs)
         elif solver == 'lanczos':
-            self.solver: SVDSolver = LanczosSVD()
+            self.solver: SVDSolver = LanczosSVD(**kwargs)
         else:
             self.solver = solver
 

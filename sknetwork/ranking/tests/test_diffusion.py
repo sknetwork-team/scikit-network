@@ -4,7 +4,7 @@
 
 import unittest
 
-from sknetwork.ranking.diffusion import Diffusion, BiDiffusion
+from sknetwork.ranking import Diffusion, BiDiffusion
 from sknetwork.data.test_graphs import *
 
 

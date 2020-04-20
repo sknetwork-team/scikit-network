@@ -84,14 +84,14 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
 
     else:
         rso = RandomSurferOperator(adjacency, seeds, damping_factor)
-
+        v0 = rso.b
         if solver == 'bicgstab':
-            scores, info = bicgstab(sparse.eye(n, format='csr') - rso.a, rso.b, atol=tol)
+            scores, info = bicgstab(sparse.eye(n, format='csr') - rso.a, rso.b, atol=tol, x0=v0)
         elif solver == 'lanczos':
             # noinspection PyTypeChecker
-            _, scores = sparse.linalg.eigs(rso, k=1, tol=tol)
+            _, scores = sparse.linalg.eigs(rso, k=1, tol=tol, v0=v0)
         elif solver == 'naive':
-            scores = rso.b
+            scores = v0
             for i in range(n_iter):
                 scores = rso.dot(scores)
                 scores /= scores.sum()
