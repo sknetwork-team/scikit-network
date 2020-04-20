@@ -25,14 +25,13 @@ def diffusion(int[:] indptr, int[:] indices, np.float_t[:] data, np.float_t[:] s
     cdef float tmp
 
     for k in range(n_iter):
-        with nogil:
-            for i in prange(n):
-                tmp = fluid[i]
-                if tmp > 0:
-                    scores[i] += tmp
-                    fluid[i] = 0
+        for i in prange(n, nogil=True):
+            tmp = fluid[i]
+            if tmp > 0:
+                scores[i] += tmp
+                fluid[i] = 0
 
-                    for jj in range(indptr[i], indptr[i+1]):
-                        j = indices[jj]
-                        fluid[j] += damping_factor * tmp * data[jj]
+                for jj in range(indptr[i], indptr[i+1]):
+                    j = indices[jj]
+                    fluid[j] += damping_factor * tmp * data[jj]
     return np.array(scores)
