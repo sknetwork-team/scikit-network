@@ -10,18 +10,18 @@ matrix:
           os: osx
           language: shell
           install:
+            - brew install llvm
             - python3 -m pip install cibuildwheel==1.3.0
           env:
             - CIBW_BEFORE_BUILD="pip install -r requirements_dev.txt && pip install ."
             - CIBW_BUILD="cp36-* cp37-* cp38-*"
             - CIBW_SKIP=*-manylinux*
+            - LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
+            - CPPFLAGS="-I/usr/local/opt/llvm/include"
           script:
               # build the wheels, put them into './wheelhouse'
-              - brew install llvm
               - echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> ~/.bash_profile
-              - export LDFLAGS="-L/usr/local/opt/llvm/lib"
-              - export CPPFLAGS="-I/usr/local/opt/llvm/include"
-              - LDFLAGS="-L/usr/local/opt/llvm/lib -Wl,-rpath,/usr/local/opt/llvm/lib"
+              - source ~/.bash_profile
               - python3 -m cibuildwheel --output-dir wheelhouse
               - ls wheelhouse/
           after_success:
