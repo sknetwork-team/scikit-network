@@ -122,6 +122,9 @@ def load_netset(dataset: str, data_home: Optional[str] = None) -> Bunch:
     if 'position.npy' in files:
         graph.position = np.load(data_path + '/position.npy')
 
+    graph.meta = Bunch()
+    graph.meta.name = dataset
+
     return graph
 
 
@@ -181,6 +184,7 @@ def load_konect(dataset: str, data_home: Optional[str] = None, auto_numpy_bundle
         return load_from_numpy_bundle(dataset + '_bundle', data_path)
 
     data = Bunch()
+
     files = [file for file in listdir(data_path) if dataset in file]
 
     matrix = [file for file in files if 'out.' in file]
@@ -204,6 +208,15 @@ def load_konect(dataset: str, data_home: Optional[str] = None, auto_numpy_bundle
         for file in attributes:
             attribute_name = file.split('.')[-1]
             data[attribute_name] = parse_labels(data_path + file)
+
+    if hasattr(data, 'meta'):
+        if hasattr(data.meta, 'name'):
+            pass
+        else:
+            data.meta.name = dataset
+    else:
+        data.meta = Bunch()
+        data.meta.name = dataset
 
     if auto_numpy_bundle:
         save_to_numpy_bundle(data, dataset + '_bundle', data_path)
