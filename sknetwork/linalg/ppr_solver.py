@@ -74,12 +74,14 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         if not isinstance(adjacency, sparse.csr_matrix):
             raise ValueError('D-iteration is not compatible with linear operators.')
         adjacency = normalize(adjacency, p=1)
-        indptr = adjacency.indptr
-        indices = adjacency.indices
-        data = adjacency.data
+        indptr = adjacency.indptr.astype(np.int32)
+        indices = adjacency.indices.astype(np.int32)
+        data = adjacency.data.astype(np.float32)
+        n_iter = np.int32(n_iter)
+        damping_factor = np.float32(damping_factor)
 
-        scores = np.zeros(n)
-        fluid = (1 - damping_factor) * seeds
+        scores = np.zeros(n, dtype=np.float32)
+        fluid = (1 - damping_factor) * seeds.astype(np.float32)
         scores = diffusion(indptr, indices, data, scores, fluid, damping_factor, n_iter)
 
     else:

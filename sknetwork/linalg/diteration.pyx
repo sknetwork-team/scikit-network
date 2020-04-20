@@ -9,14 +9,11 @@ cimport numpy as np
 cimport cython
 from cython.parallel import prange
 
-ctypedef np.int_t int_type_t
-ctypedef np.float_t float_type_t
-
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def diffusion(int[:] indptr, int[:] indices, np.float_t[:] data, np.float_t[:] scores, np.float_t[:] fluid,
-              float_type_t damping_factor, int_type_t n_iter):
+def diffusion(int[:] indptr, int[:] indices, float[:] data, float[:] scores, float[:] fluid,
+              float damping_factor, int n_iter):
     """One loop of fluid diffusion."""
     cdef int n = len(fluid)
     cdef int i
@@ -35,4 +32,4 @@ def diffusion(int[:] indptr, int[:] indices, np.float_t[:] data, np.float_t[:] s
                 for jj in range(indptr[i], indptr[i+1]):
                     j = indices[jj]
                     fluid[j] += tmp2 * data[jj]
-    return np.array(scores)
+    return np.asarray(scores)

@@ -90,7 +90,8 @@ if HAVE_CYTHON:
             # Remove C file to force Cython recompile.
             os.remove(c_path)
 
-        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()]))
+        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()],
+                                           extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp']))
 else:
     ext_modules = [Extension(modules[index], [c_paths[index]], include_dirs=[numpy.get_include()])
                    for index in range(len(modules))]
