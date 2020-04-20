@@ -52,7 +52,22 @@ class RandomSurferOperator(LinearOperator):
 
 def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.ndarray, damping_factor: float,
                  n_iter: int, tol: float = 0., solver: str = 'naive'):
-    """Pagerank."""
+    """Solve the Pagerank problem.
+
+    References
+    ----------
+    * Hong, D. (2012). `Optimized on-line computation of pagerank algorithm.
+      <https://arxiv.org/pdf/1202.6158.pdf>`_
+      arXiv preprint arXiv:1202.6158.
+    * Van der Vorst, H. A. (1992). `Bi-CGSTAB:
+      <https://en.wikipedia.org/wiki/Biconjugate_gradient_stabilized_method>`_
+      A fast and smoothly converging variant of Bi-CG for the solution of nonsymmetric linear systems.
+      SIAM Journal on scientific and Statistical Computing, 13(2), 631-644.
+    * Lanczos, C. (1950).
+      `An iteration method for the solution of the eigenvalue problem of linear differential and integral operators.
+      <http://www.cs.umd.edu/~oleary/lanczos1950.pdf>`_
+      Los Angeles, CA: United States Governm. Press Office.
+    """
     n = adjacency.shape[0]
 
     if solver == 'diteration':
@@ -69,14 +84,14 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
 
     else:
         rso = RandomSurferOperator(adjacency, seeds, damping_factor)
-
+        v0 = rso.b
         if solver == 'bicgstab':
-            scores, info = bicgstab(sparse.eye(n, format='csr') - rso.a, rso.b, atol=tol)
+            scores, info = bicgstab(sparse.eye(n, format='csr') - rso.a, rso.b, atol=tol, x0=v0)
         elif solver == 'lanczos':
             # noinspection PyTypeChecker
-            _, scores = sparse.linalg.eigs(rso, k=1, tol=tol)
+            _, scores = sparse.linalg.eigs(rso, k=1, tol=tol, v0=v0)
         elif solver == 'naive':
-            scores = rso.b
+            scores = v0
             for i in range(n_iter):
                 scores = rso.dot(scores)
                 scores /= scores.sum()

@@ -4,11 +4,13 @@
 """The setup script."""
 
 
-from setuptools import find_packages
+from setuptools import find_packages, dist
 import distutils.util
 from distutils.core import setup, Extension
 from distutils.command.build_ext import build_ext
 import os
+
+dist.Distribution().fetch_build_eggs(['Cython', 'numpy'])
 
 import numpy
 
@@ -23,6 +25,9 @@ requirements = ['numpy', 'scipy']
 setup_requirements = ['pytest-runner']
 
 test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
+
+# if any problems occur with macOS' clang not knowing the -fopenmp flag, see:
+# https://stackoverflow.com/questions/43555410/enable-openmp-support-in-clang-in-mac-os-x-sierra-mojave?rq=1
 
 # handling Mac OSX specifics for C++
 # taken from https://github.com/huggingface/neuralcoref/blob/master/setup.py on 09/04/2020 (dd/mm)
@@ -85,8 +90,7 @@ if HAVE_CYTHON:
             # Remove C file to force Cython recompile.
             os.remove(c_path)
 
-        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()]),
-                                 annotate=True)
+        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()]))
 else:
     ext_modules = [Extension(modules[index], [c_paths[index]], include_dirs=[numpy.get_include()])
                    for index in range(len(modules))]
@@ -120,9 +124,10 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/sknetwork-team/scikit-network',
-    version='0.14.0',
+    version='0.15.0',
     zip_safe=False,
     ext_modules=ext_modules,
     include_dirs=[numpy.get_include()],
     cmdclass={"build_ext": BuildExtSubclass}
 )
+

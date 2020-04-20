@@ -39,6 +39,13 @@ class SVDSolver(Algorithm, ABC):
 class LanczosSVD(SVDSolver):
     """SVD solver using Lanczos method on :math:`AA^T` or :math:`A^TA`.
 
+    Parameters
+    ----------
+    maxiter : int
+        Maximum number of Arnoldi update iterations allowed. Default: n*10.
+    tol : float
+        Relative accuracy for eigenvalues (stopping criterion). The default value of 0 implies machine precision.
+
     Attributes
     ----------
     singular_vectors_left_: np.ndarray
@@ -52,25 +59,28 @@ class LanczosSVD(SVDSolver):
     --------
     scipy.sparse.linalg.svds
     """
-
-    def __init__(self):
+    def __init__(self, maxiter: int = None, tol: float = 0.):
         super(LanczosSVD, self).__init__()
+        self.maxiter = maxiter
+        self.tol = tol
 
-    def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator], n_components: int):
+    def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator], n_components: int,
+            v0: np.ndarray = None):
         """Perform singular value decomposition on input matrix.
 
         Parameters
         ----------
-        matrix:
+        matrix :
             Matrix to decompose.
-        n_components
+        n_components : int
             Number of singular values to compute
-
+        v0 : np.ndarray
+            Starting vector for iteration. Default: random.
         Returns
         -------
         self: :class:`SVDSolver`
         """
-        u, s, vt = svds(matrix.astype(np.float), n_components)
+        u, s, vt = svds(matrix.astype(np.float), n_components, v0=v0)
         # order the singular values by decreasing order
         index = np.argsort(s)[::-1]
         self.singular_vectors_left_ = u[:, index]
@@ -117,7 +127,6 @@ class HalkoSVD(SVDSolver):
     singular_values_: np.ndarray
         Singular values.
     """
-
     def __init__(self, n_oversamples: int = 10, n_iter='auto', transpose='auto',
                  power_iteration_normalizer: Union[str, None] = 'auto', flip_sign: bool = True, random_state=None):
         super(HalkoSVD, self).__init__()
@@ -133,9 +142,9 @@ class HalkoSVD(SVDSolver):
 
         Parameters
         ----------
-        matrix:
+        matrix :
             Matrix to decompose.
-        n_components
+        n_components : int
             Number of singular values to compute
 
         Returns

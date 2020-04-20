@@ -51,11 +51,11 @@ class Diffusion(BaseRanking, VerboseMixin):
 
     Parameters
     ----------
-    n_iter: int
+    n_iter : int
         If ``n_iter > 0``, simulate the diffusion in discrete time for n_iter steps.
         If ``n_iter <= 0``, use BIConjugate Gradient STABilized iteration
         to solve the Dirichlet problem.
-    verbose: bool
+    verbose : bool
         Verbose mode.
 
     Attributes
@@ -79,7 +79,7 @@ class Diffusion(BaseRanking, VerboseMixin):
     Chung, F. (2007). The heat kernel as the pagerank of a graph. Proceedings of the National Academy of Sciences.
     """
 
-    def __init__(self, n_iter: int = 0, verbose: bool = False):
+    def __init__(self, n_iter: int = 10, verbose: bool = False):
         super(Diffusion, self).__init__()
         VerboseMixin.__init__(self, verbose)
 
@@ -167,7 +167,7 @@ class BiDiffusion(Diffusion, BaseBiRanking):
     array([1.  , 0.5 , 0.  , 0.29])
     """
 
-    def __init__(self, n_iter: int = 0, verbose: bool = False):
+    def __init__(self, n_iter: int = 10, verbose: bool = False):
         super(BiDiffusion, self).__init__(n_iter, verbose)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],

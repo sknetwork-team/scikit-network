@@ -2,6 +2,14 @@
 History
 =======
 
+0.15.0 (2020-04-20)
+-------------------
+
+* Updated ranking module : new pagerank solver, new HITS params, post-processing
+* Polynomes in linear algebra
+* Added meta.name attribute for Bunch
+* Minor corrections
+
 0.14.0 (2020-04-17)
 -------------------
 

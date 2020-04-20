@@ -47,12 +47,15 @@ class LanczosEig(EigSolver):
 
     Parameters
     ----------
-    which: str
+    which : str
         Which eigenvectors and eigenvalues to find:
 
         * ``'LM'`` : Largest (in magnitude) eigenvalues.
         * ``'SM'`` : Smallest (in magnitude) eigenvalues.
-
+    maxiter : int
+        Maximum number of Arnoldi update iterations allowed. Default: n*10.
+    tol : float
+        Relative accuracy for eigenvalues (stopping criterion). The default value of 0 implies machine precision.
     Attributes
     ----------
     eigenvectors_: np.ndarray
@@ -63,27 +66,30 @@ class LanczosEig(EigSolver):
     See Also
     --------
     scipy.sparse.linalg.eigsh
-
     """
-    def __init__(self, which='LM'):
+    def __init__(self, which='LM', maxiter: int = None, tol: float = 0.):
         super(LanczosEig, self).__init__(which=which)
+        self.maxiter = maxiter
+        self.tol = tol
 
-    def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator], n_components: int):
+    def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator], n_components: int,
+            v0: np.ndarray = None):
         """Perform eigenvalue decomposition on symmetric input matrix.
 
         Parameters
         ----------
-        matrix:
+        matrix :
             Matrix to decompose.
-        n_components
+        n_components : int
             Number of eigenvectors to compute
-
+        v0 : np.ndarray
+            Starting vector for iteration. Default: random.
         Returns
         -------
         self: :class:`EigSolver`
-
         """
-        eigenvalues, eigenvectors = eigsh(matrix.astype(np.float), n_components, which=self.which)
+        eigenvalues, eigenvectors = eigsh(matrix.astype(np.float), n_components, which=self.which, maxiter=self.maxiter,
+                                          tol=self.tol, v0=v0)
         self.eigenvectors_ = eigenvectors
         self.eigenvalues_ = eigenvalues
 
@@ -105,6 +111,20 @@ class HalkoEig(EigSolver):
 
         * ``'LM'`` : Largest (in magnitude) eigenvalues.
         * ``'SM'`` : Smallest (in magnitude) eigenvalues.
+    n_oversamples : int (default=10)
+        Additional number of random vectors to sample the range of ``matrix`` so as
+        to ensure proper conditioning. The total number of random vectors
+        used to find the range of ``matrix`` is ``n_components + n_oversamples``. Smaller number can improve speed
+        but can negatively impact the quality of approximation of singular vectors and singular values.
+    n_iter: int or 'auto' (default is 'auto')
+        See :meth:`randomized_range_finder`
+    power_iteration_normalizer: ``'auto'`` (default), ``'QR'``, ``'LU'``, ``None``
+        See :meth:`randomized_range_finder`
+    random_state: int, RandomState instance or None, optional (default=None)
+        See :meth:`randomized_range_finder`
+    one_pass: bool (default=False)
+        whether to use algorithm 5.6 instead of 5.3. 5.6 requires less access to the original matrix,
+        while 5.3 is more accurate.
 
     n_oversamples : int (default=10)
         Additional number of random vectors to sample the range of ``matrix`` so as
@@ -137,7 +157,7 @@ class HalkoEig(EigSolver):
         ----------
         matrix :
             Matrix to decompose.
-        n_components :
+        n_components : int
             Number of eigenvectors to compute
 
         Returns
