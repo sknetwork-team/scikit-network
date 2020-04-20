@@ -158,6 +158,11 @@ def load_konect(dataset: str, data_home: Optional[str] = None, auto_numpy_bundle
     >>> graph = load_konect('dolphins')
     >>> graph.adjacency.shape
     (62, 62)
+
+    Notes
+    -----
+    An attribute `meta` of the `Bunch` class is used to store information about the dataset if present. In any case,
+    `meta` has the attribute `name` which, if not given, is equal to the name of the dataset as passed to this function.
     """
     if dataset == '':
         raise ValueError("Please specify the dataset. "
