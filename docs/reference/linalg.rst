@@ -26,6 +26,8 @@ Solvers
 
 .. autoclass:: sknetwork.linalg.HalkoSVD
 
+.. autofunction:: sknetwork.linalg.ppr_solver.get_pagerank
+
 Randomized methods
 ------------------
 
