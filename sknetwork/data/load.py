@@ -230,7 +230,7 @@ def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[str]
             sparse.save_npz(data_path + '/' + attribute, data[attribute])
         elif type(data[attribute]) == np.ndarray:
             np.save(data_path + '/' + attribute, data[attribute])
-        elif type(data[attribute]) == Bunch:
+        elif type(data[attribute]) == Bunch or type(data[attribute]) == str:
             pickle.dump(data[attribute], open(data_path + '/' + attribute + '.p', 'wb'))
         else:
             raise TypeError('Unsupported data attribute type '+str(type(data[attribute])) + '.')
