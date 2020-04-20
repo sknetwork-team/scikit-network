@@ -59,14 +59,13 @@ class PageRankClassifier(RankClassifier):
     <https://lti.cs.cmu.edu/sites/default/files/research/reports/2009/cmulti09017.pdf>`_
     In IEEE International Conference on Advances in Social Networks Analysis and Mining.
     """
-
-    def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10,
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'naive', n_iter: int = 10, tol: float = 0.,
                  n_jobs: Optional[int] = None, verbose: bool = False):
-        algorithm = PageRank(damping_factor, solver, n_iter)
+        algorithm = PageRank(damping_factor, solver, n_iter, tol)
         super(PageRankClassifier, self).__init__(algorithm, n_jobs, verbose)
 
 
-class BiPageRankClassifier(RankBiClassifier):
+class BiPageRankClassifier(PageRankClassifier, RankBiClassifier):
     """Node classification for bipartite graphs by multiple personalized PageRanks .
 
     * Bigraphs
@@ -108,10 +107,10 @@ class BiPageRankClassifier(RankBiClassifier):
     array([1, 1, 0, 0])
     """
 
-    def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10,
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'naive', n_iter: int = 10, tol: float = 0.,
                  n_jobs: Optional[int] = None, verbose: bool = False):
-        algorithm = PageRank(damping_factor, solver, n_iter)
-        super(BiPageRankClassifier, self).__init__(algorithm=algorithm, n_jobs=n_jobs, verbose=verbose)
+        super(BiPageRankClassifier, self).__init__(damping_factor=damping_factor, solver=solver, n_iter=n_iter, tol=tol,
+                                                   n_jobs=n_jobs, verbose=verbose)
 
 
 class CoPageRankClassifier(RankBiClassifier):
@@ -158,9 +157,9 @@ class CoPageRankClassifier(RankBiClassifier):
     array([1, 1, 0, 0])
     """
 
-    def __init__(self, damping_factor: float = 0.85, solver: str = None, n_iter: int = 10,
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'naive', n_iter: int = 10, tol: float = 0.,
                  n_jobs: Optional[int] = None, verbose: bool = False):
-        algorithm = CoPageRank(damping_factor, solver, n_iter)
+        algorithm = CoPageRank(damping_factor, solver, n_iter, tol)
         super(CoPageRankClassifier, self).__init__(algorithm=algorithm, n_jobs=n_jobs, verbose=verbose)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],

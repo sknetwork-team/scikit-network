@@ -5,6 +5,11 @@ Linear algebra
 
 Tools of linear algebra.
 
+Polynomes
+---------
+
+.. autoclass:: sknetwork.linalg.Polynome
+
 Sparse + Low Rank
 -----------------
 
@@ -20,6 +25,8 @@ Solvers
 .. autoclass:: sknetwork.linalg.LanczosSVD
 
 .. autoclass:: sknetwork.linalg.HalkoSVD
+
+.. autofunction:: sknetwork.linalg.ppr_solver.get_pagerank
 
 Randomized methods
 ------------------

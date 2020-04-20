@@ -27,10 +27,10 @@ class BaseClustering(Algorithm, ABC):
         Adjacency matrix between clusters.
     """
 
-    def __init__(self, sort_clusters: bool = True, return_membership: bool = False, return_adjacency: bool = False):
+    def __init__(self, sort_clusters: bool = True, return_membership: bool = False, return_aggregate: bool = False):
         self.sort_clusters = sort_clusters
         self.return_membership = return_membership
-        self.return_adjacency = return_adjacency
+        self.return_aggregate = return_aggregate
 
         self.labels_ = None
         self.membership_ = None
@@ -49,11 +49,11 @@ class BaseClustering(Algorithm, ABC):
 
     def _secondary_outputs(self, adjacency):
         """Compute different variables from labels_."""
-        if self.return_membership or self.return_adjacency:
+        if self.return_membership or self.return_aggregate:
             membership = membership_matrix(self.labels_)
             if self.return_membership:
                 self.membership_ = normalize(adjacency.dot(membership))
-            if self.return_adjacency:
+            if self.return_aggregate:
                 self.adjacency_ = sparse.csr_matrix(membership.T.dot(adjacency.dot(membership)))
         return self
 
@@ -77,10 +77,9 @@ class BaseBiClustering(BaseClustering, ABC):
         Biadjacency matrix of the aggregate graph between clusters.
     """
 
-    def __init__(self, sort_clusters: bool = True, return_membership: bool = False, return_biadjacency: bool = False):
-        super(BaseBiClustering, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership)
-
-        self.return_biadjacency = return_biadjacency
+    def __init__(self, sort_clusters: bool = True, return_membership: bool = False, return_aggregate: bool = False):
+        super(BaseBiClustering, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
+                                               return_aggregate=return_aggregate)
 
         self.labels_row_ = None
         self.labels_col_ = None
@@ -88,7 +87,7 @@ class BaseBiClustering(BaseClustering, ABC):
         self.membership_col_ = None
         self.biadjacency_ = None
 
-    def _split_labels(self, n_row):
+    def _split_vars(self, n_row):
         """Split labels_ into labels_row_ and labels_col_"""
         self.labels_row_ = self.labels_[:n_row]
         self.labels_col_ = self.labels_[n_row:]
@@ -103,7 +102,7 @@ class BaseBiClustering(BaseClustering, ABC):
             self.membership_row_ = normalize(biadjacency.dot(membership_col))
             self.membership_col_ = normalize(biadjacency.T.dot(membership_row))
 
-        if self.return_biadjacency:
+        if self.return_aggregate:
             membership_row = membership_matrix(self.labels_row_)
             membership_col = membership_matrix(self.labels_col_)
             biadjacency_ = sparse.csr_matrix(membership_row.T.dot(biadjacency))

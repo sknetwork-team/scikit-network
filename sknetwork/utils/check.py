@@ -12,19 +12,35 @@ from scipy import sparse
 
 
 def has_nonnegative_entries(entry: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """Check whether the array has non negative entries."""
+    """Boolean indicating whether the array has non negative entries."""
     if type(entry) == sparse.csr_matrix:
         return np.all(entry.data >= 0)
     else:
         return np.all(entry >= 0)
 
 
+def check_nonnegative(entry: Union[sparse.csr_matrix, np.ndarray]):
+    """Check whether the array has non negative entries."""
+    if not has_nonnegative_entries(entry):
+        raise ValueError('Only nonnegative values are expected.')
+    else:
+        return
+
+
 def has_positive_entries(entry: np.ndarray) -> bool:
-    """Check whether the array has positive entries."""
+    """Boolean indicating whether the array has positive entries."""
     if type(entry) != np.ndarray:
         raise TypeError('Entry must be a dense NumPy array.')
     else:
         return np.all(entry > 0)
+
+
+def check_positive(entry: Union[sparse.csr_matrix, np.ndarray]):
+    """Check whether the array has positive entries."""
+    if not has_positive_entries(entry):
+        raise ValueError('Only positive values are expected.')
+    else:
+        return
 
 
 def is_proba_array(entry: np.ndarray) -> bool:
@@ -255,3 +271,11 @@ def check_adjacency_vector(adjacency_vectors: Union[sparse.csr_matrix, np.ndarra
             raise ValueError('The adjacency vector must be of length equal to the number nodes in the initial graph.')
 
     return adjacency_vectors
+
+
+def check_n_clusters(n_clusters: int, n_row: int):
+    """Check that the number of clusters"""
+    if n_clusters > n_row:
+        raise ValueError('The number of clusters exceeds the number of rows.')
+    else:
+        return

@@ -35,4 +35,5 @@ class TestNormalization(unittest.TestCase):
 
         with self.assertRaises(NotImplementedError):
             normalize(mat3, p=2)
+        with self.assertRaises(NotImplementedError):
             normalize(mat1, p=3)

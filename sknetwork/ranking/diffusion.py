@@ -11,8 +11,9 @@ from typing import Union, Tuple, Optional
 import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import bicgstab
+
 from sknetwork.linalg.normalization import normalize
-from sknetwork.ranking.base import BaseRanking
+from sknetwork.ranking.base import BaseRanking, BaseBiRanking
 from sknetwork.utils.check import check_format, check_seeds, check_square
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.seeds import stack_seeds
@@ -50,11 +51,11 @@ class Diffusion(BaseRanking, VerboseMixin):
 
     Parameters
     ----------
-    n_iter: int
+    n_iter : int
         If ``n_iter > 0``, simulate the diffusion in discrete time for n_iter steps.
         If ``n_iter <= 0``, use BIConjugate Gradient STABilized iteration
         to solve the Dirichlet problem.
-    verbose: bool
+    verbose : bool
         Verbose mode.
 
     Attributes
@@ -78,7 +79,7 @@ class Diffusion(BaseRanking, VerboseMixin):
     Chung, F. (2007). The heat kernel as the pagerank of a graph. Proceedings of the National Academy of Sciences.
     """
 
-    def __init__(self, n_iter: int = 0, verbose: bool = False):
+    def __init__(self, n_iter: int = 10, verbose: bool = False):
         super(Diffusion, self).__init__()
         VerboseMixin.__init__(self, verbose)
 
@@ -140,7 +141,7 @@ class Diffusion(BaseRanking, VerboseMixin):
         return self
 
 
-class BiDiffusion(Diffusion):
+class BiDiffusion(Diffusion, BaseBiRanking):
     """Temperature of each node of a bipartite graph, associated with the diffusion along the edges (heat equation).
 
     * Bigraphs
@@ -166,11 +167,8 @@ class BiDiffusion(Diffusion):
     array([1.  , 0.5 , 0.  , 0.29])
     """
 
-    def __init__(self, n_iter: int = 0, verbose: bool = False):
+    def __init__(self, n_iter: int = 10, verbose: bool = False):
         super(BiDiffusion, self).__init__(n_iter, verbose)
-
-        self.scores_row_ = None
-        self.scores_col_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds_row: Optional[Union[dict, np.ndarray]] = None, seeds_col: Optional[Union[dict, np.ndarray]] = None,
@@ -198,9 +196,6 @@ class BiDiffusion(Diffusion):
 
         adjacency = bipartite2undirected(biadjacency)
         Diffusion.fit(self, adjacency, seeds)
-
-        self.scores_row_ = self.scores_[:n_row]
-        self.scores_col_ = self.scores_[n_row:]
-        self.scores_ = self.scores_row_
+        self._split_vars(n_row)
 
         return self

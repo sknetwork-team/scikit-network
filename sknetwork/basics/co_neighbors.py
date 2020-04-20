@@ -50,7 +50,6 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
     -------
     adjacency : sparse.csr_matrix
         Adjacency of the co-neighborhood.
-
     """
     adjacency = check_format(adjacency)
 
@@ -119,12 +118,7 @@ class CoNeighbors(LinearOperator):
         return self.backward.dot(self.forward.dot(matrix))
 
     def _transpose(self):
-        """Transposed matrix.
-
-        Returns
-        -------
-        CoNeighbors object
-        """
+        """Transposed operator"""
         operator = CoNeighbors(self.backward)
         operator.backward = self.forward.T.tocsr()
         operator.forward = self.backward.T.tocsr()

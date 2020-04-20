@@ -21,6 +21,7 @@ class TestSparseLowRank(unittest.TestCase):
     def test_init(self):
         with self.assertRaises(ValueError):
             SparseLR(house(), [(np.ones(5), np.ones(4))])
+        with self.assertRaises(ValueError):
             SparseLR(house(), [(np.ones(4), np.ones(5))])
 
     def test_addition(self):

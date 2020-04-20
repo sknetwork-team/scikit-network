@@ -7,6 +7,7 @@ import unittest
 from sknetwork.data import cyclic_digraph
 from sknetwork.data.test_graphs import test_graph_disconnect
 from sknetwork.utils.check import *
+from sknetwork.utils.format import check_csr_or_slr
 
 
 class TestChecks(unittest.TestCase):
@@ -20,6 +21,10 @@ class TestChecks(unittest.TestCase):
         with self.assertRaises(TypeError):
             check_format(self.adjacency.tocsc())
 
+    def test_check_csr_slr(self):
+        with self.assertRaises(TypeError):
+            check_csr_or_slr(np.ones(3))
+
     def test_check_square(self):
         with self.assertRaises(ValueError):
             check_square(np.ones((3, 7)))
@@ -28,15 +33,28 @@ class TestChecks(unittest.TestCase):
         with self.assertRaises(ValueError):
             check_connected(test_graph_disconnect())
 
-    def test_non_negative_entries(self):
+    def test_check_symmetry(self):
+        with self.assertRaises(ValueError):
+            check_symmetry(self.adjacency)
+
+    def test_nonnegative_entries(self):
         self.assertTrue(has_nonnegative_entries(self.adjacency))
         self.assertTrue(has_nonnegative_entries(self.dense_mat))
+
+    def test_check_nonnegative(self):
+        with self.assertRaises(ValueError):
+            check_nonnegative(-self.dense_mat)
 
     def test_positive_entries(self):
         self.assertFalse(has_positive_entries(self.dense_mat))
         with self.assertRaises(TypeError):
             # noinspection PyTypeChecker
             has_positive_entries(self.adjacency)
+
+    def test_check_positive(self):
+        check_positive(np.ones(3))
+        with self.assertRaises(ValueError):
+            check_positive(-self.dense_mat)
 
     def test_probas(self):
         self.assertTrue(is_proba_array(np.array([.5, .5])))
@@ -120,3 +138,7 @@ class TestChecks(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             check_adjacency_vector(vector1, 2 * n)
+
+    def test_check_n_clusters(self):
+        with self.assertRaises(ValueError):
+            check_n_clusters(3, 2)
