@@ -28,6 +28,7 @@ test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
 # if any problems occur with macOS' clang not knowing the -fopenmp flag, see:
 # https://stackoverflow.com/questions/43555410/enable-openmp-support-in-clang-in-mac-os-x-sierra-mojave?rq=1
+# https://stackoverflow.com/questions/41292059/compiling-cython-with-openmp-support-on-osx
 
 # handling Mac OSX specifics for C++
 # taken from https://github.com/huggingface/neuralcoref/blob/master/setup.py on 09/04/2020 (dd/mm)
