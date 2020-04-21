@@ -28,15 +28,19 @@ test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
 # if any problems occur with macOS' clang not knowing the -fopenmp flag, see:
 # https://stackoverflow.com/questions/43555410/enable-openmp-support-in-clang-in-mac-os-x-sierra-mojave?rq=1
+# https://stackoverflow.com/questions/41292059/compiling-cython-with-openmp-support-on-osx
 
 # handling Mac OSX specifics for C++
 # taken from https://github.com/huggingface/neuralcoref/blob/master/setup.py on 09/04/2020 (dd/mm)
 COMPILE_OPTIONS = {"other": []}
 LINK_OPTIONS = {"other": []}
 
+OPENMP_LINK_FLAG = '-fopenmp'
+
 # Check whether we're on OSX >= 10.10
 name = distutils.util.get_platform()
 if name.startswith("macosx-10"):
+    OPENMP_LINK_FLAG = '-lomp'
     minor_version = int(name.split("-")[1].split(".")[1])
     if minor_version >= 7:
         COMPILE_OPTIONS["other"].append("-stdlib=libc++")
@@ -91,7 +95,7 @@ if HAVE_CYTHON:
             os.remove(c_path)
 
         ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()],
-                                           extra_compile_args=['-fopenmp'], extra_link_args=['-fopenmp']))
+                                           extra_compile_args=['-fopenmp'], extra_link_args=[OPENMP_LINK_FLAG]))
 else:
     ext_modules = [Extension(modules[index], [c_paths[index]], include_dirs=[numpy.get_include()])
                    for index in range(len(modules))]
