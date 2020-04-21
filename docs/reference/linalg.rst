@@ -22,8 +22,10 @@ Solvers
 
 .. autoclass:: sknetwork.linalg.HalkoEig
 
+.. _lanczossvd:
 .. autoclass:: sknetwork.linalg.LanczosSVD
 
+.. _halkosvd:
 .. autoclass:: sknetwork.linalg.HalkoSVD
 
 .. autofunction:: sknetwork.linalg.ppr_solver.get_pagerank

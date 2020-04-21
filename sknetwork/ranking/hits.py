@@ -33,6 +33,10 @@ class HITS(BaseBiRanking):
         * ``'lanczos'``: power-iteration based method.
         * :class:`SVDSolver`: custom solver.
 
+    **kwargs :
+        See :ref:`sknetwork.linalg.svd_solver.LanczosSVD <lanczossvd>`
+        or :ref:`sknetwork.linalg.svd_solver.HalkoSVD <halkosvd>`.
+
     Attributes
     ----------
     scores_ : np.ndarray
