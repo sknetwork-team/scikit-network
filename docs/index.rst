@@ -32,4 +32,5 @@ Welcome to scikit-network's documentation!
    authors
    history
    genindex
+   glossary
 
