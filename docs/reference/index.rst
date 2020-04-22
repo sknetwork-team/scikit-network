@@ -2,17 +2,26 @@
 
 Reference
 *********
+.. hlist::
+   :columns: 4
 
-.. toctree::
+   * .. toctree::
+        introduction
+        data
+        clustering
+   * .. toctree::
+        hierarchy
+        embedding
+        ranking
+   * .. toctree::
+        classification
+        linalg
+        basics
+        visualization
+   * .. toctree::
+        utils
 
-    introduction
-    data
-    clustering
-    hierarchy
-    embedding
-    ranking
-    classification
-    linalg
-    basics
-    utils
-    visualization
+
+
+
+
