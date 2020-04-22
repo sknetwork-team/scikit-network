@@ -71,7 +71,7 @@ master_doc = 'index'
 # General information about the project.
 project = u'scikit-network'
 # noinspection PyShadowingBuiltins
-copyright = u"2019, scikit-network"
+copyright = u"2020, scikit-network"
 author = u"scikit-network team"
 
 # The version info for the project you're documenting, acts as replacement
