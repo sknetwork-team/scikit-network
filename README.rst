@@ -23,7 +23,8 @@ Fast algorithms for the analysis of massive graphs.
 
 
 * Free software: BSD license
-* Documentation: https://scikit-network.readthedocs.io.
+* GitHub: https://github.com/sknetwork-team/scikit-network
+* Documentation: https://scikit-network.readthedocs.io
 
 
 Quickstart
