@@ -9,6 +9,7 @@ import distutils.util
 from distutils.core import setup, Extension
 from distutils.command.build_ext import build_ext
 import os
+from glob import glob
 
 dist.Distribution().fetch_build_eggs(['Cython', 'numpy==1.18.3'])
 
@@ -67,9 +68,9 @@ class BuildExtSubclass(build_ext):
 
 
 # Cython generation/C++ compilation
-pyx_paths = ["sknetwork/utils/knn1d.pyx", "sknetwork/clustering/louvain_core.pyx", "sknetwork/hierarchy/paris.pyx", "sknetwork/linalg/diteration.pyx"]
-c_paths = ["sknetwork/utils/knn1d.cpp", "sknetwork/clustering/louvain_core.cpp", "sknetwork/hierarchy/paris.cpp", "sknetwork/linalg/diteration.cpp"]
-modules = ['sknetwork.utils.knn1d', 'sknetwork.clustering.louvain_core', 'sknetwork.hierarchy.paris', 'sknetwork.linalg.diteration']
+pyx_paths = glob("./sknetwork/**/*.pyx")
+c_paths = ['.' + filename.split('.')[1] + '.cpp' for filename in pyx_paths]
+modules = [filename.split('.')[1][1:].replace('/', '.') for filename in pyx_paths]
 
 
 if os.environ.get('SKNETWORK_DISABLE_CYTHONIZE') is None:
