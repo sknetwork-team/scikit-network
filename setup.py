@@ -76,7 +76,6 @@ class BuildExtSubclass(build_ext):
 pyx_paths = glob("./sknetwork/**/*.pyx")
 c_paths = ['.' + filename.split('.')[1] + '.cpp' for filename in pyx_paths]
 modules = [filename.split('.')[1][1:].replace('/', '.').replace('\\', '.') for filename in pyx_paths]
-print(pyx_paths, c_paths, modules)
 
 if os.environ.get('SKNETWORK_DISABLE_CYTHONIZE') is None:
     try:
