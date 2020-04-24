@@ -36,7 +36,6 @@ matrix:
             - CIBW_BEFORE_BUILD="pip install -r requirements_dev.txt && pip install ."
             - CIBW_BUILD="cp36-* cp37-* cp38-*"
             - CIBW_SKIP=*-manylinux*
-            - HOMEBREW_NO_AUTO_UPDATE=1
             - CC=/usr/local/opt/llvm/bin/clang++
           script:
               # build the wheels, put them into './wheelhouse'

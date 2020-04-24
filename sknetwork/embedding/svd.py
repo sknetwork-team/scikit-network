@@ -139,9 +139,9 @@ class GSVD(BaseBiEmbedding):
         adjacency = check_format(adjacency).asfptype()
         n_row, n_col = adjacency.shape
 
-        if self.n_components >= min(n_row, n_col) - 1:
+        if self.n_components > min(n_row, n_col) - 1:
             n_components = min(n_row, n_col) - 1
-            warnings.warn(Warning("The dimension of the embedding must be less than the number of rows "
+            warnings.warn(Warning("The dimension of the embedding must be strictly less than the number of rows "
                                   "and the number of columns. Changed accordingly."))
         else:
             n_components = self.n_components

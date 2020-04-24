@@ -1,6 +1,10 @@
 # standard Python package manager
 pip==20.0.2
 
+# base dependencies
+numpy==1.18.3
+scipy==1.4.1
+
 # tool to automatically change version number in the package upon release
 bumpversion==0.5.3
 
@@ -40,3 +44,4 @@ pytest-cov==2.8.1
 
 # C++ code generator for performance speed-up
 cython==0.29.16
+
