@@ -47,7 +47,7 @@ def block_model(sizes: np.ndarray, p_in: Union[float, list, np.ndarray] = .2, p_
 
     References
     ----------
-    Airoldi, E.,  Blei, D., Feinberg, S., Xing, E. (2007).
+    Airoldi, E.,  Blei, D., Feinberg, S., brew install llvmXing, E. (2007).
     `Mixed membership stochastic blockmodels. <https://arxiv.org/abs/0803.0476>`_
     Journal of Machine Learning Research.
     """
