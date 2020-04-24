@@ -10,7 +10,7 @@ from distutils.core import setup, Extension
 from distutils.command.build_ext import build_ext
 import os
 
-dist.Distribution().fetch_build_eggs(['Cython', 'numpy'])
+dist.Distribution().fetch_build_eggs(['Cython', 'numpy==1.18.3'])
 
 import numpy
 
@@ -20,7 +20,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['numpy', 'scipy']
+requirements = ['numpy>=1.18.3', 'scipy>=1.4.1']
 
 setup_requirements = ['pytest-runner']
 
