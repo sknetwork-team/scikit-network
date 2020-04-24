@@ -36,6 +36,7 @@ test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 COMPILE_OPTIONS = {"other": []}
 LINK_OPTIONS = {"other": []}
 
+OPENMP_COMPILE_FLAG = '-fopenmp'
 OPENMP_LINK_FLAG = '-fopenmp'
 
 # Check whether we're on OSX >= 10.10
@@ -49,6 +50,10 @@ if name.startswith("macosx-10"):
         # g++ (used by unix compiler on mac) links to libstdc++ as a default lib.
         # See: https://stackoverflow.com/questions/1653047/avoid-linking-to-libstdc
         LINK_OPTIONS["other"].append("-nodefaultlibs")
+# Windows does not (yet) support OpenMP
+if name.startswith("win"):
+    OPENMP_COMPILE_FLAG = ''
+    OPENMP_LINK_FLAG = ''
 
 
 class BuildExtSubclass(build_ext):
@@ -70,8 +75,8 @@ class BuildExtSubclass(build_ext):
 # Cython generation/C++ compilation
 pyx_paths = glob("./sknetwork/**/*.pyx")
 c_paths = ['.' + filename.split('.')[1] + '.cpp' for filename in pyx_paths]
-modules = [filename.split('.')[1][1:].replace('/', '.') for filename in pyx_paths]
-
+modules = [filename.split('.')[1][1:].replace('/', '.').replace('\\', '.') for filename in pyx_paths]
+print(pyx_paths, c_paths, modules)
 
 if os.environ.get('SKNETWORK_DISABLE_CYTHONIZE') is None:
     try:
@@ -96,7 +101,8 @@ if HAVE_CYTHON:
             os.remove(c_path)
 
         ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()],
-                                           extra_compile_args=['-fopenmp'], extra_link_args=[OPENMP_LINK_FLAG]))
+                                           extra_compile_args=[OPENMP_COMPILE_FLAG],
+                                           extra_link_args=[OPENMP_LINK_FLAG]))
 else:
     ext_modules = [Extension(modules[index], [c_paths[index]], include_dirs=[numpy.get_include()])
                    for index in range(len(modules))]
