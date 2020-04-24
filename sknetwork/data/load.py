@@ -9,7 +9,7 @@ import pickle
 import tarfile
 import shutil
 from os import environ, makedirs, remove, listdir, rmdir
-from os.path import exists, expanduser, join
+from os.path import exists, expanduser, join, isabs
 from typing import Optional, Union
 from urllib.error import HTTPError
 from urllib.request import urlretrieve
@@ -317,7 +317,10 @@ def save(folder: str, data: Union[sparse.csr_matrix, Bunch]):
         else:
             bunch.biadjacency = data
         data = bunch
-    save_to_numpy_bundle(data, folder, './')
+    if isabs(folder):
+        save_to_numpy_bundle(data, folder, '')
+    else:
+        save_to_numpy_bundle(data, folder, './')
 
 
 def load(folder: str):
@@ -344,4 +347,7 @@ def load(folder: str):
     >>> loaded_graph.names[0]
     'a'
     """
-    return load_from_numpy_bundle(folder, './')
+    if isabs(folder):
+        return load_from_numpy_bundle(folder, '')
+    else:
+        return load_from_numpy_bundle(folder, './')
