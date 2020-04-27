@@ -257,13 +257,11 @@ def check_n_jobs(n_jobs: Optional[int] = None):
 
 
 def check_adjacency_vector(adjacency_vectors: Union[sparse.csr_matrix, np.ndarray],
-                           n: Optional[int] = None) -> np.ndarray:
+                           n: Optional[int] = None) -> sparse.csr_matrix:
     """Check format of new samples for predict methods"""
+    adjacency_vectors = check_format(adjacency_vectors)
 
-    if isinstance(adjacency_vectors, sparse.csr_matrix):
-        adjacency_vectors = adjacency_vectors.toarray()
-
-    if len(adjacency_vectors.shape) == 1:
+    if adjacency_vectors.ndim == 1:
         adjacency_vectors = adjacency_vectors.reshape(1, -1)
 
     if n is not None:

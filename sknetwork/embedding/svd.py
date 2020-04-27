@@ -13,8 +13,8 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding.base import BaseBiEmbedding
-from sknetwork.linalg import SparseLR, SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv,\
-    normalize
+from sknetwork.linalg import SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv, normalize,\
+    RegularizedAdjacency
 from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative
 
 
@@ -157,7 +157,7 @@ class GSVD(BaseBiEmbedding):
         if regularization:
             if self.relative_regularization:
                 regularization = regularization * np.sum(adjacency.data) / (n_row * n_col)
-            adjacency_reg = SparseLR(adjacency, (regularization * np.ones(n_row), np.ones(n_col)))
+            adjacency_reg = RegularizedAdjacency(adjacency, regularization)
         else:
             adjacency_reg = adjacency
 
@@ -196,7 +196,7 @@ class GSVD(BaseBiEmbedding):
         return self
 
     @staticmethod
-    def _check_adj_vector(adjacency_vectors: np.ndarray):
+    def _check_adj_vector(adjacency_vectors):
         check_nonnegative(adjacency_vectors)
 
     def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
@@ -224,18 +224,17 @@ class GSVD(BaseBiEmbedding):
         self._check_adj_vector(adjacency_vectors)
 
         # regularization
-        adjacency_vectors_reg = adjacency_vectors.astype(float)
         if self.regularization_:
-            adjacency_vectors_reg += self.regularization_
+            adjacency_vectors = RegularizedAdjacency(adjacency_vectors, self.regularization_)
 
         # weighting
-        weights_row = adjacency_vectors_reg.dot(np.ones(n_col))
+        weights_row = adjacency_vectors.dot(np.ones(n_col))
         diag_row = diag_pinv(np.power(weights_row, self.factor_row))
         diag_col = diag_pinv(np.power(self.weights_col_, self.factor_col))
-        adjacency_vectors_reg = diag_row.dot(safe_sparse_dot(adjacency_vectors_reg, diag_col))
+        adjacency_vectors = diag_row.dot(safe_sparse_dot(adjacency_vectors, diag_col))
 
         # projection in the embedding space
-        averaging = adjacency_vectors_reg
+        averaging = adjacency_vectors
         embedding_vectors = diag_row.dot(averaging.dot(singular_vectors_right))
 
         # scaling

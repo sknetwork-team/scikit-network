@@ -133,7 +133,7 @@ class TestChecks(unittest.TestCase):
         adj1 = check_adjacency_vector(vector1)
         adj2 = check_adjacency_vector(vector2)
 
-        self.assertAlmostEqual(np.linalg.norm(adj1 - adj2), 0)
+        self.assertEqual((adj1 - adj2).nnz, 0)
         self.assertEqual(adj1.shape, (1, n))
 
         with self.assertRaises(ValueError):

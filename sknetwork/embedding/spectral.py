@@ -13,7 +13,7 @@ from scipy import sparse
 
 from sknetwork.embedding.base import BaseEmbedding, BaseBiEmbedding
 from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv, normalize, LaplacianOperator,\
-    NormalizedAdjacencyOperator
+    NormalizedAdjacencyOperator, RegularizedAdjacency
 from sknetwork.utils.check import check_format, check_square, check_symmetry, check_adjacency_vector, is_connected,\
     check_nonnegative
 from sknetwork.utils.format import bipartite2undirected
@@ -232,13 +232,11 @@ class Spectral(BaseEmbedding):
         check_nonnegative(adjacency_vectors)
 
         # regularization
-        adjacency_vector_reg = adjacency_vectors.astype(float)
         if self.regularization_:
-            adjacency_vector_reg += self.regularization_
+            adjacency_vectors = RegularizedAdjacency(adjacency_vectors, self.regularization_)
 
         # projection in the embedding space
-        sum_inv_diag = diag_pinv(np.sum(adjacency_vector_reg, axis=1))
-        averaging = sum_inv_diag.dot(adjacency_vector_reg)
+        averaging = normalize(adjacency_vectors, p=1)
         embedding_vectors = averaging.dot(eigenvectors)
 
         if not self.barycenter:
@@ -246,7 +244,7 @@ class Spectral(BaseEmbedding):
                 factors = 1 - eigenvalues
             else:
                 # to be modified
-                factors = 1 - eigenvalues / np.sum(adjacency_vector_reg + 1e-9)
+                factors = 1 - eigenvalues / (adjacency_vectors.sum() + 1e-9)
             factors_inv_diag = diag_pinv(factors)
             embedding_vectors = factors_inv_diag.dot(embedding_vectors.T).T
 
@@ -379,9 +377,8 @@ class BiSpectral(Spectral, BaseBiEmbedding):
         n_col, _ = self.embedding_col_.shape
 
         adjacency_vectors = check_adjacency_vector(adjacency_vectors, n_col)
-        check_nonnegative(adjacency_vectors)
-
-        adjacency_vectors = np.hstack((np.zeros((adjacency_vectors.shape[0], n_row)), adjacency_vectors))
+        empty_block = sparse.csr_matrix((adjacency_vectors.shape[0], n_row))
+        adjacency_vectors = sparse.bmat([[empty_block, adjacency_vectors]], format='csr')
         embedding_vectors = Spectral.predict(self, adjacency_vectors)
 
         if embedding_vectors.shape[0] == 1:
