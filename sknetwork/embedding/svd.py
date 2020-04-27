@@ -157,7 +157,7 @@ class GSVD(BaseBiEmbedding):
         if regularization:
             if self.relative_regularization:
                 regularization = regularization * np.sum(adjacency.data) / (n_row * n_col)
-            adjacency_reg = SparseLR(adjacency, [(regularization * np.ones(n_row), np.ones(n_col))])
+            adjacency_reg = SparseLR(adjacency, (regularization * np.ones(n_row), np.ones(n_col)))
         else:
             adjacency_reg = adjacency
 

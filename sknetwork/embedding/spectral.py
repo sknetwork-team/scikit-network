@@ -5,80 +5,18 @@ Created on Thu Sep 13 2018
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
-
 import warnings
 from typing import Union
 
 import numpy as np
 from scipy import sparse
-from scipy.sparse.linalg import LinearOperator
 
 from sknetwork.embedding.base import BaseEmbedding, BaseBiEmbedding
-from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv, normalize
+from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv, normalize, LaplacianOperator,\
+    NormalizedAdjacencyOperator
 from sknetwork.utils.check import check_format, check_square, check_symmetry, check_adjacency_vector, is_connected,\
     check_nonnegative
 from sknetwork.utils.format import bipartite2undirected
-
-
-class LaplacianOperator(LinearOperator):
-    """Regularized Laplacian matrix as a scipy LinearOperator."""
-    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
-        super(LaplacianOperator, self).__init__(dtype=float, shape=adjacency.shape)
-        self.regularization = regularization
-        self.weights = adjacency.dot(np.ones(adjacency.shape[1]))
-        self.laplacian = sparse.diags(self.weights, format='csr') - adjacency
-
-    def _matvec(self, matrix: np.ndarray):
-        prod = self.laplacian.dot(matrix)
-        prod += self.shape[0] * self.regularization * matrix
-        if len(matrix.shape) == 2:
-            prod -= self.regularization * np.tile(matrix.sum(axis=0), (self.shape[0], 1))
-        else:
-            prod -= self.regularization * matrix.sum()
-
-        return prod
-
-    def _transpose(self):
-        return self
-
-    def astype(self, dtype: Union[str, np.dtype]):
-        """Change dtype of the object."""
-        self.dtype = np.dtype(dtype)
-        self.laplacian = self.laplacian.astype(self.dtype)
-        self.weights = self.weights.astype(self.dtype)
-
-        return self
-
-
-class NormalizedAdjacencyOperator(LinearOperator):
-    """Regularized normalized adjacency matrix as a scipy LinearOperator."""
-    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
-        super(NormalizedAdjacencyOperator, self).__init__(dtype=float, shape=adjacency.shape)
-        self.adjacency = adjacency
-        self.regularization = regularization
-
-        n = self.adjacency.shape[0]
-        self.weights_sqrt = np.sqrt(self.adjacency.dot(np.ones(n)) + self.regularization * n)
-
-    def _matvec(self, matrix: np.ndarray):
-        matrix = (matrix.T / self.weights_sqrt).T
-        prod = self.adjacency.dot(matrix)
-        if len(matrix.shape) == 2:
-            prod += self.regularization * np.tile(matrix.sum(axis=0), (self.shape[0], 1))
-        else:
-            prod += self.regularization * matrix.sum()
-        return (prod.T / self.weights_sqrt).T
-
-    def _transpose(self):
-        return self
-
-    def astype(self, dtype: Union[str, np.dtype]):
-        """Change dtype of the object."""
-        self.dtype = np.dtype(dtype)
-        self.adjacency = self.adjacency.astype(self.dtype)
-        self.weights_sqrt = self.weights_sqrt.astype(self.dtype)
-
-        return self
 
 
 class Spectral(BaseEmbedding):
