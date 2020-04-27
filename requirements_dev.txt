@@ -43,5 +43,5 @@ pytest==5.4.1
 pytest-cov==2.8.1
 
 # C++ code generator for performance speed-up
-cython==0.29.16
+cython==0.29.17
 
