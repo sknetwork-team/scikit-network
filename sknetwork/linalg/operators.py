@@ -10,14 +10,49 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 
+from sknetwork.linalg.sparse_lowrank import SparseLR
+
+
+class RegularizedAdjacency(SparseLR):
+    """Regularized adjacency matrix as a Scipy LinearOperator.
+
+    The regularized adjacency is formally defined as :math:`A_{\\alpha} = A + \\alpha 11^T`,
+    or :math:`A_{\\alpha} = A + \\alpha d^{+}(d^{-})^T`
+    where :math:`\\alpha` is the regularization parameter.
+
+    Parameters
+    ----------
+    adjacency :
+        :term:`Adjacency <adjacency>` matrix of the graph.
+    regularization : float
+        Constant implicitly added to all entries of the adjacency matrix.
+    degree_mode : bool
+        If `True`, the regularization parameter for entry (i, j) is scaled by out-degree of node i and
+        in-degree of node j.
+        If `False`, the regularization parameter is applied to all entries.
+
+    Examples
+    --------
+    >>> from sknetwork.data import star_wars
+    >>> biadjacency = star_wars(metadata=False)
+    >>> biadj_reg = RegularizedAdjacency(biadjacency, 0.1, degree_mode=True)
+    >>> biadj_reg.dot(np.ones(3))
+    array([3.6, 1.8, 5.4, 3.6])
+    """
+    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.,
+                 degree_mode: bool = False):
+        n_row, n_col = adjacency.shape
+        x = regularization * np.ones(n_row)
+        y = np.ones(n_col)
+        if degree_mode:
+            x, y = adjacency.dot(y), adjacency.T.dot(x)
+        super(RegularizedAdjacency, self).__init__(adjacency, (x, y))
+
 
 class LaplacianOperator(LinearOperator):
     """Regularized Laplacian matrix as a Scipy LinearOperator.
 
-    The regularized adjacency is formally defined as :math:`A_{\\alpha} = A + \\alpha 11^T`,
-    where :math:`\\alpha` is the regularization parameter.
-
-    The Laplacian operator is then defined as :math:`L = D_{\\alpha} - A_{\\alpha}`.
+    The Laplacian operator is then defined as :math:`L = D - A`.
 
     Parameters
     ----------
@@ -65,11 +100,8 @@ class LaplacianOperator(LinearOperator):
 class NormalizedAdjacencyOperator(LinearOperator):
     """Regularized normalized adjacency matrix as a Scipy LinearOperator.
 
-    The regularized adjacency is formally defined as :math:`A_{\\alpha} = A + \\alpha 11^T`,
-    where :math:`\\alpha` is the regularization parameter.
-
     The normalized adjacency operator is then defined as
-    :math:`\\bar{A} = D_{\\alpha}^{-1/2}A_{\\alpha}D_{\\alpha}^{-1/2}`.
+    :math:`\\bar{A} = D^{-1/2}AD^{-1/2}`.
 
     Parameters
     ----------

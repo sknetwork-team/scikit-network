@@ -18,6 +18,8 @@ Sparse + Low Rank
 Operators
 ---------
 
+.. autoclass:: sknetwork.linalg.RegularizedAdjacency
+
 .. autoclass:: sknetwork.linalg.LaplacianOperator
 
 .. autoclass:: sknetwork.linalg.NormalizedAdjacencyOperator
