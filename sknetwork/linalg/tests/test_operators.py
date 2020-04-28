@@ -31,4 +31,6 @@ class TestOperators(unittest.TestCase):
         x = np.random.randn(operator.shape[1])
         x1 = (-operator1).dot(x)
         x2 = (operator2 * -1).dot(x)
+        x3 = operator1.T.dot(x)
         self.assertAlmostEqual(np.linalg.norm(x1 - x2), 0)
+        self.assertAlmostEqual(np.linalg.norm(x2 - x3), 0)
