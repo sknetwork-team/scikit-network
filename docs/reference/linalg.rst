@@ -24,6 +24,8 @@ Operators
 
 .. autoclass:: sknetwork.linalg.NormalizedAdjacencyOperator
 
+.. autoclass:: sknetwork.linalg.CoNeighborsOperator
+
 Solvers
 -------
 

@@ -10,7 +10,9 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 
+from sknetwork.linalg.normalization import normalize
 from sknetwork.linalg.sparse_lowrank import SparseLR
+from sknetwork.utils.check import check_format
 
 
 class RegularizedAdjacency(SparseLR):
@@ -145,4 +147,83 @@ class NormalizedAdjacencyOperator(LinearOperator):
         self.adjacency = self.adjacency.astype(self.dtype)
         self.weights_sqrt = self.weights_sqrt.astype(self.dtype)
 
+        return self
+
+
+class CoNeighborsOperator(LinearOperator):
+    """Co-neighborhood adjacency as a LinearOperator.
+
+    * Graphs
+    * Digraphs
+    * Bigraphs
+
+    :math:`\\tilde{A} = AF^{-1}A^T`, or :math:`\\tilde{B} = BF^{-1}B^T`.
+
+    where F is a weight matrix.
+
+    Parameters
+    ----------
+    adjacency:
+        Adjacency or biadjacency of the input graph.
+    normalized:
+        If ``True``, F is the diagonal in-degree matrix :math:`F = \\text{diag}(A^T1)`.
+        Otherwise, F is the identity matrix.
+
+    Examples
+    --------
+    >>> from sknetwork.data import star_wars
+    >>> biadjacency = star_wars(metadata=False)
+    >>> d_out = biadjacency.dot(np.ones(3))
+    >>> coneigh = CoNeighborsOperator(biadjacency)
+    >>> np.allclose(d_out, coneigh.dot(np.ones(4)))
+    True
+    """
+    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], normalized: bool = True):
+        adjacency = check_format(adjacency)
+        n = adjacency.shape[0]
+        super(CoNeighborsOperator, self).__init__(dtype=float, shape=(n, n))
+
+        if normalized:
+            self.forward = normalize(adjacency.T).tocsr()
+        else:
+            self.forward = adjacency.T
+
+        self.backward = adjacency
+
+    def __neg__(self):
+        self.backward *= -1
+        return self
+
+    def __mul__(self, other):
+        self.backward *= other
+        return self
+
+    def _matvec(self, matrix: np.ndarray):
+        return self.backward.dot(self.forward.dot(matrix))
+
+    def _transpose(self):
+        """Transposed operator"""
+        operator = CoNeighborsOperator(self.backward)
+        operator.backward = self.forward.T.tocsr()
+        operator.forward = self.backward.T.tocsr()
+        return operator
+
+    def _adjoint(self):
+        return self.transpose()
+
+    def left_sparse_dot(self, matrix: sparse.csr_matrix):
+        """Left dot product with a sparse matrix"""
+        self.backward = matrix.dot(self.backward)
+        return self
+
+    def right_sparse_dot(self, matrix: sparse.csr_matrix):
+        """Right dot product with a sparse matrix"""
+        self.forward = self.forward.dot(matrix)
+        return self
+
+    def astype(self, dtype: Union[str, np.dtype]):
+        """Change dtype of the object."""
+        self.backward.astype(dtype)
+        self.forward.astype(dtype)
+        self.dtype = dtype
         return self
