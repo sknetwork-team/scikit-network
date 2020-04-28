@@ -208,9 +208,6 @@ class CoNeighborsOperator(LinearOperator):
         operator.forward = self.backward.T.tocsr()
         return operator
 
-    def _adjoint(self):
-        return self.transpose()
-
     def left_sparse_dot(self, matrix: sparse.csr_matrix):
         """Left dot product with a sparse matrix"""
         self.backward = matrix.dot(self.backward)
