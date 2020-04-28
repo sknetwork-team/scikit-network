@@ -32,10 +32,12 @@ class TestEmbeddings(unittest.TestCase):
         error = np.abs(spectral.predict(self.adjacency[1]) - embedding[1]).sum()
         self.assertAlmostEqual(error, 0)
 
+        spectral = Spectral(self.k, normalized_laplacian=False, regularization=0, equalize=True)
         with self.assertRaises(ValueError):
-            spectral = Spectral(self.k, normalized_laplacian=False, regularization=0, equalize=True)
             spectral.fit(test_bigraph())
+        with self.assertRaises(ValueError):
             spectral.fit(test_digraph())
+        with self.assertRaises(ValueError):
             spectral.fit(test_graph_disconnect())
 
         with self.assertWarns(Warning):

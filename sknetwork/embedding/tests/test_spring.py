@@ -31,7 +31,8 @@ class TestEmbeddings(unittest.TestCase):
         adjacency = test_graph()
         with self.assertRaises(ValueError):
             Spring(position_init='toto')
-            Spring().fit(adjacency, position_init=np.ones(2, 2))
+        with self.assertRaises(ValueError):
+            Spring().fit(adjacency, position_init=np.ones((2, 2)))
         with self.assertRaises(TypeError):
             # noinspection PyTypeChecker
             Spring().fit(adjacency, position_init='toto')
