@@ -64,3 +64,13 @@ class TestEmbeddings(unittest.TestCase):
         spectral = Spectral(self.k, equalize=True)
         spectral.fit(self.adjacency)
         spectral.predict(np.ones(self.n))
+
+    def test_noreg(self):
+        adjacency = test_graph_disconnect()
+        n = adjacency.shape[0]
+        spectral = Spectral(regularization=None, equalize=True)
+        with self.assertRaises(ValueError):
+            spectral.fit(adjacency)
+        spectral = Spectral(regularization=0.)
+        spectral.fit(adjacency)
+        spectral.predict(np.random.rand(n))

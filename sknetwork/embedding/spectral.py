@@ -381,7 +381,4 @@ class BiSpectral(Spectral, BaseBiEmbedding):
         adjacency_vectors = sparse.bmat([[empty_block, adjacency_vectors]], format='csr')
         embedding_vectors = Spectral.predict(self, adjacency_vectors)
 
-        if embedding_vectors.shape[0] == 1:
-            embedding_vectors = embedding_vectors.ravel()
-
         return embedding_vectors
