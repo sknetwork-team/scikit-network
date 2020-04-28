@@ -31,6 +31,12 @@ Nearest-neighbors
 .. autoclass:: sknetwork.utils.knn.PNNDense
 
 
+Co-Neighborhood
+---------------
+
+.. autofunction:: sknetwork.utils.co_neighbors_graph
+
+
 Miscellaneous
 -------------
 

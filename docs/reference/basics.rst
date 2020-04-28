@@ -48,10 +48,4 @@ Structure
 .. autofunction:: sknetwork.basics.is_bipartite
 
 
-Co-Neighborhood
----------------
-
-.. autofunction:: sknetwork.basics.co_neighbors_graph
-
-
 .. _SciPy: https://docs.scipy.org/doc/scipy/reference/sparse.csgraph.html
