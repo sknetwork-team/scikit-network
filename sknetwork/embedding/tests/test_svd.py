@@ -23,4 +23,6 @@ class TestSVD(unittest.TestCase):
         self.assertEqual(gsvd.embedding_row_.shape, (n_row, min_dim))
         self.assertEqual(gsvd.embedding_col_.shape, (n_col, min_dim))
 
+        gsvd = GSVD(n_components=1, regularization=0.1, solver='halko', relative_regularization=True)
+        gsvd.fit(biadjacency)
         gsvd.predict(np.random.rand(n_col))

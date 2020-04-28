@@ -231,7 +231,7 @@ class GSVD(BaseBiEmbedding):
         weights_row = adjacency_vectors.dot(np.ones(n_col))
         diag_row = diag_pinv(np.power(weights_row, self.factor_row))
         diag_col = diag_pinv(np.power(self.weights_col_, self.factor_col))
-        adjacency_vectors = diag_row.dot(safe_sparse_dot(adjacency_vectors, diag_col))
+        adjacency_vectors = safe_sparse_dot(diag_row, safe_sparse_dot(adjacency_vectors, diag_col))
 
         # projection in the embedding space
         averaging = adjacency_vectors
