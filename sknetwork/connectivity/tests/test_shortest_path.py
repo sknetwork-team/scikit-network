@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 from scipy import sparse
 
-from sknetwork.basics import shortest_path
+from sknetwork.connectivity import shortest_path
 from sknetwork.data import karate_club
 
 

@@ -22,7 +22,7 @@ Reference
    * .. toctree::
         linalg
    * .. toctree::
-        basics
+        connectivity
    * .. toctree::
         visualization
    * .. toctree::

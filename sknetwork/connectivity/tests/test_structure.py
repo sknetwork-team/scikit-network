@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 from scipy import sparse
 
-from sknetwork.basics.structure import largest_connected_component, is_bipartite
+from sknetwork.connectivity.structure import largest_connected_component, is_bipartite
 from sknetwork.data import star_wars, cyclic_digraph
 from sknetwork.utils.format import bipartite2undirected, directed2undirected
 
