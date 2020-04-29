@@ -156,3 +156,7 @@ class TestChecks(unittest.TestCase):
     def test_dendrogram(self):
         with self.assertRaises(ValueError):
             check_dendrogram(np.ones((3, 3)))
+
+    def test_n_components(self):
+        self.assertEqual(5, check_n_components(5, 10))
+        self.assertEqual(2, check_n_components(5, 2))
