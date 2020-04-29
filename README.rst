@@ -18,12 +18,10 @@
 .. image:: https://codecov.io/gh/sknetwork-team/scikit-network/branch/master/graph/badge.svg
         :target: https://codecov.io/gh/sknetwork-team/scikit-network
 
-.. image:: https://img.shields.io/twitter/url/https/twitter.com/LINCS_Paris.svg?style=social&label=Follow%20%40LINCS_Paris
-        :target: https://twitter.com/LINCS_Paris
 
+Python package inspired by scikit-learn_ for the analysis of large graphs.
 
-Fast algorithms for the analysis of massive graphs.
-
+.. _scikit-learn: https://scikit-learn.org/
 
 * Free software: BSD license
 * GitHub: https://github.com/sknetwork-team/scikit-network
