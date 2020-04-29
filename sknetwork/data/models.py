@@ -56,7 +56,7 @@ def block_model(sizes: np.ndarray, p_in: Union[float, list, np.ndarray] = .2, p_
 
     if type(p_in) != np.ndarray:
         p_in = p_in * np.ones_like(sizes)
-    if np.min(p_in) < p_out:
+    if p_in.min() < p_out:
         raise ValueError('The probability of connection across blocks p_out must be less that the probability of '
                          'connection within a block p_in.')
 
