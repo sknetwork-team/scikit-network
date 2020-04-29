@@ -15,7 +15,7 @@ from sknetwork.embedding.base import BaseEmbedding, BaseBiEmbedding
 from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv, normalize, LaplacianOperator,\
     NormalizedAdjacencyOperator, RegularizedAdjacency
 from sknetwork.utils.check import check_format, check_square, check_symmetry, check_adjacency_vector, is_connected,\
-    check_nonnegative
+    check_nonnegative, check_n_components
 from sknetwork.utils.format import bipartite2undirected
 
 
@@ -133,14 +133,11 @@ class Spectral(BaseEmbedding):
             solver = auto_solver(adjacency.nnz)
             if solver == 'lanczos':
                 self.solver: EigSolver = LanczosEig()
-            else:
+            else:  # pragma: no cover
                 self.solver: EigSolver = HalkoEig()
 
-        if self.n_components > n - 2:
-            warnings.warn(Warning("The dimension of the embedding must be less than the number of nodes - 1."))
-            n_components = n - 2
-        else:
-            n_components = self.n_components + 1
+        n_components = check_n_components(self.n_components, n-2)
+        n_components += 1
 
         if self.equalize and (self.regularization is None or self.regularization == 0.) and not is_connected(adjacency):
             raise ValueError("The option 'equalize' is valid only if the graph is connected or with regularization."
