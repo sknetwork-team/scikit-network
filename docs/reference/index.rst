@@ -13,8 +13,8 @@ Reference
     classification
     connectivity
     linalg
-    visualization
     utils
+    visualization
 
 
 

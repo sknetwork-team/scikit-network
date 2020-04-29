@@ -1,9 +1,9 @@
-.. _basics:
+.. _connectivity:
 
-Basics
-******
+Connectivity
+************
 
-This module contains standard algorithms for shortest path computation, structure of the graph and searches (BFS, DFS).
+This module contains standard algorithms related to graph connectivity: shortest paths, graph traversals, etc.
 
 Most algorithms are adapted from SciPy_.
 
