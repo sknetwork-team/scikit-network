@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# coding: utf-8
 """
 Created on April, 2020
 @author: Thomas Bonald <tbonald@enst.fr>
@@ -10,12 +10,13 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.classification import BaseClassifier, BaseBiClassifier
+from sknetwork.classification.vote import vote_update
+from sknetwork.linalg import normalize
 from sknetwork.utils.check import check_seeds
 from sknetwork.utils.seeds import stack_seeds
 from sknetwork.utils.check import check_format
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.membership import membership_matrix
-from sknetwork.linalg import normalize
 
 
 class Propagation(BaseClassifier):
@@ -57,13 +58,14 @@ class Propagation(BaseClassifier):
         else:
             self.n_iter = n_iter
 
-    def _instanciate_vars(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]):
+    @staticmethod
+    def _instanciate_vars(adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]):
         n = adjacency.shape[0]
-        labels = check_seeds(seeds, n).astype(int)
+        labels = check_seeds(seeds, n)
         index_seed = np.argwhere(labels >= 0).ravel()
         index_remain = np.argwhere(labels < 0).ravel()
         labels_seed = labels[index_seed]
-        return index_seed, index_remain, labels_seed
+        return index_seed.astype(np.int32), index_remain.astype(np.int32), labels_seed.astype(np.int32)
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) \
             -> 'Propagation':
@@ -72,7 +74,7 @@ class Propagation(BaseClassifier):
         Parameters
         ----------
         adjacency :
-            Adjacency or biadjacency matrix of the graph.
+            Adjacency matrix of the graph.
         seeds :
             Seed nodes. Can be a dict {node: label} or an array where "-1" means no label.
 
@@ -84,19 +86,18 @@ class Propagation(BaseClassifier):
         n = adjacency.shape[0]
         index_seed, index_remain, labels_seed = self._instanciate_vars(adjacency, seeds)
 
-        labels = -np.ones(n, dtype=int)
+        labels = -np.ones(n, dtype=np.int32)
         labels[index_seed] = labels_seed
-        labels_remain = np.zeros_like(index_remain, dtype=int)
+        labels_remain = np.zeros_like(index_remain, dtype=np.int32)
+
+        indptr = adjacency.indptr.astype(np.int32)
+        indices = adjacency.indices.astype(np.int32)
+
         t = 0
         while t < self.n_iter and not np.array_equal(labels_remain, labels[index_remain]):
             t += 1
             labels_remain = labels[index_remain].copy()
-            for i in index_remain:
-                labels_ = labels[adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]]
-                labels_ = labels_[labels_ >= 0]
-                if len(labels_):
-                    labels_unique, counts = np.unique(labels_, return_counts=True)
-                    labels[i] = labels_unique[np.argmax(counts)]
+            labels = vote_update(indptr, indices, labels, index_remain)
 
         membership = membership_matrix(labels)
         membership = normalize(adjacency.dot(membership))
