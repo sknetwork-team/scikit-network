@@ -100,33 +100,16 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[str] = None) 
 
     files = [file for file in listdir(data_path)]
 
-    if 'adjacency.npz' in files:
-        graph.adjacency = sparse.load_npz(data_path + '/adjacency.npz')
-    if 'biadjacency.npz' in files:
-        graph.biadjacency = sparse.load_npz(data_path + '/biadjacency.npz')
-    if 'names.npy' in files:
-        graph.names = np.load(data_path + '/names.npy')
-    if 'names_row.npy' in files:
-        graph.names_row = np.load(data_path + '/names_row.npy')
-    if 'names_col.npy' in files:
-        graph.names_col = np.load(data_path + '/names_col.npy')
-    if 'labels.npy' in files:
-        graph.labels = np.load(data_path + '/labels.npy')
-    if 'labels_row.npy' in files:
-        graph.labels_row = np.load(data_path + '/labels_row.npy')
-    if 'labels_col.npy' in files:
-        graph.labels_col = np.load(data_path + '/labels_col.npy')
-    if 'labels_hierarchy.npy' in files:
-        graph.labels_hierarchy = np.load(data_path + '/labels_hierarchy.npy')
-    if 'names_labels.npy' in files:
-        graph.names_labels = np.load(data_path + '/names_labels.npy')
-    if 'names_labels_hierarchy.npy' in files:
-        graph.names_labels_hierarchy = np.load(data_path + '/names_labels_hierarchy.npy')
-    if 'position.npy' in files:
-        graph.position = np.load(data_path + '/position.npy')
-
-    graph.meta = Bunch()
-    graph.meta.name = dataset
+    for file in files:
+        file_components = file.split('.')
+        if len(file_components) == 2:
+            file_name, file_extension = tuple(file_components)
+            if file_extension == 'npz':
+                graph[file_name] = sparse.load_npz(data_path + '/' + file)
+            elif file_extension == 'npy':
+                graph[file_name] = np.load(data_path + '/' + file)
+            elif file_extension == 'p':
+                graph[file_name] = pickle.load(open(data_path + '/' + file, 'rb'))
 
     return graph
 
