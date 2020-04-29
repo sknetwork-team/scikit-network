@@ -53,7 +53,7 @@ def clear_data_home(data_home: Optional[str] = None):
     shutil.rmtree(data_home)
 
 
-def load_netset(dataset: str, data_home: Optional[str] = None) -> Bunch:
+def load_netset(dataset: str = None, data_home: Optional[str] = None) -> Bunch:
     """Load a dataset from the `NetSets database
     <https://graphs.telecom-paristech.fr/>`_.
 
@@ -75,8 +75,9 @@ def load_netset(dataset: str, data_home: Optional[str] = None) -> Bunch:
     >>> graph.adjacency.shape
     (3097, 3097)
     """
-    if dataset == '':
-        raise ValueError("Please specify the dataset (e.g., 'openflights' or 'wikivitals').")
+    if dataset is None:
+        raise ValueError("Please specify the dataset (e.g., 'openflights' or 'wikivitals')." +
+                         "Complete list available here: <https://graphs.telecom-paristech.fr/datasets_npz/>")
     if data_home is None:
         data_home = get_data_home()
     data_path = data_home + '/' + dataset + '/'
