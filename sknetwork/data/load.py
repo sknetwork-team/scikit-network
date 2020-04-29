@@ -53,7 +53,7 @@ def clear_data_home(data_home: Optional[str] = None):
     shutil.rmtree(data_home)
 
 
-def load_netset(dataset: str = None, data_home: Optional[str] = None) -> Bunch:
+def load_netset(dataset: Optional[str] = None, data_home: Optional[str] = None) -> Bunch:
     """Load a dataset from the `NetSets database
     <https://graphs.telecom-paristech.fr/>`_.
 
@@ -75,9 +75,12 @@ def load_netset(dataset: str = None, data_home: Optional[str] = None) -> Bunch:
     >>> graph.adjacency.shape
     (3097, 3097)
     """
+    graph = Bunch()
+
     if dataset is None:
-        raise ValueError("Please specify the dataset (e.g., 'openflights' or 'wikivitals')." +
-                         "Complete list available here: <https://graphs.telecom-paristech.fr/datasets_npz/>")
+        print("Please specify the dataset (e.g., 'openflights' or 'wikivitals').\n" +
+              "Complete list available here: <https://graphs.telecom-paristech.fr/datasets_npz/>")
+        return graph
     if data_home is None:
         data_home = get_data_home()
     data_path = data_home + '/' + dataset + '/'
@@ -88,14 +91,13 @@ def load_netset(dataset: str = None, data_home: Optional[str] = None) -> Bunch:
                         data_home + '/' + dataset + '_npz.tar.gz')
         except HTTPError:
             rmdir(data_home + '/' + dataset)
-            raise ValueError('Invalid dataset ' + dataset + '.'
+            raise ValueError('Invalid dataset: ' + dataset + '.'
                              + "\nAvailable datasets include 'openflights' and 'wikivitals'."
                              + "\nSee <https://graphs.telecom-paristech.fr/>")
         with tarfile.open(data_home + '/' + dataset + '_npz.tar.gz', 'r:gz') as tar_ref:
             tar_ref.extractall(data_home)
         remove(data_home + '/' + dataset + '_npz.tar.gz')
 
-    graph = Bunch()
     files = [file for file in listdir(data_path)]
 
     if 'adjacency.npz' in files:
