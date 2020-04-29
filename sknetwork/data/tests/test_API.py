@@ -26,6 +26,6 @@ class TestDataAPI(unittest.TestCase):
         try:
             graph = load_netset('stub', tmp_data_dir)
             self.assertEqual(type(graph), Bunch)
-        except URLError:
+        except URLError:  # pragma: no cover
             warnings.warn('Could not reach Telecom Graphs. Corresponding test has not been performed.', RuntimeWarning)
             return

@@ -20,7 +20,7 @@ class TestLoader(unittest.TestCase):
         clear_data_home(tmp_data_dir)
         try:
             graph = load_netset('stub', tmp_data_dir)
-        except URLError:
+        except URLError:  # pragma: no cover
             warnings.warn('Could not reach Telecom Graphs. Corresponding test has not been performed.', RuntimeWarning)
             return
         n = 2
@@ -34,16 +34,18 @@ class TestLoader(unittest.TestCase):
         try:
             with self.assertRaises(ValueError):
                 load_netset('junk', tmp_data_dir)
-        except URLError:
+
+        except URLError:  # pragma: no cover
             warnings.warn('Could not reach Telecom Graphs. Corresponding test has not been performed.', RuntimeWarning)
             return
+        load_netset()
 
     def test_konect(self):
         tmp_data_dir = tempfile.gettempdir() + '/moreno_crime'
         clear_data_home(tmp_data_dir)
         try:
             data = load_konect('moreno_crime', tmp_data_dir)
-        except URLError:
+        except URLError:  # pragma: no cover
             warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
             return
         self.assertEqual(data.biadjacency.shape[0], 829)
@@ -59,7 +61,9 @@ class TestLoader(unittest.TestCase):
         try:
             with self.assertRaises(ValueError):
                 load_konect('junk', tmp_data_dir)
-        except URLError:
+            with self.assertRaises(ValueError):
+                load_konect('', tmp_data_dir)
+        except URLError:  # pragma: no cover
             warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
             return
 

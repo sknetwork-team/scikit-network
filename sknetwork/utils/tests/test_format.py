@@ -22,9 +22,9 @@ class TestFormats(unittest.TestCase):
         self.assertEqual(ref.shape, adjacency.shape)
         self.assertTrue(is_symmetric(ref))
 
-        adjacency = house().astype(int)
+        adjacency = house()
         n = adjacency.shape[0]
-        error = 0.5 * directed2undirected(adjacency) - adjacency
+        error = directed2undirected(adjacency, weight_sum=False) - adjacency
         self.assertEqual(error.nnz, 0)
 
         slr = SparseLR(adjacency, [(np.zeros(n), np.zeros(n))])
