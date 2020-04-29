@@ -14,6 +14,7 @@ class TestClassificationAPI(unittest.TestCase):
 
     def test_undirected(self):
         adjacency = test_graph()
+        adjacency_bool = test_graph_bool()
         n = adjacency.shape[0]
         seeds_array = -np.ones(n)
         seeds_array[:2] = np.arange(2)
@@ -24,7 +25,9 @@ class TestClassificationAPI(unittest.TestCase):
         for clf in classifiers:
             labels1 = clf.fit_transform(adjacency, seeds_array)
             labels2 = clf.fit_transform(adjacency, seeds_dict)
-            self.assertTrue(np.allclose(labels1, labels2))
+            labels3 = clf.fit_transform(adjacency_bool, seeds_array)
+            self.assertTrue((labels1 == labels2).all())
+            self.assertTrue((labels1 == labels3).all())
             self.assertEqual(labels2.shape[0], n)
             self.assertTupleEqual(clf.membership_.shape, (n, 2))
 

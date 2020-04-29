@@ -14,7 +14,7 @@ class TestSearch(unittest.TestCase):
 
     def setUp(self) -> None:
         """Load graph for tests."""
-        self.adjacency = cyclic_digraph(3)
+        self.adjacency = cyclic_digraph(3).astype(bool)
 
     def test_bfs(self):
         self.assertTrue((breadth_first_search(

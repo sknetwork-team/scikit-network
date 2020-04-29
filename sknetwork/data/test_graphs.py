@@ -59,3 +59,11 @@ def test_bigraph_disconnect():
     col = np.array([1, 2, 3, 1, 3, 4, 7, 7, 6])
     data = np.array([1, 2.5, 1, 2, 2, 1.5, 3, 0, 1])
     return sparse.csr_matrix((data, (row, col)), shape=(6, 8))
+
+
+def test_graph_bool():
+    """Simple undirected graph with boolean entries, used for testing.
+    10 nodes, 10 edges."""
+    adjacency = test_graph()
+    adjacency.data = adjacency.data.astype(bool)
+    return adjacency

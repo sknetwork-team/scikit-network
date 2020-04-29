@@ -179,7 +179,7 @@ class CoNeighborsOperator(LinearOperator):
     True
     """
     def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], normalized: bool = True):
-        adjacency = check_format(adjacency)
+        adjacency = check_format(adjacency).astype(float)
         n = adjacency.shape[0]
         super(CoNeighborsOperator, self).__init__(dtype=float, shape=(n, n))
 

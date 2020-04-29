@@ -22,7 +22,7 @@ class TestFormats(unittest.TestCase):
         self.assertEqual(ref.shape, adjacency.shape)
         self.assertTrue(is_symmetric(ref))
 
-        adjacency = house()
+        adjacency = house().astype(int)
         n = adjacency.shape[0]
         error = 0.5 * directed2undirected(adjacency) - adjacency
         self.assertEqual(error.nnz, 0)
