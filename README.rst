@@ -18,6 +18,9 @@
 .. image:: https://codecov.io/gh/sknetwork-team/scikit-network/branch/master/graph/badge.svg
         :target: https://codecov.io/gh/sknetwork-team/scikit-network
 
+.. image:: https://img.shields.io/twitter/url/https/twitter.com/LINCS_Paris.svg?style=social&label=Follow%20%40LINCS_Paris
+        :target: https://twitter.com/LINCS_Paris
+
 
 Fast algorithms for the analysis of massive graphs.
 
