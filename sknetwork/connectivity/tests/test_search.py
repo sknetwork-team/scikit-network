@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 
-from sknetwork.basics import breadth_first_search, depth_first_search
+from sknetwork.connectivity import breadth_first_search, depth_first_search
 from sknetwork.data import cyclic_digraph
 
 

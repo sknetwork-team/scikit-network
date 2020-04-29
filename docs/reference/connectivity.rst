@@ -10,7 +10,7 @@ Most algorithms are adapted from SciPy_.
 Shortest paths
 --------------
 
-.. autofunction:: sknetwork.basics.shortest_path
+.. autofunction:: sknetwork.connectivity.shortest_path
 
 Summary of the different methods and their worst-case complexity for :math:`n` nodes and :math:`m` edges (for the
 all-pairs problem):
@@ -32,30 +32,20 @@ all-pairs problem):
 Searches
 --------
 
-.. autofunction:: sknetwork.basics.breadth_first_search
+.. autofunction:: sknetwork.connectivity.breadth_first_search
 
-.. autofunction:: sknetwork.basics.depth_first_search
+.. autofunction:: sknetwork.connectivity.depth_first_search
 
 
 
 Structure
 ---------
 
-.. autofunction:: sknetwork.basics.is_connected
+.. autofunction:: sknetwork.connectivity.connected_components
 
-.. autofunction:: sknetwork.basics.connected_components
+.. autofunction:: sknetwork.connectivity.largest_connected_component
 
-.. autofunction:: sknetwork.basics.largest_connected_component
-
-.. autofunction:: sknetwork.basics.is_bipartite
-
-
-Co-Neighborhood
----------------
-
-.. autofunction:: sknetwork.basics.co_neighbors_graph
-
-.. autoclass:: sknetwork.basics.CoNeighbors
+.. autofunction:: sknetwork.connectivity.is_bipartite
 
 
 .. _SciPy: https://docs.scipy.org/doc/scipy/reference/sparse.csgraph.html

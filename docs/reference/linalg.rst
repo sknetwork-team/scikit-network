@@ -5,10 +5,26 @@ Linear algebra
 
 Tools of linear algebra.
 
-Sparse + Low Rank structure
----------------------------
+Polynomes
+---------
+
+.. autoclass:: sknetwork.linalg.Polynome
+
+Sparse + Low Rank
+-----------------
 
 .. autoclass:: sknetwork.linalg.SparseLR
+
+Operators
+---------
+
+.. autoclass:: sknetwork.linalg.RegularizedAdjacency
+
+.. autoclass:: sknetwork.linalg.LaplacianOperator
+
+.. autoclass:: sknetwork.linalg.NormalizedAdjacencyOperator
+
+.. autoclass:: sknetwork.linalg.CoNeighborsOperator
 
 Solvers
 -------
@@ -17,9 +33,13 @@ Solvers
 
 .. autoclass:: sknetwork.linalg.HalkoEig
 
+.. _lanczossvd:
 .. autoclass:: sknetwork.linalg.LanczosSVD
 
+.. _halkosvd:
 .. autoclass:: sknetwork.linalg.HalkoSVD
+
+.. autofunction:: sknetwork.linalg.ppr_solver.get_pagerank
 
 Randomized methods
 ------------------

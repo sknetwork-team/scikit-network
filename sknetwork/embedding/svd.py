@@ -12,13 +12,13 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.linalg import SparseLR, SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv,\
-    normalize
-from sknetwork.utils.check import check_format, check_adjacency_vector
+from sknetwork.embedding.base import BaseBiEmbedding
+from sknetwork.linalg import SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv, normalize,\
+    RegularizedAdjacency
+from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative
 
 
-class GSVD(BaseEmbedding):
+class GSVD(BaseBiEmbedding):
     """Graph embedding by Generalized Singular Value Decomposition of the adjacency or biadjacency matrix :math:`A`.
     This is equivalent to the Singular Value Decomposition of the matrix :math:`D_1^{- \\alpha_1}AD_2^{- \\alpha_2}`
     where :math:`D_1, D_2` are the diagonal matrices of row weights and columns weights, respectively, and
@@ -96,7 +96,6 @@ class GSVD(BaseEmbedding):
     <https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf>`_
     Encyclopedia of measurement and statistics, 907-912.
     """
-
     def __init__(self, n_components=2, regularization: Union[None, float] = None, relative_regularization: bool = True,
                  factor_row: float = 0.5, factor_col: float = 0.5, factor_singular: float = 0., normalized: bool = True,
                  solver: Union[str, SVDSolver] = 'auto'):
@@ -119,8 +118,6 @@ class GSVD(BaseEmbedding):
         else:
             self.solver = solver
 
-        self.embedding_row_ = None
-        self.embedding_col_ = None
         self.singular_values_ = None
         self.singular_vectors_left_ = None
         self.singular_vectors_right_ = None
@@ -128,8 +125,7 @@ class GSVD(BaseEmbedding):
         self.weights_col_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'GSVD':
-        """
-        Compute the GSVD of the adjacency or biadjacency matrix.
+        """Compute the GSVD of the adjacency or biadjacency matrix.
 
         Parameters
         ----------
@@ -143,9 +139,9 @@ class GSVD(BaseEmbedding):
         adjacency = check_format(adjacency).asfptype()
         n_row, n_col = adjacency.shape
 
-        if self.n_components >= min(n_row, n_col) - 1:
+        if self.n_components > min(n_row, n_col) - 1:
             n_components = min(n_row, n_col) - 1
-            warnings.warn(Warning("The dimension of the embedding must be less than the number of rows "
+            warnings.warn(Warning("The dimension of the embedding must be strictly less than the number of rows "
                                   "and the number of columns. Changed accordingly."))
         else:
             n_components = self.n_components
@@ -161,7 +157,7 @@ class GSVD(BaseEmbedding):
         if regularization:
             if self.relative_regularization:
                 regularization = regularization * np.sum(adjacency.data) / (n_row * n_col)
-            adjacency_reg = SparseLR(adjacency, [(regularization * np.ones(n_row), np.ones(n_col))])
+            adjacency_reg = RegularizedAdjacency(adjacency, regularization)
         else:
             adjacency_reg = adjacency
 
@@ -200,9 +196,8 @@ class GSVD(BaseEmbedding):
         return self
 
     @staticmethod
-    def _check_adj_vector(adjacency_vectors: np.ndarray):
-        if not np.all(adjacency_vectors >= 0):
-            raise ValueError('The adjacency vector must be non-negative.')
+    def _check_adj_vector(adjacency_vectors):
+        check_nonnegative(adjacency_vectors)
 
     def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """Predict the embedding of new rows, defined by their adjacency vectors.
@@ -218,10 +213,8 @@ class GSVD(BaseEmbedding):
         embedding_vectors : np.ndarray
             Embedding of the nodes.
         """
+        self._check_fitted()
         singular_vectors_right = self.singular_vectors_right_
-        if singular_vectors_right is None:
-            raise ValueError("This instance of SVD embedding is not fitted yet."
-                             " Call 'fit' with appropriate arguments before using this method.")
         singular_values = self.singular_values_
 
         n_row, _ = self.embedding_row_.shape
@@ -231,18 +224,17 @@ class GSVD(BaseEmbedding):
         self._check_adj_vector(adjacency_vectors)
 
         # regularization
-        adjacency_vectors_reg = adjacency_vectors.astype(float)
         if self.regularization_:
-            adjacency_vectors_reg += self.regularization_
+            adjacency_vectors = RegularizedAdjacency(adjacency_vectors, self.regularization_)
 
         # weighting
-        weights_row = adjacency_vectors_reg.dot(np.ones(n_col))
+        weights_row = adjacency_vectors.dot(np.ones(n_col))
         diag_row = diag_pinv(np.power(weights_row, self.factor_row))
         diag_col = diag_pinv(np.power(self.weights_col_, self.factor_col))
-        adjacency_vectors_reg = diag_row.dot(safe_sparse_dot(adjacency_vectors_reg, diag_col))
+        adjacency_vectors = safe_sparse_dot(diag_row, safe_sparse_dot(adjacency_vectors, diag_col))
 
         # projection in the embedding space
-        averaging = adjacency_vectors_reg
+        averaging = adjacency_vectors
         embedding_vectors = diag_row.dot(averaging.dot(singular_vectors_right))
 
         # scaling

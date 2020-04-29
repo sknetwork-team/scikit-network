@@ -27,9 +27,7 @@ def process_seeds(labels_seeds, temperature_max: float = 1):
     -------
     personalizations: list
         Personalization vectors.
-
     """
-
     personalizations = []
     classes, _ = check_labels(labels_seeds)
 
@@ -54,7 +52,6 @@ def process_scores(scores: np.ndarray) -> np.ndarray:
     Returns
     -------
     scores: np.ndarray
-
     """
     scores -= np.mean(scores, axis=0)
     scores = np.exp(scores)
@@ -100,21 +97,18 @@ class DiffusionClassifier(RankClassifier):
 
     References
     ----------
-    In 2010 International Conference on Advances in Social Networks Analysis and Mining (pp. 192-199). IEEE.
     Zhu, X., Lafferty, J., & Rosenfeld, R. (2005). `Semi-supervised learning with graphs
     <http://pages.cs.wisc.edu/~jerryzhu/machineteaching/pub/thesis.pdf>`_
     (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
-
-
     """
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = Diffusion(n_iter, verbose)
-        RankClassifier.__init__(self, algorithm, n_jobs, verbose)
+        super(DiffusionClassifier, self).__init__(algorithm, n_jobs, verbose)
         self._process_seeds = process_seeds
         self._process_scores = process_scores
 
 
-class BiDiffusionClassifier(RankBiClassifier):
+class BiDiffusionClassifier(DiffusionClassifier, RankBiClassifier):
     """Node classification using multiple diffusions.
 
     * Bigraphs
@@ -151,7 +145,4 @@ class BiDiffusionClassifier(RankBiClassifier):
     array([1, 1, 0, 0])
     """
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):
-        algorithm = Diffusion(n_iter, verbose)
-        RankBiClassifier.__init__(self, algorithm, n_jobs, verbose)
-        self._process_seeds = process_seeds
-        self._process_scores = process_scores
+        super(BiDiffusionClassifier, self).__init__(n_iter=n_iter, n_jobs=n_jobs, verbose=verbose)

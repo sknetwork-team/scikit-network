@@ -4,7 +4,7 @@
 
 import unittest
 
-from sknetwork.ranking.diffusion import Diffusion, BiDiffusion
+from sknetwork.ranking import Diffusion, BiDiffusion
 from sknetwork.data.test_graphs import *
 
 
@@ -34,3 +34,11 @@ class TestDiffusion(unittest.TestCase):
 
         score = bidiffusion.fit_transform(biadjacency, {0: 1})
         self.assertTrue(np.all(score <= 1) and np.all(score >= 0))
+
+    def test_bicgstab(self):
+        diffusion = Diffusion(n_iter=-1)
+        adjacency = test_digraph()
+
+        scores1 = diffusion.fit_transform(adjacency, {0: 1})
+        scores2 = self.diffusion.fit_transform(adjacency, {0: 1})
+        self.assertAlmostEqual(0, np.linalg.norm(scores1 - scores2))

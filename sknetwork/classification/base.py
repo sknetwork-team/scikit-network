@@ -60,3 +60,13 @@ class BaseBiClassifier(BaseClassifier, ABC):
         self.labels_col_ = None
         self.membership_row_ = None
         self.membership_col_ = None
+
+    def _split_vars(self, n_row: int):
+        self.labels_row_ = self.labels_[:n_row]
+        self.labels_col_ = self.labels_[n_row:]
+        self.labels_ = self.labels_row_
+        self.membership_row_ = self.membership_[:n_row]
+        self.membership_col_ = self.membership_[n_row:]
+        self.membership_ = self.membership_row_
+
+        return self

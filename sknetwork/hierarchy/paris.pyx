@@ -20,10 +20,10 @@ from typing import Union
 
 from scipy import sparse
 
-from sknetwork.hierarchy.base import BaseHierarchy
+from sknetwork.hierarchy.base import BaseHierarchy, BaseBiHierarchy
 from sknetwork.hierarchy.postprocess import reorder_dendrogram, split_dendrogram
-from sknetwork.utils.format import bipartite2undirected
-from sknetwork.utils.check import check_format, check_probs, is_square
+from sknetwork.utils.format import bipartite2undirected, directed2undirected
+from sknetwork.utils.check import check_format, check_probs, check_square
 
 
 cdef class AggregateGraph:
@@ -194,10 +194,8 @@ class Paris(BaseHierarchy):
     <https://arxiv.org/abs/1806.01664>`_
     Workshop on Mining and Learning with Graphs.
     """
-
     def __init__(self, weights: str = 'degree', reorder: bool = True):
         super(Paris, self).__init__()
-
         self.weights = weights
         self.reorder = reorder
 
@@ -216,10 +214,9 @@ class Paris(BaseHierarchy):
         self: :class:`Paris`
         """
         adjacency = check_format(adjacency)
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix is not square. Use BiParis() instead.')
+        check_square(adjacency)
         n = adjacency.shape[0]
-        sym_adjacency = adjacency + adjacency.T
+        sym_adjacency = directed2undirected(adjacency)
 
         weights = self.weights
         out_weights = check_probs(weights, adjacency)
@@ -294,7 +291,7 @@ class Paris(BaseHierarchy):
         return self
 
 
-class BiParis(Paris):
+class BiParis(Paris, BaseBiHierarchy):
     """Hierarchical clustering of bipartite graphs by the Paris method.
 
     * Bigraphs
@@ -346,11 +343,7 @@ class BiParis(Paris):
     Workshop on Mining and Learning with Graphs.
     """
     def __init__(self, weights: str = 'degree', reorder: bool = True):
-        Paris.__init__(self, weights, reorder)
-
-        self.dendrogram_row_ = None
-        self.dendrogram_col_ = None
-        self.dendrogram_full_ = None
+        super(BiParis, self).__init__(weights=weights, reorder=reorder)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiParis':
         """Apply the Paris algorithm to
@@ -368,16 +361,11 @@ class BiParis(Paris):
         -------
         self: :class:`BiParis`
         """
-        paris = Paris(weights=self.weights)
         biadjacency = check_format(biadjacency)
-
         adjacency = bipartite2undirected(biadjacency)
-        dendrogram = paris.fit_transform(adjacency)
-        dendrogram_row, dendrogram_col = split_dendrogram(dendrogram, biadjacency.shape)
 
-        self.dendrogram_ = dendrogram_row
-        self.dendrogram_row_ = dendrogram_row
-        self.dendrogram_col_ = dendrogram_col
-        self.dendrogram_full_ = dendrogram
+        paris = Paris(weights=self.weights)
+        self.dendrogram_ = paris.fit_transform(adjacency)
+        self._split_vars(biadjacency.shape)
 
         return self

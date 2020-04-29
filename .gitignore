@@ -119,8 +119,15 @@ venv-3.8/
 
 *.ipynb
 
-#allow notebooks for tutorials
+#allow notebooks and pickled objects for tutorials
 !/docs/tutorials/*/*.ipynb
+!/docs/tutorials/*/*.p
 
 #html in src
 sknetwork/*/*.html
+
+docs/tutorials/data/mygraph/
+
+*.npy
+*.npz
+*.p

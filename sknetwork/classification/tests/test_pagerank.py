@@ -14,13 +14,7 @@ class TestPageRankClassifier(unittest.TestCase):
         adjacency = test_graph()
         seeds = {0: 0, 1: 1}
 
-        clf1 = PageRankClassifier(solver='lsqr')
-        clf2 = PageRankClassifier(solver='lanczos')
-        clf3 = PageRankClassifier()
-
-        labels1 = clf1.fit_transform(adjacency, seeds)
-        labels2 = clf2.fit_transform(adjacency, seeds)
-        labels3 = clf3.fit_transform(adjacency, seeds)
-
-        self.assertTrue(np.allclose(labels1, labels2))
-        self.assertTrue(np.allclose(labels2, labels3))
+        ref = PageRankClassifier(solver='naive').fit_transform(adjacency, seeds)
+        for solver in ['diteration', 'lanczos', 'bicgstab']:
+            labels = PageRankClassifier(solver=solver).fit_transform(adjacency, seeds)
+            self.assertTrue((ref == labels).all())

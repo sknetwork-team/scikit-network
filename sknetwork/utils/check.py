@@ -12,19 +12,35 @@ from scipy import sparse
 
 
 def has_nonnegative_entries(entry: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """Check whether the array has non negative entries."""
+    """Boolean indicating whether the array has non negative entries."""
     if type(entry) == sparse.csr_matrix:
         return np.all(entry.data >= 0)
     else:
         return np.all(entry >= 0)
 
 
+def check_nonnegative(entry: Union[sparse.csr_matrix, np.ndarray]):
+    """Check whether the array has non negative entries."""
+    if not has_nonnegative_entries(entry):
+        raise ValueError('Only nonnegative values are expected.')
+    else:
+        return
+
+
 def has_positive_entries(entry: np.ndarray) -> bool:
-    """Check whether the array has positive entries."""
+    """Boolean indicating whether the array has positive entries."""
     if type(entry) != np.ndarray:
         raise TypeError('Entry must be a dense NumPy array.')
     else:
         return np.all(entry > 0)
+
+
+def check_positive(entry: Union[sparse.csr_matrix, np.ndarray]):
+    """Check whether the array has positive entries."""
+    if not has_positive_entries(entry):
+        raise ValueError('Only positive values are expected.')
+    else:
+        return
 
 
 def is_proba_array(entry: np.ndarray) -> bool:
@@ -40,14 +56,51 @@ def is_proba_array(entry: np.ndarray) -> bool:
 
 
 def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """Check whether the matrix is square."""
+    """True if the matrix is square."""
     return adjacency.shape[0] == adjacency.shape[1]
+
+
+def check_square(adjacency: Union[sparse.csr_matrix, np.ndarray]):
+    """Check is a matrix is square and return an error otherwise."""
+    if is_square(adjacency):
+        return
+    else:
+        raise ValueError('The adjacency is expected to be square.')
 
 
 def is_symmetric(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1e-10) -> bool:
     """Check whether the matrix is symmetric."""
     sym_error = adjacency - adjacency.T
     return np.all(np.abs(sym_error.data) <= tol)
+
+
+def check_symmetry(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1e-10):
+    """Check is a matrix is symmetric and return an error otherwise."""
+    if is_symmetric(adjacency, tol):
+        return
+    else:
+        raise ValueError('The adjacency is expected to be symmetric.')
+
+
+def is_connected(adjacency: sparse.csr_matrix) -> bool:
+    """
+    Check whether a graph is weakly connected. Bipartite graphs are treated as undirected ones.
+
+    Parameters
+    ----------
+    adjacency:
+        Adjacency matrix of the graph.
+    """
+    n_cc = sparse.csgraph.connected_components(adjacency, (not is_symmetric(adjacency)), 'weak', False)
+    return n_cc == 1
+
+
+def check_connected(adjacency: Union[sparse.csr_matrix, np.ndarray]):
+    """Check is a graph is connected and return an error otherwise."""
+    if is_connected(adjacency):
+        return
+    else:
+        raise ValueError('The adjacency is expected to be connected.')
 
 
 def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
@@ -204,13 +257,11 @@ def check_n_jobs(n_jobs: Optional[int] = None):
 
 
 def check_adjacency_vector(adjacency_vectors: Union[sparse.csr_matrix, np.ndarray],
-                           n: Optional[int] = None) -> np.ndarray:
+                           n: Optional[int] = None) -> sparse.csr_matrix:
     """Check format of new samples for predict methods"""
+    adjacency_vectors = check_format(adjacency_vectors)
 
-    if isinstance(adjacency_vectors, sparse.csr_matrix):
-        adjacency_vectors = adjacency_vectors.toarray()
-
-    if len(adjacency_vectors.shape) == 1:
+    if adjacency_vectors.ndim == 1:
         adjacency_vectors = adjacency_vectors.reshape(1, -1)
 
     if n is not None:
@@ -218,3 +269,11 @@ def check_adjacency_vector(adjacency_vectors: Union[sparse.csr_matrix, np.ndarra
             raise ValueError('The adjacency vector must be of length equal to the number nodes in the initial graph.')
 
     return adjacency_vectors
+
+
+def check_n_clusters(n_clusters: int, n_row: int):
+    """Check that the number of clusters"""
+    if n_clusters > n_row:
+        raise ValueError('The number of clusters exceeds the number of rows.')
+    else:
+        return

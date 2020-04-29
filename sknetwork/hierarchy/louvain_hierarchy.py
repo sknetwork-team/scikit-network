@@ -12,9 +12,9 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering.louvain import Louvain
-from sknetwork.hierarchy.base import BaseHierarchy
-from sknetwork.hierarchy.postprocess import get_dendrogram, reorder_dendrogram, split_dendrogram
-from sknetwork.utils.check import check_format, is_square
+from sknetwork.hierarchy.base import BaseHierarchy, BaseBiHierarchy
+from sknetwork.hierarchy.postprocess import get_dendrogram, reorder_dendrogram
+from sknetwork.utils.check import check_format, check_square
 from sknetwork.utils.format import bipartite2undirected
 
 
@@ -126,8 +126,7 @@ class LouvainHierarchy(BaseHierarchy):
         self: :class:`LouvainHierarchy`
         """
         adjacency = check_format(adjacency)
-        if not is_square(adjacency):
-            raise ValueError('The adjacency matrix is not square.')
+        check_square(adjacency)
 
         tree = self._recursive_louvain(adjacency)
         dendrogram, _ = get_dendrogram(tree)
@@ -139,7 +138,7 @@ class LouvainHierarchy(BaseHierarchy):
         return self
 
 
-class BiLouvainHierarchy(LouvainHierarchy):
+class BiLouvainHierarchy(LouvainHierarchy, BaseBiHierarchy):
     """Hierarchical clustering of bipartite graphs by successive instances of Louvain (top-down).
 
     * Bigraphs
@@ -197,10 +196,6 @@ class BiLouvainHierarchy(LouvainHierarchy):
 
         self.louvain_hierarchy = LouvainHierarchy(**kwargs)
 
-        self.dendrogram_row_ = None
-        self.dendrogram_col_ = None
-        self.dendrogram_full_ = None
-
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiLouvainHierarchy':
         """Applies Louvain hierarchical clustering to
 
@@ -218,14 +213,9 @@ class BiLouvainHierarchy(LouvainHierarchy):
         self: :class:`BiLouvainHierarchy`
         """
         biadjacency = check_format(biadjacency)
-
         adjacency = bipartite2undirected(biadjacency)
-        dendrogram = self.louvain_hierarchy.fit_transform(adjacency)
-        dendrogram_row, dendrogram_col = split_dendrogram(dendrogram, biadjacency.shape)
 
-        self.dendrogram_ = dendrogram_row
-        self.dendrogram_row_ = dendrogram_row
-        self.dendrogram_col_ = dendrogram_col
-        self.dendrogram_full_ = dendrogram
+        self.dendrogram_ = self.louvain_hierarchy.fit_transform(adjacency)
+        self._split_vars(biadjacency.shape)
 
         return self

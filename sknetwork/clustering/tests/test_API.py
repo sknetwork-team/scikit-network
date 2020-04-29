@@ -11,14 +11,14 @@ from sknetwork.embedding.svd import GSVD
 
 class TestClusteringAPI(unittest.TestCase):
 
-    def test_undirected(self):
-        adjacency = test_graph()
-        n = adjacency.shape[0]
+    def test_regular(self):
 
         clustering = [Louvain(), KMeans(embedding_method=GSVD(3))]
         for clustering_algo in clustering:
-            labels = clustering_algo.fit_transform(adjacency)
-            self.assertEqual(len(labels), n)
+            for adjacency in [test_graph(), test_digraph()]:
+                n = adjacency.shape[0]
+                labels = clustering_algo.fit_transform(adjacency)
+                self.assertEqual(labels.shape, (n,))
 
     def test_bipartite(self):
         biadjacency = test_bigraph()
@@ -27,5 +27,5 @@ class TestClusteringAPI(unittest.TestCase):
         clustering = [BiLouvain(), BiKMeans(embedding_method=GSVD(3), co_cluster=True)]
         for clustering_algo in clustering:
             clustering_algo.fit_transform(biadjacency)
-            self.assertEqual(len(clustering_algo.labels_), n_row)
-            self.assertEqual(len(clustering_algo.labels_col_), n_col)
+            self.assertEqual(clustering_algo.labels_row_.shape, (n_row,))
+            self.assertEqual(clustering_algo.labels_col_.shape, (n_col,))

@@ -11,36 +11,9 @@ from typing import Union, Tuple
 import numpy as np
 from scipy import sparse, linalg
 
+from sknetwork.linalg.basics import safe_sparse_dot
 from sknetwork.linalg.sparse_lowrank import SparseLR
-from sknetwork.utils.check import check_random_state
-
-
-def safe_sparse_dot(a, b):
-    """Dot product that handles the sparse matrix case correctly.
-    Uses BLAS GEMM as replacement for numpy.dot where possible to avoid unnecessary copies.
-
-    Parameters
-    ----------
-    a : array or sparse matrix or SparseLR
-    b : array or sparse matrix or SparseLR
-    Returns
-    -------
-    dot_product : array or sparse matrix
-        sparse if ``a`` or ``b`` is sparse.
-    """
-    if type(a) == SparseLR and type(b) == np.ndarray:
-        return a.dot(b)
-    if type(b) == SparseLR and type(a) == np.ndarray:
-        return b.T.dot(a.T).T
-    if type(a) == SparseLR and type(b) == SparseLR:
-        raise NotImplementedError
-    if type(a) == SparseLR and type(b) == sparse.csr_matrix:
-        return a.right_sparse_dot(b)
-    if type(b) == SparseLR and type(a) == sparse.csr_matrix:
-        return b.left_sparse_dot(a)
-    if type(a) == np.ndarray:
-        return b.T.dot(a.T).T
-    return a.dot(b)
+from sknetwork.utils.check import check_random_state, check_square
 
 
 def randomized_range_finder(matrix: np.ndarray, size: int, n_iter: int, power_iteration_normalizer='auto',
@@ -234,7 +207,7 @@ def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='a
 
     random_state = check_random_state(random_state)
     n_random = n_components + n_oversamples
-    n_samples, n_features = matrix.shape
+    n_row, n_col = matrix.shape
 
     if n_iter == 'auto':
         # Checks if the number of iterations is explicitly specified
@@ -242,7 +215,7 @@ def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='a
         n_iter = 7 if n_components < .1 * min(matrix.shape) else 4
 
     if transpose == 'auto':
-        transpose = n_samples < n_features
+        transpose = n_row < n_col
     if transpose:
         # this implementation is a bit faster with smaller shape[1]
         matrix = matrix.T
@@ -319,14 +292,10 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
     Halko, et al., 2009
     http://arxiv.org/abs/arXiv:0909.4061
     """
-
+    check_square(adjacency=matrix)
     random_state = check_random_state(random_state)
     n_random = n_components + n_oversamples
-    n_samples, n_features = matrix.shape
     lambda_max = 0.
-
-    if n_samples != n_features:
-        raise ValueError('The input matrix is not square.')
 
     if which == 'SM':
         lambda_max: float = 1.1 * randomized_eig(matrix, n_components=1)[0][0]

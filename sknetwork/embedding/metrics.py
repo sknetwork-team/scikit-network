@@ -9,7 +9,7 @@ Quality metrics for adjacency embeddings
 import numpy as np
 
 from sknetwork.linalg import normalize
-from sknetwork.utils.check import check_format, check_probs, is_square
+from sknetwork.utils.check import check_format, check_probs, check_square
 
 
 def cosine_modularity(adjacency, embedding: np.ndarray, embedding_col=None, resolution=1., weights='degree',
@@ -58,20 +58,19 @@ def cosine_modularity(adjacency, embedding: np.ndarray, embedding_col=None, reso
     Example
     -------
     >>> from sknetwork.embedding import cosine_modularity
-    >>> from sknetwork.data import house
-    >>> adjacency = house()
-    >>> embedding = np.array([[1, -2], [2, -1], [2, 1], [1, 2], [0, -1]])
+    >>> from sknetwork.data import karate_club
+    >>> graph = karate_club(metadata=True)
+    >>> adjacency = graph.adjacency
+    >>> embedding = graph.position
     >>> np.round(cosine_modularity(adjacency, embedding), 2)
-    -0.81
+    0.17
     """
     adjacency = check_format(adjacency)
     total_weight: float = adjacency.data.sum()
 
     if embedding_col is None:
-        if not is_square(adjacency):
-            raise ValueError('embedding_col cannot be None for non-square adjacency matrices.')
-        else:
-            embedding_col = embedding.copy()
+        check_square(adjacency)
+        embedding_col = embedding.copy()
 
     embedding_row_norm = normalize(embedding, p=1)
     embedding_col_norm = normalize(embedding_col, p=1)

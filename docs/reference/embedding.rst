@@ -24,6 +24,11 @@ GSVD
 
 .. autoclass:: sknetwork.embedding.GSVD
 
+Spring
+------
+
+.. autoclass:: sknetwork.embedding.Spring
+
 Metrics
 -------
 .. autofunction:: sknetwork.embedding.cosine_modularity

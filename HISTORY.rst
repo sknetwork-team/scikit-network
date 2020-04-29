@@ -2,6 +2,34 @@
 History
 =======
 
+0.15.2 (2020-04-24)
+-------------------
+
+* Clarified requirements
+* Minor corrections
+
+0.15.1 (2020-04-21)
+-------------------
+
+* Added OpenMP support for all platforms
+
+0.15.0 (2020-04-20)
+-------------------
+
+* Updated ranking module : new pagerank solver, new HITS params, post-processing
+* Polynomes in linear algebra
+* Added meta.name attribute for Bunch
+* Minor corrections
+
+0.14.0 (2020-04-17)
+-------------------
+
+* Added spring layout in embedding
+* Added label propagation in classification
+* Added save / load functions in data
+* Added display edges parameter in svg graph exports
+* Corrected typos in documentation
+
 0.13.3 (2020-04-13)
 -------------------
 

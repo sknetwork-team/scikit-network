@@ -3,7 +3,7 @@
 Utils
 *****
 
-.. currentmodule:: sknetwork
+Various tools.
 
 Graph formats
 -------------
@@ -15,18 +15,10 @@ Graph formats
 .. autofunction:: sknetwork.utils.format.directed2undirected
 
 
-Checks
-------
-
-.. automodule:: sknetwork.utils.check
-
-
-Algorithms
+Clustering
 ----------
 
 .. autoclass:: sknetwork.utils.kmeans.KMeansDense
-
-.. autofunction:: sknetwork.utils.simplex.projection_simplex
 
 .. autoclass:: sknetwork.utils.ward.WardDense
 
@@ -39,13 +31,16 @@ Nearest-neighbors
 .. autoclass:: sknetwork.utils.knn.PNNDense
 
 
+Co-Neighborhood
+---------------
+
+.. autofunction:: sknetwork.utils.co_neighbors_graph
+
+
 Miscellaneous
 -------------
 
 .. autofunction:: sknetwork.utils.membership_matrix
 
-.. autofunction:: sknetwork.utils.seeds.seeds2probs
-
-.. autofunction:: sknetwork.utils.seeds.stack_seeds
 
 

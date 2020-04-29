@@ -9,8 +9,8 @@ import pickle
 import tarfile
 import shutil
 from os import environ, makedirs, remove, listdir, rmdir
-from os.path import exists, expanduser, join
-from typing import Optional
+from os.path import exists, expanduser, join, isabs
+from typing import Optional, Union
 from urllib.error import HTTPError
 from urllib.request import urlretrieve
 
@@ -19,6 +19,7 @@ from scipy import sparse
 
 from sknetwork.data.parse import parse_tsv, parse_labels, parse_header, parse_metadata
 from sknetwork.utils import Bunch
+from sknetwork.utils.check import is_square
 
 
 def get_data_home(data_home: Optional[str] = None):
@@ -121,6 +122,9 @@ def load_netset(dataset: str, data_home: Optional[str] = None) -> Bunch:
     if 'position.npy' in files:
         graph.position = np.load(data_path + '/position.npy')
 
+    graph.meta = Bunch()
+    graph.meta.name = dataset
+
     return graph
 
 
@@ -154,6 +158,11 @@ def load_konect(dataset: str, data_home: Optional[str] = None, auto_numpy_bundle
     >>> graph = load_konect('dolphins')
     >>> graph.adjacency.shape
     (62, 62)
+
+    Notes
+    -----
+    An attribute `meta` of the `Bunch` class is used to store information about the dataset if present. In any case,
+    `meta` has the attribute `name` which, if not given, is equal to the name of the dataset as passed to this function.
     """
     if dataset == '':
         raise ValueError("Please specify the dataset. "
@@ -180,6 +189,7 @@ def load_konect(dataset: str, data_home: Optional[str] = None, auto_numpy_bundle
         return load_from_numpy_bundle(dataset + '_bundle', data_path)
 
     data = Bunch()
+
     files = [file for file in listdir(data_path) if dataset in file]
 
     matrix = [file for file in files if 'out.' in file]
@@ -204,6 +214,15 @@ def load_konect(dataset: str, data_home: Optional[str] = None, auto_numpy_bundle
             attribute_name = file.split('.')[-1]
             data[attribute_name] = parse_labels(data_path + file)
 
+    if hasattr(data, 'meta'):
+        if hasattr(data.meta, 'name'):
+            pass
+        else:
+            data.meta.name = dataset
+    else:
+        data.meta = Bunch()
+        data.meta.name = dataset
+
     if auto_numpy_bundle:
         save_to_numpy_bundle(data, dataset + '_bundle', data_path)
 
@@ -211,7 +230,7 @@ def load_konect(dataset: str, data_home: Optional[str] = None, auto_numpy_bundle
 
 
 def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[str] = None):
-    """Save a Bunch to a collection of Numpy and Pickle files for faster subsequent loads.
+    """Save a Bunch in the specified data home to a collection of Numpy and Pickle files for faster subsequent loads.
 
     Parameters
     ----------
@@ -229,7 +248,7 @@ def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[str]
             sparse.save_npz(data_path + '/' + attribute, data[attribute])
         elif type(data[attribute]) == np.ndarray:
             np.save(data_path + '/' + attribute, data[attribute])
-        elif type(data[attribute]) == Bunch:
+        elif type(data[attribute]) == Bunch or type(data[attribute]) == str:
             pickle.dump(data[attribute], open(data_path + '/' + attribute + '.p', 'wb'))
         else:
             raise TypeError('Unsupported data attribute type '+str(type(data[attribute])) + '.')
@@ -265,3 +284,70 @@ def load_from_numpy_bundle(bundle_name: str, data_home: Optional[str] = None):
             elif file_extension == 'p':
                 data[file_name] = pickle.load(open(data_path + '/' + file, 'rb'))
         return data
+
+
+def save(folder: str, data: Union[sparse.csr_matrix, Bunch]):
+    """Save a Bunch or a CSR matrix in the current directory to a collection of Numpy and Pickle files for faster
+    subsequent loads.
+
+    Parameters
+    ----------
+    folder : str
+        The name to be used for the bundle folder
+    data : Union[sparse.csr_matrix, Bunch]
+        The data to save
+
+    Example
+    -------
+    >>> from sknetwork.data import save
+    >>> graph = Bunch()
+    >>> graph.adjacency = sparse.csr_matrix(np.random.random((10, 10)) < 0.2)
+    >>> graph.names = np.array(list('abcdefghij'))
+    >>> save('random_data', graph)
+    >>> 'random_data' in listdir('.')
+    True
+    """
+    folder = expanduser(folder)
+    if exists(folder):
+        shutil.rmtree(folder)
+    if isinstance(data, sparse.csr_matrix):
+        bunch = Bunch()
+        if is_square(data):
+            bunch.adjacency = data
+        else:
+            bunch.biadjacency = data
+        data = bunch
+    if isabs(folder):
+        save_to_numpy_bundle(data, folder, '')
+    else:
+        save_to_numpy_bundle(data, folder, './')
+
+
+def load(folder: str):
+    """Load a Bunch from a previously created bundle from the current directory (inverse function of ``save``).
+
+    Parameters
+    ----------
+    folder: str
+        The name used for the bundle folder
+
+    Returns
+    -------
+    data: Bunch
+        The original data
+
+    Example
+    -------
+    >>> from sknetwork.data import save
+    >>> graph = Bunch()
+    >>> graph.adjacency = sparse.csr_matrix(np.random.random((10, 10)) < 0.2)
+    >>> graph.names = np.array(list('abcdefghij'))
+    >>> save('random_data', graph)
+    >>> loaded_graph = load('random_data')
+    >>> loaded_graph.names[0]
+    'a'
+    """
+    if isabs(folder):
+        return load_from_numpy_bundle(folder, '')
+    else:
+        return load_from_numpy_bundle(folder, './')

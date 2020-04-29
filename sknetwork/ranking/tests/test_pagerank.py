@@ -6,10 +6,10 @@ import unittest
 
 import numpy as np
 
-from sknetwork.basics import co_neighbors_graph
 from sknetwork.data.models import cyclic_digraph
 from sknetwork.data.test_graphs import test_bigraph
 from sknetwork.ranking.pagerank import PageRank, CoPageRank
+from sknetwork.utils import co_neighbors_graph
 
 
 class TestPageRank(unittest.TestCase):
@@ -21,17 +21,15 @@ class TestPageRank(unittest.TestCase):
         self.truth = np.ones(self.n) / self.n
 
     def test_solvers(self):
-        pr = PageRank()
-        scores = pr.fit_transform(self.adjacency)
-        self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
+        for solver in ['naive', 'lanczos', 'bicgstab']:
+            pr = PageRank(solver=solver)
+            scores = pr.fit_transform(self.adjacency)
+            self.assertAlmostEqual(0, np.linalg.norm(scores - self.truth))
 
-        pr = PageRank(solver='lanczos')
-        scores = pr.fit_transform(self.adjacency)
-        self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
+        PageRank(solver='diteration').fit_transform(self.adjacency)
 
-        pr = PageRank(solver='lsqr')
-        scores = pr.fit_transform(self.adjacency)
-        self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
+        with self.assertRaises(ValueError):
+            PageRank(solver='toto').fit_transform(self.adjacency)
 
     def test_seeding(self):
         pr = PageRank()
@@ -65,3 +63,6 @@ class TestPageRank(unittest.TestCase):
         scores1 = CoPageRank().fit(biadjacency, seeds_col=seeds).scores_col_
         scores2 = PageRank().fit_transform(adjacency, seeds)
         self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0.)
+
+        with self.assertRaises(ValueError):
+            CoPageRank(solver='diteration').fit_transform(biadjacency, seeds)

@@ -49,6 +49,7 @@ def house(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph = Bunch()
         graph.adjacency = adjacency
         graph.position = np.vstack((x, y)).T
+        graph.name = 'house'
         return graph
     else:
         return adjacency
@@ -88,6 +89,7 @@ def bow_tie(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph = Bunch()
         graph.adjacency = adjacency
         graph.position = np.vstack((x, y)).T
+        graph.name = 'bow_tie'
         return graph
     else:
         return adjacency
@@ -135,7 +137,7 @@ def karate_club(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
          33, 33, 32, 33, 32, 33, 25, 27, 29, 32, 33, 25, 27, 31, 31, 29, 33,
          33, 31, 33, 32, 33, 32, 33, 32, 33, 33])
     adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(34, 34))
-    adjacency = adjacency + adjacency.T
+    adjacency = sparse.csr_matrix(adjacency + adjacency.T)
 
     if metadata:
         labels = np.array(
@@ -152,6 +154,7 @@ def karate_club(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.adjacency = adjacency
         graph.labels = labels
         graph.position = np.vstack((x, y)).T
+        graph.name = 'karate_club'
         return graph
     else:
         return adjacency
@@ -258,6 +261,7 @@ def miserables(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.adjacency = adjacency
         graph.names = np.array(names)
         graph.position = np.vstack((x, y)).T
+        graph.name = 'miserables'
         return graph
     else:
         return adjacency
@@ -312,6 +316,7 @@ def painters(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.adjacency = adjacency
         graph.names = names
         graph.position = np.stack((x, y)).T
+        graph.name = 'painters'
         return graph
     else:
         return adjacency
@@ -380,6 +385,7 @@ def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         graph.names = villains
         graph.names_row = villains
         graph.names_col = movies
+        graph.name = 'star_wars'
         return graph
     else:
         return biadjacency
@@ -441,7 +447,7 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
                                       'Genre Films'])
         graph.labels_row = graph.labels
         graph.labels_row_name = graph.labels_name
-
+        graph.name = 'movie_actor'
         return graph
     else:
         return biadjacency

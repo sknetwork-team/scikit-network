@@ -9,9 +9,9 @@ from typing import Union, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork.basics import shortest_path
+from sknetwork.connectivity import shortest_path
 from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.check import check_format, is_square
+from sknetwork.utils.check import check_format, check_square
 
 
 class Harmonic(BaseRanking):
@@ -70,11 +70,8 @@ class Harmonic(BaseRanking):
         self: :class:`Harmonic`
         """
         adjacency = check_format(adjacency)
+        check_square(adjacency)
         n = adjacency.shape[0]
-        if not is_square(adjacency):
-            raise ValueError("The adjacency is not square. Please use 'bipartite2undirected' or "
-                             "'bipartite2directed'.")
-
         indices = np.arange(n)
 
         paths = shortest_path(adjacency, n_jobs=self.n_jobs, indices=indices)

@@ -7,16 +7,12 @@ import unittest
 import numpy as np
 from scipy import sparse
 
-from sknetwork.basics.structure import largest_connected_component, is_bipartite, is_connected
+from sknetwork.connectivity.structure import largest_connected_component, is_bipartite
 from sknetwork.data import star_wars, cyclic_digraph
 from sknetwork.utils.format import bipartite2undirected, directed2undirected
 
 
 class TestStructure(unittest.TestCase):
-
-    def test_is_connected(self):
-        biadjacency = star_wars()
-        self.assertTrue(is_connected(biadjacency))
 
     def test_largest_cc(self):
         adjacency = cyclic_digraph(3)

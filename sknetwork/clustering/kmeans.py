@@ -13,8 +13,9 @@ from scipy import sparse
 
 from sknetwork.clustering.base import BaseClustering, BaseBiClustering
 from sknetwork.clustering.postprocess import reindex_labels
-from sknetwork.embedding import BaseEmbedding, GSVD
+from sknetwork.embedding import BaseEmbedding, BaseBiEmbedding, GSVD
 from sknetwork.linalg import normalize
+from sknetwork.utils.check import check_n_clusters
 from sknetwork.utils.kmeans import KMeansDense
 from sknetwork.utils.membership import membership_matrix
 
@@ -35,7 +36,7 @@ class KMeans(BaseClustering):
             If ``True``, sort labels in decreasing order of cluster size.
     return_membership :
             If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
-    return_adjacency :
+    return_aggregate :
             If ``True``, return the adjacency matrix of the graph between clusters.
     Attributes
     ----------
@@ -55,17 +56,11 @@ class KMeans(BaseClustering):
     >>> labels = kmeans.fit_transform(adjacency)
     >>> len(set(labels))
     3
-
     """
-
     def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10), sort_clusters: bool = True,
-                 return_membership: bool = True, return_adjacency: bool = True):
+                 return_membership: bool = True, return_aggregate: bool = True):
         super(KMeans, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
-                                     return_adjacency=return_adjacency)
-
-        if not hasattr(embedding_method, 'embedding_'):
-            raise TypeError('The embedding method must have an attribute embedding_.')
-
+                                     return_aggregate=return_aggregate)
         self.n_clusters = n_clusters
         self.embedding_method = embedding_method
 
@@ -82,8 +77,7 @@ class KMeans(BaseClustering):
         self: :class:`KMeans`
         """
         n = adjacency.shape[0]
-        if self.n_clusters > n:
-            raise ValueError('The number of clusters exceeds the number of nodes.')
+        check_n_clusters(self.n_clusters, n)
 
         embedding = self.embedding_method.fit_transform(adjacency)
         kmeans = KMeansDense(self.n_clusters)
@@ -100,7 +94,7 @@ class KMeans(BaseClustering):
         return self
 
 
-class BiKMeans(BaseBiClustering, KMeans):
+class BiKMeans(KMeans, BaseBiClustering):
     """KMeans clustering of bipartite graphs applied in the embedding space.
 
     * Bigraphs
@@ -117,7 +111,7 @@ class BiKMeans(BaseBiClustering, KMeans):
             If ``True``, sort labels in decreasing order of cluster size.
     return_membership :
             If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
-    return_biadjacency :
+    return_aggregate :
             If ``True``, return the biadjacency matrix of the graph between clusters.
     Attributes
     ----------
@@ -147,18 +141,11 @@ class BiKMeans(BaseBiClustering, KMeans):
     15
     """
 
-    def __init__(self, n_clusters: int = 2, embedding_method: BaseEmbedding = GSVD(10), co_cluster: bool = False,
-                 sort_clusters: bool = True, return_membership: bool = True, return_biadjacency: bool = True):
-        BaseBiClustering.__init__(self, sort_clusters=sort_clusters, return_membership=return_membership,
-                                  return_biadjacency=return_biadjacency)
-        KMeans.__init__(self, n_clusters=n_clusters, embedding_method=embedding_method, sort_clusters=sort_clusters,
-                        return_membership=return_membership, return_adjacency=False)
-
-        if not hasattr(embedding_method, 'embedding_'):
-            raise TypeError('The embedding method must have an attribute embedding_.')
-        if (co_cluster or return_membership) and not hasattr(embedding_method, 'embedding_col_'):
-            raise ValueError('The embedding method must have an attribute embedding_col_.')
-
+    def __init__(self, n_clusters: int = 2, embedding_method: BaseBiEmbedding = GSVD(10), co_cluster: bool = False,
+                 sort_clusters: bool = True, return_membership: bool = True, return_aggregate: bool = True):
+        super(BiKMeans, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
+                                       return_aggregate=return_aggregate, n_clusters=n_clusters,
+                                       embedding_method=embedding_method)
         self.co_cluster = co_cluster
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiKMeans':
@@ -174,9 +161,7 @@ class BiKMeans(BaseBiClustering, KMeans):
         self: :class:`BiKMeans`
         """
         n_row, n_col = biadjacency.shape
-
-        if self.n_clusters > n_row:
-            raise ValueError('The number of clusters exceeds the number of rows.')
+        check_n_clusters(self.n_clusters, n_row)
 
         method = self.embedding_method
         method.fit(biadjacency)
@@ -196,7 +181,7 @@ class BiKMeans(BaseBiClustering, KMeans):
 
         self.labels_ = labels
         if self.co_cluster:
-            self._split_labels(n_row)
+            self._split_vars(n_row)
         else:
             self.labels_row_ = labels
 
@@ -210,7 +195,7 @@ class BiKMeans(BaseBiClustering, KMeans):
                 self.membership_row_ = normalize(biadjacency.dot(biadjacency.T.dot(membership_row)))
             self.membership_ = self.membership_row_
 
-        if self.return_biadjacency:
+        if self.return_aggregate:
             membership_row = membership_matrix(self.labels_row_, n_labels=self.n_clusters)
             biadjacency_ = sparse.csr_matrix(membership_row.T.dot(biadjacency))
             if self.labels_col_ is not None:

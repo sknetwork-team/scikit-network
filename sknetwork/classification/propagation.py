@@ -9,7 +9,7 @@ from typing import Optional, Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.classification import BaseClassifier
+from sknetwork.classification import BaseClassifier, BaseBiClassifier
 from sknetwork.utils.check import check_seeds
 from sknetwork.utils.seeds import stack_seeds
 from sknetwork.utils.check import check_format
@@ -107,7 +107,7 @@ class Propagation(BaseClassifier):
         return self
 
 
-class BiPropagation(Propagation):
+class BiPropagation(Propagation, BaseBiClassifier):
     """Node classification by label propagation in bipartite graphs.
 
     * Bigraphs
@@ -144,18 +144,9 @@ class BiPropagation(Propagation):
     15
     >>> len(bipropagation.labels_col_)
     16
-
-
     """
     def __init__(self, n_iter: int = -1):
         super(BiPropagation, self).__init__(n_iter)
-
-        self.label_propagation = Propagation(n_iter)
-
-        self.labels_row_ = None
-        self.labels_col_ = None
-        self.membership_row_ = None
-        self.membership_col_ = None
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray], seeds_row: Union[np.ndarray, dict],
             seeds_col: Optional[Union[np.ndarray, dict]] = None) -> 'BiPropagation':
@@ -175,20 +166,11 @@ class BiPropagation(Propagation):
         self: :class:`BiPropagation`
         """
         n_row, n_col = biadjacency.shape
-
         biadjacency = check_format(biadjacency)
         adjacency = bipartite2undirected(biadjacency)
         seeds = stack_seeds(n_row, n_col, seeds_row, seeds_col).astype(int)
-        self.label_propagation.fit(adjacency, seeds)
 
-        labels = self.label_propagation.labels_
-        membership = self.label_propagation.membership_
-
-        self.labels_row_ = labels[:n_row]
-        self.labels_col_ = labels[n_row:]
-        self.labels_ = self.labels_row_
-        self.membership_row_ = membership[:n_row]
-        self.membership_col_ = membership[n_row:]
-        self.membership_ = self.membership_row_
+        Propagation.fit(self, adjacency, seeds)
+        self._split_vars(n_row)
 
         return self

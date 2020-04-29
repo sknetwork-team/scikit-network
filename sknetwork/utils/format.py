@@ -10,7 +10,15 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.linalg.sparse_lowrank import SparseLR
+from sknetwork.linalg import SparseLR
+
+
+def check_csr_or_slr(adjacency):
+    """Check if input is csr or SparseLR and raise an error otherwise."""
+    if type(adjacency) not in [sparse.csr_matrix, SparseLR]:
+        raise TypeError('Input must be a scipy CSR matrix or a SparseLR object.')
+    else:
+        return
 
 
 def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
@@ -40,19 +48,20 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
     adjacency_ :
         New adjacency matrix (same format as input).
     """
+    check_csr_or_slr(adjacency)
     if type(adjacency) == sparse.csr_matrix:
         if weight_sum:
-            return sparse.csr_matrix(adjacency + adjacency.T)
+            new_adjacency = adjacency + adjacency.T
         else:
-            return adjacency.maximum(adjacency.T)
-    elif type(adjacency) == SparseLR:
+            new_adjacency = adjacency.maximum(adjacency.T)
+        new_adjacency.tocsr().sort_indices()
+        return new_adjacency
+    else:
         if weight_sum:
             new_tuples = [(y, x) for (x, y) in adjacency.low_rank_tuples]
             return SparseLR(directed2undirected(adjacency.sparse_mat), adjacency.low_rank_tuples + new_tuples)
         else:
             raise ValueError('This function only works with ``weight_sum=True`` for SparseLR objects.')
-    else:
-        raise TypeError('Input must be a scipy CSR matrix or a SparseLR object.')
 
 
 def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union[sparse.csr_matrix, SparseLR]:
@@ -75,15 +84,16 @@ def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union
     adjacency :
         Adjacency matrix (same format as input).
     """
+    check_csr_or_slr(biadjacency)
     n_row, n_col = biadjacency.shape
     if type(biadjacency) == sparse.csr_matrix:
-        return sparse.bmat([[None, biadjacency], [sparse.csr_matrix((n_col, n_row)), None]], format='csr')
-    elif type(biadjacency) == SparseLR:
+        adjacency = sparse.bmat([[None, biadjacency], [sparse.csr_matrix((n_col, n_row)), None]], format='csr')
+        adjacency.sort_indices()
+        return adjacency
+    else:
         new_tuples = [(np.hstack((x, np.zeros(n_col))), np.hstack((np.zeros(n_row), y)))
                       for (x, y) in biadjacency.low_rank_tuples]
         return SparseLR(bipartite2directed(biadjacency.sparse_mat), new_tuples)
-    else:
-        raise TypeError('Input must be a scipy CSR matrix or a SparseLR object.')
 
 
 def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union[sparse.csr_matrix, SparseLR]:
@@ -105,14 +115,15 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
     adjacency :
         Adjacency matrix (same format as input).
     """
+    check_csr_or_slr(biadjacency)
     if type(biadjacency) == sparse.csr_matrix:
-        return sparse.bmat([[None, biadjacency], [biadjacency.T, None]], format='csr')
-    elif type(biadjacency) == SparseLR:
+        adjacency = sparse.bmat([[None, biadjacency], [biadjacency.T, None]], format='csr')
+        adjacency.sort_indices()
+        return adjacency
+    else:
         n_row, n_col = biadjacency.shape
         new_tuples = []
         for (x, y) in biadjacency.low_rank_tuples:
             new_tuples.append((np.hstack((x, np.zeros(n_col))), np.hstack((np.zeros(n_row), y))))
             new_tuples.append((np.hstack((np.zeros(n_row), y)), np.hstack((x, np.zeros(n_col)))))
         return SparseLR(bipartite2undirected(biadjacency.sparse_mat), new_tuples)
-    else:
-        raise TypeError('Input must be a scipy CSR matrix or a SparseLR object.')

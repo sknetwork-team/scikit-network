@@ -4,11 +4,14 @@
 """The setup script."""
 
 
-from setuptools import find_packages
+from setuptools import find_packages, dist
 import distutils.util
 from distutils.core import setup, Extension
 from distutils.command.build_ext import build_ext
 import os
+from glob import glob
+
+dist.Distribution().fetch_build_eggs(['Cython', 'numpy==1.18.3'])
 
 import numpy
 
@@ -18,20 +21,28 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['numpy', 'scipy']
+requirements = ['numpy>=1.18.3', 'scipy>=1.4.1']
 
 setup_requirements = ['pytest-runner']
 
 test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
+
+# if any problems occur with macOS' clang not knowing the -fopenmp flag, see:
+# https://stackoverflow.com/questions/43555410/enable-openmp-support-in-clang-in-mac-os-x-sierra-mojave?rq=1
+# https://stackoverflow.com/questions/41292059/compiling-cython-with-openmp-support-on-osx
 
 # handling Mac OSX specifics for C++
 # taken from https://github.com/huggingface/neuralcoref/blob/master/setup.py on 09/04/2020 (dd/mm)
 COMPILE_OPTIONS = {"other": []}
 LINK_OPTIONS = {"other": []}
 
+OPENMP_COMPILE_FLAG = '-fopenmp'
+OPENMP_LINK_FLAG = '-fopenmp'
+
 # Check whether we're on OSX >= 10.10
 name = distutils.util.get_platform()
 if name.startswith("macosx-10"):
+    OPENMP_LINK_FLAG = '-lomp'
     minor_version = int(name.split("-")[1].split(".")[1])
     if minor_version >= 7:
         COMPILE_OPTIONS["other"].append("-stdlib=libc++")
@@ -39,6 +50,10 @@ if name.startswith("macosx-10"):
         # g++ (used by unix compiler on mac) links to libstdc++ as a default lib.
         # See: https://stackoverflow.com/questions/1653047/avoid-linking-to-libstdc
         LINK_OPTIONS["other"].append("-nodefaultlibs")
+# Windows does not (yet) support OpenMP
+if name.startswith("win"):
+    OPENMP_COMPILE_FLAG = ''
+    OPENMP_LINK_FLAG = ''
 
 
 class BuildExtSubclass(build_ext):
@@ -58,10 +73,9 @@ class BuildExtSubclass(build_ext):
 
 
 # Cython generation/C++ compilation
-pyx_paths = ["sknetwork/utils/knn1d.pyx", "sknetwork/clustering/louvain_core.pyx", "sknetwork/hierarchy/paris.pyx"]
-c_paths = ["sknetwork/utils/knn1d.cpp", "sknetwork/clustering/louvain_core.cpp", "sknetwork/hierarchy/paris.cpp"]
-modules = ['sknetwork.utils.knn1d', 'sknetwork.clustering.louvain_core', 'sknetwork.hierarchy.paris']
-
+pyx_paths = glob("./sknetwork/**/*.pyx")
+c_paths = ['.' + filename.split('.')[1] + '.cpp' for filename in pyx_paths]
+modules = [filename.split('.')[1][1:].replace('/', '.').replace('\\', '.') for filename in pyx_paths]
 
 if os.environ.get('SKNETWORK_DISABLE_CYTHONIZE') is None:
     try:
@@ -85,7 +99,9 @@ if HAVE_CYTHON:
             # Remove C file to force Cython recompile.
             os.remove(c_path)
 
-        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()]))
+        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()],
+                                           extra_compile_args=[OPENMP_COMPILE_FLAG],
+                                           extra_link_args=[OPENMP_LINK_FLAG]))
 else:
     ext_modules = [Extension(modules[index], [c_paths[index]], include_dirs=[numpy.get_include()])
                    for index in range(len(modules))]
@@ -119,9 +135,10 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/sknetwork-team/scikit-network',
-    version='0.13.3',
+    version='0.15.2',
     zip_safe=False,
     ext_modules=ext_modules,
     include_dirs=[numpy.get_include()],
     cmdclass={"build_ext": BuildExtSubclass}
 )
+

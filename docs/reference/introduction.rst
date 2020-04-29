@@ -22,7 +22,8 @@ Import :mod:`scikit-network` in a Python project::
 Data format
 -----------
 
-Each graph is represented by its adjacency matrix, either as a dense ``numpy array`` or a sparse ``scipy CSR matrix``.
+Each graph is represented by its :term:`adjacency` matrix, either as a dense ``numpy array``
+or a sparse ``scipy CSR matrix``.
 A bipartite graph can be represented by its biadjacency matrix, in the same format.
 
 About the documentation
