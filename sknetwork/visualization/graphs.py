@@ -323,8 +323,8 @@ def svg_graph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = Non
     if filename is not None:
         with open(filename + '.svg', 'w') as f:
             f.write(svg)
-    else:
-        return svg
+
+    return svg
 
 
 def svg_digraph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = None, names: Optional[np.ndarray] = None,
@@ -610,5 +610,5 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     if filename is not None:
         with open(filename + '.svg', 'w') as f:
             f.write(svg)
-    else:
-        return svg
+
+    return svg
