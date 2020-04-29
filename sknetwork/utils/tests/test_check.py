@@ -142,3 +142,17 @@ class TestChecks(unittest.TestCase):
     def test_check_n_clusters(self):
         with self.assertRaises(ValueError):
             check_n_clusters(3, 2)
+        with self.assertRaises(ValueError):
+            check_n_clusters(0, 2, 1)
+
+    def test_min_size(self):
+        with self.assertRaises(ValueError):
+            check_min_size(1, 3)
+
+    def test_min_nnz(self):
+        with self.assertRaises(ValueError):
+            check_min_nnz(1, 3)
+
+    def test_dendrogram(self):
+        with self.assertRaises(ValueError):
+            check_dendrogram(np.ones((3, 3)))

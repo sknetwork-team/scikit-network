@@ -4,13 +4,13 @@
 Created on March 2019
 @author: Thomas Bonald <bonald@enst.fr>
 """
-
 import numpy as np
 from scipy import sparse
 
 from sknetwork.hierarchy.paris import AggregateGraph
 from sknetwork.utils.check import check_format, check_probs, check_square
 from sknetwork.utils.format import directed2undirected
+from sknetwork.utils.check import check_min_size, check_min_nnz
 
 
 def _instanciate_vars(adjacency: sparse.csr_matrix, weights: str = 'uniform'):
@@ -77,8 +77,7 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights:
     check_square(adjacency)
 
     n = adjacency.shape[0]
-    if n <= 1:
-        raise ValueError('The graph must contain at least two nodes.')
+    check_min_size(n, 2)
 
     aggregate_graph, height, edge_sampling, cluster_weight, _, _ = _instanciate_vars(adjacency, weights)
 
@@ -148,7 +147,6 @@ def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights
     Dasgupta, S. (2016). A cost function for similarity-based hierarchical clustering.
     Proceedings of ACM symposium on Theory of Computing.
     """
-
     return 1 - dasgupta_cost(adjacency, dendrogram, weights, normalized=True)
 
 
@@ -197,16 +195,12 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     """
     adjacency = check_format(adjacency)
     check_square(adjacency)
-
+    check_min_nnz(adjacency.nnz, 1)
+    adjacency = adjacency.astype(float)
     n = adjacency.shape[0]
-    if n <= 1:
-        raise ValueError('The graph must contain at least two nodes.')
+    check_min_size(n, 2)
 
-    total_weight = adjacency.data.sum()
-    if total_weight <= 0:
-        raise ValueError('The graph must contain at least one edge.')
-
-    adjacency.data = adjacency.data / total_weight
+    adjacency.data /= adjacency.data.sum()
 
     aggregate_graph, height, cluster_weight, edge_sampling, weights_row, weights_col = _instanciate_vars(adjacency,
                                                                                                          weights)

@@ -271,9 +271,35 @@ def check_adjacency_vector(adjacency_vectors: Union[sparse.csr_matrix, np.ndarra
     return adjacency_vectors
 
 
-def check_n_clusters(n_clusters: int, n_row: int):
+def check_n_clusters(n_clusters: int, n_row: int, n_min: int = 0):
     """Check that the number of clusters"""
     if n_clusters > n_row:
         raise ValueError('The number of clusters exceeds the number of rows.')
+    if n_clusters < n_min:
+        raise ValueError('The number of clusters must be at least {}.'.format(n_min))
+    else:
+        return
+
+
+def check_min_size(n_row, n_min):
+    """Check that an adjacency has the required number of rows and returns an error otherwise."""
+    if n_row < n_min:
+        raise ValueError('The graph must contain at least {} nodes.'.format(n_min))
+    else:
+        return
+
+
+def check_dendrogram(dendrogram):
+    """Check the shape of a dendrogram."""
+    if dendrogram.ndim != 2 or dendrogram.shape[1] != 4:
+        raise ValueError("Dendrogram has incorrect shape.")
+    else:
+        return
+
+
+def check_min_nnz(nnz, n_min):
+    """Check that an adjacency has the required number of edges and returns an error otherwise."""
+    if nnz < n_min:
+        raise ValueError('The graph must contain at least {} edge(s).'.format(n_min))
     else:
         return
