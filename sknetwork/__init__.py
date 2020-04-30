@@ -4,7 +4,7 @@
 
 __author__ = """scikit-network team"""
 __email__ = "bonald@enst.fr"
-__version__ = '0.15.2'
+__version__ = '0.16.0'
 
 import sknetwork.connectivity
 import sknetwork.classification
