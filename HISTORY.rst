@@ -2,6 +2,13 @@
 History
 =======
 
+0.16.0 (2020-04-30)
+-------------------
+
+* Refactor basics module into connectivity
+* Cython version for label propagation
+* Minor corrections
+
 0.15.2 (2020-04-24)
 -------------------
 
