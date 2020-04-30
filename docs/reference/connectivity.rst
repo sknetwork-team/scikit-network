@@ -3,7 +3,7 @@
 Connectivity
 ************
 
-This module contains standard algorithms related to graph connectivity: shortest paths, graph traversals, etc.
+Standard algorithms related to graph connectivity: shortest paths, graph traversals, etc.
 
 Most algorithms are adapted from SciPy_.
 
