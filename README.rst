@@ -19,8 +19,9 @@
         :target: https://codecov.io/gh/sknetwork-team/scikit-network
 
 
-Fast algorithms for the analysis of massive graphs.
+Python package inspired by scikit-learn_ for the analysis of large graphs.
 
+.. _scikit-learn: https://scikit-learn.org/
 
 * Free software: BSD license
 * GitHub: https://github.com/sknetwork-team/scikit-network

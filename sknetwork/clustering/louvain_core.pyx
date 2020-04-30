@@ -15,8 +15,7 @@ ctypedef np.float_t float_type_t
 def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.float_t[:] ou_node_probs,
              np.float_t[:] in_node_probs, np.float_t[:] self_loops, np.float_t[:] data, int[:] indices,
              int[:] indptr):  # pragma: no cover
-    """
-    Fit the clusters to the objective function.
+    """    Fit the clusters to the objective function.
 
     Parameters
     ----------

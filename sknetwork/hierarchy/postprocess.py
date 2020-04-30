@@ -13,12 +13,14 @@ from typing import Union, Tuple
 
 import numpy as np
 
+from sknetwork.utils.check import check_n_clusters, check_dendrogram
+
 
 def reorder_dendrogram(dendrogram: np.ndarray):
     """Reorder the dendrogram in non-decreasing order of height."""
     n = dendrogram.shape[0] + 1
-    order = np.zeros((2, n - 1),float)
-    order[0] = np.max(dendrogram[:,:2], axis = 1)
+    order = np.zeros((2, n - 1), float)
+    order[0] = np.max(dendrogram[:, :2], axis=1)
     order[1] = dendrogram[:, 2]
     index = np.lexsort(order)
     dendrogram_new = dendrogram[index]
@@ -87,12 +89,9 @@ def cut_straight(dendrogram: np.ndarray, n_clusters: int = 2, sort_clusters: boo
     >>> cut_straight(dendrogram)
     array([0, 0, 1])
     """
-    if len(dendrogram.shape) != 2 or dendrogram.shape[1] != 4:
-        raise ValueError("Check the shape of the dendrogram.")
-
+    check_dendrogram(dendrogram)
     n = dendrogram.shape[0] + 1
-    if n_clusters < 1 or n_clusters > n:
-        raise ValueError("The number of clusters must be between 1 and the number of nodes.")
+    check_n_clusters(n_clusters, n, n_min=1)
 
     if return_dendrogram and not np.all(np.diff(dendrogram[:, 2]) >= 0):
         raise ValueError("The third column of the dendrogram must be non-decreasing.")
@@ -136,9 +135,7 @@ def cut_balanced(dendrogram: np.ndarray, max_cluster_size: int = 2, sort_cluster
     >>> cut_balanced(dendrogram)
     array([0, 0, 1])
     """
-    if len(dendrogram.shape) != 2 or dendrogram.shape[1] != 4:
-        raise ValueError("Check the shape of the dendrogram.")
-
+    check_dendrogram(dendrogram)
     n = dendrogram.shape[0] + 1
     if max_cluster_size < 2 or max_cluster_size > n:
         raise ValueError("The maximum cluster size must be between 2 and the number of nodes.")
@@ -176,8 +173,7 @@ def aggregate_dendrogram(dendrogram: np.ndarray, n_clusters: int = 2, return_cou
         Size of the subtrees corresponding to each leaf in new_dendrogram.
     """
     n_nodes: int = dendrogram.shape[0] + 1
-    if n_clusters < 1 or n_clusters > n_nodes:
-        raise ValueError("The number of clusters must be between 1 and the number of nodes.")
+    check_n_clusters(n_clusters, n_nodes, n_min=1)
 
     new_dendrogram = dendrogram[n_nodes - n_clusters:].copy()
     node_indices = np.array(sorted(set(new_dendrogram[:, 0]).union(set(new_dendrogram[:, 1]))))

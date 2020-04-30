@@ -41,7 +41,7 @@ def house(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     row = np.array([0, 0, 1, 1, 2, 3])
     col = np.array([1, 4, 2, 4, 3, 4])
     adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(5, 5))
-    adjacency = adjacency + adjacency.T
+    adjacency = (adjacency + adjacency.T).astype(bool)
 
     if metadata:
         x = np.array([0, -1, -1, 1, 1])
@@ -81,7 +81,7 @@ def bow_tie(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     row = np.array([0, 0, 0, 0, 1, 3])
     col = np.array([1, 2, 3, 4, 2, 4])
     adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(5, 5))
-    adjacency = adjacency + adjacency.T
+    adjacency = (adjacency + adjacency.T).astype(bool)
 
     if metadata:
         x = np.array([0, -1, 1, -1, 1])
@@ -136,8 +136,8 @@ def karate_club(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
          13, 6, 10, 6, 10, 16, 16, 30, 32, 33, 33, 33, 32, 33, 32, 33, 32,
          33, 33, 32, 33, 32, 33, 25, 27, 29, 32, 33, 25, 27, 31, 31, 29, 33,
          33, 31, 33, 32, 33, 32, 33, 32, 33, 33])
-    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(34, 34))
-    adjacency = sparse.csr_matrix(adjacency + adjacency.T)
+    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=bool), (row, col)), shape=(34, 34))
+    adjacency = sparse.csr_matrix(adjacency + adjacency.T, dtype=bool)
 
     if metadata:
         labels = np.array(
@@ -299,7 +299,7 @@ def painters(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         [3, 10, 3, 12, 9, 0, 1, 7, 11, 12, 2, 5, 9, 2, 4, 8, 9,
          0, 13, 1, 2, 3, 8, 11, 12, 0, 1, 4, 5, 7, 10, 11, 2, 4,
          0, 3, 8, 11, 12, 0, 1, 3, 10, 12, 1, 3, 4, 7, 6, 8])
-    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(14, 14))
+    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=bool), (row, col)), shape=(14, 14))
 
     if metadata:
         names = np.array(
@@ -340,7 +340,7 @@ def hourglass(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     >>> biadjacency.shape
     (2, 2)
     """
-    biadjacency = sparse.csr_matrix(np.ones((2, 2)))
+    biadjacency = sparse.csr_matrix(np.ones((2, 2), dtype=bool))
     if metadata:
         graph = Bunch()
         graph.biadjacency = biadjacency
@@ -375,7 +375,7 @@ def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
    """
     row = np.array([0, 0, 1, 2, 2, 2, 3, 3])
     col = np.array([0, 2, 0, 0, 1, 2, 1, 2])
-    biadjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(4, 3))
+    biadjacency = sparse.csr_matrix((np.ones(len(row), dtype=bool), (row, col)), shape=(4, 3))
 
     if metadata:
         villains = np.array(['Jabba', 'Greedo', 'Vador', 'Boba'])
@@ -425,7 +425,7 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         [0, 1, 2, 1, 2, 3, 3, 4, 5, 8, 4, 6, 0, 6, 4, 7, 4,
          7, 8, 3, 8, 9, 10, 11, 12, 15, 0, 11, 12, 9, 10, 13, 5, 9, 13,
          1, 9, 15, 12, 14, 11, 14])
-    biadjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(15, 16))
+    biadjacency = sparse.csr_matrix((np.ones(len(row), dtype=bool), (row, col)), shape=(15, 16))
 
     if metadata:
         movies = np.array(

@@ -15,6 +15,17 @@ Sparse + Low Rank
 
 .. autoclass:: sknetwork.linalg.SparseLR
 
+Operators
+---------
+
+.. autoclass:: sknetwork.linalg.RegularizedAdjacency
+
+.. autoclass:: sknetwork.linalg.LaplacianOperator
+
+.. autoclass:: sknetwork.linalg.NormalizedAdjacencyOperator
+
+.. autoclass:: sknetwork.linalg.CoNeighborsOperator
+
 Solvers
 -------
 

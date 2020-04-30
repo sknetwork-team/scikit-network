@@ -4,15 +4,13 @@
 Created on October 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
 import unittest
 
 import numpy as np
-from scipy import sparse
 
-from sknetwork.basics import co_neighbors_graph, CoNeighbors
+from sknetwork.utils import co_neighbors_graph
 from sknetwork.data import movie_actor
-from sknetwork.linalg.normalization import normalize
+from sknetwork.linalg import CoNeighborsOperator
 
 
 class TestCoNeighbors(unittest.TestCase):
@@ -28,7 +26,7 @@ class TestCoNeighbors(unittest.TestCase):
         adjacency = co_neighbors_graph(self.biadjacency, method='exact')
         self.assertEqual(adjacency.shape, (n, n))
 
-        operator = CoNeighbors(self.biadjacency)
+        operator = CoNeighborsOperator(self.biadjacency)
         x = np.random.randn(n)
         y1 = adjacency.dot(x)
         y2 = operator.dot(x)
@@ -40,19 +38,3 @@ class TestCoNeighbors(unittest.TestCase):
         self.assertEqual(adjacency.shape, (n, n))
         adjacency = co_neighbors_graph(self.biadjacency, method='knn', normalized=False)
         self.assertEqual(adjacency.shape, (n, n))
-
-    def test_operator(self):
-        operator = CoNeighbors(self.biadjacency)
-        transition = normalize(operator)
-        x = transition.dot(np.ones(transition.shape[1]))
-
-        self.assertAlmostEqual(np.linalg.norm(x - np.ones(operator.shape[0])), 0)
-        operator.astype(np.float)
-        operator.right_sparse_dot(sparse.eye(operator.shape[1], format='csr'))
-
-        operator1 = CoNeighbors(self.biadjacency, normalized=False)
-        operator2 = CoNeighbors(self.biadjacency, normalized=False)
-        x = np.random.randn(operator.shape[1])
-        x1 = (-operator1).dot(x)
-        x2 = (operator2 * -1).dot(x)
-        self.assertAlmostEqual(np.linalg.norm(x1 - x2), 0)

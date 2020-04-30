@@ -83,8 +83,7 @@ def check_symmetry(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float =
 
 
 def is_connected(adjacency: sparse.csr_matrix) -> bool:
-    """
-    Check whether a graph is weakly connected. Bipartite graphs are treated as undirected ones.
+    """Check whether a graph is weakly connected. Bipartite graphs are treated as undirected ones.
 
     Parameters
     ----------
@@ -106,18 +105,17 @@ def check_connected(adjacency: Union[sparse.csr_matrix, np.ndarray]):
 def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
     """Array of weights from a matrix and a desired distribution.
 
-       Parameters
-       ----------
-       distribution:
-           Distribution for node sampling. Only ``'degree'`` or ``'uniform'`` are accepted.
-       adjacency:
-           The adjacency matrix of the neighbors.
+   Parameters
+   ----------
+   distribution:
+       Distribution for node sampling. Only ``'degree'`` or ``'uniform'`` are accepted.
+   adjacency:
+       The adjacency matrix of the neighbors.
 
-       Returns
-       -------
-       node_weights: np.ndarray
-           Valid weights of nodes.
-
+   Returns
+   -------
+   node_weights: np.ndarray
+       Valid weights of nodes.
     """
     n = adjacency.shape[0]
     if distribution == 'degree':
@@ -165,7 +163,6 @@ def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr
     -------
     node_weights: np.ndarray
         Valid weights of nodes.
-
     """
     n = adjacency.shape[0]
     if type(weights) == np.ndarray:
@@ -257,13 +254,11 @@ def check_n_jobs(n_jobs: Optional[int] = None):
 
 
 def check_adjacency_vector(adjacency_vectors: Union[sparse.csr_matrix, np.ndarray],
-                           n: Optional[int] = None) -> np.ndarray:
+                           n: Optional[int] = None) -> sparse.csr_matrix:
     """Check format of new samples for predict methods"""
+    adjacency_vectors = check_format(adjacency_vectors)
 
-    if isinstance(adjacency_vectors, sparse.csr_matrix):
-        adjacency_vectors = adjacency_vectors.toarray()
-
-    if len(adjacency_vectors.shape) == 1:
+    if adjacency_vectors.ndim == 1:
         adjacency_vectors = adjacency_vectors.reshape(1, -1)
 
     if n is not None:
@@ -273,9 +268,45 @@ def check_adjacency_vector(adjacency_vectors: Union[sparse.csr_matrix, np.ndarra
     return adjacency_vectors
 
 
-def check_n_clusters(n_clusters: int, n_row: int):
+def check_n_clusters(n_clusters: int, n_row: int, n_min: int = 0):
     """Check that the number of clusters"""
     if n_clusters > n_row:
         raise ValueError('The number of clusters exceeds the number of rows.')
+    if n_clusters < n_min:
+        raise ValueError('The number of clusters must be at least {}.'.format(n_min))
     else:
         return
+
+
+def check_min_size(n_row, n_min):
+    """Check that an adjacency has the required number of rows and returns an error otherwise."""
+    if n_row < n_min:
+        raise ValueError('The graph must contain at least {} nodes.'.format(n_min))
+    else:
+        return
+
+
+def check_dendrogram(dendrogram):
+    """Check the shape of a dendrogram."""
+    if dendrogram.ndim != 2 or dendrogram.shape[1] != 4:
+        raise ValueError("Dendrogram has incorrect shape.")
+    else:
+        return
+
+
+def check_min_nnz(nnz, n_min):
+    """Check that an adjacency has the required number of edges and returns an error otherwise."""
+    if nnz < n_min:
+        raise ValueError('The graph must contain at least {} edge(s).'.format(n_min))
+    else:
+        return
+
+
+def check_n_components(n_components, n_min) -> int:
+    """Check the number of components"""
+    if n_components > n_min:
+        warnings.warn(Warning("The dimension of the embedding must be strictly less than {}."
+                              "Changed accordingly.".format(n_min)))
+        return n_min
+    else:
+        return n_components

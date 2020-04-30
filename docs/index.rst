@@ -21,6 +21,7 @@ Welcome to scikit-network's documentation!
    tutorials/embedding/index
    tutorials/ranking/index
    tutorials/classification/index
+   tutorials/connectivity/index
    tutorials/utils/index
    tutorials/visualization/index
 

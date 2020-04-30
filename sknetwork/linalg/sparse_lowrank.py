@@ -23,7 +23,7 @@ class SparseLR(LinearOperator):
     sparse_mat: scipy.spmatrix
         Sparse component. Is converted to csr format automatically.
     low_rank_tuples: list
-        List of tuple of arrays representing the low rank components [(x1, y1), (x2, y2),...].
+        Single tuple of arrays of list of tuples, representing the low rank components [(x1, y1), (x2, y2),...].
         Each low rank component is of the form :math:`xy^T`.
 
     Examples
@@ -35,6 +35,12 @@ class SparseLR(LinearOperator):
     >>> x = np.ones(2)
     >>> slr.dot(x)
     array([3., 3.])
+    >>> slr.sum(axis=0)
+    array([3., 3.])
+    >>> slr.sum(axis=1)
+    array([3., 3.])
+    >>> slr.sum()
+    6.0
 
     References
     ----------
@@ -111,6 +117,22 @@ class SparseLR(LinearOperator):
     def right_sparse_dot(self, matrix: sparse.csr_matrix):
         """Right dot product with a sparse matrix."""
         return SparseLR(self.sparse_mat.dot(matrix), [(x, matrix.T.dot(y)) for (x, y) in self.low_rank_tuples])
+
+    def sum(self, axis=None):
+        """Row-wise, column-wise or total sum of operator's coefficients.
+
+        Parameters
+        ----------
+        axis :
+            If 0, return column-wise sum. If 1, return row-wise sum. Otherwise, return total sum.
+        """
+        if axis == 0:
+            s = self.T.dot(np.ones(self.shape[0]))
+        elif axis == 1:
+            s = self.dot(np.ones(self.shape[1]))
+        else:
+            s = self.dot(np.ones(self.shape[1])).sum()
+        return s
 
     def astype(self, dtype: Union[str, np.dtype]):
         """Change dtype of the object."""

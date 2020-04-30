@@ -22,8 +22,8 @@ class TestSolvers(unittest.TestCase):
     def setUp(self):
         """Simple biadjacency for tests."""
         self.biadjacency = movie_actor()
-        n1, n2 = self.biadjacency.shape
-        self.slr = SparseLR(self.biadjacency, [(np.random.rand(n1), np.random.rand(n2))])
+        n_row, n_col = self.biadjacency.shape
+        self.slr = SparseLR(self.biadjacency, [(np.random.rand(n_row), np.random.rand(n_col))])
 
     def test_lanczos(self):
         solver = LanczosSVD()

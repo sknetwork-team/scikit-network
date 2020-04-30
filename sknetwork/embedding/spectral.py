@@ -5,80 +5,18 @@ Created on Thu Sep 13 2018
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
-
 import warnings
 from typing import Union
 
 import numpy as np
 from scipy import sparse
-from scipy.sparse.linalg import LinearOperator
 
 from sknetwork.embedding.base import BaseEmbedding, BaseBiEmbedding
-from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv, normalize
+from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv, normalize, LaplacianOperator,\
+    NormalizedAdjacencyOperator, RegularizedAdjacency
 from sknetwork.utils.check import check_format, check_square, check_symmetry, check_adjacency_vector, is_connected,\
-    check_nonnegative
+    check_nonnegative, check_n_components
 from sknetwork.utils.format import bipartite2undirected
-
-
-class LaplacianOperator(LinearOperator):
-    """Regularized Laplacian matrix as a scipy LinearOperator."""
-    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
-        super(LaplacianOperator, self).__init__(dtype=float, shape=adjacency.shape)
-        self.regularization = regularization
-        self.weights = adjacency.dot(np.ones(adjacency.shape[1]))
-        self.laplacian = sparse.diags(self.weights, format='csr') - adjacency
-
-    def _matvec(self, matrix: np.ndarray):
-        prod = self.laplacian.dot(matrix)
-        prod += self.shape[0] * self.regularization * matrix
-        if len(matrix.shape) == 2:
-            prod -= self.regularization * np.tile(matrix.sum(axis=0), (self.shape[0], 1))
-        else:
-            prod -= self.regularization * matrix.sum()
-
-        return prod
-
-    def _transpose(self):
-        return self
-
-    def astype(self, dtype: Union[str, np.dtype]):
-        """Change dtype of the object."""
-        self.dtype = np.dtype(dtype)
-        self.laplacian = self.laplacian.astype(self.dtype)
-        self.weights = self.weights.astype(self.dtype)
-
-        return self
-
-
-class NormalizedAdjacencyOperator(LinearOperator):
-    """Regularized normalized adjacency matrix as a scipy LinearOperator."""
-    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
-        super(NormalizedAdjacencyOperator, self).__init__(dtype=float, shape=adjacency.shape)
-        self.adjacency = adjacency
-        self.regularization = regularization
-
-        n = self.adjacency.shape[0]
-        self.weights_sqrt = np.sqrt(self.adjacency.dot(np.ones(n)) + self.regularization * n)
-
-    def _matvec(self, matrix: np.ndarray):
-        matrix = (matrix.T / self.weights_sqrt).T
-        prod = self.adjacency.dot(matrix)
-        if len(matrix.shape) == 2:
-            prod += self.regularization * np.tile(matrix.sum(axis=0), (self.shape[0], 1))
-        else:
-            prod += self.regularization * matrix.sum()
-        return (prod.T / self.weights_sqrt).T
-
-    def _transpose(self):
-        return self
-
-    def astype(self, dtype: Union[str, np.dtype]):
-        """Change dtype of the object."""
-        self.dtype = np.dtype(dtype)
-        self.adjacency = self.adjacency.astype(self.dtype)
-        self.weights_sqrt = self.weights_sqrt.astype(self.dtype)
-
-        return self
 
 
 class Spectral(BaseEmbedding):
@@ -195,14 +133,11 @@ class Spectral(BaseEmbedding):
             solver = auto_solver(adjacency.nnz)
             if solver == 'lanczos':
                 self.solver: EigSolver = LanczosEig()
-            else:
+            else:  # pragma: no cover
                 self.solver: EigSolver = HalkoEig()
 
-        if self.n_components > n - 2:
-            warnings.warn(Warning("The dimension of the embedding must be less than the number of nodes - 1."))
-            n_components = n - 2
-        else:
-            n_components = self.n_components + 1
+        n_components = check_n_components(self.n_components, n-2)
+        n_components += 1
 
         if self.equalize and (self.regularization is None or self.regularization == 0.) and not is_connected(adjacency):
             raise ValueError("The option 'equalize' is valid only if the graph is connected or with regularization."
@@ -294,13 +229,11 @@ class Spectral(BaseEmbedding):
         check_nonnegative(adjacency_vectors)
 
         # regularization
-        adjacency_vector_reg = adjacency_vectors.astype(float)
         if self.regularization_:
-            adjacency_vector_reg += self.regularization_
+            adjacency_vectors = RegularizedAdjacency(adjacency_vectors, self.regularization_)
 
         # projection in the embedding space
-        sum_inv_diag = diag_pinv(np.sum(adjacency_vector_reg, axis=1))
-        averaging = sum_inv_diag.dot(adjacency_vector_reg)
+        averaging = normalize(adjacency_vectors, p=1)
         embedding_vectors = averaging.dot(eigenvectors)
 
         if not self.barycenter:
@@ -308,7 +241,7 @@ class Spectral(BaseEmbedding):
                 factors = 1 - eigenvalues
             else:
                 # to be modified
-                factors = 1 - eigenvalues / np.sum(adjacency_vector_reg + 1e-9)
+                factors = 1 - eigenvalues / (adjacency_vectors.sum() + 1e-9)
             factors_inv_diag = diag_pinv(factors)
             embedding_vectors = factors_inv_diag.dot(embedding_vectors.T).T
 
@@ -441,12 +374,8 @@ class BiSpectral(Spectral, BaseBiEmbedding):
         n_col, _ = self.embedding_col_.shape
 
         adjacency_vectors = check_adjacency_vector(adjacency_vectors, n_col)
-        check_nonnegative(adjacency_vectors)
-
-        adjacency_vectors = np.hstack((np.zeros((adjacency_vectors.shape[0], n_row)), adjacency_vectors))
+        empty_block = sparse.csr_matrix((adjacency_vectors.shape[0], n_row))
+        adjacency_vectors = sparse.bmat([[empty_block, adjacency_vectors]], format='csr')
         embedding_vectors = Spectral.predict(self, adjacency_vectors)
-
-        if embedding_vectors.shape[0] == 1:
-            embedding_vectors = embedding_vectors.ravel()
 
         return embedding_vectors

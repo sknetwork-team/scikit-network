@@ -6,10 +6,10 @@ import unittest
 
 import numpy as np
 
-from sknetwork.basics import co_neighbors_graph
 from sknetwork.data.models import cyclic_digraph
 from sknetwork.data.test_graphs import test_bigraph
 from sknetwork.ranking.pagerank import PageRank, CoPageRank
+from sknetwork.utils import co_neighbors_graph
 
 
 class TestPageRank(unittest.TestCase):

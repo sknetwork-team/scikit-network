@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 
-from sknetwork.basics import breadth_first_search, depth_first_search
+from sknetwork.connectivity import breadth_first_search, depth_first_search
 from sknetwork.data import cyclic_digraph
 
 
@@ -14,7 +14,7 @@ class TestSearch(unittest.TestCase):
 
     def setUp(self) -> None:
         """Load graph for tests."""
-        self.adjacency = cyclic_digraph(3)
+        self.adjacency = cyclic_digraph(3).astype(bool)
 
     def test_bfs(self):
         self.assertTrue((breadth_first_search(

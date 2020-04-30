@@ -133,7 +133,7 @@ class TestChecks(unittest.TestCase):
         adj1 = check_adjacency_vector(vector1)
         adj2 = check_adjacency_vector(vector2)
 
-        self.assertAlmostEqual(np.linalg.norm(adj1 - adj2), 0)
+        self.assertEqual((adj1 - adj2).nnz, 0)
         self.assertEqual(adj1.shape, (1, n))
 
         with self.assertRaises(ValueError):
@@ -142,3 +142,21 @@ class TestChecks(unittest.TestCase):
     def test_check_n_clusters(self):
         with self.assertRaises(ValueError):
             check_n_clusters(3, 2)
+        with self.assertRaises(ValueError):
+            check_n_clusters(0, 2, 1)
+
+    def test_min_size(self):
+        with self.assertRaises(ValueError):
+            check_min_size(1, 3)
+
+    def test_min_nnz(self):
+        with self.assertRaises(ValueError):
+            check_min_nnz(1, 3)
+
+    def test_dendrogram(self):
+        with self.assertRaises(ValueError):
+            check_dendrogram(np.ones((3, 3)))
+
+    def test_n_components(self):
+        self.assertEqual(5, check_n_components(5, 10))
+        self.assertEqual(2, check_n_components(5, 2))

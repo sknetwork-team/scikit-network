@@ -17,8 +17,13 @@ class TestClusteringAPI(unittest.TestCase):
         for clustering_algo in clustering:
             for adjacency in [test_graph(), test_digraph()]:
                 n = adjacency.shape[0]
-                labels = clustering_algo.fit_transform(adjacency)
-                self.assertEqual(labels.shape, (n,))
+                adjacency_bool = adjacency.copy()
+                adjacency_bool.data = adjacency_bool.data.astype(bool)
+
+                labels1 = clustering_algo.fit_transform(adjacency)
+                labels2 = clustering_algo.fit_transform(adjacency_bool)
+                self.assertEqual(labels1.shape, (n,))
+                self.assertEqual(labels2.shape, (n,))
 
     def test_bipartite(self):
         biadjacency = test_bigraph()
