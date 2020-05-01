@@ -56,7 +56,7 @@ def block_model(sizes: np.ndarray, p_in: Union[float, list, np.ndarray] = .2, p_
 
     if type(p_in) != np.ndarray:
         p_in = p_in * np.ones_like(sizes)
-    if p_in.min() < p_out:
+    if np.min(p_in) < p_out:
         raise ValueError('The probability of connection across blocks p_out must be less that the probability of '
                          'connection within a block p_in.')
 
@@ -246,3 +246,47 @@ def cyclic_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix,
         return graph
     else:
         return graph.adjacency
+
+
+def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+    """Grid (undirected).
+
+    Parameters
+    ----------
+    n1, n2 : int
+        Grid dimension.
+    metadata : bool
+        If ``True``, return a `Bunch` object with metadata.
+
+    Returns
+    -------
+    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+        Adjacency matrix or graph with metadata (positions).
+
+    Example
+    -------
+    >>> from sknetwork.data import grid
+    >>> adjacency = grid(10, 5)
+    >>> adjacency.shape
+    (50, 50)
+    """
+    nodes = [(i1, i2) for i1 in range(n1) for i2 in range(n2)]
+    edges = [((i1, i2), (i1 + 1, i2)) for i1 in range(n1 - 1) for i2 in range(n2)]
+    edges += [((i1, i2), (i1, i2 + 1)) for i1 in range(n1) for i2 in range(n2 - 1)]
+    node_id = {u: i for i, u in enumerate(nodes)}
+    row = np.array([node_id[e[0]] for e in edges])
+    col = np.array([node_id[e[1]] for e in edges])
+    n = n1 * n2
+    adjacency = sparse.coo_matrix((np.ones_like(row), (row, col)), shape=(n, n))
+    adjacency = sparse.csr_matrix(adjacency)
+    adjacency = directed2undirected(adjacency)
+    if metadata:
+        graph = Bunch()
+        x = np.array([node[0] for node in nodes])
+        y = np.array([node[1] for node in nodes])
+        position = np.vstack((x, y)).T
+        graph.adjacency = adjacency
+        graph.position = position
+        return graph
+    else:
+        return adjacency
