@@ -49,6 +49,13 @@ class Propagation(BaseClassifier):
     >>> labels_pred = propagation.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.94
+
+    References
+    ----------
+    Raghavan, U. N., Albert, R., & Kumara, S. (2007).
+    `Near linear time algorithm to detect community structures in large-scale networks.
+    <https://arxiv.org/pdf/0709.2938.pdf>`_
+    Physical review E, 76(3), 036106.
     """
     def __init__(self, n_iter: int = -1):
         super(Propagation, self).__init__()
