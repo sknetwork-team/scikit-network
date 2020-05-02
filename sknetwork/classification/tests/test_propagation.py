@@ -14,6 +14,11 @@ class TestLabelPropagation(unittest.TestCase):
         adjacency = karate_club(metadata=False)
         n = adjacency.shape[0]
         seeds = {0: 0, 1: 1}
-        propagation = Propagation(n_iter=3, shuffle_nodes=True)
+        propagation = Propagation(n_iter=3, weighted=False)
         labels = propagation.fit_transform(adjacency, seeds)
-        self.assertEqual(len(labels), n)
+        self.assertEqual(labels.shape, (n,))
+
+        for order in ['random', 'decreasing', 'increasing']:
+            propagation = Propagation(node_order=order)
+            labels = propagation.fit_transform(adjacency, seeds)
+            self.assertEqual(labels.shape, (n,))

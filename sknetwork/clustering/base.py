@@ -26,7 +26,6 @@ class BaseClustering(Algorithm, ABC):
     adjacency_ : sparse.csr_matrix
         Adjacency matrix between clusters.
     """
-
     def __init__(self, sort_clusters: bool = True, return_membership: bool = False, return_aggregate: bool = False):
         self.sort_clusters = sort_clusters
         self.return_membership = return_membership

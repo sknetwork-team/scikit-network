@@ -15,6 +15,6 @@ class TestPageRankClassifier(unittest.TestCase):
         seeds = {0: 0, 1: 1}
 
         ref = PageRankClassifier(solver='naive').fit_transform(adjacency, seeds)
-        for solver in ['diteration', 'lanczos', 'bicgstab']:
+        for solver in ['lanczos', 'bicgstab']:
             labels = PageRankClassifier(solver=solver).fit_transform(adjacency, seeds)
             self.assertTrue((ref == labels).all())

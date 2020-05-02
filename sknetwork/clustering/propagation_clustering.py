@@ -10,12 +10,12 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering import BaseClustering, BaseBiClustering
-from sknetwork.classification.vote import vote_update
+from sknetwork.classification.propagation import Propagation
 from sknetwork.utils.check import check_format
 from sknetwork.utils.format import bipartite2undirected
 
 
-class PropagationClustering(BaseClustering):
+class PropagationClustering(BaseClustering, Propagation):
     """Clustering by label propagation.
 
     * Graphs
@@ -25,6 +25,14 @@ class PropagationClustering(BaseClustering):
     ----------
     n_iter : int
         Maximum number of iterations (-1 for infinity).
+    node_order : str
+        * `'random'`: node labels are updated in random order.
+        * `'increasing'`: node labels are updated by increasing order of weight.
+        * `'decreasing'`: node labels are updated by decreasing order of weight.
+        * Otherwise, node labels are updated by index order.
+    weighted : bool
+        If `True`, the vote of each neighbor is proportional to the edge weight.
+        Otherwise, all votes have weight 1.
     sort_clusters :
             If ``True``, sort labels in decreasing order of cluster size.
     return_membership :
@@ -57,16 +65,10 @@ class PropagationClustering(BaseClustering):
     <https://arxiv.org/pdf/0709.2938.pdf>`_
     Physical review E, 76(3), 036106.
     """
-    def __init__(self, n_iter: int = 5, sort_clusters: bool = True,
-                 return_membership: bool = True, return_aggregate: bool = True):
-        super(PropagationClustering, self).__init__(sort_clusters=sort_clusters,
-                                                    return_membership=return_membership,
-                                                    return_aggregate=return_aggregate)
-
-        if n_iter < 0:
-            self.n_iter = np.inf
-        else:
-            self.n_iter = n_iter
+    def __init__(self, n_iter: int = 5, node_order: str = 'decreasing', weighted: bool = True,
+                 sort_clusters: bool = True, return_membership: bool = True, return_aggregate: bool = True):
+        Propagation.__init__(self, n_iter, node_order, weighted)
+        BaseClustering.__init__(self, sort_clusters, return_membership, return_aggregate)
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'PropagationClustering':
         """Clustering by label propagation.
@@ -80,27 +82,8 @@ class PropagationClustering(BaseClustering):
         -------
         self: :class:`PropagationClustering`
         """
-        adjacency = check_format(adjacency)
-        n = adjacency.shape[0]
-
-        # nodes labelled in decreasing order of weights
-        weights = adjacency.T.dot(np.ones(n))
-        index = np.argsort(-weights).astype(np.int32)
-
-        labels = np.arange(n, dtype=np.int32)
-        labels_prev = np.zeros(n, dtype=np.int32)
-
-        indptr = adjacency.indptr.astype(np.int32)
-        indices = adjacency.indices.astype(np.int32)
-        data = adjacency.data.astype(np.float32)
-
-        t = 0
-        while t < self.n_iter and not np.array_equal(labels_prev, labels):
-            t += 1
-            labels_prev = labels.copy()
-            labels = vote_update(indptr, indices, data, labels, index)
-
-        _, labels = np.unique(labels, return_inverse=True)
+        Propagation.fit(self, adjacency)
+        _, labels = np.unique(self.labels_, return_inverse=True)
 
         self.labels_ = labels
         self._secondary_outputs(adjacency)
@@ -151,14 +134,14 @@ class BiPropagationClustering(PropagationClustering, BaseBiClustering):
     >>> len(bipropagation.labels_col_)
     16
     """
-    def __init__(self, n_iter: int = 5, sort_clusters: bool = True,
-                 return_membership: bool = True, return_aggregate: bool = True):
-        super(BiPropagationClustering, self).__init__(n_iter, sort_clusters=sort_clusters,
-                                                      return_membership=return_membership,
+    def __init__(self, n_iter: int = 5, node_order: str = 'decreasing', weighted: bool = True,
+                 sort_clusters: bool = True, return_membership: bool = True, return_aggregate: bool = True):
+        super(BiPropagationClustering, self).__init__(n_iter=n_iter, node_order=node_order, weighted=weighted,
+                                                      sort_clusters=sort_clusters, return_membership=return_membership,
                                                       return_aggregate=return_aggregate)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiPropagationClustering':
-        """Clustering by k-nearest neighbors in the embedding space.
+        """Clustering.
 
         Parameters
         ----------
@@ -173,8 +156,7 @@ class BiPropagationClustering(PropagationClustering, BaseBiClustering):
         biadjacency = check_format(biadjacency)
         adjacency = bipartite2undirected(biadjacency)
 
-        propagation = PropagationClustering(self.n_iter, self.sort_clusters, return_membership=False,
-                                            return_aggregate=False)
+        propagation = PropagationClustering(self.n_iter, self.node_order, self.weighted)
 
         self.labels_ = propagation.fit_transform(adjacency)
         self._split_vars(n_row)
