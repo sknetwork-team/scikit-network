@@ -22,6 +22,9 @@ class TestModels(unittest.TestCase):
         adjacency = erdos_renyie(n)
         self.assertEqual(adjacency.shape, (n, n))
 
+        adjacency = albert_barabasi(n, 2)
+        self.assertEqual(adjacency.shape, (n, n))
+
         n1 = 4
         n2 = 6
         n = n1 * n2

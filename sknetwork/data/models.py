@@ -290,3 +290,50 @@ def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr
         return graph
     else:
         return adjacency
+
+
+def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True) -> sparse.csr_matrix:
+    """Albert-Barabasi model.
+
+    Parameters
+    ----------
+    n : int
+        Number of nodes.
+    degree : int
+        Degree of incoming nodes (less than **n**).
+    undirected : bool
+        If ``True``, return an undirected graph.
+
+    Returns
+    -------
+    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+        Adjacency matrix or graph with metadata (positions).
+
+    Example
+    -------
+    >>> from sknetwork.data import albert_barabasi
+    >>> adjacency = albert_barabasi(30, 3)
+    >>> adjacency.shape
+    (30, 30)
+
+    References
+    ----------
+    Albert, R., Barabási, L. (2002). `Statistical mechanics of complex networks
+    <https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.74.47>`
+    Reviews of Modern Physics.
+    """
+    degrees = np.zeros(n, int)
+    degrees[:degree] = degree - 1
+    edges = [(i, j) for i in range(degree) for j in range(i)]
+    for i in range(degree, n):
+        neighbors = np.random.choice(np.arange(i), p=degrees[:i]/degrees.sum(), size=degree, replace=False)
+        degrees[neighbors] += 1
+        degrees[i] = degree
+        edges += [(i, j) for j in neighbors]
+    row = np.array([edge[0] for edge in edges])
+    col = np.array([edge[1] for edge in edges])
+    adjacency = sparse.coo_matrix((np.ones_like(row), (row, col)), shape=(n, n))
+    adjacency = sparse.csr_matrix(adjacency).astype(bool)
+    if undirected:
+        adjacency = adjacency + adjacency.T
+    return adjacency
