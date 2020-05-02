@@ -31,7 +31,7 @@ class PropagationClustering(BaseClustering, Propagation):
         * `'decreasing'`: node labels are updated by decreasing order of weight.
         * Otherwise, node labels are updated by index order.
     weighted : bool
-        If `True`, the vote of each neighbor is proportional to the edge weight.
+        If ``True``, the vote of each neighbor is proportional to the edge weight.
         Otherwise, all votes have weight 1.
     sort_clusters :
             If ``True``, sort labels in decreasing order of cluster size.
