@@ -10,10 +10,10 @@ from sknetwork.data import karate_club
 
 class TestLabelPropagation(unittest.TestCase):
 
-    def test_niter(self):
+    def test_options(self):
         adjacency = karate_club(metadata=False)
         n = adjacency.shape[0]
         seeds = {0: 0, 1: 1}
-        propagation = Propagation(n_iter=3)
+        propagation = Propagation(n_iter=3, shuffle_nodes=True)
         labels = propagation.fit_transform(adjacency, seeds)
         self.assertEqual(len(labels), n)

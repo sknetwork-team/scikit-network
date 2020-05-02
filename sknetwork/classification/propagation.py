@@ -29,6 +29,8 @@ class Propagation(BaseClassifier):
     ----------
     n_iter : int
         Maximum number of iterations (-1 for infinity).
+    shuffle_nodes :
+        Enables node shuffling before propagation.
 
     Attributes
     ----------
@@ -57,13 +59,14 @@ class Propagation(BaseClassifier):
     <https://arxiv.org/pdf/0709.2938.pdf>`_
     Physical review E, 76(3), 036106.
     """
-    def __init__(self, n_iter: int = -1):
+    def __init__(self, n_iter: int = -1, shuffle_nodes: bool = False):
         super(Propagation, self).__init__()
 
         if n_iter < 0:
             self.n_iter = np.inf
         else:
             self.n_iter = n_iter
+        self.shuffle_nodes = shuffle_nodes
 
     @staticmethod
     def _instanciate_vars(adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]):
@@ -93,18 +96,22 @@ class Propagation(BaseClassifier):
         n = adjacency.shape[0]
         index_seed, index_remain, labels_seed = self._instanciate_vars(adjacency, seeds)
 
+        if self.shuffle_nodes:
+            np.random.shuffle(index_remain)
+
         labels = -np.ones(n, dtype=np.int32)
         labels[index_seed] = labels_seed
         labels_remain = np.zeros_like(index_remain, dtype=np.int32)
 
         indptr = adjacency.indptr.astype(np.int32)
         indices = adjacency.indices.astype(np.int32)
+        data = adjacency.data.astype(np.float32)
 
         t = 0
         while t < self.n_iter and not np.array_equal(labels_remain, labels[index_remain]):
             t += 1
             labels_remain = labels[index_remain].copy()
-            labels = vote_update(indptr, indices, labels, index_remain)
+            labels = vote_update(indptr, indices, data, labels, index_remain)
 
         membership = membership_matrix(labels)
         membership = normalize(adjacency.dot(membership))

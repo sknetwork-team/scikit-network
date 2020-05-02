@@ -13,35 +13,40 @@ cimport cython
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def vote_update(int[:] indptr, int[:] indices, int[:] labels, int[:] index):
+def vote_update(int[:] indptr, int[:] indices, float[:] data, int[:] labels, int[:] index):
     """One pass of label updates over the graph by majority vote among neighbors."""
     cdef int i
     cdef int ii
     cdef int j
+    cdef int jj
     cdef int n_indices = len(index)
     cdef int label
-    cdef int best_count
+    cdef float best_score
 
     cdef vector[int] labels_neigh
+    cdef vector[float] votes_neigh
     cdef set[int] labels_unique = ()
-    cdef int[:] counts = np.zeros_like(labels)
+    cdef float[:] votes = np.zeros_like(labels, dtype=np.float32)
 
     for ii in range(n_indices):
         i = index[ii]
         labels_neigh.clear()
         for j in range(indptr[i], indptr[i + 1]):
-            labels_neigh.push_back(labels[indices[j]])
+            jj = indices[j]
+            labels_neigh.push_back(labels[jj])
+            votes_neigh.push_back(data[jj])
 
         labels_unique.clear()
-        for label in labels_neigh:
+        for jj in range(labels_neigh.size()):
+            label = labels_neigh[jj]
             if label >= 0:
                 labels_unique.insert(label)
-                counts[label] += 1
+                votes[label] += votes_neigh[jj]
 
-        best_count = -1
+        best_score = -1
         for label in labels_unique:
-            if counts[label] > best_count:
+            if votes[label] > best_score:
                 labels[i] = label
-                best_count = counts[label]
-            counts[label] = 0
+                best_score = votes[label]
+            votes[label] = 0
     return np.asarray(labels)
