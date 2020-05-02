@@ -306,8 +306,8 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True) -> s
 
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
-        Adjacency matrix or graph with metadata (positions).
+    adjacency : sparse.csr_matrix
+        Adjacency matrix.
 
     Example
     -------
@@ -337,3 +337,59 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True) -> s
     if undirected:
         adjacency = adjacency + adjacency.T
     return adjacency
+
+
+def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, metadata: bool = False) \
+    -> Union[sparse.csr_matrix, Bunch]:
+    """Watts-Strogatz model.
+
+    Parameters
+    ----------
+    n : int
+        Number of nodes.
+    degree : int
+        Initial degree of nodes.
+    prob : prob
+        Probability of edge modification.
+    metadata : bool
+        If ``True``, return a `Bunch` object with metadata.
+    Returns
+    -------
+    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+        Adjacency matrix or graph with metadata (positions).
+
+    Example
+    -------
+    >>> from sknetwork.data import watts_strogatz
+    >>> adjacency = watts_strogatz(30, 4, 0.02)
+    >>> adjacency.shape
+    (30, 30)
+
+    References
+    ----------
+    Watts, D., Strogatz, S. (1998). Collective dynamics of small-world networks, Nature.
+    """
+    edges = [(i, (i + l + 1) % n) for i in range(n) for l in range(degree // 2)]
+    row = [edge[0] for edge in edges]
+    col = [edge[1] for edge in edges]
+    adjacency = sparse.coo_matrix((np.ones_like(row, int), (row, col)), shape=(n, n))
+    adjacency = sparse.lil_matrix(adjacency + adjacency.T)
+    for i in range(n):
+        for j in adjacency.rows[i]:
+            if np.random.random() < prob:
+                node = np.random.choice(list(set(np.arange(n)) - set(adjacency.rows[i])))
+                adjacency[i, node] = 1
+                adjacency[node, i] = 1
+                adjacency[i, j] = 0
+                adjacency[j, i] = 0
+    adjacency = sparse.csr_matrix(adjacency)
+    if metadata:
+        t = 2 * 3.14 * np.arange(n).astype(float) / n
+        x = np.cos(t)
+        y = np.sin(t)
+        graph = Bunch()
+        graph.adjacency = adjacency
+        graph.position = np.array((x, y)).T
+        return graph
+    else:
+        return adjacency

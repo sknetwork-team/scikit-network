@@ -41,6 +41,8 @@ Models
 
 .. autofunction:: sknetwork.data.albert_barabasi
 
+.. autofunction:: sknetwork.data.watts_strogatz
+
 Load
 ****
 

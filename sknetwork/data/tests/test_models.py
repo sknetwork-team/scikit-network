@@ -13,7 +13,7 @@ class TestModels(unittest.TestCase):
 
     def test_shape(self):
         n = 5
-        for model in [linear_graph, linear_digraph, cyclic_graph, cyclic_digraph]:
+        for model in [linear_graph, linear_digraph, cyclic_graph, cyclic_digraph, watts_strogatz]:
             adjacency = model(n)
             graph = model(n, metadata=True)
             self.assertEqual(adjacency.shape, (n, n))
