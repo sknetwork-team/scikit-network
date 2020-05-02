@@ -4,7 +4,7 @@
 
 import unittest
 
-from sknetwork.clustering import Louvain, BiLouvain, modularity
+from sknetwork.clustering import Louvain
 from sknetwork.data.test_graphs import *
 from sknetwork.data import karate_club
 

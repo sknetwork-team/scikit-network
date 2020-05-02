@@ -13,7 +13,7 @@ class TestClusteringAPI(unittest.TestCase):
 
     def test_regular(self):
 
-        clustering = [Louvain(), KMeans(embedding_method=GSVD(3))]
+        clustering = [Louvain(), KMeans(embedding_method=GSVD(3)), PropagationClustering()]
         for clustering_algo in clustering:
             for adjacency in [test_graph(), test_digraph()]:
                 n = adjacency.shape[0]
@@ -29,7 +29,8 @@ class TestClusteringAPI(unittest.TestCase):
         biadjacency = test_bigraph()
         n_row, n_col = biadjacency.shape
 
-        clustering = [BiLouvain(), BiKMeans(embedding_method=GSVD(3), co_cluster=True)]
+        clustering = [BiLouvain(), BiKMeans(embedding_method=GSVD(3), co_cluster=True),
+                      BiPropagationClustering()]
         for clustering_algo in clustering:
             clustering_algo.fit_transform(biadjacency)
             self.assertEqual(clustering_algo.labels_row_.shape, (n_row,))

@@ -14,6 +14,11 @@ Louvain
 
 .. autoclass:: sknetwork.clustering.BiLouvain
 
+Propagation
+-----------
+.. autoclass:: sknetwork.clustering.PropagationClustering
+
+.. autoclass:: sknetwork.clustering.BiPropagationClustering
 
 K-Means
 -------
