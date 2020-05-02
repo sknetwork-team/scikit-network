@@ -377,7 +377,7 @@ def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, metadata: 
     for i in range(n):
         for j in adjacency.rows[i]:
             if np.random.random() < prob:
-                node = np.random.choice(list(set(np.arange(n)) - set(adjacency.rows[i])))
+                node = np.random.choice(list(set(np.arange(n)) - set(adjacency.rows[i]) - set([i])))
                 adjacency[i, node] = 1
                 adjacency[node, i] = 1
                 adjacency[i, j] = 0
