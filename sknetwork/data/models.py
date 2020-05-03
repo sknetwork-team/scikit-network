@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Jul 1, 2019
+@author: Thomas Bonald <bonald@enst.fr>
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Nathan de Lara <ndelara@enst.fr>
 """
@@ -335,7 +336,7 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True) -> s
     adjacency = sparse.coo_matrix((np.ones_like(row), (row, col)), shape=(n, n))
     adjacency = sparse.csr_matrix(adjacency).astype(bool)
     if undirected:
-        adjacency = adjacency + adjacency.T
+        adjacency = directed2undirected(adjacency)
     return adjacency
 
 
