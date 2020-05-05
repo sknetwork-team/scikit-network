@@ -44,7 +44,7 @@ Once you have a copy of the source, you can install it with:
 
 .. code-block:: console
 
-    $ python setup.py install
+    $ python setup.py develop
 
 
 .. _Github repo: https://github.com/sknetwork-team/scikit-network
