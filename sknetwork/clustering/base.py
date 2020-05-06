@@ -49,6 +49,8 @@ class BaseClustering(Algorithm, ABC):
     def _secondary_outputs(self, adjacency):
         """Compute different variables from labels_."""
         if self.return_membership or self.return_aggregate:
+            if adjacency.data.dtype == 'bool':
+                adjacency = adjacency.astype(int)
             membership = membership_matrix(self.labels_)
             if self.return_membership:
                 self.membership_ = normalize(adjacency.dot(membership))
