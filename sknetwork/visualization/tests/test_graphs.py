@@ -30,7 +30,7 @@ class TestVisualization(unittest.TestCase):
                           node_size=5, node_size_min=2, node_size_max=6, display_node_weight=True,
                           node_weights=np.arange(n),
                           node_width=2, node_width_max=5, node_color='red', edge_width=2, edge_width_min=2,
-                          edge_width_max=4, edge_color='blue', edge_weight=True, font_size=14)
+                          edge_width_max=4, edge_color='blue', display_edge_weight=True, font_size=14)
         self.assertEqual(image[1:4], 'svg')
 
     def test_directed(self):
@@ -49,7 +49,7 @@ class TestVisualization(unittest.TestCase):
                             node_size=5, node_size_min=2, node_size_max=6, display_node_weight=True,
                             node_weights=np.arange(n),
                             node_width=2, node_width_max=5, node_color='red', edge_width=2, edge_width_min=2,
-                            edge_width_max=4, edge_color='blue', edge_weight=True, font_size=14)
+                            edge_width_max=4, edge_color='blue', display_edge_weight=True, font_size=14)
         self.assertEqual(image[1:4], 'svg')
 
     def test_bipartite(self):
@@ -72,7 +72,7 @@ class TestVisualization(unittest.TestCase):
                             width=200, height=200, margin=10, margin_text=5, scale=3, node_size=5,
                             node_size_min=1, node_size_max=30, node_weights_row=np.arange(n_row),
                             node_weights_col=np.arange(n_col), display_node_weight=True, node_width=2, node_width_max=5,
-                            edge_width=2, edge_width_min=0.3, edge_width_max=4, edge_color='red', edge_weight=True,
+                            edge_width=2, edge_width_min=0.3, edge_width_max=4, edge_color='red', display_edge_weight=True,
                             font_size=14)
         self.assertEqual(image[1:4], 'svg')
 
