@@ -21,7 +21,7 @@
 
 Python package for the analysis of large graphs:
 
-* Memory-efficient representation of graphs as sparse matrices in the CSR format of scipy_
+* Memory-efficient representation as sparse matrices in the CSR format of scipy_
 * Fast algorithms
 * Simple API inspired by scikit-learn_
 
