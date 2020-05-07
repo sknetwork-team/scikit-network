@@ -14,6 +14,7 @@ from scipy import sparse
 
 from sknetwork.utils import Bunch
 from sknetwork.utils.format import directed2undirected
+from sknetwork.utils.parse import edgelist2csr
 
 
 def block_model(sizes: np.ndarray, p_in: Union[float, list, np.ndarray] = .2, p_out: float = .05,
@@ -208,7 +209,7 @@ def cyclic_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
     adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(n, n))
 
     if metadata:
-        t = 2 * 3.14 * np.arange(n).astype(float) / n
+        t = 2 * pi * np.arange(n).astype(float) / n
         x = np.cos(t)
         y = np.sin(t)
         graph = Bunch()
@@ -275,19 +276,12 @@ def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr
     edges = [((i1, i2), (i1 + 1, i2)) for i1 in range(n1 - 1) for i2 in range(n2)]
     edges += [((i1, i2), (i1, i2 + 1)) for i1 in range(n1) for i2 in range(n2 - 1)]
     node_id = {u: i for i, u in enumerate(nodes)}
-    row = np.array([node_id[e[0]] for e in edges])
-    col = np.array([node_id[e[1]] for e in edges])
-    n = n1 * n2
-    adjacency = sparse.coo_matrix((np.ones_like(row), (row, col)), shape=(n, n))
-    adjacency = sparse.csr_matrix(adjacency)
-    adjacency = directed2undirected(adjacency)
+    edges = list(map(lambda edge: (node_id[edge[0]], node_id[edge[1]]), edges))
+    adjacency = edgelist2csr(edges, undirected=True)
     if metadata:
         graph = Bunch()
-        x = np.array([node[0] for node in nodes])
-        y = np.array([node[1] for node in nodes])
-        position = np.vstack((x, y)).T
         graph.adjacency = adjacency
-        graph.position = position
+        graph.position = np.array(nodes)
         return graph
     else:
         return adjacency
@@ -327,16 +321,11 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True) -> s
     degrees[:degree] = degree - 1
     edges = [(i, j) for i in range(degree) for j in range(i)]
     for i in range(degree, n):
-        neighbors = np.random.choice(np.arange(i), p=degrees[:i]/degrees.sum(), size=degree, replace=False)
+        neighbors = np.random.choice(i, p=degrees[:i]/degrees.sum(), size=degree, replace=False)
         degrees[neighbors] += 1
         degrees[i] = degree
         edges += [(i, j) for j in neighbors]
-    edges = np.array(edges)
-    row, col = edges[:, 0], edges[:, 1]
-    adjacency = sparse.csr_matrix((np.ones_like(row), (row, col)), shape=(n, n), dtype=bool)
-    if undirected:
-        adjacency = directed2undirected(adjacency)
-    return adjacency
+    return edgelist2csr(edges, undirected)
 
 
 def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, metadata: bool = False) \

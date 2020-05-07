@@ -18,6 +18,8 @@ class TestModels(unittest.TestCase):
             graph = model(n, metadata=True)
             self.assertEqual(adjacency.shape, (n, n))
             self.assertEqual(graph.adjacency.shape, (n, n))
+            if hasattr(graph, 'position'):
+                self.assertEqual(graph.position.shape, (n, 2))
 
         adjacency = erdos_renyie(n)
         self.assertEqual(adjacency.shape, (n, n))
@@ -25,13 +27,14 @@ class TestModels(unittest.TestCase):
         adjacency = albert_barabasi(n, 2)
         self.assertEqual(adjacency.shape, (n, n))
 
-        n1 = 4
-        n2 = 6
+        n1, n2 = 4, 6
         n = n1 * n2
         adjacency = grid(n1, n2)
         self.assertEqual(adjacency.shape, (n, n))
         graph = grid(n1, n2, metadata=True)
         self.assertEqual(graph.adjacency.shape, (n, n))
+        if hasattr(graph, 'position'):
+            self.assertEqual(graph.position.shape, (n, 2))
 
     def test_SBM(self):
         graph = block_model(np.array([4, 5, 6]), np.array([0.5, 0.3, 0.2]), 0.1, metadata=True)
