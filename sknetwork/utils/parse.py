@@ -18,7 +18,7 @@ def edgelist2adjacency(edgelist: list, undirected: bool = False) -> sparse.csr_m
     edgelist : list
         List of edges as pairs (i, j) or triplets (i, j, w) for weighted edges.
     undirected : bool
-        If true, return a symmetric adjacency.
+        If ``True``, return a symmetric adjacency.
 
     Returns
     -------
