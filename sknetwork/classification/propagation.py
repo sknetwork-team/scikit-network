@@ -31,11 +31,11 @@ class Propagation(BaseClassifier):
         Maximum number of iterations (-1 for infinity).
     node_order : str
         * `'random'`: node labels are updated in random order.
-        * `'increasing'`: node labels are updated by increasing order of weight.
-        * `'decreasing'`: node labels are updated by decreasing order of weight.
+        * `'increasing'`: node labels are updated by increasing order of (in-)weight.
+        * `'decreasing'`: node labels are updated by decreasing order of (in-)weight.
         * Otherwise, node labels are updated by index order.
     weighted : bool
-        If `True`, the vote of each neighbor is proportional to the edge weight.
+        If ``True``, the vote of each neighbor is proportional to the edge weight.
         Otherwise, all votes have weight 1.
 
     Attributes
@@ -110,10 +110,10 @@ class Propagation(BaseClassifier):
         if self.node_order == 'random':
             np.random.shuffle(index_remain)
         elif self.node_order == 'decreasing':
-            index = np.argsort(-adjacency.dot(np.ones(n))).astype(np.int32)
+            index = np.argsort(-adjacency.T.dot(np.ones(n))).astype(np.int32)
             index_remain = index[index_remain]
         elif self.node_order == 'increasing':
-            index = np.argsort(adjacency.dot(np.ones(n))).astype(np.int32)
+            index = np.argsort(adjacency.T.dot(np.ones(n))).astype(np.int32)
             index_remain = index[index_remain]
 
         labels = -np.ones(n, dtype=np.int32)
