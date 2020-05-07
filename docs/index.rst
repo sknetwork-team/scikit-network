@@ -15,6 +15,7 @@ Welcome to scikit-network's documentation!
    :maxdepth: 2
    :caption: Tutorials
 
+   tutorials/getting_started
    tutorials/data/index
    tutorials/clustering/index
    tutorials/hierarchy/index
