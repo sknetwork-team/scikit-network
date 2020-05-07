@@ -8,7 +8,9 @@ Various tools.
 Build adjacency
 ---------------
 
-.. autofunction:: sknetwork.utils.edgelist2csr
+.. autofunction:: sknetwork.utils.edgelist2adjacency
+
+.. autofunction:: sknetwork.utils.edgelist2biadjacency
 
 
 Graph formats

@@ -14,7 +14,7 @@ from scipy import sparse
 
 from sknetwork.utils import Bunch
 from sknetwork.utils.format import directed2undirected
-from sknetwork.utils.parse import edgelist2csr
+from sknetwork.utils.parse import edgelist2adjacency
 
 
 def block_model(sizes: np.ndarray, p_in: Union[float, list, np.ndarray] = .2, p_out: float = .05,
@@ -277,7 +277,7 @@ def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr
     edges += [((i1, i2), (i1, i2 + 1)) for i1 in range(n1) for i2 in range(n2 - 1)]
     node_id = {u: i for i, u in enumerate(nodes)}
     edges = list(map(lambda edge: (node_id[edge[0]], node_id[edge[1]]), edges))
-    adjacency = edgelist2csr(edges, undirected=True)
+    adjacency = edgelist2adjacency(edges, undirected=True)
     if metadata:
         graph = Bunch()
         graph.adjacency = adjacency
@@ -325,7 +325,7 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True) -> s
         degrees[neighbors] += 1
         degrees[i] = degree
         edges += [(i, j) for j in neighbors]
-    return edgelist2csr(edges, undirected)
+    return edgelist2adjacency(edges, undirected)
 
 
 def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, metadata: bool = False) \
