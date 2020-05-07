@@ -2,6 +2,15 @@
 History
 =======
 
+0.17.0 (2020-05-07)
+-------------------
+
+* Add clustering by label propagation
+* Add models
+* Add function to build graph from edge list
+* Change a parameter in SVG visualization functions
+* Minor corrections
+
 0.16.0 (2020-04-30)
 -------------------
 
