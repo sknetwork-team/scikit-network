@@ -5,7 +5,6 @@ Created on Dec 5, 2018
 @author: Quentin Lutz <qlutz@enst.fr>
 Nathan de Lara <ndelara@enst.fr>
 """
-
 from csv import reader
 from typing import Optional
 

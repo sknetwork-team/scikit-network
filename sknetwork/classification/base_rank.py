@@ -61,7 +61,6 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         -------
         List of seeds vectors.
         """
-
         seeds_all = []
         classes, _ = check_labels(labels_seeds)
 
@@ -83,7 +82,6 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         Returns
         -------
         scores: np.ndarray
-
         """
         return scores
 

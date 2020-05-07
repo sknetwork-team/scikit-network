@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 """
 Created on Jul 1, 2019
+@author: Thomas Bonald <bonald@enst.fr>
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
+from math import pi
 from typing import Union, Optional
 
 import numpy as np
@@ -13,6 +14,7 @@ from scipy import sparse
 
 from sknetwork.utils import Bunch
 from sknetwork.utils.format import directed2undirected
+from sknetwork.utils.parse import edgelist2adjacency
 
 
 def block_model(sizes: np.ndarray, p_in: Union[float, list, np.ndarray] = .2, p_out: float = .05,
@@ -56,7 +58,7 @@ def block_model(sizes: np.ndarray, p_in: Union[float, list, np.ndarray] = .2, p_
 
     if type(p_in) != np.ndarray:
         p_in = p_in * np.ones_like(sizes)
-    if p_in.min() < p_out:
+    if np.min(p_in) < p_out:
         raise ValueError('The probability of connection across blocks p_out must be less that the probability of '
                          'connection within a block p_in.')
 
@@ -207,7 +209,7 @@ def cyclic_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
     adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(n, n))
 
     if metadata:
-        t = 2 * 3.14 * np.arange(n).astype(float) / n
+        t = 2 * pi * np.arange(n).astype(float) / n
         x = np.cos(t)
         y = np.sin(t)
         graph = Bunch()
@@ -246,3 +248,138 @@ def cyclic_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix,
         return graph
     else:
         return graph.adjacency
+
+
+def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+    """Grid (undirected).
+
+    Parameters
+    ----------
+    n1, n2 : int
+        Grid dimension.
+    metadata : bool
+        If ``True``, return a `Bunch` object with metadata.
+
+    Returns
+    -------
+    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+        Adjacency matrix or graph with metadata (positions).
+
+    Example
+    -------
+    >>> from sknetwork.data import grid
+    >>> adjacency = grid(10, 5)
+    >>> adjacency.shape
+    (50, 50)
+    """
+    nodes = [(i1, i2) for i1 in range(n1) for i2 in range(n2)]
+    edges = [((i1, i2), (i1 + 1, i2)) for i1 in range(n1 - 1) for i2 in range(n2)]
+    edges += [((i1, i2), (i1, i2 + 1)) for i1 in range(n1) for i2 in range(n2 - 1)]
+    node_id = {u: i for i, u in enumerate(nodes)}
+    edges = list(map(lambda edge: (node_id[edge[0]], node_id[edge[1]]), edges))
+    adjacency = edgelist2adjacency(edges, undirected=True)
+    if metadata:
+        graph = Bunch()
+        graph.adjacency = adjacency
+        graph.position = np.array(nodes)
+        return graph
+    else:
+        return adjacency
+
+
+def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True) -> sparse.csr_matrix:
+    """Albert-Barabasi model.
+
+    Parameters
+    ----------
+    n : int
+        Number of nodes.
+    degree : int
+        Degree of incoming nodes (less than **n**).
+    undirected : bool
+        If ``True``, return an undirected graph.
+
+    Returns
+    -------
+    adjacency : sparse.csr_matrix
+        Adjacency matrix.
+
+    Example
+    -------
+    >>> from sknetwork.data import albert_barabasi
+    >>> adjacency = albert_barabasi(30, 3)
+    >>> adjacency.shape
+    (30, 30)
+
+    References
+    ----------
+    Albert, R., Barabási, L. (2002). `Statistical mechanics of complex networks
+    <https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.74.47>`
+    Reviews of Modern Physics.
+    """
+    degrees = np.zeros(n, int)
+    degrees[:degree] = degree - 1
+    edges = [(i, j) for i in range(degree) for j in range(i)]
+    for i in range(degree, n):
+        neighbors = np.random.choice(i, p=degrees[:i]/degrees.sum(), size=degree, replace=False)
+        degrees[neighbors] += 1
+        degrees[i] = degree
+        edges += [(i, j) for j in neighbors]
+    return edgelist2adjacency(edges, undirected)
+
+
+def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, metadata: bool = False) \
+    -> Union[sparse.csr_matrix, Bunch]:
+    """Watts-Strogatz model.
+
+    Parameters
+    ----------
+    n : int
+        Number of nodes.
+    degree : int
+        Initial degree of nodes.
+    prob : prob
+        Probability of edge modification.
+    metadata : bool
+        If ``True``, return a `Bunch` object with metadata.
+    Returns
+    -------
+    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+        Adjacency matrix or graph with metadata (positions).
+
+    Example
+    -------
+    >>> from sknetwork.data import watts_strogatz
+    >>> adjacency = watts_strogatz(30, 4, 0.02)
+    >>> adjacency.shape
+    (30, 30)
+
+    References
+    ----------
+    Watts, D., Strogatz, S. (1998). Collective dynamics of small-world networks, Nature.
+    """
+    edges = np.array([(i, (i + j + 1) % n) for i in range(n) for j in range(degree // 2)])
+    row, col = edges[:, 0], edges[:, 1]
+    adjacency = sparse.coo_matrix((np.ones_like(row, int), (row, col)), shape=(n, n))
+    adjacency = sparse.lil_matrix(adjacency + adjacency.T)
+    set_reference = set(np.arange(n))
+    for i in range(n):
+        candidates = list(set_reference - set(adjacency.rows[i]) - {i})
+        for j in adjacency.rows[i]:
+            if np.random.random() < prob:
+                node = np.random.choice(candidates)
+                adjacency[i, node] = 1
+                adjacency[node, i] = 1
+                adjacency[i, j] = 0
+                adjacency[j, i] = 0
+    adjacency = sparse.csr_matrix(adjacency)
+    if metadata:
+        t = 2 * pi * np.arange(n).astype(float) / n
+        x = np.cos(t)
+        y = np.sin(t)
+        graph = Bunch()
+        graph.adjacency = adjacency
+        graph.position = np.array((x, y)).T
+        return graph
+    else:
+        return adjacency

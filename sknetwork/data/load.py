@@ -111,6 +111,15 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[str] = None) 
             elif file_extension == 'p':
                 graph[file_name] = pickle.load(open(data_path + '/' + file, 'rb'))
 
+    if hasattr(graph, 'meta'):
+        if hasattr(graph.meta, 'name'):
+            pass
+        else:
+            graph.meta.name = dataset
+    else:
+        graph.meta = Bunch()
+        graph.meta.name = dataset
+
     return graph
 
 

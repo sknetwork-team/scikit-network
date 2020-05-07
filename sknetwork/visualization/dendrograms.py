@@ -77,7 +77,7 @@ def svg_dendrogram_top(dendrogram, names, width, height, margin, margin_text, sc
         l1 = label.pop(i)
         l2 = label.pop(j)
         if l1 == l2:
-            line_color = STANDARD_COLORS[l1]
+            line_color = STANDARD_COLORS[l1 % len(STANDARD_COLORS)]
         else:
             line_color = color
         x = .5 * (x1 + x2)
@@ -137,7 +137,7 @@ def svg_dendrogram_left(dendrogram, names, width, height, margin, margin_text, s
         l1 = label.pop(i)
         l2 = label.pop(j)
         if l1 == l2:
-            line_color = STANDARD_COLORS[l1]
+            line_color = STANDARD_COLORS[l1 % len(STANDARD_COLORS)]
         else:
             line_color = color
         y = .5 * (y1 + y2)

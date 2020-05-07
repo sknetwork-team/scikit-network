@@ -26,7 +26,6 @@ class BaseClustering(Algorithm, ABC):
     adjacency_ : sparse.csr_matrix
         Adjacency matrix between clusters.
     """
-
     def __init__(self, sort_clusters: bool = True, return_membership: bool = False, return_aggregate: bool = False):
         self.sort_clusters = sort_clusters
         self.return_membership = return_membership
@@ -50,6 +49,8 @@ class BaseClustering(Algorithm, ABC):
     def _secondary_outputs(self, adjacency):
         """Compute different variables from labels_."""
         if self.return_membership or self.return_aggregate:
+            if adjacency.data.dtype == 'bool':
+                adjacency = adjacency.astype(int)
             membership = membership_matrix(self.labels_)
             if self.return_membership:
                 self.membership_ = normalize(adjacency.dot(membership))

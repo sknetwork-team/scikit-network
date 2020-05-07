@@ -19,9 +19,17 @@
         :target: https://codecov.io/gh/sknetwork-team/scikit-network
 
 
-Python package inspired by scikit-learn_ for the analysis of large graphs.
+Python package for the analysis of large graphs:
 
+* Memory-efficient representation as sparse matrices in the CSR format of scipy_
+* Fast algorithms
+* Simple API inspired by scikit-learn_
+
+.. _scipy: https://www.scipy.org
 .. _scikit-learn: https://scikit-learn.org/
+
+Resources
+---------
 
 * Free software: BSD license
 * GitHub: https://github.com/sknetwork-team/scikit-network

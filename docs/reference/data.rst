@@ -33,9 +33,15 @@ Models
 
 .. autofunction:: sknetwork.data.cyclic_digraph
 
+.. autofunction:: sknetwork.data.grid
+
 .. autofunction:: sknetwork.data.erdos_renyie
 
 .. autofunction:: sknetwork.data.block_model
+
+.. autofunction:: sknetwork.data.albert_barabasi
+
+.. autofunction:: sknetwork.data.watts_strogatz
 
 Load
 ****
