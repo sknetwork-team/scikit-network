@@ -39,7 +39,7 @@ nose==1.3.7
 
 # main test packages
 pytest-runner==5.2
-pytest==5.4.1
+pytest==5.4.2
 pytest-cov==2.8.1
 
 # C++ code generator for performance speed-up
