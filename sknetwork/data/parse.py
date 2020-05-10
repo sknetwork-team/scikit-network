@@ -7,6 +7,8 @@ Nathan de Lara <ndelara@enst.fr>
 """
 from csv import reader
 from typing import Optional
+from xml.etree import ElementTree
+
 
 import numpy as np
 from scipy import sparse
@@ -176,3 +178,84 @@ def parse_metadata(file: str, delimiter: str = ': ') -> Bunch:
             key, value = parts[0], ': '.join(parts[1:]).strip('\n')
             metadata[key] = value
     return metadata
+
+
+def parse_graphml(file: str) -> Bunch:
+    # see http://graphml.graphdrawing.org/primer/graphml-primer.html
+    # and http://graphml.graphdrawing.org/specification/dtd.html#top
+    # hyperedges and nested graphs (graphs inside nodes or edges) are not supported
+    tree = ElementTree.parse(file)
+    optimizers = {'n_nodes': None, 'n_edges': None, 'order': 'none',
+                  'naming_nodes': True, 'max_out_degree': None, 'symetrize': None}
+    graph = None
+    for file_element in tree.getroot():
+        if file_element.tag == 'graph':
+            graph = file_element
+            try:
+                optimizers['symetrize'] = (graph.attrib['edgedefault'] == 'undirected')
+            except KeyError:
+                raise ValueError(f'{file} is an invalid GraphML file. edgedefault is unspecified.')
+            if 'parse.nodes' in graph.attrib:
+                optimizers['n_nodes'] = graph.attrib['parse.nodes']
+            else:
+                optimizers['n_nodes'] = len([node for node in graph if node.tag == 'node'])
+            if 'parse.edges' in graph.attrib:
+                optimizers['n_edges'] = graph.attrib['parse.edges']
+            else:
+                optimizers['n_edges'] = len([edge for edge in graph if edge.tag == 'edges'])
+            if 'parse.maxoutdegree' in graph.attrib:
+                optimizers['max_out_degree'] = graph.attrib['parse.maxoutdegree']
+            if 'parse.nodeids' in graph.attrib:
+                optimizers['naming_nodes'] = not (graph.attrib['parse.nodeids'] == 'canonical')
+            if 'parse.order' in graph.attrib:
+                optimizers['order'] = graph.attrib['parse.order']
+            break
+    if graph:
+        if optimizers['n_nodes'] and optimizers['n_edges'] and optimizers['order'] == 'nodesfirst':
+            # parse to CSR directly
+            raise NotImplementedError('Efficient to CSR parser not yet implemented')
+        elif optimizers['order'] == 'adjacencylist':
+            # parse to CSR directly
+            raise NotImplementedError('To CSR parser not yet implemented')
+        else:
+            # parse to LIL then CSR
+            raise NotImplementedError('To LIL parser not yet implemented')
+    else:
+        raise ValueError(f'No graph defined in {file}.')
+
+
+def parse_xml_to_csr(tree: ElementTree.ElementTree, optimizers: dict) -> Bunch:
+    data = Bunch()
+    for file_element in tree.getroot():
+        keys = {}
+        attribute_descriptions = {}
+        if file_element.tag == 'key':
+            attribute_name = file_element.attrib['attr.name']
+            attribute_type = java_type_to_python_type(file_element.attrib['attr.type'])
+            default_value = None
+            for key_element in file_element:
+                if key_element.tag == 'desc':
+                    attribute_descriptions[attribute_name] = key_element.text
+                elif key_element.tag == 'default':
+                    default_value = attribute_type(key_element.text)
+            if default_value:
+                data[attribute_name] = np.full(optimizers['n_nodes'], default_value, dtype=attribute_type)
+            else:
+                data[attribute_name] = np.zeros(optimizers['n_nodes'], dtype=attribute_type)
+            keys[file_element.attrib['id']] = [attribute_name, attribute_type, default_value]
+
+        elif file_element.tag == 'graph':
+            graph = file_element
+
+    pass
+
+
+def java_type_to_python_type(input: str) -> type:
+    if input == 'boolean':
+        return bool
+    elif input == 'int':
+        return int
+    elif input == 'string':
+        return str
+    elif input in ('long', 'float', 'double'):
+        return float
