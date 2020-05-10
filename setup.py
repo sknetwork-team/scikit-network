@@ -42,6 +42,7 @@ OPENMP_LINK_FLAG = '-fopenmp'
 # Check whether we're on OSX >= 10.10
 name = distutils.util.get_platform()
 if name.startswith("macosx-10"):
+    OPENMP_COMPILE_FLAG = '-lomp'
     OPENMP_LINK_FLAG = '-lomp'
     minor_version = int(name.split("-")[1].split(".")[1])
     if minor_version >= 7:
