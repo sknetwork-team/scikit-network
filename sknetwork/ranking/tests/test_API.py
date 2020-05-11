@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """tests for ranking API"""
-
 import unittest
 
 from sknetwork.ranking import *
@@ -11,7 +10,7 @@ from sknetwork.data.test_graphs import test_bigraph, test_graph, test_digraph
 class TestPageRank(unittest.TestCase):
 
     def test_basic(self):
-        methods = [PageRank(), Diffusion(), Closeness(), HITS(), Harmonic()]
+        methods = [PageRank(), Diffusion(), Closeness(), HITS(), Harmonic(), Katz()]
         for adjacency in [test_graph(), test_digraph()]:
             n = adjacency.shape[0]
             for method in methods:
@@ -23,7 +22,7 @@ class TestPageRank(unittest.TestCase):
         biadjacency = test_bigraph()
         n_row, n_col = biadjacency.shape
 
-        methods = [BiPageRank(), CoPageRank(), BiDiffusion(), HITS()]
+        methods = [BiPageRank(), CoPageRank(), BiDiffusion(), HITS(), BiKatz()]
         for method in methods:
             method.fit(biadjacency)
             scores_row = method.scores_row_

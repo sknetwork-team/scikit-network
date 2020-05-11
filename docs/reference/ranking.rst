@@ -21,6 +21,14 @@ Diffusion
 
 .. autoclass:: sknetwork.ranking.BiDiffusion
 
+Katz
+----
+.. autoclass:: sknetwork.ranking.Katz
+
+.. autoclass:: sknetwork.ranking.BiKatz
+
+.. autoclass:: sknetwork.ranking.CoKatz
+
 HITS
 ----
 .. autoclass:: sknetwork.ranking.HITS
