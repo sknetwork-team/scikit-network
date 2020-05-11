@@ -271,7 +271,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = Non
 
     # node sizes
     if node_weights is None:
-        node_weights = adjacency.dot(np.ones(n))
+        node_weights = adjacency.T.dot(np.ones(n))
     node_sizes = get_node_sizes(node_weights, node_size, node_size_min, node_size_max, display_node_weight)
 
     # node widths
@@ -372,7 +372,7 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = N
     node_size_max :
         Maximum size of a node.
     display_node_weight :
-        If ``True``, display node weights through node size.
+        If ``True``, display node in-weights through node size.
     node_weights :
         Node weights (used only if **display_node_weight** is ``True``).
     node_width :
