@@ -4,7 +4,6 @@
 Created on Mar, 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
 from typing import Optional, Union
 
 import numpy as np
@@ -25,13 +24,13 @@ class PageRankClassifier(RankClassifier):
     Parameters
     ----------
     damping_factor:
-        Damping factor for personalized PageRank.
+        Probability to continue the random walk.
     solver : :obj:`str`
-        Which solver to use: 'bicgstab', 'lanczos', 'lsqr' or 'halko'.
-        Otherwise, the random walk is emulated for a certain number of iterations.
+        Which solver to use: 'piteration', 'diteration', 'bicgstab', 'lanczos'.
     n_iter : int
-        If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
-        ``n_iter`` iterations.
+        Number of iterations for some of the solvers such as ``'piteration'`` or ``'diteration'``.
+    tol : float
+        Tolerance for the convergence of some solvers such as ``'bicgstab'`` or ``'lanczos'``.
 
     Attributes
     ----------
@@ -73,13 +72,13 @@ class BiPageRankClassifier(PageRankClassifier, RankBiClassifier):
     Parameters
     ----------
     damping_factor:
-        Damping factor for personalized PageRank.
-    solver : str
-        Which solver to use: 'spsolve', 'lanczos' (default), 'lsqr' or 'halko'.
-        Otherwise, the random walk is emulated for a certain number of iterations.
+        Probability to continue the random walk.
+    solver : :obj:`str`
+        Which solver to use: 'piteration', 'diteration', 'bicgstab', 'lanczos'.
     n_iter : int
-        If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
-        ``n_iter`` iterations.
+        Number of iterations for some of the solvers such as ``'piteration'`` or ``'diteration'``.
+    tol : float
+        Tolerance for the convergence of some solvers such as ``'bicgstab'`` or ``'lanczos'``.
 
     Attributes
     ----------
@@ -123,13 +122,13 @@ class CoPageRankClassifier(RankBiClassifier):
     Parameters
     ----------
     damping_factor:
-        Damping factor for personalized PageRank.
-    solver : str
-        Which solver to use: 'spsolve', 'lanczos' (default), 'lsqr' or 'halko'.
-        Otherwise, the random walk is emulated for a certain number of iterations.
+        Probability to continue the random walk.
+    solver : :obj:`str`
+        Which solver to use: 'piteration', 'diteration', 'bicgstab', 'lanczos'.
     n_iter : int
-        If ``solver`` is not one of the standard values, the pagerank is approximated by emulating the random walk for
-        ``n_iter`` iterations.
+        Number of iterations for some of the solvers such as ``'piteration'`` or ``'diteration'``.
+    tol : float
+        Tolerance for the convergence of some solvers such as ``'bicgstab'`` or ``'lanczos'``.
 
     Attributes
     ----------

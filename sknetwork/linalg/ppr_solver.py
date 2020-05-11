@@ -51,8 +51,27 @@ class RandomSurferOperator(LinearOperator):
 
 
 def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.ndarray, damping_factor: float,
-                 n_iter: int, tol: float = 0., solver: str = 'naive'):
-    """Solve the Pagerank problem.
+                 n_iter: int, tol: float = 0., solver: str = 'piteration'):
+    """Solve the Pagerank problem. Formally,
+
+    :math:`x = \\alpha Px + (1-\\alpha)y`,
+
+    where :math:`P = (D^{-1}A)^T` is the transition matrix and :math:`y` is the personalization probability vector.
+
+    Parameters
+    ----------
+    adjacency : sparse.csr_matrix
+        Adjacency matrix of the graph.
+    seeds : np.ndarray
+        Personalization array. Must be a valid probability vector.
+    damping_factor : float
+        Probability to continue the random walk.
+    n_iter : int
+        Number of iterations for some of the solvers such as ``'piteration'`` or ``'diteration'``.
+    tol : float
+        Tolerance for the convergence of some solvers such as ``'bicgstab'`` or ``'lanczos'``.
+    solver : :obj:`str`
+        Which solver to use: ``'piteration'``, ``'diteration'``, ``'bicgstab'``, ``'lanczos'``.
 
     References
     ----------
