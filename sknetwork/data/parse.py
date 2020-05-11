@@ -187,7 +187,7 @@ def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 
     tree = ElementTree.parse(file)
     optimizers = {'n_nodes': None, 'n_edges': None, 'order': 'none',
                   'naming_nodes': True, 'symetrize': None,
-                  'weighted': False, 'weight_type': None, 'weight_id': None}
+                  'weighted': False, 'weight_type': None, 'weight_id': None, 'nodes': [], 'edges': []}
     graph = None
     for file_element in tree.getroot():
         if file_element.tag.endswith('key'):
@@ -198,19 +198,29 @@ def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 
         elif file_element.tag.endswith('graph'):
             graph = file_element
             optimizers['symetrize'] = (graph.attrib['edgedefault'] == 'undirected')
+            if 'parse.order' in graph.attrib:
+                optimizers['order'] = graph.attrib['parse.order']
             if 'parse.nodes' in graph.attrib:
                 optimizers['n_nodes'] = graph.attrib['parse.nodes']
             else:
-                optimizers['n_nodes'] = len([node for node in graph if node.tag.endswith('node')])
+                if optimizers['order'] != 'adjacencylist':
+                    optimizers['nodes'] = [index for index, node in enumerate(graph) if node.tag.endswith('node')]
+                    optimizers['n_nodes'] = len(optimizers['nodes'])
+                else:
+                    optimizers['n_nodes'] = len([node for node in graph if node.tag.endswith('node')])
             if 'parse.edges' in graph.attrib:
                 optimizers['n_edges'] = graph.attrib['parse.edges']
             else:
                 count = 0
-                for edge in graph:
+                for index, edge in enumerate(graph):
                     if edge.tag.endswith('edge'):
+                        if optimizers['order'] != 'adjacencylist':
+                            optimizers['edges'].append(index)
                         if 'directed' in edge.attrib:
                             if edge.attrib['directed'] == 'true':
                                 count += 1
+                            else:
+                                count += 2
                         elif optimizers['symetrize']:
                             count += 2
                         else:
@@ -218,23 +228,18 @@ def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 
                 optimizers['n_edges'] = count
             if 'parse.nodeids' in graph.attrib:
                 optimizers['naming_nodes'] = not (graph.attrib['parse.nodeids'] == 'canonical')
-            if 'parse.order' in graph.attrib:
-                optimizers['order'] = graph.attrib['parse.order']
     if graph is not None:
-        if optimizers['order'] == 'nodesfirst':
-            # parse to LIL
-            return parse_xml_to_csr_nodes_first(tree, optimizers, weight_key, max_string_size)
-        elif optimizers['order'] == 'adjacencylist':
-            # parse to CSR directly
+        if optimizers['order'] == 'adjacencylist':
+            # efficient parse to CSR directly
             raise NotImplementedError('To CSR parser not yet implemented')
         else:
-            # parse to LIL then CSR
-            raise NotImplementedError('To LIL parser not yet implemented')
+            # parse to CSR
+            return parse_xml_to_csr(tree, optimizers, weight_key, max_string_size)
     else:
         raise ValueError(f'No graph defined in {file}.')
 
 
-def parse_xml_to_csr_nodes_first(tree: ElementTree.ElementTree, optimizers: dict,
+def parse_xml_to_csr(tree: ElementTree.ElementTree, optimizers: dict,
                                  weight_key: str, max_string_size: int) -> Bunch:
     data = Bunch()
     graph = None
@@ -303,37 +308,39 @@ def parse_xml_to_csr_nodes_first(tree: ElementTree.ElementTree, optimizers: dict
         data.names = np.zeros(optimizers['n_nodes'], dtype='<U512')
 
     node_map = {}
-    edge_index = -1
-    for index, graph_element in enumerate(graph):
-        # deal with nodes first
-        if 'node' in graph_element.tag:
-            if optimizers['naming_nodes']:
-                name = graph_element.attrib['id']
-                data.names[index] = name
-                node_map[name] = index
-            for node_attribute in graph_element:
-                if node_attribute.tag.endswith('data'):
-                    data.node_info[keys[node_attribute.attrib['key']][0]][index] = \
-                        keys[node_attribute.attrib['key']][1](node_attribute.text)
-        # deal with edges
-        if 'edge' in graph_element.tag:
-            edge_index += 1
-            if optimizers['naming_nodes']:
+    # deal with nodes first
+    for number, index in enumerate(optimizers['nodes']):
+        graph_element = graph[index]
+        if optimizers['naming_nodes']:
+            name = graph_element.attrib['id']
+            data.names[number] = name
+            node_map[name] = number
+        for node_attribute in graph_element:
+            if node_attribute.tag.endswith('data'):
+                data.node_info[keys[node_attribute.attrib['key']][0]][number] = \
+                    keys[node_attribute.attrib['key']][1](node_attribute.text)
+    # deal with edges
+    for number, index in enumerate(optimizers['edges']):
+        graph_element = graph[index]
+        if optimizers['naming_nodes']:
+            try:
                 node1 = node_map[graph_element.attrib['source']]
                 node2 = node_map[graph_element.attrib['target']]
-            else:
-                node1 = int(graph_element.attrib['source'][1:])
-                node2 = int(graph_element.attrib['target'][1:])
-            row[edge_index] = node1
-            col[edge_index] = node2
-            for edge_attribute in graph_element:
-                if edge_attribute.tag.endswith('data'):
-                    if edge_attribute.attrib['key'] == optimizers['weight_id']:
-                        dat[edge_index] = optimizers['weight_type'](edge_attribute.text)
-                    else:
-                        data.edge_info[keys[edge_attribute.attrib['key']][0]][edge_index] = \
-                            keys[edge_attribute.attrib['key']][1](edge_attribute.text)
-    data.adjacency = sparse.csr_matrix((dat, (row, col)))
+            except:
+                print(index, number, graph_element)
+        else:
+            node1 = int(graph_element.attrib['source'][1:])
+            node2 = int(graph_element.attrib['target'][1:])
+        row[number] = node1
+        col[number] = node2
+        for edge_attribute in graph_element:
+            if edge_attribute.tag.endswith('data'):
+                if edge_attribute.attrib['key'] == optimizers['weight_id']:
+                    dat[number] = optimizers['weight_type'](edge_attribute.text)
+                else:
+                    data.edge_info[keys[edge_attribute.attrib['key']][0]][number] = \
+                        keys[edge_attribute.attrib['key']][1](edge_attribute.text)
+    data.adjacency = sparse.csr_matrix((dat, (row, col)), shape=(optimizers['n_nodes'], optimizers['n_nodes']))
     return data
 
 
