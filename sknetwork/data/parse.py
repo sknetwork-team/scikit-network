@@ -180,40 +180,50 @@ def parse_metadata(file: str, delimiter: str = ': ') -> Bunch:
     return metadata
 
 
-def parse_graphml(file: str) -> Bunch:
+def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 512) -> Bunch:
     # see http://graphml.graphdrawing.org/primer/graphml-primer.html
     # and http://graphml.graphdrawing.org/specification/dtd.html#top
     # hyperedges and nested graphs (graphs inside nodes or edges) are not supported
     tree = ElementTree.parse(file)
     optimizers = {'n_nodes': None, 'n_edges': None, 'order': 'none',
-                  'naming_nodes': True, 'max_out_degree': None, 'symetrize': None}
+                  'naming_nodes': True, 'symetrize': None,
+                  'weighted': False, 'weight_type': None, 'weight_id': None}
     graph = None
     for file_element in tree.getroot():
-        if file_element.tag == 'graph':
+        if file_element.tag.endswith('key'):
+            if file_element.attrib['attr.name'] == weight_key:
+                optimizers['weighted'] = True
+                optimizers['weight_type'] = java_type_to_python_type(file_element.attrib['attr.type'])
+                optimizers['weight_id'] = file_element.attrib['id']
+        elif file_element.tag.endswith('graph'):
             graph = file_element
-            try:
-                optimizers['symetrize'] = (graph.attrib['edgedefault'] == 'undirected')
-            except KeyError:
-                raise ValueError(f'{file} is an invalid GraphML file. edgedefault is unspecified.')
+            optimizers['symetrize'] = (graph.attrib['edgedefault'] == 'undirected')
             if 'parse.nodes' in graph.attrib:
                 optimizers['n_nodes'] = graph.attrib['parse.nodes']
             else:
-                optimizers['n_nodes'] = len([node for node in graph if node.tag == 'node'])
+                optimizers['n_nodes'] = len([node for node in graph if node.tag.endswith('node')])
             if 'parse.edges' in graph.attrib:
                 optimizers['n_edges'] = graph.attrib['parse.edges']
             else:
-                optimizers['n_edges'] = len([edge for edge in graph if edge.tag == 'edges'])
-            if 'parse.maxoutdegree' in graph.attrib:
-                optimizers['max_out_degree'] = graph.attrib['parse.maxoutdegree']
+                count = 0
+                for edge in graph:
+                    if edge.tag.endswith('edge'):
+                        if 'directed' in edge.attrib:
+                            if edge.attrib['directed'] == 'true':
+                                count += 1
+                        elif optimizers['symetrize']:
+                            count += 2
+                        else:
+                            count += 1
+                optimizers['n_edges'] = count
             if 'parse.nodeids' in graph.attrib:
                 optimizers['naming_nodes'] = not (graph.attrib['parse.nodeids'] == 'canonical')
             if 'parse.order' in graph.attrib:
                 optimizers['order'] = graph.attrib['parse.order']
-            break
-    if graph:
-        if optimizers['n_nodes'] and optimizers['n_edges'] and optimizers['order'] == 'nodesfirst':
-            # parse to CSR directly
-            raise NotImplementedError('Efficient to CSR parser not yet implemented')
+    if graph is not None:
+        if optimizers['order'] == 'nodesfirst':
+            # parse to LIL
+            return parse_xml_to_csr_nodes_first(tree, optimizers, weight_key, max_string_size)
         elif optimizers['order'] == 'adjacencylist':
             # parse to CSR directly
             raise NotImplementedError('To CSR parser not yet implemented')
@@ -224,38 +234,115 @@ def parse_graphml(file: str) -> Bunch:
         raise ValueError(f'No graph defined in {file}.')
 
 
-def parse_xml_to_csr(tree: ElementTree.ElementTree, optimizers: dict) -> Bunch:
+def parse_xml_to_csr_nodes_first(tree: ElementTree.ElementTree, optimizers: dict,
+                                 weight_key: str, max_string_size: int) -> Bunch:
     data = Bunch()
+    graph = None
+    file_description = None
+    attribute_descriptions = Bunch()
+    attribute_descriptions.node = Bunch()
+    attribute_descriptions.edge = Bunch()
+    keys = {}
+    row = np.zeros(optimizers['n_edges'], dtype=int)
+    col = np.zeros(optimizers['n_edges'], dtype=int)
+    dat = np.ones(optimizers['n_edges'], dtype=optimizers['weight_type'])
     for file_element in tree.getroot():
-        keys = {}
-        attribute_descriptions = {}
-        if file_element.tag == 'key':
+        if file_element.tag.endswith('key'):
             attribute_name = file_element.attrib['attr.name']
-            attribute_type = java_type_to_python_type(file_element.attrib['attr.type'])
-            default_value = None
-            for key_element in file_element:
-                if key_element.tag == 'desc':
-                    attribute_descriptions[attribute_name] = key_element.text
-                elif key_element.tag == 'default':
-                    default_value = attribute_type(key_element.text)
-            if default_value:
-                data[attribute_name] = np.full(optimizers['n_nodes'], default_value, dtype=attribute_type)
-            else:
-                data[attribute_name] = np.zeros(optimizers['n_nodes'], dtype=attribute_type)
-            keys[file_element.attrib['id']] = [attribute_name, attribute_type, default_value]
-
-        elif file_element.tag == 'graph':
+            if attribute_name != weight_key:
+                attribute_type = java_type_to_python_type(file_element.attrib['attr.type'])
+                default_value = None
+                if file_element.attrib['for'] == 'node':
+                    size = optimizers['n_nodes']
+                    if 'node_info' not in data:
+                        data.node_info = Bunch()
+                    for key_element in file_element:
+                        if key_element.tag == 'desc':
+                            attribute_descriptions[attribute_name] = key_element.text
+                        elif key_element.tag == 'default':
+                            default_value = attribute_type(key_element.text)
+                    if attribute_type == str:
+                        local_type = '<U' + str(max_string_size)
+                    else:
+                        local_type = attribute_type
+                    if default_value:
+                        data.node_info[attribute_name] = np.full(size, default_value, dtype=local_type)
+                    else:
+                        data.node_info[attribute_name] = np.zeros(size, dtype=local_type)
+                elif file_element.attrib['for'] == 'edge':
+                    size = optimizers['n_edges']
+                    if 'edge_info' not in data:
+                        data.edge_info = Bunch()
+                    for key_element in file_element:
+                        if key_element.tag == 'desc':
+                            attribute_descriptions[attribute_name] = key_element.text
+                        elif key_element.tag == 'default':
+                            default_value = attribute_type(key_element.text)
+                    if attribute_type == str:
+                        local_type = '<U' + str(max_string_size)
+                    else:
+                        local_type = attribute_type
+                    if default_value:
+                        data.edge_info[attribute_name] = np.full(size, default_value, dtype=local_type)
+                    else:
+                        data.edge_info[attribute_name] = np.zeros(size, dtype=local_type)
+                keys[file_element.attrib['id']] = [attribute_name, attribute_type]
+        elif file_element.tag.endswith('desc'):
+            file_description = file_element.text
+        elif file_element.tag.endswith('graph'):
             graph = file_element
+    if file_description or attribute_descriptions.node or attribute_descriptions.edge:
+        data.meta = {}
+        if file_description:
+            data.meta['description'] = file_description
+        if attribute_descriptions.node or attribute_descriptions.edge:
+            data.meta['attributes'] = attribute_descriptions
 
-    pass
+    data.names = None
+    if optimizers['naming_nodes']:
+        data.names = np.zeros(optimizers['n_nodes'], dtype='<U512')
+
+    node_map = {}
+    edge_index = -1
+    for index, graph_element in enumerate(graph):
+        # deal with nodes first
+        if 'node' in graph_element.tag:
+            if optimizers['naming_nodes']:
+                name = graph_element.attrib['id']
+                data.names[index] = name
+                node_map[name] = index
+            for node_attribute in graph_element:
+                if node_attribute.tag.endswith('data'):
+                    data.node_info[keys[node_attribute.attrib['key']][0]][index] = \
+                        keys[node_attribute.attrib['key']][1](node_attribute.text)
+        # deal with edges
+        if 'edge' in graph_element.tag:
+            edge_index += 1
+            if optimizers['naming_nodes']:
+                node1 = node_map[graph_element.attrib['source']]
+                node2 = node_map[graph_element.attrib['target']]
+            else:
+                node1 = int(graph_element.attrib['source'][1:])
+                node2 = int(graph_element.attrib['target'][1:])
+            row[edge_index] = node1
+            col[edge_index] = node2
+            for edge_attribute in graph_element:
+                if edge_attribute.tag.endswith('data'):
+                    if edge_attribute.attrib['key'] == optimizers['weight_id']:
+                        dat[edge_index] = optimizers['weight_type'](edge_attribute.text)
+                    else:
+                        data.edge_info[keys[edge_attribute.attrib['key']][0]][edge_index] = \
+                            keys[edge_attribute.attrib['key']][1](edge_attribute.text)
+    data.adjacency = sparse.csr_matrix((dat, (row, col)))
+    return data
 
 
-def java_type_to_python_type(input: str) -> type:
-    if input == 'boolean':
+def java_type_to_python_type(value: str) -> type:
+    if value == 'boolean':
         return bool
-    elif input == 'int':
+    elif value == 'int':
         return int
-    elif input == 'string':
+    elif value == 'string':
         return str
-    elif input in ('long', 'float', 'double'):
+    elif value in ('long', 'float', 'double'):
         return float
