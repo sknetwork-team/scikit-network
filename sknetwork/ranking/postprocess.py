@@ -25,6 +25,6 @@ def top_k(scores: np.ndarray, k: int = 1):
 
     Notes
     -----
-    This is a naive implementation that sorts the entire array to find its top k elements.
+    This is a basic implementation that sorts the entire array to find its top k elements.
     """
     return np.argsort(-scores)[:k]
