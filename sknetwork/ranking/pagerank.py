@@ -35,9 +35,9 @@ class PageRank(BaseRanking, VerboseMixin):
     damping_factor : float
         Probability to continue the random walk.
     solver : str
-        * `naive`, emulate the random walk for a given number of iterations.
+        * `naive`, use power iteration for a given number of iterations.
         * `diteration`, use asynchronous parallel diffusion for a given number of iterations.
-        * `lanczos`, use eigensolver for a given tolerance.
+        * `lanczos`, use eigensolver with a given tolerance.
         * `bicgstab`, use Biconjugate Gradient Stabilized method for a given tolerance.
     n_iter : int
         Number of iterations for some solvers.
