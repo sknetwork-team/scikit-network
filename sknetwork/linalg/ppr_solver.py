@@ -51,7 +51,7 @@ class RandomSurferOperator(LinearOperator):
 
 
 def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.ndarray, damping_factor: float,
-                 n_iter: int, tol: float = 0., solver: str = 'piteration'):
+                 n_iter: int, tol: float = 0., solver: str = 'piteration') -> np.ndarray:
     """Solve the Pagerank problem. Formally,
 
     :math:`x = \\alpha Px + (1-\\alpha)y`,
@@ -72,6 +72,11 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         Tolerance for the convergence of some solvers such as ``'bicgstab'`` or ``'lanczos'``.
     solver : :obj:`str`
         Which solver to use: ``'piteration'``, ``'diteration'``, ``'bicgstab'``, ``'lanczos'``.
+
+    Returns
+    -------
+    pagerank : np.ndarray
+        Probability vector.
 
     References
     ----------
