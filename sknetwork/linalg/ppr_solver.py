@@ -78,6 +78,16 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
     pagerank : np.ndarray
         Probability vector.
 
+    Examples
+    --------
+    >>> from sknetwork.data import house
+    >>> adjacency = house()
+    >>> seeds = np.array([1, 0, 0, 0, 0])
+    >>> scores = get_pagerank(adjacency, seeds, damping_factor=0.85, n_iter=10)
+    >>> np.round(scores, 2)
+    array([0.29, 0.24, 0.12, 0.12, 0.24])
+
+
     References
     ----------
     * Hong, D. (2012). `Optimized on-line computation of pagerank algorithm.
