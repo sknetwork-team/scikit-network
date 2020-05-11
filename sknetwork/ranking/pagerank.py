@@ -113,7 +113,7 @@ class BiPageRank(PageRank, BaseBiRanking):
     damping_factor : float
         Probability to continue the random walk.
     solver : str
-        * `naive`, emulate the random walk for a given number of iterations.
+        * `naive`, use power iteration for a given number of iterations.
         * `diteration`, use asynchronous parallel diffusion for a given number of iterations.
         * `lanczos`, use eigensolver for a given tolerance.
         * `bicgstab`, use Biconjugate Gradient Stabilized method for a given tolerance.
@@ -191,7 +191,7 @@ class CoPageRank(BiPageRank):
     damping_factor : float
         Probability to continue the random walk.
     solver : str
-        * `naive`, emulate the random walk for a given number of iterations.
+        * `naive`, use power iteration for a given number of iterations.
         * `lanczos`, use eigensolver for a given tolerance.
         * `bicgstab`, use Biconjugate Gradient Stabilized method for a given tolerance.
     n_iter : int
