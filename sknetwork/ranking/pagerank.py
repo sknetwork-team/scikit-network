@@ -35,7 +35,7 @@ class PageRank(BaseRanking, VerboseMixin):
     damping_factor : float
         Probability to continue the random walk.
     solver : str
-        * `naive`, use power iteration for a given number of iterations.
+        * `piteration`, use power iteration for a given number of iterations.
         * `diteration`, use asynchronous parallel diffusion for a given number of iterations.
         * `lanczos`, use eigensolver with a given tolerance.
         * `bicgstab`, use Biconjugate Gradient Stabilized method for a given tolerance.
@@ -65,7 +65,7 @@ class PageRank(BaseRanking, VerboseMixin):
     Page, L., Brin, S., Motwani, R., & Winograd, T. (1999). The PageRank citation ranking: Bringing order to the web.
     Stanford InfoLab.
     """
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'naive', n_iter: int = 10, tol: float = 0):
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'piteration', n_iter: int = 10, tol: float = 0):
         super(PageRank, self).__init__()
 
         if damping_factor < 0 or damping_factor >= 1:
@@ -142,7 +142,7 @@ class BiPageRank(PageRank, BaseBiRanking):
     >>> np.round(scores, 2)
     array([0.45, 0.11, 0.28, 0.17])
     """
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'naive', n_iter: int = 10, tol: float = 0):
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'piteration', n_iter: int = 10, tol: float = 0):
         super(BiPageRank, self).__init__(damping_factor, solver, n_iter, tol)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
@@ -219,7 +219,7 @@ class CoPageRank(BiPageRank):
     >>> np.round(scores, 2)
     array([0.38, 0.12, 0.31, 0.2 ])
     """
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'naive', n_iter: int = 10, tol: float = 0):
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'piteration', n_iter: int = 10, tol: float = 0):
         super(CoPageRank, self).__init__(damping_factor, solver, n_iter, tol)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],

@@ -92,7 +92,7 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         elif solver == 'lanczos':
             # noinspection PyTypeChecker
             _, scores = sparse.linalg.eigs(rso, k=1, tol=tol, v0=v0)
-        elif solver == 'naive':
+        elif solver == 'piteration':
             scores = v0
             for i in range(n_iter):
                 scores = rso.dot(scores)
