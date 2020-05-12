@@ -6,3 +6,4 @@ Ranking
 
    pagerank
    diffusion
+   katz
