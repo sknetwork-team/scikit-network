@@ -20,3 +20,11 @@ class TestLouvainHierarchy(unittest.TestCase):
         dendrogram = louvain.fit_transform(adjacency)
         n = adjacency.shape[0]
         self.assertEqual(dendrogram.shape, (n - 1, 4))
+
+        louvain = LouvainHierarchy(depth=1)
+        adjacency = test_graph()
+        dendrogram = louvain.fit_transform(adjacency)
+        n = adjacency.shape[0]
+        self.assertEqual(dendrogram.shape, (n - 1, 4))
+        self.assertEqual(dendrogram[:, 2].max(), 1)
+
