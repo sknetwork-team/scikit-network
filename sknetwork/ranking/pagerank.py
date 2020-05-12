@@ -5,7 +5,6 @@ Created on May 31 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
-
 from typing import Union, Optional
 
 import numpy as np

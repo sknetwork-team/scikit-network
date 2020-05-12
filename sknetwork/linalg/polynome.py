@@ -47,7 +47,8 @@ class Polynome(LinearOperator):
     def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], coeffs: np.ndarray):
         if coeffs.shape[0] == 0:
             raise ValueError('A polynome requires at least one coefficient.')
-        adjacency = check_format(adjacency)
+        if not isinstance(adjacency, LinearOperator):
+            adjacency = check_format(adjacency)
         check_square(adjacency)
         shape = adjacency.shape
         dtype = adjacency.dtype
