@@ -204,6 +204,7 @@ def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 
     tree = ElementTree.parse(file)
     n_nodes = None
     n_edges = None
+    symmetrize = None
     naming_nodes = True
     default_weight = 1
     weight_type = bool
@@ -312,33 +313,52 @@ def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 
         node_map = {}
         # deal with nodes first
         for number, index in enumerate(node_indices):
-            graph_element = graph[index]
+            node = graph[index]
             if naming_nodes:
-                name = graph_element.attrib['id']
+                name = node.attrib['id']
                 data.names[number] = name
                 node_map[name] = number
-            for node_attribute in graph_element:
+            for node_attribute in node:
                 if node_attribute.tag.endswith('data'):
                     data.node_info[keys[node_attribute.attrib['key']][0]][number] = \
                         keys[node_attribute.attrib['key']][1](node_attribute.text)
         # deal with edges
-        for number, index in enumerate(edge_indices):
-            graph_element = graph[index]
+        edge_index = -1
+        for index in edge_indices:
+            edge_index += 1
+            duplicate = False
+            edge = graph[index]
             if naming_nodes:
-                node1 = node_map[graph_element.attrib['source']]
-                node2 = node_map[graph_element.attrib['target']]
+                node1 = node_map[edge.attrib['source']]
+                node2 = node_map[edge.attrib['target']]
             else:
-                node1 = int(graph_element.attrib['source'][1:])
-                node2 = int(graph_element.attrib['target'][1:])
-            row[number] = node1
-            col[number] = node2
-            for edge_attribute in graph_element:
+                node1 = int(edge.attrib['source'][1:])
+                node2 = int(edge.attrib['target'][1:])
+            row[edge_index] = node1
+            col[edge_index] = node2
+            for edge_attribute in edge:
                 if edge_attribute.tag.endswith('data'):
                     if edge_attribute.attrib['key'] == weight_id:
-                        dat[number] = weight_type(edge_attribute.text)
+                        dat[edge_index] = weight_type(edge_attribute.text)
                     else:
-                        data.edge_info[keys[edge_attribute.attrib['key']][0]][number] = \
+                        data.edge_info[keys[edge_attribute.attrib['key']][0]][edge_index] = \
                             keys[edge_attribute.attrib['key']][1](edge_attribute.text)
+            if 'directed' in edge.attrib:
+                if edge.attrib['directed'] != 'true':
+                    duplicate = True
+            elif symmetrize:
+                duplicate = True
+            if duplicate:
+                edge_index += 1
+                row[edge_index] = node2
+                col[edge_index] = node1
+                for edge_attribute in edge:
+                    if edge_attribute.tag.endswith('data'):
+                        if edge_attribute.attrib['key'] == weight_id:
+                            dat[edge_index] = weight_type(edge_attribute.text)
+                        else:
+                            data.edge_info[keys[edge_attribute.attrib['key']][0]][edge_index] = \
+                                keys[edge_attribute.attrib['key']][1](edge_attribute.text)
         data.adjacency = sparse.csr_matrix((dat, (row, col)), shape=(n_nodes, n_nodes))
         return data
     else:

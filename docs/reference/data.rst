@@ -57,6 +57,8 @@ You can find some datasets on NetRep_.
 
 .. autofunction:: sknetwork.data.parse_tsv
 
+.. autofunction:: sknetwork.data.parse_graphml
+
 .. _NetRep: http://networkrepository.com/
 
 Save

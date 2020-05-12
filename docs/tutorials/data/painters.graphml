@@ -1,0 +1,167 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d0" for="edge" attr.name="weight" attr.type="int"/>
+<graph edgedefault="directed"><node id="Claude Monet"/>
+<node id="Edgar Degas"/>
+<node id="Edouard Manet"/>
+<node id="Egon Schiele"/>
+<node id="Gustav Klimt"/>
+<node id="Henri Matisse"/>
+<node id="Leonardo da Vinci"/>
+<node id="Michelangelo"/>
+<node id="Pablo Picasso"/>
+<node id="Paul Cezanne"/>
+<node id="Peter Paul Rubens"/>
+<node id="Pierre-Auguste Renoir"/>
+<node id="Rembrandt"/>
+<node id="Vincent van Gogh"/>
+<edge source="Claude Monet" target="Edouard Manet">
+  <data key="d0">1</data>
+</edge>
+<edge source="Claude Monet" target="Pierre-Auguste Renoir">
+  <data key="d0">1</data>
+</edge>
+<edge source="Edgar Degas" target="Claude Monet">
+  <data key="d0">1</data>
+</edge>
+<edge source="Edgar Degas" target="Edouard Manet">
+  <data key="d0">1</data>
+</edge>
+<edge source="Edgar Degas" target="Michelangelo">
+  <data key="d0">1</data>
+</edge>
+<edge source="Edgar Degas" target="Paul Cezanne">
+  <data key="d0">1</data>
+</edge>
+<edge source="Edgar Degas" target="Pierre-Auguste Renoir">
+  <data key="d0">1</data>
+</edge>
+<edge source="Edgar Degas" target="Vincent van Gogh">
+  <data key="d0">1</data>
+</edge>
+<edge source="Edouard Manet" target="Claude Monet">
+  <data key="d0">1</data>
+</edge>
+<edge source="Edouard Manet" target="Edgar Degas">
+  <data key="d0">1</data>
+</edge>
+<edge source="Edouard Manet" target="Pablo Picasso">
+  <data key="d0">1</data>
+</edge>
+<edge source="Edouard Manet" target="Paul Cezanne">
+  <data key="d0">1</data>
+</edge>
+<edge source="Edouard Manet" target="Pierre-Auguste Renoir">
+  <data key="d0">1</data>
+</edge>
+<edge source="Egon Schiele" target="Gustav Klimt">
+  <data key="d0">1</data>
+</edge>
+<edge source="Egon Schiele" target="Vincent van Gogh">
+  <data key="d0">1</data>
+</edge>
+<edge source="Gustav Klimt" target="Egon Schiele">
+  <data key="d0">1</data>
+</edge>
+<edge source="Gustav Klimt" target="Pablo Picasso">
+  <data key="d0">1</data>
+</edge>
+<edge source="Henri Matisse" target="Edouard Manet">
+  <data key="d0">1</data>
+</edge>
+<edge source="Henri Matisse" target="Pablo Picasso">
+  <data key="d0">1</data>
+</edge>
+<edge source="Henri Matisse" target="Paul Cezanne">
+  <data key="d0">1</data>
+</edge>
+<edge source="Henri Matisse" target="Pierre-Auguste Renoir">
+  <data key="d0">1</data>
+</edge>
+<edge source="Henri Matisse" target="Vincent van Gogh">
+  <data key="d0">1</data>
+</edge>
+<edge source="Leonardo da Vinci" target="Michelangelo">
+  <data key="d0">1</data>
+</edge>
+<edge source="Leonardo da Vinci" target="Peter Paul Rubens">
+  <data key="d0">1</data>
+</edge>
+<edge source="Michelangelo" target="Leonardo da Vinci">
+  <data key="d0">1</data>
+</edge>
+<edge source="Pablo Picasso" target="Edouard Manet">
+  <data key="d0">1</data>
+</edge>
+<edge source="Pablo Picasso" target="Henri Matisse">
+  <data key="d0">1</data>
+</edge>
+<edge source="Paul Cezanne" target="Claude Monet">
+  <data key="d0">1</data>
+</edge>
+<edge source="Paul Cezanne" target="Edouard Manet">
+  <data key="d0">1</data>
+</edge>
+<edge source="Paul Cezanne" target="Henri Matisse">
+  <data key="d0">1</data>
+</edge>
+<edge source="Paul Cezanne" target="Pablo Picasso">
+  <data key="d0">1</data>
+</edge>
+<edge source="Paul Cezanne" target="Pierre-Auguste Renoir">
+  <data key="d0">1</data>
+</edge>
+<edge source="Peter Paul Rubens" target="Leonardo da Vinci">
+  <data key="d0">1</data>
+</edge>
+<edge source="Peter Paul Rubens" target="Michelangelo">
+  <data key="d0">1</data>
+</edge>
+<edge source="Peter Paul Rubens" target="Rembrandt">
+  <data key="d0">1</data>
+</edge>
+<edge source="Pierre-Auguste Renoir" target="Claude Monet">
+  <data key="d0">1</data>
+</edge>
+<edge source="Pierre-Auguste Renoir" target="Edgar Degas">
+  <data key="d0">1</data>
+</edge>
+<edge source="Pierre-Auguste Renoir" target="Edouard Manet">
+  <data key="d0">1</data>
+</edge>
+<edge source="Pierre-Auguste Renoir" target="Peter Paul Rubens">
+  <data key="d0">1</data>
+</edge>
+<edge source="Rembrandt" target="Leonardo da Vinci">
+  <data key="d0">1</data>
+</edge>
+<edge source="Rembrandt" target="Michelangelo">
+  <data key="d0">1</data>
+</edge>
+<edge source="Rembrandt" target="Peter Paul Rubens">
+  <data key="d0">1</data>
+</edge>
+<edge source="Rembrandt" target="Vincent van Gogh">
+  <data key="d0">1</data>
+</edge>
+<edge source="Vincent van Gogh" target="Claude Monet">
+  <data key="d0">1</data>
+</edge>
+<edge source="Vincent van Gogh" target="Edgar Degas">
+  <data key="d0">1</data>
+</edge>
+<edge source="Vincent van Gogh" target="Henri Matisse">
+  <data key="d0">1</data>
+</edge>
+<edge source="Vincent van Gogh" target="Pablo Picasso">
+  <data key="d0">1</data>
+</edge>
+<edge source="Vincent van Gogh" target="Paul Cezanne">
+  <data key="d0">1</data>
+</edge>
+<edge source="Vincent van Gogh" target="Peter Paul Rubens">
+  <data key="d0">1</data>
+</edge>
+<edge source="Vincent van Gogh" target="Rembrandt">
+  <data key="d0">1</data>
+</edge>
+</graph></graphml>

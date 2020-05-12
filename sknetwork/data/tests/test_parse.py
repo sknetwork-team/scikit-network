@@ -8,7 +8,7 @@ from os import remove
 from sknetwork.data import parse
 
 
-class TestTSVParser(unittest.TestCase):
+class TestParser(unittest.TestCase):
 
     def test_unlabeled_unweighted(self):
         self.stub_data_1 = 'stub_1.txt'
@@ -53,3 +53,27 @@ class TestTSVParser(unittest.TestCase):
             text_file.write('%stub\n1 3 a\n4 5 b\n0 2 e')
         self.assertRaises(ValueError, parse.parse_tsv, self.stub_data_3)
         remove(self.stub_data_3)
+
+    def test_graphml(self):
+        self.stub_data_5 = 'stub_5.graphml'
+        with open(self.stub_data_5, "w") as graphml_file:
+            graphml_file.write("""<?xml version='1.0' encoding='utf-8'?>
+                                    <graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+                                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                    xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+                                    http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+                                    <key id="d0" for="edge" attr.name="weight" attr.type="int"/>
+                                    <graph edgedefault="directed">
+                                    <node id="node1"/>
+                                    <node id="node2"/>
+                                    <edge source="node1" target="node2">
+                                      <data key="d0">1</data>
+                                    </edge></graph></graphml>""")
+        graph = parse.parse_graphml(self.stub_data_5)
+        adjacency = graph.adjacency
+        names = graph.names
+        self.assertEqual(sum(adjacency.indices == [1]), 1)
+        self.assertEqual(sum(adjacency.indptr == [0, 1, 1]), 3)
+        self.assertEqual(sum(adjacency.data == [1]), 1)
+        self.assertEqual(sum(names == ['node1', 'node2']), 2)
+        remove(self.stub_data_5)
