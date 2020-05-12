@@ -35,7 +35,8 @@ class Katz(BaseRanking):
     --------
     >>> from sknetwork.data.toy_graphs import house
     >>> adjacency = house()
-    >>> scores = Katz().fit_transform(adjacency)
+    >>> katz = Katz()
+    >>> scores = katz.fit_transform(adjacency)
     >>> np.round(scores, 2)
     array([6.5 , 8.25, 5.62, 5.62, 8.25])
 
@@ -88,7 +89,8 @@ class BiKatz(Katz, BaseBiRanking):
     --------
     >>> from sknetwork.data.toy_graphs import star_wars
     >>> biadjacency = star_wars()
-    >>> scores = BiKatz().fit_transform(biadjacency)
+    >>> bikatz = BiKatz()
+    >>> scores = bikatz.fit_transform(biadjacency)
     >>> np.round(scores, 2)
     array([6.38, 3.06, 8.81, 5.75])
 
