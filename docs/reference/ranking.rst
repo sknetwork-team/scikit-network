@@ -27,7 +27,6 @@ Katz
 
 .. autoclass:: sknetwork.ranking.BiKatz
 
-.. autoclass:: sknetwork.ranking.CoKatz
 
 HITS
 ----

@@ -10,7 +10,6 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 
-from sknetwork.linalg.operators import CoNeighborsOperator
 from sknetwork.linalg.polynome import Polynome
 from sknetwork.ranking.base import BaseRanking, BaseBiRanking
 from sknetwork.utils.check import check_format
@@ -20,17 +19,17 @@ from sknetwork.utils.format import bipartite2undirected
 class Katz(BaseRanking):
     """Katz centrality:
 
-    :math:`x_i = \\sum_{k=1}^K\\sum_j \\alpha^k(A^k)_{ij}`.
+    :math:`x = \\sum_{k=1}^K\\alpha^k(A^k)^T\\mathbf{1}`.
 
     * Graphs
     * Digraphs
 
     Parameters
     ----------
-    alpha : float
+    damping_factor : float
         Decay parameter for path contributions. Should be less than the spectral radius of the adjacency.
-    max_lenght : int
-        Maximum lenght of the paths to take into account.
+    path_length : int
+        Maximum length of the paths to take into account.
 
     Examples
     --------
@@ -45,10 +44,10 @@ class Katz(BaseRanking):
     Katz, L. (1953). `A new status index derived from sociometric analysis
     <https://link.springer.com/content/pdf/10.1007/BF02289026.pdf>`_. Psychometrika, 18(1), 39-43.
     """
-    def __init__(self, alpha: float = 0.5, max_lenght: int = 4):
+    def __init__(self, damping_factor: float = 0.5, path_length: int = 4):
         super(Katz, self).__init__()
-        self.alpha = alpha
-        self.max_lenght = max_lenght
+        self.damping_factor = damping_factor
+        self.path_length = path_length
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray, LinearOperator]) -> 'Katz':
         """Katz centrality.
@@ -65,9 +64,9 @@ class Katz(BaseRanking):
         if not isinstance(adjacency, LinearOperator):
             adjacency = check_format(adjacency)
         n = adjacency.shape[0]
-        coeffs = self.alpha ** np.arange(self.max_lenght + 1)
+        coeffs = self.damping_factor ** np.arange(self.path_length + 1)
         coeffs[0] = 0.
-        polynome = Polynome(adjacency, coeffs)
+        polynome = Polynome(adjacency.T.astype(bool).tocsr(), coeffs)
 
         self.scores_ = polynome.dot(np.ones(n))
         return self
@@ -80,9 +79,9 @@ class BiKatz(Katz, BaseBiRanking):
 
     Parameters
     ----------
-    alpha : float
-        Decay parameter for path contributions. Should be less than the spectral radius of the adjacency.
-    max_lenght : int
+    damping_factor : float
+        Decay parameter for path contributions.
+    path_length : int
         Maximum lenght of the paths to take into account.
 
     Examples
@@ -98,8 +97,8 @@ class BiKatz(Katz, BaseBiRanking):
     Katz, L. (1953). `A new status index derived from sociometric analysis
     <https://link.springer.com/content/pdf/10.1007/BF02289026.pdf>`_. Psychometrika, 18(1), 39-43.
     """
-    def __init__(self, alpha: float = 0.5, max_lenght: int = 4):
-        super(BiKatz, self).__init__(alpha=alpha, max_lenght=max_lenght)
+    def __init__(self, damping_factor: float = 0.5, path_length: int = 4):
+        super(BiKatz, self).__init__(damping_factor=damping_factor, path_length=path_length)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiKatz':
         """Katz centrality.
@@ -119,59 +118,4 @@ class BiKatz(Katz, BaseBiRanking):
 
         Katz.fit(self, adjacency)
         self._split_vars(n_row)
-        return self
-
-
-class CoKatz(Katz, BaseBiRanking):
-    """Katz centrality on the normalized :term:`co-neighbors` graph.
-
-    * Graphs
-    * Digraphs
-    * Bigraphs
-
-    Parameters
-    ----------
-    alpha : float
-        Decay parameter for path contributions. Should be less than the spectral radius of the adjacency.
-    max_lenght : int
-        Maximum lenght of the paths to take into account.
-
-    Examples
-    --------
-    >>> from sknetwork.data.toy_graphs import star_wars
-    >>> biadjacency = star_wars()
-    >>> scores = CoKatz().fit_transform(biadjacency)
-    >>> np.round(scores, 2)
-    array([4.68, 2.17, 7.37, 5.2 ])
-
-    References
-    ----------
-    Katz, L. (1953). `A new status index derived from sociometric analysis
-    <https://link.springer.com/content/pdf/10.1007/BF02289026.pdf>`_. Psychometrika, 18(1), 39-43.
-    """
-    def __init__(self, alpha: float = 0.5, max_lenght: int = 4):
-        super(CoKatz, self).__init__(alpha=alpha, max_lenght=max_lenght)
-
-    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'CoKatz':
-        """Katz centrality.
-
-        Parameters
-        ----------
-        biadjacency :
-            Adjacency or biadjacency matrix of the graph.
-
-        Returns
-        -------
-        self: :class:`CoKatz`
-        """
-        katz = Katz(self.alpha, self.max_lenght)
-        adjacency = CoNeighborsOperator(biadjacency)
-        scores_row = katz.fit_transform(adjacency)
-
-        adjacency = CoNeighborsOperator(biadjacency.T.tocsr())
-        scores_col = katz.fit_transform(adjacency)
-
-        self.scores_ = scores_row
-        self.scores_row_ = scores_row
-        self.scores_col_ = scores_col
         return self
