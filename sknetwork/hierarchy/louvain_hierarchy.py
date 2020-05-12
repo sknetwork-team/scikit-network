@@ -71,7 +71,7 @@ class LouvainHierarchy(BaseHierarchy):
     scipy.cluster.hierarchy.dendrogram
     """
 
-    def __init__(self, depth: int = 4, resolution: float = 1, tol_optimization: float = 1e-3,
+    def __init__(self, depth: int = 3, resolution: float = 1, tol_optimization: float = 1e-3,
                  tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
                  random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
         super(LouvainHierarchy, self).__init__()
