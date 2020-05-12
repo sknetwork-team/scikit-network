@@ -50,5 +50,9 @@ Miscellaneous
 
 .. autofunction:: sknetwork.utils.membership_matrix
 
+.. autofunction:: sknetwork.utils.projection_simplex
 
+.. autofunction:: sknetwork.utils.projection_simplex_array
+
+.. autofunction:: sknetwork.utils.projection_simplex_csr
 

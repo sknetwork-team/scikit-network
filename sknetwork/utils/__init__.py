@@ -5,7 +5,7 @@ from sknetwork.utils.kmeans import KMeansDense
 from sknetwork.utils.knn import KNNDense, PNNDense
 from sknetwork.utils.membership import membership_matrix
 from sknetwork.utils.parse import edgelist2adjacency, edgelist2biadjacency
-from sknetwork.utils.simplex import projection_simplex
+from sknetwork.utils.simplex import projection_simplex, projection_simplex_array, projection_simplex_csr
 from sknetwork.utils.ward import WardDense
 
 
