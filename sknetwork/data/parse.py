@@ -202,8 +202,8 @@ def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 
     # see http://graphml.graphdrawing.org/primer/graphml-primer.html
     # and http://graphml.graphdrawing.org/specification/dtd.html#top
     tree = ElementTree.parse(file)
-    n_nodes = None
-    n_edges = None
+    n_nodes = 0
+    n_edges = 0
     symmetrize = None
     naming_nodes = True
     default_weight = 1
@@ -223,28 +223,21 @@ def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 
         if file_element.tag.endswith('graph'):
             graph = file_element
             symmetrize = (graph.attrib['edgedefault'] == 'undirected')
-            if 'parse.nodes' in graph.attrib:
-                n_nodes = graph.attrib['parse.nodes']
-            else:
-                node_indices = [index for index, node in enumerate(graph) if node.tag.endswith('node')]
-                n_nodes = len(node_indices)
-            if 'parse.edges' in graph.attrib:
-                n_edges = graph.attrib['parse.edges']
-            else:
-                count = 0
-                for index, edge in enumerate(graph):
-                    if edge.tag.endswith('edge'):
-                        edge_indices.append(index)
-                        if 'directed' in edge.attrib:
-                            if edge.attrib['directed'] == 'true':
-                                count += 1
-                            else:
-                                count += 2
-                        elif symmetrize:
-                            count += 2
+            for index, element in enumerate(graph):
+                if element.tag.endswith('node'):
+                    node_indices.append(index)
+                    n_nodes += 1
+                elif element.tag.endswith('edge'):
+                    edge_indices.append(index)
+                    if 'directed' in element.attrib:
+                        if element.attrib['directed'] == 'true':
+                            n_edges += 1
                         else:
-                            count += 1
-                n_edges = count
+                            n_edges += 2
+                    elif symmetrize:
+                        n_edges += 2
+                    else:
+                        n_edges += 1
             if 'parse.nodeids' in graph.attrib:
                 naming_nodes = not (graph.attrib['parse.nodeids'] == 'canonical')
     for file_element in tree.getroot():
@@ -254,50 +247,50 @@ def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 
             if attribute_name == weight_key:
                 weight_type = java_type_to_python_type(file_element.attrib['attr.type'])
                 weight_id = file_element.attrib['id']
-            for key_element in file_element:
-                if key_element.tag == 'default':
-                    default_weight = attribute_type(key_element.text)
+                for key_element in file_element:
+                    if key_element.tag == 'default':
+                        default_weight = attribute_type(key_element.text)
             else:
                 default_value = None
                 if file_element.attrib['for'] == 'node':
                     size = n_nodes
-                    if 'node_info' not in data:
-                        data.node_info = Bunch()
+                    if 'node_attribute' not in data:
+                        data.node_attribute = Bunch()
                     for key_element in file_element:
-                        if key_element.tag == 'desc':
-                            attribute_descriptions[attribute_name] = key_element.text
-                        elif key_element.tag == 'default':
+                        if key_element.tag.endswith('desc'):
+                            attribute_descriptions.node[attribute_name] = key_element.text
+                        elif key_element.tag.endswith('default'):
                             default_value = attribute_type(key_element.text)
                     if attribute_type == str:
                         local_type = '<U' + str(max_string_size)
                     else:
                         local_type = attribute_type
                     if default_value:
-                        data.node_info[attribute_name] = np.full(size, default_value, dtype=local_type)
+                        data.node_attribute[attribute_name] = np.full(size, default_value, dtype=local_type)
                     else:
-                        data.node_info[attribute_name] = np.zeros(size, dtype=local_type)
+                        data.node_attribute[attribute_name] = np.zeros(size, dtype=local_type)
                 elif file_element.attrib['for'] == 'edge':
                     size = n_edges
-                    if 'edge_info' not in data:
-                        data.edge_info = Bunch()
+                    if 'edge_attribute' not in data:
+                        data.edge_attribute = Bunch()
                     for key_element in file_element:
-                        if key_element.tag == 'desc':
-                            attribute_descriptions[attribute_name] = key_element.text
-                        elif key_element.tag == 'default':
+                        if key_element.tag.endswith('desc'):
+                            attribute_descriptions.edge[attribute_name] = key_element.text
+                        elif key_element.tag.endswith('default'):
                             default_value = attribute_type(key_element.text)
                     if attribute_type == str:
                         local_type = '<U' + str(max_string_size)
                     else:
                         local_type = attribute_type
                     if default_value:
-                        data.edge_info[attribute_name] = np.full(size, default_value, dtype=local_type)
+                        data.edge_attribute[attribute_name] = np.full(size, default_value, dtype=local_type)
                     else:
-                        data.edge_info[attribute_name] = np.zeros(size, dtype=local_type)
+                        data.edge_attribute[attribute_name] = np.zeros(size, dtype=local_type)
                 keys[file_element.attrib['id']] = [attribute_name, attribute_type]
         elif file_element.tag.endswith('desc'):
             file_description = file_element.text
     if file_description or attribute_descriptions.node or attribute_descriptions.edge:
-        data.meta = {}
+        data.meta = Bunch()
         if file_description:
             data.meta['description'] = file_description
         if attribute_descriptions.node or attribute_descriptions.edge:
@@ -320,7 +313,7 @@ def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 
                 node_map[name] = number
             for node_attribute in node:
                 if node_attribute.tag.endswith('data'):
-                    data.node_info[keys[node_attribute.attrib['key']][0]][number] = \
+                    data.node_attribute[keys[node_attribute.attrib['key']][0]][number] = \
                         keys[node_attribute.attrib['key']][1](node_attribute.text)
         # deal with edges
         edge_index = -1
@@ -341,7 +334,7 @@ def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 
                     if edge_attribute.attrib['key'] == weight_id:
                         dat[edge_index] = weight_type(edge_attribute.text)
                     else:
-                        data.edge_info[keys[edge_attribute.attrib['key']][0]][edge_index] = \
+                        data.edge_attribute[keys[edge_attribute.attrib['key']][0]][edge_index] = \
                             keys[edge_attribute.attrib['key']][1](edge_attribute.text)
             if 'directed' in edge.attrib:
                 if edge.attrib['directed'] != 'true':
@@ -357,9 +350,11 @@ def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 
                         if edge_attribute.attrib['key'] == weight_id:
                             dat[edge_index] = weight_type(edge_attribute.text)
                         else:
-                            data.edge_info[keys[edge_attribute.attrib['key']][0]][edge_index] = \
+                            data.edge_attribute[keys[edge_attribute.attrib['key']][0]][edge_index] = \
                                 keys[edge_attribute.attrib['key']][1](edge_attribute.text)
         data.adjacency = sparse.csr_matrix((dat, (row, col)), shape=(n_nodes, n_nodes))
+        if data.names is None:
+            data.pop('names')
         return data
     else:
         raise ValueError(f'No graph defined in {file}.')
