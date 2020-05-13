@@ -2,4 +2,4 @@
 from sknetwork.data.toy_graphs import *
 from sknetwork.data.models import *
 from sknetwork.data.load import load_netset, load_konect, clear_data_home, get_data_home, save, load
-from sknetwork.data.parse import parse_tsv, parse_labels, parse_graphml
+from sknetwork.data.parse import load_tsv, load_labels, load_graphml

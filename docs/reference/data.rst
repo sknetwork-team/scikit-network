@@ -55,9 +55,9 @@ Parse
 
 You can find some datasets on NetRep_.
 
-.. autofunction:: sknetwork.data.parse_tsv
+.. autofunction:: sknetwork.data.load_tsv
 
-.. autofunction:: sknetwork.data.parse_graphml
+.. autofunction:: sknetwork.data.load_graphml
 
 .. _NetRep: http://networkrepository.com/
 
