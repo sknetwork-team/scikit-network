@@ -86,8 +86,8 @@ def block_model(sizes: np.ndarray, p_in: Union[float, list, np.ndarray] = .2, p_
         return adjacency
 
 
-def erdos_renyie(n: int = 20, p: float = .3, seed: Optional[int] = None) -> sparse.csr_matrix:
-    """Erdos-Renyie graph.
+def erdos_renyi(n: int = 20, p: float = .3, seed: Optional[int] = None) -> sparse.csr_matrix:
+    """Erdos-Renyi graph.
 
     Parameters
     ----------
@@ -105,8 +105,8 @@ def erdos_renyie(n: int = 20, p: float = .3, seed: Optional[int] = None) -> spar
 
     Example
     -------
-    >>> from sknetwork.data import erdos_renyie
-    >>> adjacency = erdos_renyie(7)
+    >>> from sknetwork.data import erdos_renyi
+    >>> adjacency = erdos_renyi(7)
     >>> adjacency.shape
     (7, 7)
     """

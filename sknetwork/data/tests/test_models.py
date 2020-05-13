@@ -21,7 +21,7 @@ class TestModels(unittest.TestCase):
             if hasattr(graph, 'position'):
                 self.assertEqual(graph.position.shape, (n, 2))
 
-        adjacency = erdos_renyie(n)
+        adjacency = erdos_renyi(n)
         self.assertEqual(adjacency.shape, (n, n))
 
         adjacency = albert_barabasi(n, 2)

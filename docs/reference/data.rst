@@ -35,7 +35,7 @@ Models
 
 .. autofunction:: sknetwork.data.grid
 
-.. autofunction:: sknetwork.data.erdos_renyie
+.. autofunction:: sknetwork.data.erdos_renyi
 
 .. autofunction:: sknetwork.data.block_model
 
