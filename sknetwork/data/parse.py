@@ -151,7 +151,8 @@ def load_tsv(file: str, directed: bool = False, bipartite: bool = False, weighte
             row = new_nodes[:n_edges]
             col = new_nodes[n_edges:]
         else:
-            if not all(names == range(len(names))) and reindex:
+            should_reindex = not (names[0] == 0 and names[-1] == n_nodes - 1)
+            if should_reindex and reindex:
                 reindexed = True
                 row = new_nodes[:n_edges]
                 col = new_nodes[n_edges:]
