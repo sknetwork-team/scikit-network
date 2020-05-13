@@ -17,9 +17,9 @@ from sknetwork.utils import Bunch
 from sknetwork.utils.format import directed2undirected
 
 
-def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
-              named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True,
-              header_only_comments: bool = True) -> Bunch:
+def load_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
+             named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True,
+             header_only_comments: bool = True) -> Bunch:
     """Parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
 
     Parameters
@@ -42,6 +42,12 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     reindex : bool
         If True and the graph nodes have numeric values, the size of the returned adjacency will be determined by the
         maximum of those values. Does not work for bipartite graphs.
+    header_only_comments : bool
+        If True, assumes that the file is well-formatted:
+
+        * no comments except for the header
+        * only 2 or 3 columns
+        * only int or float values
 
     Returns
     -------
@@ -161,7 +167,7 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     return graph
 
 
-def parse_labels(file: str) -> np.ndarray:
+def load_labels(file: str) -> np.ndarray:
     """Parser for files with a single entry on each row.
 
     Parameters
@@ -181,7 +187,7 @@ def parse_labels(file: str) -> np.ndarray:
     return np.array(rows)
 
 
-def parse_header(file: str):
+def load_header(file: str):
     """Check if the graph is directed, bipartite, weighted."""
     directed, bipartite, weighted = False, False, True
     with open(file, 'r', encoding='utf-8') as f:
@@ -195,7 +201,7 @@ def parse_header(file: str):
     return directed, bipartite, weighted
 
 
-def parse_metadata(file: str, delimiter: str = ': ') -> Bunch:
+def load_metadata(file: str, delimiter: str = ': ') -> Bunch:
     """Extract metadata from the file."""
     metadata = Bunch()
     with open(file, 'r', encoding='utf-8') as f:
@@ -206,7 +212,7 @@ def parse_metadata(file: str, delimiter: str = ': ') -> Bunch:
     return metadata
 
 
-def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 512) -> Bunch:
+def load_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 512) -> Bunch:
     """Parser for GraphML datasets.
 
     Hyperedges and nested graphs are not supported.

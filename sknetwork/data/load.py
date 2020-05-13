@@ -17,7 +17,7 @@ from urllib.request import urlretrieve
 import numpy as np
 from scipy import sparse
 
-from sknetwork.data.parse import parse_tsv, parse_labels, parse_header, parse_metadata
+from sknetwork.data.parse import load_tsv, load_labels, load_header, load_metadata
 from sknetwork.utils import Bunch
 from sknetwork.utils.check import is_square
 
@@ -190,24 +190,24 @@ def load_konect(dataset: str, data_home: Optional[str] = None, auto_numpy_bundle
     matrix = [file for file in files if 'out.' in file]
     if matrix:
         file = matrix[0]
-        directed, bipartite, weighted = parse_header(data_path + file)
+        directed, bipartite, weighted = load_header(data_path + file)
         if bipartite:
-            graph = parse_tsv(data_path + file, directed=directed, bipartite=bipartite, weighted=weighted)
+            graph = load_tsv(data_path + file, directed=directed, bipartite=bipartite, weighted=weighted)
             data.biadjacency = graph.biadjacency
         else:
-            graph = parse_tsv(data_path + file, directed=directed, bipartite=bipartite, weighted=weighted)
+            graph = load_tsv(data_path + file, directed=directed, bipartite=bipartite, weighted=weighted)
             data.adjacency = graph.adjacency
 
     metadata = [file for file in files if 'meta.' in file]
     if metadata:
         file = metadata[0]
-        data.meta = parse_metadata(data_path + file)
+        data.meta = load_metadata(data_path + file)
 
     attributes = [file for file in files if 'ent.' + dataset in file]
     if attributes:
         for file in attributes:
             attribute_name = file.split('.')[-1]
-            data[attribute_name] = parse_labels(data_path + file)
+            data[attribute_name] = load_labels(data_path + file)
 
     if hasattr(data, 'meta'):
         if hasattr(data.meta, 'name'):
