@@ -196,7 +196,7 @@ def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 
 
     Returns
     -------
-    data: Bunch
+    data: :class:`Bunch`
         The dataset in a bunch with the adjacency as a CSR matrix.
     """
     # see http://graphml.graphdrawing.org/primer/graphml-primer.html
