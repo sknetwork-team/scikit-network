@@ -1,13 +1,13 @@
 .. _introduction:
 
-Introduction
-************
+Getting started
+***************
 
 :mod:`scikit-network` is an open-source python package for the analysis of large graphs.
 
 
-Quick start
------------
+Installation
+------------
 
 Install :mod:`scikit-network`:
 
@@ -26,8 +26,8 @@ Each graph is represented by its :term:`adjacency` matrix, either as a dense ``n
 or a sparse ``scipy CSR matrix``.
 A bipartite graph can be represented by its biadjacency matrix, in the same format.
 
-About the documentation
------------------------
+Documentation
+-------------
 
 We use the following notations in the documentation:
 
@@ -48,7 +48,7 @@ For directed graphs:
 
 * :math:`A` is the adjacency matrix of the graph (dimension :math:`n\times n`)
 * :math:`d^+ = A1` and :math:`d^- = A^T1` are the vectors of out-weights and in-weights of nodes (out-degrees and in-degrees if the matrix :math:`A` is binary)
-* :math:`D^- = \text{diag}(d^+)` and :math:`D^- = \text{diag}(d^-)` are the diagonal matrices of out-weights and in-weights
+* :math:`D^+ = \text{diag}(d^+)` and :math:`D^- = \text{diag}(d^-)` are the diagonal matrices of out-weights and in-weights
 * :math:`w = 1^T A1` is the total weight of the graph (total weight of edges)
 
 Bigraphs
