@@ -107,7 +107,7 @@ def cut_straight(dendrogram: np.ndarray, n_clusters: int = 2, sort_clusters: boo
     return get_labels(dendrogram, cluster, sort_clusters, return_dendrogram)
 
 
-def cut_balanced(dendrogram: np.ndarray, max_cluster_size: int = 2, sort_clusters: bool = True,
+def cut_balanced(dendrogram: np.ndarray, max_cluster_size: int = 20, sort_clusters: bool = True,
                  return_dendrogram: bool = False) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
     """Cuts a dendrogram with a constraint on the cluster size and returns the corresponding clustering.
 
@@ -132,7 +132,7 @@ def cut_balanced(dendrogram: np.ndarray, max_cluster_size: int = 2, sort_cluster
     -------
     >>> from sknetwork.hierarchy import cut_balanced
     >>> dendrogram = np.array([[0, 1, 0, 2], [2, 3, 1, 3]])
-    >>> cut_balanced(dendrogram)
+    >>> cut_balanced(dendrogram, 2)
     array([0, 0, 1])
     """
     check_dendrogram(dendrogram)
