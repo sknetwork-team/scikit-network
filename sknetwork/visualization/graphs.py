@@ -75,12 +75,14 @@ def get_colors(n: int, labels: Union[dict, np.ndarray, None], scores: np.ndarray
     return colors
 
 
-def get_node_widths(n: int, seeds: Union[dict, list], node_width: float, node_width_max: float) -> np.ndarray:
+def get_node_widths(n: int, seeds: Union[int, dict, list], node_width: float, node_width_max: float) -> np.ndarray:
     """Return the node widths."""
     node_widths = node_width * np.ones(n)
     if seeds is not None:
         if type(seeds) == dict:
             seeds = list(seeds.keys())
+        elif np.issubdtype(type(seeds), np.integer):
+            seeds = [seeds]
         if len(seeds):
             node_widths[np.array(seeds)] = node_width_max
     return node_widths
