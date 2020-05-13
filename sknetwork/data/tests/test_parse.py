@@ -47,11 +47,18 @@ class TestParser(unittest.TestCase):
         self.assertEqual(sum(names == [0, 12, 14, 31, 42, 50]), 6)
         remove(self.stub_data_4)
 
-    def test_wrong_format(self):
+    def test_wrong_format_fast(self):
         self.stub_data_3 = 'stub_3.txt'
         with open(self.stub_data_3, "w") as text_file:
             text_file.write('%stub\n1 3 a\n4 5 b\n0 2 e')
         self.assertRaises(ValueError, parse.parse_tsv, self.stub_data_3)
+        remove(self.stub_data_3)
+
+    def test_wrong_format_slow(self):
+        self.stub_data_3 = 'stub_3.txt'
+        with open(self.stub_data_3, "w") as text_file:
+            text_file.write('%stub\n1 3 a\n4 5 b\n0 2 e')
+        self.assertRaises(ValueError, parse.parse_tsv, self.stub_data_3, header_only_comments=False)
         remove(self.stub_data_3)
 
     def test_graphml_basic(self):

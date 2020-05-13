@@ -8,7 +8,7 @@ Nathan de Lara <ndelara@enst.fr>
 from csv import reader
 from typing import Optional
 from xml.etree import ElementTree
-
+import warnings
 
 import numpy as np
 from scipy import sparse
@@ -18,7 +18,8 @@ from sknetwork.utils.format import directed2undirected
 
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
-              named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True) -> Bunch:
+              named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True,
+              header_only_comments: bool = True) -> Bunch:
     """Parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
 
     Parameters
@@ -67,6 +68,13 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
         guess_weighted = bool(min([line.count(guess_delimiter) for line in lines]) - 1)
         guess_named = not all([all([el.strip().isdigit() for el in line.split(guess_delimiter)][0:2])
                                for line in lines])
+        guess_string_present = not all([all([isnumber(el.strip()) for el in line.split(guess_delimiter)][0:2])
+                                        for line in lines])
+
+        if not guess_named:
+            guess_type = np.int32
+        else:
+            guess_type = np.float32
     if weighted is None:
         weighted = guess_weighted
     if named is None:
@@ -74,21 +82,38 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
     if delimiter is None:
         delimiter = guess_delimiter
 
-    row, col, data = [], [], []
     with open(file, 'r', encoding='utf-8') as f:
         for i in range(header_len):
             f.readline()
-        csv_reader = reader(f, delimiter=delimiter)
-        for line in csv_reader:
-            if line[0] not in comment:
-                if named:
-                    row.append(line[0])
-                    col.append(line[1])
-                else:
-                    row.append(int(line[0]))
-                    col.append(int(line[1]))
-                if weighted:
-                    data.append(float(line[2]))
+        if header_only_comments and not guess_string_present:
+            # fromfile raises a DeprecationWarning on fail. This should be changed to ValueError in the future.
+            warnings.filterwarnings("error")
+            try:
+                parsed = np.fromfile(f, sep=guess_delimiter, dtype=guess_type)
+            except (DeprecationWarning, ValueError):
+                raise ValueError('File not suitable for fast parsing. Set header_only_comments to False.')
+            warnings.filterwarnings("default")
+            n_entries = len(parsed)
+            if weighted:
+                parsed.resize((n_entries//3, 3))
+                row, col, data = parsed[:, 0], parsed[:, 1], parsed[:, 2]
+            else:
+                parsed.resize((n_entries//2, 2))
+                row, col = parsed[:, 0], parsed[:, 1]
+                data = np.ones(row.shape[0], dtype=bool)
+        else:
+            row, col, data = [], [], []
+            csv_reader = reader(f, delimiter=delimiter)
+            for line in csv_reader:
+                if line[0] not in comment:
+                    if named:
+                        row.append(line[0])
+                        col.append(line[1])
+                    else:
+                        row.append(int(line[0]))
+                        col.append(int(line[1]))
+                    if weighted:
+                        data.append(float(line[2]))
     n_edges = len(row)
 
     graph = Bunch()
@@ -370,3 +395,11 @@ def java_type_to_python_type(value: str) -> type:
         return str
     elif value in ('long', 'float', 'double'):
         return float
+
+
+def isnumber(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
