@@ -14,6 +14,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.utils import Bunch
+from sknetwork.utils.format import directed2undirected
 
 
 def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
@@ -124,10 +125,10 @@ def parse_tsv(file: str, directed: bool = False, bipartite: bool = False, weight
                 row = new_nodes[:n_edges]
                 col = new_nodes[n_edges:]
         if not weighted:
-            data = np.ones(n_edges, dtype=int)
+            data = np.ones(n_edges, dtype=bool)
         adjacency = sparse.csr_matrix((data, (row, col)), shape=(n_nodes, n_nodes))
         if not directed:
-            adjacency += adjacency.T
+            adjacency = directed2undirected(adjacency, weight_sum=weighted)
         graph.adjacency = adjacency
         if named or reindexed:
             graph.names = names
