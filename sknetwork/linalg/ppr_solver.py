@@ -12,6 +12,7 @@ from scipy.sparse.linalg import eigs, LinearOperator, bicgstab
 
 from sknetwork.linalg.diteration import diffusion
 from sknetwork.linalg.normalization import normalize
+from sknetwork.linalg.polynome import Polynome
 
 
 class RandomSurferOperator(LinearOperator):
@@ -117,6 +118,11 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         scores = np.zeros(n, dtype=np.float32)
         fluid = (1 - damping_factor) * seeds.astype(np.float32)
         scores = diffusion(indptr, indices, data, scores, fluid, damping_factor, n_iter)
+
+    elif solver == 'RH':
+        coeffs = np.arange(n_iter+1)
+        polynome = Polynome(damping_factor * normalize(adjacency, p=1), coeffs)
+        scores = polynome.dot(seeds)
 
     else:
         rso = RandomSurferOperator(adjacency, seeds, damping_factor)
