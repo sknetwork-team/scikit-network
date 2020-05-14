@@ -131,6 +131,7 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         elif solver == 'lanczos':
             # noinspection PyTypeChecker
             _, scores = sparse.linalg.eigs(rso, k=1, tol=tol, v0=v0)
+            scores = abs(scores.flatten().real)
         elif solver == 'piteration':
             scores = v0
             for i in range(n_iter):
@@ -139,5 +140,4 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         else:
             raise ValueError('Unknown solver.')
 
-        scores = abs(scores.flatten().real)
     return scores / scores.sum()
