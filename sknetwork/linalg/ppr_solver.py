@@ -38,14 +38,13 @@ class RandomSurferOperator(LinearOperator):
         super(RandomSurferOperator, self).__init__(shape=adjacency.shape, dtype=float)
 
         n = adjacency.shape[0]
-        out_degrees = adjacency.dot(np.ones(n))
-        damping_matrix = damping_factor * sparse.eye(n, format='csr')
+        out_degrees = adjacency.dot(np.ones(n)).astype(bool)
 
         if hasattr(adjacency, 'left_sparse_dot'):
-            self.a = normalize(adjacency).left_sparse_dot(damping_matrix).T
+            self.a = damping_factor * normalize(adjacency).T
         else:
-            self.a = (damping_matrix.dot(normalize(adjacency))).T.tocsr()
-        self.b = (np.ones(n) - damping_factor * out_degrees.astype(bool)) * seeds
+            self.a = (damping_factor * normalize(adjacency)).T.tocsr()
+        self.b = (np.ones(n) - damping_factor * out_degrees) * seeds
 
     def _matvec(self, x: np.ndarray):
         return self.a.dot(x) + self.b * x.sum()
