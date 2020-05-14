@@ -119,7 +119,7 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         scores = diffusion(indptr, indices, data, scores, fluid, damping_factor, n_iter)
 
     elif solver == 'RH':
-        coeffs = np.arange(n_iter+1)
+        coeffs = np.ones(n_iter+1)
         polynome = Polynome(damping_factor * normalize(adjacency, p=1), coeffs)
         scores = polynome.dot(seeds)
 
