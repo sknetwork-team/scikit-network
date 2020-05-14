@@ -6,7 +6,7 @@ Created on July 17 2019
 @author: Thomas Bonald <bonald@enst.fr>
 """
 
-from typing import Union, Tuple, Optional
+from typing import Union, Optional
 
 import numpy as np
 from scipy import sparse
@@ -18,29 +18,6 @@ from sknetwork.utils.check import check_format, check_seeds, check_square
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.seeds import stack_seeds
 from sknetwork.utils.verbose import VerboseMixin
-
-
-def limit_conditions(personalization: np.ndarray) -> Tuple:
-    """Compute seeds vector and border indicator.
-
-    Parameters
-    ----------
-    personalization:
-        Array or dictionary indicating the fixed temperatures in the graph.
-        In order to avoid ambiguities, temperatures must be non-negative.
-
-    Returns
-    -------
-    b:
-        Personalization vector.
-    border:
-        Border boolean indicator.
-
-    """
-    b = personalization
-    border = (b >= 0)
-    b[~border] = 0
-    return b.astype(float), border.astype(bool)
 
 
 class Diffusion(BaseRanking, VerboseMixin):
@@ -110,28 +87,29 @@ class Diffusion(BaseRanking, VerboseMixin):
             return self
 
         seeds = check_seeds(seeds, n)
-        b, border = limit_conditions(seeds)
-        tmin, tmax = np.min(b[border]), np.max(b)
+        border = (seeds >= 0)
+        seeds[~border] = 0
+        tmin, tmax = seeds[border].min(), seeds.max()
 
         interior: sparse.csr_matrix = sparse.diags(~border, shape=(n, n), format='csr', dtype=float)
         diffusion_matrix = interior.dot(normalize(adjacency))
 
         if initial_state is None:
             if tmin != tmax:
-                initial_state = b[border].mean() * np.ones(n)
+                initial_state = seeds[border].mean() * np.ones(n)
             else:
                 initial_state = np.zeros(n)
-            initial_state[border] = b[border]
+            initial_state[border] = seeds[border]
 
         if self.n_iter > 0:
             scores = initial_state
             for i in range(self.n_iter):
                 scores = diffusion_matrix.dot(scores)
-                scores[border] = b[border]
+                scores[border] = seeds[border]
 
         else:
             a = sparse.eye(n, format='csr', dtype=float) - diffusion_matrix
-            scores, info = bicgstab(a, b, atol=0., x0=initial_state)
+            scores, info = bicgstab(a, seeds, atol=0., x0=initial_state)
             self._scipy_solver_info(info)
 
         if tmin != tmax:

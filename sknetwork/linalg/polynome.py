@@ -68,7 +68,7 @@ class Polynome(LinearOperator):
         """
         y = self.coeffs[-1] * matrix
         for a in self.coeffs[::-1][1:]:
-            y = self.adjacency.dot(y) + a
+            y = self.adjacency.dot(y) + a * matrix
         return y
 
     def _transpose(self):
