@@ -58,7 +58,7 @@ class TestParser(unittest.TestCase):
         self.stub_data_3 = 'stub_3.txt'
         with open(self.stub_data_3, "w") as text_file:
             text_file.write('%stub\n1 3 a\n4 5 b\n0 2 e')
-        self.assertRaises(ValueError, parse.load_tsv, self.stub_data_3, header_only_comments=False)
+        self.assertRaises(ValueError, parse.load_tsv, self.stub_data_3, fast_format=False)
         remove(self.stub_data_3)
 
     def test_graphml_basic(self):

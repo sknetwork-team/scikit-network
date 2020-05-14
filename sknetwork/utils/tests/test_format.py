@@ -24,7 +24,7 @@ class TestFormats(unittest.TestCase):
 
         adjacency = house()
         n = adjacency.shape[0]
-        error = directed2undirected(adjacency, weight_sum=False) - adjacency
+        error = directed2undirected(adjacency, weighted=False) - adjacency
         self.assertEqual(error.nnz, 0)
 
         slr = SparseLR(adjacency, [(np.zeros(n), np.zeros(n))])

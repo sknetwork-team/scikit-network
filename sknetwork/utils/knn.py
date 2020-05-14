@@ -40,7 +40,7 @@ class BaseTransformer(Algorithm, ABC):
     def make_undirected(self):
         """Modifies the adjacency to match desired constrains."""
         if self.adjacency_ is not None and self.undirected:
-            self.adjacency_ = directed2undirected(self.adjacency_, weight_sum=False).astype(int)
+            self.adjacency_ = directed2undirected(self.adjacency_, weighted=False).astype(int)
 
         return self
 

@@ -19,7 +19,7 @@ from sknetwork.utils.format import directed2undirected
 
 def load_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
              named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True,
-             header_only_comments: bool = True) -> Bunch:
+             fast_format: bool = True) -> Bunch:
     """Parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
 
     Parameters
@@ -42,7 +42,7 @@ def load_tsv(file: str, directed: bool = False, bipartite: bool = False, weighte
     reindex : bool
         If True and the graph nodes have numeric values, the size of the returned adjacency will be determined by the
         maximum of those values. Does not work for bipartite graphs.
-    header_only_comments : bool
+    fast_format : bool
         If True, assumes that the file is well-formatted:
 
         * no comments except for the header
@@ -91,13 +91,13 @@ def load_tsv(file: str, directed: bool = False, bipartite: bool = False, weighte
     with open(file, 'r', encoding='utf-8') as f:
         for i in range(header_len):
             f.readline()
-        if header_only_comments and not guess_string_present:
+        if fast_format and not guess_string_present:
             # fromfile raises a DeprecationWarning on fail. This should be changed to ValueError in the future.
             warnings.filterwarnings("error")
             try:
                 parsed = np.fromfile(f, sep=guess_delimiter, dtype=guess_type)
             except (DeprecationWarning, ValueError):
-                raise ValueError('File not suitable for fast parsing. Set header_only_comments to False.')
+                raise ValueError('File not suitable for fast parsing. Set fast_format to False.')
             warnings.filterwarnings("default")
             n_entries = len(parsed)
             if weighted:
@@ -127,8 +127,8 @@ def load_tsv(file: str, directed: bool = False, bipartite: bool = False, weighte
         names_row, row = np.unique(row, return_inverse=True)
         names_col, col = np.unique(col, return_inverse=True)
         if not reindex:
-            n_row = max(names_row) + 1
-            n_col = max(names_col) + 1
+            n_row = names_row.max() + 1
+            n_col = names_col.max() + 1
         else:
             n_row = len(names_row)
             n_col = len(names_col)
@@ -144,7 +144,7 @@ def load_tsv(file: str, directed: bool = False, bipartite: bool = False, weighte
         nodes = np.concatenate((row, col), axis=None)
         names, new_nodes = np.unique(nodes, return_inverse=True)
         if not reindex:
-            n_nodes = max(names) + 1
+            n_nodes = names.max() + 1
         else:
             n_nodes = len(names)
         if named:
@@ -160,7 +160,7 @@ def load_tsv(file: str, directed: bool = False, bipartite: bool = False, weighte
             data = np.ones(n_edges, dtype=bool)
         adjacency = sparse.csr_matrix((data, (row, col)), shape=(n_nodes, n_nodes))
         if not directed:
-            adjacency = directed2undirected(adjacency, weight_sum=weighted)
+            adjacency = directed2undirected(adjacency, weighted=weighted)
         graph.adjacency = adjacency
         if named or reindexed:
             graph.names = names

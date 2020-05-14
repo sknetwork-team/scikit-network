@@ -27,7 +27,7 @@ def test_graph():
     """Simple undirected graph, used for testing.
     10 nodes, 10 edges.
     """
-    return directed2undirected(test_digraph(), weight_sum=True)
+    return directed2undirected(test_digraph(), weighted=True)
 
 
 def test_bigraph():
