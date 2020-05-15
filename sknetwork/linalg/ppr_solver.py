@@ -71,7 +71,7 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
     tol : float
         Tolerance for the convergence of some solvers such as ``'bicgstab'`` or ``'lanczos'``.
     solver : :obj:`str`
-        Which solver to use: ``'piteration'``, ``'diteration'``, ``'bicgstab'``, ``'lanczos'``.
+        Which solver to use: ``'piteration'``, ``'diteration'``, ``'bicgstab'``, ``'lanczos'``, `̀'RH'``.
 
     Returns
     -------
@@ -120,7 +120,7 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
 
     elif solver == 'RH':
         coeffs = np.ones(n_iter+1)
-        polynome = Polynome(damping_factor * normalize(adjacency, p=1), coeffs)
+        polynome = Polynome(damping_factor * normalize(adjacency, p=1).T.tocsr(), coeffs)
         scores = polynome.dot(seeds)
 
     else:
