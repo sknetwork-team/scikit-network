@@ -12,6 +12,7 @@ from scipy.sparse.linalg import eigs, LinearOperator, bicgstab
 
 from sknetwork.linalg.diteration import diffusion
 from sknetwork.linalg.normalization import normalize
+from sknetwork.linalg.polynome import Polynome
 
 
 class RandomSurferOperator(LinearOperator):
@@ -70,7 +71,7 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
     tol : float
         Tolerance for the convergence of some solvers such as ``'bicgstab'`` or ``'lanczos'``.
     solver : :obj:`str`
-        Which solver to use: ``'piteration'``, ``'diteration'``, ``'bicgstab'``, ``'lanczos'``.
+        Which solver to use: ``'piteration'``, ``'diteration'``, ``'bicgstab'``, ``'lanczos'``, `̀'RH'``.
 
     Returns
     -------
@@ -116,6 +117,11 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         scores = np.zeros(n, dtype=np.float32)
         fluid = (1 - damping_factor) * seeds.astype(np.float32)
         scores = diffusion(indptr, indices, data, scores, fluid, damping_factor, n_iter)
+
+    elif solver == 'RH':
+        coeffs = np.ones(n_iter+1)
+        polynome = Polynome(damping_factor * normalize(adjacency, p=1).T.tocsr(), coeffs)
+        scores = polynome.dot(seeds)
 
     else:
         rso = RandomSurferOperator(adjacency, seeds, damping_factor)

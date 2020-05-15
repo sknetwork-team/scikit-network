@@ -46,7 +46,7 @@ def seeds2probs(n: int, seeds: Union[dict, np.ndarray] = None) -> np.ndarray:
         return np.ones(n) / n
     else:
         seeds = check_seeds(seeds, n)
-        probs = np.zeros_like(seeds)
+        probs = np.zeros_like(seeds, dtype=float)
         ix = (seeds > 0)
         probs[ix] = seeds[ix]
         w: float = probs.sum()

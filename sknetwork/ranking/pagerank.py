@@ -34,10 +34,11 @@ class PageRank(BaseRanking, VerboseMixin):
     damping_factor : float
         Probability to continue the random walk.
     solver : str
-        * `piteration`, use power iteration for a given number of iterations.
-        * `diteration`, use asynchronous parallel diffusion for a given number of iterations.
-        * `lanczos`, use eigensolver with a given tolerance.
-        * `bicgstab`, use Biconjugate Gradient Stabilized method for a given tolerance.
+        * ``'piteration'``, use power iteration for a given number of iterations.
+        * ``'diteration'``, use asynchronous parallel diffusion for a given number of iterations.
+        * ``'lanczos'``, use eigensolver with a given tolerance.
+        * ``'bicgstab'``, use Biconjugate Gradient Stabilized method for a given tolerance.
+        * ``'RH'``, use a Ruffini-Horner polynomial evaluation.
     n_iter : int
         Number of iterations for some solvers.
     tol : float
