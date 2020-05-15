@@ -20,6 +20,10 @@ class TestPageRank(unittest.TestCase):
         self.adjacency = cyclic_digraph(self.n)
         self.truth = np.ones(self.n) / self.n
 
+    def test_params(self):
+        with self.assertRaises(ValueError):
+            PageRank(damping_factor=1789)
+
     def test_solvers(self):
         for solver in ['piteration', 'lanczos', 'bicgstab', 'RH']:
             pr = PageRank(solver=solver)

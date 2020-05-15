@@ -10,6 +10,11 @@ from sknetwork.data.test_graphs import *
 
 class TestDiffusion(unittest.TestCase):
 
+    def test_params(self):
+        with self.assertRaises(ValueError):
+            adjacency = test_graph()
+            Closeness(method='toto').fit(adjacency)
+
     def test_parallel(self):
         adjacency = test_graph()
         n = adjacency.shape[0]
