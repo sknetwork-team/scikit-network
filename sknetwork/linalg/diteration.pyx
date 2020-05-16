@@ -4,8 +4,6 @@
 Created on Apr 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-import numpy as np
-cimport numpy as np
 cimport cython
 from cython.parallel import prange
 
@@ -15,7 +13,7 @@ from cython.parallel import prange
 def diffusion(int[:] indptr, int[:] indices, float[:] data, float[:] scores, float[:] fluid,
               float damping_factor, int n_iter):
     """One loop of fluid diffusion."""
-    cdef int n = len(fluid)
+    cdef int n = fluid.shape[0]
     cdef int i
     cdef int j
     cdef int jj
@@ -23,7 +21,7 @@ def diffusion(int[:] indptr, int[:] indices, float[:] data, float[:] scores, flo
     cdef float tmp2
 
     for k in range(n_iter):
-        for i in prange(n, nogil=True):
+        for i in prange(n, nogil=True, schedule='guided'):
             tmp1 = fluid[i]
             if tmp1 > 0:
                 scores[i] += tmp1
@@ -32,4 +30,4 @@ def diffusion(int[:] indptr, int[:] indices, float[:] data, float[:] scores, flo
                 for jj in range(indptr[i], indptr[i+1]):
                     j = indices[jj]
                     fluid[j] += tmp2 * data[jj]
-    return np.asarray(scores)
+    return
