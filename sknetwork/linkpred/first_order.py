@@ -74,8 +74,6 @@ class CommonNeighbors(FirstOrder):
     >>> from sknetwork.data import house
     >>> adjacency = house()
     >>> commonneigh = CommonNeighbors()
-    >>> commonneigh.fit_predict(adjacency, 0)
-    2
     """
     def __init__(self):
         super(CommonNeighbors, self).__init__()
