@@ -39,7 +39,7 @@ class FirstOrder(BaseLinkPred, ABC):
 
         return self
 
-    def neighborhood(self, node: int):
+    def _neighborhood(self, node: int):
         """Out neighbors of a given node.
 
         Parameters
@@ -73,7 +73,20 @@ class CommonNeighbors(FirstOrder):
     --------
     >>> from sknetwork.data import house
     >>> adjacency = house()
-    >>> commonneigh = CommonNeighbors()
+    >>> cn = CommonNeighbors()
+    >>> similarities = cn.fit_predict(adjacency, 0)
+    >>> similarities
+    array([2, 1, 1, 1, 1])
+    >>> similarities = cn.predict([0, 1])
+    >>> similarities
+    array([[2, 1, 1, 1, 1],
+           [1, 3, 0, 2, 1]])
+    >>> similarities = cn.predict((0, 1))
+    >>> similarities
+    1
+    >>> similarities = cn.predict([(0, 1), (1, 2)])
+    >>> similarities
+    array([1, 0])
     """
     def __init__(self):
         super(CommonNeighbors, self).__init__()
@@ -95,18 +108,18 @@ class CommonNeighbors(FirstOrder):
         self.indices_ = adjacency.indices
         return self
 
-    def predict_node(self, node: int):
+    def _predict_node(self, node: int):
         """Prediction for a single node."""
         n_row = self.indptr_.shape[0] - 1
         neigh_i = self.neighborhood(node)
 
-        preds = np.zeros(n_row)
+        preds = np.zeros(n_row, dtype=int)
         for j in range(n_row):
             neigh_j = self.neighborhood(j)
             preds[j] = len(set(neigh_i) & set(neigh_j))
         return preds
 
-    def predict_edge(self, source: int, target: int):
+    def _predict_edge(self, source: int, target: int):
         """Prediction for a single edge."""
         neigh_i = self.neighborhood(source)
         neigh_j = self.neighborhood(target)

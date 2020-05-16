@@ -12,6 +12,7 @@ import sknetwork.clustering
 import sknetwork.embedding
 import sknetwork.hierarchy
 import sknetwork.linalg
+import sknetwork.linkpred
 import sknetwork.ranking
 import sknetwork.data
 import sknetwork.utils

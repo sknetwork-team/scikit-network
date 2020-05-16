@@ -12,6 +12,7 @@ Reference
     ranking
     classification
     connectivity
+    linkpred
     linalg
     utils
     visualization
