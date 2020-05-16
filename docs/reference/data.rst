@@ -46,18 +46,15 @@ Models
 Load
 ****
 
-.. autofunction:: sknetwork.data.load_netset
-
-.. autofunction:: sknetwork.data.load_konect
-
-Parse
-*****
-
 You can find some datasets on NetRep_.
 
 .. autofunction:: sknetwork.data.load_tsv
 
 .. autofunction:: sknetwork.data.load_graphml
+
+.. autofunction:: sknetwork.data.load_netset
+
+.. autofunction:: sknetwork.data.load_konect
 
 .. _NetRep: http://networkrepository.com/
 

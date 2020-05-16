@@ -5,16 +5,16 @@ Utils
 
 Various tools.
 
-Build adjacency
----------------
+Build graphs
+------------
 
 .. autofunction:: sknetwork.utils.edgelist2adjacency
 
 .. autofunction:: sknetwork.utils.edgelist2biadjacency
 
 
-Graph formats
--------------
+Convert graphs
+--------------
 
 .. autofunction:: sknetwork.utils.bipartite2directed
 
@@ -25,6 +25,8 @@ Graph formats
 
 Clustering
 ----------
+
+.. autofunction:: sknetwork.utils.membership_matrix
 
 .. autoclass:: sknetwork.utils.KMeansDense
 
@@ -45,10 +47,8 @@ Co-Neighborhood
 .. autofunction:: sknetwork.utils.co_neighbors_graph
 
 
-Miscellaneous
--------------
-
-.. autofunction:: sknetwork.utils.membership_matrix
+Projection
+----------
 
 .. autofunction:: sknetwork.utils.projection_simplex
 

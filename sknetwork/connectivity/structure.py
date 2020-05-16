@@ -17,7 +17,7 @@ from sknetwork.utils.check import is_symmetric, is_square, check_format
 def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak',
                          return_components: bool = True) -> Union[int, Tuple[int, np.ndarray]]:
     """
-    Extract the connected components of the graph
+    Extract the connected components of the graph.
 
     * Graphs
     * Digraphs
@@ -26,18 +26,18 @@ def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak',
 
     Parameters
     ----------
-    adjacency:
+    adjacency :
         Adjacency matrix of the graph.
-    connection
+    connection :
         Must be ``'weak'`` (default) or ``'strong'``. The type of connection to use for directed graphs.
-    return_components
+    return_components :
         If ``True`` (default), then return the labels for each of the connected components.
 
     Returns
     -------
-    n_components: int
+    n_components : int
         The number of connected components.
-    components: ndarray
+    components : ndarray
         The array such that for each node ``i``, ``components[i]`` is the connected component of ``i``.
 
     """
@@ -46,7 +46,7 @@ def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak',
 
 def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], return_labels: bool = False):
     """
-    Extract the largest connected component of a graph. Bipartite graphs are treated as undirected ones.
+    Extract the largest connected component of a graph. Bipartite graphs are treated as undirected.
 
     * Graphs
     * Digraphs
@@ -54,16 +54,16 @@ def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray],
 
     Parameters
     ----------
-    adjacency
+    adjacency :
         Adjacency or biadjacency matrix of the graph.
-    return_labels: bool
+    return_labels : bool
         Whether to return the indices of the new nodes in the original graph.
 
     Returns
     -------
-    new_adjacency: sparse.csr_matrix
+    new_adjacency : sparse.csr_matrix
         Adjacency or biadjacency matrix of the largest connected component.
-    indices: array or tuple of array
+    indices : array or tuple of array
         Indices of the nodes in the original graph. For biadjacency matrices,
         ``indices[0]`` corresponds to the rows and ``indices[1]`` to the columns.
 
@@ -107,17 +107,17 @@ def is_bipartite(adjacency: sparse.csr_matrix,
 
     Parameters
     ----------
-    adjacency:
+    adjacency :
        The symmetric adjacency matrix of the graph.
-    return_biadjacency:
-        If ``True`` , a possible biadjacency is returned if the graph is bipartite (None is returned otherwise)
+    return_biadjacency :
+        If ``True``, a possible biadjacency is returned if the graph is bipartite (None is returned otherwise).
 
     Returns
     -------
-    is_bipartite: bool
-        A boolean denoting if the graph is bipartite
-    biadjacency: sparse.csr_matrix
-        A possible biadjacency of the bipartite graph (None if the graph is not bipartite)
+    is_bipartite : bool
+        A boolean denoting if the graph is bipartite.
+    biadjacency : sparse.csr_matrix
+        A possible biadjacency of the bipartite graph (``None`` if the graph is not bipartite).
     """
     if not is_symmetric(adjacency):
         raise ValueError('The graph must be undirected.')

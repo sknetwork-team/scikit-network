@@ -7,5 +7,4 @@ Data
     toy_graphs
     models
     load
-    parse
     save
