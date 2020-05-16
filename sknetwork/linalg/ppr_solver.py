@@ -51,7 +51,7 @@ class RandomSurferOperator(LinearOperator):
 
 
 def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.ndarray, damping_factor: float,
-                 n_iter: int, tol: float = 0., solver: str = 'piteration') -> np.ndarray:
+                 n_iter: int, tol: float = 1e-6, solver: str = 'piteration') -> np.ndarray:
     """Solve the Pagerank problem. Formally,
 
     :math:`x = \\alpha Px + (1-\\alpha)y`,
@@ -111,12 +111,13 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         indptr = adjacency.indptr.astype(np.int32)
         indices = adjacency.indices.astype(np.int32)
         data = adjacency.data.astype(np.float32)
-        n_iter = np.int32(n_iter)
         damping_factor = np.float32(damping_factor)
+        n_iter = np.int32(n_iter)
+        tol = np.float32(tol)
 
         scores = np.zeros(n, dtype=np.float32)
         fluid = (1 - damping_factor) * seeds.astype(np.float32)
-        diffusion(indptr, indices, data, scores, fluid, damping_factor, n_iter)
+        diffusion(indptr, indices, data, scores, fluid, damping_factor, n_iter, tol)
 
     elif solver == 'RH':
         coeffs = np.ones(n_iter+1)
@@ -135,8 +136,12 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         elif solver == 'piteration':
             scores = v0
             for i in range(n_iter):
-                scores = rso.dot(scores)
-                scores /= scores.sum()
+                scores_ = rso.dot(scores)
+                scores_ /= scores_.sum()
+                if np.linalg.norm(scores - scores_, ord=1) < tol:
+                    break
+                else:
+                    scores = scores_
         else:
             raise ValueError('Unknown solver.')
 

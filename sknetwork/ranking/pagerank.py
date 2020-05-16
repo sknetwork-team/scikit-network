@@ -65,7 +65,7 @@ class PageRank(BaseRanking, VerboseMixin):
     Page, L., Brin, S., Motwani, R., & Winograd, T. (1999). The PageRank citation ranking: Bringing order to the web.
     Stanford InfoLab.
     """
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'piteration', n_iter: int = 10, tol: float = 0):
+    def __init__(self, damping_factor: float = 0.85, solver: str = 'piteration', n_iter: int = 10, tol: float = 1e-6):
         super(PageRank, self).__init__()
 
         if damping_factor < 0 or damping_factor >= 1:

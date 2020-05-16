@@ -11,23 +11,27 @@ from cython.parallel import prange
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def diffusion(int[:] indptr, int[:] indices, float[:] data, float[:] scores, float[:] fluid,
-              float damping_factor, int n_iter):
+              float damping_factor, int n_iter, float tol):
     """One loop of fluid diffusion."""
     cdef int n = fluid.shape[0]
     cdef int i
     cdef int j
     cdef int jj
-    cdef float tmp1
-    cdef float tmp2
+    cdef float sent
+    cdef float tmp
+    cdef float residu = 1
 
     for k in range(n_iter):
         for i in prange(n, nogil=True, schedule='guided'):
-            tmp1 = fluid[i]
-            if tmp1 > 0:
-                scores[i] += tmp1
+            sent = fluid[i]
+            if sent > 0:
+                scores[i] += sent
                 fluid[i] = 0
-                tmp2 = tmp1 * damping_factor
+                tmp = sent * damping_factor
                 for jj in range(indptr[i], indptr[i+1]):
                     j = indices[jj]
-                    fluid[j] += tmp2 * data[jj]
+                    fluid[j] += tmp * data[jj]
+                residu -= sent
+        if residu < tol:
+            return
     return

@@ -61,12 +61,12 @@ class TestPageRank(unittest.TestCase):
         adjacency = co_neighbors_graph(biadjacency, method='exact')
         scores1 = CoPageRank().fit_transform(biadjacency, seeds)
         scores2 = PageRank().fit_transform(adjacency, seeds)
-        self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0.)
+        self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0., places=6)
 
         adjacency = co_neighbors_graph(biadjacency.T.tocsr(), method='exact')
         scores1 = CoPageRank().fit(biadjacency, seeds_col=seeds).scores_col_
         scores2 = PageRank().fit_transform(adjacency, seeds)
-        self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0.)
+        self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0., places=5)
 
         with self.assertRaises(ValueError):
             CoPageRank(solver='diteration').fit_transform(biadjacency, seeds)
