@@ -116,11 +116,11 @@ class CommonNeighbors(FirstOrder):
         preds = np.zeros(n_row, dtype=int)
         for j in range(n_row):
             neigh_j = self._neighborhood(j)
-            preds[j] = len(set(neigh_i) & set(neigh_j))
+            preds[j] = np.intersect1d(neigh_i, neigh_j, assume_unique=True).shape[0]
         return preds
 
     def _predict_edge(self, source: int, target: int):
         """Prediction for a single edge."""
         neigh_i = self._neighborhood(source)
         neigh_j = self._neighborhood(target)
-        return len(set(neigh_i) & set(neigh_j))
+        return np.intersect1d(neigh_i, neigh_j, assume_unique=True).shape[0]
