@@ -111,16 +111,16 @@ class CommonNeighbors(FirstOrder):
     def _predict_node(self, node: int):
         """Prediction for a single node."""
         n_row = self.indptr_.shape[0] - 1
-        neigh_i = self.neighborhood(node)
+        neigh_i = self._neighborhood(node)
 
         preds = np.zeros(n_row, dtype=int)
         for j in range(n_row):
-            neigh_j = self.neighborhood(j)
+            neigh_j = self._neighborhood(j)
             preds[j] = len(set(neigh_i) & set(neigh_j))
         return preds
 
     def _predict_edge(self, source: int, target: int):
         """Prediction for a single edge."""
-        neigh_i = self.neighborhood(source)
-        neigh_j = self.neighborhood(target)
+        neigh_i = self._neighborhood(source)
+        neigh_j = self._neighborhood(target)
         return len(set(neigh_i) & set(neigh_j))
