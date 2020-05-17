@@ -41,8 +41,6 @@ cdef class AggregateGraph:
         CSR format index array of the normalized adjacency matrix.
     indptr :
         CSR format index pointer array of the normalized adjacency matrix.
-    shape :
-        Matrix shape.
 
     Attributes
     ----------
@@ -59,27 +57,39 @@ cdef class AggregateGraph:
     """
     cdef public int next_cluster
     cdef public dict neighbors
+    cdef public dict tmp
     cdef dict cluster_sizes
     cdef public dict cluster_out_weights
     cdef public dict cluster_in_weights
 
     def __init__(self, np.float_t[:] out_weights, np.float_t[:] in_weights, np.float_t[:] data, int[:] indices,
-                 int[:] indptr, (int, int) shape):
-        cdef int n = shape[0]
-        cdef float total_weight = sum(data) / 2
-        cdef int node
+                 int[:] indptr):
+        cdef int n = indptr.shape[0] - 1
+        cdef float total_weight = np.sum(data) / 2
+        cdef int i
+        cdef int j
 
         self.next_cluster = n
         self.neighbors = {}
-        for node in range(n):
+        for i in range(n):
             # normalize so that the sum of edge weights is equal to 1
             # remove self-loops
-            self.neighbors[node] = {indices[i]: data[i] / total_weight for i in
-                                    range(indptr[node], indptr[node + 1])
-                                    if indices[i] != node}
-        self.cluster_sizes = {node: 1 for node in range(n)}
-        self.cluster_out_weights = {node: out_weights[node] for node in range(n)}
-        self.cluster_in_weights = {node: in_weights[node] for node in range(n)}
+            tmp = {}
+            for j in range(indptr[i], indptr[i + 1]):
+                if indices[j] != i:
+                    tmp[indices[j]] = data[j] / total_weight
+            self.neighbors[i] = tmp
+
+        cluster_sizes = {}
+        cluster_out_weights = {}
+        cluster_in_weights = {}
+        for i in range(n):
+            cluster_sizes[i] = 1
+            cluster_out_weights[i] = out_weights[i]
+            cluster_in_weights[i] = in_weights[i]
+        self.cluster_sizes = cluster_sizes
+        self.cluster_out_weights = cluster_out_weights
+        self.cluster_in_weights = cluster_in_weights
 
     cdef float similarity(self, int node1, int node2):
         """Similarity of two nodes.
@@ -225,7 +235,8 @@ class Paris(BaseHierarchy):
         if n <= 1:
             raise ValueError('The graph must contain at least two nodes.')
 
-        aggregate_graph = AggregateGraph(out_weights, in_weights, sym_adjacency.data.astype(np.float), sym_adjacency.indices, sym_adjacency.indptr, sym_adjacency.shape)
+        aggregate_graph = AggregateGraph(out_weights, in_weights, sym_adjacency.data.astype(np.float),
+                                         sym_adjacency.indices, sym_adjacency.indptr)
 
         cdef vector[(int, int)] connected_components
         dendrogram = []
