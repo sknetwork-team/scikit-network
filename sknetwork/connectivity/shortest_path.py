@@ -80,13 +80,17 @@ def distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterabl
     n = len(sources)
     local_function = partial(sparse.csgraph.shortest_path,
                              adjacency, method, directed, return_predecessors, unweighted, overwrite)
-    with Pool(n_jobs) as pool:
-        res = np.array(pool.map(local_function, sources))
+    if n_jobs == 1 or n == 1:
+        res = sparse.csgraph.shortest_path(adjacency, method, directed, return_predecessors,
+                                           unweighted, overwrite, sources)
+    else:
+        with Pool(n_jobs) as pool:
+            res = np.array(pool.map(local_function, sources))
     if return_predecessors:
         if n == 1:
-            return res[:, 0].ravel(), res[:, 1].astype(int).ravel()
+            return res[0].ravel(), res[1].astype(int).ravel()
         else:
-            return res[:, 0], res[:, 1].astype(int)
+            return res[0], res[1].astype(int)
     else:
         if n == 1:
             return res.ravel()
