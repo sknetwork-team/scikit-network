@@ -133,7 +133,7 @@ def shortest_paths(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], 
     paths : list
         If single source and single target, return a list containing the nodes on the path from source to target.
         If multiple sources or multiple targets, return a list of paths as lists.
-        An empty list mean that the path does not exist.
+        An empty list means that the path does not exist.
 
     Examples
     --------
