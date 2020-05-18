@@ -71,7 +71,7 @@ def distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterabl
     (array([0., 1., 2.]), array([-9999,     0,     1]))
     """
     n_jobs = check_n_jobs(n_jobs)
-    if method == 'FW':
+    if method == 'FW' and n_jobs != 1:
         raise ValueError('The Floyd-Warshall algorithm cannot be used with parallel computations.')
     if sources is None:
         sources = np.arange(adjacency.shape[0])
@@ -152,27 +152,36 @@ def shortest_paths(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], 
         sources = [sources]
     if np.issubdtype(type(targets), np.integer):
         targets = [targets]
-    if len(sources) > 1 and len(targets) > 1:
+
+    if len(sources) == 1:
+        source2target = True
+        source = sources[0]
+    elif len(targets) == 1:
+        source2target = False
+        source = targets[0]
+        targets = sources
+    else:
         raise ValueError(
             'This request is ambiguous. Either use one source and multiple targets or multiple sources and one target.')
 
-    dists, preds = distances(adjacency, sources, method, directed, True, unweighted, overwrite, n_jobs)
-    if dists.ndim == 1:
-        dists, preds = [dists], [preds]
+    if source2target:
+        dists, preds = distances(adjacency, source, method, directed, True, unweighted, overwrite, n_jobs)
+    else:
+        dists, preds = distances(adjacency.T, source, method, directed, True, unweighted, overwrite, n_jobs)
+
     paths = []
-    for i, source in enumerate(sources):
-        dist, pred = dists[i], preds[i]
-        for target in targets:
-            if dist[target] == np.inf:
-                path = []
-            else:
-                path = [target]
-                node = target
-                while node != source:
-                    node = pred[node]
-                    path.append(node)
+    for target in targets:
+        if dists[target] == np.inf:
+            path = []
+        else:
+            path = [target]
+            node = target
+            while node != source:
+                node = preds[node]
+                path.append(node)
+        if source2target:
             path.reverse()
-            paths.append(path)
+        paths.append(path)
     if len(paths) == 1:
         paths = paths[0]
     return paths
