@@ -5,7 +5,6 @@ Created on Jul 24, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Quentin Lutz <qlutz@enst.fr>
 """
-
 from typing import Tuple, Optional, Union
 
 import numpy as np

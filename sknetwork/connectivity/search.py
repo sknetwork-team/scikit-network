@@ -3,7 +3,6 @@
 """
 Created on Jul 24, 2019
 """
-
 import numpy as np
 from scipy import sparse
 
