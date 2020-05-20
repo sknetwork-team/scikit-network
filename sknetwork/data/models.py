@@ -7,7 +7,7 @@ Created on Jul 1, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 from math import pi
-from typing import Union, Optional
+from typing import Union, Optional, Iterable
 
 import numpy as np
 from scipy import sparse
@@ -17,7 +17,7 @@ from sknetwork.utils.format import directed2undirected
 from sknetwork.utils.parse import edgelist2adjacency
 
 
-def block_model(sizes: np.ndarray, p_in: Union[float, list, np.ndarray] = .2, p_out: float = .05,
+def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_out: float = .05,
                 seed: Optional[int] = None, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     """Stochastic block model.
 
@@ -73,8 +73,7 @@ def block_model(sizes: np.ndarray, p_in: Union[float, list, np.ndarray] = .2, p_
     adjacency_out = sparse.random(n, n, p_out) > 0
     adjacency = sparse.lil_matrix(adjacency_in + adjacency_out)
     adjacency.setdiag(0)
-    adjacency = adjacency + adjacency.T
-    adjacency = sparse.csr_matrix(adjacency).astype(int)
+    adjacency = directed2undirected(adjacency.tocsr(), weighted=False).astype(bool)
 
     if metadata:
         graph = Bunch()
