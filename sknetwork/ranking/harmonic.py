@@ -9,7 +9,7 @@ from typing import Union, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork.connectivity import distances
+from sknetwork.paths.shortest_path import distance
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.check import check_format, check_square
 
@@ -74,7 +74,7 @@ class Harmonic(BaseRanking):
         n = adjacency.shape[0]
         indices = np.arange(n)
 
-        dists = distances(adjacency, n_jobs=self.n_jobs, sources=indices)
+        dists = distance(adjacency, n_jobs=self.n_jobs, sources=indices)
 
         np.fill_diagonal(dists, 1)
         inv = (1 / dists)

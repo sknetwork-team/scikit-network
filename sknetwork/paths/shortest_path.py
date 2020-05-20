@@ -11,12 +11,11 @@ from typing import Optional, Union, Iterable
 import numpy as np
 from scipy import sparse
 
-from sknetwork.utils.check import check_n_jobs
+from sknetwork.utils.check import check_n_jobs, is_symmetric
 
 
-def distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterable]] = None,
-              method: str = 'auto', directed: bool = True, return_predecessors: bool = False, unweighted: bool = False,
-              overwrite: bool = False, n_jobs: Optional[int] = None):
+def distance(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterable]] = None, method: str = 'D',
+             return_predecessors: bool = False, unweighted: bool = False, n_jobs: Optional[int] = None):
     """Compute distances between nodes.
 
     * Graphs
@@ -33,19 +32,13 @@ def distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterabl
     method :
         The method to be used.
 
-        * ``'auto'`` (default),
-        * ``'FW'`` (Floyd-Warshall),
         * ``'D'`` (Dijkstra),
         * ``'BF'`` (Bellman-Ford),
         * ``'J'`` (Johnson).
-    directed :
-        Denotes if the graph is directed
     return_predecessors :
         If ``True``, the size predecessor matrix is returned
     unweighted :
         If ``True``, the weights of the edges are ignored
-    overwrite :
-        If ``True`` and ``method == 'FW'``, overwrites the given adjacency
     n_jobs :
         If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
         If ``None``, no parallel computations are made.
@@ -65,9 +58,9 @@ def distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterabl
     --------
     >>> from sknetwork.data import cyclic_digraph
     >>> adjacency = cyclic_digraph(3)
-    >>> distances(adjacency, sources=0)
+    >>> distance(adjacency, sources=0)
     array([0., 1., 2.])
-    >>> distances(adjacency, sources=0, return_predecessors=True)
+    >>> distance(adjacency, sources=0, return_predecessors=True)
     (array([0., 1., 2.]), array([-9999,     0,     1]))
     """
     n_jobs = check_n_jobs(n_jobs)
@@ -78,11 +71,12 @@ def distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterabl
     elif np.issubdtype(type(sources), np.integer):
         sources = np.array([sources])
     n = len(sources)
+    directed = not is_symmetric(adjacency)
     local_function = partial(sparse.csgraph.shortest_path,
-                             adjacency, method, directed, return_predecessors, unweighted, overwrite)
+                             adjacency, method, directed, return_predecessors, unweighted, False)
     if n_jobs == 1 or n == 1:
         res = sparse.csgraph.shortest_path(adjacency, method, directed, return_predecessors,
-                                           unweighted, overwrite, sources)
+                                           unweighted, False, sources)
     else:
         with Pool(n_jobs) as pool:
             res = np.array(pool.map(local_function, sources))
@@ -98,9 +92,8 @@ def distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterabl
             return res
 
 
-def shortest_paths(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], targets: Union[int, Iterable],
-                   method: str = 'auto', directed: bool = True, unweighted: bool = False, overwrite: bool = False,
-                   n_jobs: Optional[int] = None):
+def shortest_path(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], targets: Union[int, Iterable],
+                  method: str = 'D', unweighted: bool = False, n_jobs: Optional[int] = None):
     """Compute the shortest paths in the graph.
 
     * Graphs
@@ -117,17 +110,11 @@ def shortest_paths(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], 
     method :
         The method to be used.
 
-        * ``'auto'`` (default),
-        * ``'FW'`` (Floyd-Warshall),
         * ``'D'`` (Dijkstra),
         * ``'BF'`` (Bellman-Ford),
         * ``'J'`` (Johnson).
-    directed :
-        Denotes if the graph is directed
     unweighted :
         If ``True``, the weights of the edges are ignored
-    overwrite :
-        If ``True`` and ``method == 'FW'``, overwrites the given adjacency
     n_jobs :
         If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
         If ``None``, no parallel computations are made.
@@ -143,13 +130,13 @@ def shortest_paths(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], 
     --------
     >>> from sknetwork.data import linear_digraph
     >>> adjacency = linear_digraph(3)
-    >>> shortest_paths(adjacency, 0, 2)
+    >>> shortest_path(adjacency, 0, 2)
     [0, 1, 2]
-    >>> shortest_paths(adjacency, 2, 0)
+    >>> shortest_path(adjacency, 2, 0)
     []
-    >>> shortest_paths(adjacency, 0, [1, 2])
+    >>> shortest_path(adjacency, 0, [1, 2])
     [[0, 1], [0, 1, 2]]
-    >>> shortest_paths(adjacency, [0, 1], 2)
+    >>> shortest_path(adjacency, [0, 1], 2)
     [[0, 1, 2], [1, 2]]
     """
     if np.issubdtype(type(sources), np.integer):
@@ -169,9 +156,9 @@ def shortest_paths(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], 
             'This request is ambiguous. Either use one source and multiple targets or multiple sources and one target.')
 
     if source2target:
-        dists, preds = distances(adjacency, source, method, directed, True, unweighted, overwrite, n_jobs)
+        dists, preds = distance(adjacency, source, method, True, unweighted, n_jobs)
     else:
-        dists, preds = distances(adjacency.T, source, method, directed, True, unweighted, overwrite, n_jobs)
+        dists, preds = distance(adjacency.T, source, method, True, unweighted, n_jobs)
 
     paths = []
     for target in targets:

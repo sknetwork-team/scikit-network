@@ -11,7 +11,8 @@ Reference
     embedding
     ranking
     classification
-    connectivity
+    topology
+    paths
     linalg
     utils
     visualization

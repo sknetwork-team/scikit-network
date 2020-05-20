@@ -13,10 +13,8 @@ from scipy import sparse
 from sknetwork.utils.check import is_symmetric, is_square, check_format
 
 
-def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak',
-                         return_components: bool = True) -> Union[int, Tuple[int, np.ndarray]]:
-    """
-    Extract the connected components of the graph.
+def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak') -> Union[int, Tuple[int, np.ndarray]]:
+    """Extract the connected components of the graph.
 
     * Graphs
     * Digraphs
@@ -29,23 +27,19 @@ def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak',
         Adjacency matrix of the graph.
     connection :
         Must be ``'weak'`` (default) or ``'strong'``. The type of connection to use for directed graphs.
-    return_components :
-        If ``True`` (default), then return the labels for each of the connected components.
 
     Returns
     -------
-    n_components : int
-        The number of connected components.
-    components : ndarray
-        The array such that for each node ``i``, ``components[i]`` is the connected component of ``i``.
+    labels : np.ndarray
+        The array such that for each node ``i``, ``labels[i]`` is the connected component of ``i``.
+        The array is indexed from 0 to n_cc-1.
 
     """
-    return sparse.csgraph.connected_components(adjacency, (not is_symmetric(adjacency)), connection, return_components)
+    return sparse.csgraph.connected_components(adjacency, not is_symmetric(adjacency), connection, True)[1]
 
 
 def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], return_labels: bool = False):
-    """
-    Extract the largest connected component of a graph. Bipartite graphs are treated as undirected.
+    """Extract the largest connected component of a graph. Bipartite graphs are treated as undirected.
 
     * Graphs
     * Digraphs
@@ -76,24 +70,24 @@ def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray],
         bipartite: bool = False
         full_adjacency = adjacency
 
-    n_components, labels = connected_components(full_adjacency)
+    labels = connected_components(full_adjacency)
     unique_labels, counts = np.unique(labels, return_counts=True)
     component_label = unique_labels[np.argmax(counts)]
     component_indices = np.where(labels == component_label)[0]
 
     if bipartite:
         split_ix = np.searchsorted(component_indices, n_row)
-        samples_ix, features_ix = component_indices[:split_ix], component_indices[split_ix:] - n_row
+        row_ix, col_ix = component_indices[:split_ix], component_indices[split_ix:] - n_row
     else:
-        samples_ix, features_ix = component_indices, component_indices
-    new_adjacency = adjacency[samples_ix, :]
-    new_adjacency = (new_adjacency.tocsc()[:, features_ix]).tocsr()
+        row_ix, col_ix = component_indices, component_indices
+    new_adjacency = adjacency[row_ix, :]
+    new_adjacency = (new_adjacency.tocsc()[:, col_ix]).tocsr()
 
     if return_labels:
         if bipartite:
-            return new_adjacency, (samples_ix, features_ix)
+            return new_adjacency, (row_ix, col_ix)
         else:
-            return new_adjacency, samples_ix
+            return new_adjacency, row_ix
     else:
         return new_adjacency
 
@@ -125,9 +119,9 @@ def is_bipartite(adjacency: sparse.csr_matrix,
             return False, None
         else:
             return False
-    n_nodes = adjacency.indptr.shape[0] - 1
-    coloring = np.full(n_nodes, -1, dtype=int)
-    exists_remaining = n_nodes
+    n = adjacency.indptr.shape[0] - 1
+    coloring = np.full(n, -1, dtype=int)
+    exists_remaining = n
     while exists_remaining:
         src = np.argwhere(coloring == -1)[0, 0]
         next_nodes = [src]

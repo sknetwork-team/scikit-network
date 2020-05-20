@@ -6,9 +6,10 @@ Created on Jul 24, 2019
 import numpy as np
 from scipy import sparse
 
+from sknetwork.utils.check import is_symmetric
 
-def breadth_first_search(adjacency: sparse.csr_matrix, starting_node: int,
-                         directed: bool = True, return_predecessors: bool = True):
+
+def breadth_first_search(adjacency: sparse.csr_matrix, source: int, return_predecessors: bool = True):
     """Breadth-first ordering starting with specified node.
 
     * Graphs
@@ -18,13 +19,11 @@ def breadth_first_search(adjacency: sparse.csr_matrix, starting_node: int,
 
     Parameters
     ----------
-    adjacency:
+    adjacency :
         The adjacency matrix of the graph
-    starting_node:
+    source : int
         The node from which to start the ordering
-    directed:
-        Denotes if the graph is directed
-    return_predecessors:
+    return_predecessors : bool
         If ``True``, the size predecessor matrix is returned
 
     Returns
@@ -36,13 +35,12 @@ def breadth_first_search(adjacency: sparse.csr_matrix, starting_node: int,
         Returned only if ``return_predecessors == True``. The list of predecessors of each node in a breadth-first tree.
         If node ``i`` is in the tree, then its parent is given by ``predecessors[i]``. If node ``i`` is not in the tree
         (and for the parent node) then ``predecessors[i] = -9999``.
-
     """
-    return sparse.csgraph.breadth_first_order(adjacency, starting_node, directed, return_predecessors)
+    directed = not is_symmetric(adjacency)
+    return sparse.csgraph.breadth_first_order(adjacency, source, directed, return_predecessors)
 
 
-def depth_first_search(adjacency: sparse.csr_matrix, starting_node: int,
-                       directed: bool = True, return_predecessors: bool = True):
+def depth_first_search(adjacency: sparse.csr_matrix, source: int, return_predecessors: bool = True):
     """Depth-first ordering starting with specified node.
 
     * Graphs
@@ -54,10 +52,8 @@ def depth_first_search(adjacency: sparse.csr_matrix, starting_node: int,
     ----------
     adjacency:
         The adjacency matrix of the graph
-    starting_node:
+    source:
         The node from which to start the ordering
-    directed:
-        Denotes if the graph is directed
     return_predecessors:
         If ``True``, the size predecessor matrix is returned
 
@@ -70,6 +66,6 @@ def depth_first_search(adjacency: sparse.csr_matrix, starting_node: int,
         Returned only if ``return_predecessors == True``. The list of predecessors of each node in a depth-first tree.
         If node ``i`` is in the tree, then its parent is given by ``predecessors[i]``. If node ``i`` is not in the tree
         (and for the parent node) then ``predecessors[i] = -9999``.
-
     """
-    return sparse.csgraph.depth_first_order(adjacency, starting_node, directed, return_predecessors)
+    directed = not is_symmetric(adjacency)
+    return sparse.csgraph.depth_first_order(adjacency, source, directed, return_predecessors)

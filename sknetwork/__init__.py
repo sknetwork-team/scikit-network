@@ -6,7 +6,8 @@ __author__ = """scikit-network team"""
 __email__ = "bonald@enst.fr"
 __version__ = '0.17.0'
 
-import sknetwork.connectivity
+import sknetwork.topology
+import sknetwork.paths
 import sknetwork.classification
 import sknetwork.clustering
 import sknetwork.embedding

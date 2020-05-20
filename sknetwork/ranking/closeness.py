@@ -10,7 +10,7 @@ from typing import Union, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork.connectivity import distances
+from sknetwork.paths.shortest_path import distance
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.check import check_format, check_square, check_connected
 
@@ -83,16 +83,16 @@ class Closeness(BaseRanking):
         n = adjacency.shape[0]
 
         if self.method == 'exact':
-            nb_samples = n
-            indices = np.arange(n)
+            n_sources = n
+            sources = np.arange(n)
         elif self.method == 'approximate':
-            nb_samples = min(int(log(n) / self.tol ** 2), n)
-            indices = np.random.choice(np.arange(n), nb_samples, replace=False)
+            n_sources = min(int(log(n) / self.tol ** 2), n)
+            sources = np.random.choice(np.arange(n), n_sources, replace=False)
         else:
             raise ValueError("Method should be either 'exact' or 'approximate'.")
 
-        dists = distances(adjacency, n_jobs=self.n_jobs, sources=indices)
+        dists = distance(adjacency, n_jobs=self.n_jobs, sources=sources)
 
-        self.scores_ = ((n - 1) * nb_samples / n) / dists.T.dot(np.ones(nb_samples))
+        self.scores_ = ((n - 1) * n_sources / n) / dists.T.dot(np.ones(n_sources))
 
         return self
