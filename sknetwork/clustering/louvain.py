@@ -92,18 +92,16 @@ class Louvain(BaseClustering, VerboseMixin):
 
         self.random_state = check_random_state(random_state)
         self.tol_aggregation = tol_aggregation
-        self.resolution = resolution
-        self.tol = tol_optimization
+        self.resolution = np.float32(resolution)
+        self.tol = np.float32(tol_optimization)
         self.n_aggregations = n_aggregations
         self.shuffle_nodes = shuffle_nodes
 
-    def _optimize(self, n_nodes, adjacency_norm, probs_out, probs_in):
+    def _optimize(self, adjacency_norm, probs_out, probs_in):
         """One local optimization pass of the Louvain algorithm
 
         Parameters
         ----------
-        n_nodes :
-            the number of nodes in the adjacency
         adjacency_norm :
             the norm of the adjacency
         probs_out :
@@ -118,19 +116,18 @@ class Louvain(BaseClustering, VerboseMixin):
         pass_increase :
             the increase in modularity gained after optimization
         """
-        node_probs_in = probs_in
-        node_probs_out = probs_out
+        node_probs_in = probs_in.astype(np.float32)
+        node_probs_out = probs_out.astype(np.float32)
 
         adjacency = 0.5 * directed2undirected(adjacency_norm)
 
-        self_loops = adjacency.diagonal()
+        self_loops = adjacency.diagonal().astype(np.float32)
 
-        indptr: np.ndarray = adjacency.indptr
-        indices: np.ndarray = adjacency.indices
-        data: np.ndarray = adjacency.data
+        indptr: np.ndarray = adjacency.indptr.astype(np.int32)
+        indices: np.ndarray = adjacency.indices.astype(np.int32)
+        data: np.ndarray = adjacency.data.astype(np.float32)
 
-        return fit_core(self.resolution, self.tol, n_nodes,
-                        node_probs_out, node_probs_in, self_loops, data, indices, indptr)
+        return fit_core(self.resolution, self.tol, node_probs_out, node_probs_in, self_loops, data, indices, indptr)
 
     @staticmethod
     def _aggregate(adjacency_norm, probs_out, probs_in, membership: Union[sparse.csr_matrix, np.ndarray]):
@@ -156,8 +153,7 @@ class Louvain(BaseClustering, VerboseMixin):
             probs_in = np.array(membership.T.dot(probs_in).T)
 
         probs_out = np.array(membership.T.dot(probs_out).T)
-        n_nodes = adjacency_norm.shape[0]
-        return n_nodes, adjacency_norm, probs_out, probs_in
+        return adjacency_norm, probs_out, probs_in
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Louvain':
         """Fit algorithm to the data.
@@ -173,26 +169,26 @@ class Louvain(BaseClustering, VerboseMixin):
         """
         adjacency = check_format(adjacency)
         check_square(adjacency)
-        n_nodes = adjacency.shape[0]
+        n = adjacency.shape[0]
 
         probs_out = check_probs('degree', adjacency)
         probs_in = check_probs('degree', adjacency.T)
 
-        nodes = np.arange(n_nodes)
+        nodes = np.arange(n)
         if self.shuffle_nodes:
             nodes = self.random_state.permutation(nodes)
             adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
         adjacency_norm = adjacency / adjacency.data.sum()
 
-        membership = sparse.identity(n_nodes, format='csr')
+        membership = sparse.identity(n, format='csr')
         increase = True
         count_aggregations = 0
-        self.log.print("Starting with", n_nodes, "nodes.")
+        self.log.print("Starting with", n, "nodes.")
         while increase:
             count_aggregations += 1
 
-            current_labels, pass_increase = self._optimize(n_nodes, adjacency_norm, probs_out, probs_in)
+            current_labels, pass_increase = self._optimize(adjacency_norm, probs_out, probs_in)
             _, current_labels = np.unique(current_labels, return_inverse=True)
 
             if pass_increase <= self.tol_aggregation:
@@ -200,12 +196,13 @@ class Louvain(BaseClustering, VerboseMixin):
             else:
                 membership_agg = membership_matrix(current_labels)
                 membership = membership.dot(membership_agg)
-                n_nodes, adjacency_norm, probs_out, probs_in = self._aggregate(adjacency_norm, probs_out,
-                                                                               probs_in, membership_agg)
+                adjacency_norm, probs_out, probs_in = self._aggregate(adjacency_norm, probs_out, probs_in,
+                                                                      membership_agg)
 
-                if n_nodes == 1:
+                n = adjacency_norm.shape[0]
+                if n == 1:
                     break
-            self.log.print("Aggregation", count_aggregations, "completed with", n_nodes, "clusters and ",
+            self.log.print("Aggregation", count_aggregations, "completed with", n, "clusters and ",
                            pass_increase, "increment.")
             if count_aggregations == self.n_aggregations:
                 break
@@ -286,7 +283,6 @@ class BiLouvain(Louvain, BaseBiClustering):
       <https://hal.archives-ouvertes.fr/hal-01231784/document>`_
       (Doctoral dissertation, Université d'Orléans).
     """
-
     def __init__(self, resolution: float = 1, tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3,
                  n_aggregations: int = -1, shuffle_nodes: bool = False, sort_clusters: bool = True,
                  return_membership: bool = True, return_aggregate: bool = True,

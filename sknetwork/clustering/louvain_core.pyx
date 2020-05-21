@@ -7,15 +7,12 @@ from libcpp.set cimport set
 from libcpp.vector cimport vector
 cimport cython
 
-ctypedef np.int_t int_type_t
-ctypedef np.float_t float_type_t
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.float_t[:] ou_node_probs,
-             np.float_t[:] in_node_probs, np.float_t[:] self_loops, np.float_t[:] data, int[:] indices,
-             int[:] indptr):  # pragma: no cover
-    """    Fit the clusters to the objective function.
+def fit_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_node_probs, float[:] self_loops,
+             float[:] data, int[:] indices, int[:] indptr):  # pragma: no cover
+    """Fit the clusters to the objective function.
 
     Parameters
     ----------
@@ -45,6 +42,7 @@ def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.f
     total_increase :
         Score of the clustering (total increase in modularity).
     """
+    cdef int n = indptr.shape[0] - 1
     cdef int increase = 1
     cdef int has_candidates = 0
 
@@ -77,7 +75,7 @@ def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.f
     cdef int node
     cdef int start
 
-    for i in range(n_nodes):
+    for i in range(n):
         labels.push_back(i)
         neighbor_clusters_weights.push_back(0.)
         ou_clusters_weights.push_back(ou_node_probs[i])
@@ -87,7 +85,7 @@ def fit_core(float_type_t resolution, float_type_t tol, int_type_t n_nodes, np.f
         increase = 0
         increase_pass = 0
 
-        for node in range(n_nodes):
+        for node in range(n):
             has_candidates = 0
             cluster_node = labels[node]
 
