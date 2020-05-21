@@ -1,18 +1,18 @@
-.. _paths:
+.. _path:
 
-Paths
-*****
+Path
+****
 
 Standard algorithms related to graph traversal.
 
 Most algorithms are adapted from SciPy_.
 
-Shortest paths
---------------
+Shortest path
+-------------
 
-.. autofunction:: sknetwork.paths.distance
+.. autofunction:: sknetwork.path.distance
 
-.. autofunction:: sknetwork.paths.shortest_path
+.. autofunction:: sknetwork.path.shortest_path
 
 Summary of the different methods and their worst-case complexity for :math:`n` nodes and :math:`m` edges (for the
 all-pairs problem):
@@ -29,12 +29,12 @@ all-pairs problem):
 +----------------+------------------------------+----------------------------------------+
 
 
-Searches
---------
+Search
+------
 
-.. autofunction:: sknetwork.paths.breadth_first_search
+.. autofunction:: sknetwork.path.breadth_first_search
 
-.. autofunction:: sknetwork.paths.depth_first_search
+.. autofunction:: sknetwork.path.depth_first_search
 
 
 

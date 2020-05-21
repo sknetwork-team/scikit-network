@@ -3,7 +3,7 @@
 """"tests for shortest_path.py"""
 import unittest
 
-from sknetwork.paths import distance, shortest_path
+from sknetwork.path import distance, shortest_path
 from sknetwork.data import karate_club, cyclic_digraph
 
 

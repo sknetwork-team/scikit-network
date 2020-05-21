@@ -6,13 +6,13 @@ Reference
 .. toctree::
     introduction
     data
+    topology
+    path
     clustering
     hierarchy
-    embedding
     ranking
     classification
-    topology
-    paths
+    embedding
     linalg
     utils
     visualization

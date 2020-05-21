@@ -7,7 +7,7 @@ __email__ = "bonald@enst.fr"
 __version__ = '0.17.0'
 
 import sknetwork.topology
-import sknetwork.paths
+import sknetwork.path
 import sknetwork.classification
 import sknetwork.clustering
 import sknetwork.embedding

@@ -1,1 +1,1 @@
-"""tests for connectivity"""
+"""tests for topology"""

@@ -1,5 +1,5 @@
-Connectivity
-************
+Path
+****
 
 
 .. toctree::

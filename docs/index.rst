@@ -17,12 +17,12 @@ Welcome to scikit-network's documentation!
 
    tutorials/getting_started
    tutorials/data/index
+   tutorials/path/index
    tutorials/clustering/index
    tutorials/hierarchy/index
-   tutorials/embedding/index
    tutorials/ranking/index
    tutorials/classification/index
-   tutorials/connectivity/index
+   tutorials/embedding/index
    tutorials/utils/index
    tutorials/visualization/index
 

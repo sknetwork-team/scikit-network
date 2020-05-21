@@ -1,0 +1,1 @@
+"""tests for path module"""

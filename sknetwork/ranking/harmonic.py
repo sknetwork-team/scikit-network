@@ -9,7 +9,7 @@ from typing import Union, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork.paths.shortest_path import distance
+from sknetwork.path.shortest_path import distance
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.check import check_format, check_square
 
