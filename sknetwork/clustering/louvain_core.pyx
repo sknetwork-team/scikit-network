@@ -1,8 +1,5 @@
 # distutils: language = c++
 # cython: language_level=3
-import numpy as np
-cimport numpy as np
-
 from libcpp.set cimport set
 from libcpp.vector cimport vector
 cimport cython
@@ -44,14 +41,11 @@ def fit_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_no
     """
     cdef int n = indptr.shape[0] - 1
     cdef int increase = 1
-    cdef int has_candidates = 0
 
     cdef vector[int] labels
     cdef vector[float] neighbor_clusters_weights
     cdef vector[float] ou_clusters_weights
     cdef vector[float] in_clusters_weights
-    cdef vector[int] neighbors
-    cdef vector[float] weights
     cdef set[int] unique_clusters = ()
 
     cdef float increase_pass
@@ -68,12 +62,9 @@ def fit_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_no
     cdef int cluster
     cdef int cluster_best
     cdef int cluster_node
-    cdef int i
+    cdef int i, j
+    cdef int j1, j2
     cdef int label
-    cdef int n_neighbors
-    cdef int neighbor
-    cdef int node
-    cdef int start
 
     for i in range(n):
         labels.push_back(i)
@@ -85,38 +76,26 @@ def fit_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_no
         increase = 0
         increase_pass = 0
 
-        for node in range(n):
-            has_candidates = 0
-            cluster_node = labels[node]
-
-            neighbors.clear()
-            weights.clear()
-            start = indptr[node]
-            n_neighbors = indptr[node + 1] - start
-
-            neighbor_clusters_weights[labels[node]] = 0
-            for i in range(n_neighbors):
-                neighbor = indices[start + i]
-                neighbors.push_back(neighbor)
-                weights.push_back(data[start + i])
-                label = labels[neighbor]
-                neighbor_clusters_weights[label] = 0
-
+        for i in range(n):
             unique_clusters.clear()
-            for i in range(n_neighbors):
-                label = labels[neighbors[i]]
-                neighbor_clusters_weights[label] += weights[i]
+            cluster_node = labels[i]
+            j1, j2 = indptr[i], indptr[i + 1]
+
+            neighbor_clusters_weights[cluster_node] = 0
+            for j in range(j1, j2):
+                label = labels[indices[j]]
+                neighbor_clusters_weights[label] += data[j]
                 unique_clusters.insert(label)
 
             unique_clusters.erase(cluster_node)
 
             if not unique_clusters.empty():
-                node_prob_ou = ou_node_probs[node]
-                node_prob_in = in_node_probs[node]
+                node_prob_ou = ou_node_probs[i]
+                node_prob_in = in_node_probs[i]
                 ratio_ou = resolution * node_prob_ou
                 ratio_in = resolution * node_prob_in
 
-                delta_exit = 2 * (neighbor_clusters_weights[cluster_node] - self_loops[node])
+                delta_exit = 2 * (neighbor_clusters_weights[cluster_node] - self_loops[i])
                 delta_exit -= ratio_ou * (in_clusters_weights[cluster_node] - node_prob_in)
                 delta_exit -= ratio_in * (ou_clusters_weights[cluster_node] - node_prob_ou)
 
@@ -133,13 +112,15 @@ def fit_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_no
                         delta_best = delta_local
                         cluster_best = cluster
 
+                    neighbor_clusters_weights[cluster] = 0
+
                 if delta_best > 0:
                     increase_pass += delta_best
                     ou_clusters_weights[cluster_node] -= node_prob_ou
                     in_clusters_weights[cluster_node] -= node_prob_in
                     ou_clusters_weights[cluster_best] += node_prob_ou
                     in_clusters_weights[cluster_best] += node_prob_in
-                    labels[node] = cluster_best
+                    labels[i] = cluster_best
 
         increase_total += increase_pass
         if increase_pass > tol:
