@@ -17,8 +17,6 @@ def fit_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_no
         Resolution parameter (positive).
     tol :
         Minimum increase in modularity to enter a new optimization pass.
-    n_nodes :
-        Number of nodes.
     ou_node_probs :
         Distribution of node weights based on their out-edges (sums to 1).
     in_node_probs :
@@ -41,15 +39,17 @@ def fit_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_no
     """
     cdef int n = indptr.shape[0] - 1
     cdef int increase = 1
+    cdef int cluster
+    cdef int cluster_best
+    cdef int cluster_node
+    cdef int i
+    cdef int j
+    cdef int j1
+    cdef int j2
+    cdef int label
 
-    cdef vector[int] labels
-    cdef vector[float] neighbor_clusters_weights
-    cdef vector[float] ou_clusters_weights
-    cdef vector[float] in_clusters_weights
-    cdef set[int] unique_clusters = ()
-
-    cdef float increase_pass
     cdef float increase_total = 0
+    cdef float increase_pass
     cdef float delta
     cdef float delta_best
     cdef float delta_exit
@@ -59,12 +59,11 @@ def fit_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_no
     cdef float ratio_in
     cdef float ratio_ou
 
-    cdef int cluster
-    cdef int cluster_best
-    cdef int cluster_node
-    cdef int i, j
-    cdef int j1, j2
-    cdef int label
+    cdef vector[int] labels
+    cdef vector[float] neighbor_clusters_weights
+    cdef vector[float] ou_clusters_weights
+    cdef vector[float] in_clusters_weights
+    cdef set[int] unique_clusters = ()
 
     for i in range(n):
         labels.push_back(i)
@@ -79,9 +78,9 @@ def fit_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_no
         for i in range(n):
             unique_clusters.clear()
             cluster_node = labels[i]
-            j1, j2 = indptr[i], indptr[i + 1]
+            j1 = indptr[i]
+            j2 = indptr[i + 1]
 
-            neighbor_clusters_weights[cluster_node] = 0
             for j in range(j1, j2):
                 label = labels[indices[j]]
                 neighbor_clusters_weights[label] += data[j]
@@ -121,6 +120,8 @@ def fit_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_no
                     ou_clusters_weights[cluster_best] += node_prob_ou
                     in_clusters_weights[cluster_best] += node_prob_in
                     labels[i] = cluster_best
+
+            neighbor_clusters_weights[cluster_node] = 0
 
         increase_total += increase_pass
         if increase_pass > tol:
