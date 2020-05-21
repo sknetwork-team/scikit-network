@@ -15,7 +15,7 @@ wheel==0.34.2
 coverage==5.1
 
 # visualization of reports from coverage
-codecov==2.1.0
+codecov==2.1.1
 
 # used to upload wheels and sources to PyPI
 twine==3.1.1
