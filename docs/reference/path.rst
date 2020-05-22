@@ -36,6 +36,11 @@ Search
 
 .. autofunction:: sknetwork.path.depth_first_search
 
+Metrics
+-------
+
+.. autofunction:: sknetwork.path.diameter
+
 
 
 .. _SciPy: https://docs.scipy.org/doc/scipy/reference/sparse.csgraph.html
