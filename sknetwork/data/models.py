@@ -29,8 +29,8 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
         Probability of connection within blocks.
     p_out :
         Probability of connection across blocks (must be less than **p_in**).
-    seed : Optional[int]
-        Random seed.
+    seed :
+        Seed of the random generator (optional).
     metadata :
         If ``True``, return a `Bunch` object with metadata.
 
@@ -90,12 +90,12 @@ def erdos_renyi(n: int = 20, p: float = .3, seed: Optional[int] = None) -> spars
 
     Parameters
     ----------
-    n : int
+    n :
          Number of nodes.
-    p : float
+    p :
         Probability of connection between nodes.
-    seed : Optional[int]
-        Random seed.
+    seed :
+        Seed of the random generator (optional).
 
     Returns
     -------
@@ -286,7 +286,8 @@ def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr
         return adjacency
 
 
-def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True) -> sparse.csr_matrix:
+def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True, seed: Optional[int] = None) \
+        -> sparse.csr_matrix:
     """Albert-Barabasi model.
 
     Parameters
@@ -297,6 +298,8 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True) -> s
         Degree of incoming nodes (less than **n**).
     undirected : bool
         If ``True``, return an undirected graph.
+    seed :
+        Seed of the random generator (optional).
 
     Returns
     -------
@@ -316,6 +319,7 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True) -> s
     <https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.74.47>`
     Reviews of Modern Physics.
     """
+    np.random.seed(seed)
     degrees = np.zeros(n, int)
     degrees[:degree] = degree - 1
     edges = [(i, j) for i in range(degree) for j in range(i)]
@@ -327,19 +331,21 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True) -> s
     return edgelist2adjacency(edges, undirected)
 
 
-def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, metadata: bool = False) \
-    -> Union[sparse.csr_matrix, Bunch]:
+def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, seed: Optional[int] = None,
+                   metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     """Watts-Strogatz model.
 
     Parameters
     ----------
-    n : int
+    n :
         Number of nodes.
-    degree : int
+    degree :
         Initial degree of nodes.
-    prob : prob
+    prob :
         Probability of edge modification.
-    metadata : bool
+    seed :
+        Seed of the random generator (optional).
+    metadata :
         If ``True``, return a `Bunch` object with metadata.
     Returns
     -------
@@ -357,6 +363,7 @@ def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, metadata: 
     ----------
     Watts, D., Strogatz, S. (1998). Collective dynamics of small-world networks, Nature.
     """
+    np.random.seed(seed)
     edges = np.array([(i, (i + j + 1) % n) for i in range(n) for j in range(degree // 2)])
     row, col = edges[:, 0], edges[:, 1]
     adjacency = sparse.coo_matrix((np.ones_like(row, int), (row, col)), shape=(n, n))
@@ -371,7 +378,7 @@ def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, metadata: 
                 adjacency[node, i] = 1
                 adjacency[i, j] = 0
                 adjacency[j, i] = 0
-    adjacency = sparse.csr_matrix(adjacency)
+    adjacency = sparse.csr_matrix(adjacency, shape=adjacency.shape)
     if metadata:
         t = 2 * pi * np.arange(n).astype(float) / n
         x = np.cos(t)
