@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 
-from sknetwork.linalg.operators import CoNeighborsOperator
+from sknetwork.linalg.operators import CoNeighborOperator
 from sknetwork.linalg.ppr_solver import get_pagerank
 from sknetwork.ranking.base import BaseRanking, BaseBiRanking
 from sknetwork.utils.format import bipartite2undirected
@@ -251,12 +251,12 @@ class CoPageRank(BiPageRank):
         biadjacency = check_format(biadjacency)
         n_row, n_col = biadjacency.shape
 
-        operator = CoNeighborsOperator(biadjacency, True)
+        operator = CoNeighborOperator(biadjacency, True)
         seeds_row = seeds2probs(n_row, seeds_row)
         self.scores_row_ = get_pagerank(operator, seeds_row, damping_factor=self.damping_factor, solver=self.solver,
                                         n_iter=self.n_iter, tol=self.tol)
 
-        operator = CoNeighborsOperator(biadjacency.T.tocsr(), True)
+        operator = CoNeighborOperator(biadjacency.T.tocsr(), True)
         seeds_col = seeds2probs(n_col, seeds_col)
         self.scores_col_ = get_pagerank(operator, seeds_col, damping_factor=self.damping_factor, solver=self.solver,
                                         n_iter=self.n_iter, tol=self.tol)

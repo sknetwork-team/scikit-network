@@ -16,8 +16,8 @@ from sknetwork.utils.check import check_format
 from sknetwork.utils.knn import KNNDense
 
 
-def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normalized: bool = True, method='knn',
-                       n_neighbors: int = 5, n_components: int = 8) -> sparse.csr_matrix:
+def co_neighbor_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normalized: bool = True, method='knn',
+                      n_neighbors: int = 5, n_components: int = 8) -> sparse.csr_matrix:
     """Compute the co-neighborhood adjacency.
 
     * Graphs
@@ -54,10 +54,10 @@ def co_neighbors_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normaliz
 
     if method == 'exact':
         if normalized:
-            forward = normalize(adjacency.T).tocsr()
+            forward = normalize(adjacency.T.astype(float)).tocsr()
         else:
-            forward = adjacency.T
-        return adjacency.dot(forward)
+            forward = adjacency.T.astype(float)
+        return adjacency.astype(float).dot(forward)
 
     elif method == 'knn':
         bispectral = BiSpectral(n_components, normalized_laplacian=normalized)

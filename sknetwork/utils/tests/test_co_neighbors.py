@@ -8,9 +8,9 @@ import unittest
 
 import numpy as np
 
-from sknetwork.utils import co_neighbors_graph
+from sknetwork.utils import co_neighbor_graph
 from sknetwork.data import movie_actor
-from sknetwork.linalg import CoNeighborsOperator
+from sknetwork.linalg import CoNeighborOperator
 
 
 class TestCoNeighbors(unittest.TestCase):
@@ -21,12 +21,12 @@ class TestCoNeighbors(unittest.TestCase):
 
     def test_exact(self):
         n = self.biadjacency.shape[0]
-        adjacency = co_neighbors_graph(self.biadjacency, method='exact', normalized=False)
+        adjacency = co_neighbor_graph(self.biadjacency, method='exact', normalized=False)
         self.assertEqual(adjacency.shape, (n, n))
-        adjacency = co_neighbors_graph(self.biadjacency, method='exact')
+        adjacency = co_neighbor_graph(self.biadjacency, method='exact')
         self.assertEqual(adjacency.shape, (n, n))
 
-        operator = CoNeighborsOperator(self.biadjacency)
+        operator = CoNeighborOperator(self.biadjacency)
         x = np.random.randn(n)
         y1 = adjacency.dot(x)
         y2 = operator.dot(x)
@@ -34,7 +34,7 @@ class TestCoNeighbors(unittest.TestCase):
 
     def test_knn(self):
         n = self.biadjacency.shape[0]
-        adjacency = co_neighbors_graph(self.biadjacency, method='knn')
+        adjacency = co_neighbor_graph(self.biadjacency, method='knn')
         self.assertEqual(adjacency.shape, (n, n))
-        adjacency = co_neighbors_graph(self.biadjacency, method='knn', normalized=False)
+        adjacency = co_neighbor_graph(self.biadjacency, method='knn', normalized=False)
         self.assertEqual(adjacency.shape, (n, n))
