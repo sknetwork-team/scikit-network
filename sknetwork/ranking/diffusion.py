@@ -73,7 +73,7 @@ class Diffusion(BaseRanking, VerboseMixin):
         seeds :
             Temperatures of border nodes (dictionary or vector). Negative temperatures ignored.
         initial_state :
-            Initial state of temperatures.
+            Initial state of temperatures (optional).
 
         Returns
         -------
