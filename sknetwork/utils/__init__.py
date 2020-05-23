@@ -1,5 +1,5 @@
 """utils module"""
-from sknetwork.utils.co_neighbors import co_neighbor_graph
+from sknetwork.utils.co_neighbor import co_neighbor_graph
 from sknetwork.utils.format import *
 from sknetwork.utils.kmeans import KMeansDense
 from sknetwork.utils.knn import KNNDense, PNNDense

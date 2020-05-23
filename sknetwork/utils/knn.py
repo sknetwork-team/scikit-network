@@ -40,7 +40,8 @@ class BaseTransformer(Algorithm, ABC):
     def make_undirected(self):
         """Modifies the adjacency to match desired constrains."""
         if self.adjacency_ is not None and self.undirected:
-            self.adjacency_ = directed2undirected(self.adjacency_, weighted=False).astype(int)
+            dtype = self.adjacency_.dtype
+            self.adjacency_ = directed2undirected(self.adjacency_, weighted=False).astype(dtype)
 
         return self
 
@@ -106,7 +107,7 @@ class KNNDense(BaseTransformer):
         n: int = x.shape[0]
         indptr: np.ndarray = np.arange(n + 1) * (self.n_neighbors + 1)
         indices: np.ndarray = neighbors.reshape(-1)
-        data = np.ones(len(indices))
+        data = np.ones(indices.shape[0], dtype=bool)
 
         self.adjacency_ = sparse.csr_matrix((data, indices, indptr))
         self.make_undirected()
@@ -158,7 +159,7 @@ class PNNDense(BaseTransformer):
 
         rows = np.array(rows)
         cols = np.array(cols)
-        data = np.ones(len(rows))
+        data = np.ones(cols.shape[0], dtype=bool)
 
         self.adjacency_ = sparse.csr_matrix((data, (rows, cols)))
         self.make_undirected()

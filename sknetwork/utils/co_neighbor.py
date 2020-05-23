@@ -10,7 +10,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.embedding.spectral import BiSpectral
+from sknetwork.embedding.svd import SVD, GSVD
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_format
 from sknetwork.utils.knn import KNNDense
@@ -50,20 +50,23 @@ def co_neighbor_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normalize
     adjacency : sparse.csr_matrix
         Adjacency of the co-neighborhood.
     """
-    adjacency = check_format(adjacency)
+    adjacency = check_format(adjacency).astype(float)
 
     if method == 'exact':
         if normalized:
-            forward = normalize(adjacency.T.astype(float)).tocsr()
+            forward = normalize(adjacency.T).tocsr()
         else:
-            forward = adjacency.T.astype(float)
-        return adjacency.astype(float).dot(forward)
+            forward = adjacency.T
+        return adjacency.dot(forward)
 
     elif method == 'knn':
-        bispectral = BiSpectral(n_components, normalized_laplacian=normalized)
-        bispectral.fit(adjacency)
+        if normalized:
+            algo = GSVD(n_components, regularization=None)
+        else:
+            algo = SVD(n_components, regularization=None)
+        embedding = algo.fit_transform(adjacency)
         knn = KNNDense(n_neighbors, undirected=True)
-        knn.fit(bispectral.embedding_row_)
+        knn.fit(embedding)
         return knn.adjacency_
     else:
         raise ValueError('method must be "exact" or "knn".')
