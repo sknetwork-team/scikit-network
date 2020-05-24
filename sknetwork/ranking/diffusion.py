@@ -73,7 +73,7 @@ class Diffusion(BaseRanking, VerboseMixin):
         seeds :
             Temperatures of border nodes (dictionary or vector). Negative temperatures ignored.
         initial_state :
-            Initial state of temperatures (optional).
+            Temperatures in initial state (optional).
 
         Returns
         -------
@@ -89,33 +89,31 @@ class Diffusion(BaseRanking, VerboseMixin):
         seeds = check_seeds(seeds, n)
         border = (seeds >= 0)
         seeds[~border] = 0
-        tmin, tmax = seeds[border].min(), seeds.max()
+        tmin, tmax = seeds[border].min(), seeds[border].max()
 
-        interior: sparse.csr_matrix = sparse.diags(~border, shape=(n, n), format='csr', dtype=float)
-        diffusion_matrix = interior.dot(normalize(adjacency))
+        if tmin < tmax:
+            interior: sparse.csr_matrix = sparse.diags(~border, shape=(n, n), format='csr', dtype=float)
+            diffusion_matrix = interior.dot(normalize(adjacency))
 
-        if initial_state is None:
-            if tmin != tmax:
+            if initial_state is None:
                 initial_state = seeds[border].mean() * np.ones(n)
-            else:
-                initial_state = np.zeros(n)
             initial_state[border] = seeds[border]
 
-        if self.n_iter > 0:
-            scores = initial_state
-            for i in range(self.n_iter):
-                scores = diffusion_matrix.dot(scores)
-                scores[border] = seeds[border]
+            if self.n_iter > 0:
+                scores = initial_state
+                for i in range(self.n_iter):
+                    scores = diffusion_matrix.dot(scores)
+                    scores[border] = seeds[border]
 
-        else:
-            a = sparse.eye(n, format='csr', dtype=float) - diffusion_matrix
-            scores, info = bicgstab(a, seeds, atol=0., x0=initial_state)
-            self._scipy_solver_info(info)
+            else:
+                a = sparse.eye(n, format='csr', dtype=float) - diffusion_matrix
+                scores, info = bicgstab(a, seeds, atol=0., x0=initial_state)
+                self._scipy_solver_info(info)
 
-        if tmin != tmax:
             self.scores_ = np.clip(scores, tmin, tmax)
         else:
-            self.scores_ = scores
+            self.scores_ = tmin * np.ones(n)
+
         return self
 
 
@@ -162,7 +160,7 @@ class BiDiffusion(Diffusion, BaseBiRanking):
         seeds_col :
             Temperatures of column border nodes (dictionary or vector of size n_row). Negative temperatures ignored.
         initial_state :
-            Initial state of temperatures.
+            Temperatures in initial state.
 
         Returns
         -------
