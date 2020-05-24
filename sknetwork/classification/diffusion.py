@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.classification.base_rank import RankClassifier, RankBiClassifier
-from sknetwork.ranking import Diffusion
+from sknetwork.ranking import Diffusion, Dirichlet
 from sknetwork.utils.check import check_labels
 
 
@@ -102,7 +102,7 @@ class DiffusionClassifier(RankClassifier):
     (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
     """
     def __init__(self, n_iter: int = 10, n_jobs: Optional[int] = None, verbose: bool = False):
-        algorithm = Diffusion(n_iter, verbose)
+        algorithm = Dirichlet(n_iter, None, verbose)
         super(DiffusionClassifier, self).__init__(algorithm, n_jobs, verbose)
         self._process_seeds = process_seeds
         self._process_scores = process_scores

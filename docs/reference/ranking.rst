@@ -21,6 +21,10 @@ Diffusion
 
 .. autoclass:: sknetwork.ranking.BiDiffusion
 
+.. autoclass:: sknetwork.ranking.Dirichlet
+
+.. autoclass:: sknetwork.ranking.BiDirichlet
+
 Katz
 ----
 .. autoclass:: sknetwork.ranking.Katz
