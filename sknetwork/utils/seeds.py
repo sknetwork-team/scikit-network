@@ -12,15 +12,15 @@ from sknetwork.utils.check import check_seeds
 
 
 def stack_seeds(n_row: int, n_col: int, seeds_row: Optional[Union[np.ndarray, dict]],
-                seeds_col: Optional[Union[np.ndarray, dict]] = None) -> np.ndarray:
+                seeds_col: Optional[Union[np.ndarray, dict]] = None, default_value: float = -1) -> np.ndarray:
     """Process seeds for rows and columns and stack the results into a single vector."""
     if seeds_row is None and seeds_col is None:
         seeds_row = np.ones(n_row)
-        seeds_col = -np.ones(n_col)
+        seeds_col = default_value * np.ones(n_col)
     elif seeds_row is None:
-        seeds_row = -np.ones(n_row)
+        seeds_row = default_value * np.ones(n_row)
     elif seeds_col is None:
-        seeds_col = -np.ones(n_col)
+        seeds_col = default_value * np.ones(n_col)
     seeds_row = check_seeds(seeds_row, n_row)
     seeds_col = check_seeds(seeds_col, n_col)
     return np.hstack((seeds_row, seeds_col))

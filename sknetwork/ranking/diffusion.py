@@ -122,8 +122,13 @@ class Diffusion(BaseRanking):
         check_is_proba(damping_factor, 'Damping factor')
         self.damping_factor = damping_factor
 
+<<<<<<< Updated upstream
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Optional[Union[dict, np.ndarray]] = None,
             initial_state: Optional = None) -> 'Diffusion':
+=======
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
+            seeds: Optional[Union[dict, np.ndarray]] = None, initial_state: Optional[np.ndarray] = None) -> 'Diffusion':
+>>>>>>> Stashed changes
         """Compute the diffusion (temperature at equilibrium).
 
         Parameters
@@ -200,7 +205,7 @@ class BiDiffusion(Diffusion, BaseBiRanking):
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds_row: Optional[Union[dict, np.ndarray]] = None, seeds_col: Optional[Union[dict, np.ndarray]] = None,
-            initial_state: Optional = None) -> 'BiDiffusion':
+            state_row: Optional[np.ndarray] = None, state_col: Optional[np.ndarray] = None) -> 'BiDiffusion':
         """Compute the diffusion (temperature at equilibrium).
 
         Parameters
@@ -211,9 +216,10 @@ class BiDiffusion(Diffusion, BaseBiRanking):
             Temperatures of row border nodes (dictionary or vector of size n_row). Negative temperatures ignored.
         seeds_col :
             Temperatures of column border nodes (dictionary or vector of size n_row). Negative temperatures ignored.
-        initial_state :
-            Temperatures in initial state.
-
+        state_row :
+            Temperatures of rows in initial state (optional).
+        state_col :
+            Temperatures of columns in initial state (optional).
         Returns
         -------
         self: :class:`BiDiffusion`
@@ -221,9 +227,12 @@ class BiDiffusion(Diffusion, BaseBiRanking):
         biadjacency = check_format(biadjacency)
         n_row, n_col = biadjacency.shape
         seeds = stack_seeds(n_row, n_col, seeds_row, seeds_col)
-
+        if state_row is None and state_col is None:
+            initial_state = None
+        else:
+            initial_state = stack_seeds(n_row, n_col, state_row, state_col, 0)
         adjacency = bipartite2undirected(biadjacency)
-        Diffusion.fit(self, adjacency, seeds)
+        Diffusion.fit(self, adjacency, seeds, initial_state)
         self._split_vars(n_row)
 
         return self
@@ -275,8 +284,13 @@ class Dirichlet(BaseRanking, VerboseMixin):
         check_is_proba(damping_factor, 'Damping factor')
         self.damping_factor = damping_factor
 
+<<<<<<< Updated upstream
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Optional[Union[dict, np.ndarray]] = None,
             initial_state: Optional = None) -> 'Dirichlet':
+=======
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
+            seeds: Optional[Union[dict, np.ndarray]] = None, initial_state: Optional[np.ndarray] = None) -> 'Dirichlet':
+>>>>>>> Stashed changes
         """Compute the solution to the Dirichlet problem (temperature at equilibrium).
 
         Parameters
@@ -365,7 +379,7 @@ class BiDirichlet(Dirichlet, BaseBiRanking):
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds_row: Optional[Union[dict, np.ndarray]] = None, seeds_col: Optional[Union[dict, np.ndarray]] = None,
-            initial_state: Optional = None) -> 'BiDirichlet':
+            state_row: Optional[np.ndarray] = None, state_col: Optional[np.ndarray] = None) -> 'BiDirichlet':
         """Compute the solution to the Dirichlet problem (temperature at equilibrium).
 
         Parameters
@@ -376,8 +390,10 @@ class BiDirichlet(Dirichlet, BaseBiRanking):
             Temperatures of row border nodes (dictionary or vector of size n_row). Negative temperatures ignored.
         seeds_col :
             Temperatures of column border nodes (dictionary or vector of size n_row). Negative temperatures ignored.
-        initial_state :
-            Temperatures in initial state.
+        state_row :
+            Temperatures of rows in initial state (optional).
+        state_col :
+            Temperatures of columns in initial state (optional).
 
         Returns
         -------
@@ -386,9 +402,12 @@ class BiDirichlet(Dirichlet, BaseBiRanking):
         biadjacency = check_format(biadjacency)
         n_row, n_col = biadjacency.shape
         seeds = stack_seeds(n_row, n_col, seeds_row, seeds_col)
-
+        if state_row is None and state_col is None:
+            initial_state = None
+        else:
+            initial_state = stack_seeds(n_row, n_col, state_row, state_col, 0)
         adjacency = bipartite2undirected(biadjacency)
-        Dirichlet.fit(self, adjacency, seeds)
+        Dirichlet.fit(self, adjacency, seeds, initial_state)
         self._split_vars(n_row)
 
         return self
