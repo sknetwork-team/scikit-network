@@ -159,13 +159,16 @@ class BiPageRank(PageRank, BaseBiRanking):
             Biadjacency matrix.
         seeds_row :
             Parameter to be used for Personalized BiPageRank.
-            If a vector is given, it is interpreted as a vector of weights for rows.
-            If a dictionary is given, keys are nodes (rows) and values are weights.
+            
+            * If a vector is given, it is interpreted as a vector of weights for rows.
+            * If a dictionary is given, keys are nodes (rows) and values are weights.
         seeds_col :
             Parameter to be used for Personalized BiPageRank.
-            If a vector is given, it is interpreted as a vector of weights for columns.
-            If a dictionary is given, keys are nodes (columns) and values are weights.
-            If both seeds_row and seeds_col are ``None`` (default), the uniform distribution on rows is used.
+
+            * If a vector is given, it is interpreted as a vector of weights for columns.
+            * If a dictionary is given, keys are nodes (columns) and values are weights.
+            * If both seeds_row and seeds_col are ``None`` (default), the uniform distribution on rows is used.
+            * If ``None`` but seeds_row is provided, the null vector is used.
 
         Returns
         -------
@@ -181,86 +184,6 @@ class BiPageRank(PageRank, BaseBiRanking):
 
         self.scores_row_ /= self.scores_row_.sum()
         self.scores_col_ /= self.scores_col_.sum()
-        self.scores_ = self.scores_row_
-
-        return self
-
-
-class CoPageRank(BiPageRank):
-    """Compute the PageRank of each node through a two-hops random walk in the bipartite graph.
-
-    * Graphs
-    * Digraphs
-    * Bigraphs
-
-    Parameters
-    ----------
-    damping_factor : float
-        Probability to continue the random walk.
-    solver : str
-        * `piteration`, use power iteration for a given number of iterations.
-        * `lanczos`, use eigensolver for a given tolerance.
-        * `bicgstab`, use Biconjugate Gradient Stabilized method for a given tolerance.
-    n_iter : int
-        Number of iterations for some solvers.
-    tol : float
-        Tolerance for the convergence of some solvers.
-
-    Attributes
-    ----------
-    scores_ : np.ndarray
-        PageRank score of each row.
-    scores_row_ : np.ndarray
-        PageRank score of each row (copy of **scores_**).
-    scores_col_ : np.ndarray
-        PageRank score of each column.
-
-    Example
-    -------
-    >>> from sknetwork.ranking import CoPageRank
-    >>> from sknetwork.data import star_wars
-    >>> copagerank = CoPageRank()
-    >>> biadjacency = star_wars()
-    >>> seeds = {0: 1}
-    >>> scores = copagerank.fit_transform(biadjacency, seeds)
-    >>> np.round(scores, 2)
-    array([0.38, 0.12, 0.31, 0.2 ])
-    """
-    def __init__(self, damping_factor: float = 0.85, solver: str = 'piteration', n_iter: int = 10, tol: float = 0):
-        super(CoPageRank, self).__init__(damping_factor, solver, n_iter, tol)
-
-    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
-            seeds_row: Optional[Union[dict, np.ndarray]] = None,
-            seeds_col: Optional[Union[dict, np.ndarray]] = None) -> 'CoPageRank':
-        """Fit algorithm to data.
-
-        Parameters
-        ----------
-        biadjacency :
-            Biadjacency matrix.
-        seeds_row :
-            Seed rows, as a dict or a vector.
-        seeds_col :
-            Seed columns, as a dict or a vector.
-            If both seeds_row and seeds_col are ``None``, the uniform distribution is used.
-
-        Returns
-        -------
-        self: :class:`CoPageRank`
-        """
-        biadjacency = check_format(biadjacency)
-        n_row, n_col = biadjacency.shape
-
-        operator = CoNeighborOperator(biadjacency, True)
-        seeds_row = seeds2probs(n_row, seeds_row)
-        self.scores_row_ = get_pagerank(operator, seeds_row, damping_factor=self.damping_factor, solver=self.solver,
-                                        n_iter=self.n_iter, tol=self.tol)
-
-        operator = CoNeighborOperator(biadjacency.T.tocsr(), True)
-        seeds_col = seeds2probs(n_col, seeds_col)
-        self.scores_col_ = get_pagerank(operator, seeds_col, damping_factor=self.damping_factor, solver=self.solver,
-                                        n_iter=self.n_iter, tol=self.tol)
-
         self.scores_ = self.scores_row_
 
         return self

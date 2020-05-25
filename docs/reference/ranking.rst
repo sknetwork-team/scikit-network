@@ -13,7 +13,6 @@ PageRank
 
 .. autoclass:: sknetwork.ranking.BiPageRank
 
-.. autoclass:: sknetwork.ranking.CoPageRank
 
 Diffusion
 ---------
