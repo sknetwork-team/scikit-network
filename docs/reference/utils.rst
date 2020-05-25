@@ -44,7 +44,7 @@ Nearest-neighbors
 Co-Neighborhood
 ---------------
 
-.. autofunction:: sknetwork.utils.co_neighbors_graph
+.. autofunction:: sknetwork.utils.co_neighbor_graph
 
 
 Projection

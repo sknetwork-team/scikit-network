@@ -8,8 +8,8 @@ import numpy as np
 
 from sknetwork.data.models import cyclic_digraph
 from sknetwork.data.test_graphs import test_bigraph
-from sknetwork.ranking.pagerank import PageRank, CoPageRank
-from sknetwork.utils import co_neighbors_graph
+from sknetwork.ranking.pagerank import PageRank, BiPageRank
+from sknetwork.utils import co_neighbor_graph
 
 
 class TestPageRank(unittest.TestCase):
@@ -58,15 +58,7 @@ class TestPageRank(unittest.TestCase):
         seeds = {0: 1}
         biadjacency = test_bigraph()
 
-        adjacency = co_neighbors_graph(biadjacency, method='exact')
-        scores1 = CoPageRank().fit_transform(biadjacency, seeds)
-        scores2 = PageRank().fit_transform(adjacency, seeds)
+        adjacency = co_neighbor_graph(biadjacency, method='exact', normalized=True)
+        scores1 = BiPageRank(damping_factor=0.85, solver='lanczos').fit_transform(biadjacency, seeds)
+        scores2 = PageRank(damping_factor=0.85**2, solver='lanczos').fit_transform(adjacency, seeds)
         self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0., places=6)
-
-        adjacency = co_neighbors_graph(biadjacency.T.tocsr(), method='exact')
-        scores1 = CoPageRank().fit(biadjacency, seeds_col=seeds).scores_col_
-        scores2 = PageRank().fit_transform(adjacency, seeds)
-        self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0., places=5)
-
-        with self.assertRaises(ValueError):
-            CoPageRank(solver='diteration').fit_transform(biadjacency, seeds)
