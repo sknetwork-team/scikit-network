@@ -11,11 +11,10 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 
-from sknetwork.linalg.operators import CoNeighborOperator
 from sknetwork.linalg.ppr_solver import get_pagerank
 from sknetwork.ranking.base import BaseRanking, BaseBiRanking
 from sknetwork.utils.format import bipartite2undirected
-from sknetwork.utils.check import check_format, check_square
+from sknetwork.utils.check import check_format, check_square, check_damping_factor
 from sknetwork.utils.seeds import seeds2probs, stack_seeds
 from sknetwork.utils.verbose import VerboseMixin
 
@@ -67,11 +66,8 @@ class PageRank(BaseRanking, VerboseMixin):
     """
     def __init__(self, damping_factor: float = 0.85, solver: str = 'piteration', n_iter: int = 10, tol: float = 1e-6):
         super(PageRank, self).__init__()
-
-        if damping_factor < 0 or damping_factor >= 1:
-            raise ValueError('Damping factor must be between 0 and 1.')
-        else:
-            self.damping_factor = damping_factor
+        check_damping_factor(damping_factor)
+        self.damping_factor = damping_factor
         self.solver = solver
         self.n_iter = n_iter
         self.tol = tol
@@ -159,7 +155,7 @@ class BiPageRank(PageRank, BaseBiRanking):
             Biadjacency matrix.
         seeds_row :
             Parameter to be used for Personalized BiPageRank.
-            
+
             * If a vector is given, it is interpreted as a vector of weights for rows.
             * If a dictionary is given, keys are nodes (rows) and values are weights.
         seeds_col :

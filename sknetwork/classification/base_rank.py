@@ -4,7 +4,6 @@
 Created on Mar, 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
 from functools import partial
 from multiprocessing import Pool
 from typing import Union, Optional

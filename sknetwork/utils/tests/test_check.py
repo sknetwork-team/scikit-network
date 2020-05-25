@@ -58,9 +58,17 @@ class TestChecks(unittest.TestCase):
 
     def test_probas(self):
         self.assertTrue(is_proba_array(np.array([.5, .5])))
-        self.assertEqual(0.5, check_is_proba(0.5))
+        check_is_proba(0.5)
         with self.assertRaises(TypeError):
             is_proba_array(np.ones((2, 2, 2)))
+        with self.assertRaises(TypeError):
+            check_is_proba('toto')
+        with self.assertRaises(ValueError):
+            check_is_proba(2)
+
+    def test_damping(self):
+        with self.assertRaises(ValueError):
+            check_damping_factor(1)
 
     def test_error_make_weights(self):
         with self.assertRaises(ValueError):

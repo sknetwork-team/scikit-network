@@ -137,13 +137,20 @@ def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_
         return sparse.csr_matrix(adjacency)
 
 
-def check_is_proba(entry: Union[float, int]):
+def check_is_proba(entry: Union[float, int], name: str = None):
     """Check whether the number is non-negative and less than or equal to 1."""
+    if name is None:
+        name = 'Probabilities'
     if type(entry) not in [float, int]:
-        raise TypeError('Probabilities must be floats (or ints if 0 or 1).')
+        raise TypeError('{} must be floats (or ints if 0 or 1).'.format(name))
     if entry < 0 or entry > 1:
-        raise ValueError('Probabilities must have value between 0 and 1.')
-    return entry
+        raise ValueError('{} must have value between 0 and 1.'.format(name))
+
+
+def check_damping_factor(damping_factor: float):
+    """Check if the damping factor has a valid value."""
+    if damping_factor < 0 or damping_factor >= 1:
+        raise ValueError('A damping factor must have a value in [0, 1[.')
 
 
 def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_matrix, sparse.csc_matrix],

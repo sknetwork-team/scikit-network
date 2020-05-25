@@ -5,7 +5,6 @@ Created on July 17 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
-
 from typing import Union, Optional
 
 import numpy as np
@@ -14,13 +13,13 @@ from scipy.sparse.linalg import bicgstab, LinearOperator
 
 from sknetwork.linalg.normalization import normalize
 from sknetwork.ranking.base import BaseRanking, BaseBiRanking
-from sknetwork.utils.check import check_format, check_seeds, check_square
+from sknetwork.utils.check import check_format, check_seeds, check_square, check_is_proba
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.seeds import stack_seeds
 from sknetwork.utils.verbose import VerboseMixin
 
 
-class DiffusionOperator(LinearOperator):
+class DirichletOperator(LinearOperator):
     """Diffusion in discrete time as a LinearOperator.
 
     Parameters
@@ -29,37 +28,8 @@ class DiffusionOperator(LinearOperator):
         Adjacency matrix of the graph.
     damping_factor : float
         Damping factor.
-
-    Attributes
-    ----------
-    a : sparse.csr_matrix
-        Diffusion matrix.
-    b : np.ndarray
-        Regularization (uniform).
-    """
-    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float):
-        super(DiffusionOperator, self).__init__(shape=adjacency.shape, dtype=float)
-
-        n = adjacency.shape[0]
-        out_nodes = adjacency.dot(np.ones(n)).astype(bool)
-        self.a = damping_factor * normalize(adjacency)
-        self.b = (np.ones(n) - damping_factor * out_nodes) / n
-
-    def _matvec(self, x: np.ndarray):
-        return self.a.dot(x) + self.b * x.sum()
-
-
-class DirichletOperator(LinearOperator):
-    """Constrained diffusion in discrete time as a LinearOperator.
-
-    Parameters
-    ----------
-    adjacency : sparse.csr_matrix
-        Adjacency matrix of the graph.
-    damping_factor : float
-        Damping factor.
     border : np.ndarray (bool)
-        Border nodes.
+        Border nodes. If ``None``, then the diffusion is free.
 
     Attributes
     ----------
@@ -68,11 +38,12 @@ class DirichletOperator(LinearOperator):
     b : np.ndarray
         Regularization (uniform).
     """
-    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float, border: np.ndarray):
+    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float, border: np.ndarray = None):
         super(DirichletOperator, self).__init__(shape=adjacency.shape, dtype=float)
-
         n = adjacency.shape[0]
         out_nodes = adjacency.dot(np.ones(n)).astype(bool)
+        if border is None:
+            border = np.zeros(n, dtype=bool)
         interior: sparse.csr_matrix = sparse.diags(~border, shape=(n, n), format='csr', dtype=float)
         self.a = damping_factor * interior.dot(normalize(adjacency))
         self.b = interior.dot(np.ones(n) - damping_factor * out_nodes) / n
@@ -82,7 +53,7 @@ class DirichletOperator(LinearOperator):
 
 
 class DeltaDirichletOperator(DirichletOperator):
-    """Constrained diffusion in discrete time as a LinearOperator (delta of temperature).
+    """Diffusion in discrete time as a LinearOperator (delta of temperature).
 
     Parameters
     ----------
@@ -91,7 +62,7 @@ class DeltaDirichletOperator(DirichletOperator):
     damping_factor : float
         Damping factor.
     border : np.ndarray (bool)
-        Border nodes.
+        Border nodes. If ``None``, then the diffusion is free.
 
     Attributes
     ----------
@@ -100,15 +71,14 @@ class DeltaDirichletOperator(DirichletOperator):
     b : np.ndarray
         Regularization (uniform).
     """
-
-    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float, border: np.ndarray):
+    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float, border: np.ndarray = None):
         super(DeltaDirichletOperator, self).__init__(adjacency, damping_factor, border)
 
     def _matvec(self, x: np.ndarray):
         return self.a.dot(x) + self.b * x.sum() - x
 
 
-class Diffusion(BaseRanking, VerboseMixin):
+class Diffusion(BaseRanking):
     """Temperature of each node, associated with the diffusion along the edges (heat equation).
 
     * Graphs
@@ -120,8 +90,6 @@ class Diffusion(BaseRanking, VerboseMixin):
         Number of steps of the diffusion in discrete time (must be positive).
     damping_factor : float (optional)
         Damping factor (default value = 1).
-    verbose : bool
-        Verbose mode.
 
     Attributes
     ----------
@@ -130,7 +98,6 @@ class Diffusion(BaseRanking, VerboseMixin):
 
     Example
     -------
-    >>> from sknetwork.ranking import Diffusion
     >>> from sknetwork.data import house
     >>> diffusion = Diffusion(n_iter=2)
     >>> adjacency = house()
@@ -143,24 +110,20 @@ class Diffusion(BaseRanking, VerboseMixin):
     ----------
     Chung, F. (2007). The heat kernel as the pagerank of a graph. Proceedings of the National Academy of Sciences.
     """
-
-    def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, verbose: bool = False):
+    def __init__(self, n_iter: int = 3, damping_factor: Optional[float] = None):
         super(Diffusion, self).__init__()
-        VerboseMixin.__init__(self, verbose)
 
         if n_iter <= 0:
             raise ValueError('The number of iterations must be positive.')
         else:
             self.n_iter = n_iter
         if damping_factor is None:
-            self.damping_factor = 1
-        elif damping_factor < 0 or damping_factor > 1:
-            raise ValueError('The damping factor must be between 0 and 1.')
-        else:
-            self.damping_factor = damping_factor
+            damping_factor = 1.
+        check_is_proba(damping_factor, 'Damping factor')
+        self.damping_factor = damping_factor
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            seeds: Optional[Union[dict, np.ndarray]] = None, initial_state: Optional = None) -> 'Diffusion':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Optional[Union[dict, np.ndarray]] = None,
+            initial_state: Optional = None) -> 'Diffusion':
         """Compute the diffusion (temperature at equilibrium).
 
         Parameters
@@ -191,7 +154,7 @@ class Diffusion(BaseRanking, VerboseMixin):
         initial_state[border] = seeds[border]
 
         scores = initial_state
-        diffusion = DiffusionOperator(adjacency, self.damping_factor)
+        diffusion = DirichletOperator(adjacency, self.damping_factor)
         for i in range(self.n_iter):
             scores = diffusion.dot(scores)
 
@@ -205,6 +168,13 @@ class BiDiffusion(Diffusion, BaseBiRanking):
     """Temperature of each node of a bipartite graph, associated with the diffusion along the edges (heat equation).
 
     * Bigraphs
+
+    Parameters
+    ----------
+    n_iter : int
+        Number of steps of the diffusion in discrete time (must be positive).
+    damping_factor : float (optional)
+        Damping factor (default value = 1).
 
     Attributes
     ----------
@@ -225,9 +195,8 @@ class BiDiffusion(Diffusion, BaseBiRanking):
     >>> np.round(scores, 2)
     array([0.5 , 0.5 , 0.42, 0.38])
     """
-
-    def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, verbose: bool = False):
-        super(BiDiffusion, self).__init__(n_iter, damping_factor, verbose)
+    def __init__(self, n_iter: int = 3, damping_factor: Optional[float] = None):
+        super(BiDiffusion, self).__init__(n_iter, damping_factor)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds_row: Optional[Union[dict, np.ndarray]] = None, seeds_col: Optional[Union[dict, np.ndarray]] = None,
@@ -296,21 +265,18 @@ class Dirichlet(BaseRanking, VerboseMixin):
     ----------
     Chung, F. (2007). The heat kernel as the pagerank of a graph. Proceedings of the National Academy of Sciences.
     """
-
     def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, verbose: bool = False):
         super(Dirichlet, self).__init__()
         VerboseMixin.__init__(self, verbose)
 
         self.n_iter = n_iter
         if damping_factor is None:
-            self.damping_factor = 1
-        elif damping_factor < 0 or damping_factor > 1:
-            raise ValueError('The damping factor must be between 0 and 1.')
-        else:
-            self.damping_factor = damping_factor
+            damping_factor = 1.
+        check_is_proba(damping_factor, 'Damping factor')
+        self.damping_factor = damping_factor
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            seeds: Optional[Union[dict, np.ndarray]] = None, initial_state: Optional = None) -> 'Dirichlet':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Optional[Union[dict, np.ndarray]] = None,
+            initial_state: Optional = None) -> 'Dirichlet':
         """Compute the solution to the Dirichlet problem (temperature at equilibrium).
 
         Parameters
@@ -363,6 +329,16 @@ class BiDirichlet(Dirichlet, BaseBiRanking):
     """Ranking by the Dirichlet problem in bipartite graphs (heat diffusion with boundary constraints).
 
     * Bigraphs
+
+    Parameters
+    ----------
+    n_iter : int
+        If positive, number of steps of the diffusion in discrete time.
+        Otherwise, solve the Dirichlet problem by the BIConjugate Gradient STABilized method.
+    damping_factor : float (optional)
+        Damping factor (default value = 1).
+    verbose : bool
+        Verbose mode.
 
     Attributes
     ----------

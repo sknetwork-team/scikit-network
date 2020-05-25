@@ -20,6 +20,10 @@ Diffusion
 
 .. autoclass:: sknetwork.classification.BiDiffusionClassifier
 
+.. autoclass:: sknetwork.classification.DirichletClassifier
+
+.. autoclass:: sknetwork.classification.BiDirichletClassifier
+
 Propagation
 -----------
 .. autoclass:: sknetwork.classification.Propagation

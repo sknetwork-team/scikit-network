@@ -14,20 +14,17 @@ class TestClassificationAPI(unittest.TestCase):
 
     def test_undirected(self):
         adjacency = test_graph()
-        adjacency_bool = test_graph_bool()
         n = adjacency.shape[0]
         seeds_array = -np.ones(n)
         seeds_array[:2] = np.arange(2)
         seeds_dict = {0: 0, 1: 1}
 
         classifiers = [PageRankClassifier(), DiffusionClassifier(), KNN(embedding_method=GSVD(3), n_neighbors=1),
-                       Propagation()]
+                       Propagation(), DirichletClassifier()]
         for clf in classifiers:
             labels1 = clf.fit_transform(adjacency, seeds_array)
             labels2 = clf.fit_transform(adjacency, seeds_dict)
-            labels3 = clf.fit_transform(adjacency_bool, seeds_array)
             self.assertTrue((labels1 == labels2).all())
-            self.assertTrue((labels1 == labels3).all())
             self.assertEqual(labels2.shape[0], n)
             self.assertTupleEqual(clf.membership_.shape, (n, 2))
 
@@ -47,7 +44,7 @@ class TestClassificationAPI(unittest.TestCase):
         seeds_col_dict = {0: 0}
 
         classifiers = [BiPageRankClassifier(), BiDiffusionClassifier(), BiKNN(embedding_method=GSVD(3), n_neighbors=1),
-                       BiPropagation()]
+                       BiPropagation(), BiDirichletClassifier()]
         for clf in classifiers:
             clf.fit(biadjacency, seeds_row_array)
             labels_row1, labels_col1 = clf.labels_row_, clf.labels_col_
