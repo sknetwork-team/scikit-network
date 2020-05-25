@@ -122,13 +122,8 @@ class Diffusion(BaseRanking):
         check_is_proba(damping_factor, 'Damping factor')
         self.damping_factor = damping_factor
 
-<<<<<<< Updated upstream
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Optional[Union[dict, np.ndarray]] = None,
-            initial_state: Optional = None) -> 'Diffusion':
-=======
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds: Optional[Union[dict, np.ndarray]] = None, initial_state: Optional[np.ndarray] = None) -> 'Diffusion':
->>>>>>> Stashed changes
         """Compute the diffusion (temperature at equilibrium).
 
         Parameters
@@ -284,13 +279,8 @@ class Dirichlet(BaseRanking, VerboseMixin):
         check_is_proba(damping_factor, 'Damping factor')
         self.damping_factor = damping_factor
 
-<<<<<<< Updated upstream
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Optional[Union[dict, np.ndarray]] = None,
-            initial_state: Optional = None) -> 'Dirichlet':
-=======
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds: Optional[Union[dict, np.ndarray]] = None, initial_state: Optional[np.ndarray] = None) -> 'Dirichlet':
->>>>>>> Stashed changes
         """Compute the solution to the Dirichlet problem (temperature at equilibrium).
 
         Parameters
