@@ -69,7 +69,7 @@ class DiffusionClassifier(RankClassifier):
     damping_factor : float (optional)
         Damping factor (default value = 1).
     n_jobs :
-        If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
+        If positive, number of parallel jobs allowed (-1 means maximum number).
         If ``None``, no parallel computations are made.
 
     Attributes
@@ -89,7 +89,7 @@ class DiffusionClassifier(RankClassifier):
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
     >>> labels_pred = diffusion.fit_transform(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
-    0.97
+    0.94
 
     References
     ----------
@@ -97,7 +97,7 @@ class DiffusionClassifier(RankClassifier):
     <http://pages.cs.wisc.edu/~jerryzhu/machineteaching/pub/thesis.pdf>`_
     (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
     """
-    def __init__(self, n_iter: int = 3, damping_factor: Optional[float] = None, n_jobs: Optional[int] = None):
+    def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, n_jobs: Optional[int] = None):
         algorithm = Diffusion(n_iter, damping_factor)
         super(DiffusionClassifier, self).__init__(algorithm, n_jobs)
         self._process_scores = process_scores
@@ -115,7 +115,7 @@ class BiDiffusionClassifier(DiffusionClassifier, RankBiClassifier):
     damping_factor : float (optional)
         Damping factor (default value = 1).
     n_jobs :
-        If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
+        If positive, number of parallel jobs allowed (-1 means maximum number).
         If ``None``, no parallel computations are made.
 
     Attributes
@@ -137,13 +137,13 @@ class BiDiffusionClassifier(DiffusionClassifier, RankBiClassifier):
     -------
     >>> from sknetwork.classification import BiDiffusionClassifier
     >>> from sknetwork.data import star_wars
-    >>> bidiffusion = BiDiffusionClassifier()
+    >>> bidiffusion = BiDiffusionClassifier(n_iter=2)
     >>> biadjacency = star_wars()
     >>> seeds = {0: 1, 2: 0}
     >>> bidiffusion.fit_transform(biadjacency, seeds)
-    array([1, 1, 1, 1])
+    array([1, 1, 0, 0])
     """
-    def __init__(self, n_iter: int = 3, damping_factor: Optional[float] = None, n_jobs: Optional[int] = None):
+    def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, n_jobs: Optional[int] = None):
         super(BiDiffusionClassifier, self).__init__(n_iter=n_iter, damping_factor=damping_factor, n_jobs=n_jobs)
 
 
@@ -212,7 +212,7 @@ class BiDirichletClassifier(DirichletClassifier, RankBiClassifier):
     damping_factor : float (optional)
         Damping factor (default value = 1).
     n_jobs :
-        If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
+        If positive, number of parallel jobs allowed (-1 means maximum number).
         If ``None``, no parallel computations are made.
     verbose :
         Verbose mode.

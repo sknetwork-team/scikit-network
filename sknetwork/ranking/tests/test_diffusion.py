@@ -29,6 +29,14 @@ class TestDiffusion(unittest.TestCase):
         for algo in [BiDiffusion(), BiDirichlet()]:
             scores = algo.fit_transform(biadjacency, {0: 1})
             self.assertTrue(np.all(scores <= 1) and np.all(scores >= 0))
+            scores = algo.fit_transform(biadjacency, {0: 0.1}, {1: 2}, 0.3)
+            self.assertTrue(np.all(scores <= 2) and np.all(scores >= 0.1))
+
+    def test_initial_state(self):
+        for adjacency in [test_graph(), test_digraph()]:
+            for algo in self.algos:
+                scores = algo.fit_transform(adjacency, {0: 0, 1: 1, 2: 0.5}, 0.3)
+                self.assertTrue(np.all(scores <= 1) and np.all(scores >= 0))
 
     def test_damping_factor(self):
         for adjacency in [test_graph(), test_digraph()]:

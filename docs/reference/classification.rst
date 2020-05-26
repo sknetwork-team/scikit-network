@@ -13,13 +13,14 @@ PageRank
 
 .. autoclass:: sknetwork.classification.BiPageRankClassifier
 
-
 Diffusion
 ---------
 .. autoclass:: sknetwork.classification.DiffusionClassifier
 
 .. autoclass:: sknetwork.classification.BiDiffusionClassifier
 
+Dirichlet
+---------
 .. autoclass:: sknetwork.classification.DirichletClassifier
 
 .. autoclass:: sknetwork.classification.BiDirichletClassifier

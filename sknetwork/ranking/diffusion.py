@@ -79,7 +79,7 @@ class DeltaDirichletOperator(DirichletOperator):
 
 
 class Diffusion(BaseRanking):
-    """Temperature of each node, associated with the diffusion along the edges (heat equation).
+    """Ranking by diffusion along the edges (heat equation).
 
     * Graphs
     * Digraphs
@@ -123,17 +123,19 @@ class Diffusion(BaseRanking):
         self.damping_factor = damping_factor
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            seeds: Optional[Union[dict, np.ndarray]] = None, initial_state: Optional[np.ndarray] = None) -> 'Diffusion':
-        """Compute the diffusion (temperature at equilibrium).
+            seeds: Optional[Union[dict, np.ndarray]] = None, init: Optional[float] = None) \
+            -> 'Diffusion':
+        """Compute the diffusion (temperatures at equilibrium).
 
         Parameters
         ----------
         adjacency :
             Adjacency matrix of the graph.
         seeds :
-            Temperatures of border nodes (dictionary or vector). Negative temperatures ignored.
-        initial_state :
-            Temperatures in initial state (optional).
+            Temperatures of seed nodes in initial state (dictionary or vector). Negative temperatures ignored.
+        init :
+            Temperature of non-seed nodes in initial state.
+            If ``None``, use the average temperature of seed nodes (default).
 
         Returns
         -------
@@ -149,23 +151,23 @@ class Diffusion(BaseRanking):
         seeds = check_seeds(seeds, n)
         border = (seeds >= 0)
 
-        if initial_state is None:
-            initial_state = seeds[border].mean() * np.ones(n)
-        initial_state[border] = seeds[border]
+        if init is None:
+            scores = seeds[border].mean() * np.ones(n)
+        else:
+            scores = init * np.ones(n)
+        scores[border] = seeds[border]
 
-        scores = initial_state
         diffusion = DirichletOperator(adjacency, self.damping_factor)
         for i in range(self.n_iter):
             scores = diffusion.dot(scores)
 
-        tmin, tmax = seeds[border].min(), seeds[border].max()
-        self.scores_ = np.clip(scores, tmin, tmax)
+        self.scores_ = scores
 
         return self
 
 
 class BiDiffusion(Diffusion, BaseBiRanking):
-    """Temperature of each node of a bipartite graph, associated with the diffusion along the edges (heat equation).
+    """Ranking by diffusion along the edges of a bipartite graph (heat equation).
 
     * Bigraphs
 
@@ -193,28 +195,29 @@ class BiDiffusion(Diffusion, BaseBiRanking):
     >>> biadjacency = star_wars()
     >>> scores = bidiffusion.fit_transform(biadjacency, seeds_row = {0: 1, 2: 0})
     >>> np.round(scores, 2)
-    array([0.5 , 0.5 , 0.42, 0.38])
+    array([0.5 , 0.5 , 0.46, 0.44])
     """
     def __init__(self, n_iter: int = 3, damping_factor: Optional[float] = None):
         super(BiDiffusion, self).__init__(n_iter, damping_factor)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds_row: Optional[Union[dict, np.ndarray]] = None, seeds_col: Optional[Union[dict, np.ndarray]] = None,
-            state_row: Optional[np.ndarray] = None, state_col: Optional[np.ndarray] = None) -> 'BiDiffusion':
-        """Compute the diffusion (temperature at equilibrium).
+            init: Optional[float] = None) -> 'BiDiffusion':
+        """Compute the diffusion (temperatures at equilibrium).
 
         Parameters
         ----------
         biadjacency :
             Biadjacency matrix, shape (n_row, n_col).
         seeds_row :
-            Temperatures of row border nodes (dictionary or vector of size n_row). Negative temperatures ignored.
+            Temperatures of seed rows in initial state (dictionary or vector of size n_row).
+            Negative temperatures ignored.
         seeds_col :
-            Temperatures of column border nodes (dictionary or vector of size n_row). Negative temperatures ignored.
-        state_row :
-            Temperatures of rows in initial state (optional).
-        state_col :
-            Temperatures of columns in initial state (optional).
+            Temperatures of seed columns  in initial state (dictionary or vector of size n_col).
+            Negative temperatures ignored.
+        init :
+            Temperature of non-seed nodes in initial state.
+            If ``None``, use the average temperature of seed nodes (default).
         Returns
         -------
         self: :class:`BiDiffusion`
@@ -222,12 +225,12 @@ class BiDiffusion(Diffusion, BaseBiRanking):
         biadjacency = check_format(biadjacency)
         n_row, n_col = biadjacency.shape
         seeds = stack_seeds(n_row, n_col, seeds_row, seeds_col)
-        if state_row is None and state_col is None:
-            initial_state = None
-        else:
-            initial_state = stack_seeds(n_row, n_col, state_row, state_col, 0)
         adjacency = bipartite2undirected(biadjacency)
-        Diffusion.fit(self, adjacency, seeds, initial_state)
+        Diffusion.fit(self, adjacency, seeds, init)
+        # average over 2 successive iterations because the graph is bipartite
+        diffusion = DirichletOperator(adjacency, self.damping_factor)
+        self.scores_ += diffusion.dot(self.scores_)
+        self.scores_ /= 2
         self._split_vars(n_row)
 
         return self
@@ -243,7 +246,7 @@ class Dirichlet(BaseRanking, VerboseMixin):
     ----------
     n_iter : int
         If positive, number of steps of the diffusion in discrete time.
-        Otherwise, solve the Dirichlet problem by the BIConjugate Gradient STABilized method.
+        Otherwise, solve the Dirichlet problem by the bi-conjugate gradient stabilized method.
     damping_factor : float (optional)
         Damping factor (default value = 1).
     verbose : bool
@@ -280,17 +283,18 @@ class Dirichlet(BaseRanking, VerboseMixin):
         self.damping_factor = damping_factor
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-            seeds: Optional[Union[dict, np.ndarray]] = None, initial_state: Optional[np.ndarray] = None) -> 'Dirichlet':
-        """Compute the solution to the Dirichlet problem (temperature at equilibrium).
+            seeds: Optional[Union[dict, np.ndarray]] = None, init: Optional[float] = None) -> 'Dirichlet':
+        """Compute the solution to the Dirichlet problem (temperatures at equilibrium).
 
         Parameters
         ----------
         adjacency :
             Adjacency matrix of the graph.
         seeds :
-            Temperatures of border nodes (dictionary or vector). Negative temperatures ignored.
-        initial_state :
-            Temperatures in initial state (optional).
+            Temperatures of seed nodes (dictionary or vector). Negative temperatures ignored.
+        init :
+            Temperature of non-seed nodes in initial state.
+            If ``None``, use the average temperature of seed nodes (default).
 
         Returns
         -------
@@ -306,12 +310,13 @@ class Dirichlet(BaseRanking, VerboseMixin):
         seeds = check_seeds(seeds, n)
         border = (seeds >= 0)
 
-        if initial_state is None:
-            initial_state = seeds[border].mean() * np.ones(n)
-        initial_state[border] = seeds[border]
+        if init is None:
+            scores = seeds[border].mean() * np.ones(n)
+        else:
+            scores = init * np.ones(n)
+        scores[border] = seeds[border]
 
         if self.n_iter > 0:
-            scores = initial_state
             diffusion = DirichletOperator(adjacency, self.damping_factor, border)
             for i in range(self.n_iter):
                 scores = diffusion.dot(scores)
@@ -320,7 +325,7 @@ class Dirichlet(BaseRanking, VerboseMixin):
             a = DeltaDirichletOperator(adjacency, self.damping_factor, border)
             b = -seeds
             b[~border] = 0
-            scores, info = bicgstab(a, b, atol=0., x0=initial_state)
+            scores, info = bicgstab(a, b, atol=0., x0=scores)
             self._scipy_solver_info(info)
 
         tmin, tmax = seeds[border].min(), seeds[border].max()
@@ -338,7 +343,7 @@ class BiDirichlet(Dirichlet, BaseBiRanking):
     ----------
     n_iter : int
         If positive, number of steps of the diffusion in discrete time.
-        Otherwise, solve the Dirichlet problem by the BIConjugate Gradient STABilized method.
+        Otherwise, solve the Dirichlet problem by the bi-conjugate gradient stabilized method.
     damping_factor : float (optional)
         Damping factor (default value = 1).
     verbose : bool
@@ -369,21 +374,20 @@ class BiDirichlet(Dirichlet, BaseBiRanking):
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
             seeds_row: Optional[Union[dict, np.ndarray]] = None, seeds_col: Optional[Union[dict, np.ndarray]] = None,
-            state_row: Optional[np.ndarray] = None, state_col: Optional[np.ndarray] = None) -> 'BiDirichlet':
-        """Compute the solution to the Dirichlet problem (temperature at equilibrium).
+            init: Optional[float] = None) -> 'BiDirichlet':
+        """Compute the solution to the Dirichlet problem (temperatures at equilibrium).
 
         Parameters
         ----------
         biadjacency :
             Biadjacency matrix, shape (n_row, n_col).
         seeds_row :
-            Temperatures of row border nodes (dictionary or vector of size n_row). Negative temperatures ignored.
+            Temperatures of seed rows (dictionary or vector of size n_row). Negative temperatures ignored.
         seeds_col :
-            Temperatures of column border nodes (dictionary or vector of size n_row). Negative temperatures ignored.
-        state_row :
-            Temperatures of rows in initial state (optional).
-        state_col :
-            Temperatures of columns in initial state (optional).
+            Temperatures of seed columns (dictionary or vector of size n_col). Negative temperatures ignored.
+        init :
+            Temperature of non-seed nodes in initial state.
+            If ``None``, use the average temperature of seed nodes (default).
 
         Returns
         -------
@@ -392,12 +396,8 @@ class BiDirichlet(Dirichlet, BaseBiRanking):
         biadjacency = check_format(biadjacency)
         n_row, n_col = biadjacency.shape
         seeds = stack_seeds(n_row, n_col, seeds_row, seeds_col)
-        if state_row is None and state_col is None:
-            initial_state = None
-        else:
-            initial_state = stack_seeds(n_row, n_col, state_row, state_col, 0)
         adjacency = bipartite2undirected(biadjacency)
-        Dirichlet.fit(self, adjacency, seeds, initial_state)
+        Dirichlet.fit(self, adjacency, seeds, init)
         self._split_vars(n_row)
 
         return self
