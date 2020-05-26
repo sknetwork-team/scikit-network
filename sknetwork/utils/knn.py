@@ -116,8 +116,8 @@ class KNNDense(BaseTransformer):
         return self
 
 
-class PNNDense(BaseTransformer):
-    """Extract adjacency from vector data through parallel k-nearest-neighbor search.
+class CNNDense(BaseTransformer):
+    """Extract adjacency from vector data through component-wise k-nearest-neighbor search.
     KNN is applied independently on each column of the input matrix.
 
     Parameters
@@ -135,11 +135,11 @@ class PNNDense(BaseTransformer):
     """
 
     def __init__(self, n_neighbors: int = 1, undirected: bool = False):
-        super(PNNDense, self).__init__(undirected)
+        super(CNNDense, self).__init__(undirected)
 
         self.n_neighbors = n_neighbors
 
-    def fit(self, x: np.ndarray) -> 'PNNDense':
+    def fit(self, x: np.ndarray) -> 'CNNDense':
         """Fit algorithm to the data.
 
         Parameters
@@ -149,7 +149,7 @@ class PNNDense(BaseTransformer):
 
         Returns
         -------
-        self: :class:`PNNDense`
+        self: :class:`CNNDense`
         """
         rows, cols = [], []
         for j in range(x.shape[1]):

@@ -38,7 +38,7 @@ Nearest-neighbors
 
 .. autoclass:: sknetwork.utils.KNNDense
 
-.. autoclass:: sknetwork.utils.PNNDense
+.. autoclass:: sknetwork.utils.CNNDense
 
 
 Co-Neighborhood

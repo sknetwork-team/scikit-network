@@ -2,7 +2,7 @@
 from sknetwork.utils.co_neighbor import co_neighbor_graph
 from sknetwork.utils.format import *
 from sknetwork.utils.kmeans import KMeansDense
-from sknetwork.utils.knn import KNNDense, PNNDense
+from sknetwork.utils.knn import KNNDense, CNNDense
 from sknetwork.utils.membership import membership_matrix
 from sknetwork.utils.parse import edgelist2adjacency, edgelist2biadjacency
 from sknetwork.utils.simplex import projection_simplex, projection_simplex_array, projection_simplex_csr
