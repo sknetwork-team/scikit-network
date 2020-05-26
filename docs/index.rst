@@ -17,6 +17,7 @@ Welcome to scikit-network's documentation!
 
    tutorials/getting_started
    tutorials/data/index
+   tutorials/topology/index
    tutorials/path/index
    tutorials/clustering/index
    tutorials/hierarchy/index
