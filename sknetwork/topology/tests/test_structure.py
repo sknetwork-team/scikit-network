@@ -39,17 +39,17 @@ class TestStructure(unittest.TestCase):
         adjacency = bipartite2undirected(biadjacency)
         self.assertTrue(is_bipartite(adjacency))
 
-        bipartite, pred = is_bipartite(adjacency, return_biadjacency=True)
+        bipartite, biadjacency_pred, _, _ = is_bipartite(adjacency, return_biadjacency=True)
         self.assertEqual(bipartite, True)
-        self.assertEqual(np.all(biadjacency.data == pred.data), True)
+        self.assertEqual(np.all(biadjacency.data == biadjacency_pred.data), True)
 
         adjacency = sparse.identity(2, format='csr')
-        bipartite, biadjacency = is_bipartite(adjacency, return_biadjacency=True)
+        bipartite, biadjacency, _, _ = is_bipartite(adjacency, return_biadjacency=True)
         self.assertEqual(bipartite, False)
         self.assertIsNone(biadjacency)
 
         adjacency = directed2undirected(cyclic_digraph(3))
-        bipartite, biadjacency = is_bipartite(adjacency, return_biadjacency=True)
+        bipartite, biadjacency, _, _ = is_bipartite(adjacency, return_biadjacency=True)
         self.assertEqual(bipartite, False)
         self.assertIsNone(biadjacency)
 

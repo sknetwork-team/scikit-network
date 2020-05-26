@@ -83,10 +83,8 @@ class PageRank(BaseRanking, VerboseMixin):
             Adjacency matrix.
         seeds :
             Parameter to be used for Personalized PageRank.
-            If ``None`` (default), the uniform distribution is used (no personalization).
-            If a vector is given, it is interpreted as a vector of weights.
-            If a dictionary is given, keys are nodes and values are weights.
-            In both cases, the restart distribution is obtained by normalization by the total weight.
+            Restart distribution as a vector or a dict (node: weight).
+            If ``None``, the uniform distribution is used (no personalization, default).
 
         Returns
         -------
@@ -153,18 +151,10 @@ class BiPageRank(PageRank, BaseBiRanking):
         ----------
         biadjacency :
             Biadjacency matrix.
-        seeds_row :
+        seeds_row, seeds_col :
             Parameter to be used for Personalized BiPageRank.
-
-            * If a vector is given, it is interpreted as a vector of weights for rows.
-            * If a dictionary is given, keys are nodes (rows) and values are weights.
-        seeds_col :
-            Parameter to be used for Personalized BiPageRank.
-
-            * If a vector is given, it is interpreted as a vector of weights for columns.
-            * If a dictionary is given, keys are nodes (columns) and values are weights.
-            * If both seeds_row and seeds_col are ``None`` (default), the uniform distribution on rows is used.
-            * If ``None`` but seeds_row is provided, the null vector is used.
+            Restart distribution as vectors or dicts on rows, columns (node: weight).
+            If both seeds_row and seeds_col are ``None`` (default), the uniform distribution on rows is used.
 
         Returns
         -------

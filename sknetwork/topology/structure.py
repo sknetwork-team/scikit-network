@@ -13,7 +13,7 @@ from scipy import sparse
 from sknetwork.utils.check import is_symmetric, is_square, check_format
 
 
-def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak') -> Union[int, Tuple[int, np.ndarray]]:
+def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak') -> np.ndarray:
     """Extract the connected components of the graph.
 
     * Graphs
@@ -31,9 +31,7 @@ def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak')
     Returns
     -------
     labels : np.ndarray
-        The array such that for each node ``i``, ``labels[i]`` is the connected component of ``i``.
-        The array is indexed from 0 to n_cc-1.
-
+        Connected component of each node.
     """
     return sparse.csgraph.connected_components(adjacency, not is_symmetric(adjacency), connection, True)[1]
 
@@ -92,31 +90,35 @@ def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray],
         return new_adjacency
 
 
-def is_bipartite(adjacency: sparse.csr_matrix,
-                 return_biadjacency: bool = False) -> Union[bool, Tuple[bool, Optional[sparse.csr_matrix]]]:
-    """Check whether an undirected graph is bipartite and can return a possible biadjacency.
+def is_bipartite(adjacency: sparse.csr_matrix, return_biadjacency: bool = False) \
+        -> Union[bool, Tuple[bool, Optional[sparse.csr_matrix], Optional[np.ndarray], Optional[np.ndarray]]]:
+    """Check whether an undirected graph is bipartite.
 
     * Graphs
 
     Parameters
     ----------
     adjacency :
-       The symmetric adjacency matrix of the graph.
+       Adjacency matrix of the graph (symmetric).
     return_biadjacency :
-        If ``True``, a possible biadjacency is returned if the graph is bipartite (None is returned otherwise).
+        If ``True``, return a biadjacency matrix of the graph if bipartite.
 
     Returns
     -------
     is_bipartite : bool
         A boolean denoting if the graph is bipartite.
     biadjacency : sparse.csr_matrix
-        A possible biadjacency of the bipartite graph (``None`` if the graph is not bipartite).
+        A biadjacency matrix of the graph if bipartite (optional).
+    rows : np.ndarray
+        Index of rows in the original graph (optional).
+    cols : np.ndarray
+        Index of columns in the original graph (optional).
     """
     if not is_symmetric(adjacency):
         raise ValueError('The graph must be undirected.')
     if adjacency.diagonal().any():
         if return_biadjacency:
-            return False, None
+            return False, None, None, None
         else:
             return False
     n = adjacency.indptr.shape[0] - 1
@@ -136,10 +138,12 @@ def is_bipartite(adjacency: sparse.csr_matrix,
                     exists_remaining -= 1
                 elif coloring[neighbor] == coloring[node]:
                     if return_biadjacency:
-                        return False, None
+                        return False, None, None, None
                     else:
                         return False
     if return_biadjacency:
-        return True, adjacency[coloring == 0, :][:, coloring == 1]
+        rows = np.argwhere(coloring == 0).ravel()
+        cols = np.argwhere(coloring == 1).ravel()
+        return True, adjacency[rows, :][:, cols], rows, cols
     else:
         return True
