@@ -45,7 +45,7 @@ def process_scores(scores: np.ndarray) -> np.ndarray:
     Parameters
     ----------
     scores : np.ndarray
-        (n x k) matrix of scores.
+        Matrix of scores, shape number of nodes x number of labels.
 
     Returns
     -------
