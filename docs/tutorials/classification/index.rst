@@ -6,6 +6,7 @@ Classification
 
     pagerank
     diffusion
+    dirichlet
     propagation
     knn
 

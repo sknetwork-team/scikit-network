@@ -6,4 +6,5 @@ Ranking
 
    pagerank
    diffusion
+   dirichlet
    katz
