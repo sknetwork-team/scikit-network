@@ -21,12 +21,18 @@ class TestClassificationAPI(unittest.TestCase):
 
         classifiers = [PageRankClassifier(), DiffusionClassifier(), KNN(embedding_method=GSVD(3), n_neighbors=1),
                        Propagation(), DirichletClassifier()]
+
+        with self.assertRaises(ValueError):
+            classifiers[0].score(0)
+
         for clf in classifiers:
             labels1 = clf.fit_transform(adjacency, seeds_array)
             labels2 = clf.fit_transform(adjacency, seeds_dict)
+            scores = clf.score(0)
             self.assertTrue((labels1 == labels2).all())
-            self.assertEqual(labels2.shape[0], n)
+            self.assertEqual(labels2.shape, (n,))
             self.assertTupleEqual(clf.membership_.shape, (n, 2))
+            self.assertEqual(scores.shape, (n,))
 
         seeds1 = {0: 0, 1: 1}
         seeds2 = {0: 0, 1: 2}

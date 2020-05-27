@@ -37,6 +37,23 @@ class BaseClassifier(Algorithm, ABC):
         self.fit(*args, **kwargs)
         return self.labels_
 
+    def score(self, label: int):
+        """Classification scores for a given label.
+
+        Parameters
+        ----------
+        label : int
+            The label index of the class.
+
+        Returns
+        -------
+        scores : np.ndarray
+            Classification scores of shape (number of nodes,).
+        """
+        if self.membership_ is None:
+            raise ValueError("The fit method should be called first.")
+        return self.membership_[:, label].toarray().ravel()
+
 
 class BaseBiClassifier(BaseClassifier, ABC):
     """Base class for classifiers on bigraphs.
