@@ -1,4 +1,5 @@
 """utils module"""
+from sknetwork.utils.check import is_symmetric
 from sknetwork.utils.co_neighbor import co_neighbor_graph
 from sknetwork.utils.format import *
 from sknetwork.utils.kmeans import KMeansDense
