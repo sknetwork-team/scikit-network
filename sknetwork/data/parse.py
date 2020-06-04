@@ -17,10 +17,11 @@ from sknetwork.utils import Bunch
 from sknetwork.utils.format import directed2undirected
 
 
-def load_tsv(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
-             named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True,
-             fast_format: bool = True) -> Bunch:
-    """Parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets.
+def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
+                   named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True,
+                   fast_format: bool = True) -> Bunch:
+    """Parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets in the form of
+    edge lists.
 
     Parameters
     ----------
@@ -54,33 +55,9 @@ def load_tsv(file: str, directed: bool = False, bipartite: bool = False, weighte
     graph: :class:`Bunch`
     """
     reindexed = False
-    header_len = -1
-    possible_delimiters = ['\t', ',', ' ']
-    del_count = np.zeros(3, dtype=int)
-    lines = []
-    row = comment
-    with open(file, 'r', encoding='utf-8') as f:
-        while row[0] in comment:
-            row = f.readline()
-            header_len += 1
-        for line in range(3):
-            for i, poss_del in enumerate(possible_delimiters):
-                if poss_del in row:
-                    del_count[i] += 1
-            lines.append(row.rstrip())
-            row = f.readline()
-        lines = [line for line in lines if line != '']
-        guess_delimiter = possible_delimiters[int(np.argmax(del_count))]
-        guess_weighted = bool(min([line.count(guess_delimiter) for line in lines]) - 1)
-        guess_named = not all([all([el.strip().isdigit() for el in line.split(guess_delimiter)][0:2])
-                               for line in lines])
-        guess_string_present = not all([all([isnumber(el.strip()) for el in line.split(guess_delimiter)][0:2])
-                                        for line in lines])
+    header_len, guess_delimiter, guess_weighted, guess_named, guess_string_present, guess_type = scan_header(file,
+                                                                                                             comment)
 
-        if not guess_named:
-            guess_type = np.int32
-        else:
-            guess_type = np.float32
     if weighted is None:
         weighted = guess_weighted
     if named is None:
@@ -166,6 +143,85 @@ def load_tsv(file: str, directed: bool = False, bipartite: bool = False, weighte
             graph.names = names
 
     return graph
+
+
+def load_adjacency_list(file: str, bipartite: bool = False, comment: str = '%#', delimiter: str = None, ) -> Bunch:
+    """Parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets in the form of
+    adjacency lists.
+
+    Parameters
+    ----------
+    file : str
+        The path to the dataset in TSV format
+    bipartite : bool
+        If ``True``, returns a biadjacency matrix of shape (n1, n2).
+    comment : str
+        Set of characters denoting lines to ignore.
+    delimiter : str
+        delimiter used in the file. None makes a guess
+
+    Returns
+    -------
+    graph: :class:`Bunch`
+    """
+    header_len, guess_delimiter, _, _, _, _ = scan_header(file, comment)
+    if delimiter is None:
+        delimiter = guess_delimiter
+    indptr, indices = [0], []
+    with open(file, 'r', encoding='utf-8') as f:
+        for i in range(header_len):
+            f.readline()
+        for row in f:
+            neighbors = [int(el) for el in row.split(delimiter)]
+            indices += neighbors
+            indptr.append(indptr[-1] + len(neighbors))
+    indices = np.array(indices)
+    n_rows = len(indptr) - 1
+    min_index = indices.min()
+    n_cols = indices.max() + 1 - min_index
+    indices -= min_index
+    graph = Bunch()
+    if not bipartite:
+        max_dim = max(n_rows, n_cols)
+        new_indptr = np.full(max_dim + 1, indptr[-1])
+        new_indptr[:len(indptr)] = indptr
+        graph.adjacency = sparse.csr_matrix((np.ones_like(indices, dtype=bool), indices, new_indptr),
+                                            shape=(max_dim, max_dim))
+    else:
+        indptr = np.array(indptr)
+        graph.biadjacency = sparse.csr_matrix((np.ones_like(indices, dtype=bool), indices, indptr),
+                                              shape=(n_rows, n_cols))
+    return graph
+
+
+def scan_header(file: str, comment: str):
+    header_len = -1
+    possible_delimiters = ['\t', ',', ' ']
+    del_count = np.zeros(3, dtype=int)
+    lines = []
+    row = comment
+    with open(file, 'r', encoding='utf-8') as f:
+        while row[0] in comment:
+            row = f.readline()
+            header_len += 1
+        for line in range(3):
+            for i, poss_del in enumerate(possible_delimiters):
+                if poss_del in row:
+                    del_count[i] += 1
+            lines.append(row.rstrip())
+            row = f.readline()
+        lines = [line for line in lines if line != '']
+        guess_delimiter = possible_delimiters[int(np.argmax(del_count))]
+        guess_weighted = bool(min([line.count(guess_delimiter) for line in lines]) - 1)
+        guess_named = not all([all([el.strip().isdigit() for el in line.split(guess_delimiter)][0:2])
+                               for line in lines])
+        guess_string_present = not all([all([isnumber(el.strip()) for el in line.split(guess_delimiter)][0:2])
+                                        for line in lines])
+        if not guess_named:
+            guess_type = np.int32
+        else:
+            guess_type = np.float32
+    return header_len, guess_delimiter, guess_weighted, guess_named, guess_string_present, guess_type
 
 
 def load_labels(file: str) -> np.ndarray:

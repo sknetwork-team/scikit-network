@@ -18,7 +18,7 @@ from urllib.request import urlretrieve
 import numpy as np
 from scipy import sparse
 
-from sknetwork.data.parse import load_tsv, load_labels, load_header, load_metadata
+from sknetwork.data.parse import load_edge_list, load_labels, load_header, load_metadata
 from sknetwork.utils import Bunch
 from sknetwork.utils.check import is_square
 
@@ -109,7 +109,8 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
             elif file_extension == 'npy':
                 graph[file_name] = np.load(data_path / file)
             elif file_extension == 'p':
-                graph[file_name] = pickle.load(open(data_path / file, 'rb'))
+                with open(data_path / file, 'rb') as f:
+                    graph[file_name] = pickle.load(f)
 
     if hasattr(graph, 'meta'):
         if hasattr(graph.meta, 'name'):
@@ -191,10 +192,10 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
         file = matrix[0]
         directed, bipartite, weighted = load_header(data_path / file)
         if bipartite:
-            graph = load_tsv(data_path / file, directed=directed, bipartite=bipartite, weighted=weighted)
+            graph = load_edge_list(data_path / file, directed=directed, bipartite=bipartite, weighted=weighted)
             data.biadjacency = graph.biadjacency
         else:
-            graph = load_tsv(data_path / file, directed=directed, bipartite=bipartite, weighted=weighted)
+            graph = load_edge_list(data_path / file, directed=directed, bipartite=bipartite, weighted=weighted)
             data.adjacency = graph.adjacency
 
     metadata = [file for file in files if 'meta.' in file]
@@ -244,7 +245,8 @@ def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[Unio
         elif type(data[attribute]) == np.ndarray:
             np.save(data_path / attribute, data[attribute])
         elif type(data[attribute]) == Bunch or type(data[attribute]) == str:
-            pickle.dump(data[attribute], open(data_path / (attribute + '.p'), 'wb'))
+            with open(data_path / (attribute + '.p'), 'wb') as file:
+                pickle.dump(data[attribute], file)
         else:
             raise TypeError('Unsupported data attribute type '+str(type(data[attribute])) + '.')
 
@@ -278,7 +280,8 @@ def load_from_numpy_bundle(bundle_name: str, data_home: Optional[Union[str, Path
             elif file_extension == 'npy':
                 data[file_name] = np.load(data_path / file)
             elif file_extension == 'p':
-                data[file_name] = pickle.load(open(data_path / file, 'rb'))
+                with open(data_path / file, 'rb') as f:
+                    data[file_name] = pickle.load(f)
         return data
 
 

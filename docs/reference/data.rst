@@ -48,7 +48,9 @@ Load
 
 You can find some datasets on NetRep_.
 
-.. autofunction:: sknetwork.data.load_tsv
+.. autofunction:: sknetwork.data.load_edge_list
+
+.. autofunction:: sknetwork.data.load_adjacency_list
 
 .. autofunction:: sknetwork.data.load_graphml
 
