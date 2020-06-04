@@ -57,3 +57,7 @@ class TestStructure(unittest.TestCase):
             is_bipartite(cyclic_digraph(3))
 
         self.assertTrue(~is_bipartite(sparse.eye(3)))
+
+        adjacency = directed2undirected(cyclic_digraph(3))
+        bipartite = is_bipartite(adjacency, return_biadjacency=False)
+        self.assertEqual(bipartite, False)

@@ -14,6 +14,10 @@ class TestDiffusion(unittest.TestCase):
     def setUp(self):
         self.algos = [Diffusion(), Dirichlet()]
 
+    def test_n_iter(self):
+        with self.assertRaises(ValueError):
+            Diffusion(n_iter=-1)
+
     def test_single_node_graph(self):
         for algo in self.algos:
             algo.fit(sparse.identity(1, format='csr'), {0: 1})

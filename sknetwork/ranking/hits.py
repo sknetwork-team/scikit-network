@@ -89,7 +89,7 @@ class HITS(BaseBiRanking):
             solver = auto_solver(adjacency.nnz)
             if solver == 'lanczos':
                 self.solver: SVDSolver = LanczosSVD()
-            else:
+            else:  # pragma: no cover
                 self.solver: SVDSolver = HalkoSVD()
 
         self.solver.fit(adjacency, 1)
