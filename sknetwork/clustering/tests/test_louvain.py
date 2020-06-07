@@ -17,6 +17,17 @@ class TestLouvainClustering(unittest.TestCase):
         labels = Louvain().fit_transform(adjacency)
         self.assertEqual(len(labels), n)
 
+    def test_modularity(self):
+        adjacency = karate_club()
+        louvain_d = Louvain(modularity='dugue')
+        louvain_n = Louvain(modularity='newman')
+        labels_d = louvain_d.fit_transform(adjacency)
+        labels_n = louvain_n.fit_transform(adjacency)
+        self.assertTrue((labels_d == labels_n).all())
+
+        louvain_p = Louvain(modularity='potts')
+        louvain_p.fit_transform(adjacency)
+
     def test_options(self):
         adjacency = karate_club()
 
