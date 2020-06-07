@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Tests for clustering API"""
-
 import unittest
 
 from sknetwork.clustering import *
+from sknetwork.data import house, star_wars
 from sknetwork.data.test_graphs import *
 from sknetwork.embedding.svd import GSVD
 
@@ -42,3 +42,15 @@ class TestClusteringAPI(unittest.TestCase):
             labels_col = clustering_algo.labels_col_
             self.assertEqual(labels_row.shape, (n_row,))
             self.assertEqual(labels_col.shape, (n_col,))
+
+    def test_aggregate(self):
+        adjacency = house()
+        biadjacency = star_wars()
+
+        louvain = Louvain(return_aggregate=True)
+        louvain.fit(adjacency)
+        self.assertTrue(np.issubdtype(louvain.adjacency_.dtype, np.float_))
+
+        bilouvain = BiLouvain(return_aggregate=True)
+        bilouvain.fit(biadjacency)
+        self.assertTrue(np.issubdtype(bilouvain.biadjacency_.dtype, np.float_))
