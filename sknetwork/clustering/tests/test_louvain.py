@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Tests for Louvain"""
-
 import unittest
 
-from sknetwork.clustering import Louvain
+import numpy as np
+
+from sknetwork.clustering import Louvain, BiLouvain
 from sknetwork.data.test_graphs import *
-from sknetwork.data import karate_club
+from sknetwork.data import karate_club, star_wars
+from sknetwork.utils import bipartite2undirected
 
 
 class TestLouvainClustering(unittest.TestCase):
@@ -27,6 +29,18 @@ class TestLouvainClustering(unittest.TestCase):
 
         louvain_p = Louvain(modularity='potts')
         louvain_p.fit_transform(adjacency)
+
+    def test_bilouvain(self):
+        biadjacency = star_wars()
+        adjacency = bipartite2undirected(biadjacency)
+
+        louvain = Louvain(modularity='newman')
+        bilouvain = BiLouvain(modularity='newman')
+
+        labels1 = louvain.fit_transform(adjacency)
+        bilouvain.fit(biadjacency)
+        labels2 = np.concatenate((bilouvain.labels_row_, bilouvain.labels_col_))
+        self.assertTrue((labels1 == labels2).all())
 
     def test_options(self):
         adjacency = karate_club()
