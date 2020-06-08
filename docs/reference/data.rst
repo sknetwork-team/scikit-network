@@ -35,7 +35,7 @@ Models
 
 .. autofunction:: sknetwork.data.grid
 
-.. autofunction:: sknetwork.data.erdos_renyie
+.. autofunction:: sknetwork.data.erdos_renyi
 
 .. autofunction:: sknetwork.data.block_model
 
@@ -46,16 +46,17 @@ Models
 Load
 ****
 
+You can find some datasets on NetRep_.
+
+.. autofunction:: sknetwork.data.load_edge_list
+
+.. autofunction:: sknetwork.data.load_adjacency_list
+
+.. autofunction:: sknetwork.data.load_graphml
+
 .. autofunction:: sknetwork.data.load_netset
 
 .. autofunction:: sknetwork.data.load_konect
-
-Parse
-*****
-
-You can find some datasets on NetRep_.
-
-.. autofunction:: sknetwork.data.parse_tsv
 
 .. _NetRep: http://networkrepository.com/
 

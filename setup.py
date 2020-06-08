@@ -42,6 +42,7 @@ OPENMP_LINK_FLAG = '-fopenmp'
 # Check whether we're on OSX >= 10.10
 name = distutils.util.get_platform()
 if name.startswith("macosx-10"):
+    OPENMP_COMPILE_FLAG = '-lomp'
     OPENMP_LINK_FLAG = '-lomp'
     minor_version = int(name.split("-")[1].split(".")[1])
     if minor_version >= 7:
@@ -116,6 +117,8 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8'
     ],
     description="Graph algorithms",
     entry_points={

@@ -13,13 +13,23 @@ PageRank
 
 .. autoclass:: sknetwork.ranking.BiPageRank
 
-.. autoclass:: sknetwork.ranking.CoPageRank
-
 Diffusion
 ---------
 .. autoclass:: sknetwork.ranking.Diffusion
 
 .. autoclass:: sknetwork.ranking.BiDiffusion
+
+Dirichlet
+---------
+.. autoclass:: sknetwork.ranking.Dirichlet
+
+.. autoclass:: sknetwork.ranking.BiDirichlet
+
+Katz
+----
+.. autoclass:: sknetwork.ranking.Katz
+
+.. autoclass:: sknetwork.ranking.BiKatz
 
 HITS
 ----
@@ -35,5 +45,4 @@ Harmonic centrality
 
 Post-processing
 ---------------
-
 .. autofunction:: sknetwork.ranking.top_k

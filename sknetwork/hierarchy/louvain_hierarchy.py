@@ -26,6 +26,9 @@ class LouvainHierarchy(BaseHierarchy):
 
     Parameters
     ----------
+    depth :
+        Depth of the tree.
+        A negative value is interpreted as no limit (return a tree of maximum depth).
     resolution :
         Resolution parameter.
     tol_optimization :
@@ -38,7 +41,7 @@ class LouvainHierarchy(BaseHierarchy):
     shuffle_nodes :
         Enables node shuffling before optimization.
     random_state :
-        Random number generator or random seed. If None, numpy.random is used.
+        Random number generator or random seed. If ``None``, numpy.random is used.
     verbose :
         Verbose mode.
 
@@ -68,12 +71,17 @@ class LouvainHierarchy(BaseHierarchy):
     scipy.cluster.hierarchy.dendrogram
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, depth: int = 3, resolution: float = 1, tol_optimization: float = 1e-3,
+                 tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
         super(LouvainHierarchy, self).__init__()
 
-        self._clustering_method = Louvain(**kwargs)
+        self.depth = depth
+        self._clustering_method = Louvain(resolution=resolution, tol_optimization=tol_optimization,
+                                          tol_aggregation=tol_aggregation, n_aggregations=n_aggregations,
+                                          shuffle_nodes=shuffle_nodes, random_state=random_state, verbose=verbose)
 
-    def _recursive_louvain(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
+    def _recursive_louvain(self, adjacency: Union[sparse.csr_matrix, np.ndarray], depth: int,
                            nodes: Optional[np.ndarray] = None):
         """Recursive function for fit.
 
@@ -81,6 +89,8 @@ class LouvainHierarchy(BaseHierarchy):
         ----------
         adjacency :
             Adjacency matrix of the graph.
+        depth :
+            Depth of the recursion.
         nodes :
             The current nodes index in the original graph.
 
@@ -92,7 +102,7 @@ class LouvainHierarchy(BaseHierarchy):
         if nodes is None:
             nodes = np.arange(n)
 
-        if adjacency.nnz:
+        if adjacency.nnz and depth:
             labels = self._clustering_method.fit_transform(adjacency)
         else:
             labels = np.zeros(n)
@@ -110,7 +120,7 @@ class LouvainHierarchy(BaseHierarchy):
                 mask = (labels == cluster)
                 nodes_cluster = nodes[mask]
                 adjacency_cluster = adjacency[mask, :][:, mask]
-                result.append(self._recursive_louvain(adjacency_cluster, nodes_cluster))
+                result.append(self._recursive_louvain(adjacency_cluster, depth - 1, nodes_cluster))
             return result
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'LouvainHierarchy':
@@ -128,7 +138,7 @@ class LouvainHierarchy(BaseHierarchy):
         adjacency = check_format(adjacency)
         check_square(adjacency)
 
-        tree = self._recursive_louvain(adjacency)
+        tree = self._recursive_louvain(adjacency, self.depth)
         dendrogram, _ = get_dendrogram(tree)
         dendrogram = np.array(dendrogram)
         dendrogram[:, 2] -= min(dendrogram[:, 2])
@@ -145,6 +155,9 @@ class BiLouvainHierarchy(LouvainHierarchy, BaseBiHierarchy):
 
     Parameters
     ----------
+    depth :
+        Depth of the tree.
+        A negative value is interpreted as no limit (return a tree of maximum depth).
     resolution :
         Resolution parameter.
     tol_optimization :

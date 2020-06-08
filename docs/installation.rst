@@ -34,17 +34,23 @@ You can either clone the public repository:
 
     $ git clone git://github.com/sknetwork-team/scikit-network
 
-Or download the `tarball`_:
+Or download the `tarball`_.
+
+Once you have a copy of the source, if you have an installation of `pip`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/sknetwork-team/scikit-network/tarball/master
+    $ pip install <path to the repo/path to the tarball>
 
-Once you have a copy of the source, you can install it with:
+Or, after having unpacked the tarball if relevant, you can install it with:
 
 .. code-block:: console
 
+    $ cd <scikit-network folder>
     $ python setup.py develop
+
+
+
 
 
 .. _Github repo: https://github.com/sknetwork-team/scikit-network

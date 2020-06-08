@@ -22,7 +22,7 @@ def check_csr_or_slr(adjacency):
 
 
 def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
-                        weight_sum: bool = True) -> Union[sparse.csr_matrix, SparseLR]:
+                        weighted: bool = True) -> Union[sparse.csr_matrix, SparseLR]:
     """Adjacency matrix of the undirected graph associated with some directed graph.
 
     The new adjacency matrix becomes either:
@@ -40,7 +40,7 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
     ----------
     adjacency :
         Adjacency matrix.
-    weight_sum :
+    weighted :
         If ``True``, return the sum of the weights in both directions of each edge.
 
     Returns
@@ -50,18 +50,18 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
     """
     check_csr_or_slr(adjacency)
     if type(adjacency) == sparse.csr_matrix:
-        if weight_sum:
+        if weighted:
             new_adjacency = adjacency + adjacency.T
         else:
             new_adjacency = adjacency.maximum(adjacency.T)
         new_adjacency.tocsr().sort_indices()
         return new_adjacency
     else:
-        if weight_sum:
+        if weighted:
             new_tuples = [(y, x) for (x, y) in adjacency.low_rank_tuples]
             return SparseLR(directed2undirected(adjacency.sparse_mat), adjacency.low_rank_tuples + new_tuples)
         else:
-            raise ValueError('This function only works with ``weight_sum=True`` for SparseLR objects.')
+            raise ValueError('This function only works with ``weighted=True`` for SparseLR objects.')
 
 
 def bipartite2directed(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Union[sparse.csr_matrix, SparseLR]:

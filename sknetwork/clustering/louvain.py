@@ -6,7 +6,6 @@ Created on Nov 2, 2018
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
-
 from typing import Union, Optional
 
 import numpy as np
@@ -15,7 +14,7 @@ from scipy import sparse
 from sknetwork.clustering.base import BaseClustering, BaseBiClustering
 from sknetwork.clustering.louvain_core import fit_core
 from sknetwork.clustering.postprocess import reindex_labels
-from sknetwork.utils.format import bipartite2directed, directed2undirected
+from sknetwork.utils.format import bipartite2directed, directed2undirected, bipartite2undirected
 from sknetwork.utils.check import check_format, check_random_state, check_probs, check_square
 from sknetwork.utils.membership import membership_matrix
 from sknetwork.utils.verbose import VerboseMixin
@@ -31,6 +30,8 @@ class Louvain(BaseClustering, VerboseMixin):
     ----------
     resolution :
         Resolution parameter.
+    modularity : str
+        Which objective function to maximize. Can be ``'dugue'``, ``'newman'`` or ``'potts'``.
     tol_optimization :
         Minimum increase in the objective function to enter a new optimization pass.
     tol_aggregation :
@@ -81,32 +82,36 @@ class Louvain(BaseClustering, VerboseMixin):
       `Directed Louvain: maximizing modularity in directed networks
       <https://hal.archives-ouvertes.fr/hal-01231784/document>`_
       (Doctoral dissertation, Université d'Orléans).
+
+    * Traag, V. A., Van Dooren, P., & Nesterov, Y. (2011).
+      `Narrow scope for resolution-limit-free community detection.
+      <https://arxiv.org/pdf/1104.3083.pdf>`_
+      Physical Review E, 84(1), 016114.
     """
-    def __init__(self, resolution: float = 1, tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3,
-                 n_aggregations: int = -1, shuffle_nodes: bool = False, sort_clusters: bool = True,
-                 return_membership: bool = True, return_aggregate: bool = True,
+    def __init__(self, resolution: float = 1, modularity: str = 'dugue', tol_optimization: float = 1e-3,
+                 tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
+                 sort_clusters: bool = True, return_membership: bool = True, return_aggregate: bool = True,
                  random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
         super(Louvain, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
                                       return_aggregate=return_aggregate)
         VerboseMixin.__init__(self, verbose)
 
-        self.random_state = check_random_state(random_state)
+        self.resolution = np.float32(resolution)
+        self.modularity = modularity
+        self.tol = np.float32(tol_optimization)
         self.tol_aggregation = tol_aggregation
-        self.resolution = resolution
-        self.tol = tol_optimization
         self.n_aggregations = n_aggregations
         self.shuffle_nodes = shuffle_nodes
+        self.random_state = check_random_state(random_state)
 
-    def _optimize(self, n_nodes, adjacency_norm, probs_out, probs_in):
+    def _optimize(self, adjacency_norm, probs_ou, probs_in):
         """One local optimization pass of the Louvain algorithm
 
         Parameters
         ----------
-        n_nodes :
-            the number of nodes in the adjacency
         adjacency_norm :
             the norm of the adjacency
-        probs_out :
+        probs_ou :
             the array of degrees of the adjacency
         probs_in :
             the array of degrees of the transpose of the adjacency
@@ -118,29 +123,28 @@ class Louvain(BaseClustering, VerboseMixin):
         pass_increase :
             the increase in modularity gained after optimization
         """
-        node_probs_in = probs_in
-        node_probs_out = probs_out
+        node_probs_in = probs_in.astype(np.float32)
+        node_probs_ou = probs_ou.astype(np.float32)
 
         adjacency = 0.5 * directed2undirected(adjacency_norm)
 
-        self_loops = adjacency.diagonal()
+        self_loops = adjacency.diagonal().astype(np.float32)
 
-        indptr: np.ndarray = adjacency.indptr
-        indices: np.ndarray = adjacency.indices
-        data: np.ndarray = adjacency.data
+        indptr: np.ndarray = adjacency.indptr.astype(np.int32)
+        indices: np.ndarray = adjacency.indices.astype(np.int32)
+        data: np.ndarray = adjacency.data.astype(np.float32)
 
-        return fit_core(self.resolution, self.tol, n_nodes,
-                        node_probs_out, node_probs_in, self_loops, data, indices, indptr)
+        return fit_core(self.resolution, self.tol, node_probs_ou, node_probs_in, self_loops, data, indices, indptr)
 
     @staticmethod
-    def _aggregate(adjacency_norm, probs_out, probs_in, membership: Union[sparse.csr_matrix, np.ndarray]):
+    def _aggregate(adjacency_norm, probs_ou, probs_in, membership: Union[sparse.csr_matrix, np.ndarray]):
         """Aggregate nodes belonging to the same cluster.
 
         Parameters
         ----------
         adjacency_norm :
             the norm of the adjacency
-        probs_out :
+        probs_ou :
             the array of degrees of the adjacency
         probs_in :
             the array of degrees of the transpose of the adjacency
@@ -152,12 +156,9 @@ class Louvain(BaseClustering, VerboseMixin):
         Aggregate graph.
         """
         adjacency_norm = (membership.T.dot(adjacency_norm.dot(membership))).tocsr()
-        if probs_in is not None:
-            probs_in = np.array(membership.T.dot(probs_in).T)
-
-        probs_out = np.array(membership.T.dot(probs_out).T)
-        n_nodes = adjacency_norm.shape[0]
-        return n_nodes, adjacency_norm, probs_out, probs_in
+        probs_in = np.array(membership.T.dot(probs_in).T)
+        probs_ou = np.array(membership.T.dot(probs_ou).T)
+        return adjacency_norm, probs_ou, probs_in
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Louvain':
         """Fit algorithm to the data.
@@ -173,39 +174,49 @@ class Louvain(BaseClustering, VerboseMixin):
         """
         adjacency = check_format(adjacency)
         check_square(adjacency)
-        n_nodes = adjacency.shape[0]
+        n = adjacency.shape[0]
 
-        probs_out = check_probs('degree', adjacency)
-        probs_in = check_probs('degree', adjacency.T)
+        if self.modularity == 'potts':
+            probs_ou = check_probs('uniform', adjacency)
+            probs_in = probs_ou.copy()
+        elif self.modularity == 'newman':
+            probs_ou = check_probs('degree', adjacency)
+            probs_in = probs_ou.copy()
+        elif self.modularity == 'dugue':
+            probs_ou = check_probs('degree', adjacency)
+            probs_in = check_probs('degree', adjacency.T)
+        else:
+            raise ValueError('Unknown modularity function.')
 
-        nodes = np.arange(n_nodes)
+        nodes = np.arange(n, dtype=np.int32)
         if self.shuffle_nodes:
             nodes = self.random_state.permutation(nodes)
             adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
-        adjacency_norm = adjacency / adjacency.data.sum()
+        adjacency_clust = adjacency / adjacency.data.sum()
 
-        membership = sparse.identity(n_nodes, format='csr')
+        membership = sparse.identity(n, format='csr')
         increase = True
         count_aggregations = 0
-        self.log.print("Starting with", n_nodes, "nodes.")
+        self.log.print("Starting with", n, "nodes.")
         while increase:
             count_aggregations += 1
 
-            current_labels, pass_increase = self._optimize(n_nodes, adjacency_norm, probs_out, probs_in)
-            _, current_labels = np.unique(current_labels, return_inverse=True)
+            labels_clust, pass_increase = self._optimize(adjacency_clust, probs_ou, probs_in)
+            _, labels_clust = np.unique(labels_clust, return_inverse=True)
 
             if pass_increase <= self.tol_aggregation:
                 increase = False
             else:
-                membership_agg = membership_matrix(current_labels)
-                membership = membership.dot(membership_agg)
-                n_nodes, adjacency_norm, probs_out, probs_in = self._aggregate(adjacency_norm, probs_out,
-                                                                               probs_in, membership_agg)
+                membership_clust = membership_matrix(labels_clust)
+                membership = membership.dot(membership_clust)
+                adjacency_clust, probs_ou, probs_in = self._aggregate(adjacency_clust, probs_ou, probs_in,
+                                                                      membership_clust)
 
-                if n_nodes == 1:
+                n = adjacency_clust.shape[0]
+                if n == 1:
                     break
-            self.log.print("Aggregation", count_aggregations, "completed with", n_nodes, "clusters and ",
+            self.log.print("Aggregation", count_aggregations, "completed with", n, "clusters and ",
                            pass_increase, "increment.")
             if count_aggregations == self.n_aggregations:
                 break
@@ -234,6 +245,8 @@ class BiLouvain(Louvain, BaseBiClustering):
     ----------
     resolution :
         Resolution parameter.
+    modularity : str
+        Which objective function to maximize. Can be ``'dugue'``, ``'newman'`` or ``'potts'``.
     tol_optimization :
         Minimum increase in the objective function to enter a new optimization pass.
     tol_aggregation :
@@ -278,21 +291,13 @@ class BiLouvain(Louvain, BaseBiClustering):
     >>> labels = bilouvain.fit_transform(biadjacency)
     >>> len(labels)
     15
-
-    References
-    ----------
-    * Dugué, N., & Perez, A. (2015).
-      `Directed Louvain: maximizing modularity in directed networks
-      <https://hal.archives-ouvertes.fr/hal-01231784/document>`_
-      (Doctoral dissertation, Université d'Orléans).
     """
-
-    def __init__(self, resolution: float = 1, tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3,
-                 n_aggregations: int = -1, shuffle_nodes: bool = False, sort_clusters: bool = True,
-                 return_membership: bool = True, return_aggregate: bool = True,
+    def __init__(self, resolution: float = 1, modularity: str = 'dugue', tol_optimization: float = 1e-3,
+                 tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
+                 sort_clusters: bool = True, return_membership: bool = True, return_aggregate: bool = True,
                  random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
         super(BiLouvain, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
-                                        return_aggregate=return_aggregate, resolution=resolution,
+                                        return_aggregate=return_aggregate, resolution=resolution, modularity=modularity,
                                         tol_optimization=tol_optimization, verbose=verbose,
                                         tol_aggregation=tol_aggregation, n_aggregations=n_aggregations,
                                         shuffle_nodes=shuffle_nodes, random_state=random_state)
@@ -313,14 +318,17 @@ class BiLouvain(Louvain, BaseBiClustering):
         -------
         self: :class:`BiLouvain`
         """
-        louvain = Louvain(resolution=self.resolution, tol_aggregation=self.tol_aggregation,
+        louvain = Louvain(resolution=self.resolution, modularity=self.modularity, tol_aggregation=self.tol_aggregation,
                           n_aggregations=self.n_aggregations, shuffle_nodes=self.shuffle_nodes,
                           sort_clusters=self.sort_clusters, return_membership=self.return_membership,
                           return_aggregate=False, random_state=self.random_state, verbose=self.log.verbose)
         biadjacency = check_format(biadjacency)
         n_row, _ = biadjacency.shape
 
-        adjacency = bipartite2directed(biadjacency)
+        if self.modularity == 'dugue':
+            adjacency = bipartite2directed(biadjacency)
+        else:
+            adjacency = bipartite2undirected(biadjacency)
         louvain.fit(adjacency)
 
         self.labels_ = louvain.labels_

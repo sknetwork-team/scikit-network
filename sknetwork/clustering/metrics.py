@@ -27,17 +27,17 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
 
     The modularity of a clustering is
 
-    :math:`Q = \\sum_{i,j}\\left(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w_iw_j}{w^2}\\right)\\delta_{c_i,c_j}`
+    :math:`Q = \\dfrac{1}{w} \\sum_{i,j}\\left(A_{ij} - \\gamma \\dfrac{d_id_j}{w}\\right)\\delta_{c_i,c_j}`
     for graphs,
 
-    :math:`Q = \\sum_{i,j}\\left(\\dfrac{A_{ij}}{w} - \\gamma \\dfrac{w^+_iw^-_j}{w^2}\\right)\\delta_{c_i,c_j}`
+    :math:`Q = \\dfrac{1}{w} \\sum_{i,j}\\left(A_{ij} - \\gamma \\dfrac{d^+_id^-_j}{w}\\right)\\delta_{c_i,c_j}`
     for digraphs,
 
     where
 
     * :math:`c_i` is the cluster of node :math:`i`,\n
-    * :math:`w_i` is the weight of node :math:`i`,\n
-    * :math:`w^+_i, w^-_i` are the out-weight, in-weight of node :math:`i` (for digraphs),\n
+    * :math:`d_i` is the weight of node :math:`i`,\n
+    * :math:`d^+_i, d^-_i` are the out-weight, in-weight of node :math:`i` (for digraphs),\n
     * :math:`w = 1^TA1` is the total weight,\n
     * :math:`\\delta` is the Kronecker symbol,\n
     * :math:`\\gamma \\ge 0` is the resolution parameter.
@@ -103,13 +103,13 @@ def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.n
 
     The bimodularity of a clustering is
 
-    :math:`Q = \\sum_{i}\\sum_{j}\\left(\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{w_{1,i}w_{2,j}}{w^2}\\right)
+    :math:`Q = \\sum_{i}\\sum_{j}\\left(\\dfrac{B_{ij}}{w} - \\gamma \\dfrac{d_{1,i}d_{2,j}}{w^2}\\right)
     \\delta_{c_{1,i},c_{2,j}}`
 
     where
 
     * :math:`c_{1,i}, c_{2,j}` are the clusters of nodes :math:`i` (row) and :math:`j` (column),\n
-    * :math:`w_{1,i}, w_{2,j}` are the weights of nodes :math:`i` (row) and :math:`j` (column),\n
+    * :math:`d_{1,i}, d_{2,j}` are the weights of nodes :math:`i` (row) and :math:`j` (column),\n
     * :math:`w = 1^TB1` is the total weight,\n
     * :math:`\\delta` is the Kronecker symbol,\n
     * :math:`\\gamma \\ge 0` is the resolution parameter.
@@ -179,7 +179,7 @@ def comodularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.nda
 
     Quality metric of a clustering given by:
 
-    :math:`Q = \\sum_{i,j}\\left(\\dfrac{(AD_2^{-1}A^T)_{ij}}{w} - \\gamma \\dfrac{d_id_j}{w^2}\\right)
+    :math:`Q = \\dfrac{1}{w}\\sum_{i,j}\\left((AD_2^{-1}A^T)_{ij} - \\gamma \\dfrac{d_id_j}{w}\\right)
     \\delta_{c_i,c_j}`
 
     where

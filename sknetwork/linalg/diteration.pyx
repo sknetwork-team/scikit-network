@@ -4,8 +4,6 @@
 Created on Apr 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-import numpy as np
-cimport numpy as np
 cimport cython
 from cython.parallel import prange
 
@@ -13,23 +11,37 @@ from cython.parallel import prange
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def diffusion(int[:] indptr, int[:] indices, float[:] data, float[:] scores, float[:] fluid,
-              float damping_factor, int n_iter):
+              float damping_factor, int n_iter, float tol):
     """One loop of fluid diffusion."""
-    cdef int n = len(fluid)
+    cdef int n = fluid.shape[0]
     cdef int i
     cdef int j
+    cdef int j1
+    cdef int j2
     cdef int jj
-    cdef float tmp1
-    cdef float tmp2
+    cdef float sent
+    cdef float tmp
+    cdef float removed
+    cdef float restart_prob = 1 - damping_factor
+    cdef float residu = restart_prob
 
     for k in range(n_iter):
-        for i in prange(n, nogil=True):
-            tmp1 = fluid[i]
-            if tmp1 > 0:
-                scores[i] += tmp1
+        for i in prange(n, nogil=True, schedule='guided'):
+            sent = fluid[i]
+            if sent > 0:
+                scores[i] += sent
                 fluid[i] = 0
-                tmp2 = tmp1 * damping_factor
-                for jj in range(indptr[i], indptr[i+1]):
-                    j = indices[jj]
-                    fluid[j] += tmp2 * data[jj]
-    return np.asarray(scores)
+                j1 = indptr[i]
+                j2 = indptr[i+1]
+                tmp = sent * damping_factor
+                if j2 != j1:
+                    for jj in range(j1, j2):
+                        j = indices[jj]
+                        fluid[j] += tmp * data[jj]
+                    removed = sent * restart_prob
+                else:
+                    removed = sent
+                residu -= removed
+        if residu < tol * restart_prob:
+            return
+    return

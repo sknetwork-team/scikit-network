@@ -44,7 +44,6 @@ def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
     Returns
     -------
     normalized matrix : same as input
-
     """
     if p == 1:
         norm = matrix.dot(np.ones(matrix.shape[1]))
@@ -52,9 +51,10 @@ def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
         if isinstance(matrix, np.ndarray):
             norm = np.linalg.norm(matrix, axis=1)
         elif isinstance(matrix, sparse.csr_matrix):
-            square = matrix.copy()
-            square.data = square.data ** 2
-            norm = np.sqrt(square.dot(np.ones(matrix.shape[1])))
+            data = matrix.data.copy()
+            matrix.data = data ** 2
+            norm = np.sqrt(matrix.dot(np.ones(matrix.shape[1])))
+            matrix.data = data
         else:
             raise NotImplementedError('Norm 2 is not available for LinearOperator.')
     else:

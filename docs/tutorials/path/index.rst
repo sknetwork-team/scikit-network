@@ -1,7 +1,8 @@
-Connectivity
-************
+Path
+****
 
 
 .. toctree::
 
+   distance
    shortest_path

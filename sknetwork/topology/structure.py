@@ -5,7 +5,6 @@ Created on Jul 24, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Quentin Lutz <qlutz@enst.fr>
 """
-
 from typing import Tuple, Optional, Union
 
 import numpy as np
@@ -14,10 +13,8 @@ from scipy import sparse
 from sknetwork.utils.check import is_symmetric, is_square, check_format
 
 
-def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak',
-                         return_components: bool = True) -> Union[int, Tuple[int, np.ndarray]]:
-    """
-    Extract the connected components of the graph
+def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak') -> np.ndarray:
+    """Extract the connected components of the graph.
 
     * Graphs
     * Digraphs
@@ -26,27 +23,21 @@ def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak',
 
     Parameters
     ----------
-    adjacency:
+    adjacency :
         Adjacency matrix of the graph.
-    connection
+    connection :
         Must be ``'weak'`` (default) or ``'strong'``. The type of connection to use for directed graphs.
-    return_components
-        If ``True`` (default), then return the labels for each of the connected components.
 
     Returns
     -------
-    n_components: int
-        The number of connected components.
-    components: ndarray
-        The array such that for each node ``i``, ``components[i]`` is the connected component of ``i``.
-
+    labels : np.ndarray
+        Connected component of each node.
     """
-    return sparse.csgraph.connected_components(adjacency, (not is_symmetric(adjacency)), connection, return_components)
+    return sparse.csgraph.connected_components(adjacency, not is_symmetric(adjacency), connection, True)[1]
 
 
 def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], return_labels: bool = False):
-    """
-    Extract the largest connected component of a graph. Bipartite graphs are treated as undirected ones.
+    """Extract the largest connected component of a graph. Bipartite graphs are treated as undirected.
 
     * Graphs
     * Digraphs
@@ -54,16 +45,16 @@ def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray],
 
     Parameters
     ----------
-    adjacency
+    adjacency :
         Adjacency or biadjacency matrix of the graph.
-    return_labels: bool
+    return_labels : bool
         Whether to return the indices of the new nodes in the original graph.
 
     Returns
     -------
-    new_adjacency: sparse.csr_matrix
+    new_adjacency : sparse.csr_matrix
         Adjacency or biadjacency matrix of the largest connected component.
-    indices: array or tuple of array
+    indices : array or tuple of array
         Indices of the nodes in the original graph. For biadjacency matrices,
         ``indices[0]`` corresponds to the rows and ``indices[1]`` to the columns.
 
@@ -77,58 +68,62 @@ def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray],
         bipartite: bool = False
         full_adjacency = adjacency
 
-    n_components, labels = connected_components(full_adjacency)
+    labels = connected_components(full_adjacency)
     unique_labels, counts = np.unique(labels, return_counts=True)
     component_label = unique_labels[np.argmax(counts)]
     component_indices = np.where(labels == component_label)[0]
 
     if bipartite:
         split_ix = np.searchsorted(component_indices, n_row)
-        samples_ix, features_ix = component_indices[:split_ix], component_indices[split_ix:] - n_row
+        row_ix, col_ix = component_indices[:split_ix], component_indices[split_ix:] - n_row
     else:
-        samples_ix, features_ix = component_indices, component_indices
-    new_adjacency = adjacency[samples_ix, :]
-    new_adjacency = (new_adjacency.tocsc()[:, features_ix]).tocsr()
+        row_ix, col_ix = component_indices, component_indices
+    new_adjacency = adjacency[row_ix, :]
+    new_adjacency = (new_adjacency.tocsc()[:, col_ix]).tocsr()
 
     if return_labels:
         if bipartite:
-            return new_adjacency, (samples_ix, features_ix)
+            return new_adjacency, (row_ix, col_ix)
         else:
-            return new_adjacency, samples_ix
+            return new_adjacency, row_ix
     else:
         return new_adjacency
 
 
-def is_bipartite(adjacency: sparse.csr_matrix,
-                 return_biadjacency: bool = False) -> Union[bool, Tuple[bool, Optional[sparse.csr_matrix]]]:
-    """Check whether an undirected graph is bipartite and can return a possible biadjacency.
+def is_bipartite(adjacency: sparse.csr_matrix, return_biadjacency: bool = False) \
+        -> Union[bool, Tuple[bool, Optional[sparse.csr_matrix], Optional[np.ndarray], Optional[np.ndarray]]]:
+    """Check whether an undirected graph is bipartite.
 
     * Graphs
 
     Parameters
     ----------
-    adjacency:
-       The symmetric adjacency matrix of the graph.
-    return_biadjacency:
-        If ``True`` , a possible biadjacency is returned if the graph is bipartite (None is returned otherwise)
+    adjacency :
+       Adjacency matrix of the graph (symmetric).
+    return_biadjacency :
+        If ``True``, return a biadjacency matrix of the graph if bipartite.
 
     Returns
     -------
-    is_bipartite: bool
-        A boolean denoting if the graph is bipartite
-    biadjacency: sparse.csr_matrix
-        A possible biadjacency of the bipartite graph (None if the graph is not bipartite)
+    is_bipartite : bool
+        A boolean denoting if the graph is bipartite.
+    biadjacency : sparse.csr_matrix
+        A biadjacency matrix of the graph if bipartite (optional).
+    rows : np.ndarray
+        Index of rows in the original graph (optional).
+    cols : np.ndarray
+        Index of columns in the original graph (optional).
     """
     if not is_symmetric(adjacency):
         raise ValueError('The graph must be undirected.')
     if adjacency.diagonal().any():
         if return_biadjacency:
-            return False, None
+            return False, None, None, None
         else:
             return False
-    n_nodes = adjacency.indptr.shape[0] - 1
-    coloring = np.full(n_nodes, -1, dtype=int)
-    exists_remaining = n_nodes
+    n = adjacency.indptr.shape[0] - 1
+    coloring = np.full(n, -1, dtype=int)
+    exists_remaining = n
     while exists_remaining:
         src = np.argwhere(coloring == -1)[0, 0]
         next_nodes = [src]
@@ -143,10 +138,12 @@ def is_bipartite(adjacency: sparse.csr_matrix,
                     exists_remaining -= 1
                 elif coloring[neighbor] == coloring[node]:
                     if return_biadjacency:
-                        return False, None
+                        return False, None, None, None
                     else:
                         return False
     if return_biadjacency:
-        return True, adjacency[coloring == 0, :][:, coloring == 1]
+        rows = np.argwhere(coloring == 0).ravel()
+        cols = np.argwhere(coloring == 1).ravel()
+        return True, adjacency[rows, :][:, cols], rows, cols
     else:
         return True

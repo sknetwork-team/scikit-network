@@ -54,7 +54,8 @@ def rescale(position, width, height, margin, node_size_max, node_weight):
     return position, width, height
 
 
-def get_colors(n: int, labels: Union[dict, np.ndarray, None], scores: np.ndarray, color: str) -> np.ndarray:
+def get_colors(n: int, labels: Union[dict, np.ndarray, None], scores: Union[dict, np.ndarray, None], color: str) \
+                -> np.ndarray:
     """Return the colors using either labels or scores or default color."""
     colors = np.array(n * [color]).astype('U64')
     if labels is not None:
@@ -70,17 +71,25 @@ def get_colors(n: int, labels: Union[dict, np.ndarray, None], scores: np.ndarray
         colors_score = COOLWARM_RGB.copy()
         n_colors = colors_score.shape[0]
         colors_score_svg = np.array(['rgb' + str(tuple(colors_score[i])) for i in range(n_colors)])
-        scores = (min_max_scaling(scores) * (n_colors - 1)).astype(int)
-        colors = colors_score_svg[scores]
+        if isinstance(scores, dict):
+            index = np.array(list(scores.keys()))
+            values = np.array(list(scores.values()))
+            scores = (min_max_scaling(values) * (n_colors - 1)).astype(int)
+            colors[index] = colors_score_svg[scores]
+        else:
+            scores = (min_max_scaling(scores) * (n_colors - 1)).astype(int)
+            colors = colors_score_svg[scores]
     return colors
 
 
-def get_node_widths(n: int, seeds: Union[dict, list], node_width: float, node_width_max: float) -> np.ndarray:
+def get_node_widths(n: int, seeds: Union[int, dict, list], node_width: float, node_width_max: float) -> np.ndarray:
     """Return the node widths."""
     node_widths = node_width * np.ones(n)
     if seeds is not None:
         if type(seeds) == dict:
             seeds = list(seeds.keys())
+        elif np.issubdtype(type(seeds), np.integer):
+            seeds = [seeds]
         if len(seeds):
             node_widths[np.array(seeds)] = node_width_max
     return node_widths
@@ -162,7 +171,7 @@ def svg_text(pos, text, font_size=12, align_right=False):
 
 
 def svg_graph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = None, names: Optional[np.ndarray] = None,
-              labels: Optional[Union[dict, np.ndarray]] = None, scores: Optional[np.ndarray] = None,
+              labels: Optional[Union[dict, np.ndarray]] = None, scores: Optional[Union[dict, np.ndarray]] = None,
               seeds: Union[list, dict] = None, width: float = 400, height: float = 300,
               margin: float = 20, margin_text: float = 3, scale: float = 1, node_order: Optional[np.ndarray] = None,
               node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20,
@@ -271,7 +280,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = Non
 
     # node sizes
     if node_weights is None:
-        node_weights = adjacency.dot(np.ones(n))
+        node_weights = adjacency.T.dot(np.ones(n))
     node_sizes = get_node_sizes(node_weights, node_size, node_size_min, node_size_max, display_node_weight)
 
     # node widths
@@ -328,7 +337,7 @@ def svg_graph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = Non
 
 
 def svg_digraph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = None, names: Optional[np.ndarray] = None,
-                labels: Optional[Union[dict, np.ndarray]] = None, scores: Optional[np.ndarray] = None,
+                labels: Optional[Union[dict, np.ndarray]] = None, scores: Optional[Union[dict, np.ndarray]] = None,
                 seeds: Union[list, dict] = None, width: float = 400, height: float = 300,
                 margin: float = 20, margin_text: float = 10, scale: float = 1, node_order: Optional[np.ndarray] = None,
                 node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20,
@@ -372,7 +381,7 @@ def svg_digraph(adjacency: sparse.csr_matrix, position: Optional[np.ndarray] = N
     node_size_max :
         Maximum size of a node.
     display_node_weight :
-        If ``True``, display node weights through node size.
+        If ``True``, display node in-weights through node size.
     node_weights :
         Node weights (used only if **display_node_weight** is ``True``).
     node_width :
@@ -429,7 +438,8 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
                 names_row: Optional[np.ndarray] = None, names_col: Optional[np.ndarray] = None,
                 labels_row: Optional[Union[dict, np.ndarray]] = None,
                 labels_col: Optional[Union[dict, np.ndarray]] = None,
-                scores_row: Optional[np.ndarray] = None, scores_col: Optional[np.ndarray] = None,
+                scores_row: Optional[Union[dict, np.ndarray]] = None,
+                scores_col: Optional[Union[dict, np.ndarray]] = None,
                 seeds_row: Union[list, dict] = None, seeds_col: Union[list, dict] = None,
                 position_row: Optional[np.ndarray] = None, position_col: Optional[np.ndarray] = None,
                 reorder: bool = True, width: float = 400,

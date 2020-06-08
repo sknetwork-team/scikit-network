@@ -4,7 +4,6 @@
 Created on Mar, 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
 from functools import partial
 from multiprocessing import Pool
 from typing import Union, Optional
@@ -29,7 +28,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
     algorithm :
         Which ranking algorithm to use.
     n_jobs :
-        If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
+        If positive, number of parallel jobs allowed (-1 means maximum number).
         If ``None``, no parallel computations are made.
     verbose :
         Verbose mode.
@@ -77,7 +76,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         Parameters
         ----------
         scores
-            (n x k) matrix of scores.
+            Matrix of scores, shape number of nodes x number of labels.
 
         Returns
         -------
@@ -136,7 +135,7 @@ class RankBiClassifier(RankClassifier, BaseBiClassifier):
         biadjacency :
             Biadjacency matrix of the graph.
         seeds_row :
-            Seed rows. Can be a dict {node: label} or an array where "-1" means no label.
+            Seed rows (labels as dictionary or array; negative values ignored).
         seeds_col :
             Seed columns (optional). Same format.
 

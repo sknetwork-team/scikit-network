@@ -1,16 +1,18 @@
-.. _connectivity:
+.. _path:
 
-Connectivity
-************
+Path
+****
 
-Standard algorithms related to graph connectivity: shortest paths, graph traversals, etc.
+Standard algorithms related to graph traversal.
 
 Most algorithms are adapted from SciPy_.
 
-Shortest paths
---------------
+Shortest path
+-------------
 
-.. autofunction:: sknetwork.connectivity.shortest_path
+.. autofunction:: sknetwork.path.distance
+
+.. autofunction:: sknetwork.path.shortest_path
 
 Summary of the different methods and their worst-case complexity for :math:`n` nodes and :math:`m` edges (for the
 all-pairs problem):
@@ -18,8 +20,6 @@ all-pairs problem):
 +----------------+------------------------------+----------------------------------------+
 |     Method     |  Worst-case time complexity  |                 Remarks                |
 +================+==============================+========================================+
-| Floyd-Warshall | :math:`O(n^3)`               | All-pairs shortest path problem only   |
-+----------------+------------------------------+----------------------------------------+
 |    Dijkstra    | :math:`O(n^2 \log n + nm)`   | For use on graphs                      |
 |                |                              | with positive weights only             |
 +----------------+------------------------------+----------------------------------------+
@@ -29,23 +29,18 @@ all-pairs problem):
 +----------------+------------------------------+----------------------------------------+
 
 
-Searches
---------
+Search
+------
 
-.. autofunction:: sknetwork.connectivity.breadth_first_search
+.. autofunction:: sknetwork.path.breadth_first_search
 
-.. autofunction:: sknetwork.connectivity.depth_first_search
+.. autofunction:: sknetwork.path.depth_first_search
 
+Metrics
+-------
 
+.. autofunction:: sknetwork.path.diameter
 
-Structure
----------
-
-.. autofunction:: sknetwork.connectivity.connected_components
-
-.. autofunction:: sknetwork.connectivity.largest_connected_component
-
-.. autofunction:: sknetwork.connectivity.is_bipartite
 
 
 .. _SciPy: https://docs.scipy.org/doc/scipy/reference/sparse.csgraph.html

@@ -12,6 +12,7 @@ from scipy.sparse.linalg import eigs, LinearOperator, bicgstab
 
 from sknetwork.linalg.diteration import diffusion
 from sknetwork.linalg.normalization import normalize
+from sknetwork.linalg.polynome import Polynome
 
 
 class RandomSurferOperator(LinearOperator):
@@ -37,22 +38,55 @@ class RandomSurferOperator(LinearOperator):
         super(RandomSurferOperator, self).__init__(shape=adjacency.shape, dtype=float)
 
         n = adjacency.shape[0]
-        out_degrees = adjacency.dot(np.ones(n))
-        damping_matrix = damping_factor * sparse.eye(n, format='csr')
+        out_degrees = adjacency.dot(np.ones(n)).astype(bool)
 
         if hasattr(adjacency, 'left_sparse_dot'):
-            self.a = normalize(adjacency).left_sparse_dot(damping_matrix).T
+            self.a = damping_factor * normalize(adjacency).T
         else:
-            self.a = (damping_matrix.dot(normalize(adjacency))).T.tocsr()
-        self.b = (np.ones(n) - damping_factor * out_degrees.astype(bool)) * seeds
+            self.a = (damping_factor * normalize(adjacency)).T.tocsr()
+        self.b = (np.ones(n) - damping_factor * out_degrees) * seeds
 
     def _matvec(self, x: np.ndarray):
         return self.a.dot(x) + self.b * x.sum()
 
 
 def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.ndarray, damping_factor: float,
-                 n_iter: int, tol: float = 0., solver: str = 'naive'):
-    """Solve the Pagerank problem.
+                 n_iter: int, tol: float = 1e-6, solver: str = 'piteration') -> np.ndarray:
+    """Solve the Pagerank problem. Formally,
+
+    :math:`x = \\alpha Px + (1-\\alpha)y`,
+
+    where :math:`P = (D^{-1}A)^T` is the transition matrix and :math:`y` is the personalization probability vector.
+
+    Parameters
+    ----------
+    adjacency : sparse.csr_matrix
+        Adjacency matrix of the graph.
+    seeds : np.ndarray
+        Personalization array. Must be a valid probability vector.
+    damping_factor : float
+        Probability to continue the random walk.
+    n_iter : int
+        Number of iterations for some of the solvers such as ``'piteration'`` or ``'diteration'``.
+    tol : float
+        Tolerance for the convergence of some solvers such as ``'bicgstab'`` or ``'lanczos'``.
+    solver : :obj:`str`
+        Which solver to use: ``'piteration'``, ``'diteration'``, ``'bicgstab'``, ``'lanczos'``, `̀'RH'``.
+
+    Returns
+    -------
+    pagerank : np.ndarray
+        Probability vector.
+
+    Examples
+    --------
+    >>> from sknetwork.data import house
+    >>> adjacency = house()
+    >>> seeds = np.array([1, 0, 0, 0, 0])
+    >>> scores = get_pagerank(adjacency, seeds, damping_factor=0.85, n_iter=10)
+    >>> np.round(scores, 2)
+    array([0.29, 0.24, 0.12, 0.12, 0.24])
+
 
     References
     ----------
@@ -77,12 +111,18 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         indptr = adjacency.indptr.astype(np.int32)
         indices = adjacency.indices.astype(np.int32)
         data = adjacency.data.astype(np.float32)
-        n_iter = np.int32(n_iter)
         damping_factor = np.float32(damping_factor)
+        n_iter = np.int32(n_iter)
+        tol = np.float32(tol)
 
         scores = np.zeros(n, dtype=np.float32)
         fluid = (1 - damping_factor) * seeds.astype(np.float32)
-        scores = diffusion(indptr, indices, data, scores, fluid, damping_factor, n_iter)
+        diffusion(indptr, indices, data, scores, fluid, damping_factor, n_iter, tol)
+
+    elif solver == 'RH':
+        coeffs = np.ones(n_iter+1)
+        polynome = Polynome(damping_factor * normalize(adjacency, p=1).T.tocsr(), coeffs)
+        scores = polynome.dot(seeds)
 
     else:
         rso = RandomSurferOperator(adjacency, seeds, damping_factor)
@@ -92,13 +132,17 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         elif solver == 'lanczos':
             # noinspection PyTypeChecker
             _, scores = sparse.linalg.eigs(rso, k=1, tol=tol, v0=v0)
-        elif solver == 'naive':
+            scores = abs(scores.flatten().real)
+        elif solver == 'piteration':
             scores = v0
             for i in range(n_iter):
-                scores = rso.dot(scores)
-                scores /= scores.sum()
+                scores_ = rso.dot(scores)
+                scores_ /= scores_.sum()
+                if np.linalg.norm(scores - scores_, ord=1) < tol:
+                    break
+                else:
+                    scores = scores_
         else:
             raise ValueError('Unknown solver.')
 
-        scores = abs(scores.flatten().real)
     return scores / scores.sum()

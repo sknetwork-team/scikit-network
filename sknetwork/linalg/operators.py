@@ -150,7 +150,7 @@ class NormalizedAdjacencyOperator(LinearOperator):
         return self
 
 
-class CoNeighborsOperator(LinearOperator):
+class CoNeighborOperator(LinearOperator):
     """Co-neighborhood adjacency as a LinearOperator.
 
     * Graphs
@@ -174,14 +174,14 @@ class CoNeighborsOperator(LinearOperator):
     >>> from sknetwork.data import star_wars
     >>> biadjacency = star_wars(metadata=False)
     >>> d_out = biadjacency.dot(np.ones(3))
-    >>> coneigh = CoNeighborsOperator(biadjacency)
+    >>> coneigh = CoNeighborOperator(biadjacency)
     >>> np.allclose(d_out, coneigh.dot(np.ones(4)))
     True
     """
     def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], normalized: bool = True):
         adjacency = check_format(adjacency).astype(float)
         n = adjacency.shape[0]
-        super(CoNeighborsOperator, self).__init__(dtype=float, shape=(n, n))
+        super(CoNeighborOperator, self).__init__(dtype=float, shape=(n, n))
 
         if normalized:
             self.forward = normalize(adjacency.T).tocsr()
@@ -203,7 +203,7 @@ class CoNeighborsOperator(LinearOperator):
 
     def _transpose(self):
         """Transposed operator"""
-        operator = CoNeighborsOperator(self.backward)
+        operator = CoNeighborOperator(self.backward)
         operator.backward = self.forward.T.tocsr()
         operator.forward = self.backward.T.tocsr()
         return operator
