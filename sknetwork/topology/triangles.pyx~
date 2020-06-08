@@ -238,10 +238,8 @@ cdef long fit_core(int n_nodes, int n_edges, int[:] indptr, int[:] indices, bint
 				row[i] = indexation[u]
 				column[i] = indexation[v]
 				i += 1
-	
-	row = row[:i]
-	column = column[:i]
-	data = np.ones((i,), dtype=bool)
+				
+	data = np.ones((e,), dtype=bool)
 	
 	dag = sparse.csr_matrix((data, (row, column)), (n_nodes, n_nodes), dtype=bool)
 	
