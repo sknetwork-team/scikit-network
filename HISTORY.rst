@@ -2,6 +2,15 @@
 History
 =======
 
+0.18.0 (2020-06-08)
+-------------------
+
+* Added Katz centrality
+* Refactor connectivity module into paths and topology
+* Refactor Diffusion into Dirichlet
+* Added parsers for adjacency list TSV and GraphML
+* Added shortest paths and distances
+
 0.17.0 (2020-05-07)
 -------------------
 
