@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""Tests for label propagation"""
+
+import unittest
+
+from sknetwork.clustering import LabelPropagation
+from sknetwork.data.test_graphs import *
+from sknetwork.data import karate_club
+
+
+class TestLabelPropagation(unittest.TestCase):
+    
+    def test_disconnected(self):
+        adjacency = test_graph_disconnect()
+        n = adjacency.shape[0]
+        labels = LabelPropagation().fit_transform(adjacency)
+        self.assertEqual(len(labels), n)
+        
+    def test_cliques(self):
+        adjacency = test_clique()
+        labels = LabelPropagation().fit_transform(adjacency)
+        self.assertEqual(len(labels), 1)
+        
+        
+    def test_option(self):
+        adjacency = karate_club()
+        
+        lab = LabelPropagation(seed=10)
+        labels = lab.fit_transform(adjacency)
+        self.assertEqual(labels[], ?)
+        
+        lab = LabelPropagation(seed=122)
+        labels = lab.fit_transform(adjacency)
+        self.assertEqual(labels[], ?)
