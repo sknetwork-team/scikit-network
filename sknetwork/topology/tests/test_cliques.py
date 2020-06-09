@@ -27,10 +27,10 @@ class TestCliqueListing(unittest.TestCase):
 		n = adjacency.shape[0]
 		clique = CliqueListing()
 		nb = clique.fit_transform(adjacency, 3)
-		self.assertEqual(nb, comb(n, 3))
+		self.assertEqual(nb, comb(n, 3, exact=True))
 		
 		nb = clique.fit_transform(adjacency, 4)
-		self.assertEqual(nb, comb(n, 4))
+		self.assertEqual(nb, comb(n, 4, exact=True))
 		
 	def test_kcliques(self):
 		adjacency = karate_club()

@@ -54,13 +54,3 @@ Import scikit-network in a Python project::
 See examples in the tutorials; the notebooks are available here_.
 
 .. _here: https://github.com/sknetwork-team/scikit-network/tree/master/docs/tutorials
-
-
-New feature
--------------
-
-Adds a k-core decomposition algorithm in Cython. The algorithm computes both the nodes
-ordered by their core value and the maximum core value itself.
-
-Adds a k-clique listing algorithm also in Cython which uses the k-core decomposition
-to best sort its nodes.

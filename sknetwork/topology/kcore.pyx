@@ -21,8 +21,8 @@ from scipy import sparse
 cdef class MinHeap:
 	
 	def __cinit__(self, int n):
-		self.arr.reserve(n)		#reserves the necessary space in the vector
-		self.pos.reserve(n)		#reserves the necessary space in the other vector
+		self.arr.reserve(n)		# reserves the necessary space in the vector
+		self.pos.reserve(n)		# reserves the necessary space in the other vector
 		self.size = 0
 		
 	cdef bint isEmpty(self):
@@ -34,13 +34,13 @@ cdef class MinHeap:
 		self.arr[x] = self.arr[y]
 		self.arr[y] = tmp
 		
-		#updates the position of the corresponding elements
+		# updates the position of the corresponding elements
 		self.pos[self.arr[x]] = x
 		self.pos[self.arr[y]] = y;
 		
-	#Inserts a new key k
+	# Inserts a new key k
 	cdef void insertKey(self, int k, int[:] degres):
-		#First insert the new key at the end
+		# First insert the new key at the end
 		self.arr[self.size] = k
 		self.pos[k] = self.size
 		cdef int i = self.size
@@ -53,8 +53,8 @@ cdef class MinHeap:
 			p = parent(i)
 			
 			
-	#Decreases value of key at index 'i' to new_val.  It is assumed that 
-	#the new value is smaller than the old one 
+	# Decreases value of key at index 'i' to new_val.  It is assumed that 
+	# the new value is smaller than the old one 
 	cdef void decreaseKey(self, int i, int[:] degres):
 		cdef int pos, p
 		pos = self.pos[i]
@@ -65,13 +65,13 @@ cdef class MinHeap:
 				self.swap(pos, p)
 				pos = p
 			
-	#Function to remove minimum element (or root) from min heap
+	# Function to remove minimum element (or root) from min heap
 	cdef int extractMin(self, int[:] degres):
 		if (self.size == 1):
 			self.size = 0
 			return self.arr[0]
 			
-		#Store the minimum value, and remove it from heap
+		# Store the minimum value, and remove it from heap
 		cdef int root = self.arr[0]
 		self.arr[0] = self.arr[self.size-1]
 		self.size -= 1
@@ -79,8 +79,8 @@ cdef class MinHeap:
 		
 		return root
 		
-	#A recursive method to heapify a subtree with the root at given index 
-	#This function assumes that the subtrees are already heapified 
+	# A recursive method to heapify a subtree with the root at given index 
+	# This function assumes that the subtrees are already heapified 
 	cdef void minHeapify(self, int i, int[:] degres):
 		cdef int l, r, smallest
 		l = left(i)
@@ -119,49 +119,49 @@ cdef fit_core(int n_nodes, int[:] indptr, int[:] indices):
 		Maximum core value
 	"""
 	
-	cdef int core_value		#current/max core value of the graph
-	cdef int min_node		#current node of minimum degree
+	cdef int core_value		# current/max core value of the graph
+	cdef int min_node		# current node of minimum degree
 	cdef int i, j, k
-	cdef int[:] degres						#array of each node degrees
-	cdef np.ndarray[int, ndim=1] k_cores	#array of ordered nodes
+	cdef int[:] degres						# array of each node degrees
+	cdef np.ndarray[int, ndim=1] k_cores	# array of ordered nodes
 	
-	cdef MinHeap mh			#minimum heap with an update system
+	cdef MinHeap mh			# minimum heap with an update system
 	
 	degres = np.empty((n_nodes,), dtype=np.int32)
 	
 	for i in range(n_nodes):
 		degres[i] = indptr[i+1] - indptr[i]
 		
-	#creates an heap of sufficient size to contain all nodes
+	# creates an heap of sufficient size to contain all nodes
 	mh = MinHeap.__new__(MinHeap, n_nodes)
 	
-	#inserts all nodes in the heap
+	# inserts all nodes in the heap
 	for i in range(n_nodes):
 		mh.insertKey(i, degres)
 
-	i = n_nodes - 1		#index of the
+	i = n_nodes - 1		# index of the rear of the list/array
 	core_value = 0
 	
-	k_cores = np.empty((n_nodes,), dtype=np.int32)		#initializes an empty array
+	k_cores = np.empty((n_nodes,), dtype=np.int32)		# initializes an empty array
 	
-	while not mh.isEmpty():		#until the heap is emptied
+	while not mh.isEmpty():		# until the heap is emptied
 		min_node = mh.extractMin(degres)
 		core_value = max(core_value, degres[min_node])
 		
-		#decreases the degree of each neighbors of min_node to simulate its deletion
+		# decreases the degree of each neighbors of min_node to simulate its deletion
 		for k in range(indptr[min_node], indptr[min_node+1]):
 			j = indices[k]
 			degres[j] -= 1
-			mh.decreaseKey(j, degres)		#updates the heap to take into account the new degrees
+			mh.decreaseKey(j, degres)		# updates the heap to take into account the new degrees
 		
-		k_cores[i] = min_node	#insert the node of minimum degree at the end of the array
+		k_cores[i] = min_node	# insert the node of minimum degree at the end of the array
 		i -= 1
 		
 	return k_cores, core_value
 		
 
 class CoreDecomposition:
-	"""k-core Decomposition algorithm.
+	""" k-core Decomposition algorithm.
 
 	* Graphs
 
@@ -174,13 +174,13 @@ class CoreDecomposition:
 
 	Example
 	-------
-	>>> from sknetwork.clustering import CoreDecomposition
+	>>> from sknetwork.topology import CoreDecomposition
 	>>> from sknetwork.data import karate_club
 	>>> core = CoreDecomposition()
-	>>> graph = karate_club(metadata=True)
+	>>> graph = karate_club()
 	>>> adjacency = graph.adjacency
-	>>> core = core.fit_transform(adjacency)
-	?
+	>>> core.fit_transform(adjacency)
+	4
 	"""
 	
 	def __init__(self):
@@ -205,7 +205,7 @@ class CoreDecomposition:
 		return self
 		
 	def fit_transform(self, *args, **kwargs) -> int:
-		"""Fit algorithm to the data and return the maximum core value. Same parameters as the ``fit`` method.
+		""" Fit algorithm to the data and return the maximum core value. Same parameters as the ``fit`` method.
 
 		Returns
 		-------

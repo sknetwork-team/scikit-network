@@ -5,6 +5,7 @@ Created on Jun 3, 2020
 @author: Julien Simonnet <julien.simonnet@etu.upmc.fr>
 @author: Yohann Robert <yohann.robert@etu.upmc.fr>
 """
+
 cimport numpy as np
 import numpy as np
 from scipy import sparse
@@ -39,7 +40,7 @@ cdef class ListingBox:
 	def __cinit__(self, int n_nodes, int[:] indptr, short k):
 		self.initBox(n_nodes, indptr, k)
 		
-	#Building the special graph structure
+	# building the special graph structure
 	cdef void initBox(self, int n_nodes, int[:] indptr, short k):
 		cdef int i
 		cdef int max_deg = 0
@@ -88,9 +89,6 @@ cdef long listing_rec(int n_nodes, int[:] indptr, int[:] indices, short l, Listi
 	cdef IntArray sub_l, degre_l
 	
 	nb_cliques = 0
-	
-	#if l < 2:
-	#	raise ValueError("l should not be inferior to 2")
 		
 	if l == 2:
 		degre_l = box.degres[2]
@@ -98,8 +96,8 @@ cdef long listing_rec(int n_nodes, int[:] indptr, int[:] indices, short l, Listi
 		for i in range(box.ns[2]):
 			j = sub_l[i]
 			nb_cliques += degre_l[j]
-			#cd = indptr[j] + degre_l[j]
-			#for j in range(indptr[j], cd):
+			# cd = indptr[j] + degre_l[j]
+			# for j in range(indptr[j], cd):
 			#	nb_cliques += 1
 			
 		return nb_cliques
@@ -117,7 +115,7 @@ cdef long listing_rec(int n_nodes, int[:] indptr, int[:] indices, short l, Listi
 			v = indices[j]
 			if box.lab[v] == l:
 				box.lab[v] = l-1
-				#box.subs[l-1][ns[l-1]++] = v
+				# box.subs[l-1][ns[l-1]++] = v
 				sub_prev[box.ns[l-1]] = v
 				box.ns[l-1] += 1
 				deg_prev[v] = 0
@@ -132,7 +130,7 @@ cdef long listing_rec(int n_nodes, int[:] indptr, int[:] indices, short l, Listi
 					deg_prev[v] += 1
 				else:
 					cd -= 1
-					#indices[k--] = indices[--cd]
+					# indices[k--] = indices[--cd]
 					indices[k] = indices[cd]
 					k -= 1
 					indices[cd] = w;
@@ -160,9 +158,8 @@ cdef long fit_core(int n_nodes, int n_edges, int[:] indptr, int[:] indices, int[
 	cdef int[:] row, column
 	cdef np.ndarray[bool_type_t, ndim=1] data
 	
-	e = n_edges // 2
-	row = np.empty((e,), dtype=np.int32)
-	column = np.empty((e,), dtype=np.int32)
+	row = np.empty((n_edges,), dtype=np.int32)
+	column = np.empty((n_edges,), dtype=np.int32)
 	
 	e = 0
 	for i in range(n_nodes):
@@ -177,13 +174,12 @@ cdef long fit_core(int n_nodes, int n_edges, int[:] indptr, int[:] indices, int[
 	column = column[:e]
 	data = np.ones((e,), dtype=bool)
 	dag = sparse.csr_matrix((data, (row, column)), (n_nodes, n_nodes), dtype=bool)
-	#dag.has_sorted_indices = True
-	#dag.sort_indices():
+	
 	return listing_rec(n_nodes, dag.indptr, dag.indices, l, ListingBox.__new__(ListingBox, n_nodes, dag.indptr, l))
 	
 
 class CliqueListing():
-	"""Clique listing algorithm which creates a DAG and list all cliques on it.
+	""" Clique listing algorithm which creates a DAG and list all cliques on it.
 
 	* Graphs
 
@@ -194,17 +190,17 @@ class CliqueListing():
 
 	Example
 	-------
-	>>> from sknetwork.clustering import CliqueListing
+	>>> from sknetwork.topology import CliqueListing
 	>>> from sknetwork.data import karate_club
-	>>> tri = CliqueListing()
+	>>> cl = CliqueListing()
 	>>> adjacency = karate_club()
-	>>> nb = tri.fit_transform(adjacency)
-	4
+	>>> cl.fit_transform(adjacency, 3)
+	45
 	"""
 	
 	def __init__(self):
 		self.nb_cliques = 0
-		#self.printing = printing
+		# self.printing = printing
 		
 		
 	def fit(self, adjacency : sparse.csr_matrix, k : int) -> 'CliqueListing':
@@ -221,6 +217,9 @@ class CliqueListing():
 		-------
 		 self: :class:`CliqueListing`
 		"""
+		
+		if k < 2:
+			raise ValueError("k should not be inferior to 2")
 		
 		core = CoreDecomposition()
 		core.fit(adjacency)
