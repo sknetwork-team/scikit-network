@@ -63,7 +63,7 @@ def cosine_modularity(adjacency, embedding: np.ndarray, embedding_col=None, reso
     >>> adjacency = graph.adjacency
     >>> embedding = graph.position
     >>> np.round(cosine_modularity(adjacency, embedding), 2)
-    0.17
+    0.35
     """
     adjacency = check_format(adjacency)
     total_weight: float = adjacency.data.sum()
@@ -72,8 +72,8 @@ def cosine_modularity(adjacency, embedding: np.ndarray, embedding_col=None, reso
         check_square(adjacency)
         embedding_col = embedding.copy()
 
-    embedding_row_norm = normalize(embedding, p=1)
-    embedding_col_norm = normalize(embedding_col, p=1)
+    embedding_row_norm = normalize(embedding, p=2)
+    embedding_col_norm = normalize(embedding_col, p=2)
 
     probs_row = check_probs(weights, adjacency)
     probs_col = check_probs(weights, adjacency.T)
