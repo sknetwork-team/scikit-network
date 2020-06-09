@@ -4,6 +4,7 @@ History
 
 Next release
 ------------
+* Added triangle listing algorithm for directed and undirected graph
 * Added k-core decomposition algorithm
 * Added k-clique listing algorithm
 
