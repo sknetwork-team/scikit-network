@@ -54,12 +54,3 @@ Import scikit-network in a Python project::
 See examples in the tutorials; the notebooks are available here_.
 
 .. _here: https://github.com/sknetwork-team/scikit-network/tree/master/docs/tutorials
-
-
-New feature
--------------
-
-Adds a triangle listing algorithm. It can be parallelized but is not as scalable as it could
-be since it creates a DAG to filter the edges before listing the triangles. It is one of two
-versions that we coded and is the fastest, while the other is more scalable and exports edges
-before reimporting them.

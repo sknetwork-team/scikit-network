@@ -2,6 +2,10 @@
 History
 =======
 
+Next release
+------------
+* Added triangle listing algorithm for directed and undirected graph
+
 0.18.0 (2020-06-08)
 -------------------
 

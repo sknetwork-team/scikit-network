@@ -7,6 +7,7 @@ import unittest
 from sknetwork.topology import TriangleListing
 from sknetwork.data.test_graphs import *
 from sknetwork.data import karate_club
+from sknetwork.data import load_netset
 
 from scipy.special import comb
 
@@ -28,7 +29,7 @@ class TestTriangleListing(unittest.TestCase):
 		adjacency = test_graph_clique()
 		n = adjacency.shape[0]
 		nb = TriangleListing().fit_transform(adjacency)
-		self.assertEqual(nb, comb(n, 3))
+		self.assertEqual(nb, comb(n, 3, exact=True))
 		
 	def test_options(self):
 		adjacency = karate_club()
@@ -40,9 +41,3 @@ class TestTriangleListing(unittest.TestCase):
 		tri = TriangleListing(parallelize=True)
 		nb = tri.fit_transform(adjacency)
 		self.assertEqual(nb, 45)
-		
-		"""
-		lab = TriangleListing(printing=True)
-		nb = tri.fit_transform(adjacency)
-		self.assertEqual(nb, 45)
-		"""

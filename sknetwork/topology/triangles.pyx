@@ -11,7 +11,7 @@ cimport numpy as np
 from scipy import sparse
 from cython.parallel import prange, parallel
 
-#from libc.stdio cimport printf
+# from libc.stdio cimport printf
 
 cimport cython
 
@@ -36,23 +36,23 @@ cdef np.ndarray[int, ndim=1] bucketSort(int n_nodes, int[:] indptr):
 	ordered :
 		Numpy array of nodes ordered by their degree
 	"""
-	cdef int[:] cd			#cummulative degrees of the nodes
-	cdef np.ndarray[int, ndim=1] ordered		#array of ordered nodes
+	cdef int[:] cd			# cummulative degrees of the nodes
+	cdef np.ndarray[int, ndim=1] ordered		# array of ordered nodes
 	
 	cdef int i
 	
-	cd = np.zeros((n_nodes+1,), dtype=np.int32)			#initializes the array to be filled with 0
-	ordered = np.empty((n_nodes,), dtype=np.int32)		#initializes the array
+	cd = np.zeros((n_nodes+1,), dtype=np.int32)			# initializes the array to be filled with 0
+	ordered = np.empty((n_nodes,), dtype=np.int32)		# initializes the array
 	
 	cd[0] = 0
-	for i in range(n_nodes):	#puts in the array the number of nodes of each specific degree
+	for i in range(n_nodes):	# puts in the array the number of nodes of each specific degree
 		cd[(indptr[i+1] - indptr[i]) + 1] += 1
 	
-	for i in range(n_nodes):	#calculates the cummulative degrees
+	for i in range(n_nodes):	# calculates the cummulative degrees
 		cd[i+1] += cd[i]
 		
 	cdef int d
-	for i in range(n_nodes):	#orderers the nodes and puts them at the right place thanks to the cd array
+	for i in range(n_nodes):	# orderers the nodes and puts them at the right place thanks to the cd array
 		d = indptr[i+1] - indptr[i]
 		ordered[cd[d]] = i
 		cd[d] += 1
@@ -83,7 +83,7 @@ cdef long triangles_c(int n_nodes, int[:] indptr, int[:] indices, int[:] indexat
 	
 	cdef int i, j, k
 	cdef int u, v
-	cdef long nb_triangles = 0		#number of triangles in the DAG
+	cdef long nb_triangles = 0		# number of triangles in the DAG
 	
 	for u in range(n_nodes):
 		for k in range(indptr[u], indptr[u+1]):
@@ -91,15 +91,15 @@ cdef long triangles_c(int n_nodes, int[:] indptr, int[:] indices, int[:] indexat
 			i = indptr[u]
 			j = indptr[v]
 			
-			#calculate the intersection of neighbors of u and v
+			# calculate the intersection of neighbors of u and v
 			while (i < indptr[u+1]) and (j < indptr[v+1]):
 				if indices[i] == indices[j]:
-					#if (printing):
+					# if (printing):
 					#	printf("(%d,%d,%d)\n",indexation[u], indexation[v], indexation[i])
 						
 					i += 1
 					j += 1
-					nb_triangles += 1	#increments the number of triangles
+					nb_triangles += 1	# increments the number of triangles
 				else :
 					if indices[i] < indices[j]:
 						i += 1
@@ -133,22 +133,22 @@ cdef long tri_intersection(int u, int[:] indptr, int[:] indices, int[:] indexati
 	
 	cdef int i, j, k
 	cdef int v
-	cdef long nb_inter = 0		#number of nodes in the intersection
+	cdef long nb_inter = 0		# number of nodes in the intersection
 	
-	for k in range(indptr[u], indptr[u+1]):		#iterates over the neighbors of u
+	for k in range(indptr[u], indptr[u+1]):		# iterates over the neighbors of u
 		v = indices[k]
 		i = indptr[u]
 		j = indptr[v]
 		
-		#calculates the intersection of the neighbors of u and v
+		# calculates the intersection of the neighbors of u and v
 		while (i < indptr[u+1]) and (j < indptr[v+1]):
 			if indices[i] == indices[j]:
-				#if (printing):
+				# if (printing):
 				#	printf("(%d,%d,%d)\n",indexation[u], indexation[v], indexation[i])
 				
 				i += 1
 				j += 1
-				nb_inter += 1	#increments the number of nodes in the intersection
+				nb_inter += 1	# increments the number of nodes in the intersection
 			else :
 				if indices[i] < indices[j]:
 					i += 1
@@ -179,9 +179,9 @@ cdef long triangles_parallel_c(int n_nodes, int[:] indptr, int[:] indices, int[:
 		Number of triangles in the graph
 	"""
 	cdef int u
-	cdef long nb_triangles = 0		#number of triangles
+	cdef long nb_triangles = 0		# number of triangles
 	
-	for u in prange(n_nodes, nogil=True):	#parallel range
+	for u in prange(n_nodes, nogil=True):	# parallel range
 		nb_triangles += tri_intersection(u, indptr, indices, indexation)
 		
 	return nb_triangles
@@ -213,39 +213,37 @@ cdef long fit_core(int n_nodes, int n_edges, int[:] indptr, int[:] indices, bint
 	cdef int[:] ordered, indexation
 	cdef int i
 	cdef int u, v, k
-	cdef int e
 	
 	cdef np.ndarray[int, ndim=1] row
 	cdef np.ndarray[int, ndim=1] column
 	cdef np.ndarray[bool_type_t, ndim=1] data
 	
-	ordered = bucketSort(n_nodes, indptr)		#sorts the nodes in the graph
-	indexation = np.empty((n_nodes,), dtype=np.int32)	#initializes an empty array
-	
+	ordered = bucketSort(n_nodes, indptr)		# sorts the nodes in the graph
+	indexation = np.empty((n_nodes,), dtype=np.int32)	# initializes an empty array
 	for i in range(n_nodes):
 		indexation[ordered[i]] = i
 	
-	e = n_edges // 2		#new number of edges, half of the original number of edges
+	# e = n_edges // 2		# new number of edges, half of the original number of edges for undirected graphs
 	
-	row = np.empty((e,), dtype=np.int32)		#initializes an empty array
-	column = np.empty((e,), dtype=np.int32)		#once again initializes an array
+	row = np.empty((n_edges,), dtype=np.int32)		# initializes an empty array
+	column = np.empty((n_edges,), dtype=np.int32)		# once again initializes an array
 	
 	i = 0
 	for u in range(n_nodes):
 		for k in range(indptr[u], indptr[u+1]):
 			v = indices[k]
-			if indexation[u] < indexation[v]:	#the edge needs to be added
+			if indexation[u] < indexation[v]:	# the edge needs to be added
 				row[i] = indexation[u]
 				column[i] = indexation[v]
 				i += 1
-	
+				
 	row = row[:i]
 	column = column[:i]
 	data = np.ones((i,), dtype=bool)
 	
 	dag = sparse.csr_matrix((data, (row, column)), (n_nodes, n_nodes), dtype=bool)
 	
-	#counts/list the triangles in the DAG
+	# counts/list the triangles in the DAG
 	if (parallelize):
 		return triangles_parallel_c(n_nodes, dag.indptr, dag.indices, ordered)	
 	else:
@@ -253,7 +251,7 @@ cdef long fit_core(int n_nodes, int n_edges, int[:] indptr, int[:] indices, bint
 		
 
 class TriangleListing:
-	"""Triangle listing algorithm which creates a DAG and list all triangles on it.
+	""" Triangle listing algorithm which creates a DAG and list all triangles on it.
 
 	* Graphs
 
@@ -271,16 +269,16 @@ class TriangleListing:
 
 	Example
 	-------
-	>>> from sknetwork.clustering import TriangleListing
+	>>> from sknetwork.topology import TriangleListing
 	>>> from sknetwork.data import karate_club
 	>>> tri = TriangleListing()
 	>>> adjacency = karate_club()
-	>>> nb = tri.fit_transform(adjacency)
-	4
+	>>> tri.fit_transform(adjacency)
+	45
 	"""
 	
 	def __init__(self, parallelize : bool = False):
-		#self.printing = printing
+		# self.printing = printing
 		self.parallelize = parallelize
 		self.nb_tri = 0
 		
