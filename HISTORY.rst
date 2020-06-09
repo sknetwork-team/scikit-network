@@ -2,6 +2,11 @@
 History
 =======
 
+Next release
+------------
+* Added k-core decomposition algorithm
+* Added k-clique listing algorithm
+
 0.18.0 (2020-06-08)
 -------------------
 
