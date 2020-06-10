@@ -10,8 +10,8 @@ Created on Jun 3, 2020
 
 cimport cython
 
-cimport numpy as np
 import numpy as np
+cimport numpy as np
 
 from scipy import sparse
 
@@ -26,7 +26,7 @@ cdef class MinHeap:
 		self.size = 0
 
 	cdef bint isEmpty(self):
-		return (self.size == 0)
+		return self.size == 0
 
 	cdef inline void swap(self, int x, int y):
 		cdef int tmp
@@ -58,7 +58,7 @@ cdef class MinHeap:
 	cdef void decreaseKey(self, int i, int[:] degres):
 		cdef int pos, p
 		pos = self.pos[i]
-		if (pos < self.size):
+		if pos < self.size:
 			p = parent(pos)
 
 			while (pos != 0) and (degres[self.arr[p]] > degres[self.arr[pos]]):
@@ -67,7 +67,7 @@ cdef class MinHeap:
 
 	# Function to remove minimum element (or root) from min heap
 	cdef int extractMin(self, int[:] degres):
-		if (self.size == 1):
+		if self.size == 1:
 			self.size = 0
 			return self.arr[0]
 
