@@ -3,10 +3,7 @@
 Topology
 ********
 
-Standard algorithms related to graph topology.
-
-Most algorithms are adapted from SciPy_.
-
+Algorithms for the analysis of graph topology.
 
 Structure
 ---------
@@ -15,7 +12,14 @@ Structure
 
 .. autofunction:: sknetwork.topology.largest_connected_component
 
+.. autofunction:: sknetwork.topology.CoreDecomposition
+
 .. autofunction:: sknetwork.topology.is_bipartite
 
+Listing
+-------
 
-.. _SciPy: https://docs.scipy.org/doc/scipy/reference/sparse.csgraph.html
+.. autofunction:: sknetwork.topology.TriangleListing
+
+.. autofunction:: sknetwork.topology.CliqueListing
+
