@@ -317,3 +317,12 @@ def check_n_components(n_components, n_min) -> int:
         return n_min
     else:
         return n_components
+
+
+def is_acyclic(entry) -> bool:
+    """Boolean indicating whether the adjacency matrix is acyclic."""
+    for _ in range(len(entry)):
+        entry = entry.dot(entry)
+        if np.sum(entry) == 0:
+            return True
+    return False

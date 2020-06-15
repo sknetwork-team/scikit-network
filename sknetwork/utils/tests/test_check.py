@@ -169,3 +169,27 @@ class TestChecks(unittest.TestCase):
         self.assertEqual(5, check_n_components(5, 10))
         with self.assertWarns(Warning):
             self.assertEqual(2, check_n_components(5, 2))
+
+    def test_acyclic(self):
+
+        # cyclic graph
+        m = np.array([
+            [0,1,0,0,0,0], 
+            [0,0,1,1,0,0], 
+            [0,0,0,0,0,0], 
+            [0,0,0,0,1,0], 
+            [0,0,0,0,0,1], 
+            [0,0,1,1,0,0]])
+        
+        self.assertFalse(is_acyclic(m))
+
+        # an acyclic graph
+        m = np.array([
+            [0, 1, 0, 0, 0, 0], 
+            [0, 0, 1, 1, 0, 0], 
+            [0, 0, 0, 0, 0, 0], 
+            [0, 0, 0, 0, 1, 1], 
+            [0, 0, 0, 0, 0, 1], 
+            [0, 0, 1, 0, 0, 0]])
+
+        self.assertTrue(is_acyclic(m))
