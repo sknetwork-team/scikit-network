@@ -18,45 +18,6 @@ ctypedef np.uint8_t bool_type_t
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-
-cdef np.ndarray[int, ndim=1] bucketSort(int n_nodes, int[:] indptr):
-    """Order the nodes by their degree using a bucket sort method.
-
-    Parameters
-    ----------
-    n_nodes :
-        Number of nodes.
-    indptr :
-        CSR format index array of the normalized adjacency matrix.
-
-    Returns
-    -------
-    ordered :
-        Numpy array of nodes ordered by their degree
-    """
-    cdef int[:] cd			# cummulative degrees of the nodes
-    cdef np.ndarray[int, ndim=1] ordered		# array of ordered nodes
-
-    cdef int i
-
-    cd = np.zeros((n_nodes+1,), dtype=np.int32)			# initializes the array to be filled with 0
-    ordered = np.empty((n_nodes,), dtype=np.int32)		# initializes the array
-
-    cd[0] = 0
-    for i in range(n_nodes):	# puts in the array the number of nodes of each specific degree
-        cd[(indptr[i+1] - indptr[i]) + 1] += 1
-
-    for i in range(n_nodes):	# calculates the cummulative degrees
-        cd[i+1] += cd[i]
-
-    cdef int d
-    for i in range(n_nodes):	# orderers the nodes and puts them at the right place thanks to the cd array
-        d = indptr[i+1] - indptr[i]
-        ordered[cd[d]] = i
-        cd[d] += 1
-
-    return ordered
-
 cdef long triangles_c(int[:] indptr, int[:] indices, int[:] indexation):
     """Count the number of triangles in a DAG.
 
@@ -100,6 +61,8 @@ cdef long triangles_c(int[:] indptr, int[:] indices, int[:] indexation):
     return nb_triangles
 
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cdef long tri_intersection(int u, int[:] indptr, int[:] indices, int[:] indexation) nogil:
     """Counts the number of nodes in the intersection of a node and its neighbors in a DAG.
 
@@ -142,6 +105,8 @@ cdef long tri_intersection(int u, int[:] indptr, int[:] indices, int[:] indexati
 
     return nb_inter
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cdef long triangles_parallel_c(int[:] indptr, int[:] indices, int[:] indexation):
     """Count the number of triangles in a DAG using a parallel range.
 
@@ -168,6 +133,8 @@ cdef long triangles_parallel_c(int[:] indptr, int[:] indices, int[:] indexation)
 
     return nb_triangles
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cdef long fit_core(int[:] indptr, int[:] indices, bint parallelize):
     """Counts the number of triangles directly without exporting the graph.
 
@@ -186,31 +153,31 @@ cdef long fit_core(int[:] indptr, int[:] indices, bint parallelize):
         Number of triangles in the graph
     """
     cdef int n = indptr.shape[0] - 1
-    cdef int[:] ordered, indexation
+    cdef int[:] degrees, sorted_nodes, ix
     cdef int u, v, k
     cdef vector[int] row, col, data
 
-    ordered = bucketSort(n, indptr)		# sorts the nodes in the graph
-    indexation = np.empty((n,), dtype=np.int32)	# initializes an empty array
+    degrees = np.asarray(indptr[1:]) - np.asarray(indptr[:-1])
+    sorted_nodes = np.argsort(degrees).astype(np.int32)
+    ix = np.empty((n,), dtype=np.int32)	# initializes an empty array
     for i in range(n):
-        indexation[ordered[i]] = i
+        ix[sorted_nodes[i]] = i
 
-    # e = n_edges // 2		# new number of edges, half of the original number of edges for undirected graphs
     for u in range(n):
         for k in range(indptr[u], indptr[u+1]):
             v = indices[k]
-            if indexation[u] < indexation[v]:	# the edge needs to be added
-                row.push_back(indexation[u])
-                col.push_back(indexation[v])
+            if ix[u] < ix[v]:	# the edge needs to be added
+                row.push_back(ix[u])
+                col.push_back(ix[v])
                 data.push_back(1)
 
     dag = sparse.csr_matrix((data, (row, col)), (n, n), dtype=bool)
 
     # counts/list the triangles in the DAG
     if parallelize:
-        return triangles_parallel_c(dag.indptr, dag.indices, ordered)
+        return triangles_parallel_c(dag.indptr, dag.indices, sorted_nodes)
     else:
-        return triangles_c(dag.indptr, dag.indices, ordered)
+        return triangles_c(dag.indptr, dag.indices, sorted_nodes)
 
 
 class TriangleListing:
@@ -253,7 +220,9 @@ class TriangleListing:
         -------
          self: :class:`TriangleListing`
         """
-        self.nb_tri = fit_core(adjacency.indptr, adjacency.indices, self.parallelize)
+        indptr = adjacency.indptr.astype(np.int32)
+        indices = adjacency.indices.astype(np.int32)
+        self.nb_tri = fit_core(indptr, indices, self.parallelize)
 
         return self
 
