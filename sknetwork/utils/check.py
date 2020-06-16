@@ -312,7 +312,7 @@ def check_min_nnz(nnz, n_min):
 def check_n_components(n_components, n_min) -> int:
     """Check the number of components"""
     if n_components > n_min:
-        warnings.warn(Warning("The dimension of the embedding must be strictly less than {}."
+        warnings.warn(Warning("The dimension of the embedding cannot exceed {}."
                               "Changed accordingly.".format(n_min)))
         return n_min
     else:
