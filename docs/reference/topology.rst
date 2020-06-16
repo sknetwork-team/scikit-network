@@ -16,6 +16,8 @@ Structure
 
 .. autofunction:: sknetwork.topology.is_bipartite
 
+.. autofunction:: sknetwork.topology.is_acyclic
+
 Listing
 -------
 

@@ -147,3 +147,25 @@ def is_bipartite(adjacency: sparse.csr_matrix, return_biadjacency: bool = False)
         return True, adjacency[rows, :][:, cols], rows, cols
     else:
         return True
+
+
+def is_acyclic(adjacency: sparse.csr_matrix) -> bool:
+    """Check whether a graph has no cycle.
+
+    Parameters
+    ----------
+    adjacency:
+        Adjacency matrix of the graph.
+
+    Returns
+    -------
+    is_acyclic : bool
+        A boolean with value True if the graph has no cycle and False otherwise
+    """
+    n_nodes = adjacency.shape[0]
+    n_cc = sparse.csgraph.connected_components(adjacency, (not is_symmetric(adjacency)), 'strong', False)
+    if n_cc == n_nodes:
+        # check for self-loops has they always induce a cycle
+        return (adjacency.diagonal() == 0).all()
+    else:
+        return False

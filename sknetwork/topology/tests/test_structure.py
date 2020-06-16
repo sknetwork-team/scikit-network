@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 from scipy import sparse
 
-from sknetwork.topology import largest_connected_component, is_bipartite
+from sknetwork.topology import largest_connected_component, is_bipartite, is_acyclic
 from sknetwork.data import star_wars, cyclic_digraph
 from sknetwork.utils.format import bipartite2undirected, directed2undirected
 
@@ -56,8 +56,16 @@ class TestStructure(unittest.TestCase):
         with self.assertRaises(ValueError):
             is_bipartite(cyclic_digraph(3))
 
-        self.assertTrue(~is_bipartite(sparse.eye(3)))
+        self.assertFalse(is_bipartite(sparse.eye(3)))
 
         adjacency = directed2undirected(cyclic_digraph(3))
         bipartite = is_bipartite(adjacency, return_biadjacency=False)
         self.assertEqual(bipartite, False)
+
+    def test_is_acyclic(self):
+        adjacency_with_self_loops = sparse.identity(2, format='csr')
+        self.assertFalse(is_acyclic(adjacency_with_self_loops))
+        directed_cycle = cyclic_digraph(3)
+        self.assertFalse(is_acyclic(directed_cycle))
+        acyclic_graph = sparse.csr_matrix([[0, 0], [1, 0]])
+        self.assertTrue(is_acyclic(acyclic_graph))
