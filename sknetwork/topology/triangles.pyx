@@ -57,13 +57,11 @@ cdef np.ndarray[int, ndim=1] bucketSort(int n_nodes, int[:] indptr):
 
     return ordered
 
-cdef long triangles_c(int n_nodes, int[:] indptr, int[:] indices, int[:] indexation):
+cdef long triangles_c(int[:] indptr, int[:] indices, int[:] indexation):
     """Count the number of triangles in a DAG.
 
     Parameters
     ----------
-    n_nodes :
-        Number of nodes.
     indices :
         CSR format index array of the normalized adjacency matrix of a DAG.
     indptr :
@@ -76,11 +74,12 @@ cdef long triangles_c(int n_nodes, int[:] indptr, int[:] indices, int[:] indexat
     nb_triangles :
         Number of triangles in the graph
     """
+    cdef int n = indptr.shape[0] - 1
     cdef int i, j, k
     cdef int u, v
     cdef long nb_triangles = 0		# number of triangles in the DAG
 
-    for u in range(n_nodes):
+    for u in range(n):
         for k in range(indptr[u], indptr[u+1]):
             v = indices[k]
             i = indptr[u]
@@ -143,13 +142,11 @@ cdef long tri_intersection(int u, int[:] indptr, int[:] indices, int[:] indexati
 
     return nb_inter
 
-cdef long triangles_parallel_c(int n_nodes, int[:] indptr, int[:] indices, int[:] indexation):
+cdef long triangles_parallel_c(int[:] indptr, int[:] indices, int[:] indexation):
     """Count the number of triangles in a DAG using a parallel range.
 
     Parameters
     ----------
-    n_nodes :
-        Number of nodes.-
     indptr :
         CSR format index pointer array of the normalized adjacency matrix of a DAG.
     indices :
@@ -162,23 +159,20 @@ cdef long triangles_parallel_c(int n_nodes, int[:] indptr, int[:] indices, int[:
     nb_triangles :
         Number of triangles in the graph
     """
+    cdef int n = indptr.shape[0] - 1
     cdef int u
     cdef long nb_triangles = 0		# number of triangles
 
-    for u in prange(n_nodes, nogil=True):	# parallel range
+    for u in prange(n, nogil=True):	# parallel range
         nb_triangles += tri_intersection(u, indptr, indices, indexation)
 
     return nb_triangles
 
-cdef long fit_core(int n_nodes, int n_edges, int[:] indptr, int[:] indices, bint parallelize):
+cdef long fit_core(int[:] indptr, int[:] indices, bint parallelize):
     """Counts the number of triangles directly without exporting the graph.
 
     Parameters
     ----------
-    n_nodes :
-        Number of nodes.
-    n_edges :
-        Number of edges
     indptr :
         CSR format index pointer array of the normalized adjacency matrix of a DAG.
     indices :
@@ -191,17 +185,18 @@ cdef long fit_core(int n_nodes, int n_edges, int[:] indptr, int[:] indices, bint
     nb_triangles :
         Number of triangles in the graph
     """
+    cdef int n = indptr.shape[0] - 1
     cdef int[:] ordered, indexation
     cdef int u, v, k
     cdef vector[int] row, col, data
 
-    ordered = bucketSort(n_nodes, indptr)		# sorts the nodes in the graph
-    indexation = np.empty((n_nodes,), dtype=np.int32)	# initializes an empty array
-    for i in range(n_nodes):
+    ordered = bucketSort(n, indptr)		# sorts the nodes in the graph
+    indexation = np.empty((n,), dtype=np.int32)	# initializes an empty array
+    for i in range(n):
         indexation[ordered[i]] = i
 
     # e = n_edges // 2		# new number of edges, half of the original number of edges for undirected graphs
-    for u in range(n_nodes):
+    for u in range(n):
         for k in range(indptr[u], indptr[u+1]):
             v = indices[k]
             if indexation[u] < indexation[v]:	# the edge needs to be added
@@ -209,13 +204,13 @@ cdef long fit_core(int n_nodes, int n_edges, int[:] indptr, int[:] indices, bint
                 col.push_back(indexation[v])
                 data.push_back(1)
 
-    dag = sparse.csr_matrix((data, (row, col)), (n_nodes, n_nodes), dtype=bool)
+    dag = sparse.csr_matrix((data, (row, col)), (n, n), dtype=bool)
 
     # counts/list the triangles in the DAG
     if parallelize:
-        return triangles_parallel_c(n_nodes, dag.indptr, dag.indices, ordered)
+        return triangles_parallel_c(dag.indptr, dag.indices, ordered)
     else:
-        return triangles_c(n_nodes, dag.indptr, dag.indices, ordered)
+        return triangles_c(dag.indptr, dag.indices, ordered)
 
 
 class TriangleListing:
@@ -244,7 +239,7 @@ class TriangleListing:
     """
     def __init__(self, parallelize : bool = False):
         self.parallelize = parallelize
-        self.nb_tri = 0
+        self.nb_tri = None
 
     def fit(self, adjacency : sparse.csr_matrix) -> 'TriangleListing':
         """Count triangles.
@@ -258,8 +253,7 @@ class TriangleListing:
         -------
          self: :class:`TriangleListing`
         """
-        self.nb_tri = fit_core(adjacency.shape[0], adjacency.nnz, adjacency.indptr,
-                               adjacency.indices, self.parallelize)
+        self.nb_tri = fit_core(adjacency.indptr, adjacency.indices, self.parallelize)
 
         return self
 
