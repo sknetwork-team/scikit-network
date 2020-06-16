@@ -5,7 +5,6 @@ Created on Jun 3, 2020
 @author: Julien Simonnet <julien.simonnet@etu.upmc.fr>
 @author: Yohann Robert <yohann.robert@etu.upmc.fr>
 """
-
 import numpy as np
 cimport numpy as np
 from scipy import sparse
@@ -20,7 +19,7 @@ ctypedef np.uint8_t bool_type_t
 @cython.wraparound(False)
 
 cdef np.ndarray[int, ndim=1] bucketSort(int n_nodes, int[:] indptr):
-	"""	   Orders the nodes by their degre using a bucket sort method.
+	"""Order the nodes by their degree using a bucket sort method.
 
 	Parameters
 	----------
@@ -58,7 +57,7 @@ cdef np.ndarray[int, ndim=1] bucketSort(int n_nodes, int[:] indptr):
 	return ordered
 
 cdef long triangles_c(int n_nodes, int[:] indptr, int[:] indices, int[:] indexation):
-	"""	   Counts the number of triangles in a DAG.
+	"""Count the number of triangles in a DAG.
 
 	Parameters
 	----------
@@ -76,7 +75,6 @@ cdef long triangles_c(int n_nodes, int[:] indptr, int[:] indices, int[:] indexat
 	nb_triangles :
 		Number of triangles in the graph
 	"""
-
 	cdef int i, j, k
 	cdef int u, v
 	cdef long nb_triangles = 0		# number of triangles in the DAG
@@ -90,7 +88,6 @@ cdef long triangles_c(int n_nodes, int[:] indptr, int[:] indices, int[:] indexat
 			# calculate the intersection of neighbors of u and v
 			while (i < indptr[u+1]) and (j < indptr[v+1]):
 				if indices[i] == indices[j]:
-
 					i += 1
 					j += 1
 					nb_triangles += 1	# increments the number of triangles
@@ -104,7 +101,7 @@ cdef long triangles_c(int n_nodes, int[:] indptr, int[:] indices, int[:] indexat
 
 
 cdef long tri_intersection(int u, int[:] indptr, int[:] indices, int[:] indexation) nogil:
-	"""	   Counts the number of nodes in the intersection of a node and its neighbors in a DAG.
+	"""Counts the number of nodes in the intersection of a node and its neighbors in a DAG.
 
 	Parameters
 	----------
@@ -122,7 +119,6 @@ cdef long tri_intersection(int u, int[:] indptr, int[:] indices, int[:] indexati
 	nb_inter :
 		Number of nodes in the intersection
 	"""
-
 	cdef int i, j, k
 	cdef int v
 	cdef long nb_inter = 0		# number of nodes in the intersection
@@ -135,7 +131,6 @@ cdef long tri_intersection(int u, int[:] indptr, int[:] indices, int[:] indexati
 		# calculates the intersection of the neighbors of u and v
 		while (i < indptr[u+1]) and (j < indptr[v+1]):
 			if indices[i] == indices[j]:
-
 				i += 1
 				j += 1
 				nb_inter += 1	# increments the number of nodes in the intersection
@@ -148,7 +143,7 @@ cdef long tri_intersection(int u, int[:] indptr, int[:] indices, int[:] indexati
 	return nb_inter
 
 cdef long triangles_parallel_c(int n_nodes, int[:] indptr, int[:] indices, int[:] indexation):
-	"""	   Counts the number of triangles in a DAG using a parallel range.
+	"""Count the number of triangles in a DAG using a parallel range.
 
 	Parameters
 	----------
@@ -175,7 +170,7 @@ cdef long triangles_parallel_c(int n_nodes, int[:] indptr, int[:] indices, int[:
 	return nb_triangles
 
 cdef long fit_core(int n_nodes, int n_edges, int[:] indptr, int[:] indices, bint parallelize):
-	"""	   Counts the number of triangles directly without exporting the graph.
+	"""Counts the number of triangles directly without exporting the graph.
 
 	Parameters
 	----------
@@ -195,13 +190,12 @@ cdef long fit_core(int n_nodes, int n_edges, int[:] indptr, int[:] indices, bint
 	nb_triangles :
 		Number of triangles in the graph
 	"""
-
 	cdef int[:] ordered, indexation
 	cdef int i
 	cdef int u, v, k
 
 	cdef np.ndarray[int, ndim=1] row
-	cdef np.ndarray[int, ndim=1] column
+	cdef np.ndarray[int, ndim=1] col
 	cdef np.ndarray[bool_type_t, ndim=1] data
 
 	ordered = bucketSort(n_nodes, indptr)		# sorts the nodes in the graph
@@ -212,7 +206,7 @@ cdef long fit_core(int n_nodes, int n_edges, int[:] indptr, int[:] indices, bint
 	# e = n_edges // 2		# new number of edges, half of the original number of edges for undirected graphs
 
 	row = np.empty((n_edges,), dtype=np.int32)		# initializes an empty array
-	column = np.empty((n_edges,), dtype=np.int32)		# once again initializes an array
+	col = np.empty((n_edges,), dtype=np.int32)		# initializes an empty array
 
 	i = 0
 	for u in range(n_nodes):
@@ -220,24 +214,24 @@ cdef long fit_core(int n_nodes, int n_edges, int[:] indptr, int[:] indices, bint
 			v = indices[k]
 			if indexation[u] < indexation[v]:	# the edge needs to be added
 				row[i] = indexation[u]
-				column[i] = indexation[v]
+				col[i] = indexation[v]
 				i += 1
 
 	row = row[:i]
-	column = column[:i]
+	col = col[:i]
 	data = np.ones((i,), dtype=bool)
 
-	dag = sparse.csr_matrix((data, (row, column)), (n_nodes, n_nodes), dtype=bool)
+	dag = sparse.csr_matrix((data, (row, col)), (n_nodes, n_nodes), dtype=bool)
 
 	# counts/list the triangles in the DAG
-	if (parallelize):
+	if parallelize:
 		return triangles_parallel_c(n_nodes, dag.indptr, dag.indices, ordered)
 	else:
 		return triangles_c(n_nodes, dag.indptr, dag.indices, ordered)
 
 
 class TriangleListing:
-	""" Triangle listing algorithm which creates a DAG and list all triangles on it.
+	"""Triangle listing algorithm which creates a DAG and list all triangles on it.
 
 	* Graphs
 
@@ -260,13 +254,12 @@ class TriangleListing:
 	>>> tri.fit_transform(adjacency)
 	45
 	"""
-
 	def __init__(self, parallelize : bool = False):
 		self.parallelize = parallelize
 		self.nb_tri = 0
 
 	def fit(self, adjacency : sparse.csr_matrix) -> 'TriangleListing':
-		""" Listing triangles.
+		"""Count triangles.
 
 		Parameters
 		----------
@@ -277,7 +270,6 @@ class TriangleListing:
 		-------
 		 self: :class:`TriangleListing`
 		"""
-
 		self.nb_tri = fit_core(adjacency.shape[0], adjacency.nnz, adjacency.indptr,
 			                   adjacency.indices, self.parallelize)
 
