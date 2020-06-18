@@ -21,7 +21,7 @@ Structure
 Listing
 -------
 
-.. autofunction:: sknetwork.topology.TriangleListing
+.. autofunction:: sknetwork.topology.Triangles
 
 .. autofunction:: sknetwork.topology.CliqueListing
 

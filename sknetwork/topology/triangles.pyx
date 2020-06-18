@@ -9,7 +9,10 @@ from libcpp.vector cimport vector
 import numpy as np
 cimport numpy as np
 from scipy import sparse
+from scipy.special import comb
 from cython.parallel import prange
+
+from sknetwork.utils.base import Algorithm
 
 cimport cython
 
@@ -129,7 +132,7 @@ cdef long count_triangles_parallel(int[:] indptr, int[:] indices):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef long fit_core(int[:] indptr, int[:] indices, bint parallelize):
+cdef long fit_core(int[:] indptr, int[:] indices, int[:] sorted_nodes, bint parallelize):
     """Counts the number of triangles directly without exporting the graph.
 
     Parameters
@@ -138,8 +141,10 @@ cdef long fit_core(int[:] indptr, int[:] indices, bint parallelize):
         CSR format index pointer array of the normalized adjacency matrix of a DAG.
     indices :
         CSR format index array of the normalized adjacency matrix of a DAG.
+    sorted_nodes :
+        Index of the nodes, sorted by increasing degree.
     parallelize :
-        If ``True``, use a parallel range to count triangles
+        If ``True``, use a parallel range to count triangles.
 
     Returns
     -------
@@ -147,12 +152,11 @@ cdef long fit_core(int[:] indptr, int[:] indices, bint parallelize):
         Number of triangles in the graph
     """
     cdef int n = indptr.shape[0] - 1
-    cdef int[:] degrees, sorted_nodes, ix
+    cdef int[:] ix
     cdef int u, v, k
     cdef vector[int] row, col, data
 
-    degrees = np.asarray(indptr[1:]) - np.asarray(indptr[:-1])
-    sorted_nodes = np.argsort(degrees).astype(np.int32)
+
     ix = np.empty((n,), dtype=np.int32)	# initializes an empty array
     for i in range(n):
         ix[sorted_nodes[i]] = i
@@ -174,8 +178,8 @@ cdef long fit_core(int[:] indptr, int[:] indices, bint parallelize):
         return count_triangles(dag.indptr, dag.indices)
 
 
-class TriangleListing:
-    """Triangle listing algorithm which creates a DAG and list all triangles on it.
+class Triangles(Algorithm):
+    """Triangle count which creates a DAG and counts all triangles on it.
 
     * Graphs
 
@@ -186,23 +190,26 @@ class TriangleListing:
 
     Attributes
     ----------
-    nb_tri : int
+    n_triangles_ : int
         Number of triangles
+    clustering_coeff_ : float
+        Global clustering coefficient of the graph
 
     Example
     -------
-    >>> from sknetwork.topology import TriangleListing
     >>> from sknetwork.data import karate_club
-    >>> tri = TriangleListing()
+    >>> triangles = Triangles()
     >>> adjacency = karate_club()
-    >>> tri.fit_transform(adjacency)
+    >>> triangles.fit_transform(adjacency)
     45
     """
     def __init__(self, parallelize : bool = False):
+        super(Triangles, self).__init__()
         self.parallelize = parallelize
-        self.nb_tri = None
+        self.n_triangles_ = None
+        self.clustering_coeff_ = None
 
-    def fit(self, adjacency : sparse.csr_matrix) -> 'TriangleListing':
+    def fit(self, adjacency : sparse.csr_matrix) -> 'Triangles':
         """Count triangles.
 
         Parameters
@@ -212,11 +219,20 @@ class TriangleListing:
 
         Returns
         -------
-         self: :class:`TriangleListing`
+         self: :class:`Triangles`
         """
         indptr = adjacency.indptr.astype(np.int32)
         indices = adjacency.indices.astype(np.int32)
-        self.nb_tri = fit_core(indptr, indices, self.parallelize)
+
+        degrees = indptr[1:] - indptr[:-1]
+        sorted_nodes = np.argsort(degrees).astype(np.int32)
+        edge_pairs = comb(degrees, 2).sum()
+
+        self.n_triangles_ = fit_core(indptr, indices, sorted_nodes, self.parallelize)
+        if edge_pairs > 0:
+            self.clustering_coeff_ = 3 * self.n_triangles_ / edge_pairs
+        else:
+            self.clustering_coeff_ = 0.
 
         return self
 
@@ -225,8 +241,8 @@ class TriangleListing:
 
         Returns
         -------
-        nb_tri : int
+        n_triangles_ : int
             Number of triangles.
         """
         self.fit(*args, **kwargs)
-        return self.nb_tri
+        return self.n_triangles_
