@@ -18,7 +18,7 @@ ctypedef np.uint8_t bool_type_t
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef long triangles_c(int[:] indptr, int[:] indices):
+cdef long count_triangles(int[:] indptr, int[:] indices):
     """Count the number of triangles in a DAG.
 
     Parameters
@@ -30,13 +30,13 @@ cdef long triangles_c(int[:] indptr, int[:] indices):
 
     Returns
     -------
-    nb_triangles :
+    n_triangles :
         Number of triangles in the graph
     """
     cdef int n = indptr.shape[0] - 1
     cdef int i, j, k
     cdef int u, v
-    cdef long nb_triangles = 0		# number of triangles in the DAG
+    cdef long n_triangles = 0
 
     for u in range(n):
         for k in range(indptr[u], indptr[u+1]):
@@ -49,24 +49,24 @@ cdef long triangles_c(int[:] indptr, int[:] indices):
                 if indices[i] == indices[j]:
                     i += 1
                     j += 1
-                    nb_triangles += 1	# increments the number of triangles
+                    n_triangles += 1	# increments the number of triangles
                 else :
                     if indices[i] < indices[j]:
                         i += 1
                     else :
                         j += 1
 
-    return nb_triangles
+    return n_triangles
 
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef long tri_intersection(int u, int[:] indptr, int[:] indices) nogil:
+cdef long count_local_triangles(int source, int[:] indptr, int[:] indices) nogil:
     """Counts the number of nodes in the intersection of a node and its neighbors in a DAG.
 
     Parameters
     ----------
-    u :
+    source :
         Index of the node to study.
     indptr :
         CSR format index pointer array of the normalized adjacency matrix of a DAG.
@@ -75,35 +75,35 @@ cdef long tri_intersection(int u, int[:] indptr, int[:] indices) nogil:
 
     Returns
     -------
-    nb_inter :
+    n_triangles :
         Number of nodes in the intersection
     """
     cdef int i, j, k
     cdef int v
-    cdef long nb_inter = 0		# number of nodes in the intersection
+    cdef long n_triangles = 0		# number of nodes in the intersection
 
-    for k in range(indptr[u], indptr[u+1]):		# iterates over the neighbors of u
+    for k in range(indptr[source], indptr[source+1]):
         v = indices[k]
-        i = indptr[u]
+        i = indptr[source]
         j = indptr[v]
 
         # calculates the intersection of the neighbors of u and v
-        while (i < indptr[u+1]) and (j < indptr[v+1]):
+        while (i < indptr[source+1]) and (j < indptr[v+1]):
             if indices[i] == indices[j]:
                 i += 1
                 j += 1
-                nb_inter += 1	# increments the number of nodes in the intersection
+                n_triangles += 1
             else :
                 if indices[i] < indices[j]:
                     i += 1
                 else :
                     j += 1
 
-    return nb_inter
+    return n_triangles
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef long triangles_parallel_c(int[:] indptr, int[:] indices):
+cdef long count_triangles_parallel(int[:] indptr, int[:] indices):
     """Count the number of triangles in a DAG using a parallel range.
 
     Parameters
@@ -115,17 +115,17 @@ cdef long triangles_parallel_c(int[:] indptr, int[:] indices):
 
     Returns
     -------
-    nb_triangles :
+    n_triangles :
         Number of triangles in the graph
     """
     cdef int n = indptr.shape[0] - 1
     cdef int u
-    cdef long nb_triangles = 0		# number of triangles
+    cdef long n_triangles = 0		# number of triangles
 
     for u in prange(n, nogil=True):	# parallel range
-        nb_triangles += tri_intersection(u, indptr, indices)
+        n_triangles += count_local_triangles(u, indptr, indices)
 
-    return nb_triangles
+    return n_triangles
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -139,11 +139,11 @@ cdef long fit_core(int[:] indptr, int[:] indices, bint parallelize):
     indices :
         CSR format index array of the normalized adjacency matrix of a DAG.
     parallelize :
-        If ``True`` will use a parallel range to list triangles
+        If ``True``, use a parallel range to count triangles
 
     Returns
     -------
-    nb_triangles :
+    n_triangles :
         Number of triangles in the graph
     """
     cdef int n = indptr.shape[0] - 1
@@ -169,9 +169,9 @@ cdef long fit_core(int[:] indptr, int[:] indices, bint parallelize):
 
     # counts/list the triangles in the DAG
     if parallelize:
-        return triangles_parallel_c(dag.indptr, dag.indices)
+        return count_triangles_parallel(dag.indptr, dag.indices)
     else:
-        return triangles_c(dag.indptr, dag.indices)
+        return count_triangles(dag.indptr, dag.indices)
 
 
 class TriangleListing:
