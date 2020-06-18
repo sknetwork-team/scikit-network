@@ -125,22 +125,7 @@ class HalkoEig(EigSolver):
     one_pass: bool (default=False)
         whether to use algorithm 5.6 instead of 5.3. 5.6 requires less access to the original matrix,
         while 5.3 is more accurate.
-
-    n_oversamples : int (default=10)
-        Additional number of random vectors to sample the range of ``matrix`` so as
-        to ensure proper conditioning. The total number of random vectors
-        used to find the range of ``matrix`` is ``n_components + n_oversamples``. Smaller number can improve speed
-        but can negatively impact the quality of approximation of singular vectors and singular values.
-    n_iter: int or 'auto' (default is 'auto')
-        See :meth:`randomized_range_finder`
-    power_iteration_normalizer: ``'auto'`` (default), ``'QR'``, ``'LU'``, ``None``
-        See :meth:`randomized_range_finder`
-    random_state: Optional[Union[int, RandomState]], optional
-        See :meth:`randomized_range_finder`
-    one_pass: bool (default=False)
-        whether to use algorithm 5.6 instead of 5.3. 5.6 requires less access to the original matrix,
-        while 5.3 is more accurate.
-    """
+   """
     def __init__(self, which='LM', n_oversamples: int = 10, n_iter='auto',
                  power_iteration_normalizer: Union[str, None] = 'auto', random_state=None, one_pass: bool = False):
         super(HalkoEig, self).__init__(which=which)
