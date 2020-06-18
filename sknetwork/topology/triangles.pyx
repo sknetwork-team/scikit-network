@@ -18,7 +18,7 @@ ctypedef np.uint8_t bool_type_t
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef long triangles_c(int[:] indptr, int[:] indices, int[:] indexation):
+cdef long triangles_c(int[:] indptr, int[:] indices):
     """Count the number of triangles in a DAG.
 
     Parameters
@@ -27,8 +27,6 @@ cdef long triangles_c(int[:] indptr, int[:] indices, int[:] indexation):
         CSR format index array of the normalized adjacency matrix of a DAG.
     indptr :
         CSR format index pointer array of the normalized adjacency matrix of a DAG.
-    indexation:
-        Array that associates a node to its position in the order (it is not necessary to count but will be to list)
 
     Returns
     -------
@@ -63,7 +61,7 @@ cdef long triangles_c(int[:] indptr, int[:] indices, int[:] indexation):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef long tri_intersection(int u, int[:] indptr, int[:] indices, int[:] indexation) nogil:
+cdef long tri_intersection(int u, int[:] indptr, int[:] indices) nogil:
     """Counts the number of nodes in the intersection of a node and its neighbors in a DAG.
 
     Parameters
@@ -74,8 +72,6 @@ cdef long tri_intersection(int u, int[:] indptr, int[:] indices, int[:] indexati
         CSR format index pointer array of the normalized adjacency matrix of a DAG.
     indices :
         CSR format index array of the normalized adjacency matrix of a DAG.
-    indexation:
-        Array that associates a node to its position in the order (it is not necessary to count but will be to list)
 
     Returns
     -------
@@ -107,7 +103,7 @@ cdef long tri_intersection(int u, int[:] indptr, int[:] indices, int[:] indexati
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef long triangles_parallel_c(int[:] indptr, int[:] indices, int[:] indexation):
+cdef long triangles_parallel_c(int[:] indptr, int[:] indices):
     """Count the number of triangles in a DAG using a parallel range.
 
     Parameters
@@ -116,8 +112,6 @@ cdef long triangles_parallel_c(int[:] indptr, int[:] indices, int[:] indexation)
         CSR format index pointer array of the normalized adjacency matrix of a DAG.
     indices :
         CSR format index array of the normalized adjacency matrix of a DAG.
-    indexation:
-        Array that associates a node to its position in the order (it is not necessary to count but will be to list)
 
     Returns
     -------
@@ -129,7 +123,7 @@ cdef long triangles_parallel_c(int[:] indptr, int[:] indices, int[:] indexation)
     cdef long nb_triangles = 0		# number of triangles
 
     for u in prange(n, nogil=True):	# parallel range
-        nb_triangles += tri_intersection(u, indptr, indices, indexation)
+        nb_triangles += tri_intersection(u, indptr, indices)
 
     return nb_triangles
 
@@ -175,9 +169,9 @@ cdef long fit_core(int[:] indptr, int[:] indices, bint parallelize):
 
     # counts/list the triangles in the DAG
     if parallelize:
-        return triangles_parallel_c(dag.indptr, dag.indices, sorted_nodes)
+        return triangles_parallel_c(dag.indptr, dag.indices)
     else:
-        return triangles_c(dag.indptr, dag.indices, sorted_nodes)
+        return triangles_c(dag.indptr, dag.indices)
 
 
 class TriangleListing:
