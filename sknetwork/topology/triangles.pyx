@@ -62,37 +62,6 @@ cdef long count_local_triangles(int source, int[:] indptr, int[:] indices) nogil
 
     return n_triangles
 
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef long count_triangles(int[:] indptr, int[:] indices, bint parallelize):
-    """Count the number of triangles in a DAG using a parallel range.
-
-    Parameters
-    ----------
-    indptr :
-        CSR format index pointer array of the normalized adjacency matrix of a DAG.
-    indices :
-        CSR format index array of the normalized adjacency matrix of a DAG.
-    parallelize :
-        If ``True``, use a parallel range to count triangles.
-
-    Returns
-    -------
-    n_triangles :
-        Number of triangles in the graph
-    """
-    cdef int n = indptr.shape[0] - 1
-    cdef int u
-    cdef long n_triangles = 0
-
-    if parallelize:
-        for u in prange(n, nogil=True):
-            n_triangles += count_local_triangles(u, indptr, indices)
-    else:
-        for u in range(n):
-            n_triangles += count_local_triangles(u, indptr, indices)
-
-    return n_triangles
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -118,12 +87,14 @@ cdef long fit_core(int[:] indptr, int[:] indices, int[:] sorted_nodes, bint para
     cdef int n = indptr.shape[0] - 1
     cdef int[:] ix
     cdef int u, v, k
+    cdef long n_triangles = 0
     cdef vector[int] row, col, data
 
     ix = np.empty((n,), dtype=np.int32)	# initializes an empty array
     for i in range(n):
         ix[sorted_nodes[i]] = i
 
+    # create the DAG
     for u in range(n):
         for k in range(indptr[u], indptr[u+1]):
             v = indices[k]
@@ -133,8 +104,17 @@ cdef long fit_core(int[:] indptr, int[:] indices, int[:] sorted_nodes, bint para
                 data.push_back(1)
 
     dag = sparse.csr_matrix((data, (row, col)), (n, n), dtype=bool)
+    cdef int[:] dag_indptr = dag.indptr
+    cdef int[:] dag_indices = dag.indices
 
-    return count_triangles(dag.indptr, dag.indices, parallelize)
+    if parallelize:
+        for u in prange(n, nogil=True):
+            n_triangles += count_local_triangles(u, dag_indptr, dag_indices)
+    else:
+        for u in range(n):
+            n_triangles += count_local_triangles(u, dag_indptr, dag_indices)
+
+    return n_triangles
 
 
 class Triangles(Algorithm):
