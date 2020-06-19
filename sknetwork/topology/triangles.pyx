@@ -22,7 +22,7 @@ ctypedef np.uint8_t bool_type_t
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef long count_local_triangles(int source, int[:] indptr, int[:] indices) nogil:
+cdef long count_local_triangles(int source, vector[int] indptr, vector[int] indices) nogil:
     """Counts the number of nodes in the intersection of a node and its neighbors in a DAG.
 
     Parameters
@@ -88,24 +88,22 @@ cdef long fit_core(int[:] indptr, int[:] indices, int[:] sorted_nodes, bint para
     cdef int[:] ix
     cdef int u, v, k
     cdef long n_triangles = 0
-    cdef vector[int] row, col, data
+    cdef vector[int] dag_indptr, dag_indices
 
     ix = np.empty((n,), dtype=np.int32)	# initializes an empty array
     for i in range(n):
         ix[sorted_nodes[i]] = i
 
     # create the DAG
+    cdef int ptr = 0
+    dag_indptr.push_back(ptr)
     for u in range(n):
         for k in range(indptr[u], indptr[u+1]):
             v = indices[k]
             if ix[u] < ix[v]:	# the edge needs to be added
-                row.push_back(ix[u])
-                col.push_back(ix[v])
-                data.push_back(1)
-
-    dag = sparse.csr_matrix((data, (row, col)), (n, n), dtype=bool)
-    cdef int[:] dag_indptr = dag.indptr
-    cdef int[:] dag_indices = dag.indices
+                dag_indices.push_back(v)
+                ptr += 1
+        dag_indptr.push_back(ptr)
 
     if parallelize:
         for u in prange(n, nogil=True):
