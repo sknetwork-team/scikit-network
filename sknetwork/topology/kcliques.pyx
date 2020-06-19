@@ -218,10 +218,11 @@ class CliqueListing:
         if k < 2:
             raise ValueError("k should not be inferior to 2")
 
-        core = CoreDecomposition()
-        core.fit(adjacency)
+        kcore = CoreDecomposition()
+        labels = kcore.fit_transform(adjacency)
+        sorted_nodes = np.argsort(labels).astype(np.int32)
 
-        self.nb_cliques = fit_core(adjacency.nnz, adjacency.indptr, adjacency.indices, core.ordered, k)
+        self.nb_cliques = fit_core(adjacency.nnz, adjacency.indptr, adjacency.indices, sorted_nodes, k)
 
         return self
 

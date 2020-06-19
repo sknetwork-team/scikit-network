@@ -14,6 +14,9 @@ cimport numpy as np
 
 from scipy import sparse
 
+from sknetwork.utils.base import Algorithm
+
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef class MinHeap:
@@ -109,24 +112,19 @@ cdef fit_core(int[:] indptr, int[:] indices):
 
     Returns
     -------
-    cores :
-        Numpy array of the nodes ordered in descending order by their core value.
-    core_value :
-        Maximum core value
+    labels :
+        Core value of each node.
     """
     cdef int n = indptr.shape[0] - 1
     cdef int core_value		# current/max core value of the graph
     cdef int min_node		# current node of minimum degree
     cdef int i, j, k
     cdef int[:] degrees						# array of each node degrees
-    cdef np.ndarray[int, ndim=1] k_cores	# array of ordered nodes
+    cdef np.ndarray[int, ndim=1] labels = np.empty((n,), dtype=np.int32)	# array of ordered nodes
 
     cdef MinHeap mh			# minimum heap with an update system
 
-    degrees = np.empty((n,), dtype=np.int32)
-
-    for i in range(n):
-        degrees[i] = indptr[i+1] - indptr[i]
+    degrees = np.asarray(indptr)[1:] - np.asarray(indptr)[:-1]
 
     # creates an heap of sufficient size to contain all nodes
     mh = MinHeap.__new__(MinHeap, n)
@@ -138,8 +136,6 @@ cdef fit_core(int[:] indptr, int[:] indices):
     i = n - 1		# index of the rear of the list/array
     core_value = 0
 
-    k_cores = np.empty((n,), dtype=np.int32)		# initializes an empty array
-
     while not mh.isEmpty():		# until the heap is emptied
         min_node = mh.extractMin(degrees)
         core_value = max(core_value, degrees[min_node])
@@ -150,39 +146,41 @@ cdef fit_core(int[:] indptr, int[:] indices):
             degrees[j] -= 1
             mh.decreaseKey(j, degrees)		# updates the heap to take into account the new degrees
 
-        k_cores[i] = min_node	# insert the node of minimum degree at the end of the array
+        labels[min_node] = core_value	# insert the node of minimum degree at the end of the array
         i -= 1
 
-    return k_cores, core_value
+    return np.asarray(labels)
 
 
-class CoreDecomposition:
+class CoreDecomposition(Algorithm):
     """ k-core Decomposition algorithm.
 
     * Graphs
 
     Attributes
     ----------
-    ordered : np.ndarray
-        Nodes sorted by their core value in decreasing order
-    core_value : int
+    labels_ : np.ndarray
+        Core value of each node.
+    core_value_ : int
         Maximum core value of the graph
 
     Example
     -------
     >>> from sknetwork.topology import CoreDecomposition
     >>> from sknetwork.data import karate_club
-    >>> core = CoreDecomposition()
+    >>> kcore = CoreDecomposition()
     >>> graph = karate_club()
     >>> adjacency = graph.adjacency
-    >>> core.fit_transform(adjacency)
+    >>> kcore.fit(adjacency)
+    >>> kcore.core_value_
     4
     """
     def __init__(self):
-        self.ordered = None
-        self.core_value = 0
+        super(CoreDecomposition, self).__init__()
+        self.labels_ = None
+        self.core_value_ = None
 
-    def fit(self, adjacency : sparse.csr_matrix) -> 'CoreDecomposition':
+    def fit(self, adjacency: sparse.csr_matrix) -> 'CoreDecomposition':
         """ k-core decomposition.
 
         Parameters
@@ -194,18 +192,18 @@ class CoreDecomposition:
         -------
          self: :class:`CoreDecomposition`
         """
-        cores, val = fit_core(adjacency.indptr, adjacency.indices)
-        self.ordered = cores
-        self.core_value = val
+        labels = fit_core(adjacency.indptr, adjacency.indices)
+        self.labels_ = labels
+        self.core_value_ = labels.max()
         return self
 
-    def fit_transform(self, *args, **kwargs) -> int:
-        """ Fit algorithm to the data and return the maximum core value. Same parameters as the ``fit`` method.
+    def fit_transform(self, adjacency: sparse.csr_matrix):
+        """Fit algorithm to the data and return the core value of each node. Same parameters as the ``fit`` method.
 
         Returns
         -------
-        core_value : int
-            Maximum core value
+        labels :
+            Core value of the nodes.
         """
-        self.fit(*args, **kwargs)
-        return self.core_value
+        self.fit(adjacency)
+        return self.labels_
