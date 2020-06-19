@@ -13,7 +13,7 @@ cimport cython
 cdef class MinHeap:
     """Min heap data structure."""
     def __cinit__(self, int n):
-        self.arr.reserve(n)		# reserves the necessary space in the vector
+        self.val.reserve(n)		# reserves the necessary space in the vector
         self.pos.reserve(n)		# reserves the necessary space in the other vector
         self.size = 0
 
@@ -24,25 +24,25 @@ cdef class MinHeap:
     cdef inline void swap(self, int x, int y):
         """Exchange two elements in the heap."""
         cdef int tmp
-        tmp = self.arr[x]
-        self.arr[x] = self.arr[y]
-        self.arr[y] = tmp
+        tmp = self.val[x]
+        self.val[x] = self.val[y]
+        self.val[y] = tmp
 
         # updates the position of the corresponding elements
-        self.pos[self.arr[x]] = x
-        self.pos[self.arr[y]] = y
+        self.pos[self.val[x]] = x
+        self.pos[self.val[y]] = y
 
     # Inserts a new key k
     cdef void insert_key(self, int k, int[:] scores):
         """Insert new element into the heap"""
         # First insert the new key at the end
-        self.arr[self.size] = k
+        self.val[self.size] = k
         self.pos[k] = self.size
         cdef int i = self.size
         self.size += 1
 
         cdef int p = parent(i)
-        while (p >= 0) and (scores[self.arr[p]] > scores[self.arr[i]]) :
+        while (p >= 0) and (scores[self.val[p]] > scores[self.val[i]]) :
             self.swap(i, p)
             i = p
             p = parent(i)
@@ -57,7 +57,7 @@ cdef class MinHeap:
         if pos < self.size:
             p = parent(pos)
 
-            while (pos != 0) and (scores[self.arr[p]] > scores[self.arr[pos]]):
+            while (pos != 0) and (scores[self.val[p]] > scores[self.val[pos]]):
                 self.swap(pos, p)
                 pos = p
 
@@ -65,11 +65,11 @@ cdef class MinHeap:
         """Remove and return the minimum element (or root) from the heap."""
         if self.size == 1:
             self.size = 0
-            return self.arr[0]
+            return self.val[0]
 
         # Store the minimum value, and remove it from heap
-        cdef int root = self.arr[0]
-        self.arr[0] = self.arr[self.size-1]
+        cdef int root = self.val[0]
+        self.val[0] = self.val[self.size-1]
         self.size -= 1
         self.min_heapify(0, scores)
 
@@ -83,10 +83,10 @@ cdef class MinHeap:
         l = left(i)
         r = right(i)
         smallest = i
-        if (l < self.size) and (scores[self.arr[l]] < scores[self.arr[i]]):
+        if (l < self.size) and (scores[self.val[l]] < scores[self.val[i]]):
             smallest = l
 
-        if (r < self.size) and (scores[self.arr[r]] < scores[self.arr[smallest]]):
+        if (r < self.size) and (scores[self.val[r]] < scores[self.val[smallest]]):
             smallest = r
 
         if smallest != i:

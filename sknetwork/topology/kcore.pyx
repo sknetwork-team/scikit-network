@@ -34,22 +34,18 @@ cdef fit_core(int[:] indptr, int[:] indices):
         Core value of each node.
     """
     cdef int n = indptr.shape[0] - 1
-    cdef int core_value		# current/max core value of the graph
+    cdef int core_value	= 0	# current/max core value of the graph
     cdef int min_node		# current node of minimum degree
     cdef int i, j, k
-    cdef int[:] degrees						# array of each node degrees
-    cdef np.ndarray[int, ndim=1] labels = np.empty((n,), dtype=np.int32)	# array of ordered nodes
-
+    cdef int[:] degrees = np.asarray(indptr)[1:] - np.asarray(indptr)[:-1]
+    cdef np.ndarray[int, ndim=1] labels = np.empty((n,), dtype=np.int32)
     cdef MinHeap mh = MinHeap.__new__(MinHeap, n)	# minimum heap with an update system
-
-    degrees = np.asarray(indptr)[1:] - np.asarray(indptr)[:-1]
 
     # inserts all nodes in the heap
     for i in range(n):
         mh.insert_key(i, degrees)
 
     i = n - 1		# index of the rear of the list/array
-    core_value = 0
     while not mh.empty():		# until the heap is emptied
         min_node = mh.pop_min(degrees)
         core_value = max(core_value, degrees[min_node])
@@ -95,7 +91,7 @@ class CoreDecomposition(Algorithm):
         self.core_value_ = None
 
     def fit(self, adjacency: sparse.csr_matrix) -> 'CoreDecomposition':
-        """ k-core decomposition.
+        """K-core decomposition.
 
         Parameters
         ----------

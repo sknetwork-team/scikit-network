@@ -8,17 +8,20 @@ Created on Jun 3, 2020
 from libcpp.vector cimport vector
 
 cdef inline int parent(int i):
+    """Index of the parent node of i in the tree."""
     return (i - 1) // 2
 
 cdef inline int left(int i):
+    """Index of the left child of i in the tree."""
     return 2 * i + 1
 
 cdef inline int right(int i):
+    """Index of the right child of i in the tree."""
     return 2 * i + 2
 
 cdef class MinHeap:
 
-    cdef vector[int] arr, pos
+    cdef vector[int] val, pos
     cdef int size
 
     cdef int pop_min(self, int[:] scores)
