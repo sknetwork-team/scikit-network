@@ -97,13 +97,11 @@ cdef class MinHeap:
 
 #========== k-core decomposition ==========
 
-cdef fit_core(int n_nodes, int[:] indptr, int[:] indices):
+cdef fit_core(int[:] indptr, int[:] indices):
     """	   Orders the nodes of the graph according to their core value.
 
     Parameters
     ----------
-    n_nodes :
-        Number of nodes.
     indptr :
         CSR format index array of the normalized adjacency matrix.
     indices :
@@ -116,7 +114,7 @@ cdef fit_core(int n_nodes, int[:] indptr, int[:] indices):
     core_value :
         Maximum core value
     """
-
+    cdef int n = indptr.shape[0] - 1
     cdef int core_value		# current/max core value of the graph
     cdef int min_node		# current node of minimum degree
     cdef int i, j, k
@@ -125,22 +123,22 @@ cdef fit_core(int n_nodes, int[:] indptr, int[:] indices):
 
     cdef MinHeap mh			# minimum heap with an update system
 
-    degrees = np.empty((n_nodes,), dtype=np.int32)
+    degrees = np.empty((n,), dtype=np.int32)
 
-    for i in range(n_nodes):
+    for i in range(n):
         degrees[i] = indptr[i+1] - indptr[i]
 
     # creates an heap of sufficient size to contain all nodes
-    mh = MinHeap.__new__(MinHeap, n_nodes)
+    mh = MinHeap.__new__(MinHeap, n)
 
     # inserts all nodes in the heap
-    for i in range(n_nodes):
+    for i in range(n):
         mh.insertKey(i, degrees)
 
-    i = n_nodes - 1		# index of the rear of the list/array
+    i = n - 1		# index of the rear of the list/array
     core_value = 0
 
-    k_cores = np.empty((n_nodes,), dtype=np.int32)		# initializes an empty array
+    k_cores = np.empty((n,), dtype=np.int32)		# initializes an empty array
 
     while not mh.isEmpty():		# until the heap is emptied
         min_node = mh.extractMin(degrees)
@@ -180,7 +178,6 @@ class CoreDecomposition:
     >>> core.fit_transform(adjacency)
     4
     """
-
     def __init__(self):
         self.ordered = None
         self.core_value = 0
@@ -197,7 +194,7 @@ class CoreDecomposition:
         -------
          self: :class:`CoreDecomposition`
         """
-        cores, val = fit_core(adjacency.shape[0], adjacency.indptr, adjacency.indices)
+        cores, val = fit_core(adjacency.indptr, adjacency.indices)
         self.ordered = cores
         self.core_value = val
         return self

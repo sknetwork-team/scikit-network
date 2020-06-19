@@ -7,8 +7,6 @@ Created on Jun 3, 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 from libcpp.vector cimport vector
-import numpy as np
-cimport numpy as np
 from scipy import sparse
 from scipy.special import comb
 from cython.parallel import prange
@@ -17,9 +15,6 @@ from sknetwork.topology.dag import DAG
 from sknetwork.utils.base import Algorithm
 
 cimport cython
-
-ctypedef np.int_t int_type_t
-ctypedef np.uint8_t bool_type_t
 
 
 @cython.boundscheck(False)

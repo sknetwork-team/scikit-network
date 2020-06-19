@@ -68,3 +68,5 @@ class DAG(Algorithm):
         dag_indptr, dag_indices = fit_core(indptr, indices, sorted_nodes)
         self.indptr_ = dag_indptr
         self.indices_ = dag_indices
+
+        return self

@@ -5,9 +5,6 @@ Created on Jun 3, 2020
 @author: Julien Simonnet <julien.simonnet@etu.upmc.fr>
 @author: Yohann Robert <yohann.robert@etu.upmc.fr>
 """
-
-cimport numpy as np
-
 from libcpp.vector cimport vector
 
 cdef class IntArray:
