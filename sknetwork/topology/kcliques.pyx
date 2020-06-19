@@ -14,14 +14,10 @@ cimport cython
 from sknetwork.topology.dag import DAG
 from sknetwork.topology.kcore import CoreDecomposition
 
-ctypedef np.int_t int_type_t
-ctypedef np.uint8_t bool_type_t
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
 
 #------ Wrapper for integer array -------
-
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cdef class IntArray:
 
     def __cinit__(self, int n):
@@ -34,7 +30,8 @@ cdef class IntArray:
         self.arr[key] = val
 
 # ----- Collections of arrays used by our listing algorithm -----
-
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cdef class ListingBox:
 
     def __cinit__(self, vector[int] indptr, short k):
@@ -79,26 +76,27 @@ cdef class ListingBox:
 
         self.lab = lab
 
-# ---------------------------------------------------------------
 
-cdef long listing_rec(vector[int] indptr, vector[int] indices, short l, ListingBox box):
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef long fit_core(vector[int] indptr, vector[int] indices, short l, ListingBox box):
     cdef int n = indptr.size() - 1
-    cdef long nb_cliques
+    cdef long n_cliques
     cdef int i, j, k
     cdef int u, v, w
     cdef int cd
     cdef IntArray sub_l, degre_l
 
-    nb_cliques = 0
+    n_cliques = 0
 
     if l == 2:
         degre_l = box.degrees[2]
         sub_l = box.subs[2]
         for i in range(box.ns[2]):
             j = sub_l[i]
-            nb_cliques += degre_l[j]
+            n_cliques += degre_l[j]
 
-        return nb_cliques
+        return n_cliques
 
     cdef IntArray deg_prevs, sub_prev
     sub_l = box.subs[l]
@@ -113,7 +111,6 @@ cdef long listing_rec(vector[int] indptr, vector[int] indices, short l, ListingB
             v = indices[j]
             if box.lab[v] == l:
                 box.lab[v] = l-1
-                # box.subs[l-1][ns[l-1]++] = v
                 sub_prev[box.ns[l-1]] = v
                 box.ns[l-1] += 1
                 deg_prev[v] = 0
@@ -128,24 +125,18 @@ cdef long listing_rec(vector[int] indptr, vector[int] indices, short l, ListingB
                     deg_prev[v] += 1
                 else:
                     cd -= 1
-                    # indices[k--] = indices[--cd]
                     indices[k] = indices[cd]
                     k -= 1
                     indices[cd] = w
 
                 k += 1
 
-        nb_cliques += listing_rec(indptr, indices, l-1, box)
+        n_cliques += fit_core(indptr, indices, l-1, box)
         for j in range(box.ns[l-1]):
             v = sub_prev[j]
             box.lab[v] = l
 
-    return nb_cliques
-
-
-cdef long fit_core(vector[int] indptr, vector[int] indices, short l):
-
-    return listing_rec(indptr, indices, l, ListingBox.__new__(ListingBox, indptr, l))
+    return n_cliques
 
 
 class CliqueListing:
@@ -155,7 +146,7 @@ class CliqueListing:
 
     Attributes
     ----------
-    nb_cliques : int
+    n_cliques_ : int
         Number of cliques
 
     Example
@@ -168,8 +159,7 @@ class CliqueListing:
     45
     """
     def __init__(self):
-        self.nb_cliques = 0
-
+        self.n_cliques_ = 0
 
     def fit(self, adjacency: sparse.csr_matrix, k : int) -> 'CliqueListing':
         """ k-cliques listing.
@@ -197,7 +187,9 @@ class CliqueListing:
         indptr = dag.indptr_
         indices = dag.indices_
 
-        self.nb_cliques = fit_core(indptr, indices, k)
+        box = ListingBox.__new__(ListingBox, indptr, k)
+
+        self.n_cliques_ = fit_core(indptr, indices, k, box)
 
         return self
 
@@ -206,10 +198,10 @@ class CliqueListing:
 
         Returns
         -------
-        nb_cliques : int
+        n_cliques : int
             Number of k-cliques.
         """
         self.fit(*args, **kwargs)
-        return self.nb_cliques
+        return self.n_cliques_
 
 
