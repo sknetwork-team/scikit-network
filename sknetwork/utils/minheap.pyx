@@ -33,7 +33,7 @@ cdef class MinHeap:
         self.pos[self.arr[y]] = y
 
     # Inserts a new key k
-    cdef void insert_key(self, int k, int[:] degrees):
+    cdef void insert_key(self, int k, int[:] scores):
         """Insert new element into the heap"""
         # First insert the new key at the end
         self.arr[self.size] = k
@@ -42,13 +42,13 @@ cdef class MinHeap:
         self.size += 1
 
         cdef int p = parent(i)
-        while (p >= 0) and (degrees[self.arr[p]] > degrees[self.arr[i]]) :
+        while (p >= 0) and (scores[self.arr[p]] > scores[self.arr[i]]) :
             self.swap(i, p)
             i = p
             p = parent(i)
 
 
-    cdef void decrease_key(self, int i, int[:] degrees):
+    cdef void decrease_key(self, int i, int[:] scores):
         """Decrease value of key at index 'i' to new_val.
         It is assumed that the new value is smaller than the old one.
         """
@@ -57,11 +57,11 @@ cdef class MinHeap:
         if pos < self.size:
             p = parent(pos)
 
-            while (pos != 0) and (degrees[self.arr[p]] > degrees[self.arr[pos]]):
+            while (pos != 0) and (scores[self.arr[p]] > scores[self.arr[pos]]):
                 self.swap(pos, p)
                 pos = p
 
-    cdef int pop_min(self, int[:] degrees):
+    cdef int pop_min(self, int[:] scores):
         """Remove and return the minimum element (or root) from the heap."""
         if self.size == 1:
             self.size = 0
@@ -71,11 +71,11 @@ cdef class MinHeap:
         cdef int root = self.arr[0]
         self.arr[0] = self.arr[self.size-1]
         self.size -= 1
-        self.min_heapify(0, degrees)
+        self.min_heapify(0, scores)
 
         return root
 
-    cdef void min_heapify(self, int i, int[:] degrees):
+    cdef void min_heapify(self, int i, int[:] scores):
         """A recursive method to heapify a subtree with the root at given index
         This function assumes that the subtrees are already heapified.
         """
@@ -83,12 +83,12 @@ cdef class MinHeap:
         l = left(i)
         r = right(i)
         smallest = i
-        if (l < self.size) and (degrees[self.arr[l]] < degrees[self.arr[i]]):
+        if (l < self.size) and (scores[self.arr[l]] < scores[self.arr[i]]):
             smallest = l
 
-        if (r < self.size) and (degrees[self.arr[r]] < degrees[self.arr[smallest]]):
+        if (r < self.size) and (scores[self.arr[r]] < scores[self.arr[smallest]]):
             smallest = r
 
         if smallest != i:
             self.swap(i, smallest)
-            self.min_heapify(smallest, degrees)
+            self.min_heapify(smallest, scores)
