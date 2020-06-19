@@ -10,7 +10,7 @@ from scipy import sparse
 
 
 class WLColoring:
-    """Weisefeler-Lehman algorithm for coloring/labeling graphs in order to check similarity.
+    """Weisefeler-Lehman algorithm for coloring/labeling graphs in order to check simultisetlarity.
 
     * Graphs
     * Digraphs
@@ -18,9 +18,9 @@ class WLColoring:
     Parameters
     ----------
     modularity : str
-        Which objective function to maximize. Can be ``'dugue'``, ``'newman'`` or ``'potts'``.
-    tol_optimization :
-        Minimum increase in the objective function to enter a new optimization pass.
+        Which objective function to maximultisetze. Can be ``'dugue'``, ``'newman'`` or ``'potts'``.
+    tol_optimultisetzation :
+        Minimum increase in the objective function to enter a new optimultisetzation pass.
 
 
     Attributes
@@ -93,35 +93,34 @@ class WLColoring:
         for v in range(n):
             neighbors.append(self.neighborhood(adjacency, v))
 
-        # Arbitrary choice : initial labelling is size of neighborhood
-        # li denotes the array of the labels at the i-th iteration.
-        # li_1 denotes the array of the labels at the i-1-th iteration
 
-        li_1 = np.zeros(n)
-        li = np.zeros(n)
+        # labels[0] denotes the array of the labels at the i-th iteration.
+        # labels[1] denotes the array of the labels at the i-1-th iteration
+        labels = [[], []]
+        labels[1] = np.zeros(n)
+        labels[0] = np.zeros(n)
         i = 1
-        li = [len(neighbors[v]) for v in range(n)]
-
-        while i < max_iter and (li_1 != li).any():
-            mi = [[] for _ in range(n)]
-            li_1 = np.array(li)
+        labels[0] = [len(neighbors[v]) for v in range(n)]
+        while i < max_iter and (labels[1] != labels[0]).any():
+            multiset = [[] for _ in range(n)]
+            labels[1] = np.copy(labels[0])
             si = []
 
             for v in range(n):
                 # 1
                 for u in neighbors[v]:
-                    mi[v].append(li_1[u])
+                    multiset[v].append(labels[1][u])
                 # 2
-                mi[v].sort()
+                multiset[v].sort()
                 siv = ""
-                for value in mi[v]:
+                for value in multiset[v]:
                     siv += str(value)
-                siv = str(li_1[v]) + siv
+                siv = str(labels[1][v]) + siv
                 si.append((int(siv), v))
 
             # 3
-            si = np.array(si)
-            si.sort(axis=0)  # sort along first axis
+
+            si.sort(key=lambda x: x[0])  # sort along first axis
 
             new_hash = {}
             current_max = 0
@@ -131,10 +130,10 @@ class WLColoring:
                     current_max += 1
                 #  4
 
-                li[int(v)] = new_hash[siv]
+                labels[0][int(v)] = new_hash[siv]
 
             i += 1
 
-        self.labels_ = li
+        self.labels_ = labels[0]
 
         return self
