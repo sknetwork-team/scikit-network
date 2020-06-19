@@ -11,16 +11,18 @@ cimport cython
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef class MinHeap:
-
+    """Min heap data structure."""
     def __cinit__(self, int n):
         self.arr.reserve(n)		# reserves the necessary space in the vector
         self.pos.reserve(n)		# reserves the necessary space in the other vector
         self.size = 0
 
-    cdef bint isEmpty(self):
+    cdef bint empty(self):
+        """Check if the heap is empty."""
         return self.size == 0
 
     cdef inline void swap(self, int x, int y):
+        """Exchange two elements in the heap."""
         cdef int tmp
         tmp = self.arr[x]
         self.arr[x] = self.arr[y]
@@ -31,7 +33,8 @@ cdef class MinHeap:
         self.pos[self.arr[y]] = y
 
     # Inserts a new key k
-    cdef void insertKey(self, int k, int[:] degrees):
+    cdef void insert_key(self, int k, int[:] degrees):
+        """Insert new element into the heap"""
         # First insert the new key at the end
         self.arr[self.size] = k
         self.pos[k] = self.size
@@ -45,9 +48,10 @@ cdef class MinHeap:
             p = parent(i)
 
 
-    # Decreases value of key at index 'i' to new_val.  It is assumed that
-    # the new value is smaller than the old one
-    cdef void decreaseKey(self, int i, int[:] degrees):
+    cdef void decrease_key(self, int i, int[:] degrees):
+        """Decrease value of key at index 'i' to new_val.
+        It is assumed that the new value is smaller than the old one.
+        """
         cdef int pos, p
         pos = self.pos[i]
         if pos < self.size:
@@ -57,8 +61,8 @@ cdef class MinHeap:
                 self.swap(pos, p)
                 pos = p
 
-    # Function to remove minimum element (or root) from min heap
-    cdef int extractMin(self, int[:] degrees):
+    cdef int pop_min(self, int[:] degrees):
+        """Remove and return the minimum element (or root) from the heap."""
         if self.size == 1:
             self.size = 0
             return self.arr[0]
@@ -67,13 +71,14 @@ cdef class MinHeap:
         cdef int root = self.arr[0]
         self.arr[0] = self.arr[self.size-1]
         self.size -= 1
-        self.minHeapify(0, degrees)
+        self.min_heapify(0, degrees)
 
         return root
 
-    # A recursive method to heapify a subtree with the root at given index
-    # This function assumes that the subtrees are already heapified
-    cdef void minHeapify(self, int i, int[:] degrees):
+    cdef void min_heapify(self, int i, int[:] degrees):
+        """A recursive method to heapify a subtree with the root at given index
+        This function assumes that the subtrees are already heapified.
+        """
         cdef int l, r, smallest
         l = left(i)
         r = right(i)
@@ -86,4 +91,4 @@ cdef class MinHeap:
 
         if smallest != i:
             self.swap(i, smallest)
-            self.minHeapify(smallest, degrees)
+            self.min_heapify(smallest, degrees)

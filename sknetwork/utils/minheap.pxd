@@ -21,9 +21,9 @@ cdef class MinHeap:
     cdef vector[int] arr, pos
     cdef int size
 
-    cdef bint isEmpty(self)
+    cdef int pop_min(self, int[:] degrees)
+    cdef bint empty(self)
     cdef void swap(self, int x, int y)
-    cdef void insertKey(self, int k, int[:] degrees)
-    cdef void decreaseKey(self, int i, int[:] degrees)
-    cdef int extractMin(self, int[:] degrees)
-    cdef void minHeapify(self, int i, int[:] degrees)
+    cdef void insert_key(self, int k, int[:] degrees)
+    cdef void decrease_key(self, int i, int[:] degrees)
+    cdef void min_heapify(self, int i, int[:] degrees)

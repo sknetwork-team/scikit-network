@@ -46,19 +46,19 @@ cdef fit_core(int[:] indptr, int[:] indices):
 
     # inserts all nodes in the heap
     for i in range(n):
-        mh.insertKey(i, degrees)
+        mh.insert_key(i, degrees)
 
     i = n - 1		# index of the rear of the list/array
     core_value = 0
-    while not mh.isEmpty():		# until the heap is emptied
-        min_node = mh.extractMin(degrees)
+    while not mh.empty():		# until the heap is emptied
+        min_node = mh.pop_min(degrees)
         core_value = max(core_value, degrees[min_node])
 
         # decreases the degree of each neighbors of min_node to simulate its deletion
         for k in range(indptr[min_node], indptr[min_node+1]):
             j = indices[k]
             degrees[j] -= 1
-            mh.decreaseKey(j, degrees)		# updates the heap to take into account the new degrees
+            mh.decrease_key(j, degrees)		# updates the heap to take into account the new degrees
 
         labels[min_node] = core_value
         i -= 1
