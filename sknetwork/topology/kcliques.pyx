@@ -11,6 +11,7 @@ from scipy import sparse
 
 cimport cython
 
+from sknetwork.topology.dag import DAG
 from sknetwork.topology.kcore import CoreDecomposition
 
 ctypedef np.int_t int_type_t
@@ -36,12 +37,12 @@ cdef class IntArray:
 
 cdef class ListingBox:
 
-    def __cinit__(self, int[:] indptr, short k):
+    def __cinit__(self, vector[int] indptr, short k):
         self.initBox(indptr, k)
 
     # building the special graph structure
-    cdef void initBox(self, int[:] indptr, short k):
-        cdef int n = indptr.shape[0] - 1
+    cdef void initBox(self, vector[int] indptr, short k):
+        cdef int n = indptr.size() - 1
         cdef int i
         cdef int max_deg = 0
 
@@ -80,8 +81,8 @@ cdef class ListingBox:
 
 # ---------------------------------------------------------------
 
-cdef long listing_rec(int[:] indptr, int[:] indices, short l, ListingBox box):
-    cdef int n = indptr.shape[0] - 1
+cdef long listing_rec(vector[int] indptr, vector[int] indices, short l, ListingBox box):
+    cdef int n = indptr.size() - 1
     cdef long nb_cliques
     cdef int i, j, k
     cdef int u, v, w
@@ -142,38 +143,9 @@ cdef long listing_rec(int[:] indptr, int[:] indices, short l, ListingBox box):
     return nb_cliques
 
 
-cdef long fit_core(int n_edges, int[:] indptr, int[:] indices, int[:] cores, short l):
+cdef long fit_core(vector[int] indptr, vector[int] indices, short l):
 
-    cdef int n = indptr.shape[0] - 1
-    cdef vector[int] indexation
-    cdef int i, j, k
-
-    indexation.reserve(n)
-    for i in range(n):
-        indexation[cores[i]] = i
-
-    cdef int e
-    cdef int[:] row, column
-    cdef np.ndarray[bool_type_t, ndim=1] data
-
-    row = np.empty((n_edges,), dtype=np.int32)
-    column = np.empty((n_edges,), dtype=np.int32)
-
-    e = 0
-    for i in range(n):
-        for k in range(indptr[i], indptr[i+1]):
-            j = indices[k]
-            if indexation[i] < indexation[j]:
-                row[e] = indexation[i]
-                column[e] = indexation[j]
-                e += 1
-
-    row = row[:e]
-    column = column[:e]
-    data = np.ones((e,), dtype=bool)
-    dag = sparse.csr_matrix((data, (row, column)), (n, n), dtype=bool)
-
-    return listing_rec(dag.indptr, dag.indices, l, ListingBox.__new__(ListingBox, dag.indptr, l))
+    return listing_rec(indptr, indices, l, ListingBox.__new__(ListingBox, indptr, l))
 
 
 class CliqueListing:
@@ -195,12 +167,11 @@ class CliqueListing:
     >>> cl.fit_transform(adjacency, 3)
     45
     """
-
     def __init__(self):
         self.nb_cliques = 0
 
 
-    def fit(self, adjacency : sparse.csr_matrix, k : int) -> 'CliqueListing':
+    def fit(self, adjacency: sparse.csr_matrix, k : int) -> 'CliqueListing':
         """ k-cliques listing.
 
         Parameters
@@ -214,15 +185,19 @@ class CliqueListing:
         -------
          self: :class:`CliqueListing`
         """
-
         if k < 2:
-            raise ValueError("k should not be inferior to 2")
+            raise ValueError("k should be at least 2")
 
         kcore = CoreDecomposition()
         labels = kcore.fit_transform(adjacency)
-        sorted_nodes = np.argsort(labels).astype(np.int32)
+        sorted_nodes = np.argsort(labels)
 
-        self.nb_cliques = fit_core(adjacency.nnz, adjacency.indptr, adjacency.indices, sorted_nodes, k)
+        dag = DAG()
+        dag.fit(adjacency, sorted_nodes)
+        indptr = dag.indptr_
+        indices = dag.indices_
+
+        self.nb_cliques = fit_core(indptr, indices, k)
 
         return self
 

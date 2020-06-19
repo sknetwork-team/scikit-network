@@ -52,18 +52,24 @@ class DAG(Algorithm):
         self.indptr_ = None
         self.indices_ = None
 
-    def fit(self, adjacency: sparse.csr_matrix):
+    def fit(self, adjacency: sparse.csr_matrix, sorted_nodes=None):
         """Fit algorithm to the data."""
         indptr = adjacency.indptr.astype(np.int32)
         indices = adjacency.indices.astype(np.int32)
 
-        if self.ordering is None:
-            sorted_nodes = np.arange(adjacency.shape[0]).astype(np.int32)
-        elif self.ordering == 'degree':
-            degrees = indptr[1:] - indptr[:-1]
-            sorted_nodes = np.argsort(degrees).astype(np.int32)
+        if sorted_nodes is not None:
+            if adjacency.shape[0] != sorted_nodes.shape[0]:
+                raise ValueError('Dimensions mismatch between adjacency and sorted_nodes.')
+            else:
+                sorted_nodes = sorted_nodes.astype(np.int32)
         else:
-            raise ValueError('Unknown ordering of nodes.')
+            if self.ordering is None:
+                sorted_nodes = np.arange(adjacency.shape[0]).astype(np.int32)
+            elif self.ordering == 'degree':
+                degrees = indptr[1:] - indptr[:-1]
+                sorted_nodes = np.argsort(degrees).astype(np.int32)
+            else:
+                raise ValueError('Unknown ordering of nodes.')
 
         dag_indptr, dag_indices = fit_core(indptr, indices, sorted_nodes)
         self.indptr_ = dag_indptr
