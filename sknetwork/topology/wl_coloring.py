@@ -10,23 +10,14 @@ from scipy import sparse
 
 
 class WLColoring:
-    """Weisefeler-Lehman algorithm for coloring/labeling graphs in order to check simultisetlarity.
-
-    * Graphs
-    * Digraphs
-
-    Parameters
-    ----------
-    modularity : str
-        Which objective function to maximultisetze. Can be ``'dugue'``, ``'newman'`` or ``'potts'``.
-    tol_optimultisetzation :
-        Minimum increase in the objective function to enter a new optimultisetzation pass.
-
+    """Weisefeler-Lehman algorithm for coloring/labeling graphs in order to check similarity.
 
     Attributes
     ----------
     labels_ : np.ndarray
         Label of each node.
+    max_iter :
+        Maximum number of iterations of the algorithm
 
     Example
     -------
@@ -43,7 +34,15 @@ class WLColoring:
 
     """
 
-    def __init__(self):
+    def __init__(self, max_iter=10000):
+        """Constructor
+        Parameters
+        ----------
+        max_iter :
+            Maximum number of iterations.
+        """
+
+        self.max_iter = max_iter
         self.labels_ = None
 
     def neighborhood(self, adjacency: Union[sparse.csr_matrix, np.ndarray], v: int):
@@ -61,16 +60,11 @@ class WLColoring:
             Array of the neighborhood of v.
         """
 
-        adjacency_array = adjacency.toarray()
-        n = adjacency.shape[0]
-        neighbors = []
+        neighbors = (adjacency.getrow(v)).nonzero()[1]
 
-        for u in range(n):
-            if adjacency_array[u][v]:
-                neighbors.append(u)
         return neighbors
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], max_iter=10000) -> 'WLColoring':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'WLColoring':
         """Fit algorithm to the data.
 
         Parameters
@@ -78,8 +72,6 @@ class WLColoring:
         adjacency :
             Adjacency matrix of the graph.
 
-        max_iter :
-            Maximum number of iterations.
 
         Returns
         -------
@@ -93,7 +85,6 @@ class WLColoring:
         for v in range(n):
             neighbors.append(self.neighborhood(adjacency, v))
 
-
         # labels[0] denotes the array of the labels at the i-th iteration.
         # labels[1] denotes the array of the labels at the i-1-th iteration
         labels = [[], []]
@@ -101,7 +92,7 @@ class WLColoring:
         labels[0] = np.zeros(n)
         i = 1
         labels[0] = [len(neighbors[v]) for v in range(n)]
-        while i < max_iter and (labels[1] != labels[0]).any():
+        while i < self.max_iter and (labels[1] != labels[0]).any():
             multiset = [[] for _ in range(n)]
             labels[1] = np.copy(labels[0])
             si = []
