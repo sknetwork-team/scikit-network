@@ -2,7 +2,7 @@
 pip==20.1.1
 
 # base dependencies
-numpy==1.18.5
+numpy==1.19.0
 scipy==1.4.1
 
 # tool to automatically change version number in the package upon release
