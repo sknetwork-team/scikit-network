@@ -5,6 +5,7 @@ Created on June 19, 2020
 """
 
 from typing import Union
+
 import numpy as np
 from scipy import sparse
 
@@ -30,8 +31,17 @@ class WLColoring:
 
     References
     ----------
-    >>> https://people.mpi-inf.mpg.de/~mehlhorn/ftp/genWLpaper.pdf
+    * Douglas, B. L. (2011).
+      'The Weisfeiler-Lehman Method and Graph Isomorphism Testing.
+       <https://arxiv.org/pdf/1101.5211.pdf>`_
+       Cornell University.
 
+       https://people.mpi-inf.mpg.de/~mehlhorn/ftp/genWLpaper.pdf
+
+    * Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Melhorn, K., Borgwardt, K. M. (2010)
+      'Weisfeiler-Lehman graph kernels.
+      <https://people.mpi-inf.mpg.de/~mehlhorn/ftp/genWLpaper.pdf>`_
+      Journal of Machine Learning Research 1, 2010.
     """
 
     def __init__(self, max_iter=10000):
@@ -103,11 +113,10 @@ class WLColoring:
                     multiset[v].append(labels[1][u])
                 # 2
                 multiset[v].sort()
-                siv = ""
+                siv = [str(labels[1][v])]
                 for value in multiset[v]:
-                    siv += str(value)
-                siv = str(labels[1][v]) + siv
-                si.append((int(siv), v))
+                    siv.append(str(value))
+                si.append((int("".join(siv)), v))
 
             # 3
 
