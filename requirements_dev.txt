@@ -2,7 +2,7 @@
 pip==20.1.1
 
 # base dependencies
-numpy==1.18.5
+numpy==1.19.0
 scipy==1.4.1
 
 # tool to automatically change version number in the package upon release
@@ -24,7 +24,7 @@ twine==3.1.1
 Sphinx==3.1.1
 
 # base theme for the documentation website
-sphinx-rtd-theme==0.4.3
+sphinx-rtd-theme==0.5.0
 
 # used to produce doc from Jupyter notebooks (aka. tutorials)
 nbsphinx==0.7.1
