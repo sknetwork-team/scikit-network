@@ -35,10 +35,6 @@ cdef class IntArray:
 cdef class ListingBox:
 
     def __cinit__(self, vector[int] indptr, int k):
-        self.initBox(indptr, k)
-
-    # building the special graph structure
-    cdef void initBox(self, vector[int] indptr, int k):
         cdef int n = indptr.size() - 1
         cdef int i
         cdef int max_deg = 0
@@ -46,10 +42,12 @@ cdef class ListingBox:
         cdef IntArray deg
         cdef IntArray sub
 
-        cdef np.ndarray[int, ndim=1] ns
-        cdef np.ndarray[short, ndim=1] lab
+        cdef np.ndarray[int, ndim=1] ns = np.empty((k+1,), dtype=np.int32)
+        ns[k] = n
+        self.ns = ns
 
-        lab = np.full((n,), k, dtype=np.int16)
+        cdef np.ndarray[short, ndim=1] lab = np.full((n,), k, dtype=np.int16)
+        self.lab = lab
 
         deg = IntArray.__new__(IntArray, n)
         sub = IntArray.__new__(IntArray, n)
@@ -58,9 +56,6 @@ cdef class ListingBox:
             deg[i] = indptr[i+1] - indptr[i]
             max_deg = max(deg[i], max_deg)
             sub[i] = i
-
-        self.ns = np.empty((k+1,), dtype=np.int32)
-        self.ns[k] = n
 
         self.degrees = np.empty((k+1,), dtype=object)
         self.subs = np.empty((k+1,), dtype=object)
@@ -74,39 +69,35 @@ cdef class ListingBox:
             self.degrees[i] = deg
             self.subs[i] = sub
 
-        self.lab = lab
-
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef long fit_core(vector[int] indptr, vector[int] indices, int l, ListingBox box):
     cdef int n = indptr.size() - 1
-    cdef long n_cliques
+    cdef long n_cliques = 0
     cdef int i, j, k
     cdef int u, v, w
     cdef int cd
-    cdef IntArray sub_l, degre_l
-
-    n_cliques = 0
+    cdef IntArray sub_l, degree_l
 
     if l == 2:
-        degre_l = box.degrees[2]
+        degree_l = box.degrees[2]
         sub_l = box.subs[2]
         for i in range(box.ns[2]):
             j = sub_l[i]
-            n_cliques += degre_l[j]
+            n_cliques += degree_l[j]
 
         return n_cliques
 
     cdef IntArray deg_prevs, sub_prev
     sub_l = box.subs[l]
     sub_prev = box.subs[l-1]
-    degre_l = box.degrees[l]
+    degree_l = box.degrees[l]
     deg_prev = box.degrees[l-1]
     for i in range(box.ns[l]):
         u = sub_l[i]
         box.ns[l-1] = 0
-        cd = indptr[u] + degre_l[u]
+        cd = indptr[u] + degree_l[u]
         for j in range(indptr[u], cd):
             v = indices[j]
             if box.lab[v] == l:
@@ -117,7 +108,7 @@ cdef long fit_core(vector[int] indptr, vector[int] indices, int l, ListingBox bo
 
         for j in range(box.ns[l-1]):
             v = sub_prev[j]
-            cd = indptr[v] + degre_l[v]
+            cd = indptr[v] + degree_l[v]
             k = indptr[v]
             while k < cd:
                 w = indices[k]

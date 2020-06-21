@@ -15,6 +15,3 @@ cdef class ListingBox:
     cdef IntArray[:] degrees
     cdef IntArray[:] subs
     cdef short[:] lab
-
-    cdef void initBox(self, vector[int] indptr, int k)
-
