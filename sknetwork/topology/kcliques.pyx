@@ -34,11 +34,11 @@ cdef class IntArray:
 @cython.wraparound(False)
 cdef class ListingBox:
 
-    def __cinit__(self, vector[int] indptr, short k):
+    def __cinit__(self, vector[int] indptr, int k):
         self.initBox(indptr, k)
 
     # building the special graph structure
-    cdef void initBox(self, vector[int] indptr, short k):
+    cdef void initBox(self, vector[int] indptr, int k):
         cdef int n = indptr.size() - 1
         cdef int i
         cdef int max_deg = 0
@@ -79,7 +79,7 @@ cdef class ListingBox:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef long fit_core(vector[int] indptr, vector[int] indices, short l, ListingBox box):
+cdef long fit_core(vector[int] indptr, vector[int] indices, int l, ListingBox box):
     cdef int n = indptr.size() - 1
     cdef long n_cliques
     cdef int i, j, k
@@ -139,10 +139,15 @@ cdef long fit_core(vector[int] indptr, vector[int] indices, short l, ListingBox 
     return n_cliques
 
 
-class CliqueListing:
-    """ Clique listing algorithm which creates a DAG and list all cliques on it.
+class Cliques:
+    """ Clique counting algorithm.
 
     * Graphs
+
+    Parameters
+    ----------
+    k : int
+        k value of cliques to list
 
     Attributes
     ----------
@@ -151,31 +156,29 @@ class CliqueListing:
 
     Example
     -------
-    >>> from sknetwork.topology import CliqueListing
     >>> from sknetwork.data import karate_club
-    >>> cl = CliqueListing()
+    >>> cliques = Cliques(k=3)
     >>> adjacency = karate_club()
-    >>> cl.fit_transform(adjacency, 3)
+    >>> cliques.fit_transform(adjacency)
     45
     """
-    def __init__(self):
+    def __init__(self, k: int):
+        self.k = np.int32(k)
         self.n_cliques_ = 0
 
-    def fit(self, adjacency: sparse.csr_matrix, k : int) -> 'CliqueListing':
-        """ k-cliques listing.
+    def fit(self, adjacency: sparse.csr_matrix) -> 'Cliques':
+        """K-cliques count.
 
         Parameters
         ----------
-        adjacency:
+        adjacency :
             Adjacency matrix of the graph.
-        k:
-            k value of cliques to list
 
         Returns
         -------
-         self: :class:`CliqueListing`
+         self: :class:`Cliques`
         """
-        if k < 2:
+        if self.k < 2:
             raise ValueError("k should be at least 2")
 
         kcore = CoreDecomposition()
@@ -187,13 +190,12 @@ class CliqueListing:
         indptr = dag.indptr_
         indices = dag.indices_
 
-        box = ListingBox.__new__(ListingBox, indptr, k)
-
-        self.n_cliques_ = fit_core(indptr, indices, k, box)
+        box = ListingBox.__new__(ListingBox, indptr, self.k)
+        self.n_cliques_ = fit_core(indptr, indices, self.k, box)
 
         return self
 
-    def fit_transform(self, *args, **kwargs) -> int:
+    def fit_transform(self, adjacency: sparse.csr_matrix) -> int:
         """ Fit algorithm to the data and return the number of cliques. Same parameters as the ``fit`` method.
 
         Returns
@@ -201,7 +203,7 @@ class CliqueListing:
         n_cliques : int
             Number of k-cliques.
         """
-        self.fit(*args, **kwargs)
+        self.fit(adjacency)
         return self.n_cliques_
 
 

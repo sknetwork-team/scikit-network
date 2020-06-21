@@ -16,5 +16,5 @@ cdef class ListingBox:
     cdef IntArray[:] subs
     cdef short[:] lab
 
-    cdef void initBox(self, vector[int] indptr, short k)
+    cdef void initBox(self, vector[int] indptr, int k)
 
