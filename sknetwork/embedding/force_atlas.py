@@ -42,21 +42,12 @@ class ForceAtlas2(BaseEmbedding):
             adjacency = directed2undirected(adjacency)
         n = adjacency.shape[0]
 
-        position = np.random.randn(n,2)
+        position = np.random.randn(n, 2)
 
         if n_iter is None:
             n_iter = self.n_iter
 
-        deg = np.ones(n, 1)
-        for i in range(n):
-            indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
-            deg[i] *= len(indices)
-
-        deg_matrix = np.zeros(n)
-        for i in range(n):
-            indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
-            for j in indices:
-                deg_matrix[i][j] = (deg[i]+1)*(deg[j]+1)
+        deg = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
         delta_x: float = position[:, 0].max() - position[:, 0].min()  # max variation /x
         delta_y: float = position[:, 1].max() - position[:, 1].min()  # max variation /y
@@ -75,9 +66,7 @@ class ForceAtlas2(BaseEmbedding):
                 attraction = np.zeros(n)
                 attraction[indices] = distance[indices]  # change attraction of connected nodes
 
-                repulsion = np.zeros(n, 1)
-                for j in range(len(indices)):
-                    repulsion[j] = 1 * deg_matrix[i][j] / distance[j]
+                repulsion = (deg[i] + 1) * deg / distance
 
                 delta[i]: np.ndarray = (grad * (repulsion - attraction)[:, np.newaxis]).sum(axis=0)  # shape (2,)
             delta = delta * step_max
