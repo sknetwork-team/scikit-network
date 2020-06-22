@@ -15,11 +15,6 @@ from sknetwork.utils.base import Algorithm
 class WLColoring(Algorithm):
     """Weisefeler-Lehman algorithm for coloring/labeling graphs in order to check similarity.
 
-    Parameters
-    ----------
-    max_iter : int
-        Maximum number of iterations.
-
     Attributes
     ----------
     labels_ : np.ndarray
@@ -48,10 +43,9 @@ class WLColoring(Algorithm):
       Journal of Machine Learning Research 1, 2010.
     """
 
-    def __init__(self, max_iter=10000):
+    def __init__(self):
         super(WLColoring, self).__init__()
 
-        self.max_iter = max_iter
         self.labels_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'WLColoring':
@@ -78,7 +72,7 @@ class WLColoring(Algorithm):
         labels[0] = adjacency.indptr[1:] - adjacency.indptr[:-1]
         i = 1
 
-        while i < self.max_iter and (labels[1] != labels[0]).any():
+        while i < n and (labels[1] != labels[0]).any():
             multiset = [[] for _ in range(n)]
             labels[1] = np.copy(labels[0])
             long_label = []
