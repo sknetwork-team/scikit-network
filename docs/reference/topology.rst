@@ -25,3 +25,7 @@ Listing
 
 .. autofunction:: sknetwork.topology.CliqueListing
 
+Coloring
+--------
+
+.. autoclass:: sknetwork.topology.WLColoring

@@ -13,12 +13,15 @@ from scipy import sparse
 class WLColoring:
     """Weisefeler-Lehman algorithm for coloring/labeling graphs in order to check similarity.
 
+    Parameters
+    ----------
+    max_iter : int
+        Maximum number of iterations.
+
     Attributes
     ----------
     labels_ : np.ndarray
         Label of each node.
-    max_iter :
-        Maximum number of iterations of the algorithm
 
     Example
     -------
@@ -36,7 +39,6 @@ class WLColoring:
        <https://arxiv.org/pdf/1101.5211.pdf>`_
        Cornell University.
 
-       https://people.mpi-inf.mpg.de/~mehlhorn/ftp/genWLpaper.pdf
 
     * Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Melhorn, K., Borgwardt, K. M. (2010)
       'Weisfeiler-Lehman graph kernels.
@@ -45,34 +47,9 @@ class WLColoring:
     """
 
     def __init__(self, max_iter=10000):
-        """Constructor
-        Parameters
-        ----------
-        max_iter :
-            Maximum number of iterations.
-        """
 
         self.max_iter = max_iter
         self.labels_ = None
-
-    def neighborhood(self, adjacency: Union[sparse.csr_matrix, np.ndarray], v: int):
-        """Returns the vertices adjacent to vertice v
-
-        Parameters
-        ----------
-        adjacency :
-            Adjacency matrix of the graph.
-        v :
-            Vertice of which we want to know the neighborhood
-        Returns
-        -------
-        neighbors :
-            Array of the neighborhood of v.
-        """
-
-        neighbors = (adjacency.getrow(v)).nonzero()[1]
-
-        return neighbors
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'WLColoring':
         """Fit algorithm to the data.
@@ -93,15 +70,15 @@ class WLColoring:
         # Creating the adjacency list.
         neighbors = []
         for v in range(n):
-            neighbors.append(self.neighborhood(adjacency, v))
+            neighbors.append(adjacency.indices[adjacency.indptr[v]: adjacency.indptr[v+1]])
 
         # labels[0] denotes the array of the labels at the i-th iteration.
         # labels[1] denotes the array of the labels at the i-1-th iteration
         labels = [[], []]
         labels[1] = np.zeros(n)
-        labels[0] = np.zeros(n)
+        labels[0] = adjacency.indptr[1:] - adjacency.indptr[:-1] #initializing with the degree of each vertex
         i = 1
-        labels[0] = [len(neighbors[v]) for v in range(n)]
+
         while i < self.max_iter and (labels[1] != labels[0]).any():
             multiset = [[] for _ in range(n)]
             labels[1] = np.copy(labels[0])
