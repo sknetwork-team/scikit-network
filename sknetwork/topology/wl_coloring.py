@@ -48,6 +48,39 @@ class WLColoring(Algorithm):
 
         self.labels_ = None
 
+    def counting_sort(self, n, multiset_v):
+        """Sorts an array by using counting sort, variant of bucket sort.
+
+        Parameters
+        ----------
+        n :
+            The size (number of nodes) of the graph.
+
+        multiset_v :
+            The array to be sorted.
+
+
+        Returns
+        -------
+        sorted_multiset :
+            The sorted array.
+        """
+
+        sorted_multiset = [0 for _ in range(len(multiset_v))]
+        count = [0 for _ in range(n)]
+        for i in multiset_v:
+            count[i] += 1
+
+        total = 0
+        for i in range(n):
+            count[i], total = total, count[i] + total
+
+        for i in range(len(multiset_v)):
+            sorted_multiset[count[multiset_v[i]]] = multiset_v[i]
+            count[multiset_v[i]] += 1
+
+        return sorted_multiset
+
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'WLColoring':
         """Fit algorithm to the data.
 
@@ -63,7 +96,6 @@ class WLColoring(Algorithm):
         """
 
         n = adjacency.shape[0]
-
         # labels[0] denotes the array of the labels at the i-th iteration.
         # labels[1] denotes the array of the labels at the i-1-th iteration.
         labels = [[], []]
@@ -83,7 +115,8 @@ class WLColoring(Algorithm):
                 for u in adjacency.indices[adjacency.indptr[v]: adjacency.indptr[v + 1]]:
                     multiset[v].append(labels[1][u])
                 # 2
-                multiset[v].sort()
+                multiset[v] = self.counting_sort(n, multiset[v])
+
                 long_label_v = [str(labels[1][v])]
                 for value in multiset[v]:
                     long_label_v.append(str(value))
