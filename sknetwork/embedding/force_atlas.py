@@ -23,7 +23,7 @@ class Force_atlas(BaseEmbedding):
         self.n_iter = n_iter
         self.tol = tol
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None) -> 'Spring':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None) -> 'Force_atlas':
         adjacency = check_format(adjacency)
         check_square(adjacency)
         if not is_symmetric(adjacency):
