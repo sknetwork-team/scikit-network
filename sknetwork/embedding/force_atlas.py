@@ -15,22 +15,48 @@ from sknetwork.utils import directed2undirected
 from sknetwork.utils.check import check_format, is_symmetric, check_square
 
 
-class forceAtlas2(BaseEmbedding):
+class ForceAtlas2(BaseEmbedding):
 
     def __init__(self, n_iter: int = 50):
-        super(forceAtlas2, self).__init__()
+        super(ForceAtlas2, self).__init__()
+        self.n_iter = n_iter
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None) -> 'forceAtlas2':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None) -> 'ForceAtlas2':
+        """Compute layout.
+
+        Parameters
+        ----------
+        adjacency :
+            Adjacency matrix of the graph, treated as undirected.
+        n_iter : int
+            Number of iterations to update positions.
+            If ``None``, use the value of self.n_iter.
+
+        Returns
+        -------
+        self: :class:`ForceAtlas2`
+        """
         adjacency = check_format(adjacency)
         check_square(adjacency)
         if not is_symmetric(adjacency):
             adjacency = directed2undirected(adjacency)
         n = adjacency.shape[0]
 
-        position = np.zeros((n, 2))
+        position = np.random.randn(n,2)
 
         if n_iter is None:
             n_iter = self.n_iter
+
+        deg = np.ones(n, 1)
+        for i in range(n):
+            indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
+            deg[i] *= len(indices)
+
+        deg_matrix = np.zeros(n)
+        for i in range(n):
+            indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
+            for j in indices:
+                deg_matrix[i][j] = (deg[i]+1)*(deg[j]+1)
 
         delta_x: float = position[:, 0].max() - position[:, 0].min()  # max variation /x
         delta_y: float = position[:, 1].max() - position[:, 1].min()  # max variation /y
@@ -42,15 +68,16 @@ class forceAtlas2(BaseEmbedding):
             delta *= 0
             for i in range(n):
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
-                data = adjacency.data[adjacency.indptr[i]:adjacency.indptr[i + 1]]
 
                 grad: np.ndarray = (position[i] - position)  # shape (n, 2)
                 distance: np.ndarray = np.linalg.norm(grad, axis=1)  # shape (n,)
 
                 attraction = np.zeros(n)
-                attraction[indices] += data * distance[indices]  # change attraction of connected nodes
+                attraction[indices] = distance[indices]  # change attraction of connected nodes
 
-                repulsion = (1 / distance)
+                repulsion = np.zeros(n, 1)
+                for j in range(len(indices)):
+                    repulsion[j] = 1 * deg_matrix[i][j] / distance[j]
 
                 delta[i]: np.ndarray = (grad * (repulsion - attraction)[:, np.newaxis]).sum(axis=0)  # shape (2,)
             delta = delta * step_max
