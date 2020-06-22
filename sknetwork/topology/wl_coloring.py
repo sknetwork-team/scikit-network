@@ -1,0 +1,154 @@
+"""
+Created on June 19, 2020
+@author: Pierre Pebereau <pierre.pebereau@telecom-paris.fr>
+@author: Alexis Barreaux <alexis.barreaux@telecom-paris.fr>
+"""
+
+from typing import Union
+
+import numpy as np
+from scipy import sparse
+
+from sknetwork.utils.base import Algorithm
+
+
+class WLColoring(Algorithm):
+    """Weisefeler-Lehman algorithm for coloring/labeling graphs in order to check similarity.
+
+    Attributes
+    ----------
+    labels_ : np.ndarray
+        Label of each node.
+
+    Example
+    -------
+    >>> from sknetwork.topology import WLColoring
+    >>> from sknetwork.data import karate_club
+    >>> wlcoloring = WLColoring()
+    >>> adjacency = karate_club()
+    >>> labels = wlcoloring.fit_transform(adjacency)
+
+
+    References
+    ----------
+    * Douglas, B. L. (2011).
+      'The Weisfeiler-Lehman Method and Graph Isomorphism Testing.
+      <https://arxiv.org/pdf/1101.5211.pdf>`_
+      Cornell University.
+
+
+    * Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Melhorn, K., Borgwardt, K. M. (2010)
+      'Weisfeiler-Lehman graph kernels.
+      <https://people.mpi-inf.mpg.de/~mehlhorn/ftp/genWLpaper.pdf>`_
+      Journal of Machine Learning Research 1, 2010.
+    """
+
+    def __init__(self):
+        super(WLColoring, self).__init__()
+
+        self.labels_ = None
+
+    def counting_sort(self, n, multiset_v):
+        """Sorts an array by using counting sort, variant of bucket sort.
+
+        Parameters
+        ----------
+        n :
+            The size (number of nodes) of the graph.
+
+        multiset_v :
+            The array to be sorted.
+
+
+        Returns
+        -------
+        sorted_multiset :
+            The sorted array.
+        """
+
+        sorted_multiset = [0 for _ in range(len(multiset_v))]
+        count = [0 for _ in range(n)]
+        for i in multiset_v:
+            count[i] += 1
+
+        total = 0
+        for i in range(n):
+            count[i], total = total, count[i] + total
+
+        for i in range(len(multiset_v)):
+            sorted_multiset[count[multiset_v[i]]] = multiset_v[i]
+            count[multiset_v[i]] += 1
+
+        return sorted_multiset
+
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'WLColoring':
+        """Fit algorithm to the data.
+
+        Parameters
+        ----------
+        adjacency :
+            Adjacency matrix of the graph.
+
+
+        Returns
+        -------
+        self: :class:`WLColoring`
+        """
+
+        n = adjacency.shape[0]
+        # labels[0] denotes the array of the labels at the i-th iteration.
+        # labels[1] denotes the array of the labels at the i-1-th iteration.
+        labels = [[], []]
+        labels[1] = np.zeros(n)
+        # initializing with the degree of each vertex.
+        labels[0] = adjacency.indptr[1:] - adjacency.indptr[:-1]
+        i = 1
+
+        while i < n and (labels[1] != labels[0]).any():
+            multiset = [[] for _ in range(n)]
+            labels[1] = np.copy(labels[0])
+            long_label = []
+
+            for v in range(n):
+                # 1
+                # going through the neighbors of v.
+                for u in adjacency.indices[adjacency.indptr[v]: adjacency.indptr[v + 1]]:
+                    multiset[v].append(labels[1][u])
+                # 2
+                multiset[v] = self.counting_sort(n, multiset[v])
+
+                long_label_v = [str(labels[1][v])]
+                for value in multiset[v]:
+                    long_label_v.append(str(value))
+                long_label.append((int("".join(long_label_v)), v))
+
+            # 3
+
+            long_label.sort(key=lambda x: x[0])  # sort along first axis
+
+            new_hash = {}
+            current_max = 0
+            for (long_label_v, v) in long_label:
+                if not (long_label_v in new_hash):
+                    new_hash[long_label_v] = current_max
+                    current_max += 1
+                #  4
+
+                labels[0][int(v)] = new_hash[long_label_v]
+
+            i += 1
+
+        self.labels_ = labels[0]
+
+        return self
+
+    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
+
+        Returns
+        -------
+        labels : np.ndarray
+            Labels.
+        """
+        self.fit(*args, **kwargs)
+        return self.labels_
