@@ -20,61 +20,92 @@ cimport cython
 
 cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr) :
     cdef int n = indptr.shape[0] - 1
-
-    # labels_i denotes the array of the labels at the i-th iteration.
-    # labels_i_1 denotes the array of the labels at the i-1-th iteration.
-    DTYPE = np.int32
-    labels = np.zeros(n, dtype = np.int32)
-    cdef int[:]  labels_i = np.ones(n, dtype = DTYPE)
-    cdef int[:]  labels_i_1 = np.zeros(n, dtype = DTYPE)
-
-   # cdef int[:]  degres = np.array(indptr[1:]) - np.array(indptr[:-1])
-
-    cdef np.ndarray multiset = np.zeros((n,n), dtype = DTYPE)
-
-    long_label = [ (0,0) for _ in range(n)]
-
-
     cdef int i = 1
     cdef int u = 0
+    cdef int j = 0
     cdef int current_max = 0
-    cdef j = 0
-    while i < n and (np.array(labels_i_1) != np.array(labels_i)).any() :
 
-        labels_i_1 = np.copy(labels_i) #Perf : ne pas utiliser copy? echanger les addresses ?
-        labels_i = np.zeros(n, dtype = DTYPE)
+    cdef str temp_string
+
+    # labels denotes the array of the labels at the i-th iteration.
+    # labels_previous denotes the array of the labels at the i-1-th iteration.
+    DTYPE = np.int32
+    cdef int[:] labels = np.ones(n, dtype = DTYPE)
+    cdef int[:] labels_previous = np.zeros(n, dtype = DTYPE)
+
+    cdef np.ndarray long_label = np.zeros((n, 2), dtype=DTYPE)
+    cdef np.ndarray multiset = np.zeros(n, dtype = DTYPE)
+
+    while i < n and (np.array(labels_previous) != np.array(labels)).any() :
+        labels_previous = np.copy(labels) #Perf : ne pas utiliser copy? echanger les addresses ?
+        labels = np.zeros(n, dtype = DTYPE)
 
         for v in range(n):
             # 1
             # going through the neighbors of v.
             j = 0
             for u in indices[indptr[v]: indptr[v + 1]]:
-                multiset[v][j] = labels_i_1[u]
+                multiset[j] = labels_previous[u]
                 j+=1
 
             # 2
-            multiset[v] =  (np.sort(multiset[v]))
-            temp_string = str(labels_i_1[v])
-            for num in multiset[v] :
+            multiset =  (np.sort(multiset))
+            temp_string = str(labels_previous[v])
+            for num in multiset :
                 temp_string+=str(num)
-            long_label[v] = (temp_string, v) #Efficace ?
+            j = int(temp_string)  #j is unused later on and will be reseted
+            long_label[v] = np.array([j, v])
+
+            multiset = np.zeros(n, dtype = DTYPE) #reseting multiset
         # 3
-        long_label.sort(key=lambda x: x[0])  # sort along first axis
+        long_label = long_label[long_label[:,0].argsort()]#.sort(key=lambda x: x[0])  # sort along first axis
         new_hash = {}
         current_max = 0
-        for (long_label_v, v) in long_label:
-            if not (long_label_v in new_hash):
-                new_hash[long_label_v] = current_max
+
+        for j in range(n):
+            if not (long_label[j][0] in new_hash):
+                new_hash[long_label[j][0]] = current_max
                 current_max += 1
             #  4
-
-            labels_i[int(v)] = new_hash[long_label_v]
+            labels[long_label[j][1]] = new_hash[long_label[j][0]]
         i += 1
-
-    labels = labels_i
 
     return labels
 
+cdef int[:,:] counting_sort(n, multiset_v):
+    """Sorts an array by using counting sort, variant of bucket sort.
+
+    Parameters
+    ----------
+    n :
+        The size (number of nodes) of the graph.
+
+    multiset_v :
+        The array to be sorted.
+
+
+    Returns
+    -------
+    sorted_multiset :
+        The sorted array.
+    """
+
+    cdef int total = 0
+    cdef int i
+    cdef int[:] count = [0 for _ in range(n)]
+    cdef int[:,:] sorted_multiset = [0 for _ in range(len(multiset_v))]
+
+    for i in multiset_v:
+        count[i] += 1
+
+    for i in range(n):
+        count[i], total = total, count[i] + total
+
+    for i in range(len(multiset_v)):
+        sorted_multiset[count[multiset_v[i]]] = multiset_v[i]
+        count[multiset_v[i]] += 1
+
+    return sorted_multiset
 
 
 
@@ -152,4 +183,4 @@ class WLColoring(Algorithm):
             Labels.
         """
         self.fit(*args, **kwargs)
-        return self.labels_
+        return np.asarray(self.labels_)
