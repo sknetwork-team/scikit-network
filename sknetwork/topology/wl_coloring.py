@@ -11,6 +11,7 @@ from scipy import sparse
 
 from sknetwork.utils.base import Algorithm
 
+
 class WLColoring(Algorithm):
     """Weisefeler-Lehman algorithm for coloring/labeling graphs in order to check similarity.
 
@@ -69,16 +70,12 @@ class WLColoring(Algorithm):
 
         n = adjacency.shape[0]
 
-        # Creating the adjacency list.
-        neighbors = []
-        for v in range(n):
-            neighbors.append(adjacency.indices[adjacency.indptr[v]: adjacency.indptr[v+1]])
-
         # labels[0] denotes the array of the labels at the i-th iteration.
-        # labels[1] denotes the array of the labels at the i-1-th iteration
+        # labels[1] denotes the array of the labels at the i-1-th iteration.
         labels = [[], []]
         labels[1] = np.zeros(n)
-        labels[0] = adjacency.indptr[1:] - adjacency.indptr[:-1] #initializing with the degree of each vertex
+        # initializing with the degree of each vertex.
+        labels[0] = adjacency.indptr[1:] - adjacency.indptr[:-1]
         i = 1
 
         while i < self.max_iter and (labels[1] != labels[0]).any():
@@ -88,7 +85,8 @@ class WLColoring(Algorithm):
 
             for v in range(n):
                 # 1
-                for u in neighbors[v]:
+                # going through the neighbors of v.
+                for u in adjacency.indices[adjacency.indptr[v]: adjacency.indptr[v + 1]]:
                     multiset[v].append(labels[1][u])
                 # 2
                 multiset[v].sort()

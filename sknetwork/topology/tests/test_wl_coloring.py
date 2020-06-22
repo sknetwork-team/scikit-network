@@ -6,7 +6,8 @@ import unittest
 
 from sknetwork.topology import WLColoring
 from sknetwork.data.test_graphs import *
-from sknetwork.data import house
+from sknetwork.data import house, bow_tie
+
 
 class TestWLColoring(unittest.TestCase):
 
@@ -24,3 +25,8 @@ class TestWLColoring(unittest.TestCase):
         adjacency = house()
         labels = WLColoring().fit(adjacency).labels_
         self.assertEqual(labels, np.array([1, 2, 0, 0, 2]))
+
+    def test_bow_tie(self):
+        adjacency = bow_tie()
+        labels = WLColoring().fit(adjacency).labels_
+        self.assertEqual(labels, np.array([1, 0, 0, 0, 0]))
