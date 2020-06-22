@@ -26,7 +26,7 @@ class WLColoring(Algorithm):
     >>> from sknetwork.data import karate_club
     >>> wlcoloring = WLColoring()
     >>> adjacency = karate_club()
-    >>> labels = wlcoloring.fit(adjacency).labels_
+    >>> labels = wlcoloring.fit_transform(adjacency)
 
 
     References
@@ -108,3 +108,14 @@ class WLColoring(Algorithm):
         self.labels_ = labels[0]
 
         return self
+
+    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
+
+        Returns
+        -------
+        labels : np.ndarray
+            Labels.
+        """
+        self.fit(*args, **kwargs)
+        return self.labels_

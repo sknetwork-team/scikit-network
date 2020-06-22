@@ -13,20 +13,20 @@ class TestWLColoring(unittest.TestCase):
 
     def test_empty(self):
         adjacency = test_graph_empty()
-        labels = WLColoring().fit(adjacency).labels_
+        labels = WLColoring().fit_transform(adjacency)
         self.assertTrue((labels == np.zeros(10)).all())
 
     def test_cliques(self):
         adjacency = test_graph_clique()
-        labels = WLColoring().fit(adjacency).labels_
+        labels = WLColoring().fit_transform(adjacency)
         self.assertTrue((labels == np.zeros(10)).all())
 
     def test_house(self):
         adjacency = house()
-        labels = WLColoring().fit(adjacency).labels_
+        labels = WLColoring().fit_transform(adjacency)
         self.assertTrue((labels == np.array([1, 2, 0, 0, 2])).all())
 
     def test_bow_tie(self):
         adjacency = bow_tie()
-        labels = WLColoring().fit(adjacency).labels_
+        labels = WLColoring().fit_transform(adjacency)
         self.assertTrue((labels == np.array([1, 0, 0, 0, 0])).all())
