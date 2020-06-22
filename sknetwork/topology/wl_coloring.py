@@ -9,8 +9,9 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
+from sknetwork.utils.base import Algorithm
 
-class WLColoring:
+class WLColoring(Algorithm):
     """Weisefeler-Lehman algorithm for coloring/labeling graphs in order to check similarity.
 
     Parameters
@@ -82,7 +83,7 @@ class WLColoring:
         while i < self.max_iter and (labels[1] != labels[0]).any():
             multiset = [[] for _ in range(n)]
             labels[1] = np.copy(labels[0])
-            si = []
+            long_label = []
 
             for v in range(n):
                 # 1
@@ -90,24 +91,24 @@ class WLColoring:
                     multiset[v].append(labels[1][u])
                 # 2
                 multiset[v].sort()
-                siv = [str(labels[1][v])]
+                long_label_v = [str(labels[1][v])]
                 for value in multiset[v]:
-                    siv.append(str(value))
-                si.append((int("".join(siv)), v))
+                    long_label_v.append(str(value))
+                long_label.append((int("".join(long_label_v)), v))
 
             # 3
 
-            si.sort(key=lambda x: x[0])  # sort along first axis
+            long_label.sort(key=lambda x: x[0])  # sort along first axis
 
             new_hash = {}
             current_max = 0
-            for (siv, v) in si:
-                if not (siv in new_hash):
-                    new_hash[siv] = current_max
+            for (long_label_v, v) in long_label:
+                if not (long_label_v in new_hash):
+                    new_hash[long_label_v] = current_max
                     current_max += 1
                 #  4
 
-                labels[0][int(v)] = new_hash[siv]
+                labels[0][int(v)] = new_hash[long_label_v]
 
             i += 1
 
