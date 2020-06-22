@@ -48,6 +48,7 @@ class WLColoring(Algorithm):
     """
 
     def __init__(self, max_iter=10000):
+        super(WLColoring, self).__init__()
 
         self.max_iter = max_iter
         self.labels_ = None
