@@ -152,6 +152,13 @@ class Cliques:
     >>> adjacency = karate_club()
     >>> cliques.fit_transform(adjacency)
     45
+
+    References
+    ----------
+    Danisch, M., Balalau, O., & Sozio, M. (2018, April).
+    `Listing k-cliques in sparse real-world graphs.
+    <https://dl.acm.org/doi/pdf/10.1145/3178876.3186125>`_
+    In Proceedings of the 2018 World Wide Web Conference (pp. 589-598).
     """
     def __init__(self, k: int):
         self.k = np.int32(k)

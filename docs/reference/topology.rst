@@ -23,5 +23,5 @@ Listing
 
 .. autofunction:: sknetwork.topology.Triangles
 
-.. autofunction:: sknetwork.topology.CliqueListing
+.. autofunction:: sknetwork.topology.Cliques
 
