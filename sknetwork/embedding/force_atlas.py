@@ -5,8 +5,15 @@ Created on Jun 2020
 @author: Victor Manach <victor.manach@telecom-paris.fr>
 @author: Rémi Jaylet <remi.jaylet@telecom-paris.fr>
 """
+from typing import Optional, Union
+
+import numpy as np
+from scipy import sparse
 
 from sknetwork.embedding.base import BaseEmbedding
+from sknetwork.utils import directed2undirected
+from sknetwork.utils.check import check_format, is_symmetric, check_square
+
 
 class Force_atlas(BaseEmbedding):
 
@@ -16,4 +23,12 @@ class Force_atlas(BaseEmbedding):
         self.n_iter = n_iter
         self.tol = tol
 
-    
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None) -> 'Spring':
+        adjacency = check_format(adjacency)
+        check_square(adjacency)
+        if not is_symmetric(adjacency):
+            adjacency = directed2undirected(adjacency)
+        n = adjacency.shape[0]
+
+        position = np.zeros((n, 2))
+
