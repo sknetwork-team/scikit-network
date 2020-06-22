@@ -33,8 +33,8 @@ class WLColoring(Algorithm):
     ----------
     * Douglas, B. L. (2011).
       'The Weisfeiler-Lehman Method and Graph Isomorphism Testing.
-       <https://arxiv.org/pdf/1101.5211.pdf>`_
-       Cornell University.
+      <https://arxiv.org/pdf/1101.5211.pdf>`_
+      Cornell University.
 
 
     * Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Melhorn, K., Borgwardt, K. M. (2010)
