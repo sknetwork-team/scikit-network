@@ -18,30 +18,31 @@ from sknetwork.utils.base import Algorithm
 
 cimport cython
 
-cdef void c_wl_coloring(np.int32_t[:] indices, np.int32_t[:] indptr, np.int32_t[:]  labels) :
+cdef void c_wl_coloring(int[:] indices, int[:] indptr, int[:]  labels) :
     cdef int n = indptr.shape[0] - 1
 
     # labels_i denotes the array of the labels at the i-th iteration.
     # labels_i_1 denotes the array of the labels at the i-1-th iteration.
-    DTYPE = indices.dtype
-    cdef np.int32_t[:]  labels_i = np.zeros(n, dtype = DTYPE)
-    cdef np.int32_t[:]  labels_i_1 = np.zeros(n, dtype = DTYPE)
+    DTYPE = np.int32
+    cdef int[:]  labels_i = np.ones(n, dtype = DTYPE)
+    cdef int[:]  labels_i_1 = np.zeros(n, dtype = DTYPE)
 
-    cdef np.int32_t[:]  degres = np.array(indptr[1:]) - np.array(indptr[:-1])
+   # cdef int[:]  degres = np.array(indptr[1:]) - np.array(indptr[:-1])
 
-    cdef np.int32_t[:,:]  multiset = [  np.zeros(degres[v], dtype = DTYPE) for v in range(n)  ]
+    cdef int[:,:]  multiset = np.zeros((n,n), dtype = DTYPE)
 
 
 
-    cdef np.int32_t[:,:]  long_label = np.zeros((n,2), dtype = DTYPE)
+    long_label = [ (0,0) for _ in range(n)]
 
 
     cdef int i = 1
     cdef int u = 0
 
-    while i < n and (labels_i_1 != labels_i).any() :
+    while i < n and (np.array(labels_i_1) != np.array(labels_i)).any() :
 
-        labels_i = np.copy(labels_i_1) #Perf : ne pas utiliser copy? echanger les addresses ?
+        labels_i_1 = np.copy(labels_i) #Perf : ne pas utiliser copy? echanger les addresses ?
+        labels_i = np.zeros(n, dtype = DTYPE)
 
 
         for v in range(n):
@@ -53,7 +54,7 @@ cdef void c_wl_coloring(np.int32_t[:] indices, np.int32_t[:] indptr, np.int32_t[
                 j+=1
 
             # 2
-            multiset[v].sort() #TODO Tri par paquet
+            multiset[v]=np.array(multiset[v]).sort() #TODO Tri par paquet
 
             long_label[v] = (int( str(labels_i_1[v]) + "".join(multiset[v])), v) #Efficace ?
 
@@ -74,7 +75,8 @@ cdef void c_wl_coloring(np.int32_t[:] indices, np.int32_t[:] indptr, np.int32_t[
         i += 1
 
     labels = labels_i
-
+    print(np.array(labels))
+    print(i)
     return
 
 
@@ -132,12 +134,14 @@ class WLColoring(Algorithm):
         self: :class:`WLColoring`
         """
 
-        cdef np.int32_t[:]  indices = adjacency.indices
-        cdef np.int32_t[:]  indptr = adjacency.indptr
+        indices = adjacency.indices
+        indptr = adjacency.indptr
 
-        DTYPE = indices.dtype
 
-        cdef np.int32_t[:]  labels = np.zeros(indptr.shape[0] - 1, dtype = DTYPE)
+        n = indptr.shape[0] - 1
+
+        self.labels_ = np.zeros(n, dtype = np.int32)
+
         c_wl_coloring(indices,  indptr, self.labels_)
 
 
