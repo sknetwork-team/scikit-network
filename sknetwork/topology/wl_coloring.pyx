@@ -18,7 +18,7 @@ from sknetwork.utils.base import Algorithm
 
 cimport cython
 
-cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter) :
+cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarray[int, ndim=1] input_labels) :
     DTYPE = np.int32
     cdef int n = indptr.shape[0] - 1
     cdef int iteration = 1
@@ -45,7 +45,7 @@ cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter) :
     cdef np.ndarray multiset
 
 
-    labels_new = np.ones(n, dtype = DTYPE)
+    labels_new = np.ones(n, dtype = DTYPE) if input_labels is None else input_labels
     labels_old = np.zeros(n, dtype = DTYPE)
     degres = np.array(indptr[1:]) - np.array(indptr[:-1])
     large_label = np.zeros((n, 2), dtype=DTYPE)
@@ -179,13 +179,16 @@ class WLColoring(Algorithm):
         self.max_iter = max_iter
         self.labels_ = None
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'WLColoring':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], input_labels : Union[sparse.csr_matrix, np.ndarray] = None) -> 'WLColoring':
         """Fit algorithm to the data.
 
         Parameters
         ----------
         adjacency :
             Adjacency matrix of the graph.
+
+        input_labels :
+            Input labels if the user wants to start with a specific input state.
 
         Returns
         -------
@@ -195,12 +198,12 @@ class WLColoring(Algorithm):
         indices = adjacency.indices
         indptr = adjacency.indptr
 
-        self.labels_ = c_wl_coloring(indices, indptr, self.max_iter)
+        self.labels_ = c_wl_coloring(indices, indptr, self.max_iter, input_labels)
 
 
         return self
 
-    def fit_transform(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
+    def fit_transform(self, adjacency: Union[sparse.csr_matrix, np.ndarray], input_labels : Union[sparse.csr_matrix, np.ndarray] = None) -> np.ndarray:
         """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
 
         Returns
@@ -208,5 +211,5 @@ class WLColoring(Algorithm):
         labels : np.ndarray
             Labels.
         """
-        self.fit(adjacency)
+        self.fit(adjacency, input_labels)
         return np.asarray(self.labels_)
