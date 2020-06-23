@@ -93,8 +93,8 @@ class ForceAtlas2(BaseEmbedding):
 
                 forces_for_each_node[i] = force  # force resultant update
 
-                delta[i]: np.ndarray = node_speed * force
-                #delta[i]: np.ndarray = (grad * (repulsion - attraction)[:, np.newaxis]).sum(axis=0)  # shape (2,)
+                # delta[i]: np.ndarray = node_speed * force
+                delta[i]: np.ndarray = (grad * node_speed * (repulsion - attraction)[:, np.newaxis]).sum(axis=0)  # shape (2,)
             length = np.linalg.norm(delta, axis=0)
             length = np.where(length < 0.01, 0.1, length)
             delta = delta * step_max / length  # normalisation of distance between nodes
