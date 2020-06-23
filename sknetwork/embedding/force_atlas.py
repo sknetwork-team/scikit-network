@@ -42,6 +42,13 @@ class ForceAtlas2(BaseEmbedding):
             adjacency = directed2undirected(adjacency)
         n = adjacency.shape[0]
 
+        if n < 5000:
+            tolerance = 0.1
+        elif 5000 < n < 50000:
+            tolerance = 1
+        else:
+            tolerance = 10
+
         position = np.random.randn(n, 2)
 
         if n_iter is None:
@@ -55,8 +62,14 @@ class ForceAtlas2(BaseEmbedding):
         step: float = step_max / (n_iter + 1)  # definition of step
 
         delta = np.zeros((n, 2))  # initialization of variation of position of nodes
+        global_swing = 0
+        global_traction = 0
+        forces_for_each_node = np.zeros(n)
+        swing_vector = np.zeros(n)
         for iteration in range(n_iter):
             delta *= 0
+            global_swing *= 0
+            global_traction *= 0
             for i in range(n):
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
 
@@ -69,12 +82,33 @@ class ForceAtlas2(BaseEmbedding):
 
                 repulsion = 0.01 * (deg[i] + 1) * deg / distance
 
-                delta[i]: np.ndarray = (grad * (repulsion - attraction)[:, np.newaxis]).sum(axis=0)  # shape (2,)
+                force = (repulsion - attraction).sum()
+
+                swing_node = np.abs(force - forces_for_each_node[i])
+
+                swing_vector[i] = swing_node
+
+                traction = np.abs(force + forces_for_each_node) / 2
+
+                global_swing += (deg[i] + 1) * swing_node
+
+                global_traction += (deg[i] + 1) * traction
+
+                global_speed = tolerance * global_traction / global_swing
+
+                node_speed = 1 * global_speed / (1 + global_speed * np.sqrt(swing_node))
+
+                forces_for_each_node[i] = force
+
+                delta[i]: np.ndarray = node_speed * force
+                #delta[i]: np.ndarray = (grad * (repulsion - attraction)[:, np.newaxis]).sum(axis=0)  # shape (2,)
             length = np.linalg.norm(delta, axis=0)
             length = np.where(length < 0.01, 0.1, length)
             delta = delta * step_max / length
             position += delta
             step_max -= step
+            if swing_vector.all() < 0.01:
+                break
 
         self.embedding_ = position
         return self
