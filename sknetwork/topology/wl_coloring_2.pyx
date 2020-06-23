@@ -19,7 +19,7 @@ from sknetwork.utils.base import Algorithm
 
 cimport cython
 
-cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarray[int, ndim=1] input_labels) :
+cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarray[int, ndim=1] input_labels) :
     DTYPE = np.int32
     cdef int n = indptr.shape[0] - 1
     cdef int iteration = 1
@@ -38,9 +38,8 @@ cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarra
     # labels denotes the array of the labels at the i-th iteration.
     # labels_previous denotes the array of the labels at the i-1-th iteration.
 
-    cdef dict new_hash
-    cdef np.ndarray[int, ndim=1] labels_new
-    cdef np.ndarray[int, ndim=1] labels_old
+    cdef np.ndarray[long long, ndim=1] labels_new
+    cdef np.ndarray[long long, ndim=1] labels_old
     cdef np.ndarray[int, ndim = 1]  degres
     cdef np.ndarray [int, ndim = 2] large_label
     multiset = SortedList()
@@ -85,6 +84,7 @@ cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarra
 
 
         # 3
+        """
         large_label = large_label[large_label[:,0].argsort()]#.sort(key=lambda x: x[0])  # sort along first axis
         new_hash = {}
         current_max = 0
@@ -98,6 +98,8 @@ cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarra
             #  4
 
             labels_new[ind] = new_hash[key]
+        """
+        _, labels_new =  np.unique(large_label[:,0], return_inverse= True)
         iteration += 1
     return labels_new
 

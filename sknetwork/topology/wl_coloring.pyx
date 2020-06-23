@@ -37,11 +37,10 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, 
     # labels denotes the array of the labels at the i-th iteration.
     # labels_previous denotes the array of the labels at the i-1-th iteration.
 
-    cdef dict new_hash
     cdef np.ndarray[long long, ndim=1] labels_new
     cdef np.ndarray[long long, ndim=1] labels_old
     cdef np.ndarray[int, ndim = 1]  degres
-    cdef np.ndarray large_label
+    cdef np.ndarray [int, ndim = 2] large_label
     cdef np.ndarray multiset
 
     labels_new = np.ones(n, dtype = np.longlong) if input_labels is None else input_labels
