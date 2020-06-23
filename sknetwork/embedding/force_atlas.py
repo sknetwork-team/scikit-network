@@ -62,14 +62,12 @@ class ForceAtlas2(BaseEmbedding):
         step: float = step_max / (n_iter + 1)  # definition of step
 
         delta = np.zeros((n, 2))  # initialization of variation of position of nodes
-        global_swing = 0
-        global_traction = 0
         forces_for_each_node = np.zeros(n)
         swing_vector = np.zeros(n)
         for iteration in range(n_iter):
             delta *= 0
-            global_swing *= 0
-            global_traction *= 0
+            global_swing = 0
+            global_traction = 0
             for i in range(n):
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
 
@@ -79,36 +77,31 @@ class ForceAtlas2(BaseEmbedding):
 
                 attraction = np.zeros(n)
                 attraction[indices] = 100 * distance[indices]  # change attraction of connected nodes
-
                 repulsion = 0.01 * (deg[i] + 1) * deg / distance
 
-                force = (repulsion - attraction).sum()
+                force = (repulsion - attraction).sum()  # forces resultant applied on node i
 
-                swing_node = np.abs(force - forces_for_each_node[i])
-
+                swing_node = np.abs(force - forces_for_each_node[i])  # force variation applied on node i
                 swing_vector[i] = swing_node
-
-                traction = np.abs(force + forces_for_each_node) / 2
+                traction = np.abs(force + forces_for_each_node) / 2  # traction force applied on node i
 
                 global_swing += (deg[i] + 1) * swing_node
-
                 global_traction += (deg[i] + 1) * traction
-
-                global_speed = tolerance * global_traction / global_swing
+                global_speed = tolerance * global_traction / global_swing  # computation of global variables
 
                 node_speed = 1 * global_speed / (1 + global_speed * np.sqrt(swing_node))
 
-                forces_for_each_node[i] = force
+                forces_for_each_node[i] = force  # force resultant update
 
                 delta[i]: np.ndarray = node_speed * force
                 #delta[i]: np.ndarray = (grad * (repulsion - attraction)[:, np.newaxis]).sum(axis=0)  # shape (2,)
             length = np.linalg.norm(delta, axis=0)
             length = np.where(length < 0.01, 0.1, length)
-            delta = delta * step_max / length
-            position += delta
+            delta = delta * step_max / length  # normalisation of distance between nodes
+            position += delta  # calculating displacement and final position of points after iteration
             step_max -= step
             if swing_vector.all() < 0.01:
-                break
+                break  # If the swing of all nodes is zero, then convergence is reached and we break.
 
         self.embedding_ = position
         return self
