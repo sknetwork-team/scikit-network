@@ -17,17 +17,20 @@ from sknetwork.utils.check import check_format, is_symmetric, check_square
 
 class ForceAtlas2(BaseEmbedding):
 
-    def __init__(self, n_iter: int = 50, linlog: bool = False, ks: int = 1):
+    def __init__(self, n_iter: int = 50, linlog: bool = False, ks: int = 1, tolerance: float = 0.1):
         super(ForceAtlas2, self).__init__()
         self.n_iter = n_iter
         self.linlog = linlog
         self.ks = ks
+        self.tolerance = tolerance
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None, linlog: Optional[bool] = None, ks: Optional[int] = None) -> 'ForceAtlas2':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None, linlog: Optional[bool] = None, ks: Optional[int] = None, tolerance: Optional[float] = None) -> 'ForceAtlas2':
         """Compute layout.
 
         Parameters
         ----------
+        tolerance :
+
         ks :
 
         linlog :
@@ -65,6 +68,8 @@ class ForceAtlas2(BaseEmbedding):
             ks = self.ks
         if linlog is None:
             linlog = self.linlog
+        if tolerance is None:
+            tolerance = self.tolerance
 
         deg = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
