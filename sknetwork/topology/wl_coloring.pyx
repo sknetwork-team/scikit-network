@@ -14,11 +14,14 @@ cimport numpy as np
 from scipy import sparse
 
 from sknetwork.utils.base import Algorithm
-
+#from sknetwork.utils.counting_sort import counting_sort
 
 cimport cython
 
-cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarray[int, ndim=1] input_labels) :
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices, np.ndarray[int, ndim=1] indptr, int max_iter, np.ndarray[int, ndim=1] input_labels) :
     DTYPE = np.int32
     cdef int n = indptr.shape[0] - 1
     cdef int iteration = 1
@@ -32,6 +35,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, 
     cdef int ind
     cdef int key
     cdef int deg
+    cdef int max_deg
     cdef int neighbor_label
     cdef long concatenation
     # labels denotes the array of the labels at the i-th iteration.
@@ -39,13 +43,20 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, 
 
     cdef np.ndarray[long long, ndim=1] labels_new
     cdef np.ndarray[long long, ndim=1] labels_old
+    cdef np.ndarray[long long, ndim = 1]  multiset
     cdef np.ndarray[int, ndim = 1]  degres
-    cdef np.ndarray [int, ndim = 2] large_label
-    cdef np.ndarray multiset
+    cdef np.ndarray[int, ndim = 2] large_label
 
+    degres = np.array(indptr[1:]) - np.array(indptr[:-1])
+    max_deg = max(degres)
+
+    cdef np.int32_t[:] count
+    cdef np.longlong_t[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
+
+    count= np.zeros(n, dtype = np.int32)
+    multiset = np.empty(max_deg, dtype=np.longlong)
     labels_new = np.ones(n, dtype = np.longlong) if input_labels is None else input_labels
     labels_old = np.zeros(n, dtype = np.longlong)
-    degres = np.array(indptr[1:]) - np.array(indptr[:-1])
     large_label = np.zeros((n, 2), dtype=DTYPE)
 
     if max_iter < 0:
@@ -60,7 +71,6 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, 
             # going through the neighbors of v.
             j = 0
             deg = degres[i]
-            multiset = np.empty(deg, dtype=DTYPE)
             j1 = indptr[i]
             j2 = indptr[i + 1]
             for jj in range(j1,j2):
@@ -69,7 +79,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, 
                 j+=1
 
             # 2
-            multiset =  np.sort(multiset) #np.repeat(np.arange(1+multiset.max()), np.bincount(multiset))
+            counting_sort(n, deg, count, multiset, sorted_multiset) #np.repeat(np.arange(1+multiset.max()), np.bincount(multiset))
             temp_string = str(labels_old[i])
             j=0
 
@@ -82,31 +92,9 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, 
 
 
         # 3
-        """
-        a = np.copy(large_label)
-        print("avant :", type(a[0]))
-        _ , code = np.unique(a[:,0], return_inverse= True)
-        print("après :", type(a[0]))
-        print(code)
-        """
-
-        """
-        large_label = large_label[large_label[:,0].argsort()]#.sort(key=lambda x: x[0])  # sort along first axis
-        new_hash = {}
-        current_max = 0
-
-        for j in range(n):
-            ind = large_label[j][1]
-            key = large_label[j][0]
-            if not (key in new_hash):
-                new_hash[key] = current_max
-                current_max += 1
-            #  4
-
-            labels_new[ind] = new_hash[key]
-        """
         _, labels_new =  np.unique(large_label[:,0], return_inverse= True)
         iteration += 1
+
         if iteration == n//4 :
             print("25%")
         if iteration == n//2 :
@@ -116,46 +104,54 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, 
         if iteration == n :
             print("100%")
 
+    print("iterations :", iteration)
     return labels_new
 
-cdef int[:,:] counting_sort(n, multiset_v):
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef void counting_sort(int n, int deg, np.int32_t[:] count, np.longlong_t[:] multiset, np.longlong_t[:] sorted_multiset):
     """Sorts an array by using counting sort, variant of bucket sort.
 
     Parameters
     ----------
-    n :
+    n : int
         The size (number of nodes) of the graph.
 
-    multiset_v :
+    deg: int
+        The deg of current node and size of multiset.
+
+    count : np.int32_t[:]
+        Buckets to count ocurrences.
+
+    multiset : np.longlong_t[:]
         The array to be sorted.
 
-
-    Returns
-    -------
-    sorted_multiset :
-        The sorted array.
+    sorted_multiset : np.longlong_t[:]
+        The array where multiset will be sorted.
     """
 
     cdef int total = 0
     cdef int i
-    cdef int[:] count = [0 for _ in range(n)]
-    cdef int[:,:] sorted_multiset = [0 for _ in range(len(multiset_v))]
-
-    for i in multiset_v:
-        count[i] += 1
+    cdef int j
 
     for i in range(n):
-        count[i], total = total, count[i] + total
+        count[i] = 0
 
-    for i in range(len(multiset_v)):
-        sorted_multiset[count[multiset_v[i]]] = multiset_v[i]
-        count[multiset_v[i]] += 1
+    for i in range(deg):
+        j =multiset[i]
+        count[j] += 1
 
-    return sorted_multiset
+    for i in range(n):
+        j = total
+        total+= count[i]
+        count[i] = j
 
+    for i in range(deg):
+        sorted_multiset[count[multiset[i]]] = multiset[i]
+        count[multiset[i]] += 1
 
-
-
+    for i in range(deg):
+        multiset[i] = sorted_multiset[i]
 
 class WLColoring(Algorithm):
     """Weisefeler-Lehman algorithm for coloring/labeling graphs in order to check similarity.
