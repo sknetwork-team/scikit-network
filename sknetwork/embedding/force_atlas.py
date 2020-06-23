@@ -17,15 +17,21 @@ from sknetwork.utils.check import check_format, is_symmetric, check_square
 
 class ForceAtlas2(BaseEmbedding):
 
-    def __init__(self, n_iter: int = 50):
+    def __init__(self, n_iter: int = 50, linlog: bool = False, ks: int = 1):
         super(ForceAtlas2, self).__init__()
         self.n_iter = n_iter
+        self.linlog = linlog
+        self.ks = ks
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None) -> 'ForceAtlas2':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None, linlog: Optional[bool] = None, ks: Optional[int] = None) -> 'ForceAtlas2':
         """Compute layout.
 
         Parameters
         ----------
+        ks :
+
+        linlog :
+
         adjacency :
             Adjacency matrix of the graph, treated as undirected.
         n_iter : int
@@ -55,6 +61,10 @@ class ForceAtlas2(BaseEmbedding):
 
         if n_iter is None:
             n_iter = self.n_iter
+        if ks is None:
+            ks = self.ks
+        if linlog is None:
+            linlog = self.linlog
 
         deg = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
@@ -82,7 +92,11 @@ class ForceAtlas2(BaseEmbedding):
 
                 attraction = np.zeros(n)
                 attraction[indices] = 100 * distance[indices]  # change attraction of connected nodes
-                repulsion = 0.01 * (deg[i] + 1) * deg / distance
+                # The linlog mode calculates the attraction force
+                if linlog:
+                    attraction = np.log(1+attraction)
+
+                repulsion = ks * 0.01 * (deg[i] + 1) * deg / distance
 
                 force = (repulsion - attraction).sum()  # forces resultant applied on node i
 
