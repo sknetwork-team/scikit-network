@@ -24,7 +24,9 @@ class ForceAtlas2(BaseEmbedding):
         self.ks = ks
         self.tolerance = tolerance
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None, linlog: Optional[bool] = None, ks: Optional[int] = None, tolerance: Optional[float] = None) -> 'ForceAtlas2':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None,
+            linlog: Optional[bool] = None, ks: Optional[int] = None,
+            tolerance: Optional[float] = None) -> 'ForceAtlas2':
         """Compute layout.
 
         Parameters
@@ -99,15 +101,15 @@ class ForceAtlas2(BaseEmbedding):
                 attraction[indices] = 100 * distance[indices]  # change attraction of connected nodes
                 # The linlog mode calculates the attraction force
                 if linlog:
-                    attraction = np.log(1+attraction)
+                    attraction = np.log(1 + attraction)
 
                 repulsion = ks * 0.01 * (deg[i] + 1) * deg / distance
 
-                force = (repulsion - attraction).sum()  # forces resultant applied on node i
+                force = repulsion.sum() - attraction.sum()  # forces resultant applied on node i
 
                 swing_node = np.abs(force - forces_for_each_node[i])  # force variation applied on node i
                 swing_vector[i] = swing_node
-                traction = np.abs(force + forces_for_each_node) / 2  # traction force applied on node i
+                traction = np.abs(force + forces_for_each_node[i]) / 2  # traction force applied on node i
 
                 global_swing += (deg[i] + 1) * swing_node
                 global_traction += (deg[i] + 1) * traction
@@ -117,7 +119,8 @@ class ForceAtlas2(BaseEmbedding):
                 forces_for_each_node[i] = force  # force resultant update
 
                 # delta[i]: np.ndarray = node_speed * force
-                delta[i]: np.ndarray = (grad * node_speed * (repulsion - attraction)[:, np.newaxis]).sum(axis=0)  # shape (2,)
+                delta[i]: np.ndarray = (grad * node_speed * (repulsion - attraction)[:, np.newaxis]).sum(
+                    axis=0)  # shape (2,)
 
             global_speed = tolerance * global_traction / global_swing  # computation of global variables
             length = np.linalg.norm(delta, axis=0)
@@ -125,7 +128,7 @@ class ForceAtlas2(BaseEmbedding):
             delta = delta * step_max / length  # normalisation of distance between nodes
             position += delta  # calculating displacement and final position of points after iteration
             step_max -= step
-            if (swing_vector < 1).all():
+            if (swing_vector < 0.01).all():
                 break  # If the swing of all nodes is zero, then convergence is reached and we break.
 
         self.embedding_ = position
