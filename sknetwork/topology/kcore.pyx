@@ -63,7 +63,7 @@ cdef fit_core(int[:] indptr, int[:] indices):
 
 
 class CoreDecomposition(Algorithm):
-    """ k-core Decomposition algorithm.
+    """K-core decomposition algorithm.
 
     * Graphs
 
@@ -95,7 +95,7 @@ class CoreDecomposition(Algorithm):
 
         Parameters
         ----------
-        adjacency:
+        adjacency :
             Adjacency matrix of the graph.
 
         Returns

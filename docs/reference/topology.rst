@@ -18,8 +18,8 @@ Structure
 
 .. autofunction:: sknetwork.topology.is_acyclic
 
-Listing
--------
+Counting
+--------
 
 .. autofunction:: sknetwork.topology.Triangles
 
