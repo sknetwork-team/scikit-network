@@ -67,12 +67,12 @@ class ForceAtlas2(BaseEmbedding):
         delta = np.zeros((n, 2))  # initialization of variation of position of nodes
         forces_for_each_node = np.zeros(n)
         swing_vector = np.zeros(n)
+        global_speed = 1
 
         for iteration in range(n_iter):
             delta *= 0
             global_swing = 0
             global_traction = 0
-            global_speed = 1
             for i in range(n):
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
 
@@ -106,7 +106,7 @@ class ForceAtlas2(BaseEmbedding):
             delta = delta * step_max / length  # normalisation of distance between nodes
             position += delta  # calculating displacement and final position of points after iteration
             step_max -= step
-            if swing_vector.all() < 0.01:
+            if (swing_vector < 1).all():
                 break  # If the swing of all nodes is zero, then convergence is reached and we break.
 
         self.embedding_ = position
