@@ -11,6 +11,7 @@ from typing import Union
 
 import numpy as np
 cimport numpy as np
+from sknetwork.utils.sortedlist import SortedList
 from scipy import sparse
 
 from sknetwork.utils.base import Algorithm
@@ -41,8 +42,8 @@ cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarra
     cdef np.ndarray[int, ndim=1] labels_new
     cdef np.ndarray[int, ndim=1] labels_old
     cdef np.ndarray[int, ndim = 1]  degres
-    cdef np.ndarray large_label
-    cdef np.ndarray multiset
+    cdef np.ndarray [int, ndim = 2] large_label
+    multiset = SortedList()
 
 
     labels_new = np.ones(n, dtype = DTYPE) if input_labels is None else input_labels
@@ -62,22 +63,22 @@ cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarra
             # going through the neighbors of v.
             j = 0
             deg = degres[i]
-            multiset = np.empty(deg, dtype=DTYPE)
+            multiset.clear() #Multiset should be empty at this point, simple sanity check
             j1 = indptr[i]
             j2 = indptr[i + 1]
             for jj in range(j1,j2):
                 u = indices[jj]
-                multiset[j] = labels_old[u]
+                multiset.add(labels_old[u])
                 j+=1
 
             # 2
-            multiset =  (np.sort(multiset))
+
             temp_string = str(labels_old[i])
             j=0
 
             concatenation = labels_new[i]
             for j in range(deg) :
-                neighbor_label = multiset[j]
+                neighbor_label = multiset.pop(0)
                 concatenation= (concatenation * 10 ** (len(str(neighbor_label)))) + neighbor_label #there are still warnings because of np.int length
 
             large_label[i] = np.array([concatenation, i])
@@ -139,7 +140,7 @@ cdef int[:,:] counting_sort(n, multiset_v):
 
 
 
-class WLColoring(Algorithm):
+class WLColoring_2(Algorithm):
     """Weisefeler-Lehman algorithm for coloring/labeling graphs in order to check similarity.
 
     Attributes
@@ -152,7 +153,7 @@ class WLColoring(Algorithm):
 
     Example
     -------
-    >>> from sknetwork.topology import WLColoring
+    >>> from sknetwork.topology import WLColoring_2
     >>> from sknetwork.data import house
     >>> wlcoloring = WLColoring()
     >>> adjacency = house()
@@ -174,7 +175,7 @@ class WLColoring(Algorithm):
     """
 
     def __init__(self, max_iter = -1):
-        super(WLColoring, self).__init__()
+        super(WLColoring_2, self).__init__()
 
         self.max_iter = max_iter
         self.labels_ = None
