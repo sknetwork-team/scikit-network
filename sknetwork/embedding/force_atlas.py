@@ -65,9 +65,9 @@ class ForceAtlas2(BaseEmbedding):
                 distance = np.where(distance < 0.01, 0.01, distance)
 
                 attraction = np.zeros(n)
-                attraction[indices] = distance[indices]  # change attraction of connected nodes
+                attraction[indices] = 100 * distance[indices]  # change attraction of connected nodes
 
-                repulsion = (deg[i] + 1) * deg / distance
+                repulsion = 0.01 * (deg[i] + 1) * deg / distance
 
                 delta[i]: np.ndarray = (grad * (repulsion - attraction)[:, np.newaxis]).sum(axis=0)  # shape (2,)
             length = np.linalg.norm(delta, axis=0)
