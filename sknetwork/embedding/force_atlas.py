@@ -42,13 +42,15 @@ class ForceAtlas2(BaseEmbedding):
             adjacency = directed2undirected(adjacency)
         n = adjacency.shape[0]
 
+        # setting of the tolerance according to the size of the graph
         if n < 5000:
             tolerance = 0.1
-        elif 5000 < n < 50000:
+        elif 5000 <= n < 50000:
             tolerance = 1
         else:
             tolerance = 10
 
+        # initial position of the nodes of the graph
         position = np.random.randn(n, 2)
 
         if n_iter is None:
@@ -56,18 +58,21 @@ class ForceAtlas2(BaseEmbedding):
 
         deg = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
+        # definition of the step
         delta_x: float = position[:, 0].max() - position[:, 0].min()  # max variation /x
         delta_y: float = position[:, 1].max() - position[:, 1].min()  # max variation /y
         step_max: float = max(delta_x, delta_y)
-        step: float = step_max / (n_iter + 1)  # definition of step
+        step: float = step_max / (n_iter + 1)
 
         delta = np.zeros((n, 2))  # initialization of variation of position of nodes
         forces_for_each_node = np.zeros(n)
         swing_vector = np.zeros(n)
+
         for iteration in range(n_iter):
             delta *= 0
             global_swing = 0
             global_traction = 0
+            global_speed = 1
             for i in range(n):
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
 
@@ -87,7 +92,6 @@ class ForceAtlas2(BaseEmbedding):
 
                 global_swing += (deg[i] + 1) * swing_node
                 global_traction += (deg[i] + 1) * traction
-                global_speed = tolerance * global_traction / global_swing  # computation of global variables
 
                 node_speed = 1 * global_speed / (1 + global_speed * np.sqrt(swing_node))
 
@@ -95,6 +99,8 @@ class ForceAtlas2(BaseEmbedding):
 
                 # delta[i]: np.ndarray = node_speed * force
                 delta[i]: np.ndarray = (grad * node_speed * (repulsion - attraction)[:, np.newaxis]).sum(axis=0)  # shape (2,)
+
+            global_speed = tolerance * global_traction / global_swing  # computation of global variables
             length = np.linalg.norm(delta, axis=0)
             length = np.where(length < 0.01, 0.1, length)
             delta = delta * step_max / length  # normalisation of distance between nodes
