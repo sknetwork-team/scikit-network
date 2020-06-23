@@ -107,6 +107,14 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, 
         """
         _, labels_new =  np.unique(large_label[:,0], return_inverse= True)
         iteration += 1
+        if iteration == n//4 :
+            print("25%")
+        if iteration == n//2 :
+            print("50%")
+        if iteration == 3*n//4 :
+            print("75%")
+        if iteration == n :
+            print("100%")
 
     return labels_new
 
