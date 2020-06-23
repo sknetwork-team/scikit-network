@@ -66,6 +66,7 @@ class CoreDecomposition(Algorithm):
     """K-core decomposition algorithm.
 
     * Graphs
+    * Digraphs
 
     Attributes
     ----------
@@ -79,8 +80,7 @@ class CoreDecomposition(Algorithm):
     >>> from sknetwork.topology import CoreDecomposition
     >>> from sknetwork.data import karate_club
     >>> kcore = CoreDecomposition()
-    >>> graph = karate_club()
-    >>> adjacency = graph.adjacency
+    >>> adjacency = karate_club()
     >>> kcore.fit(adjacency)
     >>> kcore.core_value_
     4
