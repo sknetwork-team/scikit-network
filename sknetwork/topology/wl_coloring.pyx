@@ -29,8 +29,6 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, 
     cdef int jj
     cdef int j1
     cdef int j2
-    cdef int ind
-    cdef int key
     cdef int deg
     cdef int neighbor_label
     cdef long concatenation
@@ -41,7 +39,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, 
     cdef np.ndarray[long long, ndim=1] labels_old
     cdef np.ndarray[int, ndim = 1]  degres
     cdef np.ndarray [int, ndim = 2] large_label
-    cdef np.ndarray multiset
+    cdef np.ndarray [long long, ndim = 1] multiset
 
     labels_new = np.ones(n, dtype = np.longlong) if input_labels is None else input_labels
     labels_old = np.zeros(n, dtype = np.longlong)
@@ -60,7 +58,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, 
             # going through the neighbors of v.
             j = 0
             deg = degres[i]
-            multiset = np.empty(deg, dtype=DTYPE)
+            multiset = np.empty(deg, dtype=np.longlong)
             j1 = indptr[i]
             j2 = indptr[i + 1]
             for jj in range(j1,j2):
@@ -82,29 +80,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, 
 
 
         # 3
-        """
-        a = np.copy(large_label)
-        print("avant :", type(a[0]))
-        _ , code = np.unique(a[:,0], return_inverse= True)
-        print("après :", type(a[0]))
-        print(code)
-        """
 
-        """
-        large_label = large_label[large_label[:,0].argsort()]#.sort(key=lambda x: x[0])  # sort along first axis
-        new_hash = {}
-        current_max = 0
-
-        for j in range(n):
-            ind = large_label[j][1]
-            key = large_label[j][0]
-            if not (key in new_hash):
-                new_hash[key] = current_max
-                current_max += 1
-            #  4
-
-            labels_new[ind] = new_hash[key]
-        """
         _, labels_new =  np.unique(large_label[:,0], return_inverse= True)
         iteration += 1
         if iteration == n//4 :
@@ -117,44 +93,6 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, 
             print("100%")
 
     return labels_new
-
-cdef int[:,:] counting_sort(n, multiset_v):
-    """Sorts an array by using counting sort, variant of bucket sort.
-
-    Parameters
-    ----------
-    n :
-        The size (number of nodes) of the graph.
-
-    multiset_v :
-        The array to be sorted.
-
-
-    Returns
-    -------
-    sorted_multiset :
-        The sorted array.
-    """
-
-    cdef int total = 0
-    cdef int i
-    cdef int[:] count = [0 for _ in range(n)]
-    cdef int[:,:] sorted_multiset = [0 for _ in range(len(multiset_v))]
-
-    for i in multiset_v:
-        count[i] += 1
-
-    for i in range(n):
-        count[i], total = total, count[i] + total
-
-    for i in range(len(multiset_v)):
-        sorted_multiset[count[multiset_v[i]]] = multiset_v[i]
-        count[multiset_v[i]] += 1
-
-    return sorted_multiset
-
-
-
 
 
 class WLColoring(Algorithm):
