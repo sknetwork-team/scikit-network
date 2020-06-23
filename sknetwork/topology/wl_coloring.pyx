@@ -18,83 +18,87 @@ from sknetwork.utils.base import Algorithm
 
 cimport cython
 
-cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr) :
+cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter) :
     DTYPE = np.int32
     cdef int n = indptr.shape[0] - 1
-    cdef int i = 1
+    cdef int iteration = 1
     cdef int u = 0
     cdef int j = 0
-    cdef int v
+    cdef int current_max = 0
+    cdef int i
     cdef int jj
     cdef int j1
     cdef int j2
-    cdef int current_max = 0
     cdef int ind
     cdef int key
-    cdef str temp_string
     cdef int deg
+    cdef int neighbor_label
+    cdef long concatenation
     # labels denotes the array of the labels at the i-th iteration.
     # labels_previous denotes the array of the labels at the i-1-th iteration.
 
     cdef dict new_hash
-    cdef np.ndarray[int, ndim=1] labels
-    cdef np.ndarray[int, ndim=1] labels_previous
+    cdef np.ndarray[int, ndim=1] labels_new
+    cdef np.ndarray[int, ndim=1] labels_old
     cdef np.ndarray[int, ndim = 1]  degres
-    cdef np.ndarray long_label
+    cdef np.ndarray large_label
     cdef np.ndarray multiset
 
 
-    labels = np.ones(n, dtype = DTYPE)
-    labels_previous = np.zeros(n, dtype = DTYPE)
+    labels_new = np.ones(n, dtype = DTYPE)
+    labels_old = np.zeros(n, dtype = DTYPE)
     degres = np.array(indptr[1:]) - np.array(indptr[:-1])
-    long_label = np.zeros((n, 2), dtype=DTYPE)
+    large_label = np.zeros((n, 2), dtype=DTYPE)
 
-    while i < n and (labels_previous != labels).any() :
-        labels_previous = np.copy(labels) #Perf : ne pas utiliser copy? echanger les addresses ?
+    if max_iter < 0:
+        max_iter = n
+
+    while iteration < max_iter and (labels_old != labels_new).any() :
+        labels_old = np.copy(labels_new) #Perf : ne pas utiliser copy? echanger les addresses ?
 
 
-        for v in range(n):
+        for i in range(n):
             # 1
             # going through the neighbors of v.
             j = 0
-            deg = degres[v]
+            deg = degres[i]
             multiset = np.empty(deg, dtype=DTYPE)
-            j1 = indptr[v]
-            j2 = indptr[v + 1]
+            j1 = indptr[i]
+            j2 = indptr[i + 1]
             for jj in range(j1,j2):
                 u = indices[jj]
-                multiset[j] = labels_previous[u]
+                multiset[j] = labels_old[u]
                 j+=1
 
             # 2
             multiset =  (np.sort(multiset))
-            temp_string = str(labels_previous[v])
+            temp_string = str(labels_old[i])
             j=0
 
-            temp = labels_previous[v]
+            concatenation = labels_new[i]
             for j in range(deg) :
-                num = multiset[j]
-                temp= (temp * 10 ** (len(str(num)))) + num #there are still warnings because of np.int length
+                neighbor_label = multiset[j]
+                concatenation= (concatenation * 10 ** (len(str(neighbor_label)))) + neighbor_label #there are still warnings because of np.int length
 
-            long_label[v] = np.array([temp, v])
+            large_label[i] = np.array([concatenation, i])
 
 
         # 3
-        long_label = long_label[long_label[:,0].argsort()]#.sort(key=lambda x: x[0])  # sort along first axis
+        large_label = large_label[large_label[:,0].argsort()]#.sort(key=lambda x: x[0])  # sort along first axis
         new_hash = {}
         current_max = 0
 
         for j in range(n):
-            ind = long_label[j][1]
-            key = long_label[j][0]
+            ind = large_label[j][1]
+            key = large_label[j][0]
             if not (key in new_hash):
                 new_hash[key] = current_max
                 current_max += 1
             #  4
 
-            labels[ind] = new_hash[key]
-        i += 1
-    return labels
+            labels_new[ind] = new_hash[key]
+        iteration += 1
+    return labels_new
 
 cdef int[:,:] counting_sort(n, multiset_v):
     """Sorts an array by using counting sort, variant of bucket sort.
@@ -143,14 +147,17 @@ class WLColoring(Algorithm):
     labels_ : np.ndarray
         Label of each node.
 
+    max_iter : int
+        Maximum iterations of coloring.
+
     Example
     -------
     >>> from sknetwork.topology import WLColoring
-    >>> from sknetwork.data import karate_club
+    >>> from sknetwork.data import house
     >>> wlcoloring = WLColoring()
-    >>> adjacency = karate_club()
+    >>> adjacency = house()
     >>> labels = wlcoloring.fit_transform(adjacency)
-
+    array([1, 2, 0, 0, 2])
 
     References
     ----------
@@ -166,9 +173,10 @@ class WLColoring(Algorithm):
       Journal of Machine Learning Research 1, 2010.
     """
 
-    def __init__(self):
+    def __init__(self, max_iter = -1):
         super(WLColoring, self).__init__()
 
+        self.max_iter = max_iter
         self.labels_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'WLColoring':
@@ -179,7 +187,6 @@ class WLColoring(Algorithm):
         adjacency :
             Adjacency matrix of the graph.
 
-
         Returns
         -------
         self: :class:`WLColoring`
@@ -188,12 +195,12 @@ class WLColoring(Algorithm):
         indices = adjacency.indices
         indptr = adjacency.indptr
 
-        self.labels_ = c_wl_coloring(indices,  indptr)
+        self.labels_ = c_wl_coloring(indices, indptr, self.max_iter)
 
 
         return self
 
-    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+    def fit_transform(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
 
         Returns
@@ -201,5 +208,5 @@ class WLColoring(Algorithm):
         labels : np.ndarray
             Labels.
         """
-        self.fit(*args, **kwargs)
+        self.fit(adjacency)
         return np.asarray(self.labels_)
