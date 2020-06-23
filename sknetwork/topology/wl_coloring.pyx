@@ -19,57 +19,81 @@ from sknetwork.utils.base import Algorithm
 cimport cython
 
 cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr) :
+    DTYPE = np.int32
     cdef int n = indptr.shape[0] - 1
     cdef int i = 1
     cdef int u = 0
     cdef int j = 0
+    cdef int v
+    cdef int jj
+    cdef int j1
+    cdef int j2
     cdef int current_max = 0
-
+    cdef int ind
+    cdef int key
     cdef str temp_string
-
+    cdef int deg
     # labels denotes the array of the labels at the i-th iteration.
     # labels_previous denotes the array of the labels at the i-1-th iteration.
-    DTYPE = np.int32
-    cdef int[:] labels = np.ones(n, dtype = DTYPE)
-    cdef int[:] labels_previous = np.zeros(n, dtype = DTYPE)
 
-    cdef np.ndarray long_label = np.zeros((n, 2), dtype=DTYPE)
-    cdef np.ndarray multiset = np.zeros(n, dtype = DTYPE)
+    cdef dict new_hash
+    cdef np.ndarray[int, ndim=1] labels
+    cdef np.ndarray[int, ndim=1] labels_previous
+    cdef np.ndarray[int, ndim = 1]  degres
+    cdef np.ndarray long_label
+    cdef np.ndarray multiset
 
-    while i < n and (np.array(labels_previous) != np.array(labels)).any() :
+
+    labels = np.ones(n, dtype = DTYPE)
+    labels_previous = np.zeros(n, dtype = DTYPE)
+    degres = np.array(indptr[1:]) - np.array(indptr[:-1])
+    long_label = np.zeros((n, 2), dtype=DTYPE)
+
+    while i < n and (labels_previous != labels).any() :
         labels_previous = np.copy(labels) #Perf : ne pas utiliser copy? echanger les addresses ?
-        labels = np.zeros(n, dtype = DTYPE)
+
 
         for v in range(n):
             # 1
             # going through the neighbors of v.
             j = 0
-            for u in indices[indptr[v]: indptr[v + 1]]:
+            deg = degres[v]
+            multiset = np.empty(deg, dtype=DTYPE)
+            j1 = indptr[v]
+            j2 = indptr[v + 1]
+            for jj in range(j1,j2):
+                u = indices[jj]
                 multiset[j] = labels_previous[u]
                 j+=1
 
             # 2
             multiset =  (np.sort(multiset))
             temp_string = str(labels_previous[v])
-            for num in multiset :
-                temp_string+=str(num)
-            j = int(temp_string)  #j is unused later on and will be reseted
-            long_label[v] = np.array([j, v])
+            j=0
 
-            multiset = np.zeros(n, dtype = DTYPE) #reseting multiset
+            temp = labels_previous[v]
+            for j in range(deg) :
+                num = multiset[j]
+                temp= (temp * 10 ** (len(str(num)))) + num #there are still warnings because of np.int length
+
+            long_label[v] = np.array([temp, v])
+
+
         # 3
         long_label = long_label[long_label[:,0].argsort()]#.sort(key=lambda x: x[0])  # sort along first axis
         new_hash = {}
         current_max = 0
 
         for j in range(n):
-            if not (long_label[j][0] in new_hash):
-                new_hash[long_label[j][0]] = current_max
+            ind = long_label[j][1]
+            key = long_label[j][0]
+            if not (key in new_hash):
+                new_hash[key] = current_max
                 current_max += 1
             #  4
-            labels[long_label[j][1]] = new_hash[long_label[j][0]]
-        i += 1
 
+            labels[ind] = new_hash[key]
+        i += 1
     return labels
 
 cdef int[:,:] counting_sort(n, multiset_v):
@@ -163,11 +187,6 @@ class WLColoring(Algorithm):
 
         indices = adjacency.indices
         indptr = adjacency.indptr
-
-
-        n = indptr.shape[0] - 1
-
-        self.labels_ = np.zeros(n, dtype = np.int32)
 
         self.labels_ = c_wl_coloring(indices,  indptr)
 
