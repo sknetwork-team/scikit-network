@@ -18,7 +18,7 @@ from sknetwork.utils.base import Algorithm
 
 cimport cython
 
-cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarray[int, ndim=1] input_labels) :
+cdef np.ndarray[long long, ndim=1] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarray[int, ndim=1] input_labels) :
     DTYPE = np.int32
     cdef int n = indptr.shape[0] - 1
     cdef int iteration = 1
@@ -38,15 +38,14 @@ cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarra
     # labels_previous denotes the array of the labels at the i-1-th iteration.
 
     cdef dict new_hash
-    cdef np.ndarray[int, ndim=1] labels_new
-    cdef np.ndarray[int, ndim=1] labels_old
+    cdef np.ndarray[long long, ndim=1] labels_new
+    cdef np.ndarray[long long, ndim=1] labels_old
     cdef np.ndarray[int, ndim = 1]  degres
     cdef np.ndarray large_label
     cdef np.ndarray multiset
 
-
-    labels_new = np.ones(n, dtype = DTYPE) if input_labels is None else input_labels
-    labels_old = np.zeros(n, dtype = DTYPE)
+    labels_new = np.ones(n, dtype = np.longlong) if input_labels is None else input_labels
+    labels_old = np.zeros(n, dtype = np.longlong)
     degres = np.array(indptr[1:]) - np.array(indptr[:-1])
     large_label = np.zeros((n, 2), dtype=DTYPE)
 
@@ -71,7 +70,7 @@ cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarra
                 j+=1
 
             # 2
-            multiset =  (np.sort(multiset))
+            multiset =  np.sort(multiset) #np.repeat(np.arange(1+multiset.max()), np.bincount(multiset))
             temp_string = str(labels_old[i])
             j=0
 
@@ -84,6 +83,15 @@ cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarra
 
 
         # 3
+        """
+        a = np.copy(large_label)
+        print("avant :", type(a[0]))
+        _ , code = np.unique(a[:,0], return_inverse= True)
+        print("après :", type(a[0]))
+        print(code)
+        """
+
+        """
         large_label = large_label[large_label[:,0].argsort()]#.sort(key=lambda x: x[0])  # sort along first axis
         new_hash = {}
         current_max = 0
@@ -97,7 +105,10 @@ cdef int[:] c_wl_coloring(int[:] indices, int[:] indptr, int max_iter, np.ndarra
             #  4
 
             labels_new[ind] = new_hash[key]
+        """
+        _, labels_new =  np.unique(large_label[:,0], return_inverse= True)
         iteration += 1
+
     return labels_new
 
 cdef int[:,:] counting_sort(n, multiset_v):
@@ -199,7 +210,6 @@ class WLColoring(Algorithm):
         indptr = adjacency.indptr
 
         self.labels_ = c_wl_coloring(indices, indptr, self.max_iter, input_labels)
-
 
         return self
 
