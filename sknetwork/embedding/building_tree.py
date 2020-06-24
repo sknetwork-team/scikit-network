@@ -18,7 +18,7 @@ class Cell:
         self.particle = None  # object particle if there is a particle in this cell
 
     def is_in_cell(self, particle: Particle) -> bool:  # test if a particle is inside the cell's bounds
-        if self.x_min < particle.x < self.x_max and self.y_min < particle.y < self.y_max:
+        if self.x_min < particle.x <= self.x_max and self.y_min < particle.y <= self.y_max:
             return True
         else:
             return False
