@@ -92,19 +92,20 @@ class ForceAtlas2(BaseEmbedding):
         forces_for_each_node = np.zeros(n)
         swing_vector = np.zeros(n)
         global_speed = 1
+        attraction = np.zeros(n)
 
         for iteration in range(n_iter):
             delta *= 0
             global_swing = 0
             global_traction = 0
             for i in range(n):
+                attraction *= 0
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
 
                 grad: np.ndarray = (position[i] - position)  # shape (n, 2)
                 distance: np.ndarray = np.linalg.norm(grad, axis=1)  # shape (n,)
                 distance = np.where(distance < 0.01, 0.01, distance)
 
-                attraction = np.zeros(n)
                 attraction[indices] = 10 * distance[indices]  # change attraction of connected nodes
                 # The linlog mode calculates the attraction force
                 if linlog:
