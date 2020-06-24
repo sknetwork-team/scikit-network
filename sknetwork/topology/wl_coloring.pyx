@@ -55,16 +55,11 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
 
     count= np.zeros(n, dtype = np.int32)
     multiset = np.empty(max_deg, dtype=np.longlong)
-    labels_new = np.ones(n, dtype = np.longlong) if input_labels is None else input_labels
-    labels_old = np.zeros(n, dtype = np.longlong)
+    labels = np.ones(n, dtype = np.longlong)
     large_label = np.zeros((n, 2), dtype=DTYPE)
 
-    if max_iter < 0:
-        max_iter = n
 
-    while (labels_old != labels_new).any() and labels_new.max() != labels_old.max():
-        labels_old = np.copy(labels_new) #Perf : ne pas utiliser copy? echanger les addresses ?
-
+    while iteration < max_iter: #labels_new.max() != labels_old.max():
         for i in range(n):
             # 1
             # going through the neighbors of v.
@@ -74,15 +69,14 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
             j2 = indptr[i + 1]
             for jj in range(j1,j2):
                 u = indices[jj]
-                multiset[j] = labels_old[u]
+                multiset[j] = labels[u]
                 j+=1
 
             # 2
-            counting_sort(n, deg, count, multiset, sorted_multiset) #np.repeat(np.arange(1+multiset.max()), np.bincount(multiset))
-            temp_string = str(labels_old[i])
-            j=0
 
-            concatenation = labels_new[i]
+            counting_sort(n, deg, count, multiset, sorted_multiset) #np.repeat(np.arange(1+multiset.max()), np.bincount(multiset))
+
+            concatenation = labels[i]
             for j in range(deg) :
                 neighbor_label = multiset[j]
                 concatenation= (concatenation * 10 ** (len(str(neighbor_label)))) + neighbor_label #there are still warnings because of np.int length
@@ -103,17 +97,16 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
                 current_max += 1
             #  4
 
-            labels_new[ind] = new_hash[key]
+            labels[ind] = new_hash[key]
         iteration += 1
 
     print("iterations :", iteration)
 
     #Test
     lists = np.array([[0,[]] for _ in range(n)])
-    lists_count = [0 for _ in range(n)]
     for i in range(n) :
-        lists[labels_old[i]][0] += 1
-        lists[labels_old[i]][1].append(i)
+        lists[labels[i]][0] += 1
+        lists[labels[i]][1].append(i)
 
     lists = lists[lists[:,0].argsort()]
 
@@ -122,10 +115,14 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
         j = len(lists[i][1])
         if j > 0 :
             for u in range(j):
-                labels_old[lists[i][1][u]] = max
+                labels[lists[i][1][u]] = max
             max += 1
 
-    return np.sort(labels_old)
+    somme = 0
+    for i in range(n):
+        somme += 1 if lists[i][0] > 0 else 0
+
+    return np.sort(labels)
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -181,9 +178,6 @@ class WLColoring(Algorithm):
     labels_ : np.ndarray
         Label of each node.
 
-    max_iter : int
-        Maximum iterations of coloring.
-
     Example
     -------
     >>> from sknetwork.topology import WLColoring
@@ -207,21 +201,23 @@ class WLColoring(Algorithm):
       Journal of Machine Learning Research 1, 2010.
     """
 
-    def __init__(self, max_iter = -1):
+    def __init__(self):
         super(WLColoring, self).__init__()
 
-        self.max_iter = max_iter
         self.labels_ = None
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], input_labels : Union[sparse.csr_matrix, np.ndarray] = None) -> 'WLColoring':
+    def fit(self, int max_iter, adjacency: Union[sparse.csr_matrix, np.ndarray], input_labels : Union[sparse.csr_matrix, np.ndarray] = None) -> 'WLColoring':
         """Fit algorithm to the data.
 
         Parameters
         ----------
-        adjacency :
+        max_iter : int
+            Maximum number of iterations.
+
+        adjacency : Union[sparse.csr_matrix, np.ndarray]
             Adjacency matrix of the graph.
 
-        input_labels :
+        input_labels : Union[sparse.csr_matrix, np.ndarray]
             Input labels if the user wants to start with a specific input state.
 
         Returns
@@ -232,11 +228,11 @@ class WLColoring(Algorithm):
         indices = adjacency.indices
         indptr = adjacency.indptr
 
-        self.labels_ = c_wl_coloring(indices, indptr, self.max_iter, input_labels)
+        self.labels_ = c_wl_coloring(indices, indptr, max_iter, input_labels)
 
         return self
 
-    def fit_transform(self, adjacency: Union[sparse.csr_matrix, np.ndarray], input_labels : Union[sparse.csr_matrix, np.ndarray] = None) -> np.ndarray:
+    def fit_transform(self, int max_iter, adjacency: Union[sparse.csr_matrix, np.ndarray], input_labels : Union[sparse.csr_matrix, np.ndarray] = None) -> np.ndarray:
         """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
 
         Returns
@@ -244,5 +240,5 @@ class WLColoring(Algorithm):
         labels : np.ndarray
             Labels.
         """
-        self.fit(adjacency, input_labels)
+        self.fit(max_iter, adjacency, input_labels)
         return np.asarray(self.labels_)
