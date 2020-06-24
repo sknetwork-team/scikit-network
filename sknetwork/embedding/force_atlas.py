@@ -19,7 +19,7 @@ class ForceAtlas2(BaseEmbedding):
 
     def __init__(self, n_iter: int = 50, lin_log: bool = False, k_gravity: float = 0.01, strong_gravity: bool = False,
                  k_repulsive: int = 0.01, exponent: int = 0, no_hubs: bool = False, tolerance: float = 0.1,
-                 k_speed: float = 0.1):
+                 k_speed: float = 0.1, k_speed_max: float = 10):
         super(ForceAtlas2, self).__init__()
         self.n_iter = n_iter
         self.lin_log = lin_log
@@ -30,11 +30,13 @@ class ForceAtlas2(BaseEmbedding):
         self.no_hubs = no_hubs
         self.tolerance = tolerance
         self.k_speed = k_speed
+        self.k_speed_max = k_speed_max
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None,
             lin_log: Optional[bool] = None, k_gravity: Optional[float] = None, strong_gravity: Optional[bool] = None,
             k_repulsive: Optional[int] = None, exponent: Optional[int] = None, no_hubs: Optional[bool] = None,
-            tolerance: Optional[float] = None, k_speed: Optional[float] = None) -> 'ForceAtlas2':
+            tolerance: Optional[float] = None, k_speed: Optional[float] = None,
+            k_speed_max: Optional[float] = None) -> 'ForceAtlas2':
         """Compute layout.
 
         Parameters
@@ -60,6 +62,8 @@ class ForceAtlas2(BaseEmbedding):
             Tolerance defined in the swinging constant
         k_speed :
             Speed constant
+        k_speed_max :
+            Constant used to impose constrain on speed
 
 
         Returns
@@ -103,6 +107,8 @@ class ForceAtlas2(BaseEmbedding):
             tolerance = self.tolerance
         if k_speed is None:
             k_speed = self.k_speed
+        if k_speed_max is None:
+            k_speed_max = self.k_speed_max
 
         # compute the vector with the degree of each node
         deg = adjacency.dot(np.ones(adjacency.shape[1])) + 1
@@ -141,7 +147,7 @@ class ForceAtlas2(BaseEmbedding):
                     attraction = attraction / (deg[i] + 1)
 
                 repulsion = k_repulsive * (deg[i] + 1) * deg / distance
-                
+
                 gravity = k_gravity * (deg + 1)
                 if strong_gravity:
                     gravity = gravity * distance
@@ -156,6 +162,8 @@ class ForceAtlas2(BaseEmbedding):
                 global_traction += (deg[i] + 1) * traction
 
                 node_speed = k_speed * global_speed / (1 + global_speed * np.sqrt(swing_node))
+                if node_speed > k_speed_max / abs(force):
+                    node_speed = k_speed_max / abs(force)
 
                 forces_for_each_node[i] = force  # force resultant update
 
