@@ -18,7 +18,7 @@ from sknetwork.utils.check import check_format, is_symmetric, check_square
 class ForceAtlas2(BaseEmbedding):
 
     def __init__(self, n_iter: int = 50, linlog: bool = False, ks: int = 1, tolerance: float = 0.1, kg: float = 1.0,
-                 strong_gravity: bool = True, delta: int = 0):
+                 strong_gravity: bool = True, delta: int = 0, hubs : bool = False):
         super(ForceAtlas2, self).__init__()
         self.n_iter = n_iter
         self.linlog = linlog
@@ -27,15 +27,17 @@ class ForceAtlas2(BaseEmbedding):
         self.kg = kg
         self.strong_gravity = strong_gravity
         self.delta = delta
+        self.hubs = hubs
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None,
             linlog: Optional[bool] = None, ks: Optional[int] = None,
             tolerance: Optional[float] = None, kg: Optional[float] = None, strong_gravity: Optional[bool] = None,
-            delta: Optional[int] = None) -> 'ForceAtlas2':
+            delta: Optional[int] = None, hubs: Optional[bool] = None) -> 'ForceAtlas2':
         """Compute layout.
 
         Parameters
         ----------
+        hubs
         delta
         strong_gravity
         kg
@@ -86,6 +88,8 @@ class ForceAtlas2(BaseEmbedding):
             strong_gravity = self.strong_gravity
         if delta is None:
             delta = self.delta
+        if hubs is None:
+            hubs = self.hubs
 
         deg = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
@@ -121,6 +125,9 @@ class ForceAtlas2(BaseEmbedding):
                 if delta != 0:
                     data = adjacency.data[adjacency.indptr[i]:adjacency.indptr[i + 1]]
                     attraction = (data**delta)*attraction
+
+                if hubs:
+                    attraction = attraction / (deg[i] + 1)
 
                 repulsion = ks * 0.01 * (deg[i] + 1) * deg / distance
                 gravity = kg * 0.01 * (deg + 1)
