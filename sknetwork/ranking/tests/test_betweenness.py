@@ -10,7 +10,6 @@ from sknetwork.data.test_graphs import test_graph
 from sknetwork.ranking import Betweenness
 
 
-
 class TestBetweenness(unittest.TestCase):
 
     def test_betweenness(self):

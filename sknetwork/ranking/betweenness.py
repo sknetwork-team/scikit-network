@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 from typing import Union
 from collections import deque
 
@@ -12,7 +15,7 @@ from sknetwork.utils.check import check_format
 class Betweenness(BaseRanking):
     """Betweenness centrality:
 
-    compute betweenness centrality given adjacency matrix of graph.
+    Compute betweenness centrality given adjacency matrix of graph.
     
     Reference
     ---------
@@ -46,7 +49,6 @@ class Betweenness(BaseRanking):
             d = dict((t, -1) for t in vertices); d[vertex] = 0
             queue = deque([])
             queue.append(vertex)
-
             while queue:
                 v = queue.popleft()
                 stack.append(v)
@@ -58,7 +60,6 @@ class Betweenness(BaseRanking):
                         sigma[neighbor] = sigma[neighbor] + sigma[v]
                         P[neighbor].append(v)
             delta = dict((vertex, 0) for vertex in vertices)
-            
             while stack:
                 w = stack.pop()
                 for v in P[w]:
