@@ -17,20 +17,25 @@ from sknetwork.utils.check import check_format, is_symmetric, check_square
 
 class ForceAtlas2(BaseEmbedding):
 
-    def __init__(self, n_iter: int = 50, linlog: bool = False, ks: int = 1, tolerance: float = 0.1):
+    def __init__(self, n_iter: int = 50, linlog: bool = False, ks: int = 1, tolerance: float = 0.1, kg: float = 1.0,
+                 strong_gravity: bool = True):
         super(ForceAtlas2, self).__init__()
         self.n_iter = n_iter
         self.linlog = linlog
         self.ks = ks
         self.tolerance = tolerance
+        self.kg = kg
+        self.strong_gravity = strong_gravity
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None,
             linlog: Optional[bool] = None, ks: Optional[int] = None,
-            tolerance: Optional[float] = None) -> 'ForceAtlas2':
+            tolerance: Optional[float] = None, kg: Optional[float] = None, strong_gravity: Optional[bool] = None) -> 'ForceAtlas2':
         """Compute layout.
 
         Parameters
         ----------
+        strong_gravity
+        kg
         tolerance :
 
         ks :
@@ -72,6 +77,8 @@ class ForceAtlas2(BaseEmbedding):
             linlog = self.linlog
         if tolerance is None:
             tolerance = self.tolerance
+        if kg is None:
+            kg = self.kg
 
         deg = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
@@ -98,14 +105,17 @@ class ForceAtlas2(BaseEmbedding):
                 distance = np.where(distance < 0.01, 0.01, distance)
 
                 attraction = np.zeros(n)
-                attraction[indices] = 100 * distance[indices]  # change attraction of connected nodes
+                attraction[indices] = 10 * distance[indices]  # change attraction of connected nodes
                 # The linlog mode calculates the attraction force
                 if linlog:
                     attraction = np.log(1 + attraction)
 
                 repulsion = ks * 0.01 * (deg[i] + 1) * deg / distance
+                gravity = kg * 0.01 * (deg + 1)
+                if strong_gravity:
+                    gravity = gravity * distance
 
-                force = repulsion.sum() - attraction.sum()  # forces resultant applied on node i
+                force = repulsion.sum() - attraction.sum() - gravity.sum()  # forces resultant applied on node i
 
                 swing_node = np.abs(force - forces_for_each_node[i])  # force variation applied on node i
                 swing_vector[i] = swing_node
@@ -119,7 +129,7 @@ class ForceAtlas2(BaseEmbedding):
                 forces_for_each_node[i] = force  # force resultant update
 
                 # delta[i]: np.ndarray = node_speed * force
-                delta[i]: np.ndarray = (grad * node_speed * (repulsion - attraction)[:, np.newaxis]).sum(
+                delta[i]: np.ndarray = (grad * node_speed * (repulsion - attraction - gravity)[:, np.newaxis]).sum(
                     axis=0)  # shape (2,)
 
             global_speed = tolerance * global_traction / global_swing  # computation of global variables
