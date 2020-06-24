@@ -19,7 +19,7 @@ class ForceAtlas2(BaseEmbedding):
 
     def __init__(self, n_iter: int = 50, lin_log: bool = False, k_gravity: float = 0.01, strong_gravity: bool = False,
                  k_repulsive: int = 0.01, exponent: int = 0, no_hubs: bool = False, tolerance: float = 0.1,
-                 k_speed: float = 0.01):
+                 k_speed: float = 0.1):
         super(ForceAtlas2, self).__init__()
         self.n_iter = n_iter
         self.lin_log = lin_log
@@ -66,6 +66,8 @@ class ForceAtlas2(BaseEmbedding):
         -------
         self: :class:`ForceAtlas2`
         """
+
+        # verify the format of the adjacency matrix
         adjacency = check_format(adjacency)
         check_square(adjacency)
         if not is_symmetric(adjacency):
@@ -101,6 +103,8 @@ class ForceAtlas2(BaseEmbedding):
             tolerance = self.tolerance
         if k_speed is None:
             k_speed = self.k_speed
+
+        # compute the vector with the degree of each node
         deg = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
         # definition of the step
@@ -128,18 +132,16 @@ class ForceAtlas2(BaseEmbedding):
                 distance = np.where(distance < 0.01, 0.01, distance)
 
                 attraction[indices] = 10 * distance[indices]  # change attraction of connected nodes
-                # The lin_log mode calculates the attraction force
                 if lin_log:
                     attraction = np.log(1 + attraction)
-
                 if exponent != 0:
                     data = adjacency.data[adjacency.indptr[i]:adjacency.indptr[i + 1]]
                     attraction = (data**exponent)*attraction
-
                 if no_hubs:
                     attraction = attraction / (deg[i] + 1)
 
                 repulsion = k_repulsive * (deg[i] + 1) * deg / distance
+                
                 gravity = k_gravity * (deg + 1)
                 if strong_gravity:
                     gravity = gravity * distance
