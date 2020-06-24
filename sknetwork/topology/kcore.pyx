@@ -66,7 +66,6 @@ class CoreDecomposition(Algorithm):
     """K-core decomposition algorithm.
 
     * Graphs
-    * Digraphs
 
     Attributes
     ----------
