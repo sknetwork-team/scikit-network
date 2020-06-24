@@ -18,7 +18,6 @@ from sknetwork.utils.base import Algorithm
 
 cimport cython
 
-
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices, np.ndarray[int, ndim=1] indptr, int max_iter, np.ndarray[int, ndim=1] input_labels) :
@@ -36,6 +35,8 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
     cdef int key
     cdef int deg
     cdef int max_deg
+    cdef int new_max_label = 0
+    cdef int old_max_label = 1
     cdef int neighbor_label
     cdef long concatenation
     # labels denotes the array of the labels at the i-th iteration.
@@ -59,7 +60,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
     large_label = np.zeros((n, 2), dtype=DTYPE)
 
 
-    while iteration < max_iter: #labels_new.max() != labels_old.max():
+    while old_max_label != new_max_label and iteration < max_iter: #labels_new.max() != labels_old.max():
         for i in range(n):
             # 1
             # going through the neighbors of v.
@@ -85,7 +86,8 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
 
 
         # 3
-        large_label = large_label[large_label[:,0].argsort()] #.sort(key=lambda x: x[0])  # sort along first axis
+        #TODO le problème est dans le argsort ici qui bouge les deux colonnes donc change l'ordre ensuite
+        #large_label = large_label[large_label[:,0].argsort()] #.sort(key=lambda x: x[0])  # sort along first axis
         new_hash = {}
         current_max = 0
 
@@ -98,11 +100,17 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
             #  4
 
             labels[ind] = new_hash[key]
+        old_max_label = new_max_label
+        new_max_label = np.max(labels)
+        print(new_max_label)
         iteration += 1
 
     print("iterations :", iteration)
 
     #Test
+    #TODO useless si on utilise plus argsort
+    """
+    print(labels)
     lists = np.array([[0,[]] for _ in range(n)])
     for i in range(n) :
         lists[labels[i]][0] += 1
@@ -110,19 +118,16 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
 
     lists = lists[lists[:,0].argsort()]
 
-    max = 0
+    cdef int max_val = 0
     for i in range(n):
         j = len(lists[i][1])
         if j > 0 :
             for u in range(j):
-                labels[lists[i][1][u]] = max
-            max += 1
-
-    somme = 0
-    for i in range(n):
-        somme += 1 if lists[i][0] > 0 else 0
-
-    return np.sort(labels)
+                labels[lists[i][1][u]] = max_val
+            max_val += 1
+    print("after ", labels)
+    """
+    return labels
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -224,7 +229,7 @@ class WLColoring(Algorithm):
         -------
         self: :class:`WLColoring`
         """
-
+        #TODO fin du PAF: remettre max_iter en attribut.
         indices = adjacency.indices
         indptr = adjacency.indptr
 
