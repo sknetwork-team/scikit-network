@@ -17,36 +17,40 @@ from sknetwork.utils.check import check_format, is_symmetric, check_square
 
 class ForceAtlas2(BaseEmbedding):
 
-    def __init__(self, n_iter: int = 50, linlog: bool = False, ks: int = 1, tolerance: float = 0.1, kg: float = 1.0,
-                 strong_gravity: bool = True, delta: int = 0, hubs : bool = False):
+    def __init__(self, n_iter: int = 50, lin_log: bool = False, k_gravity: float = 1.0, strong_gravity: bool = True,
+                 k_scaling: int = 1, exponent: int = 0, no_hubs: bool = False, tolerance: float = 0.1):
         super(ForceAtlas2, self).__init__()
         self.n_iter = n_iter
-        self.linlog = linlog
-        self.ks = ks
-        self.tolerance = tolerance
-        self.kg = kg
+        self.lin_log = lin_log
+        self.k_gravity = k_gravity
         self.strong_gravity = strong_gravity
-        self.delta = delta
-        self.hubs = hubs
+        self.k_scaling = k_scaling
+        self.exponent = exponent
+        self.no_hubs = no_hubs
+        self.tolerance = tolerance
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None,
-            linlog: Optional[bool] = None, ks: Optional[int] = None,
-            tolerance: Optional[float] = None, kg: Optional[float] = None, strong_gravity: Optional[bool] = None,
-            delta: Optional[int] = None, hubs: Optional[bool] = None) -> 'ForceAtlas2':
+            lin_log: Optional[bool] = None, k_gravity: Optional[float] = None, strong_gravity: Optional[bool] = None,
+            k_scaling: Optional[int] = None, exponent: Optional[int] = None, no_hubs: Optional[bool] = None,
+            tolerance: Optional[float] = None) -> 'ForceAtlas2':
         """Compute layout.
 
         Parameters
         ----------
-        hubs
-        delta
-        strong_gravity
-        kg
+        lin_log :
+            If True, activate an alternative formula for the attractive force
+        k_gravity :
+            Gravity force scaling constant
+        strong_gravity :
+            If True, activate an alternative formula for the gravity force
+        k_scaling :
+            Repulsive force scaling constant
+        exponent :
+            If different to 0, modify attraction force, the weights are raised to the power of 'exponent'
+        no_hubs :
+            If True, change the value of the attraction force
         tolerance :
-
-        ks :
-
-        linlog :
-
+            Tolerance defined in the swinging constant
         adjacency :
             Adjacency matrix of the graph, treated as undirected.
         n_iter : int
@@ -76,20 +80,20 @@ class ForceAtlas2(BaseEmbedding):
 
         if n_iter is None:
             n_iter = self.n_iter
-        if ks is None:
-            ks = self.ks
-        if linlog is None:
-            linlog = self.linlog
-        if tolerance is None:
-            tolerance = self.tolerance
-        if kg is None:
-            kg = self.kg
+        if lin_log is None:
+            lin_log = self.lin_log
+        if k_gravity is None:
+            k_gravity = self.k_gravity
         if strong_gravity is None:
             strong_gravity = self.strong_gravity
-        if delta is None:
-            delta = self.delta
-        if hubs is None:
-            hubs = self.hubs
+        if k_scaling is None:
+            k_scaling = self.k_scaling
+        if exponent is None:
+            exponent = self.exponent
+        if no_hubs is None:
+            no_hubs = self.no_hubs
+        if tolerance is None:
+            tolerance = self.tolerance
 
         deg = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
@@ -118,19 +122,19 @@ class ForceAtlas2(BaseEmbedding):
                 distance = np.where(distance < 0.01, 0.01, distance)
 
                 attraction[indices] = 10 * distance[indices]  # change attraction of connected nodes
-                # The linlog mode calculates the attraction force
-                if linlog:
+                # The lin_log mode calculates the attraction force
+                if lin_log:
                     attraction = np.log(1 + attraction)
 
-                if delta != 0:
+                if exponent != 0:
                     data = adjacency.data[adjacency.indptr[i]:adjacency.indptr[i + 1]]
-                    attraction = (data**delta)*attraction
+                    attraction = (data**exponent)*attraction
 
-                if hubs:
+                if no_hubs:
                     attraction = attraction / (deg[i] + 1)
 
-                repulsion = ks * 0.01 * (deg[i] + 1) * deg / distance
-                gravity = kg * 0.01 * (deg + 1)
+                repulsion = k_scaling * 0.01 * (deg[i] + 1) * deg / distance
+                gravity = k_gravity * 0.01 * (deg + 1)
                 if strong_gravity:
                     gravity = gravity * distance
 
