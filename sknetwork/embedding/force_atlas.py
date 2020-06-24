@@ -17,33 +17,40 @@ from sknetwork.utils.check import check_format, is_symmetric, check_square
 
 class ForceAtlas2(BaseEmbedding):
 
-    def __init__(self, n_iter: int = 50, lin_log: bool = False, k_gravity: float = 1.0, strong_gravity: bool = True,
-                 k_scaling: int = 1, exponent: int = 0, no_hubs: bool = False, tolerance: float = 0.1):
+    def __init__(self, n_iter: int = 50, lin_log: bool = False, k_gravity: float = 0.01, strong_gravity: bool = False,
+                 k_repulsive: int = 0.01, exponent: int = 0, no_hubs: bool = False, tolerance: float = 0.1,
+                 k_speed: float = 0.01):
         super(ForceAtlas2, self).__init__()
         self.n_iter = n_iter
         self.lin_log = lin_log
         self.k_gravity = k_gravity
         self.strong_gravity = strong_gravity
-        self.k_scaling = k_scaling
+        self.k_repulsive = k_repulsive
         self.exponent = exponent
         self.no_hubs = no_hubs
         self.tolerance = tolerance
+        self.k_speed = k_speed
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None,
             lin_log: Optional[bool] = None, k_gravity: Optional[float] = None, strong_gravity: Optional[bool] = None,
-            k_scaling: Optional[int] = None, exponent: Optional[int] = None, no_hubs: Optional[bool] = None,
-            tolerance: Optional[float] = None) -> 'ForceAtlas2':
+            k_repulsive: Optional[int] = None, exponent: Optional[int] = None, no_hubs: Optional[bool] = None,
+            tolerance: Optional[float] = None, k_speed: Optional[float] = None) -> 'ForceAtlas2':
         """Compute layout.
 
         Parameters
         ----------
+        adjacency :
+            Adjacency matrix of the graph, treated as undirected.
+        n_iter : int
+            Number of iterations to update positions.
+            If ``None``, use the value of self.n_iter.
         lin_log :
             If True, activate an alternative formula for the attractive force
         k_gravity :
             Gravity force scaling constant
         strong_gravity :
             If True, activate an alternative formula for the gravity force
-        k_scaling :
+        k_repulsive :
             Repulsive force scaling constant
         exponent :
             If different to 0, modify attraction force, the weights are raised to the power of 'exponent'
@@ -51,11 +58,9 @@ class ForceAtlas2(BaseEmbedding):
             If True, change the value of the attraction force
         tolerance :
             Tolerance defined in the swinging constant
-        adjacency :
-            Adjacency matrix of the graph, treated as undirected.
-        n_iter : int
-            Number of iterations to update positions.
-            If ``None``, use the value of self.n_iter.
+        k_speed :
+            Speed constant
+
 
         Returns
         -------
@@ -86,15 +91,16 @@ class ForceAtlas2(BaseEmbedding):
             k_gravity = self.k_gravity
         if strong_gravity is None:
             strong_gravity = self.strong_gravity
-        if k_scaling is None:
-            k_scaling = self.k_scaling
+        if k_repulsive is None:
+            k_repulsive = self.k_repulsive
         if exponent is None:
             exponent = self.exponent
         if no_hubs is None:
             no_hubs = self.no_hubs
         if tolerance is None:
             tolerance = self.tolerance
-
+        if k_speed is None:
+            k_speed = self.k_speed
         deg = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
         # definition of the step
@@ -133,8 +139,8 @@ class ForceAtlas2(BaseEmbedding):
                 if no_hubs:
                     attraction = attraction / (deg[i] + 1)
 
-                repulsion = k_scaling * 0.01 * (deg[i] + 1) * deg / distance
-                gravity = k_gravity * 0.01 * (deg + 1)
+                repulsion = k_repulsive * (deg[i] + 1) * deg / distance
+                gravity = k_gravity * (deg + 1)
                 if strong_gravity:
                     gravity = gravity * distance
 
@@ -147,7 +153,7 @@ class ForceAtlas2(BaseEmbedding):
                 global_swing += (deg[i] + 1) * swing_node
                 global_traction += (deg[i] + 1) * traction
 
-                node_speed = 1 * global_speed / (1 + global_speed * np.sqrt(swing_node))
+                node_speed = k_speed * global_speed / (1 + global_speed * np.sqrt(swing_node))
 
                 forces_for_each_node[i] = force  # force resultant update
 
