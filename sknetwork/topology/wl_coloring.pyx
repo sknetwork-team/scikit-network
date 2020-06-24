@@ -32,6 +32,8 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
     cdef int jj
     cdef int j1
     cdef int j2
+    cdef int ind
+    cdef int key
     cdef int deg
     cdef int max_deg
     cdef int neighbor_label
@@ -46,7 +48,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
     cdef np.ndarray[int, ndim = 2] large_label
 
     degres = np.array(indptr[1:]) - np.array(indptr[:-1])
-    max_deg = max(degres)
+    max_deg = np.max(degres)
 
     cdef np.int32_t[:] count
     cdef np.longlong_t[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
@@ -60,9 +62,8 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
     if max_iter < 0:
         max_iter = n
 
-    while iteration < max_iter and (labels_old != labels_new).any() :
+    while (labels_old != labels_new).any() and labels_new.max() != labels_old.max():
         labels_old = np.copy(labels_new) #Perf : ne pas utiliser copy? echanger les addresses ?
-
 
         for i in range(n):
             # 1
@@ -90,20 +91,41 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
 
 
         # 3
-        _, labels_new =  np.unique(large_label[:,0], return_inverse= True)
+        large_label = large_label[large_label[:,0].argsort()] #.sort(key=lambda x: x[0])  # sort along first axis
+        new_hash = {}
+        current_max = 0
+
+        for j in range(n):
+            ind = large_label[j][1]
+            key = large_label[j][0]
+            if not (key in new_hash):
+                new_hash[key] = current_max
+                current_max += 1
+            #  4
+
+            labels_new[ind] = new_hash[key]
         iteration += 1
 
-        if iteration == n//4 :
-            print("25%")
-        if iteration == n//2 :
-            print("50%")
-        if iteration == 3*n//4 :
-            print("75%")
-        if iteration == n :
-            print("100%")
-
     print("iterations :", iteration)
-    return labels_new
+
+    #Test
+    lists = np.array([[0,[]] for _ in range(n)])
+    lists_count = [0 for _ in range(n)]
+    for i in range(n) :
+        lists[labels_old[i]][0] += 1
+        lists[labels_old[i]][1].append(i)
+
+    lists = lists[lists[:,0].argsort()]
+
+    max = 0
+    for i in range(n):
+        j = len(lists[i][1])
+        if j > 0 :
+            for u in range(j):
+                labels_old[lists[i][1][u]] = max
+            max += 1
+
+    return np.sort(labels_old)
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
