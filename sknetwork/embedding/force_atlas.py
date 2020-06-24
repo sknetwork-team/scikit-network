@@ -18,7 +18,7 @@ from sknetwork.utils.check import check_format, is_symmetric, check_square
 class ForceAtlas2(BaseEmbedding):
 
     def __init__(self, n_iter: int = 50, linlog: bool = False, ks: int = 1, tolerance: float = 0.1, kg: float = 1.0,
-                 strong_gravity: bool = True):
+                 strong_gravity: bool = True, delta: int = 0):
         super(ForceAtlas2, self).__init__()
         self.n_iter = n_iter
         self.linlog = linlog
@@ -26,14 +26,17 @@ class ForceAtlas2(BaseEmbedding):
         self.tolerance = tolerance
         self.kg = kg
         self.strong_gravity = strong_gravity
+        self.delta = delta
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None,
             linlog: Optional[bool] = None, ks: Optional[int] = None,
-            tolerance: Optional[float] = None, kg: Optional[float] = None, strong_gravity: Optional[bool] = None) -> 'ForceAtlas2':
+            tolerance: Optional[float] = None, kg: Optional[float] = None, strong_gravity: Optional[bool] = None,
+            delta: Optional[int] = None) -> 'ForceAtlas2':
         """Compute layout.
 
         Parameters
         ----------
+        delta
         strong_gravity
         kg
         tolerance :
@@ -79,6 +82,10 @@ class ForceAtlas2(BaseEmbedding):
             tolerance = self.tolerance
         if kg is None:
             kg = self.kg
+        if strong_gravity is None:
+            strong_gravity = self.strong_gravity
+        if delta is None:
+            delta = self.delta
 
         deg = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
@@ -110,6 +117,10 @@ class ForceAtlas2(BaseEmbedding):
                 # The linlog mode calculates the attraction force
                 if linlog:
                     attraction = np.log(1 + attraction)
+
+                if delta != 0:
+                    data = adjacency.data[adjacency.indptr[i]:adjacency.indptr[i + 1]]
+                    attraction = (data**delta)*attraction
 
                 repulsion = ks * 0.01 * (deg[i] + 1) * deg / distance
                 gravity = kg * 0.01 * (deg + 1)
