@@ -16,9 +16,60 @@ from sknetwork.utils.check import check_format, is_symmetric, check_square
 
 
 class ForceAtlas2(BaseEmbedding):
+    """Force Atlas2 layout for displaying graphs.
 
+    * Graphs
+    * Digraphs
+
+    Parameters
+    ----------
+    n_iter : int
+        Number of iterations to update positions.
+    lin_log : bool
+        Enable/disable LinLog mode to compute the attraction force
+    k_gravity : float
+        Constant value used to compute the gravity force
+    strong_gravity : bool
+        Enable/disable this parameter to increase the gravity force
+    k_repulsive : float
+        Constant value used to compute the repulsive force
+    exponent : int
+        Emphasizes the weights of the edges in a weighted graph. If 0, weights are ignored
+    no_hubs : bool
+        Enable/disable to reduce/increase the importance of hubs in the layout
+    tolerance : float
+        Minimum relative change in positions to continue updating.
+    k_speed : float
+        Constant value used to compute the speed of each node
+    k_speed_max : float
+        Constant value used to prevent nodes's speed from being to high
+    Attributes
+    ----------
+    embedding_ : np.ndarray
+        Layout in 2D.
+
+    Example
+    -------
+    >>> from sknetwork.embedding.force_atlas import ForceAtlas2
+    >>> from sknetwork.data import karate_club
+    >>> force_atlas = ForceAtlas2()
+    >>> adjacency = karate_club()
+    >>> embedding = force_atlas.fit_transform(adjacency)
+    >>> embedding.shape
+    (34, 2)
+
+    Notes
+    -----
+    Implementation designed to display graphs in 2D.
+
+    References
+    ----------
+    Jacomy M., Venturini T., Heymann S., Bastian M. (2014).
+    "ForceAtlas2, a Continuous Graph Layout Algorithm for Handy Network Visualization Designed for the Gephi Software".
+    Plos One.
+    """
     def __init__(self, n_iter: int = 50, lin_log: bool = False, k_gravity: float = 0.01, strong_gravity: bool = False,
-                 k_repulsive: int = 0.01, exponent: int = 0, no_hubs: bool = False, tolerance: float = 0.1,
+                 k_repulsive: float = 0.01, exponent: int = 0, no_hubs: bool = False, tolerance: float = 0.1,
                  k_speed: float = 0.1, k_speed_max: float = 10):
         super(ForceAtlas2, self).__init__()
         self.n_iter = n_iter
@@ -70,7 +121,6 @@ class ForceAtlas2(BaseEmbedding):
         -------
         self: :class:`ForceAtlas2`
         """
-
         # verify the format of the adjacency matrix
         adjacency = check_format(adjacency)
         check_square(adjacency)
