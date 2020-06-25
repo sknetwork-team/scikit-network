@@ -57,7 +57,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
 
     degres = memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))
     max_deg = np.max(list(degres))
-
+    has_changed = False
     cdef np.int32_t[:] count
     cdef long long[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
 
@@ -70,7 +70,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
         max_iter = min(n, max_iter)
     else :
         max_iter = n
-    while iteration < max_iter :
+    while iteration < max_iter and not(has_changed) :
         large_label.clear()
         for i in range(n):
             # 1
@@ -108,7 +108,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
         new_hash = {}
         current_max = 1
 
-        has_changed = False #True if at least one label was changed
+        has_changed = True #True if at least one label was changed
         for j in range(n):
             key = large_label[j].first
             ind = large_label[j].second
@@ -118,8 +118,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
             #  4
             old_label = int(labels[ind])
             labels[ind] = new_hash[key]
-
-            has_changed += (old_label != labels[ind])
+            has_changed &= (old_label == labels[ind])
         iteration += 1
 
 
