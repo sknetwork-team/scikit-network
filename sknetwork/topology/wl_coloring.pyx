@@ -23,7 +23,6 @@ cimport cython
 
 ctypedef pair[long long, int] cpair
 
-
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices, np.ndarray[int, ndim=1] indptr, int max_iter, np.ndarray[int, ndim=1] input_labels) :
@@ -45,11 +44,9 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
     cdef int old_label
     cdef long concatenation
     cdef bint has_changed
-    # labels denotes the array of the labels at the i-th iteration.
-    # labels_previous denotes the array of the labels at the i-1-th iteration.
 
     cdef long long[:] labels
-    cdef long long[:]  multiset
+    cdef long long[:] multiset
     cdef int[:]  degres
     cdef vector[cpair] large_label
 
@@ -84,7 +81,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
 
             # 2
 
-            counting_sort(n, deg, count, multiset, sorted_multiset) #np.repeat(np.arange(1+multiset.max()), np.bincount(multiset))
+            counting_sort(n, deg, count, multiset, sorted_multiset)
             concatenation = labels[i]
             for j in range(deg) :
                 neighbor_label = multiset[j]
@@ -110,6 +107,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
             #  4
             old_label = int(labels[ind])
             labels[ind] = new_hash[key]
+
             has_changed += (old_label != labels[ind])
         iteration += 1
 
@@ -118,8 +116,6 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
 
     #Test
     #TODO useless si on utilise plus argsort
-    """
-    print(labels)
     lists = np.array([[0,[]] for _ in range(n)])
     for i in range(n) :
         lists[labels[i]][0] += 1
@@ -134,8 +130,6 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
             for u in range(j):
                 labels[lists[i][1][u]] = max_val
             max_val += 1
-    print("after ", labels)
-    """
     return np.asarray(labels)
 
 

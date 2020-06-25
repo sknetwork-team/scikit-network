@@ -7,6 +7,7 @@ Created on June, 2020
 import numpy as np
 cimport numpy as np
 
+
 cimport cython
 
 @cython.boundscheck(False)
@@ -30,23 +31,29 @@ cdef void counting_sort(int n, int deg, np.int32_t[:] count, long long[:] multis
     multiset : long long[:]
         The array to be sorted.
 
-    sorted_multiset : np.longlong_t[:]
+    sorted_multiset : long long[:]
         The array where multiset will be sorted.
     """
+
+    cdef int total = 0
     cdef int i
+    cdef int j
 
     for i in range(n):
         count[i] = 0
 
     for i in range(deg):
-        count[multiset[i]] += 1
+        j =multiset[i]
+        count[j] += 1
 
-    for i in range(1, n):
-        count[i] += count[i - 1]
+    for i in range(n):
+        j = total
+        total+= count[i]
+        count[i] = j
 
     for i in range(deg):
-        sorted_multiset[count[multiset[i]] - 1] = multiset[i]
-        count[multiset[i]] -= 1
+        sorted_multiset[count[multiset[i]]] = multiset[i]
+        count[multiset[i]] += 1
 
     for i in range(deg):
         multiset[i] = sorted_multiset[i]
