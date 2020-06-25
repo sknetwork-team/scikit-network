@@ -138,51 +138,6 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
     """
     return np.asarray(labels)
 
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef void counting_sort(int n, int deg, np.int32_t[:] count,long long[:] multiset, long long[:] sorted_multiset):
-    """Sorts an array by using counting sort, variant of bucket sort.
-
-    Parameters
-    ----------
-    n : int
-        The size (number of nodes) of the graph.
-
-    deg: int
-        The deg of current node and size of multiset.
-
-    count : np.int32_t[:]
-        Buckets to count ocurrences.
-
-    multiset : np.longlong_t[:]
-        The array to be sorted.
-
-    sorted_multiset : np.longlong_t[:]
-        The array where multiset will be sorted.
-    """
-
-    cdef int total = 0
-    cdef int i
-    cdef int j
-
-    for i in range(n):
-        count[i] = 0
-
-    for i in range(deg):
-        j =multiset[i]
-        count[j] += 1
-
-    for i in range(n):
-        j = total
-        total+= count[i]
-        count[i] = j
-
-    for i in range(deg):
-        sorted_multiset[count[multiset[i]]] = multiset[i]
-        count[multiset[i]] += 1
-
-    for i in range(deg):
-        multiset[i] = sorted_multiset[i]
 
 class WLColoring(Algorithm):
     """Weisefeler-Lehman algorithm for coloring/labeling graphs in order to check similarity.
