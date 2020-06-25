@@ -16,7 +16,13 @@ from scipy import sparse
 from sknetwork.utils.base import Algorithm
 #from sknetwork.utils.counting_sort import counting_sort
 
+from libcpp.pair cimport pair
+from libcpp.vector cimport vector
+
 cimport cython
+
+ctypedef pair[long long, int] cpair
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -35,32 +41,35 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
     cdef int key
     cdef int deg
     cdef int max_deg
-    cdef int new_max_label = 0
-    cdef int old_max_label = 1
     cdef int neighbor_label
+    cdef int old_label
     cdef long concatenation
+    cdef bint has_changed
     # labels denotes the array of the labels at the i-th iteration.
     # labels_previous denotes the array of the labels at the i-1-th iteration.
 
-    cdef np.ndarray[long long, ndim=1] labels_new
-    cdef np.ndarray[long long, ndim=1] labels_old
-    cdef np.ndarray[long long, ndim = 1]  multiset
-    cdef np.ndarray[int, ndim = 1]  degres
-    cdef np.ndarray[int, ndim = 2] large_label
+    cdef long long[:] labels
+    cdef long long[:]  multiset
+    cdef int[:]  degres
+    cdef vector[cpair] large_label
 
-    degres = np.array(indptr[1:]) - np.array(indptr[:-1])
-    max_deg = np.max(degres)
+    degres = memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))
+    max_deg = np.max(list(degres))
 
     cdef np.int32_t[:] count
-    cdef np.longlong_t[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
+    cdef long long[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
 
     count= np.zeros(n, dtype = np.int32)
     multiset = np.empty(max_deg, dtype=np.longlong)
     labels = np.ones(n, dtype = np.longlong)
     large_label = np.zeros((n, 2), dtype=DTYPE)
 
-
-    while old_max_label != new_max_label and iteration < max_iter: #labels_new.max() != labels_old.max():
+    if max_iter > 0 :
+        max_iter = min(n, max_iter)
+    else :
+        max_iter = n
+    while iteration < max_iter :
+        large_label.clear()
         for i in range(n):
             # 1
             # going through the neighbors of v.
@@ -76,34 +85,34 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
             # 2
 
             counting_sort(n, deg, count, multiset, sorted_multiset) #np.repeat(np.arange(1+multiset.max()), np.bincount(multiset))
-
             concatenation = labels[i]
             for j in range(deg) :
                 neighbor_label = multiset[j]
                 concatenation= (concatenation * 10 ** (len(str(neighbor_label)))) + neighbor_label #there are still warnings because of np.int length
 
-            large_label[i] = np.array([concatenation, i])
+            large_label.push_back((cpair(concatenation, i)))
 
 
         # 3
+
         #TODO le problème est dans le argsort ici qui bouge les deux colonnes donc change l'ordre ensuite
         #large_label = large_label[large_label[:,0].argsort()] #.sort(key=lambda x: x[0])  # sort along first axis
         new_hash = {}
-        current_max = 0
+        current_max = 1
 
+        has_changed = False #True if at least one label was changed
         for j in range(n):
-            ind = large_label[j][1]
-            key = large_label[j][0]
+            key = large_label[j].first
+            ind = large_label[j].second
             if not (key in new_hash):
                 new_hash[key] = current_max
                 current_max += 1
             #  4
-
+            old_label = int(labels[ind])
             labels[ind] = new_hash[key]
-        old_max_label = new_max_label
-        new_max_label = np.max(labels)
-        print(new_max_label)
+            has_changed += (old_label != labels[ind])
         iteration += 1
+
 
     print("iterations :", iteration)
 
@@ -127,11 +136,11 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
             max_val += 1
     print("after ", labels)
     """
-    return labels
+    return np.asarray(labels)
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef void counting_sort(int n, int deg, np.int32_t[:] count, np.longlong_t[:] multiset, np.longlong_t[:] sorted_multiset):
+cdef void counting_sort(int n, int deg, np.int32_t[:] count,long long[:] multiset, long long[:] sorted_multiset):
     """Sorts an array by using counting sort, variant of bucket sort.
 
     Parameters
