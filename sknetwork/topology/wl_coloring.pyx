@@ -18,6 +18,7 @@ from sknetwork.utils.counting_sort cimport counting_sort
 
 from libcpp.pair cimport pair
 from libcpp.vector cimport vector
+from libcpp.unordered_map cimport unordered_map as cmap
 from libc.math cimport log10 as clog10
 from libc.math cimport pow as cpowl
 from libc.math cimport modf
@@ -49,7 +50,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
     cdef double int_part
     cdef bint has_changed
 
-    cdef dict new_hash
+    cdef cmap[long, long] new_hash
     cdef long long[:] labels
     cdef long long[:] multiset
     cdef int[:]  degres
@@ -105,14 +106,14 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
 
         #TODO le problème est dans le argsort ici qui bouge les deux colonnes donc change l'ordre ensuite
         #large_label = large_label[large_label[:,0].argsort()] #.sort(key=lambda x: x[0])  # sort along first axis
-        new_hash = {}
+        new_hash.clear()
         current_max = 1
 
         has_changed = True #True if at least one label was changed
         for j in range(n):
             key = large_label[j].first
             ind = large_label[j].second
-            if not (key in new_hash):
+            if new_hash.find(key) == new_hash.end():
                 new_hash[key] = current_max
                 current_max += 1
             #  4
@@ -122,7 +123,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
         iteration += 1
 
 
-    print("iterations :", iteration)
+#    print("iterations :", iteration)
     """
     lists = np.array([[0,[]] for _ in range(n)])
     for i in range(n) :
