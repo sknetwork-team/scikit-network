@@ -14,7 +14,7 @@ cimport numpy as np
 from scipy import sparse
 
 from sknetwork.utils.base import Algorithm
-#from sknetwork.utils.counting_sort import counting_sort
+from sknetwork.utils.counting_sort cimport counting_sort
 
 from libcpp.pair cimport pair
 from libcpp.vector cimport vector
