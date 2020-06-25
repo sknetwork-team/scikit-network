@@ -18,7 +18,9 @@ from sknetwork.utils.counting_sort cimport counting_sort
 
 from libcpp.pair cimport pair
 from libcpp.vector cimport vector
-
+from libc.math cimport log10 as clog10
+from libc.math cimport pow as cpowl
+from libc.math cimport modf
 cimport cython
 
 ctypedef pair[long long, int] cpair
@@ -43,8 +45,11 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
     cdef int neighbor_label
     cdef int old_label
     cdef long concatenation
+    cdef double temp_conc
+    cdef double int_part
     cdef bint has_changed
 
+    cdef dict new_hash
     cdef long long[:] labels
     cdef long long[:] multiset
     cdef int[:]  degres
@@ -85,7 +90,13 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
             concatenation = labels[i]
             for j in range(deg) :
                 neighbor_label = multiset[j]
-                concatenation= (concatenation * 10 ** (len(str(neighbor_label)))) + neighbor_label #there are still warnings because of np.int length
+
+                temp_conc = clog10(neighbor_label)
+                ret = modf(temp_conc, &int_part)
+                int_part+=1.0
+                temp_conc = cpowl(10.0, int_part)
+                ret = modf(temp_conc, &int_part)
+                concatenation= (concatenation *(<long>int_part)) + neighbor_label #there are still warnings because of np.int length
 
             large_label.push_back((cpair(concatenation, i)))
 
@@ -113,9 +124,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
 
 
     print("iterations :", iteration)
-
-    #Test
-    #TODO useless si on utilise plus argsort
+    """
     lists = np.array([[0,[]] for _ in range(n)])
     for i in range(n) :
         lists[labels[i]][0] += 1
@@ -130,6 +139,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
             for u in range(j):
                 labels[lists[i][1][u]] = max_val
             max_val += 1
+    """
     return np.asarray(labels)
 
 
