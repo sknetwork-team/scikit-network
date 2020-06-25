@@ -70,7 +70,7 @@ class ForceAtlas2(BaseEmbedding):
     """
     def __init__(self, n_iter: int = 50, lin_log: bool = False, k_gravity: float = 0.01, strong_gravity: bool = False,
                  k_repulsive: float = 0.01, exponent: int = 0, no_hubs: bool = False, tolerance: float = 0.1,
-                 k_speed: float = 0.1, k_speed_max: float = 10):
+                 k_speed: float = 0.1, k_speed_max: float = 10, dimension: int = 2):
         super(ForceAtlas2, self).__init__()
         self.n_iter = n_iter
         self.lin_log = lin_log
@@ -82,12 +82,13 @@ class ForceAtlas2(BaseEmbedding):
         self.tolerance = tolerance
         self.k_speed = k_speed
         self.k_speed_max = k_speed_max
+        self.dimension = dimension
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_iter: Optional[int] = None,
             lin_log: Optional[bool] = None, k_gravity: Optional[float] = None, strong_gravity: Optional[bool] = None,
             k_repulsive: Optional[int] = None, exponent: Optional[int] = None, no_hubs: Optional[bool] = None,
             tolerance: Optional[float] = None, k_speed: Optional[float] = None,
-            k_speed_max: Optional[float] = None) -> 'ForceAtlas2':
+            k_speed_max: Optional[float] = None, dimension: Optional[int] = None) -> 'ForceAtlas2':
         """Compute layout.
 
         Parameters
@@ -115,6 +116,8 @@ class ForceAtlas2(BaseEmbedding):
             Speed constant
         k_speed_max :
             Constant used to impose constrain on speed
+        dimension :
+            choose dimension of the graph layout
 
 
         Returns
@@ -136,9 +139,6 @@ class ForceAtlas2(BaseEmbedding):
         else:
             tolerance = 10
 
-        # initial position of the nodes of the graph
-        position = np.random.randn(n, 2)
-
         if n_iter is None:
             n_iter = self.n_iter
         if lin_log is None:
@@ -159,17 +159,23 @@ class ForceAtlas2(BaseEmbedding):
             k_speed = self.k_speed
         if k_speed_max is None:
             k_speed_max = self.k_speed_max
+        if dimension is None:
+            dimension = self.dimension
+
+        # initial position of the nodes of the graph
+        position = np.random.randn(n, dimension)
 
         # compute the vector with the degree of each node
         deg = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
         # definition of the step
-        delta_x: float = position[:, 0].max() - position[:, 0].min()  # max variation /x
-        delta_y: float = position[:, 1].max() - position[:, 1].min()  # max variation /y
-        step_max: float = max(delta_x, delta_y)
+        variation = np.zeros(dimension)
+        for i in range(dimension):
+            variation[i] = position[:, i].max() - position[:, i].min()  # max variation
+        step_max: float = max(variation)
         step: float = step_max / (n_iter + 1)
 
-        delta = np.zeros((n, 2))  # initialization of variation of position of nodes
+        delta = np.zeros((n, dimension))  # initialization of variation of position of nodes
         forces_for_each_node = np.zeros(n)
         swing_vector = np.zeros(n)
         global_speed = 1
