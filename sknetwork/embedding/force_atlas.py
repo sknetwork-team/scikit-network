@@ -11,6 +11,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding.base import BaseEmbedding
+from sknetwork.embedding.building_tree import Cell
 from sknetwork.utils import directed2undirected
 from sknetwork.utils.check import check_format, is_symmetric, check_square
 
@@ -68,6 +69,7 @@ class ForceAtlas2(BaseEmbedding):
     "ForceAtlas2, a Continuous Graph Layout Algorithm for Handy Network Visualization Designed for the Gephi Software".
     Plos One.
     """
+
     def __init__(self, n_iter: int = 50, lin_log: bool = False, k_gravity: float = 0.01, strong_gravity: bool = False,
                  k_repulsive: float = 0.01, exponent: int = 0, no_hubs: bool = False, tolerance: float = 0.1,
                  k_speed: float = 0.1, k_speed_max: float = 10, dimension: int = 2):
@@ -88,7 +90,8 @@ class ForceAtlas2(BaseEmbedding):
             lin_log: Optional[bool] = None, k_gravity: Optional[float] = None, strong_gravity: Optional[bool] = None,
             k_repulsive: Optional[int] = None, exponent: Optional[int] = None, no_hubs: Optional[bool] = None,
             tolerance: Optional[float] = None, k_speed: Optional[float] = None,
-            k_speed_max: Optional[float] = None, dimension: Optional[int] = None) -> 'ForceAtlas2':
+            k_speed_max: Optional[float] = None, dimension: Optional[int] = None, barnes_hut: bool = True,
+            theta: float = 1.2) -> 'ForceAtlas2':
         """Compute layout.
 
         Parameters
@@ -118,7 +121,10 @@ class ForceAtlas2(BaseEmbedding):
             Constant used to impose constrain on speed
         dimension :
             choose dimension of the graph layout
-
+        barnes_hut :
+            choose to enable or not barnes_hut algorithm to compute forces
+        theta :
+            parameter used in barnes_hut algorithm
 
         Returns
         -------
@@ -185,6 +191,12 @@ class ForceAtlas2(BaseEmbedding):
             delta *= 0
             global_swing = 0
             global_traction = 0
+
+            # tree construction
+            root = Cell(position[:, 0].min(), position[:, 0].max(), position[:, 1].min(), position[:, 1].max())
+            for i in range(n):
+                root.add(position[i])
+
             for i in range(n):
                 attraction *= 0
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
@@ -198,17 +210,20 @@ class ForceAtlas2(BaseEmbedding):
                     attraction = np.log(1 + attraction)
                 if exponent != 0:
                     data = adjacency.data[adjacency.indptr[i]:adjacency.indptr[i + 1]]
-                    attraction = (data**exponent)*attraction
+                    attraction = (data ** exponent) * attraction
                 if no_hubs:
                     attraction = attraction / (deg[i] + 1)
 
-                repulsion = k_repulsive * (deg[i] + 1) * deg / distance
+                if barnes_hut:
+                    repulsion = root.apply_force(position[i][0], position[i][1], deg[i], theta, k_repulsive)
+                else:
+                    repulsion = k_repulsive * (deg[i] + 1) * deg / distance
 
-                gravity = k_gravity * (deg + 1)
+                gravity = k_gravity * (deg[i] + 1)
                 if strong_gravity:
                     gravity = gravity * distance
 
-                force = repulsion.sum() - attraction.sum() - gravity.sum()  # forces resultant applied on node i
+                force = repulsion.sum() - attraction.sum() - gravity  # forces resultant applied on node i
 
                 swing_node = np.abs(force - forces_for_each_node[i])  # force variation applied on node i
                 swing_vector[i] = swing_node
