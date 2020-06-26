@@ -25,42 +25,43 @@ ctypedef pair[long long, int] cpair
 cdef bint compair(pair[long long, int] p1, pair[long long, int] p2):
     return p1.first < p2.first
 
-#@cython.boundscheck(False)
-#@cython.wraparound(False)
-cdef int c_wl_subtree_kernel(int max_iter, np.ndarray[int, ndim=1] indices_1, np.ndarray[int, ndim=1] indptr_1,
-                                                 np.ndarray[int, ndim=1] indices_2, np.ndarray[int, ndim=1] indptr_2) :
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef int c_wl_subtree_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.ndarray[int, ndim=1] indptr_1,
+                             np.ndarray[int, ndim=1] indices_2, np.ndarray[int, ndim=1] indptr_2) :
     DTYPE = np.int32
     cdef int iteration = 1
     cdef int n = indptr_1.shape[0] - 1
     cdef int m = indptr_2.shape[0] - 1
+    cdef int length_count = 2 * n + 1
     cdef int i
     cdef int max_deg
-    cdef int similarity
+    cdef int similarity = 0
 
     cdef cmap[long, long] new_hash
     cdef long long[:] labels_1
     cdef long long[:] labels_2
     cdef long long[:] multiset
-    cdef int[:]  degres_1
-    cdef int[:]  degres_2
+    cdef int[:]  degrees_1
+    cdef int[:]  degrees_2
     cdef vector[cpair] large_label
 
     cdef bint has_changed_1 = True
     cdef bint has_changed_2 = True
 
-    degres_1 = memoryview(np.array(indptr_1[1:]) - np.array(indptr_1[:n]))
-    degres_2 = memoryview(np.array(indptr_2[1:]) - np.array(indptr_2[:n]))
+    degrees_1 = memoryview(np.array(indptr_1[1:]) - np.array(indptr_1[:n]))
+    degrees_2 = memoryview(np.array(indptr_2[1:]) - np.array(indptr_2[:n]))
 
-    max_deg = max(np.max(list(degres_1)), np.max(list(degres_2)))
+    max_deg = max(np.max(list(degrees_1)), np.max(list(degrees_2)))
     has_changed = False
     cdef int[:] count_sort
     cdef int[:] count_1
     cdef int[:] count_2
     cdef long long[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
 
-    count_sort= np.zeros(2 * n, dtype = DTYPE)
-    count_1= np.zeros(2 * n, dtype = DTYPE)
-    count_2= np.zeros(2 * n, dtype = DTYPE)
+    count_sort= np.zeros(length_count, dtype = DTYPE)
+    count_1= np.zeros(length_count, dtype = DTYPE)
+    count_2= np.zeros(length_count, dtype = DTYPE)
     multiset = np.empty(max_deg, dtype=np.longlong)
     labels_1 = np.ones(n, dtype = np.longlong)
     labels_2 = np.ones(n, dtype = np.longlong)
@@ -69,12 +70,12 @@ cdef int c_wl_subtree_kernel(int max_iter, np.ndarray[int, ndim=1] indices_1, np
     if n != m:
         return 0
 
-    if max_iter > 0 :
-        max_iter = min(n, max_iter)
+    if num_iter > 0 :
+        num_iter = min(n, num_iter)
     else :
-        max_iter = n
+        num_iter = n
 
-    while iteration <= max_iter and (has_changed_1 or has_changed_2) :
+    while iteration <= num_iter and (has_changed_1 or has_changed_2) :
 
         #TODO appel à wl_coloring modifier pour ne faire qu'un tour
         # il faut lui passer tout ce qui est np pour qu'elle n'aie pas à tout redéfinir
@@ -83,9 +84,10 @@ cdef int c_wl_subtree_kernel(int max_iter, np.ndarray[int, ndim=1] indices_1, np
         new_hash.clear() #une seule fois par itération sur les deux graphes
         current_max = 1
 
-        labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, max_deg, n, new_hash, degres_1, multiset, sorted_multiset, large_label, count_sort, current_max, False)
-        labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, max_deg, n, new_hash, degres_2, multiset, sorted_multiset, large_label, count_sort, current_max, False)
-
+        labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, max_deg, n, length_count, new_hash, degrees_1, multiset, sorted_multiset, large_label, count_sort, current_max, False)
+        labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, max_deg, n, length_count, new_hash, degrees_2, multiset, sorted_multiset, large_label, count_sort, current_max, False)
+        print("labels_1", np.asarray(labels_1))
+        print("labels_2", np.asarray(labels_2))
         for i in range(2 * n):
             count_1[i] = 0
             count_2[i] = 0
@@ -94,9 +96,8 @@ cdef int c_wl_subtree_kernel(int max_iter, np.ndarray[int, ndim=1] indices_1, np
             count_2[labels_2[i]] += 1
         for i in range(2 * n):
             similarity += count_1[i] * count_2[i]
-
+        print("similarity :", similarity)
         iteration += 1
-
 
     return similarity
 

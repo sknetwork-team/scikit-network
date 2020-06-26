@@ -14,13 +14,13 @@ cimport cython
 @cython.wraparound(False)
 # This function is only used in sknetwork.topology.wl_coloring.pyx.
 # For others uses please wrap it and put it in sknetwork.utils.__init__.py
-cdef void counting_sort(int n, int deg, int [:] count, long long[:] multiset, long long[:] sorted_multiset):
+cdef void counting_sort(int length_count, int deg, int [:] count, long long[:] multiset, long long[:] sorted_multiset):
     """Sorts an array by using counting sort, variant of bucket sort.
 
     Parameters
     ----------
-    n : int
-        The size (number of nodes) of the graph.
+    length_count : int
+        The size of count.
 
     deg: int
         The deg of current node and size of multiset.
@@ -39,14 +39,14 @@ cdef void counting_sort(int n, int deg, int [:] count, long long[:] multiset, lo
     cdef int i
     cdef int j
 
-    for i in range(n):
+    for i in range(length_count):
         count[i] = 0
 
     for i in range(deg):
         j =multiset[i]
         count[j] += 1
 
-    for i in range(n):
+    for i in range(length_count):
         j = total
         total+= count[i]
         count[i] = j

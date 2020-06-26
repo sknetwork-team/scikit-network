@@ -32,19 +32,20 @@ cdef bint is_lower(pair[long long, int] p1, pair[long long, int] p2):
 @cython.wraparound(False)
 #TODO renvoyer has changed pour kernel
 cdef long long [:] c_wl_coloring(int[:] indices,
-                                                         int[:] indptr,
-                                                         int max_iter,
-                                                         long long[:] labels,
-                                                         int max_deg,
-                                                         int n,
-                                                         cmap[long, long] new_hash,
-                                                         int[:] degrees,
-                                                         long long[:] multiset,
-                                                         long long[:] sorted_multiset,
-                                                         vector[cpair] large_label,
-                                                         int  [:] count,
-                                                         int current_max,
-                                                         bint clear_dict):
+                                int[:] indptr,
+                                int max_iter,
+                                long long[:] labels,
+                                int max_deg,
+                                int n,
+                                int length_count,
+                                cmap[long, long] new_hash,
+                                int[:] degrees,
+                                long long[:] multiset,
+                                long long[:] sorted_multiset,
+                                vector[cpair] large_label,
+                                int  [:] count,
+                                int current_max,
+                                bint clear_dict):
     cdef int iteration = 1
     cdef int u = 0
     cdef int j = 0
@@ -86,7 +87,7 @@ cdef long long [:] c_wl_coloring(int[:] indices,
 
             # 2
 
-            counting_sort(n, deg, count, multiset, sorted_multiset)
+            counting_sort(length_count, deg, count, multiset, sorted_multiset)
             concatenation = labels[i]
             for j in range(deg) :
                 neighbor_label = multiset[j]
@@ -154,7 +155,7 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,int max_iter,np.ndarra
         labels = input_labels
 
 
-    return np.asarray(c_wl_coloring(indices,indptr,max_iter, labels, max_deg, n, new_hash, degrees, multiset, sorted_multiset, large_label, count, current_max, True))
+    return np.asarray(c_wl_coloring(indices,indptr,max_iter, labels, max_deg, n, n, new_hash, degrees, multiset, sorted_multiset, large_label, count, current_max, True))
 
 
 class WLColoring(Algorithm):
@@ -211,7 +212,7 @@ class WLColoring(Algorithm):
         -------
         self: :class:`WLColoring`
         """
-        #TODO fin du PAF: remettre max_iter en attribut.
+        #TODO fin du PAF: remettre num_iter en attribut.
 
 
 
@@ -219,7 +220,7 @@ class WLColoring(Algorithm):
         """
         np.ndarray[int, ndim=1] indices,
                                                          np.ndarray[int, ndim=1] indptr,
-                                                         int max_iter,
+                                                         int num_iter,
                                                          np.ndarray[int, ndim=1] input_labels,
                                                          int max_deg,
                                                          int n,
