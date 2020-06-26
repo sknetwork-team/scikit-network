@@ -42,9 +42,10 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
                                                          long long[:] multiset,
                                                          long long[:] sorted_multiset,
                                                          vector[cpair] large_label,
-                                                         np.int32_t[:] count,
+                                                         np.int32_t  [:] count,
                                                          int current_max):
-    DTYPE = np.int32
+
+    DTYPE = np.longlong
     cdef int iteration = 1
     cdef int u = 0
     cdef int j = 0
@@ -63,41 +64,11 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
     cdef bint has_changed = True
     cdef long long[:] labels = np.ones(n, dtype = np.longlong)
 
-    """
     if max_iter > 0 :
         max_iter = min(n, max_iter)
     else :
         max_iter = n
 
-    if n is None:
-        n = indptr.shape[0] - 1
-
-    if input_labels is None:
-        labels = np.ones(n, dtype = np.longlong)
-    else:
-        labels = input_labels
-
-    if max_deg is None :
-       max_deg = np.max(list(degres))
-
-    if degres is None :
-        degres = memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))
-
-    if multiset is None :
-        multiset = np.empty(max_deg, dtype=np.longlong)
-
-    if sorted_multiset is None :
-        sorted_multiset = np.empty(max_deg, dtype=np.longlong)
-
-    if large_label is None :
-        large_label = np.zeros((n, 2), dtype=DTYPE)
-
-    if current_max is None :
-        current_max = 1
-
-    if count is None :
-        count= np.zeros(n, dtype = np.int32)
-    """
 
 
     while iteration < max_iter and has_changed :
@@ -157,7 +128,34 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
 
     print("iterations :", iteration)
 
-    return np.asarray(labels), has_changed
+    return np.asarray(labels)
+
+
+
+cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency, max_iter, input_labels ) :
+    """Wrapper for Weisfeiler-Lehman coloring"""
+
+    cdef np.ndarray[int, ndim=1] indices = adjacency.indices
+    cdef np.ndarray[int, ndim=1] indptr = adjacency.indptr
+    cdef int n = indptr.shape[0] -1
+    cdef int[:] degres = memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))
+    cdef int max_deg = np.max(list(degres))
+    cdef cmap[long, long] new_hash
+
+    cdef long long[:] multiset = np.empty(max_deg, dtype=np.longlong)
+    cdef long long[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
+    cdef vector[cpair] large_label = np.zeros((n, 2), dtype=np.longlong)
+    cdef np.int32_t [:] count= np.zeros(n, dtype = np.int32)
+    cdef int current_max = 1
+
+    cdef np.ndarray[int, ndim = 1] labels
+    if input_labels is None :
+        labels = np.ones(n, dtype = np.int32)
+    else :
+        labels = input_labels
+
+
+    return c_wl_coloring(indices,indptr,max_iter, labels, max_deg, n, new_hash, degres, multiset, sorted_multiset, large_label, count, current_max)
 
 
 class WLColoring(Algorithm):
@@ -215,10 +213,26 @@ class WLColoring(Algorithm):
         self: :class:`WLColoring`
         """
         #TODO fin du PAF: remettre max_iter en attribut.
-        indices = adjacency.indices
-        indptr = adjacency.indptr
 
-        #self.labels_, _ = c_wl_coloring(indices, indptr, max_iter, input_labels)
+
+
+        self.labels_ = wl_coloring(adjacency, max_iter, input_labels)
+        """
+        np.ndarray[int, ndim=1] indices,
+                                                         np.ndarray[int, ndim=1] indptr,
+                                                         int max_iter,
+                                                         np.ndarray[int, ndim=1] input_labels,
+                                                         int max_deg,
+                                                         int n,
+                                                         cmap[long, long] new_hash,
+                                                         int[:] degres,
+                                                         long long[:] multiset,
+                                                         long long[:] sorted_multiset,
+                                                         vector[cpair] large_label,
+                                                         np.int32_t[:] count,
+                                                         int current_max):"""
+
+
 
         return self
 
