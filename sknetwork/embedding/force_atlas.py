@@ -24,33 +24,33 @@ class ForceAtlas2(BaseEmbedding):
 
     Parameters
     ----------
-        n_components :
-            Choose dimension of the graph layout
-        n_iter : int
-            Number of iterations to update positions.
-            If ``None``, use the value of self.n_iter.
-        barnes_hut :
-            If True, compute repulsive forces with barnes_hut approximation
-        lin_log :
-            If True, activate an alternative formula for the attractive force
-        gravity_factor :
-            Gravity force scaling constant
-        strong_gravity :
-            If True, activate an alternative formula for the gravity force
-        repulsive_factor :
-            Repulsive force scaling constant
-        weight_exponent :
-            If different to 0, modify attraction force, the weights are raised to the power of 'exponent'
-        no_hubs :
-            If True, change the value of the attraction force
-        tolerance :
-            Tolerance defined in the swinging constant
-        speed :
-            Speed constant
-        speed_max :
-            Constant used to impose constrain on speed
-        theta :
-            Parameter used in barnes_hut algorithm
+    n_components :
+        Choose dimension of the graph layout
+    n_iter : int
+        Number of iterations to update positions.
+        If ``None``, use the value of self.n_iter.
+    barnes_hut :
+        If True, compute repulsive forces with barnes_hut approximation
+    lin_log :
+        If True, activate an alternative formula for the attractive force
+    gravity_factor :
+        Gravity force scaling constant
+    strong_gravity :
+        If True, activate an alternative formula for the gravity force
+    repulsive_factor :
+        Repulsive force scaling constant
+    weight_exponent :
+        If different to 0, modify attraction force, the weights are raised to the power of 'exponent'
+    no_hubs :
+        If True, change the value of the attraction force
+    tolerance :
+        Tolerance defined in the swinging constant
+    speed :
+        Speed constant
+    speed_max :
+        Constant used to impose constrain on speed
+    theta :
+        Parameter used in barnes_hut algorithm
 
     Attributes
     ----------
@@ -156,7 +156,7 @@ class ForceAtlas2(BaseEmbedding):
         swing_vector = np.zeros(n)
         global_speed = 1
         attraction = np.zeros(n)
-        repulsion = np.zeros(n)
+        repulsion = []
 
         for iteration in range(n_iter):
             delta *= 0

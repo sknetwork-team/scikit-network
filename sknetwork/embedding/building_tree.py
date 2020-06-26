@@ -5,31 +5,45 @@ import numpy as np
 
 
 class Cell:
-    """Builds a quadtree of cells used to aaply the Barnes Hut approximation
+    """Builds a quadtree of cells used to apply the Barnes Hut approximation
 
-        * Graphs
+    * Graphs
 
-        Parameters
-        ----------
+    Parameters
+    ----------
+    pos_min : np.ndarray
+        A numpy array of the position if the min coordinates of the cell
+    pos_max : np.ndarray
+        A numpy array of the position of the max coordinates of the cell
+    center : np.ndarray
+        Coordinates of the center of mass of the cell
+    children : np.ndarray
+        Array that contains the children cells of the current cell
+    n_particles : int
+        Number of particles in the cell and in its children
+    pos_particle : np.ndarray
+        Coordinates of the particle in the cell if there is a particle in this cell
+    particle_degree : int
+        The degree of the particle, used to compute repulsion force
 
-        Attributes
-        ----------
+    Attributes
+    ----------
 
-        Example
-        -------
+    Example
+    -------
 
-        Notes
-        -----
+    Notes
+    -----
 
-        References
-        ----------
-        Jacomy M., Venturini T., Heymann S., Bastian M. (2014).
-        "ForceAtlas2, a Continuous Graph Layout Algorithm for Handy Network Visualization Designed for the Gephi Software".
-        Plos One.
-        Barnes J., Hut P. (1986)
-        "A hierarchical O(N log N) force-calculation algorithm"
-
-        """
+    References
+    ----------
+    Jacomy M., Venturini T., Heymann S., Bastian M. (2014).
+    "ForceAtlas2, a Continuous Graph Layout Algorithm for Handy Network Visualization Designed for the Gephi Software".
+    Plos One.
+    Barnes J., Hut P. (1986)
+    "A hierarchical O(N log N) force-calculation algorithm".
+    Nature 324: 446–449.
+    """
 
     def __init__(self, x_min, x_max, y_min, y_max):
         self.pos_min = np.asarray([x_min, y_min])
@@ -50,10 +64,10 @@ class Cell:
             if self.n_particles == 1:
                 self.make_children()
                 for child in self.children:
-                    child.add(self.pos_particle)
+                    child.add(self.pos_particle, self.particle_degree)
                 self.pos_particle = None
             for child in self.children:
-                child.add(position)
+                child.add(position, degree)
         else:
             self.pos_particle = position
             self.particle_degree = degree
@@ -71,23 +85,21 @@ class Cell:
 
         self.children = np.asarray([child_1, child_2, child_3, child_4])
 
-    def apply_force(self, node_x, node_y, degree, theta, repulsion: np.ndarray, repulsive_factor: float):
-        i = 0
-        i += 1
+    def apply_force(self, node_x, node_y, degree, theta, repulsion, repulsive_factor: float):
         cell_size = self.pos_min[0] - self.pos_max[0]
         if self.n_particles < 2:  # compute repulsion force between two nodes
             dx = self.pos_particle[0] - node_x
             dy = self.pos_particle[1] - node_y
             distance = np.sqrt(dx * dx + dy * dy)
             if distance > 0:
-                repulsion[i] = repulsive_factor * (degree + 1) * (self.particle_degree + 1) / distance
+                repulsion.append(repulsive_factor * (degree + 1) * (self.particle_degree + 1) / distance)
         else:
             dx = node_x - self.center[0]
             dy = node_y - self.center[1]
             distance = np.sqrt(dx * dx + dy * dy)
             if distance * theta > cell_size:
-                repulsion[i] = repulsive_factor * (degree + 1) * (self.n_particles + 1) / distance
+                repulsion.append(repulsive_factor * (degree + 1) * (self.n_particles + 1) / distance)
             else:
                 for sub_cell in self.children:
                     sub_cell.apply_force(theta)
-        return repulsion
+        return np.asarray(repulsion)
