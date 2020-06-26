@@ -102,4 +102,4 @@ class Cell:
             else:
                 for sub_cell in self.children:
                     sub_cell.apply_force(theta)
-        return np.asarray(repulsion)
+        return repulsion

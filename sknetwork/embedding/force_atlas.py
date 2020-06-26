@@ -186,8 +186,8 @@ class ForceAtlas2(BaseEmbedding):
                     attraction = attraction / (degree[i] + 1)
 
                 if self.barnes_hut:
-                    repulsion = root.apply_force(position[i][0], position[i][1], degree[i], self.theta, repulsion,
-                                                 self.repulsive_factor)
+                    repulsion = np.asarray(root.apply_force(position[i][0], position[i][1], degree[i], self.theta, repulsion,
+                                                            self.repulsive_factor))
                 else:
                     repulsion = self.repulsive_factor * (degree[i] + 1) * degree / distance
 
