@@ -2,7 +2,7 @@
 # cython: language_level=3
 """
 Created on Jun, 2020
-@author:
+@author: Alexis Barreaux <alexis.barreaux@telecom-paris.fr>
 """
 
 import numpy as np

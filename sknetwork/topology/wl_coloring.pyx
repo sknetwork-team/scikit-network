@@ -25,21 +25,29 @@ from libc.math cimport pow as cpowl
 from libc.math cimport modf
 cimport cython
 
-ctypedef pair[long long, int] cpair
-
 cdef bint compair(pair[long long, int] p1, pair[long long, int] p2):
     return p1.first < p2.first
 
-
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices, np.ndarray[int, ndim=1] indptr, int max_iter, np.ndarray[int, ndim=1] input_labels) :
+#TODO renvoyer has changed pour kernel
+cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices,
+                                                         np.ndarray[int, ndim=1] indptr,
+                                                         int max_iter,
+                                                         np.ndarray[int, ndim=1] input_labels,
+                                                         int max_deg,
+                                                         int n,
+                                                         cmap[long, long] new_hash,
+                                                         int[:] degres,
+                                                         long long[:] multiset,
+                                                         long long[:] sorted_multiset,
+                                                         vector[cpair] large_label,
+                                                         np.int32_t[:] count,
+                                                         int current_max):
     DTYPE = np.int32
-    cdef int n = indptr.shape[0] - 1
     cdef int iteration = 1
     cdef int u = 0
     cdef int j = 0
-    cdef int current_max = 0
     cdef int i
     cdef int jj
     cdef int j1
@@ -47,36 +55,52 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
     cdef int ind
     cdef int key
     cdef int deg
-    cdef int max_deg
     cdef int neighbor_label
     cdef int old_label
     cdef long concatenation
     cdef double temp_conc
     cdef double int_part
-    cdef bint has_changed
+    cdef bint has_changed = True
+    cdef long long[:] labels = np.ones(n, dtype = np.longlong)
 
-    cdef cmap[long, long] new_hash
-    cdef long long[:] labels
-    cdef long long[:] multiset
-    cdef int[:]  degres
-    cdef vector[cpair] large_label
-
-    degres = memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))
-    max_deg = np.max(list(degres))
-    has_changed = False
-    cdef np.int32_t[:] count
-    cdef long long[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
-
-    count= np.zeros(n, dtype = np.int32)
-    multiset = np.empty(max_deg, dtype=np.longlong)
-    labels = np.ones(n, dtype = np.longlong)
-    large_label = np.zeros((n, 2), dtype=DTYPE)
-
+    """
     if max_iter > 0 :
         max_iter = min(n, max_iter)
     else :
         max_iter = n
-    while iteration < max_iter and not(has_changed) :
+
+    if n is None:
+        n = indptr.shape[0] - 1
+
+    if input_labels is None:
+        labels = np.ones(n, dtype = np.longlong)
+    else:
+        labels = input_labels
+
+    if max_deg is None :
+       max_deg = np.max(list(degres))
+
+    if degres is None :
+        degres = memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))
+
+    if multiset is None :
+        multiset = np.empty(max_deg, dtype=np.longlong)
+
+    if sorted_multiset is None :
+        sorted_multiset = np.empty(max_deg, dtype=np.longlong)
+
+    if large_label is None :
+        large_label = np.zeros((n, 2), dtype=DTYPE)
+
+    if current_max is None :
+        current_max = 1
+
+    if count is None :
+        count= np.zeros(n, dtype = np.int32)
+    """
+
+
+    while iteration < max_iter and has_changed :
         large_label.clear()
         for i in range(n):
             # 1
@@ -111,10 +135,12 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
 
         csort(large_label.begin(), large_label.end(),compair)
 
+        #TODO ajouter une condition ici parce qu'on ne veut pas reset entre deux graphes sur un même tour
+        # pour kernel.
         new_hash.clear()
         current_max = 1
 
-        has_changed = True #True if at least one label was changed
+        has_changed = False #True if at least one label was changed
         for j in range(n):
             key = large_label[j].first
             ind = large_label[j].second
@@ -124,13 +150,14 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
             #  4
             old_label = int(labels[ind])
             labels[ind] = new_hash[key]
-            has_changed &= (old_label == labels[ind])
+            if not has_changed:
+                has_changed = (old_label != labels[ind])
         iteration += 1
 
 
     print("iterations :", iteration)
 
-    return np.asarray(labels)
+    return np.asarray(labels), has_changed
 
 
 class WLColoring(Algorithm):
@@ -191,7 +218,7 @@ class WLColoring(Algorithm):
         indices = adjacency.indices
         indptr = adjacency.indptr
 
-        self.labels_ = c_wl_coloring(indices, indptr, max_iter, input_labels)
+        #self.labels_, _ = c_wl_coloring(indices, indptr, max_iter, input_labels)
 
         return self
 
