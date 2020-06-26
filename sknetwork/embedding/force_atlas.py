@@ -147,10 +147,8 @@ class ForceAtlas2(BaseEmbedding):
         degree = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
         # definition of the step
-        variation = np.zeros(n_components)
-        for i in range(n_components):
-            variation[i] = position[:, i].max() - position[:, i].min()  # max variation
-        step_max: float = max(variation)
+        variation = position.max(axis=0) - position.min(axis=0)  # max variation
+        step_max: float = variation.max()
         step: float = step_max / (n_iter + 1)
 
         delta = np.zeros((n, n_components))  # initialization of variation of position of nodes
@@ -158,6 +156,7 @@ class ForceAtlas2(BaseEmbedding):
         swing_vector = np.zeros(n)
         global_speed = 1
         attraction = np.zeros(n)
+        repulsion = np.zeros(n)
 
         for iteration in range(n_iter):
             delta *= 0
@@ -187,7 +186,8 @@ class ForceAtlas2(BaseEmbedding):
                     attraction = attraction / (degree[i] + 1)
 
                 if self.barnes_hut:
-                    repulsion = root.apply_force(position[i][0], position[i][1], degree[i], theta, repulsive_factor)
+                    repulsion = root.apply_force(position[i][0], position[i][1], degree[i], self.theta, repulsion,
+                                                 self.repulsive_factor)
                 else:
                     repulsion = self.repulsive_factor * (degree[i] + 1) * degree / distance
 
