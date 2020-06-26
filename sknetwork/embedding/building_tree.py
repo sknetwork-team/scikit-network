@@ -36,28 +36,30 @@ class Cell:
         self.pos_max = np.asarray([x_max, y_max])
         self.center = np.zeros(2)  # position of the center of mass of the cell
         self.children = None  # list of cells that are the children of the current cell
-        self.particles = 0  # number of particles in the cells in its sub-cells
-        self.particle_position = None  # numpy array that contains the position of the particle if there is one in this cell
+        self.n_particles = 0  # number of particles in the cells in its sub-cells
+        self.pos_particle = None  # numpy array that contains the position of the particle if there is one in this cell
+        self.particle_degree = None
 
     def is_in_cell(self, position: np.ndarray) -> bool:  # test if a particle is inside the cell's bounds
         return (self.pos_min <= position).all() and (position <= self.pos_max).all()
 
-    def add(self, position: np.ndarray):
+    def add(self, position: np.ndarray, degree: int):
         if not self.is_in_cell(position):
             return  # do nothing if the particle we want to add is not in the cell's bounds
-        if self.particles > 0:
-            if self.particles == 1:
+        if self.n_particles > 0:
+            if self.n_particles == 1:
                 self.make_children()
                 for child in self.children:
-                    child.add(self.particle_pos)
-                self.particle_position = None
+                    child.add(self.pos_particle)
+                self.pos_particle = None
             for child in self.children:
                 child.add(position)
         else:
-            self.particle_position = position
+            self.pos_particle = position
+            self.particle_degree = degree
 
-        self.center = (self.particles * self.center + position) / float(self.particles + 1)
-        self.particles += 1
+        self.center = (self.n_particles * self.center + position) / float(self.n_particles + 1)
+        self.n_particles += 1
 
     def make_children(self):  # create the 4 children of a cell
         pos_middle = (self.pos_min + self.pos_max) / 2
@@ -69,20 +71,20 @@ class Cell:
 
         self.children = np.asarray([child_1, child_2, child_3, child_4])
 
-    def apply_force(self, node_x, node_y, node_deg, theta, repulsive_factor):
+    def apply_force(self, node_x, node_y, degree, theta, repulsive_factor):
         cell_size = self.pos_min[0] - self.pos_max[0]
-        if self.particles < 2:  # compute repulsion force between two nodes
-            dx = self.particle_position[0] - node_x
-            dy = self.particle_position[1] - node_y
-            d = np.sqrt(dx * dx + dy * dy)
-            if d > 0:
-                pass
+        if self.n_particles < 2:  # compute repulsion force between two nodes
+            dx = self.pos_particle[0] - node_x
+            dy = self.pos_particle[1] - node_y
+            distance = np.sqrt(dx * dx + dy * dy)
+            if distance > 0:
+                repulsion = repulsive_factor * (degree + 1) * (self.particle_degree + 1) / distance
         else:
             dx = node_x - self.center[0]
             dy = node_y - self.center[1]
-            d = np.sqrt(dx * dx + dy * dy)
-            if d * theta > cell_size:
-                repulsion = repulsive_factor * (node_deg + 1) * (self.particles + 1) / d
+            distance = np.sqrt(dx * dx + dy * dy)
+            if distance * theta > cell_size:
+                repulsion = repulsive_factor * (degree + 1) * (self.n_particles + 1) / distance
             else:
                 for sub_cell in self.children:
                     sub_cell.apply_force(theta)

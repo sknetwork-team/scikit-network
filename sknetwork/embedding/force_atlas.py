@@ -167,7 +167,7 @@ class ForceAtlas2(BaseEmbedding):
             # tree construction
             root = Cell(position[:, 0].min(), position[:, 0].max(), position[:, 1].min(), position[:, 1].max())
             for i in range(n):
-                root.add(position[i])
+                root.add(position[i], degree[i])
 
             for i in range(n):
                 attraction *= 0
