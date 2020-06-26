@@ -27,9 +27,9 @@ cdef bint compair(pair[long long, int] p1, pair[long long, int] p2):
 
 #@cython.boundscheck(False)
 #@cython.wraparound(False)
-cdef int c_wl_kernel(int max_iter, np.ndarray[int, ndim=1] indices_1, np.ndarray[int, ndim=1] indptr_1,
+cdef int c_wl_subtree_kernel(int max_iter, np.ndarray[int, ndim=1] indices_1, np.ndarray[int, ndim=1] indptr_1,
                                                  np.ndarray[int, ndim=1] indices_2, np.ndarray[int, ndim=1] indptr_2) :
-    DTYPE = np.int
+    DTYPE = np.int32
     cdef int iteration = 1
     cdef int n = indptr_1.shape[0] - 1
     cdef int m = indptr_2.shape[0] - 1
@@ -50,6 +50,7 @@ cdef int c_wl_kernel(int max_iter, np.ndarray[int, ndim=1] indices_1, np.ndarray
 
     degres_1 = memoryview(np.array(indptr_1[1:]) - np.array(indptr_1[:n]))
     degres_2 = memoryview(np.array(indptr_2[1:]) - np.array(indptr_2[:n]))
+
     max_deg = max(np.max(list(degres_1)), np.max(list(degres_2)))
     has_changed = False
     cdef int[:] count_sort
@@ -82,8 +83,8 @@ cdef int c_wl_kernel(int max_iter, np.ndarray[int, ndim=1] indices_1, np.ndarray
         new_hash.clear() #une seule fois par itération sur les deux graphes
         current_max = 1
 
-        labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, max_deg, n, new_hash, degres_1, multiset, sorted_multiset, large_label, count_sort, current_max)
-        labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, max_deg, n, new_hash, degres_2, multiset, sorted_multiset, large_label, count_sort, current_max)
+        labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, max_deg, n, new_hash, degres_1, multiset, sorted_multiset, large_label, count_sort, current_max, False)
+        labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, max_deg, n, new_hash, degres_2, multiset, sorted_multiset, large_label, count_sort, current_max, False)
 
         for i in range(2 * n):
             count_1[i] = 0
@@ -140,7 +141,7 @@ class WLKernel(Algorithm):
         self.max_iter = max_iter
         self.labels_ = None
 
-    def fit(self, adjacency_g1: Union[sparse.csr_matrix, np.ndarray], adjacency_g2: Union[sparse.csr_matrix, np.ndarray]) -> 'WLColoring':
+    def fit(self, adjacency_1: Union[sparse.csr_matrix, np.ndarray], adjacency_2: Union[sparse.csr_matrix, np.ndarray]) -> 'WLColoring':
         """Fit algorithm to the data.
 
         Parameters
@@ -155,14 +156,17 @@ class WLKernel(Algorithm):
         -------
         self: :class:`WLKernel`
         """
-        indices_1 = adjacency_g1.indices
-        indices_2 = adjacency_g2.indices
-        indptr_1 = adjacency_g1.indptr
-        indptr_2 = adjacency_g2.indptr
 
-        self.labels_ = c_wl_kernel(self.max_iter, indices_1, indices_2, indptr_1, indptr_2)
 
-        return self
+        indices_1 = adjacency_1.indices
+        indptr_1 = adjacency_1.indptr
+
+        indices_2 = adjacency_2.indices
+        indptr_2 = adjacency_2.indptr
+        ret = c_wl_subtree_kernel(self.max_iter,indices_1,  indptr_1,indices_2,  indptr_2)
+
+
+        return ret
 
     def fit_transform(self, adjacency_g1: Union[sparse.csr_matrix, np.ndarray], adjacency_g2: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
@@ -172,5 +176,3 @@ class WLKernel(Algorithm):
         labels : np.ndarray
             Labels.
         """
-        self.fit(adjacency_g1, adjacency_g2)
-        return np.asarray(self.labels_)

@@ -43,7 +43,8 @@ cdef long long [:] c_wl_coloring(int[:] indices,
                                                          long long[:] sorted_multiset,
                                                          vector[cpair] large_label,
                                                          int  [:] count,
-                                                         int current_max):
+                                                         int current_max,
+                                                         bint clear_dict):
     cdef int iteration = 1
     cdef int u = 0
     cdef int j = 0
@@ -106,7 +107,8 @@ cdef long long [:] c_wl_coloring(int[:] indices,
 
         #TODO ajouter une condition ici parce qu'on ne veut pas reset entre deux graphes sur un même tour
         # pour kernel.
-        new_hash.clear()
+        if clear_dict :
+            new_hash.clear()
         current_max = 1
 
         has_changed = False #True if at least one label was changed
@@ -152,7 +154,7 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,int max_iter,np.ndarra
         labels = input_labels
 
 
-    return np.asarray(c_wl_coloring(indices,indptr,max_iter, labels, max_deg, n, new_hash, degres, multiset, sorted_multiset, large_label, count, current_max))
+    return np.asarray(c_wl_coloring(indices,indptr,max_iter, labels, max_deg, n, new_hash, degres, multiset, sorted_multiset, large_label, count, current_max, True))
 
 
 class WLColoring(Algorithm):

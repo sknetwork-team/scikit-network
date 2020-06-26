@@ -28,6 +28,7 @@ cdef long long [:] c_wl_coloring(int[:] indices,
                                                          long long[:] sorted_multiset,
                                                          vector[cpair] large_label,
                                                          int  [:] count,
-                                                         int current_max)
+                                                         int current_max,
+                                                         bint clear_dict)
 
 cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,int max_iter,np.ndarray[long long, ndim = 1] input_labels )

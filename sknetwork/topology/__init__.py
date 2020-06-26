@@ -4,4 +4,4 @@ from sknetwork.topology.triangles import Triangles
 from sknetwork.topology.kcore import CoreDecomposition
 from sknetwork.topology.kcliques import CliqueListing
 from sknetwork.topology.wl_coloring import WLColoring
-from sknetwork.topology.wl_kernel import WLKernel
+from sknetwork.topology.wl_kernel import *
