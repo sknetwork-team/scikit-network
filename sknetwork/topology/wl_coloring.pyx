@@ -31,10 +31,10 @@ cdef bint compair(pair[long long, int] p1, pair[long long, int] p2):
 @cython.boundscheck(False)
 @cython.wraparound(False)
 #TODO renvoyer has changed pour kernel
-cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices,
-                                                         np.ndarray[int, ndim=1] indptr,
+cdef long long [:] c_wl_coloring(int[:] indices,
+                                                         int[:] indptr,
                                                          int max_iter,
-                                                         np.ndarray[int, ndim=1] input_labels,
+                                                         long long[:] labels,
                                                          int max_deg,
                                                          int n,
                                                          cmap[long, long] new_hash,
@@ -42,10 +42,8 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
                                                          long long[:] multiset,
                                                          long long[:] sorted_multiset,
                                                          vector[cpair] large_label,
-                                                         np.int32_t  [:] count,
+                                                         int  [:] count,
                                                          int current_max):
-
-    DTYPE = np.longlong
     cdef int iteration = 1
     cdef int u = 0
     cdef int j = 0
@@ -62,7 +60,7 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
     cdef double temp_conc
     cdef double int_part
     cdef bint has_changed = True
-    cdef long long[:] labels = np.ones(n, dtype = np.longlong)
+
 
     if max_iter > 0 :
         max_iter = min(n, max_iter)
@@ -126,13 +124,12 @@ cdef np.ndarray[long long, ndim=1] c_wl_coloring(np.ndarray[int, ndim=1] indices
         iteration += 1
 
 
-    print("iterations :", iteration)
 
-    return np.asarray(labels)
-
+    return labels
 
 
-cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency, max_iter, input_labels ) :
+
+cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,int max_iter,np.ndarray[long long, ndim = 1] input_labels ) :
     """Wrapper for Weisfeiler-Lehman coloring"""
 
     cdef np.ndarray[int, ndim=1] indices = adjacency.indices
@@ -145,17 +142,17 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency, max_iter, input_label
     cdef long long[:] multiset = np.empty(max_deg, dtype=np.longlong)
     cdef long long[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
     cdef vector[cpair] large_label = np.zeros((n, 2), dtype=np.longlong)
-    cdef np.int32_t [:] count= np.zeros(n, dtype = np.int32)
+    cdef int [:] count= np.zeros(n, dtype = np.int32)
     cdef int current_max = 1
 
-    cdef np.ndarray[int, ndim = 1] labels
+    cdef np.ndarray[long long, ndim = 1] labels
     if input_labels is None :
-        labels = np.ones(n, dtype = np.int32)
+        labels = np.ones(n, dtype = np.longlong)
     else :
         labels = input_labels
 
 
-    return c_wl_coloring(indices,indptr,max_iter, labels, max_deg, n, new_hash, degres, multiset, sorted_multiset, large_label, count, current_max)
+    return np.asarray(c_wl_coloring(indices,indptr,max_iter, labels, max_deg, n, new_hash, degres, multiset, sorted_multiset, large_label, count, current_max))
 
 
 class WLColoring(Algorithm):

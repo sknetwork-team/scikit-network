@@ -29,7 +29,7 @@ cdef bint compair(pair[long long, int] p1, pair[long long, int] p2):
 #@cython.wraparound(False)
 cdef int c_wl_kernel(int max_iter, np.ndarray[int, ndim=1] indices_1, np.ndarray[int, ndim=1] indptr_1,
                                                  np.ndarray[int, ndim=1] indices_2, np.ndarray[int, ndim=1] indptr_2) :
-    DTYPE = np.int32
+    DTYPE = np.int
     cdef int iteration = 1
     cdef int n = indptr_1.shape[0] - 1
     cdef int m = indptr_2.shape[0] - 1
@@ -52,14 +52,14 @@ cdef int c_wl_kernel(int max_iter, np.ndarray[int, ndim=1] indices_1, np.ndarray
     degres_2 = memoryview(np.array(indptr_2[1:]) - np.array(indptr_2[:n]))
     max_deg = max(np.max(list(degres_1)), np.max(list(degres_2)))
     has_changed = False
-    cdef np.int32_t[:] count_sort
-    cdef np.int32_t[:] count_1
-    cdef np.int32_t[:] count_2
+    cdef int[:] count_sort
+    cdef int[:] count_1
+    cdef int[:] count_2
     cdef long long[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
 
-    count_sort= np.zeros(2 * n, dtype = np.int32)
-    count_1= np.zeros(2 * n, dtype = np.int32)
-    count_2= np.zeros(2 * n, dtype = np.int32)
+    count_sort= np.zeros(2 * n, dtype = DTYPE)
+    count_1= np.zeros(2 * n, dtype = DTYPE)
+    count_2= np.zeros(2 * n, dtype = DTYPE)
     multiset = np.empty(max_deg, dtype=np.longlong)
     labels_1 = np.ones(n, dtype = np.longlong)
     labels_2 = np.ones(n, dtype = np.longlong)

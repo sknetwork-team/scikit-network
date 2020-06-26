@@ -14,7 +14,7 @@ cimport cython
 @cython.wraparound(False)
 # This function is only used in sknetwork.topology.wl_coloring.pyx.
 # For others uses please wrap it and put it in sknetwork.utils.__init__.py
-cdef void counting_sort(int n, int deg, np.int32_t[:] count, long long[:] multiset, long long[:] sorted_multiset):
+cdef void counting_sort(int n, int deg, int [:] count, long long[:] multiset, long long[:] sorted_multiset):
     """Sorts an array by using counting sort, variant of bucket sort.
 
     Parameters
