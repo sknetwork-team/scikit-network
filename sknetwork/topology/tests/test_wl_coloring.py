@@ -3,7 +3,6 @@
 """Tests for Weisfeiler-Lehman coloring"""
 
 import unittest
-import numpy as np
 from sknetwork.topology import WLColoring
 from sknetwork.data.test_graphs import *
 from sknetwork.data import house, bow_tie
@@ -13,32 +12,32 @@ class TestWLColoring(unittest.TestCase):
 
     def test_empty(self):
         adjacency = test_graph_empty()
-        labels = WLColoring().fit_transform(adjacency)
-        self.assertTrue((labels == np.zeros(10)).all())
+        labels = WLColoring().fit_transform(-1, adjacency)
+        self.assertTrue((labels == np.ones(10)).all())
 
     def test_cliques(self):
         adjacency = test_graph_clique()
-        labels = WLColoring().fit_transform(adjacency)
-        self.assertTrue((labels == np.zeros(10)).all())
+        labels = WLColoring().fit_transform(-1, adjacency)
+        self.assertTrue((labels == np.ones(10)).all())
 
     def test_house(self):
         adjacency = house()
-        labels = WLColoring().fit_transform(adjacency)
-        self.assertTrue((labels == np.array([0, 1, 2, 2, 1])).all())
+        labels = WLColoring().fit_transform(-1, adjacency)
+        self.assertTrue((labels == np.array([2, 3, 1, 1, 3])).all())
 
     def test_bow_tie(self):
         adjacency = bow_tie()
-        labels = WLColoring().fit_transform(adjacency)
-        self.assertTrue((labels == np.array([0, 1, 1, 1, 1])).all())
+        labels = WLColoring().fit_transform(-1, adjacency)
+        self.assertTrue((labels == np.array([2, 1, 1, 1, 1])).all())
 
     def test_iso(self):
         adjacency = house()
         n = adjacency.indptr.shape[0] - 1
         reorder = list(range(n))
         np.random.shuffle(reorder)
-        adjacency2 = adjacency[reorder][:,reorder]
-        l1 = WLColoring().fit_transform(adjacency)
-        l2 = WLColoring().fit_transform(adjacency2)
+        adjacency2 = adjacency[reorder][:, reorder]
+        l1 = WLColoring().fit_transform(-1, adjacency)
+        l2 = WLColoring().fit_transform(-1, adjacency2)
         l1.sort()
         l2.sort()
         self.assertTrue((l1 == l2).all())
