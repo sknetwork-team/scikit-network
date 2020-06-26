@@ -25,7 +25,7 @@ from libc.math cimport pow as cpowl
 from libc.math cimport modf
 cimport cython
 
-cdef bint compair(pair[long long, int] p1, pair[long long, int] p2):
+cdef bint is_lower(pair[long long, int] p1, pair[long long, int] p2):
     return p1.first < p2.first
 
 @cython.boundscheck(False)
@@ -38,7 +38,7 @@ cdef long long [:] c_wl_coloring(int[:] indices,
                                                          int max_deg,
                                                          int n,
                                                          cmap[long, long] new_hash,
-                                                         int[:] degres,
+                                                         int[:] degrees,
                                                          long long[:] multiset,
                                                          long long[:] sorted_multiset,
                                                          vector[cpair] large_label,
@@ -58,7 +58,7 @@ cdef long long [:] c_wl_coloring(int[:] indices,
     cdef int neighbor_label
     cdef int old_label
     cdef long concatenation
-    cdef double temp_conc
+    cdef double tmp_concatenation
     cdef double int_part
     cdef bint has_changed = True
 
@@ -70,13 +70,13 @@ cdef long long [:] c_wl_coloring(int[:] indices,
 
 
 
-    while iteration < max_iter and has_changed :
+    while iteration <= max_iter and has_changed :
         large_label.clear()
         for i in range(n):
             # 1
             # going through the neighbors of v.
             j = 0
-            deg = degres[i]
+            deg = degrees[i]
             j1 = indptr[i]
             j2 = indptr[i + 1]
             for jj in range(j1,j2):
@@ -91,11 +91,11 @@ cdef long long [:] c_wl_coloring(int[:] indices,
             for j in range(deg) :
                 neighbor_label = multiset[j]
 
-                temp_conc = clog10(neighbor_label)
-                ret = modf(temp_conc, &int_part)
+                tmp_concatenation = clog10(neighbor_label)
+                ret = modf(tmp_concatenation, &int_part)
                 int_part+=1.0
-                temp_conc = cpowl(10.0, int_part)
-                ret = modf(temp_conc, &int_part)
+                tmp_concatenation = cpowl(10.0, int_part)
+                ret = modf(tmp_concatenation, &int_part)
                 concatenation= (concatenation *(<long>int_part)) + neighbor_label #there are still warnings because of np.int length
 
             large_label.push_back((cpair(concatenation, i)))
@@ -103,7 +103,7 @@ cdef long long [:] c_wl_coloring(int[:] indices,
 
         # 3
 
-        csort(large_label.begin(), large_label.end(),compair)
+        csort(large_label.begin(), large_label.end(),is_lower)
 
         #TODO ajouter une condition ici parce qu'on ne veut pas reset entre deux graphes sur un même tour
         # pour kernel.
@@ -137,8 +137,8 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,int max_iter,np.ndarra
     cdef np.ndarray[int, ndim=1] indices = adjacency.indices
     cdef np.ndarray[int, ndim=1] indptr = adjacency.indptr
     cdef int n = indptr.shape[0] -1
-    cdef int[:] degres = memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))
-    cdef int max_deg = np.max(list(degres))
+    cdef int[:] degrees = memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))
+    cdef int max_deg = np.max(list(degrees))
     cdef cmap[long, long] new_hash
 
     cdef long long[:] multiset = np.empty(max_deg, dtype=np.longlong)
@@ -154,7 +154,7 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,int max_iter,np.ndarra
         labels = input_labels
 
 
-    return np.asarray(c_wl_coloring(indices,indptr,max_iter, labels, max_deg, n, new_hash, degres, multiset, sorted_multiset, large_label, count, current_max, True))
+    return np.asarray(c_wl_coloring(indices,indptr,max_iter, labels, max_deg, n, new_hash, degrees, multiset, sorted_multiset, large_label, count, current_max, True))
 
 
 class WLColoring(Algorithm):
@@ -224,7 +224,7 @@ class WLColoring(Algorithm):
                                                          int max_deg,
                                                          int n,
                                                          cmap[long, long] new_hash,
-                                                         int[:] degres,
+                                                         int[:] degrees,
                                                          long long[:] multiset,
                                                          long long[:] sorted_multiset,
                                                          vector[cpair] large_label,
