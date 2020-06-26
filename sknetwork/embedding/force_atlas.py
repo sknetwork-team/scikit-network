@@ -24,13 +24,13 @@ class ForceAtlas2(BaseEmbedding):
 
     Parameters
     ----------
-        adjacency :
-            Adjacency matrix of the graph, treated as undirected.
         n_components :
             Choose dimension of the graph layout
         n_iter : int
             Number of iterations to update positions.
             If ``None``, use the value of self.n_iter.
+        barnes_hut :
+            If True, compute repulsive forces with barnes_hut approximation
         lin_log :
             If True, activate an alternative formula for the attractive force
         gravity_factor :
@@ -49,15 +49,13 @@ class ForceAtlas2(BaseEmbedding):
             Speed constant
         speed_max :
             Constant used to impose constrain on speed
-        barnes_hut :
-            If True, compute repulsive forces with barnes_hut approximation
         theta :
             Parameter used in barnes_hut algorithm
 
     Attributes
     ----------
     embedding_ : np.ndarray
-        Layout in 2D.
+        Layout in multiple dimension.
 
     Example
     -------
@@ -71,21 +69,27 @@ class ForceAtlas2(BaseEmbedding):
 
     Notes
     -----
-    Implementation designed to display graphs in 2D.
+    Implementation designed to display graphs in multiple dimension.
 
     References
     ----------
     Jacomy M., Venturini T., Heymann S., Bastian M. (2014).
     "ForceAtlas2, a Continuous Graph Layout Algorithm for Handy Network Visualization Designed for the Gephi Software".
     Plos One.
+
+    Barnes J, Hut P (1986).
+    "A hierarchical o(n log n) force-calculation algorithm".
+    Nature 324: 446–449.
     """
 
-    def __init__(self, n_components: int = 2, n_iter: int = 50, lin_log: bool = False, gravity_factor: float = 0.01,
-                 strong_gravity: bool = False, repulsive_factor: float = 0.01, weight_exponent: int = 0,
-                 no_hubs: bool = False, tolerance: float = 0.1, speed: float = 0.1, speed_max: float = 10):
+    def __init__(self, n_components: int = 2, n_iter: int = 50, barnes_hut: bool = True, lin_log: bool = False,
+                 gravity_factor: float = 0.01, strong_gravity: bool = False, repulsive_factor: float = 0.01,
+                 weight_exponent: int = 0, no_hubs: bool = False, tolerance: float = 0.1, speed: float = 0.1,
+                 speed_max: float = 10, theta: float = 1.2):
         super(ForceAtlas2, self).__init__()
         self.n_components = n_components
         self.n_iter = n_iter
+        self.barnes_hut = barnes_hut
         self.lin_log = lin_log
         self.gravity_factor = gravity_factor
         self.strong_gravity = strong_gravity
@@ -95,13 +99,13 @@ class ForceAtlas2(BaseEmbedding):
         self.tolerance = tolerance
         self.speed = speed
         self.speed_max = speed_max
+        self.theta = theta
+
+        if n_components > 2 and barnes_hut:
+            raise ValueError('Barnes and Hut algorithm can only be used in 2D')
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_components: Optional[int] = None,
-            n_iter: Optional[int] = None, lin_log: Optional[bool] = None, gravity_factor: Optional[float] = None,
-            strong_gravity: Optional[bool] = None, repulsive_factor: Optional[int] = None,
-            weight_exponent: Optional[int] = None, no_hubs: Optional[bool] = None, tolerance: Optional[float] = None,
-            speed: Optional[float] = None, speed_max: Optional[float] = None, barnes_hut: bool = True,
-            theta: float = 1.2) -> 'ForceAtlas2':
+            n_iter: Optional[int] = None) -> 'ForceAtlas2':
         """Compute layout.
 
         Parameters
@@ -113,28 +117,6 @@ class ForceAtlas2(BaseEmbedding):
         n_iter : int
             Number of iterations to update positions.
             If ``None``, use the value of self.n_iter.
-        lin_log :
-            If True, activate an alternative formula for the attractive force
-        gravity_factor :
-            Gravity force scaling constant
-        strong_gravity :
-            If True, activate an alternative formula for the gravity force
-        repulsive_factor :
-            Repulsive force scaling constant
-        weight_exponent :
-            If different to 0, modify attraction force, the weights are raised to the power of 'exponent'
-        no_hubs :
-            If True, change the value of the attraction force
-        tolerance :
-            Tolerance defined in the swinging constant
-        speed :
-            Speed constant
-        speed_max :
-            Constant used to impose constrain on speed
-        barnes_hut :
-            If True, compute repulsive forces with barnes_hut approximation
-        theta :
-            Parameter used in barnes_hut algorithm
 
         Returns
         -------
@@ -157,30 +139,6 @@ class ForceAtlas2(BaseEmbedding):
 
         if n_iter is None:
             n_iter = self.n_iter
-        if lin_log is None:
-            lin_log = self.lin_log
-        if gravity_factor is None:
-            gravity_factor = self.gravity_factor
-        if strong_gravity is None:
-            strong_gravity = self.strong_gravity
-        if repulsive_factor is None:
-            repulsive_factor = self.repulsive_factor
-        if weight_exponent is None:
-            weight_exponent = self.weight_exponent
-        if no_hubs is None:
-            no_hubs = self.no_hubs
-        if tolerance is None:
-            tolerance = self.tolerance
-        if speed is None:
-            speed = self.speed
-        if speed_max is None:
-            speed_max = self.speed_max
-        if n_components is None:
-            n_components = self.n_components
-        if barnes_hut is None:
-            barnes_hut = self.barnes_hut
-        if theta is None:
-            theta = self.theta
 
         # initial position of the nodes of the graph
         position = np.random.randn(n, n_components)
@@ -220,21 +178,21 @@ class ForceAtlas2(BaseEmbedding):
                 distance = np.where(distance < 0.01, 0.01, distance)
 
                 attraction[indices] = 10 * distance[indices]  # change attraction of connected nodes
-                if lin_log:
+                if self.lin_log:
                     attraction = np.log(1 + attraction)
-                if weight_exponent != 0:
+                if self.weight_exponent != 0:
                     data = adjacency.data[adjacency.indptr[i]:adjacency.indptr[i + 1]]
-                    attraction = (data ** weight_exponent) * attraction
-                if no_hubs:
+                    attraction = (data ** self.weight_exponent) * attraction
+                if self.no_hubs:
                     attraction = attraction / (degree[i] + 1)
 
-                if barnes_hut:
+                if self.barnes_hut:
                     repulsion = root.apply_force(position[i][0], position[i][1], degree[i], theta, repulsive_factor)
                 else:
-                    repulsion = repulsive_factor * (degree[i] + 1) * degree / distance
+                    repulsion = self.repulsive_factor * (degree[i] + 1) * degree / distance
 
-                gravity = gravity_factor * (degree[i] + 1)
-                if strong_gravity:
+                gravity = self.gravity_factor * (degree[i] + 1)
+                if self.strong_gravity:
                     gravity = gravity * distance
 
                 force = repulsion.sum() - attraction.sum() - gravity  # forces resultant applied on node i
@@ -246,13 +204,12 @@ class ForceAtlas2(BaseEmbedding):
                 global_swing += (degree[i] + 1) * swing_node
                 global_traction += (degree[i] + 1) * traction
 
-                node_speed = speed * global_speed / (1 + global_speed * np.sqrt(swing_node))
-                if node_speed > speed_max / abs(force):
-                    node_speed = speed_max / abs(force)
+                node_speed = self.speed * global_speed / (1 + global_speed * np.sqrt(swing_node))
+                if node_speed > self.speed_max / abs(force):
+                    node_speed = self.speed_max / abs(force)
 
                 forces_for_each_node[i] = force  # force resultant update
 
-                # delta[i]: np.ndarray = node_speed * force
                 delta[i]: np.ndarray = (grad * node_speed * (repulsion - attraction - gravity)[:, np.newaxis]).sum(
                     axis=0)  # shape (2,)
 
