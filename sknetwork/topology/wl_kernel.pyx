@@ -100,6 +100,12 @@ cdef int c_wl_subtree_kernel(int max_iter, np.ndarray[int, ndim=1] indices_1, np
 
     return similarity
 
+cdef int c_wl_edge_kernel(int max_iter, np.ndarray[int, ndim=1] indices_1, np.ndarray[int, ndim=1] indptr_1,
+                                                 np.ndarray[int, ndim=1] indices_2, np.ndarray[int, ndim=1] indptr_2) :
+
+
+    return 0
+
 
 class WLKernel(Algorithm):
     """Algorithm using Weisefeler-Lehman to check kernels.
@@ -154,7 +160,8 @@ class WLKernel(Algorithm):
 
         Returns
         -------
-        self: :class:`WLKernel`
+        ret: int
+            Likeness between both graphs.
         """
 
 
