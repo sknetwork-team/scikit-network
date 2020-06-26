@@ -86,8 +86,8 @@ cdef int c_wl_subtree_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np
 
         labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, max_deg, n, length_count, new_hash, degrees_1, multiset, sorted_multiset, large_label, count_sort, current_max, False)
         labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, max_deg, n, length_count, new_hash, degrees_2, multiset, sorted_multiset, large_label, count_sort, current_max, False)
-        print("labels_1", np.asarray(labels_1))
-        print("labels_2", np.asarray(labels_2))
+        #print("labels_1", np.asarray(labels_1))
+        #print("labels_2", np.asarray(labels_2))
         for i in range(2 * n):
             count_1[i] = 0
             count_2[i] = 0
@@ -96,7 +96,7 @@ cdef int c_wl_subtree_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np
             count_2[labels_2[i]] += 1
         for i in range(2 * n):
             similarity += count_1[i] * count_2[i]
-        print("similarity :", similarity)
+        #print("similarity :", similarity)
         iteration += 1
 
     return similarity
