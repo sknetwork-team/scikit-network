@@ -242,10 +242,10 @@ class WLKernel(Algorithm):
 
         Parameters
         ----------
-        adjacency_g1 : Union[sparse.csr_matrix, np.ndarray]
+        adjacency_1 : Union[sparse.csr_matrix, np.ndarray]
             Adjacency matrix of the first graph.
 
-        adjacency_g2 : Union[sparse.csr_matrix, np.ndarray]
+        adjacency_2 : Union[sparse.csr_matrix, np.ndarray]
             Adjacency matrix of the second graph.
         kernel : str
             Type of WL kernel to be used. Types are : subtree, edge, shortest-path
