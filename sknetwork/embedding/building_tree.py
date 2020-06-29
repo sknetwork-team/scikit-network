@@ -103,7 +103,7 @@ class Cell:
             dy = node_y - self.center[1]
             distance = np.sqrt(dx * dx + dy * dy)
             if distance * theta > cell_size:
-                repulsion.append(repulsive_factor * (degree + 1) * (self.n_particles + 1) / distance)
+                repulsion.append(repulsive_factor * (degree + 1) * (self.n_particles + 1) / (np.asarray([dx,dy])))
             else:
                 for sub_cell in self.children:
                     sub_cell.apply_force(node_x, node_y, degree, theta, repulsion, repulsive_factor)
