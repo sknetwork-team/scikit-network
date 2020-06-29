@@ -165,7 +165,6 @@ class ForceAtlas2(BaseEmbedding):
             for i in range(n):
                 attraction *= 0
                 repulsion = []
-
                 # force = np.asarray([0, 0])  # shape (2,) force resultant applied on node i
 
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
