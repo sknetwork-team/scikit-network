@@ -96,6 +96,7 @@ cdef int c_wl_subtree_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np
 
     return similarity
 
+
 cdef int c_wl_edge_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.ndarray[int, ndim=1] indptr_1,
                                                  np.ndarray[int, ndim=1] indices_2, np.ndarray[int, ndim=1] indptr_2) :
 
@@ -137,7 +138,7 @@ cdef int c_wl_edge_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.nd
     for v2 in range(n):
         neighborhood = indices_2[indptr_2[v2]: indptr_2[v2+1]]
         for n2 in range(degrees_2[v2]) :
-            neighbors1[v2][n2] = neighborhood[n2]
+            neighbors2[v2][n2] = neighborhood[n2]
 
     cdef cmap[long, long] new_hash
 
@@ -180,15 +181,8 @@ cdef int c_wl_edge_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.nd
                                 l2_1 = labels_2[v2]
                                 l2_2 = labels_2[n2]
 
-                                l1_1 = min(l1_1,l1_2)
-                                l1_2 = max(l1_1,l1_2) #This will work since max(min(a,b),max(a,b)) is max(a,b)
-
-                                l2_1 = min(l2_1,l2_2)
-                                l2_2 = max(l2_1,l2_2) #This will work since max(min(a,b),max(a,b)) is max(a,b)
-
-                                if ( l1_1==l2_1 ) and ( l1_2==l2_2 ) : #compare ordered pairs
+                                if ( l1_1==l2_1  and  l1_2==l2_2 ) or ( l1_2==l2_1  and  l1_1==l2_2 )  : #compare ordered pairs
                                     similarity+=1
-
     return similarity
 
 
@@ -232,7 +226,7 @@ class WLKernel(Algorithm):
         self.max_iter = max_iter
         self.labels_ = None
 
-    def fit(self, adjacency_1: Union[sparse.csr_matrix, np.ndarray], adjacency_2: Union[sparse.csr_matrix, np.ndarray], kernel : str) -> int :
+    def fit(self, adjacency_1: Union[sparse.csr_matrix, np.ndarray], adjacency_2: Union[sparse.csr_matrix, np.ndarray], kernel : str = "edge") -> int :
         """Fit algorithm to the data.
 
         Parameters
@@ -262,8 +256,8 @@ class WLKernel(Algorithm):
             ret = c_wl_subtree_kernel(self.max_iter,indices_1,  indptr_1,indices_2,  indptr_2)
 
         if kernel == "edge" :
+            n = indptr_1.shape[0] -1
             ret = c_wl_edge_kernel(self.max_iter,indices_1,  indptr_1,indices_2,  indptr_2)
-
 
         return ret
 
