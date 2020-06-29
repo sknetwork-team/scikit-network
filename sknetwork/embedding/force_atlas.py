@@ -156,7 +156,6 @@ class ForceAtlas2(BaseEmbedding):
         swing_vector = np.zeros(n)
         global_speed = 1
         attraction = np.zeros(n)
-        repulsion = []
 
         for iteration in range(n_iter):
             delta *= 0
@@ -170,6 +169,7 @@ class ForceAtlas2(BaseEmbedding):
 
             for i in range(n):
                 attraction *= 0
+                repulsion = []
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
 
                 grad: np.ndarray = (position[i] - position)  # shape (n, 2)
