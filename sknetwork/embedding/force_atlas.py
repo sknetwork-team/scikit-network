@@ -163,11 +163,10 @@ class ForceAtlas2(BaseEmbedding):
                 root.add(position[i], degree[i])
 
             for i in range(n):
-                repulsion = []
                 attraction *= 0
                 repulsion = []
 
-                force = np.asarray([0, 0])  # shape (2,) force resultant applied on node i
+                # force = np.asarray([0, 0])  # shape (2,) force resultant applied on node i
 
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
 
@@ -200,7 +199,7 @@ class ForceAtlas2(BaseEmbedding):
 
                 gravity = self.gravity_factor * (degree[i] + 1)
                 if self.strong_gravity:
-                    gravity = gravity * distance
+                    gravity *= distance
 
                 swing_node = np.abs(force_res - forces_for_each_node_res)  # force variation applied on node i
 
