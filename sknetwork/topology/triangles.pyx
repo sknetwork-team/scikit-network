@@ -94,21 +94,21 @@ cdef long fit_core(vector[int] indptr, vector[int] indices, bint parallelize):
 
 
 class Triangles(Algorithm):
-    """Triangle count which creates a DAG and counts all triangles on it.
+    """Count the number of triangles in a graph, and evaluate the clustering coefficient.
 
     * Graphs
 
     Parameters
     ----------
     parallelize :
-        If ``True``, uses a parallel range while listing the triangles.
+        If ``True``, use a parallel range while listing the triangles.
 
     Attributes
     ----------
     n_triangles_ : int
-        Number of triangles
-    clustering_coeff_ : float
-        Global clustering coefficient of the graph
+        Number of triangles.
+    clustering_coef_ : float
+        Global clustering coefficient of the graph.
 
     Example
     -------
@@ -122,14 +122,14 @@ class Triangles(Algorithm):
         super(Triangles, self).__init__()
         self.parallelize = parallelize
         self.n_triangles_ = None
-        self.clustering_coeff_ = None
+        self.clustering_coef_ = None
 
     def fit(self, adjacency: sparse.csr_matrix) -> 'Triangles':
         """Count triangles.
 
         Parameters
         ----------
-        adjacency:
+        adjacency :
             Adjacency matrix of the graph.
 
         Returns
@@ -146,9 +146,9 @@ class Triangles(Algorithm):
 
         self.n_triangles_ = fit_core(indptr, indices, self.parallelize)
         if edge_pairs > 0:
-            self.clustering_coeff_ = 3 * self.n_triangles_ / edge_pairs
+            self.clustering_coef_ = 3 * self.n_triangles_ / edge_pairs
         else:
-            self.clustering_coeff_ = 0.
+            self.clustering_coef_ = 0.
 
         return self
 

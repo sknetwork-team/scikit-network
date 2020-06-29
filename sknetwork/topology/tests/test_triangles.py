@@ -32,7 +32,7 @@ class TestTriangleListing(unittest.TestCase):
         adjacency = edgelist2adjacency(edgelist, undirected=True)
 
         triangles = Triangles().fit(adjacency)
-        self.assertEqual(0.75, triangles.clustering_coeff_)
+        self.assertEqual(0.75, triangles.clustering_coef_)
 
     def test_options(self):
         adjacency = karate_club()

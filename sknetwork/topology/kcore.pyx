@@ -63,7 +63,7 @@ cdef fit_core(int[:] indptr, int[:] indices):
 
 
 class CoreDecomposition(Algorithm):
-    """ k-core Decomposition algorithm.
+    """K-core decomposition algorithm.
 
     * Graphs
 
@@ -79,8 +79,7 @@ class CoreDecomposition(Algorithm):
     >>> from sknetwork.topology import CoreDecomposition
     >>> from sknetwork.data import karate_club
     >>> kcore = CoreDecomposition()
-    >>> graph = karate_club()
-    >>> adjacency = graph.adjacency
+    >>> adjacency = karate_club()
     >>> kcore.fit(adjacency)
     >>> kcore.core_value_
     4
@@ -95,7 +94,7 @@ class CoreDecomposition(Algorithm):
 
         Parameters
         ----------
-        adjacency:
+        adjacency :
             Adjacency matrix of the graph.
 
         Returns
