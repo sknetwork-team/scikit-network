@@ -15,8 +15,8 @@ from sknetwork.embedding.building_tree import Cell
 from sknetwork.utils import directed2undirected
 from sknetwork.utils.check import check_format, is_symmetric, check_square
 
-
 class ForceAtlas2(BaseEmbedding):
+
     """Force Atlas2 layout for displaying graphs.
 
     * Graphs
@@ -80,8 +80,9 @@ class ForceAtlas2(BaseEmbedding):
     Nature 324: 446–449.
     """
 
+
     def __init__(self, n_components: int = 2, n_iter: int = 50, barnes_hut: bool = True, lin_log: bool = False,
-                 gravity_factor: float = 0.01, strong_gravity: bool = False, repulsive_factor: float = 0.01,
+                 gravity_factor: float = 0.1, strong_gravity: bool = False, repulsive_factor: float = 0.1,
                  no_hubs: bool = False, tolerance: float = 0.1, speed: float = 0.1,
                  speed_max: float = 10, theta: float = 1.2):
         super(ForceAtlas2, self).__init__()
@@ -119,6 +120,7 @@ class ForceAtlas2(BaseEmbedding):
         -------
         self: :class:`ForceAtlas2`
         """
+
         # verify the format of the adjacency matrix
         adjacency = check_format(adjacency)
         check_square(adjacency)
@@ -142,11 +144,6 @@ class ForceAtlas2(BaseEmbedding):
 
         # compute the vector with the degree of each node
         degree: np.ndarray = adjacency.dot(np.ones(adjacency.shape[1])) + 1
-
-        # definition of the step
-        variation: np.ndarray = position.max(axis=0) - position.min(axis=0)
-        step_max: float = variation.max()
-        step: float = step_max / (n_iter + 1)
 
         # initialization of variation of position of nodes
         delta: np.ndarray = np.zeros((n, self.n_components))
@@ -184,8 +181,11 @@ class ForceAtlas2(BaseEmbedding):
                 if self.barnes_hut:
                     repulsion = np.asarray(root.apply_force(position[i], degree[i], self.theta, repulsion,
                                                             self.repulsive_factor))
+                    repulsion = np.sum(attraction, axis=0)
                 else:
-                    repulsion = np.sum((self.repulsive_factor * (degree[i] + 1) * degree * grad / distance), axis=0)
+                    repulsion = np.sum(
+                        (self.repulsive_factor * (degree[i] + 1) * grad * (degree / distance)[:, np.newaxis]
+                         ), axis=0)
 
                 gravity = self.gravity_factor * (degree[i] + 1) * grad
                 if self.strong_gravity:
@@ -193,7 +193,6 @@ class ForceAtlas2(BaseEmbedding):
 
                 # forces resultant applied on node i for traction, swing and speed computation
                 force: float = repulsion - np.sum(attraction, axis=0) - np.sum(gravity, axis=0)
-
                 force_res: float = np.linalg.norm(force)
                 forces_for_each_node_res: float = np.linalg.norm(forces_for_each_node[i])
 
@@ -205,19 +204,16 @@ class ForceAtlas2(BaseEmbedding):
                 global_traction += (degree[i] + 1) * traction
 
                 node_speed = self.speed * global_speed / (1 + global_speed * np.sqrt(swing_node))
-                if node_speed > self.speed_max / abs(force):
-                    node_speed = self.speed_max / abs(force)
+                if node_speed > self.speed_max / abs(force_res):
+                    node_speed = self.speed_max / abs(force_res)
 
                 forces_for_each_node[i] = force  # force resultant update
 
                 delta[i]: np.ndarray = node_speed * force
 
-            global_speed = tolerance * global_traction / global_swing
-            length: np.ndarray = np.linalg.norm(delta, axis=0)
-            length = np.where(length < 0.01, 0.1, length)
-            delta = delta * step_max / length  # normalisation of distance between nodes
+                global_speed = tolerance * global_traction / global_swing
             position += delta  # calculating displacement and final position of points after iteration
-            step_max -= step
+
             if (swing_vector < 0.01).all():
                 break  # if the swing of all nodes is zero, then convergence is reached and we break.
 
