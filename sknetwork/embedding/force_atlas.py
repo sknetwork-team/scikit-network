@@ -39,8 +39,6 @@ class ForceAtlas2(BaseEmbedding):
         If True, activate an alternative formula for the gravity force
     repulsive_factor :
         Repulsive force scaling constant
-    weight_exponent :
-        If different to 0, modify attraction force, the weights are raised to the power of 'exponent'
     no_hubs :
         If True, change the value of the attraction force
     tolerance :
@@ -84,7 +82,7 @@ class ForceAtlas2(BaseEmbedding):
 
     def __init__(self, n_components: int = 2, n_iter: int = 50, barnes_hut: bool = True, lin_log: bool = False,
                  gravity_factor: float = 0.01, strong_gravity: bool = False, repulsive_factor: float = 0.01,
-                 weight_exponent: int = 0, no_hubs: bool = False, tolerance: float = 0.1, speed: float = 0.1,
+                 no_hubs: bool = False, tolerance: float = 0.1, speed: float = 0.1,
                  speed_max: float = 10, theta: float = 1.2):
         super(ForceAtlas2, self).__init__()
         self.n_components = n_components
@@ -94,7 +92,6 @@ class ForceAtlas2(BaseEmbedding):
         self.gravity_factor = gravity_factor
         self.strong_gravity = strong_gravity
         self.repulsive_factor = repulsive_factor
-        self.weight_exponent = weight_exponent
         self.no_hubs = no_hubs
         self.tolerance = tolerance
         self.speed = speed
@@ -183,12 +180,9 @@ class ForceAtlas2(BaseEmbedding):
                 distance: np.ndarray = np.linalg.norm(grad, axis=1)  # shape (n,)
                 distance = np.where(distance < 0.01, 0.01, distance)
 
-                attraction[indices] = distance[indices]  # change attraction of connected nodes
+                attraction[indices] = grad[indices]  # shape (n, d) change attraction of connected nodes
                 if self.lin_log:
                     attraction = np.log(1 + attraction)
-                if self.weight_exponent != 0:
-                    data = adjacency.data[adjacency.indptr[i]:adjacency.indptr[i + 1]]
-                    attraction = (data ** self.weight_exponent) * attraction
                 if self.no_hubs:
                     attraction = attraction / (degree[i] + 1)
 
@@ -196,20 +190,23 @@ class ForceAtlas2(BaseEmbedding):
                     repulsion = np.asarray(root.apply_force(position[i], degree[i], self.theta, repulsion,
                                                             self.repulsive_factor))
                 else:
-                    repulsion = self.repulsive_factor * (degree[i] + 1) * degree / distance
+                    repulsion = np.sum((self.repulsive_factor * (degree[i] + 1) * degree * grad / distance), axis=0)
 
-                gravity = self.gravity_factor * (degree[i] + 1)
+                gravity = self.gravity_factor * (degree[i] + 1) * grad
                 if self.strong_gravity:
                     gravity *= distance
 
                 # forces resultant applied on node i for traction, swing and speed computation
-                force: float = np.sum(attraction, axis=0) + gravity + np.sum(repulsion, axis=0)
+                force: float = repulsion - np.sum(attraction, axis=0) - np.sum(gravity, axis=0)
 
-                swing_node: float = np.abs(force - forces_for_each_node[i])  # force variation applied on node i
+                force_res: float = np.linalg.norm(force)
+                forces_for_each_node_res: float = np.linalg.norm(forces_for_each_node[i])
+
+                swing_node: float = np.abs(force_res - forces_for_each_node_res)  # force variation applied on node i
                 swing_vector[i] = swing_node
                 global_swing += (degree[i] + 1) * swing_node
 
-                traction: float = np.abs(force + forces_for_each_node[i]) / 2  # traction force applied on node i
+                traction: float = np.abs(force_res + forces_for_each_node_res) / 2  # traction force applied on node i
                 global_traction += (degree[i] + 1) * traction
 
                 node_speed = self.speed * global_speed / (1 + global_speed * np.sqrt(swing_node))
@@ -218,8 +215,7 @@ class ForceAtlas2(BaseEmbedding):
 
                 forces_for_each_node[i] = force  # force resultant update
 
-                delta[i]: np.ndarray = (grad * node_speed * (repulsion - attraction - gravity)[:, np.newaxis]).sum(
-                    axis=0)
+                delta[i]: np.ndarray = node_speed * force
 
             global_speed = tolerance * global_traction / global_swing
             length: np.ndarray = np.linalg.norm(delta, axis=0)
