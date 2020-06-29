@@ -141,21 +141,22 @@ class ForceAtlas2(BaseEmbedding):
             n_iter = self.n_iter
 
         # initial position of the nodes of the graph
-        position = np.random.randn(n, self.n_components)
+        position: np.ndarray = np.random.randn(n, self.n_components)
 
         # compute the vector with the degree of each node
-        degree = adjacency.dot(np.ones(adjacency.shape[1])) + 1
+        degree: np.ndarray = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
         # definition of the step
-        variation = position.max(axis=0) - position.min(axis=0)
+        variation: np.ndarray = position.max(axis=0) - position.min(axis=0)
         step_max: float = variation.max()
         step: float = step_max / (n_iter + 1)
 
-        delta = np.zeros((n, self.n_components))  # initialization of variation of position of nodes
-        forces_for_each_node = np.zeros(n)
-        swing_vector = np.zeros(n)
+        # initialization of variation of position of nodes
+        delta: np.ndarray = np.zeros((n, self.n_components))
+        forces_for_each_node: np.ndarray = np.zeros(n)
+        swing_vector: np.ndarray = np.zeros(n)
         global_speed = 1
-        attraction = np.zeros(n)
+        attraction: np.ndarray = np.zeros(n)
 
         for iteration in range(n_iter):
             delta *= 0
@@ -170,16 +171,14 @@ class ForceAtlas2(BaseEmbedding):
             for i in range(n):
                 attraction *= 0
                 repulsion = []
-                # force = np.asarray([0, 0])  # shape (2,) force resultant applied on node i
 
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
 
-                grad: np.ndarray = position[i] - position  # shape (n, 2)
+                grad: np.ndarray = position[i] - position  # shape (n, d)
                 distance: np.ndarray = np.linalg.norm(grad, axis=1)  # shape (n,)
                 distance = np.where(distance < 0.01, 0.01, distance)
 
                 attraction[indices] = distance[indices]  # change attraction of connected nodes
-
                 if self.lin_log:
                     attraction = np.log(1 + attraction)
                 if self.weight_exponent != 0:
@@ -187,33 +186,25 @@ class ForceAtlas2(BaseEmbedding):
                     attraction = (data ** self.weight_exponent) * attraction
                 if self.no_hubs:
                     attraction = attraction / (degree[i] + 1)
+
                 if self.barnes_hut:
                     repulsion = np.asarray(root.apply_force(position[i], degree[i], self.theta, repulsion,
                                                             self.repulsive_factor))
                 else:
                     repulsion = self.repulsive_factor * (degree[i] + 1) * degree / distance
 
-                distance_b = np.zeros((n, self.n_components))
-
-                for j in range(n):
-                    distance_b[j] = [distance[j], distance[j]]
-
-                # gravity = self.gravity_factor * (degree[i] + 1) * grad / distance_b
                 gravity = self.gravity_factor * (degree[i] + 1)
-
-                force = np.sum(attraction, axis=0) + gravity + np.sum(repulsion, axis=0)  # forces resultant applied on node i
-                # force_res = np.sum(force, axis=0)
-                # forces_for_each_node_res = np.sum(forces_for_each_node[i], axis=0)
-
                 if self.strong_gravity:
                     gravity *= distance
 
-                swing_node = np.abs(force - forces_for_each_node[i])  # force variation applied on node i
+                # forces resultant applied on node i for traction, swing and speed computation
+                force: float = np.sum(attraction, axis=0) + gravity + np.sum(repulsion, axis=0)
 
+                swing_node: float = np.abs(force - forces_for_each_node[i])  # force variation applied on node i
                 swing_vector[i] = swing_node
-                traction = np.abs(force + forces_for_each_node[i]) / 2  # traction force applied on node i
-
                 global_swing += (degree[i] + 1) * swing_node
+
+                traction: float = np.abs(force + forces_for_each_node[i]) / 2  # traction force applied on node i
                 global_traction += (degree[i] + 1) * traction
 
                 node_speed = self.speed * global_speed / (1 + global_speed * np.sqrt(swing_node))
@@ -222,18 +213,17 @@ class ForceAtlas2(BaseEmbedding):
 
                 forces_for_each_node[i] = force  # force resultant update
 
-                # delta[i] = node_speed * force
                 delta[i]: np.ndarray = (grad * node_speed * (repulsion - attraction - gravity)[:, np.newaxis]).sum(
                     axis=0)
 
             global_speed = tolerance * global_traction / global_swing
-            length = np.linalg.norm(delta, axis=0)
+            length: np.ndarray = np.linalg.norm(delta, axis=0)
             length = np.where(length < 0.01, 0.1, length)
             delta = delta * step_max / length  # normalisation of distance between nodes
             position += delta  # calculating displacement and final position of points after iteration
             step_max -= step
             if (swing_vector < 0.01).all():
-                break  # If the swing of all nodes is zero, then convergence is reached and we break.
+                break  # if the swing of all nodes is zero, then convergence is reached and we break.
 
         self.embedding_ = position
         return self
