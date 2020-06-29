@@ -5,7 +5,7 @@
 import unittest
 from sknetwork.topology import WLKernel
 from sknetwork.data.test_graphs import *
-from sknetwork.data import house, bow_tie
+from sknetwork.data import house
 
 class TestWLColoring(unittest.TestCase):
 

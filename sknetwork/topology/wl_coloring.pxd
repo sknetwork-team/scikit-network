@@ -16,15 +16,14 @@ from libcpp.unordered_map cimport unordered_map as cmap
 
 ctypedef pair[long long, int] cpair
 
-cdef long long [:] c_wl_coloring(int[:] indices,
-                                int[:] indptr,
+cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
+                                np.ndarray[int, ndim=1] indptr,
                                 int max_iter,
                                 long long[:] labels,
                                 int max_deg,
                                 int n,
                                 int length_count,
                                 cmap[long, long] new_hash,
-                                int[:] degres,
                                 long long[:] multiset,
                                 long long[:] sorted_multiset,
                                 vector[cpair] large_label,

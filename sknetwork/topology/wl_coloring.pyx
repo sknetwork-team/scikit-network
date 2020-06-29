@@ -31,15 +31,14 @@ cdef bint is_lower(pair[long long, int] p1, pair[long long, int] p2):
 @cython.boundscheck(False)
 @cython.wraparound(False)
 #TODO renvoyer has changed pour kernel
-cdef long long [:] c_wl_coloring(int[:] indices,
-                                int[:] indptr,
+cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
+                                np.ndarray[int, ndim=1] indptr,
                                 int max_iter,
                                 long long[:] labels,
                                 int max_deg,
                                 int n,
                                 int length_count,
                                 cmap[long, long] new_hash,
-                                int[:] degrees,
                                 long long[:] multiset,
                                 long long[:] sorted_multiset,
                                 vector[cpair] large_label,
@@ -48,8 +47,8 @@ cdef long long [:] c_wl_coloring(int[:] indices,
                                 bint clear_dict):
     cdef int iteration = 1
     cdef int u = 0
-    cdef int j = 0
     cdef int i
+    cdef int j
     cdef int jj
     cdef int j1
     cdef int j2
@@ -57,7 +56,7 @@ cdef long long [:] c_wl_coloring(int[:] indices,
     cdef int key
     cdef int deg
     cdef int neighbor_label
-    cdef int old_label
+    cdef long long old_label
     cdef long concatenation
     cdef double tmp_concatenation
     cdef double int_part
@@ -69,23 +68,18 @@ cdef long long [:] c_wl_coloring(int[:] indices,
     else :
         max_iter = n
 
-
-
     while iteration <= max_iter and has_changed :
         large_label.clear()
         for i in range(n):
-            # 1
             # going through the neighbors of v.
             j = 0
-            deg = degrees[i]
             j1 = indptr[i]
             j2 = indptr[i + 1]
+            deg = j2 - j1
             for jj in range(j1,j2):
                 u = indices[jj]
-                multiset[j] = labels[u]
+                multiset[j] = labels[indices[jj]]
                 j+=1
-
-            # 2
 
             counting_sort(length_count, deg, count, multiset, sorted_multiset)
             concatenation = labels[i]
@@ -120,7 +114,7 @@ cdef long long [:] c_wl_coloring(int[:] indices,
                 new_hash[key] = current_max
                 current_max += 1
             #  4
-            old_label = int(labels[ind])
+            old_label = labels[ind]
             labels[ind] = new_hash[key]
             if not has_changed:
                 has_changed = (old_label != labels[ind])
@@ -136,10 +130,9 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,int max_iter,np.ndarra
     """Wrapper for Weisfeiler-Lehman coloring"""
 
     cdef np.ndarray[int, ndim=1] indices = adjacency.indices
-    cdef np.ndarray[int, ndim=1] indptr = adjacency.indptr
+    cdef np.ndarray[int, ndim=1]indptr = adjacency.indptr
     cdef int n = indptr.shape[0] -1
-    cdef int[:] degrees = memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))
-    cdef int max_deg = np.max(list(degrees))
+    cdef int max_deg = max(list(memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))))
     cdef cmap[long, long] new_hash
 
     cdef long long[:] multiset = np.empty(max_deg, dtype=np.longlong)
@@ -155,7 +148,7 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,int max_iter,np.ndarra
         labels = input_labels
 
 
-    return np.asarray(c_wl_coloring(indices,indptr,max_iter, labels, max_deg, n, n, new_hash, degrees, multiset, sorted_multiset, large_label, count, current_max, True))
+    return np.asarray(c_wl_coloring(indices,indptr,max_iter, labels, max_deg, n, n, new_hash, multiset, sorted_multiset, large_label, count, current_max, True))
 
 
 class WLColoring(Algorithm):
@@ -173,7 +166,7 @@ class WLColoring(Algorithm):
     >>> wlcoloring = WLColoring()
     >>> adjacency = house()
     >>> labels = wlcoloring.fit_transform(adjacency)
-    array([1, 2, 0, 0, 2])
+    array([2, 3, 1, 1, 3])
 
     References
     ----------
@@ -215,24 +208,20 @@ class WLColoring(Algorithm):
         #TODO fin du PAF: remettre num_iter en attribut.
 
 
-
         self.labels_ = wl_coloring(adjacency, max_iter, input_labels)
         """
-        np.ndarray[int, ndim=1] indices,
-                                                         np.ndarray[int, ndim=1] indptr,
-                                                         int num_iter,
-                                                         np.ndarray[int, ndim=1] input_labels,
-                                                         int max_deg,
-                                                         int n,
-                                                         cmap[long, long] new_hash,
-                                                         int[:] degrees,
-                                                         long long[:] multiset,
-                                                         long long[:] sorted_multiset,
-                                                         vector[cpair] large_label,
-                                                         np.int32_t[:] count,
-                                                         int current_max):"""
-
-
+        int[:] indices,
+        int[:] indptr,
+        int num_iter,
+        np.ndarray[int, ndim=1] input_labels,
+        int max_deg,
+        int n,
+        cmap[long, long] new_hash,
+        long long[:] multiset,
+        long long[:] sorted_multiset,
+        vector[cpair] large_label,
+        np.int32_t[:] count,
+        int current_max):"""
 
         return self
 
@@ -245,4 +234,4 @@ class WLColoring(Algorithm):
             Labels.
         """
         self.fit(max_iter, adjacency, input_labels)
-        return np.asarray(self.labels_)
+        return self.labels_
