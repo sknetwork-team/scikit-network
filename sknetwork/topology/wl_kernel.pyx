@@ -142,7 +142,7 @@ cdef int c_wl_edge_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.nd
     for v2 in range(n):
         neighborhood = indices_2[indptr_2[v2]: indptr_2[v2+1]]
         for n2 in range(degrees_2[v2]) :
-            neighbors1[v2][n2] = neighborhood[n2]
+            neighbors2[v2][n2] = neighborhood[n2]
 
     cdef cmap[long, long] new_hash
 
@@ -172,14 +172,14 @@ cdef int c_wl_edge_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.nd
             d1 = degrees_1[v1]
             for j1 in range(d1) :
                 n1 = neighbors1[v1][j1]
-                if n1 >= v1 : #Proceed in increasing order to ensure each edge is seen exactly once
+                if n1 > v1 : #Proceed in increasing order to ensure each edge is seen exactly once
 
                     #loop on graph 2 edges :
                     for v2 in range(n) :
                         d2 = degrees_2[v2]
                         for j2 in range(d2) :
                             n2 = neighbors2[v2][j2]
-                            if n2 >= v2 :
+                            if n2 > v2 :
                                 l1_1 = labels_1[v1]
                                 l1_2 = labels_1[n1]
                                 l2_1 = labels_2[v2]
