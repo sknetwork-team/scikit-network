@@ -85,26 +85,24 @@ class Cell:
 
         self.children = np.asarray([child_1, child_2, child_3, child_4])
 
-    def apply_force(self, node_x, node_y, degree, theta, repulsion, repulsive_factor: float):
+    def apply_force(self, pos_node, degree, theta, repulsion, repulsive_factor: float):
         cell_size = self.pos_max[0] - self.pos_min[0]
 
         if self.n_particles == 1:  # compute repulsion force between two nodes
-            dx = self.pos_particle[0] - node_x
-            dy = self.pos_particle[1] - node_y
-            distance = np.sqrt(dx * dx + dy * dy)
+            variation = self.pos_particle - pos_node
+            distance = np.linalg.norm(variation, axis = 0)
             if distance > 0:
-                repulsion.append(repulsive_factor * (degree + 1) * (self.particle_degree + 1) / (np.asarray([dx, dy])))
+                repulsion.append(repulsive_factor * (degree + 1) * (self.particle_degree + 1) / distance)
 
         elif self.n_particles == 0:
             return
 
         else:
-            dx = node_x - self.center[0]
-            dy = node_y - self.center[1]
-            distance = np.sqrt(dx * dx + dy * dy)
+            variation = pos_node - self.center
+            distance = np.linalg.norm(variation, axis=0)
             if distance * theta > cell_size:
-                repulsion.append(repulsive_factor * (degree + 1) * (self.n_particles + 1) / (np.asarray([dx, dy])))
+                repulsion.append(repulsive_factor * (degree + 1) * (self.n_particles + 1) / distance)
             else:
                 for sub_cell in self.children:
-                    sub_cell.apply_force(node_x, node_y, degree, theta, repulsion, repulsive_factor)
+                    sub_cell.apply_force(pos_node, degree, theta, repulsion, repulsive_factor)
         return repulsion
