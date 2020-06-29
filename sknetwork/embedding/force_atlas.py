@@ -143,16 +143,16 @@ class ForceAtlas2(BaseEmbedding):
             n_components = self.n_components
 
         # initial position of the nodes of the graph
-        position = np.random.randn(n, n_components)
+        position = np.random.randn(n, 2)
 
         # compute the vector with the degree of each node
         degree = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
-        delta = np.zeros((n, n_components))  # initialization of variation of position of nodes
-        forces_for_each_node = np.zeros(n)
+        delta = np.zeros((n, 2))  # initialization of variation of position of nodes
+        forces_for_each_node = np.zeros((n,2))
         swing_vector = np.zeros(n)
         global_speed = 1
-        attraction = np.zeros(n)
+        attraction = np.zeros((n,2))
 
         for iteration in range(n_iter):
             delta *= 0
