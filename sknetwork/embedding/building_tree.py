@@ -45,9 +45,11 @@ class Cell:
     Nature 324: 446–449.
     """
 
-    def __init__(self, x_min, x_max, y_min, y_max):
-        self.pos_min = np.asarray([x_min, y_min])
-        self.pos_max = np.asarray([x_max, y_max])
+    def __init__(self, pos_min_max: np.ndarray):  # position.shape (2, n_components)
+        self.pos_min = pos_min_max[0]
+        self.pos_max = pos_min_max[1]
+        # self.pos_min = np.asarray([x_min, y_min])
+        # self.pos_max = np.asarray([x_max, y_max])
         self.center = np.zeros(2)  # position of the center of mass of the cell
         self.children = None  # list of cells that are the children of the current cell
         self.n_particles = 0  # number of particles in the cells in its sub-cells
@@ -90,7 +92,7 @@ class Cell:
 
         if self.n_particles == 1:  # compute repulsion force between two nodes
             variation = self.pos_particle - pos_node
-            distance = np.linalg.norm(variation, axis = 0)
+            distance = np.linalg.norm(variation, axis=0)
             if distance > 0:
                 repulsion.append(repulsive_factor * (degree + 1) * (self.particle_degree + 1) / distance)
 
