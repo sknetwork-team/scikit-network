@@ -93,7 +93,7 @@ class Cell:
             distance = np.linalg.norm(variation, axis=0)
             if distance > 0:
                 repulsion_force = repulsive_factor * (node_degree + 1) * (self.n_particles + 1) * grad
-                repulsion.append(repulsion_force)
+                repulsion = repulsion + repulsion_force
 
         elif self.n_particles == 0:
             return
@@ -101,9 +101,8 @@ class Cell:
         else:
             distance = np.linalg.norm(grad, axis=0)
             if distance * theta > cell_size:
-                repulsion_force = repulsive_factor * (node_degree + 1) * (self.n_particles + 1) * grad
-                repulsion.append(repulsion_force)
-
+                repulsion_force = repulsive_factor * node_degree * (self.n_particles + 1) / grad
+                repulsion = repulsion + repulsion_force
             else:
                 for sub_cell in self.children:
                     sub_cell.apply_force(pos_node, node_degree, theta, repulsion, repulsive_factor)

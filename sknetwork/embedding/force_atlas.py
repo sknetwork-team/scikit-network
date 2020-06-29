@@ -158,13 +158,14 @@ class ForceAtlas2(BaseEmbedding):
             global_traction = 0
 
             # tree construction
-            root = Cell(position[:, 0].min(), position[:, 0].max(), position[:, 1].min(), position[:, 1].max())
-            for i in range(n):
-                root.add(position[i], degree[i])
+            if self.barnes_hut:
+                root = Cell(position[:, 0].min(), position[:, 0].max(), position[:, 1].min(), position[:, 1].max())
+                for i in range(n):
+                    root.add(position[i], degree[i])
 
             for i in range(n):
                 attraction *= 0
-                repulsion = []
+                repulsion = 0
 
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
 
@@ -181,7 +182,7 @@ class ForceAtlas2(BaseEmbedding):
                 if self.barnes_hut:
                     repulsion = np.asarray(root.apply_force(position[i], degree[i], self.theta, repulsion,
                                                             self.repulsive_factor))
-                    repulsion = np.sum(attraction, axis=0)
+                    repulsion = np.sum(repulsion, axis=0)
                 else:
                     repulsion = np.sum(
                         (self.repulsive_factor * (degree[i] + 1) * grad * (degree / distance)[:, np.newaxis]
