@@ -35,17 +35,13 @@ cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
                                 np.ndarray[int, ndim=1] indptr,
                                 int max_iter,
                                 long long[:] labels,
-                                int max_deg,
-                                int n,
-                                int length_count,
                                 cmap[long, long] new_hash,
                                 long long[:,:] multiset,
-                                long long[:] sorted_multiset,
                                 vector[cpair] large_label,
                                 int  [:] count,
-                                int current_max,
                                 bint clear_dict):
     cdef int iteration = 1
+    cdef int n = indptr.shape[0] -1
     cdef int u = 0
     cdef int i
     cdef int j
@@ -70,7 +66,9 @@ cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
 
     while iteration <= max_iter and has_changed :
         large_label.clear()
+
         counting_sort_all(indptr, indices, multiset, labels)
+
         for i in range(n):
             j1 = indptr[i]
             j2 = indptr[i + 1]
@@ -88,13 +86,8 @@ cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
 
             large_label.push_back((cpair(concatenation, i)))
 
-
-        # 3
-
         csort(large_label.begin(), large_label.end(),is_lower)
 
-        #TODO ajouter une condition ici parce qu'on ne veut pas reset entre deux graphes sur un même tour
-        # pour kernel.
         if clear_dict :
             new_hash.clear()
         current_max = 1
@@ -113,13 +106,11 @@ cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
                 has_changed = (old_label != labels[ind])
         iteration += 1
 
-
-
     return labels
 
-
-
-cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,int max_iter,np.ndarray[long long, ndim = 1] input_labels ) :
+cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,
+                                                int max_iter,
+                                                np.ndarray[long long, ndim = 1] input_labels ) :
     """Wrapper for Weisfeiler-Lehman coloring"""
 
     cdef np.ndarray[int, ndim=1] indices = adjacency.indices
@@ -129,10 +120,8 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,int max_iter,np.ndarra
     cdef cmap[long, long] new_hash
 
     cdef long long[:,:] multiset = np.empty((n, max_deg), dtype=np.longlong)
-    cdef long long[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
     cdef vector[cpair] large_label = np.zeros((n, 2), dtype=np.longlong)
-    cdef int [:] count= np.zeros(n, dtype = np.int32)
-    cdef int current_max = 1
+    cdef int [:] count= np.zeros(n + 1, dtype = np.int32)
 
     cdef np.ndarray[long long, ndim = 1] labels
     if input_labels is None :
@@ -140,8 +129,7 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,int max_iter,np.ndarra
     else :
         labels = input_labels
 
-
-    return np.asarray(c_wl_coloring(indices,indptr,max_iter, labels, max_deg, n, n, new_hash, multiset, sorted_multiset, large_label, count, current_max, True))
+    return np.asarray(c_wl_coloring(indices, indptr, max_iter, labels, new_hash, multiset, large_label, count, True))
 
 
 class WLColoring(Algorithm):

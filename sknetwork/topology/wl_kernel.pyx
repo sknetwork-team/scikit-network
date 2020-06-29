@@ -39,6 +39,7 @@ cdef int c_wl_subtree_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np
     cdef int max_deg
     cdef int similarity = 0
 
+
     cdef cmap[long, long] new_hash
     cdef long long[:] labels_1
     cdef long long[:] labels_2
@@ -78,10 +79,8 @@ cdef int c_wl_subtree_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np
         # mettre un paramètre booléen qu'on mettra à true ici
 
         new_hash.clear() #une seule fois par itération sur les deux graphes
-        current_max = 1
-
-        labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, max_deg, n, length_count, new_hash, multiset, sorted_multiset, large_label, count_sort, current_max, False)
-        labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, max_deg, n, length_count, new_hash, multiset, sorted_multiset, large_label, count_sort, current_max, False)
+        labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, new_hash, multiset, large_label, count_sort, False)
+        labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, new_hash, multiset, large_label, count_sort, False)
         #print("labels_1", np.asarray(labels_1))
         #print("labels_2", np.asarray(labels_2))
         for i in range(2 * n):
@@ -160,10 +159,8 @@ cdef int c_wl_edge_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.nd
     similarity=0
     for iteration in range(num_iter) :
         new_hash.clear() #une seule fois par itération sur les deux graphes
-        current_max = 1
-
-        labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, max_deg1, n, length_count, new_hash, multiset, sorted_multiset, large_label, count_sort, current_max, False)
-        labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, max_deg2, n, length_count, new_hash, multiset, sorted_multiset, large_label, count_sort, current_max, False)
+        labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, new_hash, multiset, large_label, count_sort, False)
+        labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, new_hash, multiset, large_label, count_sort, False)
         #loop on graph 1 edges :
         for v1 in range(n) :
             d1 = degrees_1[v1]
@@ -242,10 +239,8 @@ cdef int c_wl_shortest_path_kernel(int num_iter, adjacency_1, adjacency_2):
 
     for iteration in range(num_iter) :
         new_hash.clear() #une seule fois par itération sur les deux graphes
-        current_max = 1
-
-        labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, max_deg1, n, length_count, new_hash, multiset, sorted_multiset, large_label, count_sort, current_max, False)
-        labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, max_deg2, n, length_count, new_hash, multiset, sorted_multiset, large_label, count_sort, current_max, False)
+        labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, new_hash, multiset, large_label, count_sort, False)
+        labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, new_hash, multiset, large_label, count_sort, False)
         #loop on graph 1 edges :
         for v1 in range(n) :
             for j1 in range(n) :
