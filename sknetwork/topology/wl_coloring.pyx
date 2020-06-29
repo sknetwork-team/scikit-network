@@ -52,8 +52,9 @@ cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
     cdef int key
     cdef int deg
     cdef int neighbor_label
+    cdef int current_max
     cdef long long old_label
-    cdef long concatenation
+    cdef long long concatenation
     cdef double tmp_concatenation
     cdef double int_part
     cdef bint has_changed = True
