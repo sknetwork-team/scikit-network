@@ -148,17 +148,12 @@ class ForceAtlas2(BaseEmbedding):
         step_max: float = variation.max()
         step: float = step_max / (n_iter + 1)
 
-        pos_min_max = np.zeros((2, self.n_components))
-        for j in range(self.n_components):
-            pos_min_max[0][j] = position[:, j].min()
-            pos_min_max[1][j] = position[:, j].max()
-
         # initialization of variation of position of nodes
         delta: np.ndarray = np.zeros((n, self.n_components))
-        forces_for_each_node: np.ndarray = np.zeros(n)
+        forces_for_each_node: np.ndarray = np.zeros((n, self.n_components))
         swing_vector: np.ndarray = np.zeros(n)
         global_speed = 1
-        attraction: np.ndarray = np.zeros(n)
+        attraction: np.ndarray = np.zeros((n, self.n_components))
 
         for iteration in range(n_iter):
             delta *= 0
@@ -166,7 +161,7 @@ class ForceAtlas2(BaseEmbedding):
             global_traction = 0
 
             # tree construction
-            root = Cell(pos_min_max)
+            root = Cell(position[:, 0].min(), position[:, 0].max(), position[:, 1].min(), position[:, 1].max())
             for i in range(n):
                 root.add(position[i], degree[i])
 
