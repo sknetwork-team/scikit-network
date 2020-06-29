@@ -14,7 +14,7 @@ cimport numpy as np
 from scipy import sparse
 
 from sknetwork.utils.base import Algorithm
-from sknetwork.utils.counting_sort cimport counting_sort
+from sknetwork.utils.counting_sort cimport counting_sort_all
 
 from libcpp.pair cimport pair
 from libcpp.vector cimport vector
@@ -39,7 +39,7 @@ cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
                                 int n,
                                 int length_count,
                                 cmap[long, long] new_hash,
-                                long long[:] multiset,
+                                long long[:,:] multiset,
                                 long long[:] sorted_multiset,
                                 vector[cpair] large_label,
                                 int  [:] count,
@@ -70,21 +70,14 @@ cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
 
     while iteration <= max_iter and has_changed :
         large_label.clear()
+        counting_sort_all(indptr, indices, multiset, labels)
         for i in range(n):
-            # going through the neighbors of v.
-            j = 0
             j1 = indptr[i]
             j2 = indptr[i + 1]
             deg = j2 - j1
-            for jj in range(j1,j2):
-                u = indices[jj]
-                multiset[j] = labels[indices[jj]]
-                j+=1
-
-            counting_sort(length_count, deg, count, multiset, sorted_multiset)
             concatenation = labels[i]
             for j in range(deg) :
-                neighbor_label = multiset[j]
+                neighbor_label = multiset[i][j]
 
                 tmp_concatenation = clog10(neighbor_label)
                 ret = modf(tmp_concatenation, &int_part)
@@ -135,7 +128,7 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,int max_iter,np.ndarra
     cdef int max_deg = max(list(memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))))
     cdef cmap[long, long] new_hash
 
-    cdef long long[:] multiset = np.empty(max_deg, dtype=np.longlong)
+    cdef long long[:,:] multiset = np.empty((n, max_deg), dtype=np.longlong)
     cdef long long[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
     cdef vector[cpair] large_label = np.zeros((n, 2), dtype=np.longlong)
     cdef int [:] count= np.zeros(n, dtype = np.int32)

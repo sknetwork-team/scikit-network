@@ -42,7 +42,7 @@ cdef int c_wl_subtree_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np
     cdef cmap[long, long] new_hash
     cdef long long[:] labels_1
     cdef long long[:] labels_2
-    cdef long long[:] multiset
+    cdef long long[:,:] multiset
     cdef vector[cpair] large_label
 
     cdef bint has_changed_1 = True
@@ -58,7 +58,7 @@ cdef int c_wl_subtree_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np
     count_sort= np.zeros(length_count, dtype = DTYPE)
     count_1= np.zeros(length_count, dtype = DTYPE)
     count_2= np.zeros(length_count, dtype = DTYPE)
-    multiset = np.empty(max_deg, dtype=np.longlong)
+    multiset = np.empty((n,max_deg), dtype=np.longlong)
     labels_1 = np.ones(n, dtype = np.longlong)
     labels_2 = np.ones(n, dtype = np.longlong)
     large_label = np.zeros((n, 2), dtype=DTYPE)
@@ -148,10 +148,10 @@ cdef int c_wl_edge_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.nd
     cdef int[:] count_1
     cdef int[:] count_2
     cdef long long[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
-    cdef long long[:] multiset
+    cdef long long[:,:] multiset
     cdef vector[cpair] large_label
 
-    multiset = np.empty(max_deg, dtype=np.longlong)
+    multiset = np.empty((n, max_deg), dtype=np.longlong)
     large_label = np.zeros((n, 2), dtype=np.int32)
     count_sort= np.zeros(length_count, dtype = np.int32)
     count_1= np.zeros(length_count, dtype = np.int32)
@@ -229,10 +229,10 @@ cdef int c_wl_shortest_path_kernel(int num_iter, adjacency_1, adjacency_2):
     cdef int[:] count_1
     cdef int[:] count_2
     cdef long long[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
-    cdef long long[:] multiset
+    cdef long long[:,:] multiset
     cdef vector[cpair] large_label
 
-    multiset = np.empty(max_deg, dtype=np.longlong)
+    multiset = np.empty((n, max_deg), dtype=np.longlong)
     large_label = np.zeros((n, 2), dtype=np.int32)
     count_sort= np.zeros(length_count, dtype = np.int32)
     count_1= np.zeros(length_count, dtype = np.int32)

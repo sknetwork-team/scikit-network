@@ -9,3 +9,5 @@ import numpy as np
 cimport numpy as np
 
 cdef void counting_sort(int n, int deg, int[:] count, long long[:] multiset, long long[:] sorted_multiset)
+
+cdef void counting_sort_all(int[:] indptr, int[:] indices, long long[:,:] multiset, long long[:] labels)
