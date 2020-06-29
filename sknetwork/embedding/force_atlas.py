@@ -151,6 +151,7 @@ class ForceAtlas2(BaseEmbedding):
         swing_vector: np.ndarray = np.zeros(n)
         global_speed = 1
         attraction: np.ndarray = np.zeros((n, self.n_components))
+        repulsion: np.ndarray = np.zeros(self.n_components)
 
         for iteration in range(n_iter):
             delta *= 0
@@ -165,7 +166,7 @@ class ForceAtlas2(BaseEmbedding):
 
             for i in range(n):
                 attraction *= 0
-                repulsion = 0
+                repulsion *= 0
 
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
 
@@ -182,7 +183,7 @@ class ForceAtlas2(BaseEmbedding):
                 if self.barnes_hut:
                     repulsion = np.asarray(root.apply_force(position[i], degree[i], self.theta, repulsion,
                                                             self.repulsive_factor))
-                    repulsion = np.sum(repulsion, axis=0)
+                    # repulsion = np.sum(repulsion, axis=0)
                 else:
                     repulsion = np.sum(
                         (self.repulsive_factor * (degree[i] + 1) * grad * (degree / distance)[:, np.newaxis]
@@ -193,7 +194,7 @@ class ForceAtlas2(BaseEmbedding):
                     gravity *= distance
 
                 # forces resultant applied on node i for traction, swing and speed computation
-                force: float = repulsion - np.sum(attraction, axis=0) - np.sum(gravity, axis=0)
+                force: float = np.sum(repulsion, axis=0) - np.sum(attraction, axis=0) - np.sum(gravity, axis=0)
                 force_res: float = np.linalg.norm(force)
                 forces_for_each_node_res: float = np.linalg.norm(forces_for_each_node[i])
 
