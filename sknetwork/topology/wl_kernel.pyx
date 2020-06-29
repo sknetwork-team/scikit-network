@@ -15,6 +15,7 @@ from scipy import sparse
 
 from sknetwork.utils.base import Algorithm
 from sknetwork.topology.wl_coloring cimport c_wl_coloring
+from sknetwork.path.shortest_path import distance
 
 from libcpp.pair cimport pair
 from libcpp.vector cimport vector
@@ -185,6 +186,85 @@ cdef int c_wl_edge_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.nd
                                     similarity+=1
     return similarity
 
+cdef int c_wl_shortest_path_kernel(int num_iter, adjacency_1, adjacency_2):
+
+    cdef int similarity, max_deg1, max_deg2, max_deg, v1, v2, d1, d2, j1, j2, l1_1, l1_2, l2_1, l2_2, iteration, length_count
+
+    data_1 = adjacency_1.data
+    indices_1 = adjacency_1.indices
+    indptr_1 = adjacency_1.indptr
+
+    data_2 = adjacency_2.data
+    indices_2 = adjacency_2.indices
+    indptr_2 = adjacency_2.indptr
+
+
+
+    cdef np.ndarray[double, ndim = 2] dist_1 = distance(adjacency_1)
+    cdef np.ndarray[double, ndim = 2] dist_2 = distance(adjacency_2)
+
+    n = indptr_1.shape[0] -1
+    length_count = 2 * n + 1
+
+    if num_iter < 0 :
+        num_iter = n
+
+    cdef int[:]  degrees_1
+    cdef int[:]  degrees_2
+
+    cdef long long[:] labels_1
+    cdef long long[:] labels_2
+    labels_1 = np.ones(n, dtype = np.longlong)
+    labels_2 = np.ones(n, dtype = np.longlong)
+
+    degrees_1 = memoryview(np.array(indptr_1[1:]) - np.array(indptr_1[:n]))
+    degrees_2 = memoryview(np.array(indptr_2[1:]) - np.array(indptr_2[:n]))
+    max_deg1 = max(degrees_1)
+    max_deg2 = max(degrees_2)
+    max_deg = max(max_deg1, max_deg2)
+
+    cdef cmap[long, long] new_hash
+
+    cdef int[:] count_sort
+    cdef int[:] count_1
+    cdef int[:] count_2
+    cdef long long[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
+    cdef long long[:] multiset
+    cdef vector[cpair] large_label
+
+    multiset = np.empty(max_deg, dtype=np.longlong)
+    large_label = np.zeros((n, 2), dtype=np.int32)
+    count_sort= np.zeros(length_count, dtype = np.int32)
+    count_1= np.zeros(length_count, dtype = np.int32)
+    count_2= np.zeros(length_count, dtype = np.int32)
+
+    similarity=0
+
+    for iteration in range(num_iter) :
+        new_hash.clear() #une seule fois par itération sur les deux graphes
+        current_max = 1
+
+        labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, max_deg1, n, length_count, new_hash, multiset, sorted_multiset, large_label, count_sort, current_max, False)
+        labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, max_deg2, n, length_count, new_hash, multiset, sorted_multiset, large_label, count_sort, current_max, False)
+        #loop on graph 1 edges :
+        for v1 in range(n) :
+            for j1 in range(n) :
+                d1 = dist_1[v1][j1]
+                if j1 >= v1 and d1 != np.inf: #Proceed in increasing order to ensure each edge is seen exactly once
+
+                    #loop on graph 2 edges :
+                    for v2 in range(n) :
+                        for j2 in range(n) :
+                            d2 = dist_2[v2][j2]
+                            if j2 >= v2 and d2 != np.inf :
+                                l1_1 = labels_1[v1]
+                                l1_2 = labels_1[j1]
+                                l2_1 = labels_2[v2]
+                                l2_2 = labels_2[j2]
+
+                                if ( l1_1==l2_1  and  l1_2==l2_2 ) or ( l1_2==l2_1  and  l1_1==l2_2 ) and d1 == d2 : #compare ordered pairs
+                                    similarity+=1
+    return similarity
 
 class WLKernel(Algorithm):
     """Algorithm using Weisefeler-Lehman to check kernels.
@@ -246,19 +326,25 @@ class WLKernel(Algorithm):
             Likeness between both graphs. -1 if unknown kernel was specified
         """
 
+
         ret = -1
+        data_1 = adjacency_1.data
         indices_1 = adjacency_1.indices
         indptr_1 = adjacency_1.indptr
 
+        data_2 = adjacency_2.data
         indices_2 = adjacency_2.indices
         indptr_2 = adjacency_2.indptr
+
+
         if kernel == "subtree" :
             ret = c_wl_subtree_kernel(self.max_iter,indices_1,  indptr_1,indices_2,  indptr_2)
 
         if kernel == "edge" :
-            n = indptr_1.shape[0] -1
             ret = c_wl_edge_kernel(self.max_iter,indices_1,  indptr_1,indices_2,  indptr_2)
+        if kernel== "shortest path" :
 
+            ret = c_wl_shortest_path_kernel(self.max_iter, adjacency_1, adjacency_2 )
         return ret
 
     def fit_transform(self, adjacency_g1: Union[sparse.csr_matrix, np.ndarray], adjacency_g2: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
