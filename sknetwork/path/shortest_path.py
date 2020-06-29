@@ -48,11 +48,12 @@ def distance(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterable
     dist_matrix : np.ndarray
         The matrix of distances between graph nodes. ``dist_matrix[i,j]`` gives the shortest
         distance from point ``i`` to point ``j`` along the graph.
+        If no path exists between nodes ``i`` and ``j``, then ``dist_matrix[i, j] = np.inf``.
     predecessors : np.ndarray, optional
         Returned only if ``return_predecessors == True``. The matrix of predecessors, which can be used to reconstruct
         the shortest paths. Row i of the predecessor matrix contains information on the shortest paths from point ``i``:
         each entry ``predecessors[i, j]`` gives the index of the previous node in the path from point ``i`` to point
-        ``j``. If no path exists between point ``i`` and ``j``, then ``predecessors[i, j] = -9999``.
+        ``j``. If no path exists between nodes ``i`` and ``j``, then ``predecessors[i, j] = -9999``.
 
     Examples
     --------
