@@ -45,11 +45,9 @@ class Cell:
     Nature 324: 446–449.
     """
 
-    def __init__(self, pos_min_max: np.ndarray):  # position.shape (2, n_components)
-        self.pos_min = pos_min_max[0]
-        self.pos_max = pos_min_max[1]
-        # self.pos_min = np.asarray([x_min, y_min])
-        # self.pos_max = np.asarray([x_max, y_max])
+    def __init__(self, x_min, x_max, y_min, y_max):  # position.shape (2, n_components)
+        self.pos_min = np.asarray([x_min, y_min])
+        self.pos_max = np.asarray([x_max, y_max])
         self.center = np.zeros(2)  # position of the center of mass of the cell
         self.children = None  # list of cells that are the children of the current cell
         self.n_particles = 0  # number of particles in the cells in its sub-cells
@@ -87,24 +85,27 @@ class Cell:
 
         self.children = np.asarray([child_1, child_2, child_3, child_4])
 
-    def apply_force(self, pos_node, degree, theta, repulsion, repulsive_factor: float):
+    def apply_force(self, pos_node, node_degree, theta, repulsion, repulsive_factor: float):
         cell_size = self.pos_max[0] - self.pos_min[0]
+        grad: np.ndarray = pos_node - self.center
 
         if self.n_particles == 1:  # compute repulsion force between two nodes
             variation = self.pos_particle - pos_node
             distance = np.linalg.norm(variation, axis=0)
             if distance > 0:
-                repulsion.append(repulsive_factor * (degree + 1) * (self.particle_degree + 1) / distance)
+                repulsion_force = repulsive_factor * (node_degree + 1) * (self.particle_degree + 1) / grad
+                repulsion += repulsion_force
 
         elif self.n_particles == 0:
             return
 
         else:
-            variation = pos_node - self.center
-            distance = np.linalg.norm(variation, axis=0)
+            # variation = pos_node - self.center
+            distance = np.linalg.norm(grad, axis=0)
             if distance * theta > cell_size:
-                repulsion.append(repulsive_factor * (degree + 1) * (self.n_particles + 1) / distance)
+                repulsion_force = repulsive_factor * (node_degree + 1) * (self.n_particles + 1) / grad
+                repulsion += repulsion_force
             else:
                 for sub_cell in self.children:
-                    sub_cell.apply_force(pos_node, degree, theta, repulsion, repulsive_factor)
+                    sub_cell.apply_force(pos_node, node_degree, theta, repulsion, repulsive_factor)
         return repulsion
