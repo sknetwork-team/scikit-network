@@ -93,7 +93,7 @@ class Cell:
             dy = self.pos_particle[1] - node_y
             distance = np.sqrt(dx * dx + dy * dy)
             if distance > 0:
-                repulsion.append(repulsive_factor * (degree + 1) * (self.particle_degree + 1) / distance)
+                repulsion.append(repulsive_factor * (degree + 1) * (self.particle_degree + 1) / (np.asarray([dx,dy])))
 
         elif self.n_particles == 0:
             return

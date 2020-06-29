@@ -139,17 +139,14 @@ class ForceAtlas2(BaseEmbedding):
 
         if n_iter is None:
             n_iter = self.n_iter
+        if n_components is None:
+            n_components = self.n_components
 
         # initial position of the nodes of the graph
         position = np.random.randn(n, n_components)
 
         # compute the vector with the degree of each node
         degree = adjacency.dot(np.ones(adjacency.shape[1])) + 1
-
-        # definition of the step
-        variation = position.max(axis=0) - position.min(axis=0)  # max variation
-        step_max: float = variation.max()
-        step: float = step_max / (n_iter + 1)
 
         delta = np.zeros((n, n_components))  # initialization of variation of position of nodes
         forces_for_each_node = np.zeros(n)
@@ -168,15 +165,19 @@ class ForceAtlas2(BaseEmbedding):
                 root.add(position[i], degree[i])
 
             for i in range(n):
+                repulsion = []
                 attraction *= 0
                 repulsion = []
+
+                force = np.asarray([0, 0])  # shape (2,) force resultant applied on node i
+
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
 
-                grad: np.ndarray = (position[i] - position)  # shape (n, 2)
+                grad: np.ndarray = position[i] - position  # shape (n, 2)
                 distance: np.ndarray = np.linalg.norm(grad, axis=1)  # shape (n,)
                 distance = np.where(distance < 0.01, 0.01, distance)
+                attraction[indices] = grad[indices]  # change attraction of connected nodes
 
-                attraction[indices] = 10 * distance[indices]  # change attraction of connected nodes
                 if self.lin_log:
                     attraction = np.log(1 + attraction)
                 if self.weight_exponent != 0:
@@ -185,40 +186,42 @@ class ForceAtlas2(BaseEmbedding):
                 if self.no_hubs:
                     attraction = attraction / (degree[i] + 1)
 
-                if self.barnes_hut:
-                    repulsion = np.asarray(root.apply_force(position[i][0], position[i][1], degree[i], self.theta, repulsion,
-                                                            self.repulsive_factor))
-                else:
-                    repulsion = self.repulsive_factor * (degree[i] + 1) * degree / distance
+                repulsion = np.asarray(root.apply_force(position[i][0], position[i][1], degree[i], self.theta,
+                                                        repulsion, self.repulsive_factor))
+
+                distance_b = np.zeros((n, 2))
+
+                for j in range(n):
+                    distance_b[j] = [distance[j], distance[j]]
+
+                gravity = self.gravity_factor * (degree[i] + 1) * grad / distance_b
+                force = np.sum(attraction, axis=0) + np.sum(gravity, axis=0) + np.sum(repulsion,
+                                                                                      axis=0)  # forces resultant applied on node i
+                force_res = np.sum(force, axis=0)
+                forces_for_each_node_res = np.sum(forces_for_each_node[i], axis=0)
 
                 gravity = self.gravity_factor * (degree[i] + 1)
                 if self.strong_gravity:
                     gravity = gravity * distance
 
-                force = repulsion.sum() - attraction.sum() - gravity  # forces resultant applied on node i
+                swing_node = np.abs(force_res - forces_for_each_node_res)  # force variation applied on node i
 
-                swing_node = np.abs(force - forces_for_each_node[i])  # force variation applied on node i
                 swing_vector[i] = swing_node
-                traction = np.abs(force + forces_for_each_node[i]) / 2  # traction force applied on node i
+                traction = np.abs(force_res + forces_for_each_node_res) / 2  # traction force applied on node i
 
                 global_swing += (degree[i] + 1) * swing_node
                 global_traction += (degree[i] + 1) * traction
 
                 node_speed = self.speed * global_speed / (1 + global_speed * np.sqrt(swing_node))
-                if node_speed > self.speed_max / abs(force):
-                    node_speed = self.speed_max / abs(force)
+                if node_speed > self.speed_max / abs(force_res):
+                    node_speed = self.speed_max / abs(force_res)
 
                 forces_for_each_node[i] = force  # force resultant update
 
-                delta[i]: np.ndarray = (grad * node_speed * (repulsion - attraction - gravity)[:, np.newaxis]).sum(
-                    axis=0)  # shape (2,)
+                delta[i] = node_speed * force
+                global_speed = tolerance * global_traction / global_swing
 
-            global_speed = tolerance * global_traction / global_swing  # computation of global variables
-            length = np.linalg.norm(delta, axis=0)
-            length = np.where(length < 0.01, 0.1, length)
-            delta = delta * step_max / length  # normalisation of distance between nodes
             position += delta  # calculating displacement and final position of points after iteration
-            step_max -= step
             if (swing_vector < 0.01).all():
                 break  # If the swing of all nodes is zero, then convergence is reached and we break.
 
