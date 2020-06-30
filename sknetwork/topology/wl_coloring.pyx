@@ -150,9 +150,7 @@ cdef void c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
                                 np.ndarray[int, ndim=1] indptr,
                                 int max_iter,
                                 long long[:] labels,
-                                double [:] powers
-
-                        ):
+                                double [:] powers):
 
     cdef int iteration, i, j, j1, j2, jj, u, current_max, deg
     cdef double temp_pow

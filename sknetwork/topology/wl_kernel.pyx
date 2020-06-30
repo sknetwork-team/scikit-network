@@ -53,6 +53,7 @@ cdef int c_wl_subtree_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np
     cdef long long[:] labels_1
     cdef long long[:] labels_2
     cdef long long[:,:] multiset
+
     cdef vector[cpair] large_label
 
     cdef int[:] count_sort
@@ -94,33 +95,29 @@ cdef int c_wl_edge_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.nd
                                                  np.ndarray[int, ndim=1] indices_2, np.ndarray[int, ndim=1] indptr_2) :
 
     cdef int similarity
-    cdef int max_deg1
-    cdef int max_deg2
-    cdef int max_deg
     cdef int v1, v2, n1, n2, d1, d2, j1, j2, l1_1, l1_2, l2_1, l2_2, iteration
 
     cdef int n = indptr_1.shape[0] -1
+    cdef int m = indptr_2.shape[0] - 1
+
+    if n != m :
+        return 0
+
+    cdef int max_deg1 = np.max(indptr_1[1:]- indptr_1[:n])
+    cdef int max_deg2 = np.max(indptr_2[1:]- indptr_2[:n])
+    cdef int max_deg = max(max_deg1, max_deg2)
     cdef int length_count = 2 * n + 1
 
-    if num_iter < 0 :
+    if num_iter > 0 :
+        num_iter = min(n, num_iter)
+    else :
         num_iter = n
-
-    cdef int[:]  degrees_1
-    cdef int[:]  degrees_2
 
     cdef long long[:] labels_1
     cdef long long[:] labels_2
 
-
-    degrees_1 = memoryview(np.array(indptr_1[1:]) - np.array(indptr_1[:n]))
-    degrees_2 = memoryview(np.array(indptr_2[1:]) - np.array(indptr_2[:n]))
-    max_deg1 = max(degrees_1)
-    max_deg2 = max(degrees_2)
-    max_deg = max(max_deg1, max_deg2)
-
     cdef np.ndarray[int, ndim = 2] neighbors1 = np.zeros((n, max_deg1),dtype =np.int32)
     cdef np.ndarray[int, ndim = 2] neighbors2 = np.zeros((n, max_deg2),dtype =np.int32)
-    cdef np.ndarray[int, ndim = 1] neighborhood
 
     cdef cmap[long long, long long] new_hash
     cdef int[:] count_sort
@@ -133,14 +130,16 @@ cdef int c_wl_edge_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.nd
 
     #Determine adjacency lists
     for v1 in range(n):
-        neighborhood = indices_1[indptr_1[v1]: indptr_1[v1+1]]
-        for n1 in range(degrees_1[v1]) :
-            neighbors1[v1][n1] = neighborhood[n1]
+        j1 = indptr_1[v1]
+        j2 = indptr_1[v1+1]
+        for n1 in range(j2 - j1) :
+            neighbors1[v1][n1] = indices_1[j1 + n1]
 
     for v2 in range(n):
-        neighborhood = indices_2[indptr_2[v2]: indptr_2[v2+1]]
-        for n2 in range(degrees_2[v2]) :
-            neighbors2[v2][n2] = neighborhood[n2]
+        j1 = indptr_2[v2]
+        j2 = indptr_2[v2+1]
+        for n2 in range(j2 - j1) :
+            neighbors2[v2][n2] = indices_2[j1 + n2]
 
 
     similarity=0
@@ -150,14 +149,14 @@ cdef int c_wl_edge_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.nd
         _ ,current_max, _ = c_wl_coloring(indices_2, indptr_2, 1, labels_2, multiset, large_label, count_sort, current_max, new_hash, False)
         #loop on graph 1 edges :
         for v1 in range(n) :
-            d1 = degrees_1[v1]
+            d1 = indptr_1[v1+1] - indptr_1[v1]
             for j1 in range(d1) :
                 n1 = neighbors1[v1][j1]
                 if n1 >= v1 : #Proceed in increasing order to ensure each edge is seen exactly once
 
                     #loop on graph 2 edges :
                     for v2 in range(n) :
-                        d2 = degrees_2[v2]
+                        d2 = indptr_2[v2+1] - indptr_2[v2]
                         for j2 in range(d2) :
                             n2 = neighbors2[v2][j2]
                             if n2 >= v2 :

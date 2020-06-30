@@ -31,6 +31,7 @@ cdef (cmap[long long, long long], int, bint) c_wl_coloring(np.ndarray[int, ndim=
 cdef void c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
                                 np.ndarray[int, ndim=1] indptr,
                                 int max_iter,
-                                   long long[:] labels)
+                                long long[:] labels,
+                                double [:] powers)
 
 cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency, int max_iter, np.ndarray[long long, ndim = 1] input_labels )
