@@ -82,7 +82,7 @@ class ForceAtlas2(BaseEmbedding):
 
     def __init__(self, n_components: int = 2, n_iter: int = 50, barnes_hut: bool = True, lin_log: bool = False,
                  gravity_factor: float = 0.01, strong_gravity: bool = False, repulsive_factor: float = 0.1,
-                 no_hubs: bool = False, tolerance: float = 0.1, speed: float = 0.1,
+                 no_hubs: bool = False, no_overlapping: bool = False, tolerance: float = 0.1, speed: float = 0.1,
                  speed_max: float = 10, theta: float = 1.2):
         super(ForceAtlas2, self).__init__()
         self.n_components = n_components
@@ -93,6 +93,7 @@ class ForceAtlas2(BaseEmbedding):
         self.strong_gravity = strong_gravity
         self.repulsive_factor = repulsive_factor
         self.no_hubs = no_hubs
+        self.no_overlapping = no_overlapping
         self.tolerance = tolerance
         self.speed = speed
         self.speed_max = speed_max
@@ -171,18 +172,25 @@ class ForceAtlas2(BaseEmbedding):
                 if self.lin_log:
                     attraction = np.log(1 + attraction)
                 if self.no_hubs:
-                    attraction = attraction / (degree[i] + 1)
-
+                    attraction = attraction / degree[i]
+                if self.no_overlapping:
+                    distance_border_to_border = distance - 1 - 1  # node's size = 1
+                    if distance_border_to_border > 0:
+                        attraction[indices] = distance_border_to_border[indices]
+                        distance = distance_border_to_border
+                    elif distance_border_to_border < 0:
+                        attraction *= 0
+                        repulsion = 100 * degree[i] * degree
                 if self.barnes_hut:
                     repulsion = np.asarray(root.apply_force(position[i], degree[i], self.theta, repulsion,
                                                             self.repulsive_factor))
 
                 else:
                     repulsion = np.sum(
-                        (self.repulsive_factor * (degree[i] + 1) * grad * (degree / distance)[:, np.newaxis]
+                        (self.repulsive_factor * degree[i] * grad * (degree / distance)[:, np.newaxis]
                          ), axis=0)
 
-                gravity = self.gravity_factor * (degree[i] + 1) * grad
+                gravity = self.gravity_factor * degree[i] * grad
                 if self.strong_gravity:
                     gravity *= distance
 
@@ -302,14 +310,14 @@ class Cell:
         grad: np.ndarray = pos_node - self.center
         if self.n_particles == 1:  # compute repulsion force between two nodes
             variation = self.pos_particle - pos_node
-            distance = np.linalg.norm(grad, axis=0)
+            distance = np.linalg.norm(variation, axis=0)
             if distance > 0:
-                repulsion_force = repulsive_factor * node_degree * (self.n_particles + 1) / grad
+                repulsion_force = repulsive_factor * node_degree * (self.n_particles + 1) * variation / distance
                 repulsion += repulsion_force
         else:
             distance = np.linalg.norm(grad, axis=0)
             if distance * theta > cell_size:
-                repulsion_force = repulsive_factor * node_degree * (self.n_particles + 1) / grad
+                repulsion_force = repulsive_factor * node_degree * (self.n_particles + 1) * grad / distance
                 repulsion += repulsion_force
 
             else:
