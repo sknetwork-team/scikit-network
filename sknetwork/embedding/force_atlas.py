@@ -16,6 +16,7 @@ from sknetwork.utils.check import check_format, is_symmetric, check_square
 
 
 class ForceAtlas2(BaseEmbedding):
+
     """Force Atlas2 layout for displaying graphs.
 
     * Graphs
@@ -79,7 +80,7 @@ class ForceAtlas2(BaseEmbedding):
     Nature 324: 446–449.
     """
 
-    def __init__(self, n_components: int = 2, n_iter: int = 100, barnes_hut: bool = True, lin_log: bool = False,
+    def __init__(self, n_components: int = 2, n_iter: int = 50, barnes_hut: bool = True, lin_log: bool = False,
                  gravity_factor: float = 0.01, strong_gravity: bool = False, repulsive_factor: float = 0.1,
                  no_hubs: bool = False, tolerance: float = 0.1, speed: float = 0.1,
                  speed_max: float = 10, theta: float = 1.2):
@@ -119,14 +120,12 @@ class ForceAtlas2(BaseEmbedding):
         self: :class:`ForceAtlas2`
         """
 
-        # verify the format of the adjacency matrix
         adjacency = check_format(adjacency)
         check_square(adjacency)
         if not is_symmetric(adjacency):
             adjacency = directed2undirected(adjacency)
         n = adjacency.shape[0]
 
-        # setting of the tolerance according to the size of the graph
         if n < 5000:
             tolerance = 0.1
         elif 5000 <= n < 50000:
@@ -137,13 +136,9 @@ class ForceAtlas2(BaseEmbedding):
         if n_iter is None:
             n_iter = self.n_iter
 
-        # initial position of the nodes of the graph
         position: np.ndarray = np.random.randn(n, self.n_components)
-
-        # compute the vector with the degree of each node
         degree: np.ndarray = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
-        # initialization of variation of position of nodes
         delta: np.ndarray = np.zeros((n, self.n_components))
         forces_for_each_node: np.ndarray = np.zeros((n, self.n_components))
         swing_vector: np.ndarray = np.zeros(n)
@@ -191,8 +186,7 @@ class ForceAtlas2(BaseEmbedding):
                 if self.strong_gravity:
                     gravity *= distance
 
-                # forces resultant applied on node i for traction, swing and speed computation
-                force: float = repulsion - np.sum(attraction, axis=0) + np.sum(gravity, axis=0)
+                force: float = repulsion - 10 * np.sum(attraction, axis=0) - np.sum(gravity, axis=0)
                 force_res: float = np.linalg.norm(force)
                 forces_for_each_node_res: float = np.linalg.norm(forces_for_each_node[i])
 
@@ -216,7 +210,6 @@ class ForceAtlas2(BaseEmbedding):
 
             if (swing_vector < 0.01).all():
                 break  # if the swing of all nodes is zero, then convergence is reached and we break.
-
         self.embedding_ = position
         return self
 
