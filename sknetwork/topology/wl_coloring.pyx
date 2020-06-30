@@ -32,16 +32,13 @@ cdef bint is_lower_2(pair[double, int] p1, pair[double, int] p2):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-#TODO renvoyer has changed pour kernel
-cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
-                                np.ndarray[int, ndim=1] indptr,
-                                int max_iter,
-                                long long[:] labels,
-                                cmap[long, long] new_hash,
-                                long long[:,:] multiset,
-                                vector[cpair] large_label,
-                                int  [:] count,
-                                bint clear_dict):
+cdef bint c_wl_coloring(np.ndarray[int, ndim=1] indices,
+                        np.ndarray[int, ndim=1] indptr,
+                        int max_iter,
+                        long long[:] labels,
+                        long long[:,:] multiset,
+                        vector[cpair] large_label,
+                        int  [:] count):
     cdef int iteration = 0
     cdef int n = indptr.shape[0] -1
     cdef int u = 0
@@ -53,14 +50,14 @@ cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
     cdef int ind
     cdef int key
     cdef int deg
-    cdef int neighbor_label
     cdef int current_max
+    cdef int neighbor_label
     cdef long long old_label
     cdef long long concatenation
     cdef double tmp_concatenation
     cdef double int_part
     cdef bint has_changed = True
-
+    cdef cmap[long long, long long] new_hash
 
     if max_iter > 0 :
         max_iter = min(n, max_iter)
@@ -91,9 +88,9 @@ cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
 
         csort(large_label.begin(), large_label.end(),is_lower)
 
-        if clear_dict :
-            new_hash.clear()
+        new_hash.clear()
         current_max = 1
+
 
         has_changed = False #True if at least one label was changed
         for j in range(n):
@@ -109,18 +106,18 @@ cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
                 has_changed = (old_label != labels[ind])
         iteration += 1
 
-    return labels
+    return has_changed
 
 cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,
                                                 int max_iter,
-                                                np.ndarray[long long, ndim = 1] input_labels ) :
+                                                np.ndarray[long long, ndim = 1] input_labels) :
     """Wrapper for Weisfeiler-Lehman coloring"""
 
     cdef np.ndarray[int, ndim=1] indices = adjacency.indices
     cdef np.ndarray[int, ndim=1] indptr = adjacency.indptr
-    cdef int n = indptr.shape[0] -1
+    cdef int n = indptr.shape[0] - 1
     cdef int max_deg = max(list(memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))))
-    cdef cmap[long, long] new_hash
+    cdef cmap[long long, long long] new_hash
 
     cdef long long[:,:] multiset = np.empty((n, max_deg), dtype=np.longlong)
     cdef vector[cpair] large_label = np.zeros((n, 2), dtype=np.longlong)
@@ -132,12 +129,13 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,
     else :
         labels = input_labels
 
-    return np.asarray(c_wl_coloring(indices, indptr, max_iter, labels, new_hash, multiset, large_label, count, True))
+    c_wl_coloring(indices, indptr, max_iter, labels, multiset, large_label, count)
+    return np.asarray(labels)
 
 
 
 cpdef long long[:] wl_coloring_2(adjacency) :
-
+    """Wrapper for Weisfeiler-Lehman coloring"""
     return c_wl_coloring_2(adjacency.indices, adjacency.indptr, -1)
 
 cdef long long [:] c_wl_coloring_2(np.ndarray[int, ndim=1] indices,

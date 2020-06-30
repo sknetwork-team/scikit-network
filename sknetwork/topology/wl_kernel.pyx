@@ -43,14 +43,15 @@ def initialise_kernel(n : int, length_count : int,  indptr_1 : np.ndarray, indpt
 @cython.wraparound(False)
 cdef int c_wl_subtree_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.ndarray[int, ndim=1] indptr_1,
                              np.ndarray[int, ndim=1] indices_2, np.ndarray[int, ndim=1] indptr_2) :
-    cdef int iteration = 1
+    cdef int iteration = 0
     cdef int n = indptr_1.shape[0] - 1
     cdef int m = indptr_2.shape[0] - 1
     cdef int length_count = 2 * n + 1
     cdef int i
     cdef int similarity = 0
+    cdef bint has_changed_1 = True
+    cdef bint has_changed_2 = True
 
-    cdef cmap[long, long] new_hash
     cdef long long[:] labels_1
     cdef long long[:] labels_2
     cdef long long[:,:] multiset
@@ -71,17 +72,15 @@ cdef int c_wl_subtree_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np
     else :
         num_iter = n
 
-    while iteration <= num_iter:
-
+    while iteration < num_iter : #and (has_changed_1 or has_changed_2), not using this atm cause it gives issues
+        print("iteration", iteration)
         #TODO appel à wl_coloring modifier pour ne faire qu'un tour
         # il faut lui passer tout ce qui est np pour qu'elle n'aie pas à tout redéfinir
 
-        new_hash.clear() #une seule fois par itération sur les deux graphes
-        labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, new_hash, multiset, large_label, count_sort, False)
-        labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, new_hash, multiset, large_label, count_sort, False)
-        #print("labels_1", np.asarray(labels_1))
-        #print("labels_2", np.asarray(labels_2))
-        for i in range(2 * n):
+
+        has_changed_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, multiset, large_label, count_sort)
+        has_changed_2= c_wl_coloring(indices_2, indptr_2, 1, labels_2, multiset, large_label, count_sort)
+        for i in range(2 * n + 1):
             count_1[i] = 0
             count_2[i] = 0
         for i in range(n):
@@ -138,7 +137,7 @@ cdef int c_wl_edge_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.nd
         for n2 in range(degrees_2[v2]) :
             neighbors2[v2][n2] = neighborhood[n2]
 
-    cdef cmap[long, long] new_hash
+    cdef cmap[long long, long long] new_hash
 
 
     cdef int[:] count_sort
@@ -156,9 +155,8 @@ cdef int c_wl_edge_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.nd
 
     similarity=0
     for iteration in range(num_iter) :
-        new_hash.clear() #une seule fois par itération sur les deux graphes
-        labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, new_hash, multiset, large_label, count_sort, False)
-        labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, new_hash, multiset, large_label, count_sort, False)
+        has_changed_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, multiset, large_label, count_sort)
+        has_changed_2= c_wl_coloring(indices_2, indptr_2, 1, labels_2, multiset, large_label, count_sort)
         #loop on graph 1 edges :
         for v1 in range(n) :
             d1 = degrees_1[v1]
@@ -218,8 +216,6 @@ cdef int c_wl_shortest_path_kernel(int num_iter, adjacency_1, adjacency_2):
     max_deg2 = max(degrees_2)
     max_deg = max(max_deg1, max_deg2)
 
-    cdef cmap[long, long] new_hash
-
     cdef int[:] count_sort
     cdef int[:] count_1
     cdef int[:] count_2
@@ -236,9 +232,8 @@ cdef int c_wl_shortest_path_kernel(int num_iter, adjacency_1, adjacency_2):
     similarity=0
 
     for iteration in range(num_iter) :
-        new_hash.clear() #une seule fois par itération sur les deux graphes
-        labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, new_hash, multiset, large_label, count_sort, False)
-        labels_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, new_hash, multiset, large_label, count_sort, False)
+        has_changed_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, multiset, large_label, count_sort)
+        has_changed_2= c_wl_coloring(indices_2, indptr_2, 1, labels_2, multiset, large_label, count_sort)
         #loop on graph 1 edges :
         for v1 in range(n) :
             for j1 in range(n) :
