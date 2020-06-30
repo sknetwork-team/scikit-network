@@ -40,7 +40,7 @@ cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
                                 vector[cpair] large_label,
                                 int  [:] count,
                                 bint clear_dict):
-    cdef int iteration = 1
+    cdef int iteration = 0
     cdef int n = indptr.shape[0] -1
     cdef int u = 0
     cdef int i
@@ -65,7 +65,7 @@ cdef long long [:] c_wl_coloring(np.ndarray[int, ndim=1] indices,
     else :
         max_iter = n
 
-    while iteration <= max_iter and has_changed :
+    while iteration < max_iter and has_changed :
         large_label.clear()
 
         counting_sort_all(indptr, indices, multiset, labels)
@@ -115,7 +115,7 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,
     """Wrapper for Weisfeiler-Lehman coloring"""
 
     cdef np.ndarray[int, ndim=1] indices = adjacency.indices
-    cdef np.ndarray[int, ndim=1]indptr = adjacency.indptr
+    cdef np.ndarray[int, ndim=1] indptr = adjacency.indptr
     cdef int n = indptr.shape[0] -1
     cdef int max_deg = max(list(memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))))
     cdef cmap[long, long] new_hash

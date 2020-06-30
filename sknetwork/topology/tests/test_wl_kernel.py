@@ -7,7 +7,8 @@ from sknetwork.topology import WLKernel
 from sknetwork.data.test_graphs import *
 from sknetwork.data import house
 
-class TestWLColoring(unittest.TestCase):
+
+class TestWLKernel(unittest.TestCase):
 
     def test_empty(self):
         adjacency_1 = test_graph_empty()

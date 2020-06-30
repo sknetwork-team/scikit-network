@@ -23,22 +23,32 @@ from libcpp.unordered_map cimport unordered_map as cmap
 cimport cython
 
 ctypedef pair[long long, int] cpair
-cdef bint compair(pair[long long, int] p1, pair[long long, int] p2):
-    return p1.first < p2.first
+
+def initialise_kernel(n : int, length_count : int,  indptr_1 : np.ndarray, indptr_2 : np.ndarray):
+
+    max_deg = max(np.max(indptr_1[1:] - indptr_1[:n]), np.max(indptr_2[1:] - indptr_2[:n]))
+
+    count_sort= np.zeros(length_count, dtype = np.int32)
+    count_1= np.zeros(length_count, dtype = np.int32)
+    count_2= np.zeros(length_count, dtype = np.int32)
+    multiset = np.empty((n,max_deg), dtype=np.longlong)
+    labels_1 = np.ones(n, dtype = np.longlong)
+    labels_2 = np.ones(n, dtype = np.longlong)
+    large_label = np.zeros((n, 2), dtype= np.int32)
+
+    return count_sort, count_1, count_2, multiset, labels_1, labels_2, large_label
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef int c_wl_subtree_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np.ndarray[int, ndim=1] indptr_1,
                              np.ndarray[int, ndim=1] indices_2, np.ndarray[int, ndim=1] indptr_2) :
-    DTYPE = np.int32
     cdef int iteration = 1
     cdef int n = indptr_1.shape[0] - 1
     cdef int m = indptr_2.shape[0] - 1
     cdef int length_count = 2 * n + 1
     cdef int i
-    cdef int max_deg
     cdef int similarity = 0
-
 
     cdef cmap[long, long] new_hash
     cdef long long[:] labels_1
@@ -46,23 +56,12 @@ cdef int c_wl_subtree_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np
     cdef long long[:,:] multiset
     cdef vector[cpair] large_label
 
-    cdef bint has_changed_1 = True
-    cdef bint has_changed_2 = True
-
-    max_deg = max(max(list(memoryview(np.array(indptr_1[1:]) - np.array(indptr_1[:n])))), max(list(memoryview(np.array(indptr_2[1:]) - np.array(indptr_2[:n])))))
-    has_changed = False
     cdef int[:] count_sort
     cdef int[:] count_1
     cdef int[:] count_2
-    cdef long long[:] sorted_multiset = np.empty(max_deg, dtype=np.longlong)
+    #TODO use has changed ?
 
-    count_sort= np.zeros(length_count, dtype = DTYPE)
-    count_1= np.zeros(length_count, dtype = DTYPE)
-    count_2= np.zeros(length_count, dtype = DTYPE)
-    multiset = np.empty((n,max_deg), dtype=np.longlong)
-    labels_1 = np.ones(n, dtype = np.longlong)
-    labels_2 = np.ones(n, dtype = np.longlong)
-    large_label = np.zeros((n, 2), dtype=DTYPE)
+    count_sort, count_1, count_2, multiset, labels_1, labels_2, large_label = initialise_kernel(n, length_count, indptr_1, indptr_2)
 
     if n != m: #graphs with different numbers of nodes can't be similar
         return 0
@@ -72,11 +71,10 @@ cdef int c_wl_subtree_kernel(int num_iter, np.ndarray[int, ndim=1] indices_1, np
     else :
         num_iter = n
 
-    while iteration <= num_iter and (has_changed_1 or has_changed_2) :
+    while iteration <= num_iter:
 
         #TODO appel à wl_coloring modifier pour ne faire qu'un tour
         # il faut lui passer tout ce qui est np pour qu'elle n'aie pas à tout redéfinir
-        # mettre un paramètre booléen qu'on mettra à true ici
 
         new_hash.clear() #une seule fois par itération sur les deux graphes
         labels_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, new_hash, multiset, large_label, count_sort, False)
@@ -274,6 +272,7 @@ class WLKernel(Algorithm):
 
     Example
     -------
+    #TODO change this example
     >>> from sknetwork.topology import WLKernel
     >>> from sknetwork.data import house
     >>> wlkernel = WLKernel()
