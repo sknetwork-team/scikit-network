@@ -27,6 +27,8 @@ cimport cython
 
 cdef bint is_lower(pair[long long, int] p1, pair[long long, int] p2):
     return p1.first < p2.first
+cdef bint is_lower_2(pair[double, int] p1, pair[double, int] p2):
+    return p1.first < p2.first
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -131,6 +133,76 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,
         labels = input_labels
 
     return np.asarray(c_wl_coloring(indices, indptr, max_iter, labels, new_hash, multiset, large_label, count, True))
+
+
+
+cpdef long long[:] wl_coloring_2(adjacency) :
+
+    return c_wl_coloring_2(adjacency.indices, adjacency.indptr, -1)
+
+cdef long long [:] c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
+                                np.ndarray[int, ndim=1] indptr,
+                                int max_iter
+
+                        ):
+
+    cdef int iteration, i, j, j1, j2, jj, u, current_max
+    cdef int n = indptr.shape[0] -1
+    cdef int[:] degrees
+    degrees = memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))
+
+    cdef double epsilon
+    epsilon = pow(10, -10)
+
+    cdef double [:] puissances = np.zeros(n, dtype = np.double)
+    cdef double pi = np.pi
+    cdef double alpha = - pi/3.15
+    cdef vector[cpair2] hashes
+    cdef double current_hash
+
+    cdef long long[:] labels = np.zeros(n, dtype = np.longlong)
+    cdef cmap[double, int] new_hash
+
+    if max_iter > 0 :
+        max_iter = min(n, max_iter)
+    else :
+        max_iter = n
+
+    iteration = 0
+    while iteration <= max_iter :
+        hashes.clear()
+        for i in range(n):# going through the neighbors of v.
+            current_hash = 0
+            deg = degrees[i]
+            j1 = indptr[i]
+            j2 = indptr[i + 1]
+            for jj in range(j1,j2):
+                u = indices[jj]
+                current_hash += pow(alpha,<double> labels[u])
+            hashes.push_back( cpair2(current_hash, i) )
+            # 2
+        csort(hashes.begin(), hashes.end(),is_lower_2)
+
+        previous = 0
+
+        new_hash.clear()
+        current_max = 1
+
+        for jj in range(n):
+            current_hash = hashes[jj].first
+            i = hashes[jj].second
+            if new_hash.find(current_hash) == new_hash.end():
+                new_hash[current_hash] = current_max
+                current_max += 1
+            #  4
+
+            labels[i] = new_hash[current_hash]
+        iteration+=1
+    return labels
+
+
+
+
 
 
 class WLColoring(Algorithm):
