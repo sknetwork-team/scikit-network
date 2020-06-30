@@ -16,6 +16,7 @@ from sknetwork.utils import directed2undirected
 from sknetwork.utils.check import check_format, is_symmetric, check_square
 
 class ForceAtlas2(BaseEmbedding):
+
     """Force Atlas2 layout for displaying graphs.
 
     * Graphs
@@ -79,10 +80,11 @@ class ForceAtlas2(BaseEmbedding):
     Nature 324: 446–449.
     """
 
-    def __init__(self, n_components: int = 2, n_iter: int = 50, barnes_hut: bool = True, lin_log: bool = False,
-                 gravity_factor: float = 0.1, strong_gravity: bool = False, repulsive_factor: float = 0.1,
+
+    def __init__(self, n_components: int = 2, n_iter: int = 100, barnes_hut: bool = True, lin_log: bool = False,
+                 gravity_factor: float = 0.01, strong_gravity: bool = False, repulsive_factor: float = 0.1,
                  no_hubs: bool = False, tolerance: float = 0.1, speed: float = 0.1,
-                 speed_max: float = 10, theta: float = 0.01):
+                 speed_max: float = 10, theta: float = 1.2):
         super(ForceAtlas2, self).__init__()
         self.n_components = n_components
         self.n_iter = n_iter
@@ -182,7 +184,6 @@ class ForceAtlas2(BaseEmbedding):
                     repulsion = np.asarray(root.apply_force(position[i], degree[i], self.theta, repulsion,
                                                             self.repulsive_factor))
 
-
                 else:
                     repulsion = np.sum(
                         (self.repulsive_factor * (degree[i] + 1) * grad * (degree / distance)[:, np.newaxis]
@@ -192,8 +193,9 @@ class ForceAtlas2(BaseEmbedding):
                 if self.strong_gravity:
                     gravity *= distance
 
+
                 # forces resultant applied on node i for traction, swing and speed computation
-                force: float = repulsion - np.sum(attraction, axis=0) - np.sum(gravity, axis=0)
+                force: float = repulsion - np.sum(attraction, axis=0) + np.sum(gravity, axis=0)
                 force_res: float = np.linalg.norm(force)
                 forces_for_each_node_res: float = np.linalg.norm(forces_for_each_node[i])
 

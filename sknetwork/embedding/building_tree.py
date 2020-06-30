@@ -92,15 +92,16 @@ class Cell:
         grad: np.ndarray = pos_node - self.center
         if self.n_particles == 1:  # compute repulsion force between two nodes
             variation = self.pos_particle - pos_node
-            distance = np.linalg.norm(variation, axis=0)
+            distance = np.linalg.norm(grad, axis=0)
             if distance > 0:
-                repulsion_force = repulsive_factor * node_degree * (self.n_particles + 1) * grad
+                repulsion_force = repulsive_factor * node_degree * (self.n_particles + 1) / grad
                 repulsion += repulsion_force
         else:
             distance = np.linalg.norm(grad, axis=0)
             if distance * theta > cell_size:
                 repulsion_force = repulsive_factor * node_degree * (self.n_particles + 1) / grad
                 repulsion += repulsion_force
+
             else:
                 for sub_cell in self.children:
                     sub_cell.apply_force(pos_node, node_degree, theta, repulsion, repulsive_factor)
