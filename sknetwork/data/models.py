@@ -186,6 +186,26 @@ def linear_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix,
         return adjacency
 
 
+def cyclic_position(n: int) -> np.ndarray:
+    """Position nodes on a circle of unit radius.
+
+    Parameters
+    ----------
+    n : int
+        Number of nodes.
+
+    Returns
+    -------
+    position : np.ndarray
+        Position of nodes.
+    """
+    t = 2 * pi * np.arange(n).astype(float) / n
+    x = np.cos(t)
+    y = np.sin(t)
+    position = np.array((x, y)).T
+    return position
+
+
 def cyclic_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     """Cyclic graph (directed).
 
@@ -213,12 +233,9 @@ def cyclic_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
     adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(n, n))
 
     if metadata:
-        t = 2 * pi * np.arange(n).astype(float) / n
-        x = np.cos(t)
-        y = np.sin(t)
         graph = Bunch()
         graph.adjacency = adjacency
-        graph.position = np.array((x, y)).T
+        graph.position = cyclic_position(n)
         return graph
     else:
         return adjacency
@@ -385,12 +402,9 @@ def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, seed: Opti
                 adjacency[j, i] = 0
     adjacency = sparse.csr_matrix(adjacency, shape=adjacency.shape)
     if metadata:
-        t = 2 * pi * np.arange(n).astype(float) / n
-        x = np.cos(t)
-        y = np.sin(t)
         graph = Bunch()
         graph.adjacency = adjacency
-        graph.position = np.array((x, y)).T
+        graph.position = cyclic_position(n)
         return graph
     else:
         return adjacency
