@@ -136,29 +136,36 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,
 
 cpdef long long[:] wl_coloring_2(adjacency) :
     """Wrapper for Weisfeiler-Lehman coloring"""
-    return c_wl_coloring_2(adjacency.indices, adjacency.indptr, -1)
+    cdef n = adjacency.indptr.shape[0]-1
+    cdef double [:] powers = np.zeros(n+1, dtype = np.double)
+    cdef labels = np.ones(n, dtype = np.longlong)
+    c_wl_coloring_2(adjacency.indices, adjacency.indptr, -1, labels, powers)
+    return labels
 
-cdef long long [:] c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef void c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
                                 np.ndarray[int, ndim=1] indptr,
-                                int max_iter
+                                int max_iter,
+                                long long[:] labels,
+                                double [:] powers
 
                         ):
 
-    cdef int iteration, i, j, j1, j2, jj, u, current_max
+    cdef int iteration, i, j, j1, j2, jj, u, current_max, deg
+    cdef double temp_pow
     cdef int n = indptr.shape[0] -1
     cdef int[:] degrees
     degrees = memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))
 
     cdef double epsilon
-    epsilon = pow(10, -10)
 
-    cdef double [:] puissances = np.zeros(n, dtype = np.double)
     cdef double pi = np.pi
     cdef double alpha = - pi/3.15
     cdef vector[cpair2] hashes
     cdef double current_hash
 
-    cdef long long[:] labels = np.zeros(n, dtype = np.longlong)
+    epsilon = cpowl(alpha, n+1)/2
     cdef cmap[double, int] new_hash
 
     if max_iter > 0 :
@@ -176,7 +183,12 @@ cdef long long [:] c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
             j2 = indptr[i + 1]
             for jj in range(j1,j2):
                 u = indices[jj]
-                current_hash += pow(alpha,<double> labels[u])
+                if powers[labels[u]] != 0 :
+                    temp_pow = powers[labels[u]]
+                else :
+                    temp_pow = cpowl(alpha,<double> labels[u])
+                    powers[labels[u]] = temp_pow
+                current_hash += temp_pow
             hashes.push_back( cpair2(current_hash, i) )
             # 2
         csort(hashes.begin(), hashes.end(),is_lower_2)
@@ -196,7 +208,7 @@ cdef long long [:] c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
 
             labels[i] = new_hash[current_hash]
         iteration+=1
-    return labels
+    return
 
 
 

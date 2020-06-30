@@ -14,7 +14,7 @@ cimport numpy as np
 from scipy import sparse
 
 from sknetwork.utils.base import Algorithm
-from sknetwork.topology.wl_coloring cimport c_wl_coloring
+from sknetwork.topology.wl_coloring cimport c_wl_coloring, c_wl_coloring_2
 from sknetwork.path.shortest_path import distance
 
 from libcpp.pair cimport pair

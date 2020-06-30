@@ -25,8 +25,9 @@ cdef bint c_wl_coloring(np.ndarray[int, ndim=1] indices,
                         vector[cpair] large_label,
                         int  [:] count)
 
-cdef long long [:] c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
+cdef void c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
                                 np.ndarray[int, ndim=1] indptr,
-                                int max_iter)
+                                int max_iter,
+                                   long long[:] labels)
 
 cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency, int max_iter, np.ndarray[long long, ndim = 1] input_labels )
