@@ -28,7 +28,7 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     p_in :
         Probability of connection within blocks.
     p_out :
-        Probability of connection across blocks (must be less than **p_in**).
+        Probability of connection across blocks.
     seed :
         Seed of the random generator (optional).
     metadata :
@@ -56,22 +56,26 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     np.random.seed(seed)
     sizes = np.array(sizes)
 
-    if type(p_in) != np.ndarray:
+    if type(p_in) == float:
         p_in = p_in * np.ones_like(sizes)
-    if np.min(p_in) < p_out:
-        raise ValueError('The probability of connection across blocks p_out must be less that the probability of '
-                         'connection within a block p_in.')
+    else:
+        p_in = np.array(p_in)
 
     # each edge is considered twice
     p_in = p_in / 2
-    p_out = p_out / 2
 
-    p_diff = p_in - p_out
-    blocks_in = [(sparse.random(s, s, p_diff[k]) > 0) for k, s in enumerate(sizes)]
-    adjacency_in = sparse.block_diag(blocks_in)
-    n = sizes.sum()
-    adjacency_out = sparse.random(n, n, p_out) > 0
-    adjacency = sparse.lil_matrix(adjacency_in + adjacency_out)
+    matrix = []
+    for i, a in enumerate(sizes):
+        row = []
+        for j, b in enumerate(sizes):
+            if j < i:
+                row.append(None)
+            elif j > i:
+                row.append(sparse.random(a, b, p_out) > 0)
+            else:
+                row.append(sparse.random(a, a, p_in[i]) > 0)
+        matrix.append(row)
+    adjacency = sparse.bmat(matrix)
     adjacency.setdiag(0)
     adjacency = directed2undirected(adjacency.tocsr(), weighted=False).astype(bool)
 
