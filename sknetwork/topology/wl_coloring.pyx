@@ -32,13 +32,16 @@ cdef bint is_lower_2(pair[double, int] p1, pair[double, int] p2):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef bint c_wl_coloring(np.ndarray[int, ndim=1] indices,
+cdef (cmap[long long, long long], int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices,
                         np.ndarray[int, ndim=1] indptr,
                         int max_iter,
                         long long[:] labels,
                         long long[:,:] multiset,
                         vector[cpair] large_label,
-                        int  [:] count):
+                        int  [:] count,
+                        int current_max,
+                        cmap[long long, long long] new_hash,
+                        bint c_dict):
     cdef int iteration = 0
     cdef int n = indptr.shape[0] -1
     cdef int u = 0
@@ -50,14 +53,12 @@ cdef bint c_wl_coloring(np.ndarray[int, ndim=1] indices,
     cdef int ind
     cdef int key
     cdef int deg
-    cdef int current_max
     cdef int neighbor_label
     cdef long long old_label
     cdef long long concatenation
     cdef double tmp_concatenation
     cdef double int_part
     cdef bint has_changed = True
-    cdef cmap[long long, long long] new_hash
 
     if max_iter > 0 :
         max_iter = min(n, max_iter)
@@ -88,8 +89,9 @@ cdef bint c_wl_coloring(np.ndarray[int, ndim=1] indices,
 
         csort(large_label.begin(), large_label.end(),is_lower)
 
-        new_hash.clear()
-        current_max = 1
+        if c_dict:
+            new_hash.clear()
+            current_max = 1
 
 
         has_changed = False #True if at least one label was changed
@@ -106,7 +108,7 @@ cdef bint c_wl_coloring(np.ndarray[int, ndim=1] indices,
                 has_changed = (old_label != labels[ind])
         iteration += 1
 
-    return has_changed
+    return new_hash, current_max, has_changed
 
 cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,
                                                 int max_iter,
@@ -129,7 +131,7 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,
     else :
         labels = input_labels
 
-    c_wl_coloring(indices, indptr, max_iter, labels, multiset, large_label, count)
+    c_wl_coloring(indices, indptr, max_iter, labels, multiset, large_label, count, 1, new_hash, True)
     return np.asarray(labels)
 
 

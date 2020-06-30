@@ -17,13 +17,16 @@ from libcpp.unordered_map cimport unordered_map as cmap
 ctypedef pair[long long, int] cpair
 ctypedef pair[double, int] cpair2
 
-cdef bint c_wl_coloring(np.ndarray[int, ndim=1] indices,
-                        np.ndarray[int, ndim=1] indptr,
-                        int max_iter,
-                        long long[:] labels,
-                        long long[:,:] multiset,
-                        vector[cpair] large_label,
-                        int  [:] count)
+cdef (cmap[long long, long long], int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices,
+                                                            np.ndarray[int, ndim=1] indptr,
+                                                            int max_iter,
+                                                            long long[:] labels,
+                                                            long long[:,:] multiset,
+                                                            vector[cpair] large_label,
+                                                            int  [:] count,
+                                                            int current_max,
+                                                            cmap[long long, long long] new_hash,
+                                                            bint c_dict)
 
 cdef long long [:] c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
                                 np.ndarray[int, ndim=1] indptr,
