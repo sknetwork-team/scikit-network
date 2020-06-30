@@ -50,7 +50,7 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     References
     ----------
     Airoldi, E.,  Blei, D., Feinberg, S., Xing, E. (2007).
-    `Mixed membership stochastic blockmodels. <https://arxiv.org/abs/0803.0476>`_
+    `Mixed membership stochastic blockmodels. <https://arxiv.org/pdf/0705.4485.pdf>`_
     Journal of Machine Learning Research.
     """
     np.random.seed(seed)
@@ -108,6 +108,11 @@ def erdos_renyi(n: int = 20, p: float = .3, seed: Optional[int] = None) -> spars
     >>> adjacency = erdos_renyi(7)
     >>> adjacency.shape
     (7, 7)
+
+    Reference
+    ---------
+    Erdős, P., Rényi, A. (1959). `On Random Graphs. <https://www.renyi.hu/~p_erdos/1959-11.pdf>`_
+    Publicationes Mathematicae.
     """
     return block_model(np.array([n]), p, 0., seed, metadata=False)
 
@@ -316,7 +321,7 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True, seed
     References
     ----------
     Albert, R., Barabási, L. (2002). `Statistical mechanics of complex networks
-    <https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.74.47>`
+    <https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.74.47>`_
     Reviews of Modern Physics.
     """
     np.random.seed(seed)
