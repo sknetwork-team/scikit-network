@@ -317,5 +317,6 @@ class Cell:
 
             else:
                 for sub_cell in self.children:
-                    sub_cell.apply_force(pos_node, node_degree, theta, repulsion, repulsive_factor)
+                    if sub_cell.n_particles > 0:
+                        sub_cell.apply_force(pos_node, node_degree, theta, repulsion, repulsive_factor)
         return repulsion
