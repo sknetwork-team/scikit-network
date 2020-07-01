@@ -25,7 +25,6 @@ cdef (cmap[long long, long long], int, bint) c_wl_coloring(np.ndarray[int, ndim=
                                                             long long[:] labels,
                                                             long long[:,:] multiset,
                                                             vector[cpair] large_label,
-                                                            int  [:] count,
                                                             int current_max,
                                                             cmap[long long, long long] new_hash,
                                                             bint c_dict)
