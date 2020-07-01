@@ -7,10 +7,6 @@ Created on Jun 3, 2020
 """
 import numpy as np
 cimport numpy as np
-from libcpp.vector cimport vector
-
-cdef class IntArray:
-    cdef vector[int] arr
 
 cdef class ListingBox:
     cdef int[:] ns
