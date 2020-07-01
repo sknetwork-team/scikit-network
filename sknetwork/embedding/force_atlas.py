@@ -24,30 +24,30 @@ class ForceAtlas2(BaseEmbedding):
 
     Parameters
     ----------
-    n_components :
+    n_components : int
         Choose dimension of the graph layout
     n_iter : int
         Number of iterations to update positions.
         If ``None``, use the value of self.n_iter.
-    barnes_hut :
+    barnes_hut : bool
         If True, compute repulsive forces with barnes_hut approximation
-    lin_log :
+    lin_log : bool
         If True, activate an alternative formula for the attractive force
-    gravity_factor :
+    gravity_factor : float
         Gravity force scaling constant
-    strong_gravity :
+    strong_gravity : bool
         If True, activate an alternative formula for the gravity force
-    repulsive_factor :
+    repulsive_factor : float
         Repulsive force scaling constant
-    no_hubs :
+    no_hubs : bool
         If True, change the value of the attraction force
-    tolerance :
+    tolerance : float
         Tolerance defined in the swinging constant
-    speed :
+    speed : float
         Speed constant
-    speed_max :
+    speed_max : float
         Constant used to impose constrain on speed
-    theta :
+    theta : float
         Parameter used in barnes_hut algorithm
 
     Attributes
@@ -261,6 +261,9 @@ class Cell:
     Barnes J., Hut P. (1986)
     "A hierarchical O(N log N) force-calculation algorithm".
     Nature 324: 446–449.
+    Dierickx M., Portillo S. (2013).
+    "N-Body Building, Working Out MPI Parallelization on Barnes-Hut Oct-Trees".
+    CS205 class at Harvard's School and Engineering and Applied Sciences.
     """
 
     def __init__(self, x_min, x_max, y_min, y_max):  # position.shape (2, n_components)
