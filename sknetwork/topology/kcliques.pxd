@@ -5,6 +5,8 @@ Created on Jun 3, 2020
 @author: Julien Simonnet <julien.simonnet@etu.upmc.fr>
 @author: Yohann Robert <yohann.robert@etu.upmc.fr>
 """
+import numpy as np
+cimport numpy as np
 from libcpp.vector cimport vector
 
 cdef class IntArray:
@@ -12,6 +14,6 @@ cdef class IntArray:
 
 cdef class ListingBox:
     cdef int[:] ns
-    cdef IntArray[:] degrees
-    cdef IntArray[:] subs
+    cdef np.ndarray degrees
+    cdef np.ndarray subs
     cdef short[:] lab

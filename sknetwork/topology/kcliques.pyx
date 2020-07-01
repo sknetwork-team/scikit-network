@@ -15,20 +15,6 @@ from sknetwork.topology.dag import DAG
 from sknetwork.topology.kcore import CoreDecomposition
 
 
-#------ Wrapper for integer array -------
-@cython.boundscheck(False)
-@cython.wraparound(False)
-cdef class IntArray:
-
-    def __cinit__(self, int n):
-        self.arr.reserve(n)
-
-    def __getitem__(self, int key) -> int:
-        return self.arr[key]
-
-    def __setitem__(self, int key, int val) -> None:
-        self.arr[key] = val
-
 # ----- Collections of arrays used by our listing algorithm -----
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -39,9 +25,6 @@ cdef class ListingBox:
         cdef int i
         cdef int max_deg = 0
 
-        cdef IntArray deg
-        cdef IntArray sub
-
         cdef np.ndarray[int, ndim=1] ns = np.empty((k+1,), dtype=np.int32)
         ns[k] = n
         self.ns = ns
@@ -49,8 +32,8 @@ cdef class ListingBox:
         cdef np.ndarray[short, ndim=1] lab = np.full((n,), k, dtype=np.int16)
         self.lab = lab
 
-        deg = IntArray.__new__(IntArray, n)
-        sub = IntArray.__new__(IntArray, n)
+        cdef np.ndarray[int, ndim=1] deg = np.zeros(n, dtype=np.int32)
+        cdef np.ndarray[int, ndim=1] sub = np.zeros(n, dtype=np.int32)
 
         for i in range(n):
             deg[i] = indptr[i+1] - indptr[i]
@@ -64,8 +47,8 @@ cdef class ListingBox:
         self.subs[k] = sub
 
         for i in range(2, k):
-            deg = IntArray.__new__(IntArray, n)
-            sub = IntArray.__new__(IntArray, max_deg)
+            deg = np.zeros(n, dtype=np.int32)
+            sub = np.zeros(max_deg, dtype=np.int32)
             self.degrees[i] = deg
             self.subs[i] = sub
 
@@ -78,7 +61,6 @@ cdef long fit_core(vector[int] indptr, vector[int] indices, int l, ListingBox bo
     cdef int i, j, k
     cdef int u, v, w
     cdef int cd
-    cdef IntArray sub_l, degree_l
 
     if l == 2:
         degree_l = box.degrees[2]
@@ -89,7 +71,6 @@ cdef long fit_core(vector[int] indptr, vector[int] indices, int l, ListingBox bo
 
         return n_cliques
 
-    cdef IntArray deg_prevs, sub_prev
     sub_l = box.subs[l]
     sub_prev = box.subs[l-1]
     degree_l = box.degrees[l]
