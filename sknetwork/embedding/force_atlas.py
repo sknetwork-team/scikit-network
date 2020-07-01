@@ -80,7 +80,7 @@ class ForceAtlas2(BaseEmbedding):
     """
 
     def __init__(self, n_components: int = 2, n_iter: int = 50, barnes_hut: bool = False, lin_log: bool = False,
-                 gravity_factor: float = 0.1, strong_gravity: bool = False, repulsive_factor: float = 0.1,
+                 gravity_factor: float = 0.01, strong_gravity: bool = False, repulsive_factor: float = 0.1,
                  no_hubs: bool = False, no_overlapping: bool = False, tolerance: float = 0.1, speed: float = 0.1,
                  speed_max: float = 10, theta: float = 1.2):
         super(ForceAtlas2, self).__init__()
