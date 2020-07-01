@@ -268,13 +268,13 @@ class Cell:
     CS205 class at Harvard's School and Engineering and Applied Sciences.
     """
 
-    def __init__(self, x_min, x_max, y_min, y_max):  # position.shape (2, n_components)
+    def __init__(self, x_min, x_max, y_min, y_max):
         self.pos_min = np.asarray([x_min, y_min])
         self.pos_max = np.asarray([x_max, y_max])
-        self.center = np.zeros(2)  # position of the center of mass of the cell
-        self.children = None  # list of cells that are the children of the current cell
-        self.n_particles = 0  # number of particles in the cells in its sub-cells
-        self.pos_particle = None  # numpy array that contains the position of the particle if there is one in this cell
+        self.center = np.zeros(2)
+        self.children = None
+        self.n_particles = 0
+        self.pos_particle = None
         self.particle_degree = None
 
     def is_in_cell(self, position: np.ndarray) -> bool:  # test if a particle is inside the cell's bounds
@@ -313,7 +313,7 @@ class Cell:
             return
         cell_size = self.pos_max[0] - self.pos_min[0]
         grad: np.ndarray = pos_node - self.center
-        if self.n_particles == 1:  # compute repulsion force between two nodes
+        if self.n_particles == 1:
             variation = self.pos_particle - pos_node
             distance = np.linalg.norm(grad, axis=0)
             if distance > 0:
