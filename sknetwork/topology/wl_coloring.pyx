@@ -131,7 +131,7 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,
     cdef np.ndarray[int, ndim=1] indices = adjacency.indices
     cdef np.ndarray[int, ndim=1] indptr = adjacency.indptr
     cdef int n = indptr.shape[0] - 1
-    cdef int max_deg = max(list(memoryview(np.array(indptr[1:]) - np.array(indptr[:n]))))
+    cdef int max_deg = np.max((indptr[1:]) - np.array(indptr[:n]))
     cdef cmap[long long, long long] new_hash
 
     cdef long long[:,:] multiset = np.empty((n, max_deg), dtype=np.longlong)

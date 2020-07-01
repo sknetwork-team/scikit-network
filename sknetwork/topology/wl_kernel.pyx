@@ -2,7 +2,7 @@
 # cython: language_level=3
 
 """
-Created on June 19, 2020
+Created on July 1, 2020
 @author: Pierre Pebereau <pierre.pebereau@telecom-paris.fr>
 @author: Alexis Barreaux <alexis.barreaux@telecom-paris.fr>
 """
@@ -13,9 +13,7 @@ import numpy as np
 cimport numpy as np
 from scipy import sparse
 
-from sknetwork.utils.base import Algorithm
-from sknetwork.topology.wl_coloring cimport c_wl_coloring, c_wl_coloring_2
-from sknetwork.path.shortest_path import distance
+from sknetwork.topology.wl_coloring cimport c_wl_coloring
 
 from libcpp.pair cimport pair
 from libcpp.vector cimport vector
@@ -24,20 +22,100 @@ cimport cython
 
 ctypedef pair[long long, int] cpair
 
+def wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
+              adjacency_2: Union[sparse.csr_matrix, np.ndarray],
+              num_iter: int = -1,
+              kernel_type: str = "subtree"):
+    """Algorithm using Weisefeler-Lehman coloring to check kernels between two graphs.
+    Parameters
+    ----------
+    adjacency_1 : Union[sparse.csr_matrix, np.ndarray]
+        First adjacency matrix to be checked.
+
+    adjacency_2 : Union[sparse.csr_matrix, np.ndarray]
+        Second adjacency matrix to be checked.
+
+    num_iter : int
+    Maximum number of iterations once wants to make. Maximum positive value is the number of nodes in adjacency_1,
+    it is also the default value set if given a negative int. We set default value to -1.
+
+    kernel_type : str
+        Type of kernel the user wants to check. Default is "subtree". Possible values are "isomorphism", "subtree" and
+        "edge".
+        Isomorphism only checks if each graph has the same number of each distinct labels at each step.
+        Subtree kernel counts the number of occurences of each label in each graph at each step and sums the scalar
+        product of these counts.
+        Edge kernel counts the number of edge having the same labels for its nodes in both graphs at each step.
+
+    Returns
+    -------
+    similarity : int
+        Likeness between both graphs. -1 if unknown kernel was specified.
+
+    Example
+    -------
+    >>> from sknetwork.topology import wl_kernel
+    >>> from sknetwork.data import house
+    >>> adjacency_1 = house()
+    >>> adjacency_2 = house()
+    >>> similarity = wl_kernel(adjacency_1, adjacency_2, -1, "subtree")
+    49
+
+    References
+    ----------
+    * Douglas, B. L. (2011).
+      'The Weisfeiler-Lehman Method and Graph Isomorphism Testing.
+      <https://arxiv.org/pdf/1101.5211.pdf>`_
+      Cornell University.
+
+
+    * Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Melhorn, K., Borgwardt, K. M. (2010)
+      'Weisfeiler-Lehman graph kernels.
+      <http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf?fbclid=IwAR2l9LJLq2VDfjT4E0ainE2p5dOxtBe89gfSZJoYe4zi5wtuE9RVgzMKmFY>`_
+      Journal of Machine Learning Research 1, 2010.
+    """
+
+    if kernel_type == "isomorphism" :
+        return c_wl_kernel(adjacency_1, adjacency_2, num_iter, 1)
+    elif kernel_type == "subtree":
+        return c_wl_kernel(adjacency_1, adjacency_2, num_iter, 2)
+    elif kernel_type ==  "edge":
+       return c_wl_kernel(adjacency_1, adjacency_2, num_iter, 3)
+    else :
+        return -1
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef int initialise_kernel(int num_iter,
-                           adjacency_1: Union[sparse.csr_matrix, np.ndarray],
-                           adjacency_2: Union[sparse.csr_matrix, np.ndarray],
-                           str kernel_type):
+cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
+                     adjacency_2: Union[sparse.csr_matrix, np.ndarray],
+                     int num_iter,
+                     int kernel_type):
+    """Cythonised function actually running the kernels.
+    Parameters
+    ----------
+    adjacency_1 : Union[sparse.csr_matrix, np.ndarray]
+        First adjacency matrix to be checked.
+
+    adjacency_2 : Union[sparse.csr_matrix, np.ndarray]
+        Second adjacency matrix to be checked.
+
+    num_iter : int
+        Maximum number of iterations once wants to make. Maximum positive value is the number of nodes in adjacency_1,
+        it is also the default value set if given a negative int.
+
+    kernel_type : int
+        Type of kernel the user wants to check
+
+    Returns
+    -------
+    similarity : int
+        Likeness between both graphs.
+    """
 
     cdef np.ndarray[int, ndim=1] indices_1 = adjacency_1.indices
     cdef np.ndarray[int, ndim=1] indptr_1 = adjacency_1.indptr
     cdef np.ndarray[int, ndim=1] indices_2 = adjacency_2.indices
     cdef np.ndarray[int, ndim=1] indptr_2 = adjacency_2.indptr
-    #TODO those two are only used for shortest path, find smth to do ?
-    cdef np.ndarray[double, ndim = 2] dist_1 = distance(adjacency_1)
-    cdef np.ndarray[double, ndim = 2] dist_2 = distance(adjacency_2)
 
     cdef int iteration = 0
     cdef int n = indptr_1.shape[0] - 1
@@ -50,9 +128,6 @@ cdef int initialise_kernel(int num_iter,
     cdef int i
     cdef int similarity = 0
     cdef int current_max
-    cdef bint has_changed_1
-    cdef bint has_changed_2
-    cdef bint res #only for isomorphism
 
     cdef long long[:] labels_1
     cdef long long[:] labels_2
@@ -80,7 +155,7 @@ cdef int initialise_kernel(int num_iter,
     else :
         num_iter = n
 
-    if kernel_type == "isomorphism":
+    if kernel_type == 1:
         similarity = 1
 
     while iteration < num_iter : #and (has_changed_1 or has_changed_2), not using this atm cause it gives issues when
@@ -89,22 +164,18 @@ cdef int initialise_kernel(int num_iter,
         new_hash, current_max , _ = c_wl_coloring(indices_1, indptr_1, 1, labels_1, multiset, large_label, 1, new_hash, False)
         _ ,current_max, _ = c_wl_coloring(indices_2, indptr_2, 1, labels_2, multiset, large_label, current_max, new_hash, False)
         iteration += 1
-        if kernel_type == "isomorphism":
+
+        if kernel_type == 1:
             if c_wl_isomorphism(n, count_1, count_2, labels_1, labels_2) == 0:
                 return 0
-            #TODO oui c'est moche, est ce qu'on peut faire mieux ?
             continue
 
-        if kernel_type == "subtree":
+        if kernel_type == 2:
             similarity = c_wl_subtree_kernel(n, count_1, count_2, labels_1, labels_2, similarity)
             continue
 
-        if kernel_type == "edge":
+        if kernel_type == 3:
             similarity = c_wl_edge_kernel(n, indices_1, indptr_1, indices_2, indptr_2, labels_1, labels_2, similarity)
-            continue
-
-        if kernel_type == "path":
-            similarity = c_wl_shortest_path_kernel(n, dist_1, dist_2, labels_1, labels_2, similarity)
             continue
 
     return similarity
@@ -117,13 +188,13 @@ cdef int c_wl_isomorphism(int n,
                           long long[:] labels_1,
                           long long[:] labels_2):
 
-    for i in range(2 * n + 1):
+    for i in range(2 * n):
         count_1[i] = 0
         count_2[i] = 0
     for i in range(n):
         count_1[labels_1[i]] += 1
         count_2[labels_2[i]] += 1
-    for i in range(2 * n + 1):
+    for i in range(2 * n):
         if count_1[i] != count_2[i]:
             return 0
 
@@ -136,15 +207,15 @@ cdef int c_wl_subtree_kernel(int n,
                              int[:] count_2,
                              long long[:] labels_1,
                              long long[:] labels_2,
-                             similarity):
+                             int similarity):
 
-    for i in range(2 * n + 1):
+    for i in range(2 * n):
         count_1[i] = 0
         count_2[i] = 0
     for i in range(n):
         count_1[labels_1[i]] += 1
         count_2[labels_2[i]] += 1
-    for i in range(2 * n + 1):
+    for i in range(2 * n):
         similarity += count_1[i] * count_2[i]
 
     return similarity
@@ -158,11 +229,10 @@ cdef int c_wl_edge_kernel(int n,
                           np.ndarray[int, ndim=1] indptr_2,
                           long long[:] labels_1,
                           long long[:] labels_2,
-                          similarity):
+                          int similarity):
 
 
     cdef int v1, v2, n1, n2, j1, j2, jj1, jj2, d1, d2, l1_1, l1_2, l2_1, l2_2
-    #TODO on perd un peu de temps à faire ça mais ça rend les choses jolies
 
     #loop on graph 1 edges :
     for v1 in range(n) :
@@ -187,102 +257,3 @@ cdef int c_wl_edge_kernel(int n,
                             if ( l1_1==l2_1  and  l1_2==l2_2 ) or ( l1_2==l2_1  and  l1_1==l2_2 )  : #compare ordered pairs
                                 similarity+=1
     return similarity
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-#TODO shortest path is currently wrong.
-cdef int c_wl_shortest_path_kernel(int n,
-                                   np.ndarray[double, ndim = 2] dist_1,
-                                   np.ndarray[double, ndim = 2] dist_2,
-                                   long long[:] labels_1,
-                                   long long[:] labels_2,
-                                   int similarity):
-
-    cdef int  v1, v2, d1, d2, j1, j2, l1_1, l1_2, l2_1, l2_2
-    #TODO on perd un peu de temps à faire ça mais ça rend les choses jolies
-
-    for v1 in range(n) :
-        for j1 in range(n) :
-            d1 = dist_1[v1][j1]
-            if j1 >= v1 and d1 != np.inf: #Proceed in increasing order to ensure each edge is seen exactly once
-
-                #loop on graph 2 edges :
-                for v2 in range(n) :
-                    for j2 in range(n) :
-                        d2 = dist_2[v2][j2]
-                        if j2 >= v2 and d2 != np.inf :
-                            l1_1 = labels_1[v1]
-                            l1_2 = labels_1[j1]
-                            l2_1 = labels_2[v2]
-                            l2_2 = labels_2[j2]
-
-                            if ( l1_1==l2_1  and  l1_2==l2_2 ) or ( l1_2==l2_1  and  l1_1==l2_2 ) and d1 == d2 : #compare ordered pairs
-                                similarity+=1
-    return similarity
-
-class WLKernel(Algorithm):
-    """Algorithm using Weisefeler-Lehman to check kernels.
-
-    Attributes
-    ----------
-    labels_ : np.ndarray
-        Label of each node.
-
-    max_iter : int
-        Maximum number of iterations.
-
-    Example
-    -------
-    #TODO change this example
-    >>> from sknetwork.topology import WLKernel
-    >>> from sknetwork.data import house
-    >>> wlkernel = WLKernel()
-    >>> adjacency = house()
-    >>> labels = wlkernel.fit_transform(adjacency)
-    array([1, 2, 0, 0, 2])
-
-    References
-    ----------
-    * Douglas, B. L. (2011).
-      'The Weisfeiler-Lehman Method and Graph Isomorphism Testing.
-      <https://arxiv.org/pdf/1101.5211.pdf>`_
-      Cornell University.
-
-
-    * Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Melhorn, K., Borgwardt, K. M. (2010)
-      'Weisfeiler-Lehman graph kernels.
-      <http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf?fbclid=IwAR2l9LJLq2VDfjT4E0ainE2p5dOxtBe89gfSZJoYe4zi5wtuE9RVgzMKmFY>`_
-      Journal of Machine Learning Research 1, 2010.
-    """
-
-    def __init__(self, max_iter = - 1):
-        super(WLKernel, self).__init__()
-
-        self.max_iter = max_iter
-        self.labels_ = None
-
-    def fit(self, adjacency_1: Union[sparse.csr_matrix, np.ndarray], adjacency_2: Union[sparse.csr_matrix, np.ndarray], kernel : str = "subtree") -> int :
-        """Fit algorithm to the data.
-
-        Parameters
-        ----------
-        adjacency_1 : Union[sparse.csr_matrix, np.ndarray]
-            Adjacency matrix of the first graph.
-
-        adjacency_2 : Union[sparse.csr_matrix, np.ndarray]
-            Adjacency matrix of the second graph.
-        kernel : str
-            Type of WL kernel to be used. Types are : subtree, edge, shortest-path
-
-
-        Returns
-        -------
-        ret: int
-            Likeness between both graphs. -1 if unknown kernel was specified
-        """
-        #TODO checker les entrées
-        ret = -1
-
-        ret = initialise_kernel(self.max_iter, adjacency_1, adjacency_2, kernel)
-
-        return ret
