@@ -15,7 +15,9 @@ from libcpp.unordered_map cimport unordered_map as cmap
 
 
 ctypedef pair[long long, int] cpair
-ctypedef pair[double, int] cpair2
+ctypedef pair[long long, double] cpair2
+ctypedef (long long, double, int) ctuple
+
 
 cdef (cmap[long long, long long], int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices,
                                                             np.ndarray[int, ndim=1] indptr,
@@ -32,6 +34,6 @@ cdef void c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
                                 np.ndarray[int, ndim=1] indptr,
                                 int max_iter,
                                 long long[:] labels,
-                                double [:] powers)
+                                double [:] powers, double alpha)
 
 cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency, int max_iter, np.ndarray[long long, ndim = 1] input_labels )

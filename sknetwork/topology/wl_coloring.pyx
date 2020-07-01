@@ -17,6 +17,7 @@ from sknetwork.utils.base import Algorithm
 from sknetwork.utils.counting_sort cimport counting_sort_all
 
 from libcpp.pair cimport pair
+
 from libcpp.vector cimport vector
 from libcpp.unordered_map cimport unordered_map as cmap
 from libcpp.algorithm cimport sort as csort
@@ -27,8 +28,21 @@ cimport cython
 
 cdef bint is_lower(pair[long long, int] p1, pair[long long, int] p2):
     return p1.first < p2.first
-cdef bint is_lower_2(pair[double, int] p1, pair[double, int] p2):
+cdef bint is_lower_2(cpair2 p1, cpair2 p2):
+    if p1.first == p2.first :
+        return p1.second < p2.second
     return p1.first < p2.first
+cdef bint is_lower_3(ctuple p1,ctuple p2) :
+    cdef long long p11, p21
+    cdef double p12, p22
+    cdef int p13, p23
+
+    p11, p12, p13 = p1
+    p21, p22, p23 = p2
+    if p11 == p21 :
+        return p12 < p22
+    return p11 < p21
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -141,7 +155,8 @@ cpdef long long[:] wl_coloring_2(adjacency) :
     cdef n = adjacency.indptr.shape[0]-1
     cdef double [:] powers = np.zeros(n+1, dtype = np.double)
     cdef labels = np.ones(n, dtype = np.longlong)
-    c_wl_coloring_2(adjacency.indices, adjacency.indptr, -1, labels, powers)
+    cdef double  alpha = - np.pi/3.15
+    c_wl_coloring_2(adjacency.indices, adjacency.indptr, -1, labels, powers, alpha)
     return labels
 
 @cython.boundscheck(False)
@@ -150,7 +165,8 @@ cdef void c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
                                 np.ndarray[int, ndim=1] indptr,
                                 int max_iter,
                                 long long[:] labels,
-                                double [:] powers):
+                                double [:] powers,
+                          double alpha):
 
     cdef int iteration, i, j, j1, j2, jj, u, current_max, deg
     cdef double temp_pow
@@ -160,13 +176,22 @@ cdef void c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
 
     cdef double epsilon
 
-    cdef double pi = np.pi
-    cdef double alpha = - pi/3.15
-    cdef vector[cpair2] hashes
-    cdef double current_hash
 
-    epsilon = cpowl(alpha, n+1)/2
-    cdef cmap[double, int] new_hash
+
+    cdef vector[ctuple] new_labels
+    cdef double current_hash
+    cdef ctuple current_tuple
+    cdef ctuple previous_tuple
+
+    epsilon = abs(cpowl(alpha, n+1)/3)
+
+    cdef long long current_label, previous_label
+    cdef double previous_hash
+    cdef int current_vertex, previous_vertex
+    cdef bint has_not_changed
+
+
+
 
     if max_iter > 0 :
         max_iter = min(n, max_iter)
@@ -174,8 +199,9 @@ cdef void c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
         max_iter = n
 
     iteration = 0
-    while iteration <= max_iter :
-        hashes.clear()
+    has_not_changed = False
+    while iteration <= max_iter and not has_not_changed:
+        new_labels.clear()
         for i in range(n):# going through the neighbors of v.
             current_hash = 0
             deg = degrees[i]
@@ -189,25 +215,28 @@ cdef void c_wl_coloring_2(np.ndarray[int, ndim=1] indices,
                     temp_pow = cpowl(alpha,<double> labels[u])
                     powers[labels[u]] = temp_pow
                 current_hash += temp_pow
-            hashes.push_back( cpair2(current_hash, i) )
+            new_labels.push_back((labels[i], current_hash, i))
             # 2
-        csort(hashes.begin(), hashes.end(),is_lower_2)
+        csort(new_labels.begin(), new_labels.end(),is_lower_3)
 
-        previous = 0
-
-        new_hash.clear()
-        current_max = 1
-
-        for jj in range(n):
-            current_hash = hashes[jj].first
-            i = hashes[jj].second
-            if new_hash.find(current_hash) == new_hash.end():
-                new_hash[current_hash] = current_max
-                current_max += 1
+        current_max = 0
+        current_tuple = new_labels[0]
+        current_label, current_hash, current_vertex = current_tuple
+        labels[current_vertex] = current_max
+        has_not_changed = True
+        for jj in range(1,n):
+            previous_tuple = current_tuple
+            current_tuple = new_labels[jj]
+            previous_label, previous_hash, previous_vertex = previous_tuple
+            current_label, current_hash, current_vertex = current_tuple
+            if abs(previous_hash - current_hash) > epsilon or previous_label != current_label :
+                current_max+=1
+            has_not_changed &= (labels[current_vertex] == current_max)
+            labels[current_vertex] = current_max
             #  4
 
-            labels[i] = new_hash[current_hash]
         iteration+=1
+        print(iteration)
     return
 
 
