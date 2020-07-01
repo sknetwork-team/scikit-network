@@ -182,11 +182,11 @@ class ForceAtlas2(BaseEmbedding):
                 if self.no_hubs:
                     attraction = attraction / degree[i]
                 if self.no_overlapping:
-                    distance_border_to_border = distance - 1 - 1  # node's size = 1
-                    if (distance_border_to_border[i] > 0).all():
-                        attraction[indices] = distance_border_to_border[indices]
+                    distance_border_to_border = distance - 1  # node's size = 1
+                    if (np.abs(distance_border_to_border) > 0.1).all():
+                        attraction[indices] = grad[indices]
                         distance = distance_border_to_border
-                    elif (distance_border_to_border < 0).any():
+                    else:
                         attraction *= 0
                         repulsion = np.sum((100 * degree[i] * grad * (degree / distance)[:, np.newaxis]
                          ), axis=0)
