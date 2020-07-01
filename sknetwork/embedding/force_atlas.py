@@ -79,7 +79,7 @@ class ForceAtlas2(BaseEmbedding):
     Nature 324: 446–449.
     """
 
-    def __init__(self, n_components: int = 2, n_iter: int = 50, barnes_hut: bool = True, lin_log: bool = False,
+    def __init__(self, n_components: int = 2, n_iter: int = 50, barnes_hut: bool = False, lin_log: bool = False,
                  gravity_factor: float = 0.01, strong_gravity: bool = False, repulsive_factor: float = 0.1,
                  no_hubs: bool = False, no_overlapping: bool = False, tolerance: float = 0.1, speed: float = 0.1,
                  speed_max: float = 10, theta: float = 1.2):
@@ -101,7 +101,7 @@ class ForceAtlas2(BaseEmbedding):
         if n_components > 2 and barnes_hut:
             raise ValueError('Barnes and Hut algorithm can only be used in 2D')
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_components: Optional[int] = None,
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_components: Optional[int] = 2,
             n_iter: Optional[int] = None) -> 'ForceAtlas2':
         """Compute layout.
 
@@ -120,12 +120,17 @@ class ForceAtlas2(BaseEmbedding):
         self: :class:`ForceAtlas2`
         """
 
+        # verify the format of the adjacency matrix
         adjacency = check_format(adjacency)
         check_square(adjacency)
         if not is_symmetric(adjacency):
             adjacency = directed2undirected(adjacency)
         n = adjacency.shape[0]
 
+        if n_components > 2 and self.barnes_hut:
+            raise ValueError('Barnes and Hut algorithm can only be used in 2D')
+
+        # setting of the tolerance according to the size of the graph
         if n < 5000:
             tolerance = 0.1
         elif 5000 <= n < 50000:
@@ -136,9 +141,13 @@ class ForceAtlas2(BaseEmbedding):
         if n_iter is None:
             n_iter = self.n_iter
 
+        # initial position of the nodes of the graph
         position: np.ndarray = np.random.randn(n, self.n_components)
+
+        # compute the vector with the degree of each node
         degree: np.ndarray = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
+        # initialization of variation of position of nodes
         delta: np.ndarray = np.zeros((n, self.n_components))
         forces_for_each_node: np.ndarray = np.zeros((n, self.n_components))
         swing_vector: np.ndarray = np.zeros(n)
@@ -169,32 +178,33 @@ class ForceAtlas2(BaseEmbedding):
 
                 attraction[indices] = grad[indices]  # shape (n, d) change attraction of connected nodes
                 if self.lin_log:
-                    attraction = np.sign(attraction)* np.log(1 + abs(attraction))
+                    attraction = np.sign(attraction) * np.log(1 + np.abs(attraction))
                 if self.no_hubs:
                     attraction = attraction / degree[i]
-
                 if self.no_overlapping:
-                    distance_border_to_border = distance - 2  # node's size = 1
-                    if distance_border_to_border.all() > 0:
-                        attraction[indices] = grad[indices] - 2
+                    distance_border_to_border = distance - 1 - 1  # node's size = 1
+                    if (distance_border_to_border[i] > 0).all():
+                        attraction[indices] = distance_border_to_border[indices]
                         distance = distance_border_to_border
-                    elif distance_border_to_border.all() < 0:
+                    elif (distance_border_to_border < 0).any():
                         attraction *= 0
-                        repulsion = 100 * degree[i] * degree
+                        repulsion = np.sum((100 * degree[i] * grad * (degree / distance)[:, np.newaxis]
+                         ), axis=0)
 
                 if self.barnes_hut:
                     repulsion = np.asarray(root.apply_force(position[i], degree[i], self.theta, repulsion,
                                                             self.repulsive_factor))
+
                 else:
                     repulsion = np.sum(
                         (self.repulsive_factor * degree[i] * grad * (degree / distance)[:, np.newaxis]
                          ), axis=0)
-
                 gravity = self.gravity_factor * degree[i] * grad
                 if self.strong_gravity:
                     gravity *= grad
 
-                force: float = repulsion - 10 * np.sum(attraction, axis=0) - np.sum(gravity, axis=0)
+                # forces resultant applied on node i for traction, swing and speed computation
+                force: float = repulsion - np.sum(attraction, axis=0) - np.sum(gravity, axis=0)
                 force_res: float = np.linalg.norm(force)
                 forces_for_each_node_res: float = np.linalg.norm(forces_for_each_node[i])
 
@@ -214,10 +224,11 @@ class ForceAtlas2(BaseEmbedding):
                 delta[i]: np.ndarray = node_speed * force
 
                 global_speed = tolerance * global_traction / global_swing
-            position += delta  # calculating displacement and final position of points after iteration
 
-            if (swing_vector < 0.01).all():
+            position += delta  # calculating displacement and final position of points after iteration
+            if (swing_vector < 1).all():
                 break  # if the swing of all nodes is zero, then convergence is reached and we break.
+
         self.embedding_ = position
         return self
 
@@ -260,12 +271,11 @@ class Cell:
     def __init__(self, x_min, x_max, y_min, y_max):  # position.shape (2, n_components)
         self.pos_min = np.asarray([x_min, y_min])
         self.pos_max = np.asarray([x_max, y_max])
-        self.center = np.zeros(2)
-        self.children = None
-        self.n_particles = 0
-        self.pos_particle = None
+        self.center = np.zeros(2)  # position of the center of mass of the cell
+        self.children = None  # list of cells that are the children of the current cell
+        self.n_particles = 0  # number of particles in the cells in its sub-cells
+        self.pos_particle = None  # numpy array that contains the position of the particle if there is one in this cell
         self.particle_degree = None
-        self.cell_size = 0
 
     def is_in_cell(self, position: np.ndarray) -> bool:  # test if a particle is inside the cell's bounds
         return (self.pos_min <= position).all() and (position <= self.pos_max).all()
@@ -281,7 +291,6 @@ class Cell:
                 self.pos_particle = None
             for child in self.children:
                 child.add(position, degree)
-                self.cell_size = self.pos_max[0] - self.pos_min[0]
         else:
             self.pos_particle = position
             self.particle_degree = degree
@@ -300,18 +309,18 @@ class Cell:
         self.children = np.asarray([child_1, child_2, child_3, child_4])
 
     def apply_force(self, pos_node, node_degree, theta, repulsion, repulsive_factor: float):
-
+        cell_size = self.pos_max[0] - self.pos_min[0]
+        grad: np.ndarray = pos_node - self.center
+        grad = np.where(grad < 0.01, 0.1, grad)
         if self.n_particles == 1:  # compute repulsion force between two nodes
             variation = self.pos_particle - pos_node
             distance = np.linalg.norm(variation, axis=0)
             if distance > 0:
                 repulsion_force = repulsive_factor * node_degree * (self.n_particles + 1) * variation / distance
                 repulsion += repulsion_force
-
-        elif self.n_particles > 1:
-            grad: np.ndarray = pos_node - self.center
+        else:
             distance = np.linalg.norm(grad, axis=0)
-            if distance * theta > self.cell_size:
+            if distance * theta > cell_size:
                 repulsion_force = repulsive_factor * node_degree * (self.n_particles + 1) * grad / distance
                 repulsion += repulsion_force
 
