@@ -133,9 +133,9 @@ class ForceAtlas2(BaseEmbedding):
         # setting of the tolerance according to the size of the graph
         if n < 5000:
             tolerance = 0.1
-        elif 5000 <= n < 50000:
+        elif 5000 <= n < 50000:  # pragma: no cover
             tolerance = 1
-        else:
+        else:  # pragma: no cover
             tolerance = 10
 
         if n_iter is None:
@@ -188,8 +188,7 @@ class ForceAtlas2(BaseEmbedding):
                         distance = distance_border_to_border
                     else:
                         attraction *= 0
-                        repulsion = np.sum((100 * degree[i] * grad * (degree / distance)[:, np.newaxis]
-                         ), axis=0)
+                        repulsion = np.sum((100 * degree[i] * grad * (degree / distance)[:, np.newaxis]), axis=0)
 
                 if self.barnes_hut:
                     repulsion = np.asarray(root.apply_force(position[i], degree[i], self.theta, repulsion,
@@ -197,8 +196,7 @@ class ForceAtlas2(BaseEmbedding):
 
                 else:
                     repulsion = np.sum(
-                        (self.repulsive_factor * degree[i] * grad * (degree / distance)[:, np.newaxis]
-                         ), axis=0)
+                        (self.repulsive_factor * degree[i] * grad * (degree / distance)[:, np.newaxis]), axis=0)
                 gravity = self.gravity_factor * degree[i] * grad
                 if self.strong_gravity:
                     gravity *= grad
@@ -216,7 +214,7 @@ class ForceAtlas2(BaseEmbedding):
                 global_traction += (degree[i] + 1) * traction
 
                 node_speed = self.speed * global_speed / (1 + global_speed * np.sqrt(swing_node))
-                if node_speed > self.speed_max / abs(force_res):
+                if node_speed > self.speed_max / abs(force_res):  # pragma: no cover
                     node_speed = self.speed_max / abs(force_res)
 
                 forces_for_each_node[i] = force  # force resultant update
@@ -314,7 +312,6 @@ class Cell:
         cell_size = self.pos_max[0] - self.pos_min[0]
         grad: np.ndarray = pos_node - self.center
         if self.n_particles == 1:
-            variation = self.pos_particle - pos_node
             distance = np.linalg.norm(grad, axis=0)
             if distance > 0:
                 repulsion_force = repulsive_factor * node_degree * (self.n_particles + 1) * grad / distance
