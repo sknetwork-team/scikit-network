@@ -38,7 +38,6 @@ cdef (cmap[long long, long long], int, bint) c_wl_coloring(np.ndarray[int, ndim=
                         long long[:] labels,
                         long long[:,:] multiset,
                         vector[cpair] large_label,
-                        int  [:] count,
                         int current_max,
                         cmap[long long, long long] new_hash,
                         bint c_dict):
@@ -123,7 +122,6 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,
 
     cdef long long[:,:] multiset = np.empty((n, max_deg), dtype=np.longlong)
     cdef vector[cpair] large_label = np.zeros((n, 2), dtype=np.longlong)
-    cdef int [:] count= np.zeros(n + 1, dtype = np.int32)
 
     cdef np.ndarray[long long, ndim = 1] labels
     if input_labels is None :
@@ -131,7 +129,7 @@ cpdef np.ndarray[long long, ndim=1] wl_coloring(adjacency,
     else :
         labels = input_labels
 
-    c_wl_coloring(indices, indptr, max_iter, labels, multiset, large_label, count, 1, new_hash, True)
+    c_wl_coloring(indices, indptr, max_iter, labels, multiset, large_label, 1, new_hash, True)
     return np.asarray(labels)
 
 
