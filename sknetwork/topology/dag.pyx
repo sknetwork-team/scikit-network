@@ -45,6 +45,24 @@ cdef fit_core(int[:] indptr, int[:] indices, int[:] sorted_nodes):
 
 class DAG(Algorithm):
     """Build a Directed Acyclic Graph from an adjacency.
+
+    * Graphs
+    * DiGraphs
+
+    Parameters
+    ----------
+    ordering : str
+        An method to sort the nodes.
+
+        * If ``None`̀, the default order is the index.
+        * If ``'degree'``, the nodes are sorted by ascending degree.
+
+    Attributes
+    ----------
+    indptr_ : np.ndarray
+        Pointer index as for CSR format.
+    indices_ : np.ndarray
+        Indices as for CSR format.
     """
     def __init__(self, ordering: str = None):
         super(DAG, self).__init__()
@@ -53,7 +71,16 @@ class DAG(Algorithm):
         self.indices_ = None
 
     def fit(self, adjacency: sparse.csr_matrix, sorted_nodes=None):
-        """Fit algorithm to the data."""
+        """Fit algorithm to the data.
+
+        Parameters
+        ----------
+        adjacency :
+            Adjacency matrix of the graph.
+        sorted_nodes : np.ndarray
+            An order on the nodes such that the DAG only contains edges (i, j) such that
+            ``sorted_nodes[i] < sorted_nodes[j]``.
+        """
         indptr = adjacency.indptr.astype(np.int32)
         indices = adjacency.indices.astype(np.int32)
 

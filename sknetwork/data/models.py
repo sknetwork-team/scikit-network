@@ -113,8 +113,8 @@ def erdos_renyi(n: int = 20, p: float = .3, seed: Optional[int] = None) -> spars
     >>> adjacency.shape
     (7, 7)
 
-    Reference
-    ---------
+    References
+    ----------
     Erdős, P., Rényi, A. (1959). `On Random Graphs. <https://www.renyi.hu/~p_erdos/1959-11.pdf>`_
     Publicationes Mathematicae.
     """

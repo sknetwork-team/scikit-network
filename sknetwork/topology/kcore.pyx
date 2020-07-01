@@ -37,7 +37,7 @@ cdef fit_core(int[:] indptr, int[:] indices):
     cdef int core_value	= 0	# current/max core value of the graph
     cdef int min_node		# current node of minimum degree
     cdef int i, j, k
-    cdef int[:] degrees = np.asarray(indptr)[1:] - np.asarray(indptr)[:-1]
+    cdef int[:] degrees = np.asarray(indptr)[1:] - np.asarray(indptr)[:n]
     cdef np.ndarray[int, ndim=1] labels = np.empty((n,), dtype=np.int32)
     cdef MinHeap mh = MinHeap.__new__(MinHeap, n)	# minimum heap with an update system
 

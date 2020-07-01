@@ -12,16 +12,18 @@ Structure
 
 .. autofunction:: sknetwork.topology.largest_connected_component
 
-.. autofunction:: sknetwork.topology.CoreDecomposition
+.. autoclass:: sknetwork.topology.CoreDecomposition
 
 .. autofunction:: sknetwork.topology.is_bipartite
 
 .. autofunction:: sknetwork.topology.is_acyclic
 
+.. autoclass:: sknetwork.topology.DAG
+
 Counting
 --------
 
-.. autofunction:: sknetwork.topology.Triangles
+.. autoclass:: sknetwork.topology.Triangles
 
-.. autofunction:: sknetwork.topology.Cliques
+.. autoclass:: sknetwork.topology.Cliques
 
