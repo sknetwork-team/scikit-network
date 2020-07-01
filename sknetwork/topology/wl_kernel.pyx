@@ -128,6 +128,7 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
     cdef int i
     cdef int similarity = 0
     cdef int current_max
+    cdef bint has_changed
 
     cdef long long[:] labels_1
     cdef long long[:] labels_2
@@ -161,17 +162,17 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
     while iteration < num_iter : #and (has_changed_1 or has_changed_2), not using this atm cause it gives issues when
                                 #not normalizing
         new_hash.clear()
-        new_hash, current_max , _ = c_wl_coloring(indices_1, indptr_1, 1, labels_1, multiset, large_label, 1, new_hash, False)
-        _ ,current_max, _ = c_wl_coloring(indices_2, indptr_2, 1, labels_2, multiset, large_label, current_max, new_hash, False)
+        new_hash, current_max , has_changed = c_wl_coloring(indices_1, indptr_1, 1, labels_1, multiset, large_label, 1, new_hash, False)
+        new_hash ,current_max, has_changed = c_wl_coloring(indices_2, indptr_2, 1, labels_2, multiset, large_label, current_max, new_hash, False)
         iteration += 1
 
         if kernel_type == 1:
-            if c_wl_isomorphism(n, count_1, count_2, labels_1, labels_2) == 0:
+            if c_wl_isomorphism(n, current_max, count_1, count_2, labels_1, labels_2) == 0:
                 return 0
             continue
 
         if kernel_type == 2:
-            similarity = c_wl_subtree_kernel(n, count_1, count_2, labels_1, labels_2, similarity)
+            similarity = c_wl_subtree_kernel(n, current_max, count_1, count_2, labels_1, labels_2, similarity)
             continue
 
         if kernel_type == 3:
@@ -183,18 +184,19 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef int c_wl_isomorphism(int n,
+                          int current_max,
                           int[:] count_1,
                           int[:] count_2,
                           long long[:] labels_1,
                           long long[:] labels_2):
 
-    for i in range(2 * n):
+    for i in range(current_max + 1):
         count_1[i] = 0
         count_2[i] = 0
     for i in range(n):
         count_1[labels_1[i]] += 1
         count_2[labels_2[i]] += 1
-    for i in range(2 * n):
+    for i in range(current_max + 1):
         if count_1[i] != count_2[i]:
             return 0
 
@@ -203,19 +205,20 @@ cdef int c_wl_isomorphism(int n,
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef int c_wl_subtree_kernel(int n,
+                             int current_max,
                              int[:] count_1,
                              int[:] count_2,
                              long long[:] labels_1,
                              long long[:] labels_2,
                              int similarity):
 
-    for i in range(2 * n):
+    for i in range(current_max + 1):
         count_1[i] = 0
         count_2[i] = 0
     for i in range(n):
         count_1[labels_1[i]] += 1
         count_2[labels_2[i]] += 1
-    for i in range(2 * n):
+    for i in range(current_max + 1):
         similarity += count_1[i] * count_2[i]
 
     return similarity
