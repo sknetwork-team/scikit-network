@@ -170,21 +170,22 @@ class ForceAtlas2(BaseEmbedding):
 
                 attraction[indices] = grad[indices]  # shape (n, d) change attraction of connected nodes
                 if self.lin_log:
-                    attraction = np.log(1 + attraction)
+                    attraction = np.sign(attraction)* np.log(1 + abs(attraction))
                 if self.no_hubs:
                     attraction = attraction / degree[i]
+
                 if self.no_overlapping:
-                    distance_border_to_border = distance - 1 - 1  # node's size = 1
-                    if distance_border_to_border > 0:
-                        attraction[indices] = distance_border_to_border[indices]
+                    distance_border_to_border = distance - 2  # node's size = 1
+                    if distance_border_to_border.all() > 0:
+                        attraction[indices] = grad[indices] - 2
                         distance = distance_border_to_border
-                    elif distance_border_to_border < 0:
+                    elif distance_border_to_border.all() < 0:
                         attraction *= 0
                         repulsion = 100 * degree[i] * degree
+
                 if self.barnes_hut:
                     repulsion = np.asarray(root.apply_force(position[i], degree[i], self.theta, repulsion,
                                                             self.repulsive_factor))
-
                 else:
                     repulsion = np.sum(
                         (self.repulsive_factor * degree[i] * grad * (degree / distance)[:, np.newaxis]
@@ -192,7 +193,7 @@ class ForceAtlas2(BaseEmbedding):
 
                 gravity = self.gravity_factor * degree[i] * grad
                 if self.strong_gravity:
-                    gravity *= distance
+                    gravity *= grad
 
                 force: float = repulsion - 10 * np.sum(attraction, axis=0) - np.sum(gravity, axis=0)
                 force_res: float = np.linalg.norm(force)
