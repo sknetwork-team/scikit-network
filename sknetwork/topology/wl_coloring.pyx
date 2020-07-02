@@ -218,7 +218,7 @@ class WLColoring(Algorithm):
 
         return self
 
-    def fit_transform(self, int max_iter, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
+    def fit_transform(self, adjacency: Union[sparse.csr_matrix, np.ndarray], int max_iter = -1 ) -> np.ndarray:
         """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
 
         Returns

@@ -24,9 +24,11 @@ def wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
               adjacency_2: Union[sparse.csr_matrix, np.ndarray],
               num_iter: int = -1,
               kernel_type: str = "subtree"):
-    """Algorithm using Weisefeler-Lehman coloring to check kernels between two graphs.
+    """Algorithm using Weisefeler-Lehman coloring to determine kernels between two graphs.
+
     Parameters
-    ----------
+    -----------
+
     adjacency_1 : Union[sparse.csr_matrix, np.ndarray]
         First adjacency matrix to be checked.
 
@@ -71,6 +73,7 @@ def wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
       'Weisfeiler-Lehman graph kernels.
       <http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf?fbclid=IwAR2l9LJLq2VDfjT4E0ainE2p5dOxtBe89gfSZJoYe4zi5wtuE9RVgzMKmFY>`_
       Journal of Machine Learning Research 1, 2010.
+
     """
 
     if kernel_type == "isomorphism" :
@@ -89,6 +92,7 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
                      int num_iter,
                      int kernel_type):
     """Cythonised function actually running the kernels.
+
     Parameters
     ----------
     adjacency_1 : Union[sparse.csr_matrix, np.ndarray]
@@ -121,7 +125,7 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
     cdef int n = indptr_1.shape[0] - 1
     cdef int m = indptr_2.shape[0] - 1
 
-    if n != m: #TODO in the future had empty nodes
+    if n != m: #TODO in the future add empty nodes
         return 0
 
     cdef double alpha = - np.pi/3.15
@@ -357,3 +361,24 @@ cdef int c_wl_edge_kernel(np.ndarray[int, ndim=1] indices_1,
                             if ( l1_1==l2_1  and  l1_2==l2_2 ) or ( l1_2==l2_1  and  l1_1==l2_2 )  : #compare ordered pairs
                                 similarity+=1
     return similarity
+
+
+cpdef double similarity(adjacency_1, adjacency_2) :
+    """
+    Parameters
+    ----------
+    adjacency_1 : Union[sparse.csr_matrix, np.ndarray]
+        First graph to compare
+    adjacency_2 : Union[sparse.csr_matrix, np.ndarray]
+        Second graph to compare
+    Returns
+    -------
+        A measure of similarity between the two graphs.
+        It verifies :math: ̀ 0 \leq sim(A,B) \leq 1`
+        It is defined as : :math: sim(A,B) = \frac{kernel(A,B)^2}{kernel(A,A)kernel(B,B)}̀
+        Where kernel is the Weisfeiler-Lehman subtree kernel.
+    """
+
+
+    return wl_kernel(adjacency_1, adjacency_2, -1, "subtree")**2 / (wl_kernel(adjacency_1, adjacency_1, -1, "subtree") * wl_kernel(adjacency_2, adjacency_2, -1, "subtree"))
+
