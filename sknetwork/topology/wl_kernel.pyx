@@ -16,8 +16,6 @@ from scipy import sparse
 from sknetwork.topology.wl_coloring cimport c_wl_coloring
 
 from libcpp.pair cimport pair
-from libcpp.vector cimport vector
-from libcpp.unordered_map cimport unordered_map as cmap
 cimport cython
 
 ctypedef pair[long long, int] cpair
@@ -121,25 +119,25 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
     cdef int n = indptr_1.shape[0] - 1
     cdef int m = indptr_2.shape[0] - 1
 
-    if n != m: #TODO changer ça
+    if n != m: #TODO in the future had empty nodes
         return 0
+
+    cdef double alpha = - np.pi/3.15
+    cdef double [:] powers = np.zeros(n+1, dtype = np.double)
+    cdef long long[:] labels = np.ones(n, dtype = np.longlong)
 
     cdef int length_count = 2 * n + 1
     cdef int i
     cdef int similarity = 0
+    cdef bint has_changed_1
+    cdef bint has_changed_2
     cdef int current_max
-    cdef bint has_changed
 
     cdef long long[:] labels_1
     cdef long long[:] labels_2
-    cdef long long[:,:] multiset
-
-    cdef vector[cpair] large_label
 
     cdef int[:] count_1
     cdef int[:] count_2
-
-    cdef cmap[long long, long long] new_hash
 
     max_deg = max(np.max(indptr_1[1:] - indptr_1[:n]), np.max(indptr_2[1:] - indptr_2[:n]))
 
@@ -149,7 +147,6 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
     labels_1 = np.ones(n, dtype = np.longlong)
     labels_2 = np.ones(n, dtype = np.longlong)
     large_label = np.zeros((n, 2), dtype= np.int32)
-
 
     if num_iter > 0 :
         num_iter = min(n, num_iter)
@@ -161,9 +158,9 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
 
     while iteration < num_iter : #and (has_changed_1 or has_changed_2), not using this atm cause it gives issues when
                                 #not normalizing
-        new_hash.clear()
-        new_hash, current_max, has_changed = c_wl_coloring(indices_1, indptr_1, 1, labels_1, multiset, large_label, 1, new_hash, False)
-        new_hash ,current_max, has_changed = c_wl_coloring(indices_2, indptr_2, 1, labels_2, multiset, large_label, current_max, new_hash, False)
+
+        current_max, has_changed_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, powers, alpha)
+        current_max, has_changed_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, powers, alpha)
         iteration += 1
 
         if kernel_type == 1:
