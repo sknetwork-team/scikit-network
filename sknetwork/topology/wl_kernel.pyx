@@ -57,7 +57,7 @@ def wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
     >>> adjacency_1 = house()
     >>> adjacency_2 = house()
     >>> similarity = wl_kernel(adjacency_1, adjacency_2, -1, "subtree")
-    49
+    45
 
     References
     ----------
@@ -116,6 +116,8 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
     cdef np.ndarray[int, ndim=1] indptr_2 = adjacency_2.indptr
 
     cdef int iteration = 0
+    cdef int last_update
+    cdef int temp
     cdef int n = indptr_1.shape[0] - 1
     cdef int m = indptr_2.shape[0] - 1
 
@@ -161,8 +163,8 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
     if kernel_type == 1:
         similarity = 1
 
-    while iteration < num_iter : #and (has_changed_1 or has_changed_2), not using this atm cause it gives issues when
-                                #not normalizing
+    while iteration < num_iter and (has_changed_1 or has_changed_2):
+
         current_max, has_changed_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, powers)
         current_max, has_changed_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, powers)
         iteration += 1
@@ -173,12 +175,25 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
             continue
 
         if kernel_type == 2:
-            similarity = c_wl_subtree_kernel(labels_1, labels_2, count_1, count_2, n, current_max, similarity)
+            temp = c_wl_subtree_kernel(labels_1, labels_2, count_1, count_2, n, current_max, similarity)
+            last_update = temp - similarity
+            similarity = temp
             continue
 
         if kernel_type == 3:
-            similarity = c_wl_edge_kernel(indices_1, indptr_1, indices_2, indptr_2, labels_1, labels_2, n, similarity)
+            temp = c_wl_edge_kernel(indices_1, indptr_1, indices_2, indptr_2, labels_1, labels_2, n, similarity)
+            last_update = temp - similarity
+            similarity = temp
             continue
+
+    #If we test isomorphism we only have to give back similarity
+    if kernel_type == 1:
+        return similarity
+
+    #otherwise we might have to update similarity because we stopped early to win time.
+    while iteration < num_iter :
+        iteration += 1
+        similarity += last_update
 
     return similarity
 
