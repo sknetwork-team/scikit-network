@@ -123,7 +123,12 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
         return 0
 
     cdef double alpha = - np.pi/3.15
-    cdef double [:] powers = np.zeros(n+1, dtype = np.double)
+    cdef double [:] powers = np.ones(n, dtype = np.double)
+
+    cdef int k
+    for k in range(1,n) :
+        powers[k] = powers[k-1]*alpha
+
     cdef long long[:] labels = np.ones(n, dtype = np.longlong)
 
     cdef int length_count = 2 * n + 1
@@ -158,11 +163,11 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
 
     while iteration < num_iter : #and (has_changed_1 or has_changed_2), not using this atm cause it gives issues when
                                 #not normalizing
-        print("before", np.asarray(labels_1), np.asarray(labels_2))
-        current_max, has_changed_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, powers, alpha)
-        current_max, has_changed_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, powers, alpha)
+
+        current_max, has_changed_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, powers)
+        current_max, has_changed_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, powers)
         iteration += 1
-        print("after", np.asarray(labels_1), np.asarray(labels_2))
+
         if kernel_type == 1:
             if c_wl_isomorphism(labels_1, labels_2, count_1, count_2, n, current_max) == 0:
                 return 0

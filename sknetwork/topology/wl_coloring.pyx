@@ -50,15 +50,22 @@ cpdef long long[:] wl_coloring(adjacency : Union[sparse.csr_matrix, np.ndarray],
 
     cdef int n = adjacency.indptr.shape[0]-1
     cdef double alpha = - np.pi/3.15
-    cdef double [:] powers = np.zeros(n+1, dtype = np.double)
+
     cdef long long[:] labels = np.ones(n, dtype = np.longlong)
+
+    cdef double [:] powers = np.ones(n, dtype = np.double)
+
+    cdef int k
+    for k in range(1,n) :
+        powers[k] = powers[k-1]*alpha
+
 
     if max_iter > 0 :
         max_iter = min(n, max_iter)
     else :
         max_iter = n
 
-    c_wl_coloring(adjacency.indices, adjacency.indptr, max_iter, labels, powers, alpha)
+    c_wl_coloring(adjacency.indices, adjacency.indptr, max_iter, labels, powers)
 
     return labels
 
@@ -68,8 +75,7 @@ cdef (int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices,
                                np.ndarray[int, ndim=1] indptr,
                                int max_iter,
                                long long[:] labels,
-                               double [:] powers,
-                               double alpha):
+                               double [:] powers):
     """ Weifeiler-Lehman inspired coloring.
 
     Parameters
@@ -89,8 +95,6 @@ cdef (int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices,
     powers : double [:]
         Powers being used as hash and put in a memory view to limit several identical calculations.
 
-    alpha : double
-        Transcendent negative number close to -1 being used to compute powers and hash the labels.
 
     Returns
     -------
@@ -111,7 +115,7 @@ cdef (int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices,
     cdef ctuple current_tuple
     cdef ctuple previous_tuple
 
-    epsilon = abs(cpowl(alpha, n+1)/3)
+    epsilon = cpowl(10, -10)
 
     cdef long long current_label, previous_label
     cdef double previous_hash
@@ -129,12 +133,8 @@ cdef (int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices,
             j2 = indptr[i + 1]
             for jj in range(j1,j2):
                 u = indices[jj]
-                if powers[labels[u]] != 0 :
-                    temp_pow = powers[labels[u]]
-                else :
-                    temp_pow = cpowl(alpha,<double> labels[u])
-                    powers[labels[u]] = temp_pow
-                current_hash += temp_pow
+
+                current_hash += powers[labels[u]]
             new_labels.push_back((labels[i], current_hash, i))
         csort(new_labels.begin(), new_labels.end(),is_lower)
 
