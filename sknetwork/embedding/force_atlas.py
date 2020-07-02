@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.utils import directed2undirected
+from sknetwork.utils.format import directed2undirected
 from sknetwork.utils.check import check_format, is_symmetric, check_square
 
 
