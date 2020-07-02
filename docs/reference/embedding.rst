@@ -24,6 +24,11 @@ GSVD
 
 .. autoclass:: sknetwork.embedding.GSVD
 
+Force Atlas 2
+-------------
+
+.. autoclass:: sknetwork.embedding.ForceAtlas2
+
 Spring
 ------
 
