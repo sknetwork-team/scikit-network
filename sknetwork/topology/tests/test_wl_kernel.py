@@ -41,7 +41,7 @@ class TestWLKernel(unittest.TestCase):
         np.random.shuffle(reorder)
         adjacency_2 = adjacency_2[reorder][:, reorder]
         similarity_2 = wl_kernel(adjacency_1, adjacency_2, -1, "subtree")
-        self.assertTrue(similarity_1 == similarity_2 and similarity_1 == 49)
+        self.assertTrue(similarity_1 == similarity_2 and similarity_1 == 45)
 
     # Edge tests.
 
@@ -60,4 +60,4 @@ class TestWLKernel(unittest.TestCase):
         np.random.shuffle(reorder)
         adjacency_2 = adjacency_2[reorder][:, reorder]
         similarity_2 = wl_kernel(adjacency_1, adjacency_2, -1, "edge")
-        self.assertTrue(similarity_1 == similarity_2 and similarity_1 == 58)
+        self.assertTrue(similarity_1 == similarity_2 and similarity_1 == 50)

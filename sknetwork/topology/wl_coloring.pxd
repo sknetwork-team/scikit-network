@@ -10,10 +10,6 @@ import numpy as np
 cimport numpy as np
 from scipy import sparse
 
-from libcpp.pair cimport pair
-
-ctypedef pair[long long, int] cpair
-ctypedef pair[long long, double] cpair2
 ctypedef (long long, double, int) ctuple
 
 cdef (int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices,

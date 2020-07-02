@@ -163,7 +163,6 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
 
     while iteration < num_iter : #and (has_changed_1 or has_changed_2), not using this atm cause it gives issues when
                                 #not normalizing
-
         current_max, has_changed_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, powers)
         current_max, has_changed_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, powers)
         iteration += 1

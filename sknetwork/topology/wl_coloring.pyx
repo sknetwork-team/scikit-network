@@ -2,7 +2,7 @@
 # cython: language_level=3
 
 """
-Created on June 19, 2020
+Created on July 2, 2020
 @author: Pierre Pebereau <pierre.pebereau@telecom-paris.fr>
 @author: Alexis Barreaux <alexis.barreaux@telecom-paris.fr>
 """
@@ -175,7 +175,7 @@ class WLColoring(Algorithm):
     >>> wlcoloring = WLColoring()
     >>> adjacency = house()
     >>> labels = wlcoloring.fit_transform(adjacency)
-    array([2, 3, 1, 1, 3])
+    array([2, 0, 1, 1, 0])
 
     References
     ----------
@@ -211,7 +211,6 @@ class WLColoring(Algorithm):
         -------
         self: :class:`WLColoring`
         """
-        #TODO fin du PAF: remettre num_iter en attribut.
 
         self.labels_ = np.asarray(wl_coloring(adjacency, max_iter))
 
