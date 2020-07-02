@@ -32,7 +32,21 @@ cdef bint is_lower(ctuple p1,ctuple p2) :
     return p11 < p21
 
 cpdef long long[:] wl_coloring(adjacency : Union[sparse.csr_matrix, np.ndarray], int max_iter) :
-    """Wrapper for Weisfeiler-Lehman coloring"""
+    """Wrapper for Weifeiler-Lehman Coloring
+    Parameters
+    ----------
+    adjacency : Union[sparse.csr_matrix, np.ndarray]
+        Adjacency matrix of the graph to color (expected to be in CSR format).
+
+    max_iter : int
+        Maximum number of iterations once wants to make. Maximum positive value is the number of nodes in adjacency_1,
+        it is also the default value set if given a negative int.
+
+    Returns
+    -------
+    labels : long long[:]
+        Memory view made of long long being the labels for the coloring.
+    """
 
     cdef int n = adjacency.indptr.shape[0]-1
     cdef double alpha = - np.pi/3.15
@@ -51,13 +65,42 @@ cpdef long long[:] wl_coloring(adjacency : Union[sparse.csr_matrix, np.ndarray],
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef (int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices,
-                        np.ndarray[int, ndim=1] indptr,
-                        int max_iter,
-                        long long[:] labels,
-                        double [:] powers,
-                        double alpha):
+                               np.ndarray[int, ndim=1] indptr,
+                               int max_iter,
+                               long long[:] labels,
+                               double [:] powers,
+                               double alpha):
+    """ Weifeiler-Lehman inspired coloring.
 
-    cdef int iteration, i, j, j1, j2, jj, u, current_max, deg
+    Parameters
+    ----------
+    indices : np.ndarray[int, ndim=1]
+        Indices of the graph in CSR format.
+
+    indptr : np.ndarray[int, ndim=1]
+        Indptr of the second graph in CSR format.
+
+    max_iter : int
+        Maximum number of iterations once wants to make.
+
+    labels : long long[:]
+        Labels to be changed.
+
+    powers : double [:]
+        Powers being used as hash and put in a memory view to limit several identical calculations.
+
+    alpha : double
+        Transcendent negative number close to -1 being used to compute powers and hash the labels.
+
+    Returns
+    -------
+    current_max : int
+        Used in wl_kernel to limit a loop.
+
+    has_changed : bint
+        Used in wl_kernel to limit a loop.
+    """
+    cdef int iteration, i, j, j1, j2, jj, u, current_max
     cdef double temp_pow
     cdef int n = indptr.shape[0] -1
 

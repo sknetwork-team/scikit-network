@@ -158,11 +158,11 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
 
     while iteration < num_iter : #and (has_changed_1 or has_changed_2), not using this atm cause it gives issues when
                                 #not normalizing
-
+        print("before", np.asarray(labels_1), np.asarray(labels_2))
         current_max, has_changed_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, powers, alpha)
         current_max, has_changed_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, powers, alpha)
         iteration += 1
-
+        print("after", np.asarray(labels_1), np.asarray(labels_2))
         if kernel_type == 1:
             if c_wl_isomorphism(labels_1, labels_2, count_1, count_2, n, current_max) == 0:
                 return 0
