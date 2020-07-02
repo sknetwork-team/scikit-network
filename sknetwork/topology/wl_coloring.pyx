@@ -31,6 +31,8 @@ cdef bint is_lower(ctuple p1,ctuple p2) :
         return p12 < p22
     return p11 < p21
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
 cpdef long long[:] wl_coloring(adjacency : Union[sparse.csr_matrix, np.ndarray], int max_iter) :
     """Wrapper for Weifeiler-Lehman Coloring
     Parameters
