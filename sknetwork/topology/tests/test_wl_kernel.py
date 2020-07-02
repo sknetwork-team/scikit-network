@@ -24,12 +24,6 @@ class TestWLKernel(unittest.TestCase):
         similarity_2 = wl_kernel(adjacency_1, adjacency_2, -1, "isomorphism")
         self.assertTrue(similarity_1 == similarity_2 and similarity_1 == 1)
 
-    def test_different_iso(self):
-        adjacency_1 = test_graph_clique()
-        adjacency_2 = test_graph_empty()
-        similarity = wl_kernel(adjacency_1, adjacency_2, -1, "isomorphism")
-        self.assertTrue(similarity == 0)
-
     # Subtree tests.
 
     def test_iso_and_house_sub(self):

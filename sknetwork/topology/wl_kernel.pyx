@@ -191,9 +191,7 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
         return similarity
 
     #otherwise we might have to update similarity because we stopped early to win time.
-    while iteration < num_iter :
-        iteration += 1
-        similarity += last_update
+    similarity += last_update * (num_iter - iteration)
 
     return similarity
 

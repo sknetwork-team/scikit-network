@@ -29,3 +29,5 @@ Coloring
 --------
 
 .. autoclass:: sknetwork.topology.WLColoring
+
+.. autofunction:: sknetwork.topology.wl_kernel
