@@ -4,3 +4,5 @@ from sknetwork.topology.kcliques import Cliques
 from sknetwork.topology.kcore import CoreDecomposition
 from sknetwork.topology.structure import is_acyclic, is_bipartite, largest_connected_component, connected_components
 from sknetwork.topology.triangles import Triangles
+from sknetwork.topology.wl_coloring import WLColoring
+from sknetwork.topology.wl_kernel import *

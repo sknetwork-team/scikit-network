@@ -27,3 +27,11 @@ Counting
 
 .. autoclass:: sknetwork.topology.Cliques
 
+Coloring
+--------
+
+.. autoclass:: sknetwork.topology.WLColoring
+
+.. autofunction:: sknetwork.topology.wl_kernel
+
+.. autofunction:: sknetwork.topology.similarity
