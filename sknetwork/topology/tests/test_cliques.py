@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Tests for k-cliques listing"""
-
+"""Tests for k-cliques count"""
 import unittest
 
-from sknetwork.topology import CliqueListing
+from sknetwork.topology import Cliques
 from sknetwork.data.test_graphs import *
-from sknetwork.data import karate_club
 
 from scipy.special import comb
 
@@ -15,25 +13,15 @@ class TestCliqueListing(unittest.TestCase):
 
     def test_empty(self):
         adjacency = test_graph_empty()
-        nb = CliqueListing().fit_transform(adjacency, 2)
-        self.assertEqual(nb, 0)
+        self.assertEqual(Cliques(2).fit_transform(adjacency), 0)
 
     def test_disconnected(self):
         adjacency = test_graph_disconnect()
-        nb = CliqueListing().fit_transform(adjacency, 3)
-        self.assertEqual(nb, 1)
+        self.assertEqual(Cliques(3).fit_transform(adjacency), 1)
 
     def test_cliques(self):
         adjacency = test_graph_clique()
         n = adjacency.shape[0]
-        clique = CliqueListing()
-        nb = clique.fit_transform(adjacency, 3)
-        self.assertEqual(nb, comb(n, 3, exact=True))
+        self.assertEqual(Cliques(3).fit_transform(adjacency), comb(n, 3, exact=True))
 
-        nb = clique.fit_transform(adjacency, 4)
-        self.assertEqual(nb, comb(n, 4, exact=True))
-
-    def test_kcliques(self):
-        adjacency = karate_club()
-        nb = CliqueListing().fit_transform(adjacency, 3)
-        self.assertEqual(nb, 45)
+        self.assertEqual(Cliques(4).fit_transform(adjacency), comb(n, 4, exact=True))

@@ -5,236 +5,185 @@ Created on Jun 3, 2020
 @author: Julien Simonnet <julien.simonnet@etu.upmc.fr>
 @author: Yohann Robert <yohann.robert@etu.upmc.fr>
 """
-
+from libcpp.vector cimport vector
 import numpy as np
 cimport numpy as np
 from scipy import sparse
 
 cimport cython
 
+from sknetwork.topology.dag import DAG
 from sknetwork.topology.kcore import CoreDecomposition
 
-ctypedef np.int_t int_type_t
-ctypedef np.uint8_t bool_type_t
+
+# ----- Collections of arrays used by our listing algorithm -----
+@cython.boundscheck(False)
+@cython.wraparound(False)
+cdef class ListingBox:
+
+    def __cinit__(self, vector[int] indptr, int k):
+        cdef int n = indptr.size() - 1
+        cdef int i
+        cdef int max_deg = 0
+
+        cdef np.ndarray[int, ndim=1] ns = np.empty((k+1,), dtype=np.int32)
+        ns[k] = n
+        self.ns = ns
+
+        cdef np.ndarray[short, ndim=1] lab = np.full((n,), k, dtype=np.int16)
+        self.lab = lab
+
+        cdef np.ndarray[int, ndim=1] deg = np.zeros(n, dtype=np.int32)
+        cdef np.ndarray[int, ndim=1] sub = np.zeros(n, dtype=np.int32)
+
+        for i in range(n):
+            deg[i] = indptr[i+1] - indptr[i]
+            max_deg = max(deg[i], max_deg)
+            sub[i] = i
+
+        self.degrees = np.empty((k+1,), dtype=object)
+        self.subs = np.empty((k+1,), dtype=object)
+
+        self.degrees[k] = deg
+        self.subs[k] = sub
+
+        for i in range(2, k):
+            deg = np.zeros(n, dtype=np.int32)
+            sub = np.zeros(max_deg, dtype=np.int32)
+            self.degrees[i] = deg
+            self.subs[i] = sub
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
+cdef long fit_core(vector[int] indptr, vector[int] indices, int l, ListingBox box):
+    cdef int n = indptr.size() - 1
+    cdef long n_cliques = 0
+    cdef int i, j, k
+    cdef int u, v, w
+    cdef int cd
 
-#------ Wrapper for integer array -------
+    if l == 2:
+        degree_l = box.degrees[2]
+        sub_l = box.subs[2]
+        for i in range(box.ns[2]):
+            j = sub_l[i]
+            n_cliques += degree_l[j]
 
-cdef class IntArray:
+        return n_cliques
 
-	def __cinit__(self, int n):
-		self.arr.reserve(n)
+    sub_l = box.subs[l]
+    sub_prev = box.subs[l-1]
+    degree_l = box.degrees[l]
+    deg_prev = box.degrees[l-1]
+    for i in range(box.ns[l]):
+        u = sub_l[i]
+        box.ns[l-1] = 0
+        cd = indptr[u] + degree_l[u]
+        for j in range(indptr[u], cd):
+            v = indices[j]
+            if box.lab[v] == l:
+                box.lab[v] = l-1
+                sub_prev[box.ns[l-1]] = v
+                box.ns[l-1] += 1
+                deg_prev[v] = 0
 
-	def __getitem__(self, int key) -> int:
-		return self.arr[key]
+        for j in range(box.ns[l-1]):
+            v = sub_prev[j]
+            cd = indptr[v] + degree_l[v]
+            k = indptr[v]
+            while k < cd:
+                w = indices[k]
+                if box.lab[w] == l-1:
+                    deg_prev[v] += 1
+                else:
+                    cd -= 1
+                    indices[k] = indices[cd]
+                    k -= 1
+                    indices[cd] = w
 
-	def __setitem__(self, int key, int val) -> None:
-		self.arr[key] = val
+                k += 1
 
-# ----- Collections of arrays used by our listing algorithm -----
+        n_cliques += fit_core(indptr, indices, l-1, box)
+        for j in range(box.ns[l-1]):
+            v = sub_prev[j]
+            box.lab[v] = l
 
-cdef class ListingBox:
-
-	def __cinit__(self, int n_nodes, int[:] indptr, short k):
-		self.initBox(n_nodes, indptr, k)
-
-	# building the special graph structure
-	cdef void initBox(self, int n_nodes, int[:] indptr, short k):
-		cdef int i
-		cdef int max_deg = 0
-
-		cdef IntArray deg
-		cdef IntArray sub
-
-		cdef np.ndarray[int, ndim=1] ns
-		cdef np.ndarray[short, ndim=1] lab
-
-		lab = np.full((n_nodes,), k, dtype=np.int16)
-
-		deg = IntArray.__new__(IntArray, n_nodes)
-		sub = IntArray.__new__(IntArray, n_nodes)
-
-		for i in range(n_nodes):
-			deg[i] = indptr[i+1] - indptr[i]
-			max_deg = max(deg[i], max_deg)
-			sub[i] = i
-
-		self.ns = np.empty((k+1,), dtype=np.int32)
-		self.ns[k] = n_nodes
-
-		self.degres = np.empty((k+1,), dtype=object)
-		self.subs = np.empty((k+1,), dtype=object)
-
-		self.degres[k] = deg
-		self.subs[k] = sub
-
-		for i in range(2, k):
-			deg = IntArray.__new__(IntArray, n_nodes)
-			sub = IntArray.__new__(IntArray, max_deg)
-			self.degres[i] = deg
-			self.subs[i] = sub
-
-		self.lab = lab
-
-# ---------------------------------------------------------------
-
-cdef long listing_rec(int n_nodes, int[:] indptr, int[:] indices, short l, ListingBox box):
-
-	cdef long nb_cliques
-	cdef int i, j, k
-	cdef int u, v, w
-	cdef int cd
-	cdef IntArray sub_l, degre_l
-
-	nb_cliques = 0
-
-	if l == 2:
-		degre_l = box.degres[2]
-		sub_l = box.subs[2]
-		for i in range(box.ns[2]):
-			j = sub_l[i]
-			nb_cliques += degre_l[j]
-
-		return nb_cliques
-
-	cdef IntArray deg_prevs, sub_prev
-	sub_l = box.subs[l]
-	sub_prev = box.subs[l-1]
-	degre_l = box.degres[l]
-	deg_prev = box.degres[l-1]
-	for i in range(box.ns[l]):
-		u = sub_l[i]
-		box.ns[l-1] = 0
-		cd = indptr[u] + degre_l[u]
-		for j in range(indptr[u], cd):
-			v = indices[j]
-			if box.lab[v] == l:
-				box.lab[v] = l-1
-				# box.subs[l-1][ns[l-1]++] = v
-				sub_prev[box.ns[l-1]] = v
-				box.ns[l-1] += 1
-				deg_prev[v] = 0
-
-		for j in range(box.ns[l-1]):
-			v = sub_prev[j]
-			cd = indptr[v] + degre_l[v]
-			k = indptr[v]
-			while k < cd:
-				w = indices[k]
-				if box.lab[w] == l-1:
-					deg_prev[v] += 1
-				else:
-					cd -= 1
-					# indices[k--] = indices[--cd]
-					indices[k] = indices[cd]
-					k -= 1
-					indices[cd] = w
-
-				k += 1
-
-		nb_cliques += listing_rec(n_nodes, indptr, indices, l-1, box)
-		for j in range(box.ns[l-1]):
-			v = sub_prev[j]
-			box.lab[v] = l
-
-	return nb_cliques
+    return n_cliques
 
 
-cdef long fit_core(int n_nodes, int n_edges, int[:] indptr, int[:] indices, int[:] cores, short l):
+class Cliques:
+    """ Clique counting algorithm.
 
-	cdef vector[int] indexation
-	cdef int i, j, k
+    * Graphs
 
-	indexation.reserve(n_nodes)
-	for i in range(n_nodes):
-		indexation[cores[i]] = i
+    Parameters
+    ----------
+    k : int
+        k value of cliques to list
 
-	cdef int e
-	cdef int[:] row, column
-	cdef np.ndarray[bool_type_t, ndim=1] data
+    Attributes
+    ----------
+    n_cliques_ : int
+        Number of cliques
 
-	row = np.empty((n_edges,), dtype=np.int32)
-	column = np.empty((n_edges,), dtype=np.int32)
+    Example
+    -------
+    >>> from sknetwork.data import karate_club
+    >>> cliques = Cliques(k=3)
+    >>> adjacency = karate_club()
+    >>> cliques.fit_transform(adjacency)
+    45
 
-	e = 0
-	for i in range(n_nodes):
-		for k in range(indptr[i], indptr[i+1]):
-			j = indices[k]
-			if indexation[i] < indexation[j]:
-				row[e] = indexation[i]
-				column[e] = indexation[j]
-				e += 1
+    References
+    ----------
+    Danisch, M., Balalau, O., & Sozio, M. (2018, April).
+    `Listing k-cliques in sparse real-world graphs.
+    <https://dl.acm.org/doi/pdf/10.1145/3178876.3186125>`_
+    In Proceedings of the 2018 World Wide Web Conference (pp. 589-598).
+    """
+    def __init__(self, k: int):
+        self.k = np.int32(k)
+        self.n_cliques_ = 0
 
-	row = row[:e]
-	column = column[:e]
-	data = np.ones((e,), dtype=bool)
-	dag = sparse.csr_matrix((data, (row, column)), (n_nodes, n_nodes), dtype=bool)
+    def fit(self, adjacency: sparse.csr_matrix) -> 'Cliques':
+        """K-cliques count.
 
-	return listing_rec(n_nodes, dag.indptr, dag.indices, l, ListingBox.__new__(ListingBox, n_nodes, dag.indptr, l))
+        Parameters
+        ----------
+        adjacency :
+            Adjacency matrix of the graph.
 
+        Returns
+        -------
+         self: :class:`Cliques`
+        """
+        if self.k < 2:
+            raise ValueError("k should be at least 2")
 
-class CliqueListing:
-	""" Clique listing algorithm which creates a DAG and list all cliques on it.
+        kcore = CoreDecomposition()
+        labels = kcore.fit_transform(adjacency)
+        sorted_nodes = np.argsort(labels)
 
-	* Graphs
+        dag = DAG()
+        dag.fit(adjacency, sorted_nodes)
+        indptr = dag.indptr_
+        indices = dag.indices_
 
-	Attributes
-	----------
-	nb_cliques : int
-		Number of cliques
+        box = ListingBox.__new__(ListingBox, indptr, self.k)
+        self.n_cliques_ = fit_core(indptr, indices, self.k, box)
 
-	Example
-	-------
-	>>> from sknetwork.topology import CliqueListing
-	>>> from sknetwork.data import karate_club
-	>>> cl = CliqueListing()
-	>>> adjacency = karate_club()
-	>>> cl.fit_transform(adjacency, 3)
-	45
-	"""
+        return self
 
-	def __init__(self):
-		self.nb_cliques = 0
-		# self.printing = printing
+    def fit_transform(self, adjacency: sparse.csr_matrix) -> int:
+        """ Fit algorithm to the data and return the number of cliques. Same parameters as the ``fit`` method.
 
-
-	def fit(self, adjacency : sparse.csr_matrix, k : int) -> 'CliqueListing':
-		""" k-cliques listing.
-
-		Parameters
-		----------
-		adjacency:
-			Adjacency matrix of the graph.
-		k:
-			k value of cliques to list
-
-		Returns
-		-------
-		 self: :class:`CliqueListing`
-		"""
-
-		if k < 2:
-			raise ValueError("k should not be inferior to 2")
-
-		core = CoreDecomposition()
-		core.fit(adjacency)
-
-		self.nb_cliques = fit_core(adjacency.shape[0], adjacency.nnz, adjacency.indptr,
-			                       adjacency.indices, core.ordered, k)
-
-		return self
-
-	def fit_transform(self, *args, **kwargs) -> int:
-		""" Fit algorithm to the data and return the number of cliques. Same parameters as the ``fit`` method.
-
-		Returns
-		-------
-		nb_cliques : int
-			Number of k-cliques.
-		"""
-		self.fit(*args, **kwargs)
-		return self.nb_cliques
+        Returns
+        -------
+        n_cliques : int
+            Number of k-cliques.
+        """
+        self.fit(adjacency)
+        return self.n_cliques_
 
 
