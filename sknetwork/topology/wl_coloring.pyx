@@ -187,10 +187,10 @@ class WLColoring(Algorithm):
       Cornell University.
 
 
-    * Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Melhorn, K., Borgwardt, K. M. (2010)
+    * Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Melhorn, K., Borgwardt, K. M. (2011)
       'Weisfeiler-Lehman graph kernels.
       <http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf?fbclid=IwAR2l9LJLq2VDfjT4E0ainE2p5dOxtBe89gfSZJoYe4zi5wtuE9RVgzMKmFY>`_
-      Journal of Machine Learning Research 1, 2010.
+      Journal of Machine Learning Research 12, 2011.
     """
 
     def __init__(self):
