@@ -3,7 +3,6 @@
 """authors:
 Thomas Bonald <bonald@enst.fr>
 Quentin Lutz <qlutz@enst.fr>"""
-
 import unittest
 
 from sknetwork.data.models import *

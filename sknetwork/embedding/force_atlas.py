@@ -64,21 +64,23 @@ class ForceAtlas2(BaseEmbedding):
     >>> embedding.shape
     (34, 2)
 
-    Notes
-    -----
-    Implementation designed to display graphs in multiple dimension.
-
     References
     ----------
     Jacomy M., Venturini T., Heymann S., Bastian M. (2014).
-    "ForceAtlas2, a Continuous Graph Layout Algorithm for Handy Network Visualization Designed for the Gephi Software".
+    `ForceAtlas2, a Continuous Graph Layout Algorithm for Handy Network Visualization Designed for the Gephi Software.
+    <https://d1wqtxts1xzle7.cloudfront.net/30695100/Jacomy_Heymann_Venturini-Force_Atlas2.pdf?1361981978=&\
+    response-content-disposition=inline%3B+filename%3DForceAtlas2_A_Continuous_Graph_Layout_Al.pdf&\
+    Expires=1593797163&Signature=L7A8XEW55Tzg5KPiia1YFMxUtbR9hrAvRfj1wCJEp1fTbJGvkSxUjdjyL4kT~wlA~nu-\
+    T6lqjUgdFWeX9JxsGf8WPa-myjrPggtU6ydWcie2DhXqmljSsX7grGb0FPCsCFv18hwGWvnRjGkfLPXYgmtUc~R2FLwRINDnPrN~\
+    rNzxfeq9DNnnZnldarp6abVESRRySFEAWgw02mXUjWK2aLM7kLMjNH9qPE3RlbBudRWiQttZqtX6WMDy4vp1Q26wynvJCIvJtbzlT6ZxAhXiKn27\
+    dozlgL9Nnuq8-tVZG2ISdN3S6fGpwkcfi9M0yohq6KNVWwX8ys1X9JnzFh7dCQ__&Key-Pair-Id=APKAJLOHF5GGSLRBV4ZA>`_
     Plos One.
 
     Barnes J, Hut P (1986).
-    "A hierarchical o(n log n) force-calculation algorithm".
+    `A hierarchical o(n log n) force-calculation algorithm.
+    <https://www.nature.com/articles/324446a0.pdf?origin=ppub>`_
     Nature 324: 446–449.
     """
-
     def __init__(self, n_components: int = 2, n_iter: int = 50, barnes_hut: bool = False, lin_log: bool = False,
                  gravity_factor: float = 0.01, strong_gravity: bool = False, repulsive_factor: float = 0.1,
                  no_hubs: bool = False, no_overlapping: bool = False, tolerance: float = 0.1, speed: float = 0.1,
@@ -101,7 +103,7 @@ class ForceAtlas2(BaseEmbedding):
         if n_components > 2 and barnes_hut:
             raise ValueError('Barnes and Hut algorithm can only be used in 2D')
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_components: Optional[int] = 2,
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], pos_init: Optional[np.ndarray] = None,
             n_iter: Optional[int] = None) -> 'ForceAtlas2':
         """Compute layout.
 
@@ -109,8 +111,8 @@ class ForceAtlas2(BaseEmbedding):
         ----------
         adjacency :
             Adjacency matrix of the graph, treated as undirected.
-        n_components :
-            Choose dimension of the graph layout
+        pos_init :
+            Position to start with. Random if not provided.
         n_iter : int
             Number of iterations to update positions.
             If ``None``, use the value of self.n_iter.
@@ -119,16 +121,12 @@ class ForceAtlas2(BaseEmbedding):
         -------
         self: :class:`ForceAtlas2`
         """
-
         # verify the format of the adjacency matrix
         adjacency = check_format(adjacency)
         check_square(adjacency)
         if not is_symmetric(adjacency):
             adjacency = directed2undirected(adjacency)
         n = adjacency.shape[0]
-
-        if n_components > 2 and self.barnes_hut:
-            raise ValueError('Barnes and Hut algorithm can only be used in 2D')
 
         # setting of the tolerance according to the size of the graph
         if n < 5000:
@@ -142,8 +140,13 @@ class ForceAtlas2(BaseEmbedding):
             n_iter = self.n_iter
 
         # initial position of the nodes of the graph
-        position: np.ndarray = np.random.randn(n, self.n_components)
-
+        if pos_init is None:
+            position: np.ndarray = np.random.randn(n, self.n_components)
+        else:
+            if pos_init.shape != (n, self.n_components):
+                raise ValueError('The initial position does not have valid dimensions.')
+            else:
+                position = pos_init
         # compute the vector with the degree of each node
         degree: np.ndarray = adjacency.dot(np.ones(adjacency.shape[1])) + 1
 
@@ -276,9 +279,11 @@ class Cell:
         self.particle_degree = None
 
     def is_in_cell(self, position: np.ndarray) -> bool:  # test if a particle is inside the cell's bounds
+        """True if all the tested elements are in the cell, False otherwise."""
         return (self.pos_min <= position).all() and (position <= self.pos_max).all()
 
     def add(self, position: np.ndarray, degree: int):
+        """Add a particule to the cell."""
         if not self.is_in_cell(position):
             return  # do nothing if the particle we want to add is not in the cell's bounds
         if self.n_particles > 0:
@@ -297,6 +302,7 @@ class Cell:
         self.n_particles += 1
 
     def make_children(self):  # create the 4 children of a cell
+        """Create four subcells from the current one."""
         pos_middle = (self.pos_min + self.pos_max) / 2
 
         child_1 = Cell(self.pos_min[0], pos_middle[0], pos_middle[1], self.pos_max[1])  # top left sub-cell
@@ -307,6 +313,7 @@ class Cell:
         self.children = np.asarray([child_1, child_2, child_3, child_4])
 
     def apply_force(self, pos_node, node_degree, theta, repulsion, repulsive_factor: float):
+        """Compute repulsive force."""
         if self.n_particles == 0:
             return
         cell_size = self.pos_max[0] - self.pos_min[0]
