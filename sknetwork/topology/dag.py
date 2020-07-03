@@ -22,7 +22,7 @@ class DAG(Algorithm):
     ordering : str
         A method to sort the nodes.
 
-        * If ``None`, the default order is the index.
+        * If None, the default order is the index.
         * If ``'degree'``, the nodes are sorted by ascending degree.
 
     Attributes

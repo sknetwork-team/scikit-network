@@ -40,12 +40,13 @@ class WLColoring(Algorithm):
     References
     ----------
     * Douglas, B. L. (2011).
-      `The Weisfeiler-Lehman Method and Graph Isomorphism Testing.<https://arxiv.org/pdf/1101.5211.pdf>̀_.
+      `The Weisfeiler-Lehman Method and Graph Isomorphism Testing.
+      <https://arxiv.org/pdf/1101.5211.pdf>`_
 
     * Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Melhorn, K., Borgwardt, K. M. (2011)
       `Weisfeiler-Lehman graph kernels.
       <http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf?fbclid=IwAR2l9LJLq2VDfjT4E0ainE2p5dOxt\
-      Be89gfSZJoYe4zi5wtuE9RVgzMKmFY>̀_
+      Be89gfSZJoYe4zi5wtuE9RVgzMKmFY>`_
       Journal of Machine Learning Research 12, 2011.
     """
     def __init__(self, max_iter: int = -1):
@@ -132,12 +133,13 @@ def wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray], adjacency_2: Un
     References
     ----------
     * Douglas, B. L. (2011).
-      `The Weisfeiler-Lehman Method and Graph Isomorphism Testing.<https://arxiv.org/pdf/1101.5211.pdf>̀_.
+      `The Weisfeiler-Lehman Method and Graph Isomorphism Testing.
+      <https://arxiv.org/pdf/1101.5211.pdf>`_
 
     * Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Melhorn, K., Borgwardt, K. M. (2011)
       `Weisfeiler-Lehman graph kernels.
       <http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf?fbclid=IwAR2l9LJLq2VDfjT4E0ainE2p5dOxt\
-      Be89gfSZJoYe4zi5wtuE9RVgzMKmFY>̀_
+      Be89gfSZJoYe4zi5wtuE9RVgzMKmFY>`_
       Journal of Machine Learning Research 12, 2011.
     """
     kernels = {"isomorphism": 1, "subtree": 2, "edge": 3}
@@ -150,9 +152,9 @@ def wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray], adjacency_2: Un
 def wl_similarity(adjacency1, adjacency2) -> float:
     """Normalized similarity between two graphs.
 
-    :math:`\\dfrac{K(A,B)^2}{K(A,A)K(B,B)}̀.
+    :math:`s(A,B) = \\dfrac{K(A,B)^2}{K(A,A)K(B,B)}`
 
-    Where :math:`K` is the Weisfeiler-Lehman subtree kernel.
+    where :math:`K` is the Weisfeiler-Lehman subtree kernel.
 
     Parameters
     ----------

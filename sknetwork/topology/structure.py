@@ -57,7 +57,6 @@ def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray],
     indices : array or tuple of array
         Indices of the nodes in the original graph. For biadjacency matrices,
         ``indices[0]`` corresponds to the rows and ``indices[1]`` to the columns.
-
     """
     adjacency = check_format(adjacency)
     n_row, n_col = adjacency.shape
