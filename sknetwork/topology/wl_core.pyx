@@ -11,69 +11,129 @@ import numpy as np
 cimport numpy as np
 from scipy import sparse
 
-from sknetwork.topology.wl_coloring cimport c_wl_coloring
-
+from libcpp.algorithm cimport sort as csort
 from libcpp.pair cimport pair
+from libcpp.vector cimport vector
+from libc.math cimport pow as cpowl
 cimport cython
 
 ctypedef pair[long long, int] cpair
+ctypedef (long long, double, int) ctuple
 
-def wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray], adjacency_2: Union[sparse.csr_matrix, np.ndarray],
-              kernel_type: str = "subtree", n_iter: int = -1):
-    """Algorithm using Weisefeler-Lehman coloring to determine kernels between two graphs.
+
+cdef bint is_lower(ctuple a, ctuple b) :
+    """Lexicographic comparison between triplets based on the first two values.
 
     Parameters
-    -----------
-    adjacency_1 : Union[sparse.csr_matrix, np.ndarray]
-        First adjacency matrix.
-    adjacency_2 : Union[sparse.csr_matrix, np.ndarray]
-        Second adjacency matrix.
-    kernel_type : str
-        Kernel to use.
-
-        * ``'isomorphism'``: checks if each graph has the same number of each distinct labels at each step.
-        * ``'subtree'``: counts the number of occurences of each label in each graph at each step and sums the dot
-          product of these counts.
-        * ``'edge'``: counts the number of edges having the same labels for its nodes in both graphs at each step.
-
-    n_iter : int
-        Maximum number of iterations. Maximum positive value is the number of nodes in adjacency_1,
-        it is also the default value set if given a negative int.
+    ----------
+    a:
+        First triplet.
+    b:
+        Second triplet.
 
     Returns
     -------
-    similarity : int
-        Similarity score between graphs.
-
-    Example
-    -------
-    >>> from sknetwork.topology import wl_kernel
-    >>> from sknetwork.data import house
-    >>> adjacency_1 = house()
-    >>> adjacency_2 = house()
-    >>> similarity = wl_kernel(adjacency_1, adjacency_2, -1, "subtree")
-    45
-
-    References
-    ----------
-    * Douglas, B. L. (2011).
-      `The Weisfeiler-Lehman Method and Graph Isomorphism Testing.<https://arxiv.org/pdf/1101.5211.pdf>̀_.
-
-    * Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Melhorn, K., Borgwardt, K. M. (2011)
-      `Weisfeiler-Lehman graph kernels.
-      <http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf?fbclid=IwAR2l9LJLq2VDfjT4E0ainE2p5dOxtBe89gfSZJoYe4zi5wtuE9RVgzMKmFY>̀_
-      Journal of Machine Learning Research 12, 2011.
+    ``True`` if a < b, and ``False`` otherwise.
     """
-    kernels = {"isomorphism": 1, "subtree": 2, "edge": 3}
-    try:
-        return c_wl_kernel(adjacency_1, adjacency_2, kernels[kernel_type], n_iter)
-    except KeyError:
-        raise ValueError('Unknown kernel.')
+    cdef long long a1, b1
+    cdef double a2, b2
+    cdef int a3, b3
+
+    a1, a2, a3 = a
+    b1, b2, b3 = b
+    if a1 == b1 :
+        return a2 < b2
+    return a1 < b1
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
-                     adjacency_2: Union[sparse.csr_matrix, np.ndarray], int kernel, int n_iter):
+def c_wl_coloring(np.ndarray[int, ndim=1] indices, np.ndarray[int, ndim=1] indptr, int max_iter, long long[:] labels,
+                  double [:] powers):
+    """Weisfeiler-Lehman coloring.
+
+    Parameters
+    ----------
+    indices : np.ndarray[int, ndim=1]
+        Indices of the graph in CSR format.
+    indptr : np.ndarray[int, ndim=1]
+        Indptr of the second graph in CSR format.
+    max_iter : int
+        Maximum number of iterations once wants to make.
+    labels : long long[:]
+        Labels to be changed.
+    powers : double [:]
+        Powers being used as hash and put in a memory view to limit several identical calculations.
+
+    Returns
+    -------
+    current_max : int
+        Used in wl_kernel to limit a loop.
+    has_changed : bint
+        Used in wl_kernel to limit a loop.
+    """
+    cdef int iteration, i, j, j1, j2, jj, u, current_max
+    cdef double temp_pow
+    cdef int n = indptr.shape[0] -1
+
+    cdef double epsilon = cpowl(10, -10)
+
+    cdef vector[ctuple] new_labels
+    cdef double current_hash
+    cdef ctuple current_tuple
+    cdef ctuple previous_tuple
+
+    cdef long long current_label, previous_label
+    cdef double previous_hash
+    cdef int current_vertex, previous_vertex
+    cdef bint has_changed
+
+    cdef float alpha = powers[1]
+    for k in range(2, n) :
+        powers[k] = powers[k-1] * alpha
+
+    iteration = 0
+    has_changed = True
+
+    while iteration <= max_iter and has_changed:
+        new_labels.clear()
+        for i in range(n):# going through the neighbors of v.
+            current_hash = 0
+            j1 = indptr[i]
+            j2 = indptr[i + 1]
+            for jj in range(j1,j2):
+                u = indices[jj]
+
+                current_hash += powers[labels[u]]
+            new_labels.push_back((labels[i], current_hash, i))
+        csort(new_labels.begin(), new_labels.end(),is_lower)
+
+        current_max = 0
+        current_tuple = new_labels[0]
+        current_label, current_hash, current_vertex = current_tuple
+        labels[current_vertex] = current_max
+        has_changed = False
+        for jj in range(1,n):
+            previous_tuple = current_tuple
+            current_tuple = new_labels[jj]
+            previous_label, previous_hash, previous_vertex = previous_tuple
+            current_label, current_hash, current_vertex = current_tuple
+            if abs(previous_hash - current_hash) > epsilon or previous_label != current_label :
+                current_max+=1
+
+            if not has_changed:
+                has_changed = labels[current_vertex] != current_max
+
+            labels[current_vertex] = current_max
+
+        iteration+=1
+
+    return labels, current_max, has_changed
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+def c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray], adjacency_2: Union[sparse.csr_matrix, np.ndarray],
+                int kernel, int n_iter) -> int:
     """Core kernel function.
 
     Parameters
@@ -148,8 +208,8 @@ cdef int c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray],
 
     while iteration < n_iter and (has_changed_1 or has_changed_2):
 
-        current_max, has_changed_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, powers)
-        current_max, has_changed_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, powers)
+        _, current_max, has_changed_1 = c_wl_coloring(indices_1, indptr_1, 1, labels_1, powers)
+        _, current_max, has_changed_2 = c_wl_coloring(indices_2, indptr_2, 1, labels_2, powers)
         iteration += 1
 
         if kernel == 1:
@@ -236,7 +296,7 @@ cdef int c_wl_subtree_kernel(long long[:] labels_1, long long[:] labels_2, int[:
     n : int
         Length of labels_1 and labels_2.
     current_max : int
-        The maximum label currently in labels_1 and labels_2. Used to save (little) time.
+        The maximum label in labels_1 and labels_2.
     similarity : int
         The current value of similarity for the two graphs.
 
@@ -314,28 +374,3 @@ cdef int c_wl_edge_kernel(np.ndarray[int, ndim=1] indices_1, np.ndarray[int, ndi
                             if (l1_1==l2_1 and l1_2==l2_2) or (l1_2==l2_1 and l1_1==l2_2): #compare ordered pairs
                                 similarity+=1
     return similarity
-
-
-def wl_similarity(adjacency1, adjacency2) -> float :
-    """Normalized similarity between two graphs.
-
-    :math:`\\dfrac{K(A,B)^2}{K(A,A)K(B,B)}̀.
-
-    Where :math:`K` is the Weisfeiler-Lehman subtree kernel.
-
-    Parameters
-    ----------
-    adjacency1 : Union[sparse.csr_matrix, np.ndarray]
-        First graph to compare
-    adjacency2 : Union[sparse.csr_matrix, np.ndarray]
-        Second graph to compare
-
-    Returns
-    -------
-    similarity : float
-    """
-    ab = wl_kernel(adjacency1, adjacency2, "subtree") ** 2
-    aa = wl_kernel(adjacency1, adjacency1, "subtree")
-    bb = wl_kernel(adjacency2, adjacency2, "subtree")
-    return ab / (aa * bb)
-
