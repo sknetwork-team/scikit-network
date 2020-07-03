@@ -12,10 +12,7 @@ from scipy import sparse
 
 ctypedef (long long, double, int) ctuple
 
-cdef (int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices,
-                        np.ndarray[int, ndim=1] indptr,
-                        int max_iter,
-                        long long[:] labels,
-                        double [:] powers)
+cdef (int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices, np.ndarray[int, ndim=1] indptr, int max_iter,
+                               long long[:] labels, double [:] powers)
 
 cpdef long long[:] wl_coloring(adjacency : Union[sparse.csr_matrix, np.ndarray], int max_iter)

@@ -32,6 +32,9 @@ Coloring
 
 .. autoclass:: sknetwork.topology.WLColoring
 
+Similarity
+----------
+
 .. autofunction:: sknetwork.topology.wl_kernel
 
-.. autofunction:: sknetwork.topology.similarity
+.. autofunction:: sknetwork.topology.wl_similarity

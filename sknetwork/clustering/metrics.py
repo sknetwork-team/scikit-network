@@ -5,7 +5,6 @@ Created on Thu July 10 2018
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
-
 from typing import Union, Tuple
 
 import numpy as np
@@ -218,7 +217,6 @@ def comodularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.nda
     -----
     Does not require the computation of the adjacency matrix of the normalized co-neighborhood graph.
     """
-
     adjacency = check_format(adjacency).astype(float)
 
     n_row, n_col = adjacency.shape

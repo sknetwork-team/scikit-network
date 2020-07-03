@@ -1,12 +1,10 @@
 # distutils: language = c++
 # cython: language_level=3
-
 """
 Created on July 2, 2020
 @author: Pierre Pebereau <pierre.pebereau@telecom-paris.fr>
 @author: Alexis Barreaux <alexis.barreaux@telecom-paris.fr>
 """
-
 from typing import Union
 
 import numpy as np
@@ -20,26 +18,39 @@ from libcpp.algorithm cimport sort as csort
 from libc.math cimport pow as cpowl
 cimport cython
 
-cdef bint is_lower(ctuple p1,ctuple p2) :
-    cdef long long p11, p21
-    cdef double p12, p22
-    cdef int p13, p23
+cdef bint is_lower(ctuple a, ctuple b) :
+    """Lexicographic comparison between triplets based on the first two values.
 
-    p11, p12, p13 = p1
-    p21, p22, p23 = p2
-    if p11 == p21 :
-        return p12 < p22
-    return p11 < p21
+    Parameters
+    ----------
+    a:
+        First triplet.
+    b:
+        Second triplet.
+
+    Returns
+    -------
+    ``True`` if a < b, and ``False`` otherwise.
+    """
+    cdef long long a1, b1
+    cdef double a2, b2
+    cdef int a3, b3
+
+    a1, a2, a3 = a
+    b1, b2, b3 = b
+    if a1 == b1 :
+        return a2 < b2
+    return a1 < b1
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cpdef long long[:] wl_coloring(adjacency : Union[sparse.csr_matrix, np.ndarray], int max_iter) :
-    """Wrapper for Weifeiler-Lehman Coloring
+    """Wrapper for Weisfeiler-Lehman Coloring
+
     Parameters
     ----------
     adjacency : Union[sparse.csr_matrix, np.ndarray]
         Adjacency matrix of the graph to color (expected to be in CSR format).
-
     max_iter : int
         Maximum number of iterations once wants to make. Maximum positive value is the number of nodes in adjacency_1,
         it is also the default value set if given a negative int.
@@ -49,18 +60,15 @@ cpdef long long[:] wl_coloring(adjacency : Union[sparse.csr_matrix, np.ndarray],
     labels : long long[:]
         Memory view made of long long being the labels for the coloring.
     """
-
+    cdef int k
     cdef int n = adjacency.indptr.shape[0]-1
     cdef double alpha = - np.pi/3.15
 
-    cdef long long[:] labels = np.ones(n, dtype = np.longlong)
+    cdef long long[:] labels = np.ones(n, dtype=np.longlong)
+    cdef double [:] powers = np.ones(n, dtype=np.double)
 
-    cdef double [:] powers = np.ones(n, dtype = np.double)
-
-    cdef int k
-    for k in range(1,n) :
-        powers[k] = powers[k-1]*alpha
-
+    for k in range(1, n) :
+        powers[k] = powers[k-1] * alpha
 
     if max_iter > 0 :
         max_iter = min(n, max_iter)
@@ -73,36 +81,27 @@ cpdef long long[:] wl_coloring(adjacency : Union[sparse.csr_matrix, np.ndarray],
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef (int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices,
-                               np.ndarray[int, ndim=1] indptr,
-                               int max_iter,
-                               long long[:] labels,
-                               double [:] powers):
-    """ Weifeiler-Lehman inspired coloring.
+cdef (int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices, np.ndarray[int, ndim=1] indptr, int max_iter,
+                               long long[:] labels, double [:] powers):
+    """Weisfeiler-Lehman coloring.
 
     Parameters
     ----------
     indices : np.ndarray[int, ndim=1]
         Indices of the graph in CSR format.
-
     indptr : np.ndarray[int, ndim=1]
         Indptr of the second graph in CSR format.
-
     max_iter : int
         Maximum number of iterations once wants to make.
-
     labels : long long[:]
         Labels to be changed.
-
     powers : double [:]
         Powers being used as hash and put in a memory view to limit several identical calculations.
-
 
     Returns
     -------
     current_max : int
         Used in wl_kernel to limit a loop.
-
     has_changed : bint
         Used in wl_kernel to limit a loop.
     """
@@ -110,14 +109,12 @@ cdef (int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices,
     cdef double temp_pow
     cdef int n = indptr.shape[0] -1
 
-    cdef double epsilon
+    cdef double epsilon = cpowl(10, -10)
 
     cdef vector[ctuple] new_labels
     cdef double current_hash
     cdef ctuple current_tuple
     cdef ctuple previous_tuple
-
-    epsilon = cpowl(10, -10)
 
     cdef long long current_label, previous_label
     cdef double previous_hash
@@ -165,6 +162,11 @@ cdef (int, bint) c_wl_coloring(np.ndarray[int, ndim=1] indices,
 class WLColoring(Algorithm):
     """Weisefeler-Lehman algorithm for coloring/labeling graphs in order to check similarity.
 
+    Parameters
+    ----------
+    max_iter : int
+        Maximum number of iterations. -1 means infinity.
+
     Attributes
     ----------
     labels_ : np.ndarray
@@ -182,30 +184,23 @@ class WLColoring(Algorithm):
     References
     ----------
     * Douglas, B. L. (2011).
-      'The Weisfeiler-Lehman Method and Graph Isomorphism Testing.
-      <https://arxiv.org/pdf/1101.5211.pdf>`_
-      Cornell University.
-
+      `The Weisfeiler-Lehman Method and Graph Isomorphism Testing.<https://arxiv.org/pdf/1101.5211.pdf>̀_.
 
     * Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Melhorn, K., Borgwardt, K. M. (2011)
-      'Weisfeiler-Lehman graph kernels.
-      <http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf?fbclid=IwAR2l9LJLq2VDfjT4E0ainE2p5dOxtBe89gfSZJoYe4zi5wtuE9RVgzMKmFY>`_
+      `Weisfeiler-Lehman graph kernels.
+      <http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf?fbclid=IwAR2l9LJLq2VDfjT4E0ainE2p5dOxtBe89gfSZJoYe4zi5wtuE9RVgzMKmFY>̀_
       Journal of Machine Learning Research 12, 2011.
     """
-
-    def __init__(self):
+    def __init__(self, max_iter: int = -1):
         super(WLColoring, self).__init__()
-
+        self.max_iter = max_iter
         self.labels_ = None
 
-    def fit(self, int max_iter, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'WLColoring':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'WLColoring':
         """Fit algorithm to the data.
 
         Parameters
         ----------
-        max_iter : int
-            Maximum number of iterations.
-
         adjacency : Union[sparse.csr_matrix, np.ndarray]
             Adjacency matrix of the graph.
 
@@ -213,12 +208,10 @@ class WLColoring(Algorithm):
         -------
         self: :class:`WLColoring`
         """
-
-        self.labels_ = np.asarray(wl_coloring(adjacency, max_iter))
-
+        self.labels_ = np.asarray(wl_coloring(adjacency, np.int32(self.max_iter)))
         return self
 
-    def fit_transform(self, adjacency: Union[sparse.csr_matrix, np.ndarray], int max_iter = -1 ) -> np.ndarray:
+    def fit_transform(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
 
         Returns
@@ -226,5 +219,5 @@ class WLColoring(Algorithm):
         labels : np.ndarray
             Labels.
         """
-        self.fit(max_iter, adjacency)
+        self.fit(adjacency)
         return self.labels_

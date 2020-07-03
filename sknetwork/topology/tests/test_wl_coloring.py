@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Tests for Weisfeiler-Lehman coloring"""
-
 import unittest
 from sknetwork.topology import WLColoring
 from sknetwork.data.test_graphs import *
