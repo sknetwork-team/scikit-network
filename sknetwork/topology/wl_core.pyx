@@ -12,12 +12,10 @@ cimport numpy as np
 from scipy import sparse
 
 from libcpp.algorithm cimport sort as csort
-from libcpp.pair cimport pair
 from libcpp.vector cimport vector
 from libc.math cimport pow as cpowl
 cimport cython
 
-ctypedef pair[long long, int] cpair
 ctypedef (long long, double, int) ctuple
 
 
@@ -89,8 +87,8 @@ def c_wl_coloring(np.ndarray[int, ndim=1] indices, np.ndarray[int, ndim=1] indpt
     cdef bint has_changed
 
     cdef float alpha = powers[1]
-    for k in range(2, n) :
-        powers[k] = powers[k-1] * alpha
+    for i in range(2, n) :
+        powers[i] = powers[i-1] * alpha
 
     iteration = 0
     has_changed = True
@@ -189,11 +187,8 @@ def c_wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray], adjacency_2: 
     cdef int[:] count_1
     cdef int[:] count_2
 
-    max_deg = max(np.max(indptr_1[1:] - indptr_1[:n]), np.max(indptr_2[1:] - indptr_2[:n]))
-
     count_1 = np.zeros(length_count, dtype=np.int32)
     count_2 = np.zeros(length_count, dtype=np.int32)
-    multiset = np.empty((n,max_deg), dtype=np.longlong)
     labels_1 = np.ones(n, dtype=np.longlong)
     labels_2 = np.ones(n, dtype=np.longlong)
     large_label = np.zeros((n, 2), dtype=np.int32)
