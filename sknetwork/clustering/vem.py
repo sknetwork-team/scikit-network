@@ -84,7 +84,7 @@ def M_step_VEM(X,taus,alphas,pis,Q):
             else:
                 ## class with a single vertex
                 pi = 0.5
-                
+
             pis[q,l] = np.minimum(np.maximum(num/denom,eps),1-eps)
 
     return alphas
@@ -174,7 +174,7 @@ class VEM(BaseClustering):
         self.X = deepcopy(adjacency)
         n = self.X.shape[0]
 
-        self._init_vem(init)
+        self._init_vem(self.init)
 
         Js = []
 
@@ -188,5 +188,7 @@ class VEM(BaseClustering):
                 break
 
 
-        self.labels = np.argmax(self.taus,axis=1)
+        self.labels_ = np.argmax(self.taus,axis=1)
+        self._secondary_outputs(adjacency)
+
         return self
