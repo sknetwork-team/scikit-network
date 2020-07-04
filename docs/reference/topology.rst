@@ -35,6 +35,4 @@ Coloring
 Similarity
 ----------
 
-.. autofunction:: sknetwork.topology.wl_kernel
-
-.. autofunction:: sknetwork.topology.wl_similarity
+.. autofunction:: sknetwork.topology.wl_isomorphism_test

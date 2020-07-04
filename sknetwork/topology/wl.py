@@ -1,5 +1,5 @@
-# distutils: language = c++
-# cython: language_level=3
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Created on July 2, 2020
 @author: Pierre Pebereau <pierre.pebereau@telecom-paris.fr>
@@ -10,7 +10,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.topology.wl_core import c_wl_coloring, c_wl_kernel
+from sknetwork.topology.wl_core import c_wl_coloring
 from sknetwork.utils.base import Algorithm
 
 
@@ -20,7 +20,7 @@ class WLColoring(Algorithm):
     Parameters
     ----------
     max_iter : int
-        Maximum number of iterations. -1 means infinity.
+        Maximum number of iterations. Negative value  means until convergence.
 
     Attributes
     ----------
@@ -35,7 +35,7 @@ class WLColoring(Algorithm):
     >>> adjacency = house()
     >>> labels = wlcoloring.fit_transform(adjacency)
     >>> labels
-    array([2, 0, 1, 1, 0], dtype=int32)
+    array([0, 2, 1, 1, 2], dtype=int32)
 
     References
     ----------
@@ -67,19 +67,18 @@ class WLColoring(Algorithm):
         self: :class:`WLColoring`
         """
         n: int = adjacency.shape[0]
-        if n < 3:
-            self.labels_ = np.zeros(n)
+        if self.max_iter < 0 or self.max_iter > n:
+            max_iter = np.int32(n)
         else:
-            labels = np.ones(n, dtype=np.longlong)
-            powers = np.ones(n, dtype=np.double)
-            powers[1] = -np.pi / 3.15
-            if self.max_iter > 0:
-                max_iter = min(n, self.max_iter)
-            else:
-                max_iter = n
-            indptr = adjacency.indptr.astype(np.int32)
-            indices = adjacency.indices.astype(np.int32)
-            self.labels_ = np.asarray(c_wl_coloring(indices, indptr, max_iter, labels, powers)[0]).astype(np.int32)
+            max_iter = np.int32(self.max_iter)
+
+        labels = np.zeros(n, dtype=np.int32)
+        powers = (-np.pi / 3.15) ** np.arange(n, dtype=np.double)
+        indptr = adjacency.indptr.astype(np.int32)
+        indices = adjacency.indices.astype(np.int32)
+
+        labels, _ = c_wl_coloring(indptr, indices, labels, powers, max_iter)
+        self.labels_ = np.asarray(labels).astype(np.int32)
         return self
 
     def fit_transform(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
@@ -94,41 +93,31 @@ class WLColoring(Algorithm):
         return self.labels_
 
 
-def wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray], adjacency_2: Union[sparse.csr_matrix, np.ndarray],
-              kernel_type: str = "subtree", n_iter: int = -1):
-    """Graph kernels based on Weisefeler-Lehman coloring.
+def wl_isomorphism_test(adjacency1: sparse.csr_matrix, adjacency2: sparse.csr_matrix, max_iter: int = -1) -> bool:
+    """Weisefeler-Lehman isomorphism test. If the test is False, the graphs cannot be isomorphic,
+    otherwise, they might be.
 
     Parameters
     -----------
-    adjacency_1 : Union[sparse.csr_matrix, np.ndarray]
+    adjacency1 :
         First adjacency matrix.
-    adjacency_2 : Union[sparse.csr_matrix, np.ndarray]
+    adjacency2 :
         Second adjacency matrix.
-    kernel_type : str
-        Kernel to use.
-
-        * ``'isomorphism'``: checks if each graph has the same number of each distinct labels at each step.
-        * ``'subtree'``: counts the number of occurences of each label in each graph at each step and sums the dot
-          product of these counts.
-        * ``'edge'``: counts the number of edges having the same labels for its nodes in both graphs at each step.
-
-    n_iter : int
-        Maximum number of iterations. Maximum positive value is the number of nodes in adjacency_1,
-        it is also the default value set if given a negative int.
+    max_iter : int
+        Maximum number of coloring iterations. Negative value means until convergence.
 
     Returns
     -------
-    similarity : int
-        Similarity score between graphs.
+    test_result : bool
 
     Example
     -------
-    >>> from sknetwork.topology import wl_kernel
+    >>> from sknetwork.topology import wl_isomorphism_test
     >>> from sknetwork.data import house
     >>> adjacency_1 = house()
     >>> adjacency_2 = house()
-    >>> wl_kernel(adjacency_1, adjacency_2, "subtree")
-    45
+    >>> wl_isomorphism_test(adjacency_1, adjacency_2)
+    True
 
     References
     ----------
@@ -142,32 +131,36 @@ def wl_kernel(adjacency_1: Union[sparse.csr_matrix, np.ndarray], adjacency_2: Un
       Be89gfSZJoYe4zi5wtuE9RVgzMKmFY>`_
       Journal of Machine Learning Research 12, 2011.
     """
-    kernels = {"isomorphism": 1, "subtree": 2, "edge": 3}
-    try:
-        return c_wl_kernel(adjacency_1, adjacency_2, kernels[kernel_type], n_iter)
-    except KeyError:
-        raise ValueError('Unknown kernel.')
+    if (adjacency1.shape != adjacency2.shape) or (adjacency1.nnz != adjacency2.nnz):
+        return False
 
+    n = adjacency1.shape[0]
 
-def wl_similarity(adjacency1, adjacency2) -> float:
-    """Normalized similarity between two graphs.
+    if max_iter < 0 or max_iter > n:
+        max_iter = n
 
-    :math:`s(A,B) = \\dfrac{K(A,B)^2}{K(A,A)K(B,B)}`
+    indptr1 = adjacency1.indptr.astype(np.int32)
+    indptr2 = adjacency2.indptr.astype(np.int32)
+    indices1 = adjacency1.indices.astype(np.int32)
+    indices2 = adjacency2.indices.astype(np.int32)
 
-    where :math:`K` is the Weisfeiler-Lehman subtree kernel.
+    labels_1 = np.zeros(n, dtype=np.int32)
+    labels_2 = np.zeros(n, dtype=np.int32)
 
-    Parameters
-    ----------
-    adjacency1 : Union[sparse.csr_matrix, np.ndarray]
-        First graph to compare
-    adjacency2 : Union[sparse.csr_matrix, np.ndarray]
-        Second graph to compare
+    powers = (- np.pi / 3.15) ** np.arange(n, dtype=np.double)
 
-    Returns
-    -------
-    similarity : float
-    """
-    ab = wl_kernel(adjacency1, adjacency2, "subtree") ** 2
-    aa = wl_kernel(adjacency1, adjacency1, "subtree")
-    bb = wl_kernel(adjacency2, adjacency2, "subtree")
-    return ab / (aa * bb)
+    iteration = 0
+    has_changed_1, has_changed_2 = True, True
+    while iteration < max_iter and (has_changed_1 or has_changed_2):
+        labels_1, has_changed_1 = c_wl_coloring(indptr1, indices1, labels_1, powers, max_iter=1)
+        labels_2, has_changed_2 = c_wl_coloring(indptr2, indices2, labels_2, powers, max_iter=1)
+
+        colors_1, counts_1 = np.unique(np.asarray(labels_1), return_counts=True)
+        colors_2, counts_2 = np.unique(np.asarray(labels_2), return_counts=True)
+
+        if (colors_1.shape != colors_2.shape) or (counts_1 != counts_2).any():
+            return False
+
+        iteration += 1
+
+    return True
