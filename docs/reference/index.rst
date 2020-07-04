@@ -13,6 +13,7 @@ Reference
     ranking
     classification
     embedding
+    linkpred
     linalg
     utils
     visualization
