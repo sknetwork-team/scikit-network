@@ -5,7 +5,10 @@ Created on July 2020
 @author: Clément Bonet <cbonet@enst.fr>
 """
 
+from typing import Union
+
 import numpy as np
+from scipy import sparse
 
 import numba
 
@@ -76,7 +79,12 @@ def M_step_VEM(X,taus,alphas,pis,Q):
                     if i!=j:
                         num += taus[i,q]*taus[j,l]*X[i,j]
                         denom += taus[i,q]*taus[j,l]
-
+            if denom>eps:
+                pi = num/denom
+            else:
+                ## class with a single vertex
+                pi = 0.5
+                
             pis[q,l] = np.minimum(np.maximum(num/denom,eps),1-eps)
 
     return alphas
