@@ -39,7 +39,6 @@ For undirected graphs:
 * :math:`A` is the adjacency matrix of the graph (dimension :math:`n\times n`)
 * :math:`d = A1` is the vector of node weights (node degrees if the matrix :math:`A` is binary)
 * :math:`D = \text{diag}(d)` the diagonal matrix of node weights
-* :math:`w = 1^T A1` is the total weight of the graph (total weight of nodes)
 
 Digraphs
 ^^^^^^^^
@@ -49,7 +48,6 @@ For directed graphs:
 * :math:`A` is the adjacency matrix of the graph (dimension :math:`n\times n`)
 * :math:`d^+ = A1` and :math:`d^- = A^T1` are the vectors of out-weights and in-weights of nodes (out-degrees and in-degrees if the matrix :math:`A` is binary)
 * :math:`D^+ = \text{diag}(d^+)` and :math:`D^- = \text{diag}(d^-)` are the diagonal matrices of out-weights and in-weights
-* :math:`w = 1^T A1` is the total weight of the graph (total weight of edges)
 
 Bigraphs
 ^^^^^^^^
@@ -59,7 +57,6 @@ For bipartite graphs:
 * :math:`B` is the biadjacency matrix of the graph (dimension :math:`n_1\times n_2`)
 * :math:`d_1 = B1` and :math:`d_2 = B^T1` are the vectors of weights (rows and columns)
 * :math:`D_1 = \text{diag}(d_1)` and :math:`D_2 = \text{diag}(d_2)` are the diagonal matrices of weights.
-* :math:`w = 1^T B1` is the total weight of the graph (total weight of edges)
 
 Notes
 ^^^^^

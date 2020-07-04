@@ -38,13 +38,13 @@ Nearest-neighbors
 
 .. autoclass:: sknetwork.utils.KNNDense
 
-.. autoclass:: sknetwork.utils.PNNDense
+.. autoclass:: sknetwork.utils.CNNDense
 
 
 Co-Neighborhood
 ---------------
 
-.. autofunction:: sknetwork.utils.co_neighbors_graph
+.. autofunction:: sknetwork.utils.co_neighbor_graph
 
 
 Projection

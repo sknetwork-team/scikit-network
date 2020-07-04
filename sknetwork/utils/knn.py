@@ -40,7 +40,8 @@ class BaseTransformer(Algorithm, ABC):
     def make_undirected(self):
         """Modifies the adjacency to match desired constrains."""
         if self.adjacency_ is not None and self.undirected:
-            self.adjacency_ = directed2undirected(self.adjacency_, weighted=False).astype(int)
+            dtype = self.adjacency_.dtype
+            self.adjacency_ = directed2undirected(self.adjacency_, weighted=False).astype(dtype)
 
         return self
 
@@ -106,7 +107,7 @@ class KNNDense(BaseTransformer):
         n: int = x.shape[0]
         indptr: np.ndarray = np.arange(n + 1) * (self.n_neighbors + 1)
         indices: np.ndarray = neighbors.reshape(-1)
-        data = np.ones(len(indices))
+        data = np.ones(indices.shape[0], dtype=bool)
 
         self.adjacency_ = sparse.csr_matrix((data, indices, indptr))
         self.make_undirected()
@@ -115,8 +116,8 @@ class KNNDense(BaseTransformer):
         return self
 
 
-class PNNDense(BaseTransformer):
-    """Extract adjacency from vector data through parallel k-nearest-neighbor search.
+class CNNDense(BaseTransformer):
+    """Extract adjacency from vector data through component-wise k-nearest-neighbor search.
     KNN is applied independently on each column of the input matrix.
 
     Parameters
@@ -134,11 +135,11 @@ class PNNDense(BaseTransformer):
     """
 
     def __init__(self, n_neighbors: int = 1, undirected: bool = False):
-        super(PNNDense, self).__init__(undirected)
+        super(CNNDense, self).__init__(undirected)
 
         self.n_neighbors = n_neighbors
 
-    def fit(self, x: np.ndarray) -> 'PNNDense':
+    def fit(self, x: np.ndarray) -> 'CNNDense':
         """Fit algorithm to the data.
 
         Parameters
@@ -148,7 +149,7 @@ class PNNDense(BaseTransformer):
 
         Returns
         -------
-        self: :class:`PNNDense`
+        self: :class:`CNNDense`
         """
         rows, cols = [], []
         for j in range(x.shape[1]):
@@ -158,7 +159,7 @@ class PNNDense(BaseTransformer):
 
         rows = np.array(rows)
         cols = np.array(cols)
-        data = np.ones(len(rows))
+        data = np.ones(cols.shape[0], dtype=bool)
 
         self.adjacency_ = sparse.csr_matrix((data, (rows, cols)))
         self.make_undirected()

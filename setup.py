@@ -117,6 +117,8 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8'
     ],
     description="Graph algorithms",
     entry_points={
@@ -136,7 +138,7 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/sknetwork-team/scikit-network',
-    version='0.17.0',
+    version='0.18.0',
     zip_safe=False,
     ext_modules=ext_modules,
     include_dirs=[numpy.get_include()],

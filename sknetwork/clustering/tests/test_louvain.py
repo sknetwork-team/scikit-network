@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Tests for Louvain"""
-
 import unittest
 
-from sknetwork.clustering import Louvain
+import numpy as np
+
+from sknetwork.clustering import Louvain, BiLouvain
 from sknetwork.data.test_graphs import *
-from sknetwork.data import karate_club
+from sknetwork.data import karate_club, star_wars
+from sknetwork.utils import bipartite2undirected
 
 
 class TestLouvainClustering(unittest.TestCase):
@@ -16,6 +18,29 @@ class TestLouvainClustering(unittest.TestCase):
         n = adjacency.shape[0]
         labels = Louvain().fit_transform(adjacency)
         self.assertEqual(len(labels), n)
+
+    def test_modularity(self):
+        adjacency = karate_club()
+        louvain_d = Louvain(modularity='dugue')
+        louvain_n = Louvain(modularity='newman')
+        labels_d = louvain_d.fit_transform(adjacency)
+        labels_n = louvain_n.fit_transform(adjacency)
+        self.assertTrue((labels_d == labels_n).all())
+
+        louvain_p = Louvain(modularity='potts')
+        louvain_p.fit_transform(adjacency)
+
+    def test_bilouvain(self):
+        biadjacency = star_wars()
+        adjacency = bipartite2undirected(biadjacency)
+
+        louvain = Louvain(modularity='newman')
+        bilouvain = BiLouvain(modularity='newman')
+
+        labels1 = louvain.fit_transform(adjacency)
+        bilouvain.fit(biadjacency)
+        labels2 = np.concatenate((bilouvain.labels_row_, bilouvain.labels_col_))
+        self.assertTrue((labels1 == labels2).all())
 
     def test_options(self):
         adjacency = karate_club()

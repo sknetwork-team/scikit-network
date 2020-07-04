@@ -19,7 +19,7 @@ from sknetwork.utils.format import bipartite2undirected
 class Katz(BaseRanking):
     """Katz centrality:
 
-    :math:`x = \\sum_{k=1}^K\\alpha^k(A^k)^T\\mathbf{1}`.
+    :math:`\\sum_{k=1}^K\\alpha^k(A^k)^T\\mathbf{1}`.
 
     * Graphs
     * Digraphs
@@ -27,7 +27,7 @@ class Katz(BaseRanking):
     Parameters
     ----------
     damping_factor : float
-        Decay parameter for path contributions. Should be less than the spectral radius of the adjacency.
+        Decay parameter for path contributions.
     path_length : int
         Maximum length of the paths to take into account.
 
@@ -83,7 +83,7 @@ class BiKatz(Katz, BaseBiRanking):
     damping_factor : float
         Decay parameter for path contributions.
     path_length : int
-        Maximum lenght of the paths to take into account.
+        Maximum length of the paths to take into account.
 
     Examples
     --------

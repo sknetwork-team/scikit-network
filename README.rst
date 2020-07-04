@@ -18,6 +18,8 @@
 .. image:: https://codecov.io/gh/sknetwork-team/scikit-network/branch/master/graph/badge.svg
         :target: https://codecov.io/gh/sknetwork-team/scikit-network
 
+.. image:: https://img.shields.io/pypi/pyversions/scikit-network.svg
+        :target: https://pypi.python.org/pypi/scikit-network
 
 Python package for the analysis of large graphs:
 

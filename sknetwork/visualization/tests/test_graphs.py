@@ -32,6 +32,10 @@ class TestVisualization(unittest.TestCase):
                           node_width=2, node_width_max=5, node_color='red', edge_width=2, edge_width_min=2,
                           edge_width_max=4, edge_color='blue', display_edge_weight=True, font_size=14)
         self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position=None, labels={0: 0})
+        self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position=None, scores={0: 0})
+        self.assertEqual(image[1:4], 'svg')
 
     def test_directed(self):
         graph = painters(True)

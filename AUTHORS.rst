@@ -13,6 +13,9 @@ Contributors
 ------------
 
 * Bertrand Charpentier
+* Maximilien Danisch
 * François Durand
 * Alexandre Hollocou
 * Fabien Mathieu
+* Yohann Robert
+* Julien Simonnet

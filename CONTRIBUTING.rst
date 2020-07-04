@@ -32,7 +32,10 @@ wanted" is open to whoever wants to implement it.
 Implement Features
 ~~~~~~~~~~~~~~~~~~
 
-Look through the GitHub issues for features. Anything tagged with "enhancement"
+Look through the GitHub projects. Anything listed in the projects is a feature
+to be implemented.
+
+You can also look through GitHub issues for features. Anything tagged with "enhancement"
 and "help wanted" is open to whoever wants to implement it.
 
 Write Documentation
@@ -105,6 +108,9 @@ Before you submit a pull request, check that it meets these guidelines:
 3. The pull request should work for Python 3.6, 3.7 and 3.8. Check
    https://travis-ci.org/sharpenb/sknetwork/pull_requests
    and make sure that the tests pass for all supported Python versions.
+
+A more complete guide for writing code for the package can be found under
+"Contributing guide" in the Wiki_.
 
 Tips
 ----

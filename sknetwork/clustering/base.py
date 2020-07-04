@@ -49,8 +49,8 @@ class BaseClustering(Algorithm, ABC):
     def _secondary_outputs(self, adjacency):
         """Compute different variables from labels_."""
         if self.return_membership or self.return_aggregate:
-            if adjacency.data.dtype == 'bool':
-                adjacency = adjacency.astype(int)
+            if np.issubdtype(adjacency.data.dtype, np.bool_):
+                adjacency = adjacency.astype(float)
             membership = membership_matrix(self.labels_)
             if self.return_membership:
                 self.membership_ = normalize(adjacency.dot(membership))
@@ -97,6 +97,10 @@ class BaseBiClustering(BaseClustering, ABC):
 
     def _secondary_outputs(self, biadjacency):
         """Compute different variables from labels_."""
+        if self.return_membership or self.return_aggregate:
+            if np.issubdtype(biadjacency.data.dtype, np.bool_):
+                biadjacency = biadjacency.astype(float)
+
         if self.return_membership:
             membership_row = membership_matrix(self.labels_row_)
             membership_col = membership_matrix(self.labels_col_)

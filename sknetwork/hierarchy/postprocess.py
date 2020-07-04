@@ -9,7 +9,7 @@ Created on June 2019
 
 from collections import defaultdict
 import copy
-from typing import Union, Tuple
+from typing import Optional, Union, Tuple
 
 import numpy as np
 
@@ -61,16 +61,20 @@ def get_labels(dendrogram: np.ndarray, cluster: dict, sort_clusters: bool, retur
         return labels
 
 
-def cut_straight(dendrogram: np.ndarray, n_clusters: int = 2, sort_clusters: bool = True,
-                 return_dendrogram: bool = False) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+def cut_straight(dendrogram: np.ndarray, n_clusters: Optional[int] = None, threshold: Optional[float] = None,
+                 sort_clusters: bool = True, return_dendrogram: bool = False) \
+                -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
     """Cut a dendrogram and return the corresponding clustering.
 
     Parameters
     ----------
     dendrogram:
-        Dendrogram
+        Dendrogram.
     n_clusters :
-        Number of clusters.
+        Number of clusters (optional).
+    threshold :
+        Threshold on height (optional).
+        If both n_clusters and threshold are ``None``, n_clusters is set to 2.
     sort_clusters :
         If ``True``,  sorts clusters in decreasing order of size.
     return_dendrogram :
@@ -91,13 +95,21 @@ def cut_straight(dendrogram: np.ndarray, n_clusters: int = 2, sort_clusters: boo
     """
     check_dendrogram(dendrogram)
     n = dendrogram.shape[0] + 1
-    check_n_clusters(n_clusters, n, n_min=1)
 
     if return_dendrogram and not np.all(np.diff(dendrogram[:, 2]) >= 0):
         raise ValueError("The third column of the dendrogram must be non-decreasing.")
 
     cluster = {i: [i] for i in range(n)}
+    if n_clusters is None:
+        if threshold is None:
+            n_clusters = 2
+        else:
+            n_clusters = n
+    else:
+        check_n_clusters(n_clusters, n, n_min=1)
     cut = np.sort(dendrogram[:, 2])[n - n_clusters]
+    if threshold is not None:
+        cut = max(cut, threshold)
     for t in range(n - 1):
         i = int(dendrogram[t][0])
         j = int(dendrogram[t][1])
