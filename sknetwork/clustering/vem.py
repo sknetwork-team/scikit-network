@@ -153,7 +153,7 @@ class VEM(BaseClustering):
 
         self.alphas = np.ones(shape=(self.n_clusters,))/self.n_clusters
         self.pis = np.zeros(shape=(self.n_clusters,self.n_clusters))
-
+        
 
     def _j(self):
         n = self.X.shape[0]
