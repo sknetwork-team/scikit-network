@@ -16,7 +16,7 @@ from sknetwork.utils.check import check_format, is_symmetric, check_square
 
 
 class ForceAtlas2(BaseEmbedding):
-    """Force Atlas2 layout for displaying graphs.
+    """Force Atlas 2 layout for displaying graphs.
 
     * Graphs
     * Digraphs
@@ -24,35 +24,35 @@ class ForceAtlas2(BaseEmbedding):
     Parameters
     ----------
     n_components : int
-        Choose dimension of the graph layout
+        Dimension of the graph layout.
     n_iter : int
         Number of iterations to update positions.
         If ``None``, use the value of self.n_iter.
     barnes_hut : bool
-        If True, compute repulsive forces with barnes_hut approximation
+        If ``True``, compute repulsive forces with Barnes-Hut approximation.
     lin_log : bool
-        If True, activate an alternative formula for the attractive force
+        If ``True``, use lin-log mode.
     gravity_factor : float
-        Gravity force scaling constant
+        Gravity force scaling constant.
     strong_gravity : bool
-        If True, activate an alternative formula for the gravity force
+        If ``True``, use an alternative formula for the gravity force.
     repulsive_factor : float
-        Repulsive force scaling constant
+        Repulsive force scaling constant.
     no_hubs : bool
-        If True, change the value of the attraction force
+        If ``True``, dissuade hubs.
     tolerance : float
-        Tolerance defined in the swinging constant
+        Tolerance defined in the swinging constant.
     speed : float
-        Speed constant
+        Speed constant.
     speed_max : float
-        Constant used to impose constrain on speed
+        Constant used to impose constrain on speed.
     theta : float
-        Parameter used in barnes_hut algorithm
+        Convergence speed for Barnes-Hut.
 
     Attributes
     ----------
     embedding_ : np.ndarray
-        Layout in multiple dimension.
+        Layout in given dimension.
 
     Example
     -------
@@ -68,12 +68,7 @@ class ForceAtlas2(BaseEmbedding):
     ----------
     Jacomy M., Venturini T., Heymann S., Bastian M. (2014).
     `ForceAtlas2, a Continuous Graph Layout Algorithm for Handy Network Visualization Designed for the Gephi Software.
-    <https://d1wqtxts1xzle7.cloudfront.net/30695100/Jacomy_Heymann_Venturini-Force_Atlas2.pdf?1361981978=&\
-    response-content-disposition=inline%3B+filename%3DForceAtlas2_A_Continuous_Graph_Layout_Al.pdf&\
-    Expires=1593797163&Signature=L7A8XEW55Tzg5KPiia1YFMxUtbR9hrAvRfj1wCJEp1fTbJGvkSxUjdjyL4kT~wlA~nu-\
-    T6lqjUgdFWeX9JxsGf8WPa-myjrPggtU6ydWcie2DhXqmljSsX7grGb0FPCsCFv18hwGWvnRjGkfLPXYgmtUc~R2FLwRINDnPrN~\
-    rNzxfeq9DNnnZnldarp6abVESRRySFEAWgw02mXUjWK2aLM7kLMjNH9qPE3RlbBudRWiQttZqtX6WMDy4vp1Q26wynvJCIvJtbzlT6ZxAhXiKn27\
-    dozlgL9Nnuq8-tVZG2ISdN3S6fGpwkcfi9M0yohq6KNVWwX8ys1X9JnzFh7dCQ__&Key-Pair-Id=APKAJLOHF5GGSLRBV4ZA>`_
+    <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0098679>`_
     Plos One.
 
     Barnes J, Hut P (1986).
