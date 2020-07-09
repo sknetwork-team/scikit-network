@@ -12,6 +12,10 @@ First order methods
 -------------------
 .. autoclass:: sknetwork.linkpred.CommonNeighbors
 
+.. autoclass:: sknetwork.linkpred.JaccardIndex
+
 .. autoclass:: sknetwork.linkpred.AdamicAdar
 
 .. autoclass:: sknetwork.linkpred.ResourceAllocation
+
+.. autoclass:: sknetwork.linkpred.PreferentialAttachment

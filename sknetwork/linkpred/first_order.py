@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.linkpred.base import BaseLinkPred
-from sknetwork.linkpred.first_order_core import n_common_neigh, adamic_adar, resource_allocation
+from sknetwork.linkpred.first_order_core import n_common_neigh, jaccard_common_neigh, adamic_adar, resource_allocation
 from sknetwork.utils.check import check_format
 
 
@@ -84,7 +84,52 @@ class CommonNeighbors(FirstOrder):
     def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
         return np.asarray(n_common_neigh(self.indptr_, self.indices_, np.int32(source),
-                                         np.array(targets, dtype=np.int32)))
+                                         np.array(targets, dtype=np.int32))).astype(int)
+
+
+class JaccardIndex(FirstOrder):
+    """Link prediction by Jaccard Index:
+
+    :math:`s(i, j) = \\dfrac{|\\Gamma_i \\cap \\Gamma_j|}{|\\Gamma_i \\cup \\Gamma_j|}`.
+
+    Attributes
+    ----------
+    indptr_ : np.ndarray
+        Pointer index for neighbors.
+    indices_ : np.ndarray
+        Concatenation of neighbors.
+
+    Examples
+    --------
+    >>> from sknetwork.data import house
+    >>> adjacency = house()
+    >>> jaccard = JaccardIndex()
+    >>> similarities = jaccard.fit_predict(adjacency, 0)
+    >>> similarities.round(2)
+    array([1.  , 0.25, 0.33, 0.33, 0.25])
+    >>> similarities = jaccard.predict([0, 1])
+    >>> similarities.round(2)
+    array([[1.  , 0.25, 0.33, 0.33, 0.25],
+           [0.25, 1.  , 0.  , 0.67, 0.2 ]])
+    >>> similarities = jaccard.predict((0, 1))
+    >>> similarities.round(2)
+    0.25
+    >>> similarities = jaccard.predict([(0, 1), (1, 2)])
+    >>> similarities.round(2)
+    array([0.25, 0.  ])
+
+    References
+    ----------
+    Jaccard, P. (1901) étude comparative de la distribution florale dans une portion des Alpes et du Jura.
+    Bulletin de la Société Vaudoise des Sciences Naturelles, 37, 547-579.
+    """
+    def __init__(self):
+        super(JaccardIndex, self).__init__()
+
+    def _predict_base(self, source: int, targets: Iterable):
+        """Prediction for a single node."""
+        return np.asarray(jaccard_common_neigh(self.indptr_, self.indices_, np.int32(source),
+                                               np.array(targets, dtype=np.int32)))
 
 
 class AdamicAdar(FirstOrder):
@@ -177,3 +222,51 @@ class ResourceAllocation(FirstOrder):
         """Prediction for a single node."""
         return np.asarray(resource_allocation(self.indptr_, self.indices_, np.int32(source),
                                               np.array(targets, dtype=np.int32)))
+
+
+class PreferentialAttachment(FirstOrder):
+    """Link prediction by Preferential Attachment index:
+
+    :math:`s(i, j) = |\\Gamma_i||\\Gamma_j|`.
+
+    Attributes
+    ----------
+    indptr_ : np.ndarray
+        Pointer index for neighbors.
+    indices_ : np.ndarray
+        Concatenation of neighbors.
+
+    Examples
+    --------
+    >>> from sknetwork.data import house
+    >>> adjacency = house()
+    >>> pa = PreferentialAttachment()
+    >>> similarities = pa.fit_predict(adjacency, 0)
+    >>> similarities
+    array([4, 6, 4, 4, 6], dtype=int32)
+    >>> similarities = pa.predict([0, 1])
+    >>> similarities
+    array([[4, 6, 4, 4, 6],
+           [6, 9, 6, 6, 9]], dtype=int32)
+    >>> similarities = pa.predict((0, 1))
+    >>> similarities
+    6
+    >>> similarities = pa.predict([(0, 1), (1, 2)])
+    >>> similarities
+    array([6, 6], dtype=int32)
+
+    References
+    ----------
+    Albert, R., Barabási, L. (2002). `Statistical mechanics of complex networks
+    <https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.74.47>`_
+    Reviews of Modern Physics.
+    """
+    def __init__(self):
+        super(PreferentialAttachment, self).__init__()
+
+    def _predict_base(self, source: int, targets: Iterable):
+        """Prediction for a single node."""
+        deg_src = self.indptr_[source+1] - self.indptr_[source]
+        tgt = np.array(targets)
+        deg_tgt = self.indptr_[tgt+1] - self.indptr_[tgt]
+        return deg_src * deg_tgt

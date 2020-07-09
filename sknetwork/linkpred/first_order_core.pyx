@@ -7,7 +7,8 @@ Created on July, 2020
 from libc.math cimport log
 from libcpp.vector cimport vector
 
-ctypedef float (*f_type)(int)
+ctypedef float (*int2float)(int)
+ctypedef float (*vectors2float)(vector[int], vector[int])
 
 
 cdef float inv(int a):
@@ -45,6 +46,18 @@ cdef vector[int] vector_intersection(vector[int] a, vector[int] b):
     return intersection
 
 
+cdef float size_intersection(vector[int] a, vector[int] b):
+    """Size of the intersection of two vectors"""
+    return vector_intersection(a, b).size()
+
+
+cdef float jaccard(vector[int] a, vector[int] b):
+    """Jaccard coefficient"""
+    cdef float size_inter = size_intersection(a, b)
+    cdef float size_union = a.size() + b.size() - size_inter
+    return size_inter / size_union
+
+
 cdef vector[int] neighbors(int[:] indptr, int[:] indices, int node):
     """Neighbors of a given node"""
     cdef int j1 = indptr[node]
@@ -58,24 +71,35 @@ cdef vector[int] neighbors(int[:] indptr, int[:] indices, int node):
     return neigh
 
 
-def n_common_neigh(int[:] indptr, int[:] indices, int source, int[:] targets):
-    """Number of common neighbors with each other node"""
+cdef vector[float] common_neigh_global(int[:] indptr, int[:] indices, int source, int[:] targets,
+                                       vectors2float weight_func):
+    """Scores based on global information about common neighbors"""
     cdef int target, i
     cdef int n_targets = targets.shape[0]
-    cdef vector[int] preds
+    cdef vector[float] preds
 
     cdef vector[int] neigh_s = neighbors(indptr, indices, source)
     cdef vector[int] neigh_t
     for i in range(n_targets):
         target = targets[i]
         neigh_t = neighbors(indptr, indices, target)
-        preds.push_back(vector_intersection(neigh_s, neigh_t).size())
+        preds.push_back(weight_func(neigh_s, neigh_t))
 
     return preds
 
 
-cdef weighted_common_neigh(int[:] indptr, int[:] indices, int source, int[:] targets, f_type weight_func):
-    """Generic function that assign a weight to each common neighbor"""
+def n_common_neigh(int[:] indptr, int[:] indices, int source, int[:] targets):
+    """Number of common neighbors"""
+    return common_neigh_global(indptr, indices, source, targets, size_intersection)
+
+
+def jaccard_common_neigh(int[:] indptr, int[:] indices, int source, int[:] targets):
+    """Jaccard coefficient of common neighbors"""
+    return common_neigh_global(indptr, indices, source, targets, jaccard)
+
+
+cdef vector[float] common_neigh_local(int[:] indptr, int[:] indices, int source, int[:] targets, int2float weight_func):
+    """Scores based on local information about common neighbors"""
     cdef int target, i, j
     cdef int n_targets = targets.shape[0]
     cdef float weight
@@ -99,9 +123,9 @@ cdef weighted_common_neigh(int[:] indptr, int[:] indices, int source, int[:] tar
 
 def adamic_adar(int[:] indptr, int[:] indices, int source, int[:] targets):
     """Adamic Adar index"""
-    return weighted_common_neigh(indptr, indices, source, targets, inv_log)
+    return common_neigh_local(indptr, indices, source, targets, inv_log)
 
 
 def resource_allocation(int[:] indptr, int[:] indices, int source, int[:] targets):
     """Resource Allocation index"""
-    return weighted_common_neigh(indptr, indices, source, targets, inv)
+    return common_neigh_local(indptr, indices, source, targets, inv)
