@@ -30,9 +30,9 @@ Counting
 Coloring
 --------
 
-.. autoclass:: sknetwork.topology.WLColoring
+.. autoclass:: sknetwork.topology.WeisfeilerLehman
 
 Similarity
 ----------
 
-.. autofunction:: sknetwork.topology.wl_isomorphism_test
+.. autofunction:: sknetwork.topology.weisfeiler_lehman_isomorphism_test

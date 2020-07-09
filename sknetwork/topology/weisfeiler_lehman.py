@@ -10,12 +10,12 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.topology.wl_core import c_wl_coloring
+from sknetwork.topology.weisfeiler_lehman_core import weisfeiler_lehman_coloring
 from sknetwork.utils.base import Algorithm
 
 
-class WLColoring(Algorithm):
-    """Weisefeler-Lehman algorithm for coloring/labeling graphs in order to check similarity.
+class WeisfeilerLehman(Algorithm):
+    """Weisfeiler-Lehman algorithm for coloring/labeling graphs in order to check similarity.
 
     Parameters
     ----------
@@ -29,11 +29,11 @@ class WLColoring(Algorithm):
 
     Example
     -------
-    >>> from sknetwork.topology import WLColoring
+    >>> from sknetwork.topology import WeisfeilerLehman
     >>> from sknetwork.data import house
-    >>> wlcoloring = WLColoring()
+    >>> weisfeiler_lehman = WeisfeilerLehman()
     >>> adjacency = house()
-    >>> labels = wlcoloring.fit_transform(adjacency)
+    >>> labels = weisfeiler_lehman.fit_transform(adjacency)
     >>> labels
     array([0, 2, 1, 1, 2], dtype=int32)
 
@@ -45,16 +45,15 @@ class WLColoring(Algorithm):
 
     * Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Melhorn, K., Borgwardt, K. M. (2011)
       `Weisfeiler-Lehman graph kernels.
-      <http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf?fbclid=IwAR2l9LJLq2VDfjT4E0ainE2p5dOxt\
-      Be89gfSZJoYe4zi5wtuE9RVgzMKmFY>`_
+      <http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf>`_
       Journal of Machine Learning Research 12, 2011.
     """
     def __init__(self, max_iter: int = -1):
-        super(WLColoring, self).__init__()
+        super(WeisfeilerLehman, self).__init__()
         self.max_iter = max_iter
         self.labels_ = None
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'WLColoring':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'WeisfeilerLehman':
         """Fit algorithm to the data.
 
         Parameters
@@ -64,7 +63,7 @@ class WLColoring(Algorithm):
 
         Returns
         -------
-        self: :class:`WLColoring`
+        self: :class:`WeisfeilerLehman`
         """
         n: int = adjacency.shape[0]
         if self.max_iter < 0 or self.max_iter > n:
@@ -77,7 +76,7 @@ class WLColoring(Algorithm):
         indptr = adjacency.indptr.astype(np.int32)
         indices = adjacency.indices.astype(np.int32)
 
-        labels, _ = c_wl_coloring(indptr, indices, labels, powers, max_iter)
+        labels, _ = weisfeiler_lehman_coloring(indptr, indices, labels, powers, max_iter)
         self.labels_ = np.asarray(labels).astype(np.int32)
         return self
 
@@ -93,8 +92,9 @@ class WLColoring(Algorithm):
         return self.labels_
 
 
-def wl_isomorphism_test(adjacency1: sparse.csr_matrix, adjacency2: sparse.csr_matrix, max_iter: int = -1) -> bool:
-    """Weisefeler-Lehman isomorphism test. If the test is False, the graphs cannot be isomorphic,
+def weisfeiler_lehman_isomorphism_test(adjacency1: sparse.csr_matrix,
+                                       adjacency2: sparse.csr_matrix, max_iter: int = -1) -> bool:
+    """Weisfeiler-Lehman isomorphism test. If the test is False, the graphs cannot be isomorphic,
     otherwise, they might be.
 
     Parameters
@@ -112,11 +112,11 @@ def wl_isomorphism_test(adjacency1: sparse.csr_matrix, adjacency2: sparse.csr_ma
 
     Example
     -------
-    >>> from sknetwork.topology import wl_isomorphism_test
+    >>> from sknetwork.topology import weisfeiler_lehman_isomorphism_test
     >>> from sknetwork.data import house
     >>> adjacency_1 = house()
     >>> adjacency_2 = house()
-    >>> wl_isomorphism_test(adjacency_1, adjacency_2)
+    >>> weisfeiler_lehman_isomorphism_test(adjacency_1, adjacency_2)
     True
 
     References
@@ -127,8 +127,7 @@ def wl_isomorphism_test(adjacency1: sparse.csr_matrix, adjacency2: sparse.csr_ma
 
     * Shervashidze, N., Schweitzer, P., van Leeuwen, E. J., Melhorn, K., Borgwardt, K. M. (2011)
       `Weisfeiler-Lehman graph kernels.
-      <http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf?fbclid=IwAR2l9LJLq2VDfjT4E0ainE2p5dOxt\
-      Be89gfSZJoYe4zi5wtuE9RVgzMKmFY>`_
+      <http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf>`_
       Journal of Machine Learning Research 12, 2011.
     """
     if (adjacency1.shape != adjacency2.shape) or (adjacency1.nnz != adjacency2.nnz):
@@ -152,8 +151,8 @@ def wl_isomorphism_test(adjacency1: sparse.csr_matrix, adjacency2: sparse.csr_ma
     iteration = 0
     has_changed_1, has_changed_2 = True, True
     while iteration < max_iter and (has_changed_1 or has_changed_2):
-        labels_1, has_changed_1 = c_wl_coloring(indptr1, indices1, labels_1, powers, max_iter=1)
-        labels_2, has_changed_2 = c_wl_coloring(indptr2, indices2, labels_2, powers, max_iter=1)
+        labels_1, has_changed_1 = weisfeiler_lehman_coloring(indptr1, indices1, labels_1, powers, max_iter=1)
+        labels_2, has_changed_2 = weisfeiler_lehman_coloring(indptr2, indices2, labels_2, powers, max_iter=1)
 
         colors_1, counts_1 = np.unique(np.asarray(labels_1), return_counts=True)
         colors_2, counts_2 = np.unique(np.asarray(labels_2), return_counts=True)

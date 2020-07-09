@@ -42,7 +42,7 @@ cdef bint is_lower(ctuple a, ctuple b) :
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def c_wl_coloring(int[:] indptr, int[:] indices, int[:] labels, double [:] powers, int max_iter):
+def weisfeiler_lehman_coloring(int[:] indptr, int[:] indices, int[:] labels, double [:] powers, int max_iter):
     """Weisfeiler-Lehman coloring.
 
     Parameters
