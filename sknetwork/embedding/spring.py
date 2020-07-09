@@ -4,7 +4,6 @@
 Created on Apr 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
 from typing import Optional, Union
 
 import numpy as np
@@ -25,6 +24,8 @@ class Spring(BaseEmbedding):
 
     Parameters
     ----------
+    n_components : int
+        Dimension of the graph layout.
     strength : float
         Intensity of the force that moves the nodes.
     n_iter : int
@@ -61,8 +62,10 @@ class Spring(BaseEmbedding):
     <https://onlinelibrary.wiley.com/doi/pdf/10.1002/spe.4380211102>`_
     Software – Practice & Experience.
     """
-    def __init__(self, strength: float = None, n_iter: int = 50, tol: float = 1e-4, position_init: str = 'random'):
+    def __init__(self, n_components: int = 2, strength: float = None, n_iter: int = 50, tol: float = 1e-4,
+                 position_init: str = 'random'):
         super(Spring, self).__init__()
+        self.n_components = n_components
         self.strength = strength
         self.n_iter = n_iter
         self.tol = tol
@@ -96,14 +99,14 @@ class Spring(BaseEmbedding):
             adjacency = directed2undirected(adjacency)
         n = adjacency.shape[0]
 
-        position = np.zeros((n, 2))
+        position = np.zeros((n, self.n_components))
         if position_init is None:
             if self.position_init == 'random':
-                position = np.random.randn(n, 2)
+                position = np.random.randn(n, self.n_components)
             elif self.position_init == 'spectral':
-                position = Spectral(n_components=2, normalized=False).fit_transform(adjacency)
+                position = Spectral(n_components=self.n_components, normalized=False).fit_transform(adjacency)
         elif isinstance(position_init, np.ndarray):
-            if position_init.shape == (n, 2):
+            if position_init.shape == (n, self.n_components):
                 position = position_init.copy()
             else:
                 raise ValueError('Initial position has invalid shape.')
@@ -118,19 +121,19 @@ class Spring(BaseEmbedding):
         else:
             strength = self.strength
 
-        delta_x: float = position[:, 0].max() - position[:, 0].min()
-        delta_y: float = position[:, 1].max() - position[:, 1].min()
-        step_max: float = 0.1 * max(delta_x, delta_y)
+        pos_max = position.max(axis=0)
+        pos_min = position.min(axis=0)
+        step_max: float = 0.1 * (pos_max - pos_min).max()
         step: float = step_max / (n_iter + 1)
 
-        delta = np.zeros((n, 2))
+        delta = np.zeros((n, self.n_components))
         for iteration in range(n_iter):
             delta *= 0
             for i in range(n):
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i+1]]
                 data = adjacency.data[adjacency.indptr[i]:adjacency.indptr[i+1]]
 
-                grad: np.ndarray = (position[i] - position)  # shape (n, 2)
+                grad: np.ndarray = (position[i] - position)  # shape (n, n_components)
                 distance: np.ndarray = np.linalg.norm(grad, axis=1)  # shape (n,)
                 distance = np.where(distance < 0.01, 0.01, distance)
 
@@ -139,7 +142,7 @@ class Spring(BaseEmbedding):
 
                 repulsion = (strength / distance)**2
 
-                delta[i]: np.ndarray = (grad * (repulsion - attraction)[:, np.newaxis]).sum(axis=0)  # shape (2,)
+                delta[i]: np.ndarray = (grad * (repulsion - attraction)[:, np.newaxis]).sum(axis=0)
             length = np.linalg.norm(delta, axis=0)
             length = np.where(length < 0.01, 0.1, length)
             delta = delta * step_max / length
