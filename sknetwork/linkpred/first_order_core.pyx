@@ -4,7 +4,7 @@
 Created on July, 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-from libc.math cimport log
+from libc.math cimport log, sqrt
 from libcpp.vector cimport vector
 
 ctypedef float (*int2float)(int)
@@ -58,6 +58,30 @@ cdef float jaccard(vector[int] a, vector[int] b):
     return size_inter / size_union
 
 
+cdef float salton(vector[int] a, vector[int] b):
+    """Salton coefficient"""
+    cdef float size_inter = size_intersection(a, b)
+    return size_inter / sqrt(a.size() * b.size())
+
+
+cdef float sorensen(vector[int] a, vector[int] b):
+    """Sorensen coefficient"""
+    cdef float size_inter = size_intersection(a, b)
+    return 2 * size_inter / (a.size() + b.size())
+
+
+cdef float hub_promoted(vector[int] a, vector[int] b):
+    """Hub promoted coefficient"""
+    cdef float size_inter = size_intersection(a, b)
+    return size_inter / min(a.size(), b.size())
+
+
+cdef float hub_depressed(vector[int] a, vector[int] b):
+    """Hub promoted coefficient"""
+    cdef float size_inter = size_intersection(a, b)
+    return size_inter / max(a.size(), b.size())
+
+
 cdef vector[int] neighbors(int[:] indptr, int[:] indices, int node):
     """Neighbors of a given node"""
     cdef int j1 = indptr[node]
@@ -88,14 +112,34 @@ cdef vector[float] common_neigh_global(int[:] indptr, int[:] indices, int source
     return preds
 
 
-def n_common_neigh(int[:] indptr, int[:] indices, int source, int[:] targets):
+def c_common_neigh(int[:] indptr, int[:] indices, int source, int[:] targets):
     """Number of common neighbors"""
     return common_neigh_global(indptr, indices, source, targets, size_intersection)
 
 
-def jaccard_common_neigh(int[:] indptr, int[:] indices, int source, int[:] targets):
+def c_jaccard(int[:] indptr, int[:] indices, int source, int[:] targets):
     """Jaccard coefficient of common neighbors"""
     return common_neigh_global(indptr, indices, source, targets, jaccard)
+
+
+def c_salton(int[:] indptr, int[:] indices, int source, int[:] targets):
+    """Salton coefficient of common neighbors"""
+    return common_neigh_global(indptr, indices, source, targets, salton)
+
+
+def c_sorensen(int[:] indptr, int[:] indices, int source, int[:] targets):
+    """Sorensen coefficient of common neighbors"""
+    return common_neigh_global(indptr, indices, source, targets, sorensen)
+
+
+def c_hub_promoted(int[:] indptr, int[:] indices, int source, int[:] targets):
+    """Hub promoted coefficient of common neighbors"""
+    return common_neigh_global(indptr, indices, source, targets, hub_promoted)
+
+
+def c_hub_depressed(int[:] indptr, int[:] indices, int source, int[:] targets):
+    """Hub depressed coefficient of common neighbors"""
+    return common_neigh_global(indptr, indices, source, targets, hub_depressed)
 
 
 cdef vector[float] common_neigh_local(int[:] indptr, int[:] indices, int source, int[:] targets, int2float weight_func):

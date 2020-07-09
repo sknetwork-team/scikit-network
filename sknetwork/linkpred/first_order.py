@@ -11,7 +11,8 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.linkpred.base import BaseLinkPred
-from sknetwork.linkpred.first_order_core import n_common_neigh, jaccard_common_neigh, adamic_adar, resource_allocation
+from sknetwork.linkpred.first_order_core import c_common_neigh, c_jaccard, c_salton, c_sorensen, c_hub_promoted,\
+    c_hub_depressed, adamic_adar, resource_allocation
 from sknetwork.utils.check import check_format
 
 
@@ -83,7 +84,7 @@ class CommonNeighbors(FirstOrder):
 
     def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
-        return np.asarray(n_common_neigh(self.indptr_, self.indices_, np.int32(source),
+        return np.asarray(c_common_neigh(self.indptr_, self.indices_, np.int32(source),
                                          np.array(targets, dtype=np.int32))).astype(int)
 
 
@@ -128,8 +129,193 @@ class JaccardIndex(FirstOrder):
 
     def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
-        return np.asarray(jaccard_common_neigh(self.indptr_, self.indices_, np.int32(source),
-                                               np.array(targets, dtype=np.int32)))
+        return np.asarray(c_jaccard(self.indptr_, self.indices_, np.int32(source), np.array(targets, dtype=np.int32)))
+
+
+class SaltonIndex(FirstOrder):
+    """Link prediction by Salton Index:
+
+    :math:`s(i, j) = \\dfrac{|\\Gamma_i \\cap \\Gamma_j|}{\\sqrt{|\\Gamma_i|.|\\Gamma_j|}}`.
+
+    Attributes
+    ----------
+    indptr_ : np.ndarray
+        Pointer index for neighbors.
+    indices_ : np.ndarray
+        Concatenation of neighbors.
+
+    Examples
+    --------
+    >>> from sknetwork.data import house
+    >>> adjacency = house()
+    >>> salton = SaltonIndex()
+    >>> similarities = salton.fit_predict(adjacency, 0)
+    >>> similarities.round(2)
+    array([1.  , 0.41, 0.5 , 0.5 , 0.41])
+    >>> similarities = salton.predict([0, 1])
+    >>> similarities.round(2)
+    array([[1.  , 0.41, 0.5 , 0.5 , 0.41],
+           [0.41, 1.  , 0.  , 0.82, 0.33]])
+    >>> similarities = salton.predict((0, 1))
+    >>> similarities.round(2)
+    0.41
+    >>> similarities = salton.predict([(0, 1), (1, 2)])
+    >>> similarities.round(2)
+    array([0.41, 0.  ])
+
+    References
+    ----------
+    Martínez, V., Berzal, F., & Cubero, J. C. (2016).
+    `A survey of link prediction in complex networks.
+    <https://dl.acm.org/doi/pdf/10.1145/3012704>`_
+    ACM computing surveys (CSUR), 49(4), 1-33.
+    """
+    def __init__(self):
+        super(SaltonIndex, self).__init__()
+
+    def _predict_base(self, source: int, targets: Iterable):
+        """Prediction for a single node."""
+        return np.asarray(c_salton(self.indptr_, self.indices_, np.int32(source), np.array(targets, dtype=np.int32)))
+
+
+class SorensenIndex(FirstOrder):
+    """Link prediction by Salton Index:
+
+    :math:`s(i, j) = \\dfrac{2|\\Gamma_i \\cap \\Gamma_j|}{|\\Gamma_i|+|\\Gamma_j|}`.
+
+    Attributes
+    ----------
+    indptr_ : np.ndarray
+        Pointer index for neighbors.
+    indices_ : np.ndarray
+        Concatenation of neighbors.
+
+    Examples
+    --------
+    >>> from sknetwork.data import house
+    >>> adjacency = house()
+    >>> sorensen = SorensenIndex()
+    >>> similarities = sorensen.fit_predict(adjacency, 0)
+    >>> similarities.round(2)
+    array([1. , 0.4, 0.5, 0.5, 0.4])
+    >>> similarities = sorensen.predict([0, 1])
+    >>> similarities.round(2)
+    array([[1.  , 0.4 , 0.5 , 0.5 , 0.4 ],
+           [0.4 , 1.  , 0.  , 0.8 , 0.33]])
+    >>> similarities = sorensen.predict((0, 1))
+    >>> similarities.round(2)
+    0.4
+    >>> similarities = sorensen.predict([(0, 1), (1, 2)])
+    >>> similarities.round(2)
+    array([0.4, 0. ])
+
+    References
+    ----------
+    Martínez, V., Berzal, F., & Cubero, J. C. (2016).
+    `A survey of link prediction in complex networks.
+    <https://dl.acm.org/doi/pdf/10.1145/3012704>`_
+    ACM computing surveys (CSUR), 49(4), 1-33.
+    """
+    def __init__(self):
+        super(SorensenIndex, self).__init__()
+
+    def _predict_base(self, source: int, targets: Iterable):
+        """Prediction for a single node."""
+        return np.asarray(c_sorensen(self.indptr_, self.indices_, np.int32(source), np.array(targets, dtype=np.int32)))
+
+
+class HubPromotedIndex(FirstOrder):
+    """Link prediction by Hub Promoted Index:
+
+    :math:`s(i, j) = \\dfrac{2|\\Gamma_i \\cap \\Gamma_j|}{min(|\\Gamma_i|,|\\Gamma_j|)}`.
+
+    Attributes
+    ----------
+    indptr_ : np.ndarray
+        Pointer index for neighbors.
+    indices_ : np.ndarray
+        Concatenation of neighbors.
+
+    Examples
+    --------
+    >>> from sknetwork.data import house
+    >>> adjacency = house()
+    >>> hpi = HubPromotedIndex()
+    >>> similarities = hpi.fit_predict(adjacency, 0)
+    >>> similarities.round(2)
+    array([1. , 0.5, 0.5, 0.5, 0.5])
+    >>> similarities = hpi.predict([0, 1])
+    >>> similarities.round(2)
+    array([[1.  , 0.5 , 0.5 , 0.5 , 0.5 ],
+           [0.5 , 1.  , 0.  , 1.  , 0.33]])
+    >>> similarities = hpi.predict((0, 1))
+    >>> similarities.round(2)
+    0.5
+    >>> similarities = hpi.predict([(0, 1), (1, 2)])
+    >>> similarities.round(2)
+    array([0.5, 0. ])
+
+    References
+    ----------
+    Martínez, V., Berzal, F., & Cubero, J. C. (2016).
+    `A survey of link prediction in complex networks.
+    <https://dl.acm.org/doi/pdf/10.1145/3012704>`_
+    ACM computing surveys (CSUR), 49(4), 1-33.
+    """
+    def __init__(self):
+        super(HubPromotedIndex, self).__init__()
+
+    def _predict_base(self, source: int, targets: Iterable):
+        """Prediction for a single node."""
+        return np.asarray(c_hub_promoted(self.indptr_, self.indices_, np.int32(source),
+                                         np.array(targets, dtype=np.int32)))
+
+
+class HubDepressedIndex(FirstOrder):
+    """Link prediction by Hub Depressed Index:
+
+    :math:`s(i, j) = \\dfrac{2|\\Gamma_i \\cap \\Gamma_j|}{max(|\\Gamma_i|,|\\Gamma_j|)}`.
+
+    Attributes
+    ----------
+    indptr_ : np.ndarray
+        Pointer index for neighbors.
+    indices_ : np.ndarray
+        Concatenation of neighbors.
+
+    Examples
+    --------
+    >>> from sknetwork.data import house
+    >>> adjacency = house()
+    >>> hdi = HubDepressedIndex()
+    >>> similarities = hdi.fit_predict(adjacency, 0)
+    >>> similarities.round(2)
+    array([1.  , 0.33, 0.5 , 0.5 , 0.33])
+    >>> similarities = hdi.predict([0, 1])
+    >>> similarities.round(2)
+    array([[1.  , 0.33, 0.5 , 0.5 , 0.33],
+           [0.33, 1.  , 0.  , 0.67, 0.33]])
+    >>> similarities = hdi.predict((0, 1))
+    >>> similarities.round(2)
+    0.33
+    >>> similarities = hdi.predict([(0, 1), (1, 2)])
+    >>> similarities.round(2)
+    array([0.33, 0.  ])
+
+    References
+    ----------
+    Martínez, V., Berzal, F., & Cubero, J. C. (2016).
+    `A survey of link prediction in complex networks.
+    <https://dl.acm.org/doi/pdf/10.1145/3012704>`_
+    ACM computing surveys (CSUR), 49(4), 1-33.
+    """
+    def __init__(self):
+        super(HubDepressedIndex, self).__init__()
+
+    def _predict_base(self, source: int, targets: Iterable):
+        """Prediction for a single node."""
+        return np.asarray(c_hub_depressed(self.indptr_, self.indices_, np.int32(source),
+                                          np.array(targets, dtype=np.int32)))
 
 
 class AdamicAdar(FirstOrder):

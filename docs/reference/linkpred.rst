@@ -14,6 +14,14 @@ First order methods
 
 .. autoclass:: sknetwork.linkpred.JaccardIndex
 
+.. autoclass:: sknetwork.linkpred.SaltonIndex
+
+.. autoclass:: sknetwork.linkpred.SorensenIndex
+
+.. autoclass:: sknetwork.linkpred.HubPromotedIndex
+
+.. autoclass:: sknetwork.linkpred.HubDepressedIndex
+
 .. autoclass:: sknetwork.linkpred.AdamicAdar
 
 .. autoclass:: sknetwork.linkpred.ResourceAllocation
