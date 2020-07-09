@@ -45,23 +45,16 @@ cdef vector[int] neighbors(int[:] indptr, int[:] indices, int node):
     return neigh
 
 
-def n_common_neigh_edge(int[:] indptr, int[:] indices, int source, int target):
-    """Number of common neighbors"""
-    cdef vector[int] neigh_s = neighbors(indptr, indices, source)
-    cdef vector[int] neigh_t = neighbors(indptr, indices, target)
-
-    return size_vector_intersection(neigh_s, neigh_t)
-
-
-def n_common_neigh_node(int[:] indptr, int[:] indices, int source):
+def n_common_neigh(int[:] indptr, int[:] indices, int source, int[:] targets):
     """Number of common neighbors with each other node"""
-    cdef int target
-    cdef int n = indptr.shape[0] - 1
+    cdef int target, i
+    cdef int n_targets = targets.shape[0]
     cdef vector[int] preds
 
     cdef vector[int] neigh_s = neighbors(indptr, indices, source)
     cdef vector[int] neigh_t
-    for target in range(n):
+    for i in range(n_targets):
+        target = targets[i]
         neigh_t = neighbors(indptr, indices, target)
         preds.push_back(size_vector_intersection(neigh_s, neigh_t))
 

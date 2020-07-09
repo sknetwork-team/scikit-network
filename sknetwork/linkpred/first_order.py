@@ -5,13 +5,13 @@ Created on May, 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 from abc import ABC
-from typing import Union
+from typing import Union, Iterable
 
 import numpy as np
 from scipy import sparse
 
 from sknetwork.linkpred.base import BaseLinkPred
-from sknetwork.linkpred.first_order_core import n_common_neigh_edge, n_common_neigh_node
+from sknetwork.linkpred.first_order_core import n_common_neigh
 from sknetwork.utils.check import check_format
 
 
@@ -40,6 +40,11 @@ class FirstOrder(BaseLinkPred, ABC):
         self.indices_ = adjacency.indices.astype(np.int32)
 
         return self
+
+    def _predict_node(self, source: int):
+        """Prediction for a single edge."""
+        n = self.indptr_.shape[0] - 1
+        return self._predict_base(source, np.arange(n))
 
 
 class CommonNeighbors(FirstOrder):
@@ -76,10 +81,7 @@ class CommonNeighbors(FirstOrder):
     def __init__(self):
         super(CommonNeighbors, self).__init__()
 
-    def _predict_node(self, node: int):
+    def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
-        return np.asarray(n_common_neigh_node(self.indptr_, self.indices_, np.int32(node)))
-
-    def _predict_edge(self, source: int, target: int):
-        """Prediction for a single edge."""
-        return n_common_neigh_edge(self.indptr_, self.indices_, np.int32(source), np.int32(target))
+        return np.asarray(n_common_neigh(self.indptr_, self.indices_, np.int32(source),
+                                         np.array(targets, dtype=np.int32)))
