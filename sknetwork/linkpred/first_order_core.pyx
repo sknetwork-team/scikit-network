@@ -4,12 +4,25 @@
 Created on July, 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
+from libc.math cimport log
 from libcpp.vector cimport vector
 
+ctypedef float (*f_type)(int)
 
-cdef int size_vector_intersection(vector[int] a, vector[int] b):
-    """Number of common elements in two sorted vector. Each element is assumed unique in each vector."""
-    cdef int size_intersection = 0
+
+cdef float inv(int a):
+    """Inverse function"""
+    return 1 / a
+
+
+cdef float inv_log(int a):
+    """Inverse of log function"""
+    return 1 / log(a)
+
+
+cdef vector[int] vector_intersection(vector[int] a, vector[int] b):
+    """Common elements in two sorted vectors. Each element is assumed unique in each vector."""
+    cdef vector[int] intersection
     cdef int e_a, e_b
     cdef int ix_a = 0
     cdef int ix_b = 0
@@ -25,11 +38,11 @@ cdef int size_vector_intersection(vector[int] a, vector[int] b):
         elif e_b < e_a:
             ix_b += 1
         else:
-            size_intersection += 1
+            intersection.push_back(e_a)
             ix_a += 1
             ix_b += 1
 
-    return size_intersection
+    return intersection
 
 
 cdef vector[int] neighbors(int[:] indptr, int[:] indices, int node):
@@ -56,7 +69,39 @@ def n_common_neigh(int[:] indptr, int[:] indices, int source, int[:] targets):
     for i in range(n_targets):
         target = targets[i]
         neigh_t = neighbors(indptr, indices, target)
-        preds.push_back(size_vector_intersection(neigh_s, neigh_t))
+        preds.push_back(vector_intersection(neigh_s, neigh_t).size())
 
     return preds
 
+
+cdef weighted_common_neigh(int[:] indptr, int[:] indices, int source, int[:] targets, f_type weight_func):
+    """Generic function that assign a weight to each common neighbor"""
+    cdef int target, i, j
+    cdef int n_targets = targets.shape[0]
+    cdef float weight
+    cdef vector[int] intersection
+    cdef vector[float] preds
+
+    cdef vector[int] neigh_s = neighbors(indptr, indices, source)
+    cdef vector[int] neigh_t
+    for i in range(n_targets):
+        target = targets[i]
+        neigh_t = neighbors(indptr, indices, target)
+        intersection = vector_intersection(neigh_s, neigh_t)
+
+        weight = 0
+        for j in intersection:
+            weight += weight_func(indptr[j+1] - indptr[j])
+        preds.push_back(weight)
+
+    return preds
+
+
+def adamic_adar(int[:] indptr, int[:] indices, int source, int[:] targets):
+    """Adamic Adar index"""
+    return weighted_common_neigh(indptr, indices, source, targets, inv_log)
+
+
+def resource_allocation(int[:] indptr, int[:] indices, int source, int[:] targets):
+    """Resource Allocation index"""
+    return weighted_common_neigh(indptr, indices, source, targets, inv)
