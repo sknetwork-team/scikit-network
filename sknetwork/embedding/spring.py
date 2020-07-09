@@ -8,6 +8,7 @@ from typing import Optional, Union
 
 import numpy as np
 from scipy import sparse
+from scipy.spatial import cKDTree
 
 from sknetwork.embedding.spectral import Spectral
 from sknetwork.embedding.base import BaseEmbedding
@@ -32,6 +33,9 @@ class Spring(BaseEmbedding):
         Number of iterations to update positions.
     tol : float
         Minimum relative change in positions to continue updating.
+    approx_radius : float
+        If a positive value is provided, only the nodes within this distance a given node are used to compute
+        the repulsive force.
     position_init : str
         How to initialize the layout. If 'spectral', use Spectral embedding in dimension 2,
         otherwise, use random initialization.
@@ -39,7 +43,7 @@ class Spring(BaseEmbedding):
     Attributes
     ----------
     embedding_ : np.ndarray
-        Layout in 2D.
+        Layout.
 
     Example
     -------
@@ -53,7 +57,7 @@ class Spring(BaseEmbedding):
 
     Notes
     -----
-    Simple implementation designed to display small graphs in 2D.
+    Simple implementation designed to display small graphs.
 
     References
     ----------
@@ -63,12 +67,13 @@ class Spring(BaseEmbedding):
     Software – Practice & Experience.
     """
     def __init__(self, n_components: int = 2, strength: float = None, n_iter: int = 50, tol: float = 1e-4,
-                 position_init: str = 'random'):
+                 approx_radius: float = -1, position_init: str = 'random'):
         super(Spring, self).__init__()
         self.n_components = n_components
         self.strength = strength
         self.n_iter = n_iter
         self.tol = tol
+        self.approx_radius = approx_radius
         if position_init not in ['random', 'spectral']:
             raise ValueError('Unknown initial position, try "spectral" or "random".')
         else:
@@ -129,20 +134,35 @@ class Spring(BaseEmbedding):
         delta = np.zeros((n, self.n_components))
         for iteration in range(n_iter):
             delta *= 0
+            if self.approx_radius <= 0:
+                tree = cKDTree(position)
+            else:
+                tree = None
+
             for i in range(n):
+                # attraction
                 indices = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i+1]]
-                data = adjacency.data[adjacency.indptr[i]:adjacency.indptr[i+1]]
+                attraction = adjacency.data[adjacency.indptr[i]:adjacency.indptr[i+1]] / strength
 
-                grad: np.ndarray = (position[i] - position)  # shape (n, n_components)
-                distance: np.ndarray = np.linalg.norm(grad, axis=1)  # shape (n,)
+                grad = position[i] - position[indices]
+                attraction *= np.linalg.norm(grad, axis=1)
+                attraction = (grad * attraction[:, np.newaxis]).sum(axis=0)
+
+                # repulsion
+                if tree is None:
+                    grad: np.ndarray = (position[i] - position)  # shape (n, n_components)
+                    distance: np.ndarray = np.linalg.norm(grad, axis=1)  # shape (n,)
+                else:
+                    neighbors = tree.query_ball_point(position[i], self.approx_radius)
+                    grad: np.ndarray = (position[i] - position[neighbors])  # shape (n_neigh, n_components)
+                    distance: np.ndarray = np.linalg.norm(grad, axis=1)  # shape (n_neigh,)
+
                 distance = np.where(distance < 0.01, 0.01, distance)
+                repulsion = (grad * (strength / distance)[:, np.newaxis] ** 2).sum(axis=0)
 
-                attraction = np.zeros(n)
-                attraction[indices] += data * distance[indices] / strength
+                # total force
+                delta[i]: np.ndarray = repulsion - attraction
 
-                repulsion = (strength / distance)**2
-
-                delta[i]: np.ndarray = (grad * (repulsion - attraction)[:, np.newaxis]).sum(axis=0)
             length = np.linalg.norm(delta, axis=0)
             length = np.where(length < 0.01, 0.1, length)
             delta = delta * step_max / length

@@ -31,6 +31,14 @@ class TestEmbeddings(unittest.TestCase):
         layout = spring.fit_transform(adjacency, position_init=layout)
         self.assertEqual((n, 2), layout.shape)
 
+    def test_approx_radius(self):
+        adjacency = test_graph()
+        n = adjacency.shape[0]
+
+        spring = Spring(approx_radius=1.)
+        layout = spring.fit_transform(adjacency)
+        self.assertEqual((n, 2), layout.shape)
+
     def test_errors(self):
         adjacency = test_graph()
         with self.assertRaises(ValueError):
