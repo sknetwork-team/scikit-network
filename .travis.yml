@@ -6,7 +6,7 @@ matrix:
   include:
 # release and pull request setup (builds wheels for Python 3.[6,7,8] on OSX, Windows and ManyLinux)
     # perform a linux build (see https://github.com/pypa/manylinux)
-        - if: tag IS present OR type = pull_request
+        - if: tag IS present OR type = "pull_request"
           services: docker
           env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
                PLAT=manylinux2010_x86_64
@@ -26,7 +26,7 @@ matrix:
                   python3 -m twine upload wheelhouse/*.whl
                 fi
       # and a mac build (see https://cibuildwheel.readthedocs.io/en/stable/)
-        - if: tag IS present OR type = pull_request
+        - if: tag IS present OR type = "pull_request"
           os: osx
           language: shell
           install:
@@ -48,7 +48,7 @@ matrix:
                   python3 -m twine upload wheelhouse/*.whl
                 fi
         # and a windows build (see https://cibuildwheel.readthedocs.io/en/stable/)
-        - if: tag IS present OR type = pull_request
+        - if: tag IS present OR type = "pull_request"
           os: windows
           language: shell
           before_install:
