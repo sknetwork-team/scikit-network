@@ -130,14 +130,13 @@ class Spring(BaseEmbedding):
         pos_min = position.min(axis=0)
         step_max: float = 0.1 * (pos_max - pos_min).max()
         step: float = step_max / (n_iter + 1)
+        tree = None
 
         delta = np.zeros((n, self.n_components))
         for iteration in range(n_iter):
             delta *= 0
-            if self.approx_radius <= 0:
+            if self.approx_radius > 0:
                 tree = cKDTree(position)
-            else:
-                tree = None
 
             for i in range(n):
                 # attraction
