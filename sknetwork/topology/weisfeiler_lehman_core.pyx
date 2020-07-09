@@ -5,13 +5,16 @@ Created on July 1, 2020
 @author: Pierre Pebereau <pierre.pebereau@telecom-paris.fr>
 @author: Alexis Barreaux <alexis.barreaux@telecom-paris.fr>
 """
-from libcpp.algorithm cimport sort as csort
 from libcpp.vector cimport vector
 from libc.math cimport pow
 cimport cython
 
 ctypedef (int, double, int) ctuple
 
+cdef extern from "<algorithm>" namespace "std":
+    # fixed sort as per https://stackoverflow.com/questions/57584909/unable-to-use-cdef-function-in-stdsort-as-comparison-function
+    void sort(...)
+    void csort "sort"(...)
 
 cdef bint is_lower(ctuple a, ctuple b) :
     """Lexicographic comparison between triplets based on the first two values.
@@ -39,7 +42,7 @@ cdef bint is_lower(ctuple a, ctuple b) :
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def c_wl_coloring(int[:] indptr, int[:] indices, int[:] labels, double [:] powers, int max_iter):
+def weisfeiler_lehman_coloring(int[:] indptr, int[:] indices, int[:] labels, double [:] powers, int max_iter):
     """Weisfeiler-Lehman coloring.
 
     Parameters
@@ -89,13 +92,10 @@ def c_wl_coloring(int[:] indptr, int[:] indices, int[:] labels, double [:] power
                 hash_ref += powers[labels[j]]
 
             new_labels.push_back((labels[i], hash_ref, i))
-
         csort(new_labels.begin(), new_labels.end(), is_lower)
-
         label = 0
         tuple_new = new_labels[0]
         labels[tuple_new[2]] = label
-
         for j in range(1, n):
             tuple_ref = tuple_new
             tuple_new = new_labels[j]
@@ -109,7 +109,6 @@ def c_wl_coloring(int[:] indptr, int[:] indices, int[:] labels, double [:] power
                 has_changed = True
 
             labels[i] = label
-
         iteration += 1
 
     return labels, has_changed

@@ -23,26 +23,13 @@ class TestEmbeddings(unittest.TestCase):
             layout = force_atlas.fit_transform(adjacency)
             self.assertEqual((n, 2), layout.shape)
 
-            force_atlas = ForceAtlas2(no_hubs=True)
+            force_atlas = ForceAtlas2(approx_radius=1.)
             layout = force_atlas.fit_transform(adjacency)
             self.assertEqual((n, 2), layout.shape)
 
-            force_atlas = ForceAtlas2(no_overlapping=True)
-            layout = force_atlas.fit_transform(adjacency)
-            self.assertEqual((n, 2), layout.shape)
-
-            force_atlas = ForceAtlas2(barnes_hut=True)
-            layout = force_atlas.fit_transform(adjacency)
-            self.assertEqual((n, 2), layout.shape)
-
-            force_atlas = ForceAtlas2(strong_gravity=True)
-            layout = force_atlas.fit_transform(adjacency)
-            self.assertEqual((n, 2), layout.shape)
             force_atlas.fit(adjacency, pos_init=layout, n_iter=1)
 
     def test_errors(self):
         adjacency = test_graph()
-        with self.assertRaises(ValueError):
-            ForceAtlas2(n_components=3, barnes_hut=True)
         with self.assertRaises(ValueError):
             ForceAtlas2().fit(adjacency, pos_init=np.ones((5, 7)))
