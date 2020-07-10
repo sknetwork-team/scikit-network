@@ -211,10 +211,15 @@ class SorensenIndex(FirstOrder):
 
     References
     ----------
-    Martínez, V., Berzal, F., & Cubero, J. C. (2016).
-    `A survey of link prediction in complex networks.
-    <https://dl.acm.org/doi/pdf/10.1145/3012704>`_
-    ACM computing surveys (CSUR), 49(4), 1-33.
+
+    * Sørensen, T. J. (1948). A method of establishing groups of equal amplitude in plant sociology
+      based on similarity of species content and its application to analyses of the vegetation on Danish commons.
+      I kommission hos E. Munksgaard.
+    * Martínez, V., Berzal, F., & Cubero, J. C. (2016).
+      `A survey of link prediction in complex networks.
+      <https://dl.acm.org/doi/pdf/10.1145/3012704>`_
+      ACM computing surveys (CSUR), 49(4), 1-33.
+
     """
     def __init__(self):
         super(SorensenIndex, self).__init__()
@@ -257,10 +262,10 @@ class HubPromotedIndex(FirstOrder):
 
     References
     ----------
-    Martínez, V., Berzal, F., & Cubero, J. C. (2016).
-    `A survey of link prediction in complex networks.
-    <https://dl.acm.org/doi/pdf/10.1145/3012704>`_
-    ACM computing surveys (CSUR), 49(4), 1-33.
+    Ravasz, E., Somera, A. L., Mongru, D. A., Oltvai, Z. N., & Barabási, A. L. (2002).
+    `Hierarchical organization of modularity in metabolic networks.
+    <https://arxiv.org/pdf/cond-mat/0209244.pdf>`_
+    science, 297(5586), 1551-1555.
     """
     def __init__(self):
         super(HubPromotedIndex, self).__init__()
@@ -304,10 +309,10 @@ class HubDepressedIndex(FirstOrder):
 
     References
     ----------
-    Martínez, V., Berzal, F., & Cubero, J. C. (2016).
-    `A survey of link prediction in complex networks.
-    <https://dl.acm.org/doi/pdf/10.1145/3012704>`_
-    ACM computing surveys (CSUR), 49(4), 1-33.
+    Ravasz, E., Somera, A. L., Mongru, D. A., Oltvai, Z. N., & Barabási, A. L. (2002).
+    `Hierarchical organization of modularity in metabolic networks.
+    <https://arxiv.org/pdf/cond-mat/0209244.pdf>`_
+    science, 297(5586), 1551-1555.
     """
     def __init__(self):
         super(HubDepressedIndex, self).__init__()
@@ -396,10 +401,10 @@ class ResourceAllocation(FirstOrder):
 
     References
     ----------
-    Martínez, V., Berzal, F., & Cubero, J. C. (2016).
-    `A survey of link prediction in complex networks.
-    <https://dl.acm.org/doi/pdf/10.1145/3012704>`_
-    ACM computing surveys (CSUR), 49(4), 1-33.
+    Zhou, T., Lü, L., & Zhang, Y. C. (2009).
+    `Predicting missing links via local information.
+    <https://link.springer.com/content/pdf/10.1140/epjb/e2009-00335-8.pdf>`_
+    The European Physical Journal B, 71(4), 623-630.
     """
     def __init__(self):
         super(ResourceAllocation, self).__init__()
