@@ -395,10 +395,11 @@ def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, seed: Opti
     row, col = edges[:, 0], edges[:, 1]
     adjacency = sparse.coo_matrix((np.ones_like(row, int), (row, col)), shape=(n, n))
     adjacency = sparse.lil_matrix(adjacency + adjacency.T)
-    set_reference = set(np.arange(n))
+    nodes = np.arange(n)
     for i in range(n):
-        candidates = list(set_reference - set(adjacency.rows[i]) - {i})
-        for j in adjacency.rows[i]:
+        neighbors = adjacency.rows[i]
+        candidates = list(set(nodes) - set(neighbors) - {i})
+        for j in neighbors:
             if np.random.random() < prob:
                 node = np.random.choice(candidates)
                 adjacency[i, node] = 1
