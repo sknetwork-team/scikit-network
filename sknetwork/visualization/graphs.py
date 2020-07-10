@@ -155,6 +155,26 @@ def svg_node(pos_node: np.ndarray, size: float, color: str, stroke_width: float 
         .format(x, y, size, color, stroke_color, stroke_width)
 
 
+def svg_pie_chart_node(pos_node: np.ndarray, size: float, membership: sparse.csr_matrix, colors: np.ndarray,
+                       stroke_width: float = 1, stroke_color: str = 'black') -> str:
+    """Return svg code for a pie-chart node."""
+    x, y = pos_node.astype(int)
+    out = """<circle cx="{}" cy="{}" r="{}" style="fill:{};stroke:{};stroke-width:{}"/>"""\
+        .format(x, y, size, 'white', stroke_color, stroke_width)
+    cumsum = np.zeros(membership.shape[1] + 1)
+    cumsum[1:] = np.cumsum(membership)
+    cumsum /= cumsum[-1]
+    x_array = size * np.sin(2 * np.pi * cumsum) + x
+    y_array = - size * np.cos(2 * np.pi * cumsum) + y
+
+    for index in range(membership.shape[1]):
+        large = membership[index] > .5
+        out += """<path d="M {} {} A {} {} 0 {} 1 {} {} L {} {}" style="fill:{}" />"""\
+            .format(x_array[index], y_array[index], size, size, int(large),
+                    x_array[index + 1], y_array[index + 1], x, y, colors[index])
+    return out
+
+
 def svg_edge(pos_1: np.ndarray, pos_2: np.ndarray, stroke_width: float = 1, stroke_color: str = 'black') -> str:
     """Return svg code for an edge."""
     x1, y1 = pos_1.astype(int)
@@ -192,6 +212,7 @@ def svg_text(pos, text, font_size=12, align_right=False):
 def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[np.ndarray] = None,
               names: Optional[np.ndarray] = None,
               labels: Optional[Iterable] = None, scores: Optional[Iterable] = None,
+              membership: Optional[sparse.csr_matrix] = None,
               seeds: Union[list, dict] = None, width: float = 400, height: float = 300,
               margin: float = 20, margin_text: float = 3, scale: float = 1, node_order: Optional[np.ndarray] = None,
               node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20,
@@ -215,6 +236,8 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
         Labels of the nodes (negative values mean no label).
     scores :
         Scores of the nodes (measure of importance).
+    membership :
+        Membership of the nodes
     seeds :
         Nodes to be highlighted (if dict, only keys are considered).
     width :
@@ -353,7 +376,11 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
 
     # nodes
     for i in node_order:
-        svg += svg_node(position[i], node_sizes[i], colors[i], node_widths[i])
+        if membership is None:
+            svg += svg_node(position[i], node_sizes[i], colors[i], node_widths[i])
+        else:
+            svg += svg_pie_chart_node(position[i], node_sizes[i], membership[i], colors, node_widths[i])
+
 
     # text
     if names is not None:
