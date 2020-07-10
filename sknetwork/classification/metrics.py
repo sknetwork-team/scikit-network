@@ -7,10 +7,11 @@ Created on July, 2020
 import numpy as np
 
 
-def precision_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """Precision
+def accuracy_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    """Accuracy: number of correctly labeled samples over total number of elements.
+     In the case of binary classification, this is
 
-    :math:`P = \\dfrac{TP}{TP + FP}`.
+    :math:`P = \\dfrac{TP + TN}{TP + TN + FP + FN}`.
 
     Parameters
     ----------
@@ -29,7 +30,7 @@ def precision_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     >>> import numpy as np
     >>> y_true = np.array([0, 0, 1, 1])
     >>> y_pred = np.array([0, 0, 0, 1])
-    >>> precision_score(y_true, y_pred)
+    >>> accuracy_score(y_true, y_pred)
     0.75
     """
     return (y_true == y_pred).mean()

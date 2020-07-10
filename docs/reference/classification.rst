@@ -39,4 +39,4 @@ Nearest neighbors
 
 Metrics
 -------
-.. autofunction:: sknetwork.classification.precision_score
+.. autofunction:: sknetwork.classification.accuracy_score
