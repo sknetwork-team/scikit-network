@@ -32,3 +32,5 @@ First order methods
 Post-processing
 ---------------
 .. autofunction:: sknetwork.linkpred.is_edge
+
+.. autofunction:: sknetwork.linkpred.whitened_sigmoid

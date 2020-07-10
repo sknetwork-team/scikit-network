@@ -62,3 +62,37 @@ def is_edge(adjacency: sparse.csr_matrix, query: Union[int, Iterable, Tuple]) ->
             raise ValueError("Query not understood.")
     else:
         raise ValueError("Query not understood.")
+
+
+def whitened_sigmoid(scores: np.ndarray):
+    """Map the entries of a score array to probabilities through
+
+    :math:`\\dfrac{1}{1 + \\exp(-(x - \\mu)/\\sigma)}`,
+
+    where :math:`\\mu` and :math:`\\sigma` are respectively the mean and standard deviation of x.
+
+    Parameters
+    ----------
+    scores : np.ndarray
+        The input array
+
+    Returns
+    -------
+    probas : np.ndarray
+        Array with entries between 0 and 1.
+
+    Examples
+    --------
+    >>> probas = whitened_sigmoid(np.array([1, 5, 0.25]))
+    >>> probas.round(2)
+    array([0.37, 0.8 , 0.29])
+    >>> probas = whitened_sigmoid(np.array([2, 2, 2]))
+    >>> probas
+    array([1, 1, 1])
+    """
+    mu = scores.mean()
+    sigma = scores.std()
+    if sigma > 0:
+        return 1 / (1 + np.exp(-(scores - mu) / sigma))
+    else:
+        return np.ones_like(scores)
