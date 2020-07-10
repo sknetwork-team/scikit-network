@@ -4,7 +4,6 @@
 Created on Apr 8, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
 from typing import Union
 
 import numpy as np
@@ -51,9 +50,10 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
     check_csr_or_slr(adjacency)
     if type(adjacency) == sparse.csr_matrix:
         if weighted:
-            new_adjacency = adjacency + adjacency.T
+            new_adjacency = adjacency.astype(float)
+            new_adjacency += adjacency.T
         else:
-            new_adjacency = adjacency.maximum(adjacency.T)
+            new_adjacency = (adjacency + adjacency.T).astype(bool)
         new_adjacency.tocsr().sort_indices()
         return new_adjacency
     else:
