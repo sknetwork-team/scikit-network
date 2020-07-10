@@ -66,7 +66,8 @@ class DAG(Algorithm):
             else:
                 raise ValueError('Unknown ordering of nodes.')
 
-        dag_indptr, dag_indices = fit_core(indptr, indices, sorted_nodes)
+        ix = np.zeros(adjacency.shape[0], dtype=np.int32)
+        dag_indptr, dag_indices = fit_core(indptr, indices, sorted_nodes, ix)
         self.indptr_ = dag_indptr
         self.indices_ = dag_indices
 
