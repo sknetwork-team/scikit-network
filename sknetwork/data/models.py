@@ -18,7 +18,8 @@ from sknetwork.utils.parse import edgelist2adjacency
 
 
 def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_out: float = .05,
-                seed: Optional[int] = None, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+                random_state: Optional[int] = None, metadata: bool = False) \
+                -> Union[sparse.csr_matrix, Bunch]:
     """Stochastic block model.
 
     Parameters
@@ -29,7 +30,7 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
         Probability of connection within blocks.
     p_out :
         Probability of connection across blocks.
-    seed :
+    random_state :
         Seed of the random generator (optional).
     metadata :
         If ``True``, return a `Bunch` object with metadata.
@@ -53,7 +54,7 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     `Mixed membership stochastic blockmodels. <https://arxiv.org/pdf/0705.4485.pdf>`_
     Journal of Machine Learning Research.
     """
-    np.random.seed(seed)
+    np.random.seed(random_state)
     sizes = np.array(sizes)
 
     if type(p_in) == float:
@@ -71,13 +72,13 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
             if j < i:
                 row.append(None)
             elif j > i:
-                row.append(sparse.random(a, b, p_out) > 0)
+                row.append(sparse.random(a, b, p_out, dtype=bool))
             else:
-                row.append(sparse.random(a, a, p_in[i]) > 0)
+                row.append(sparse.random(a, a, p_in[i], dtype=bool))
         matrix.append(row)
     adjacency = sparse.bmat(matrix)
     adjacency.setdiag(0)
-    adjacency = directed2undirected(adjacency.tocsr(), weighted=False).astype(bool)
+    adjacency = directed2undirected(adjacency.tocsr(), weighted=False)
 
     if metadata:
         graph = Bunch()
@@ -89,7 +90,7 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
         return adjacency
 
 
-def erdos_renyi(n: int = 20, p: float = .3, seed: Optional[int] = None) -> sparse.csr_matrix:
+def erdos_renyi(n: int = 20, p: float = .3, random_state: Optional[int] = None) -> sparse.csr_matrix:
     """Erdos-Renyi graph.
 
     Parameters
@@ -98,7 +99,7 @@ def erdos_renyi(n: int = 20, p: float = .3, seed: Optional[int] = None) -> spars
          Number of nodes.
     p :
         Probability of connection between nodes.
-    seed :
+    random_state :
         Seed of the random generator (optional).
 
     Returns
@@ -118,7 +119,7 @@ def erdos_renyi(n: int = 20, p: float = .3, seed: Optional[int] = None) -> spars
     Erdős, P., Rényi, A. (1959). `On Random Graphs. <https://www.renyi.hu/~p_erdos/1959-11.pdf>`_
     Publicationes Mathematicae.
     """
-    return block_model(np.array([n]), p, 0., seed, metadata=False)
+    return block_model(np.array([n]), p, 0., random_state, metadata=False)
 
 
 def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
