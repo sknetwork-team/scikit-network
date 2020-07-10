@@ -27,3 +27,8 @@ First order methods
 .. autoclass:: sknetwork.linkpred.ResourceAllocation
 
 .. autoclass:: sknetwork.linkpred.PreferentialAttachment
+
+
+Post-processing
+---------------
+.. autofunction:: sknetwork.linkpred.is_edge
