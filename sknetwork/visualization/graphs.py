@@ -169,6 +169,7 @@ def svg_pie_chart_node(pos_node: np.ndarray, size: float, membership: np.ndarray
                        stroke_width: float = 1, stroke_color: str = 'black') -> str:
     """Return svg code for a pie-chart node."""
     x, y = pos_node.astype(float)
+    n_colors = len(colors)
     out = ""
     cumsum = np.zeros(membership.shape[1] + 1)
     cumsum[1:] = np.cumsum(membership)
@@ -183,7 +184,7 @@ def svg_pie_chart_node(pos_node: np.ndarray, size: float, membership: np.ndarray
     for index in range(membership.shape[1]):
         out += """<path d="M {} {} A {} {} 0 {} 1 {} {} L {} {}" style="fill:{};stroke:{};stroke-width:{}" />\n"""\
             .format(x_array[index], y_array[index], size, size, int(large[index]),
-                    x_array[index + 1], y_array[index + 1], x, y, colors[index], stroke_color, stroke_width)
+                    x_array[index + 1], y_array[index + 1], x, y, colors[index % n_colors], stroke_color, stroke_width)
     return out
 
 
