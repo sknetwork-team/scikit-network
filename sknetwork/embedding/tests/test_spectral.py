@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """tests for spectral embedding"""
-
 import unittest
 
 import numpy as np
@@ -43,6 +42,10 @@ class TestEmbeddings(unittest.TestCase):
         with self.assertWarns(Warning):
             n = self.k - 1
             spectral.fit_transform(np.ones((n, n)))
+
+        with self.assertRaises(NotImplementedError):
+            spectral = Spectral(self.k, normalized_laplacian=False, solver='halko')
+            toto = spectral.fit_transform(self.adjacency)
 
     def test_normalized(self):
         # normalized Laplacian

@@ -5,7 +5,6 @@ Created on Thu Sep 13 2018
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
-import warnings
 from typing import Union
 
 import numpy as np
@@ -139,9 +138,15 @@ class Spectral(BaseEmbedding):
         n_components = check_n_components(self.n_components, n-2)
         n_components += 1
 
-        if self.equalize and (self.regularization is None or self.regularization == 0.) and not is_connected(adjacency):
+        regularize: bool = not (self.regularization is None or self.regularization == 0.)
+
+        if self.equalize and (not regularize) and not is_connected(adjacency):
             raise ValueError("The option 'equalize' is valid only if the graph is connected or with regularization."
                              "Call 'fit' either with 'equalize' = False or positive 'regularization'.")
+
+        if regularize and (not self.normalized_laplacian) and isinstance(self.solver, HalkoEig):
+            raise NotImplementedError('Halko solver is not compatible with the joint use of regularization'
+                                      'and standard Laplacian, please set solver="lanczos" to proceed.')
 
         weights = adjacency.dot(np.ones(n))
         regularization = self.regularization

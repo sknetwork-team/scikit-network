@@ -80,7 +80,7 @@ class LaplacianOperator(LinearOperator):
     def _matvec(self, matrix: np.ndarray):
         prod = self.laplacian.dot(matrix)
         prod += self.shape[0] * self.regularization * matrix
-        if len(matrix.shape) == 2:
+        if matrix.ndim == 2:
             prod -= self.regularization * np.tile(matrix.sum(axis=0), (self.shape[0], 1))
         else:
             prod -= self.regularization * matrix.sum()
@@ -132,7 +132,7 @@ class NormalizedAdjacencyOperator(LinearOperator):
     def _matvec(self, matrix: np.ndarray):
         matrix = (matrix.T / self.weights_sqrt).T
         prod = self.adjacency.dot(matrix)
-        if len(matrix.shape) == 2:
+        if matrix.ndim == 2:
             prod += self.regularization * np.tile(matrix.sum(axis=0), (self.shape[0], 1))
         else:
             prod += self.regularization * matrix.sum()
