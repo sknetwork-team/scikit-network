@@ -125,6 +125,7 @@ def svg_dendrogram_left(dendrogram, names, width, height, margin, margin_text, s
         for i in range(n):
             x, y = position[i]
             x += margin_text
+            y += unit_height / 3
             svg += """<text x="{}" y="{}" font-size="{}">{}</text>""" \
                 .format(x, y, font_size, str(names[i]))
 
