@@ -18,13 +18,22 @@ from sknetwork.utils.check import check_format, check_square, check_symmetry, ch
 from sknetwork.utils.format import bipartite2undirected
 
 
+def set_solver(solver: str, adjacency):
+    """Eigenvalue solver based on keyword"""
+    if solver == 'auto':
+        solver: str = auto_solver(adjacency.nnz)
+    if solver == 'lanczos':
+        solver: EigSolver = LanczosEig()
+    else:  # pragma: no cover
+        solver: EigSolver = HalkoEig()
+    return solver
+
+
 class LaplacianEmbedding(BaseEmbedding):
     """Spectral embedding of graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`.
     Eigenvectors are considered in increasing order of eigenvalues, skipping the first eigenvector.
 
     * Graphs
-
-    See :class:`BiSpectral` for digraphs and bigraphs.
 
     Parameters
     ----------
@@ -49,7 +58,6 @@ class LaplacianEmbedding(BaseEmbedding):
         * ``'auto'`` call the auto_solver function.
         * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
         * ``'lanczos'``: power-iteration based method.
-        * :class:`EigSolver`: custom solver.
 
     Attributes
     ----------
@@ -79,25 +87,16 @@ class LaplacianEmbedding(BaseEmbedding):
     """
     def __init__(self, n_components: int = 2, regularization: Union[None, float] = 0.01,
                  relative_regularization: bool = True, equalize: bool = False, barycenter: bool = True,
-                 normalized: bool = True, solver: Union[str, EigSolver] = 'auto'):
+                 normalized: bool = True, solver: str = 'auto'):
         super(LaplacianEmbedding, self).__init__()
 
         self.n_components = n_components
-        if regularization == 0:
-            self.regularization = None
-        else:
-            self.regularization = regularization
+        self.regularization = None if regularization == 0 else regularization
         self.relative_regularization = relative_regularization
-
         self.equalize = equalize
         self.barycenter = barycenter
         self.normalized = normalized
-        if solver == 'halko':
-            self.solver: EigSolver = HalkoEig()
-        elif solver == 'lanczos':
-            self.solver: EigSolver = LanczosEig()
-        else:
-            self.solver = solver
+        self.solver = solver
 
         self.eigenvalues_ = None
         self.eigenvectors_ = None
@@ -120,13 +119,7 @@ class LaplacianEmbedding(BaseEmbedding):
         check_symmetry(adjacency)
         n = adjacency.shape[0]
 
-        if self.solver == 'auto':
-            solver = auto_solver(adjacency.nnz)
-            if solver == 'lanczos':
-                self.solver: EigSolver = LanczosEig()
-            else:  # pragma: no cover
-                self.solver: EigSolver = HalkoEig()
-
+        solver = set_solver(self.solver, adjacency)
         n_components = check_n_components(self.n_components, n-2)
         n_components += 1
 
@@ -147,10 +140,10 @@ class LaplacianEmbedding(BaseEmbedding):
             weight_diag = sparse.diags(weights, format='csr')
             laplacian = weight_diag - adjacency
 
-        self.solver.which = 'SM'
-        self.solver.fit(matrix=laplacian, n_components=n_components)
-        eigenvalues = self.solver.eigenvalues_[1:]
-        eigenvectors = self.solver.eigenvectors_[:, 1:]
+        solver.which = 'SM'
+        solver.fit(matrix=laplacian, n_components=n_components)
+        eigenvalues = solver.eigenvalues_[1:]
+        eigenvectors = solver.eigenvectors_[:, 1:]
 
         embedding = eigenvectors.copy()
 
@@ -177,7 +170,8 @@ class LaplacianEmbedding(BaseEmbedding):
 
 
 class Spectral(BaseEmbedding):
-    """Spectral embedding of graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`.
+    """Spectral embedding of graphs, based the spectral decomposition of the normalized Laplacian matrix
+    :math:`L = I - D^{-1/2}AD^{-1/2}`.
     Eigenvectors are considered in increasing order of eigenvalues, skipping the first eigenvector.
 
     * Graphs
@@ -237,26 +231,16 @@ class Spectral(BaseEmbedding):
     """
     def __init__(self, n_components: int = 2, regularization: Union[None, float] = 0.01,
                  relative_regularization: bool = True, equalize: bool = False, barycenter: bool = True,
-                 normalized: bool = True, solver: Union[str, EigSolver] = 'auto'):
+                 normalized: bool = True, solver: str = 'auto'):
         super(Spectral, self).__init__()
 
         self.n_components = n_components
-
-        if regularization == 0:
-            self.regularization = None
-        else:
-            self.regularization = regularization
+        self.regularization = None if regularization == 0 else regularization
         self.relative_regularization = relative_regularization
-
         self.equalize = equalize
         self.barycenter = barycenter
         self.normalized = normalized
-        if solver == 'halko':
-            self.solver: EigSolver = HalkoEig()
-        elif solver == 'lanczos':
-            self.solver: EigSolver = LanczosEig()
-        else:
-            self.solver = solver
+        self.solver = solver
 
         self.eigenvalues_ = None
         self.eigenvectors_ = None
@@ -279,13 +263,7 @@ class Spectral(BaseEmbedding):
         check_symmetry(adjacency)
         n = adjacency.shape[0]
 
-        if self.solver == 'auto':
-            solver = auto_solver(adjacency.nnz)
-            if solver == 'lanczos':
-                self.solver: EigSolver = LanczosEig()
-            else:  # pragma: no cover
-                self.solver: EigSolver = HalkoEig()
-
+        solver = set_solver(self.solver, adjacency)
         n_components = check_n_components(self.n_components, n-2)
         n_components += 1
 
@@ -311,15 +289,15 @@ class Spectral(BaseEmbedding):
         else:
             norm_adjacency = weights_inv_sqrt_diag.dot(adjacency.dot(weights_inv_sqrt_diag))
 
-        self.solver.which = 'LA'
-        self.solver.fit(matrix=norm_adjacency, n_components=n_components)
-        eigenvalues = 1 - self.solver.eigenvalues_
+        solver.which = 'LA'
+        solver.fit(matrix=norm_adjacency, n_components=n_components)
+        eigenvalues = 1 - solver.eigenvalues_
         # eigenvalues of the Laplacian in increasing order
         index = np.argsort(eigenvalues)[1:]
         # skip first eigenvalue
         eigenvalues = eigenvalues[index]
         # eigenvectors of the Laplacian, skip first eigenvector
-        eigenvectors = np.array(weights_inv_sqrt_diag.dot(self.solver.eigenvectors_[:, index]))
+        eigenvectors = np.array(weights_inv_sqrt_diag.dot(solver.eigenvectors_[:, index]))
 
         embedding = eigenvectors.copy()
 
@@ -390,9 +368,9 @@ class Spectral(BaseEmbedding):
 
 
 class BiSpectral(Spectral, BaseBiEmbedding):
-    """Spectral embedding of bipartite graphs, based the spectral decomposition of the Laplacian matrix
-    :math:`L = D - A` with :math:`A` the adjacency matrix of the graph. Eigenvectors are considered in increasing order
-    of eigenvalues, skipping the first eigenvector.
+    """Spectral embedding of graphs, based the spectral decomposition of the normalized Laplacian matrix
+    :math:`L = I - D^{-1/2}AD^{-1/2}`, with :math:`A` the adjacency matrix of the graph.
+    Eigenvectors are considered in increasing order of eigenvalues, skipping the first eigenvector.
 
     * Digraphs
     * Bigraphs
@@ -454,7 +432,7 @@ class BiSpectral(Spectral, BaseBiEmbedding):
     """
     def __init__(self, n_components: int = 2, regularization: Union[None, float] = 0.01,
                  relative_regularization: bool = True, equalize: bool = False, barycenter: bool = True,
-                 normalized: bool = True, solver: Union[str, EigSolver] = 'auto'):
+                 normalized: bool = True, solver: str = 'auto'):
         super(BiSpectral, self).__init__(n_components, regularization, relative_regularization, equalize, barycenter,
                                          normalized, solver)
 
