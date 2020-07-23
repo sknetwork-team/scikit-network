@@ -52,7 +52,7 @@ class LaplacianEmbedding(BaseEmbedding):
     normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
+    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` (default = ``'auto'``)
         Which eigenvalue solver to use.
 
         * ``'auto'`` call the auto_solver function.
@@ -120,8 +120,7 @@ class LaplacianEmbedding(BaseEmbedding):
         n = adjacency.shape[0]
 
         solver = set_solver(self.solver, adjacency)
-        n_components = check_n_components(self.n_components, n-2)
-        n_components += 1
+        n_components = 1 + check_n_components(self.n_components, n-2)
 
         regularize: bool = not (self.regularization is None or self.regularization == 0.)
 
@@ -195,13 +194,12 @@ class Spectral(BaseEmbedding):
     normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
+    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` (default = ``'auto'``)
         Which eigenvalue solver to use.
 
         * ``'auto'`` call the auto_solver function.
         * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
         * ``'lanczos'``: power-iteration based method.
-        * :class:`EigSolver`: custom solver.
 
     Attributes
     ----------
@@ -264,8 +262,7 @@ class Spectral(BaseEmbedding):
         n = adjacency.shape[0]
 
         solver = set_solver(self.solver, adjacency)
-        n_components = check_n_components(self.n_components, n-2)
-        n_components += 1
+        n_components = 1 + check_n_components(self.n_components, n-2)
 
         regularize: bool = not (self.regularization is None or self.regularization == 0.)
 
@@ -291,13 +288,10 @@ class Spectral(BaseEmbedding):
 
         solver.which = 'LA'
         solver.fit(matrix=norm_adjacency, n_components=n_components)
-        eigenvalues = 1 - solver.eigenvalues_
-        # eigenvalues of the Laplacian in increasing order
-        index = np.argsort(eigenvalues)[1:]
-        # skip first eigenvalue
+        eigenvalues = 1 - solver.eigenvalues_  # eigenvalues of the Laplacian in increasing order in [0, 2]
+        index = np.argsort(eigenvalues)[1:]  # skip first eigenvalue and eigenvector
         eigenvalues = eigenvalues[index]
-        # eigenvectors of the Laplacian, skip first eigenvector
-        eigenvectors = np.array(weights_inv_sqrt_diag.dot(solver.eigenvectors_[:, index]))
+        eigenvectors = weights_inv_sqrt_diag.dot(solver.eigenvectors_[:, index])
 
         embedding = eigenvectors.copy()
 
@@ -392,13 +386,12 @@ class BiSpectral(Spectral, BaseBiEmbedding):
     normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`EigSolver` (default = ``'auto'``)
+    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` (default = ``'auto'``)
         Which eigenvalue solver to use.
 
         * ``'auto'`` call the auto_solver function.
         * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
         * ``'lanczos'``: power-iteration based method.
-        * :class:`EigSolver`: custom solver.
 
     Attributes
     ----------
