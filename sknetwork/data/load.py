@@ -162,12 +162,12 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
                         data_home / (dataset + '.tar.bz2'))
             with tarfile.open(data_home / (dataset + '.tar.bz2'), 'r:bz2') as tar_ref:
                 tar_ref.extractall(data_home)
-        except (URLError, HTTPError, tarfile.ReadError):
+        except (HTTPError, tarfile.ReadError):
             rmdir(data_path)
             raise ValueError('Invalid dataset ' + dataset + '.'
                              + "\nExamples include 'actor-movie' and 'ego-facebook'."
                              + "\n See 'http://konect.uni-koblenz.de' for the full list.")
-        except ConnectionResetError:
+        except (URLError, ConnectionResetError):
             rmdir(data_path)
             raise RuntimeError("Could not reach Konect.")
         finally:
