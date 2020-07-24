@@ -4,7 +4,6 @@
 Created on October 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
 import unittest
 
 import numpy as np
@@ -17,6 +16,6 @@ class TestKMeans(unittest.TestCase):
     def test_kmeans(self):
         x = np.random.randn(10, 3)
         kmeans = KMeansDense(n_clusters=2)
-        kmeans.fit(x)
-        self.assertEqual(kmeans.labels_.shape, (x.shape[0],))
+        labels = kmeans.fit_transform(x)
+        self.assertEqual(labels.shape, (x.shape[0],))
         self.assertEqual(kmeans.cluster_centers_.shape, (kmeans.n_clusters, x.shape[1]))

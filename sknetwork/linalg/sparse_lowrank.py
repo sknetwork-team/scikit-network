@@ -4,7 +4,6 @@
 Created on Apr 19 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
 from typing import Union, Tuple
 
 import numpy as np
