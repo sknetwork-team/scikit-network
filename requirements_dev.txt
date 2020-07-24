@@ -12,7 +12,7 @@ bumpversion==0.6.0
 wheel==0.34.2
 
 # standard package to produce coverage from test runs
-coverage==5.2
+coverage==5.2.1
 
 # visualization of reports from coverage
 codecov==2.1.8
