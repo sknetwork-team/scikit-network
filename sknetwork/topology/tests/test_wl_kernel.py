@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 
 from sknetwork.data import house, bow_tie, linear_graph
-from sknetwork.topology import weisfeiler_lehman_isomorphism_test
+from sknetwork.topology import are_isomorphic
 
 
 class TestWLKernel(unittest.TestCase):
@@ -19,13 +19,13 @@ class TestWLKernel(unittest.TestCase):
         reorder = list(range(n))
         np.random.shuffle(reorder)
         adjacency = adjacency[reorder][:, reorder]
-        self.assertTrue(weisfeiler_lehman_isomorphism_test(ref, adjacency))
+        self.assertTrue(are_isomorphic(ref, adjacency))
 
         adjacency = bow_tie()
-        self.assertFalse(weisfeiler_lehman_isomorphism_test(ref, adjacency))
+        self.assertFalse(are_isomorphic(ref, adjacency))
 
         adjacency = linear_graph(n)
-        self.assertFalse(weisfeiler_lehman_isomorphism_test(ref, adjacency))
+        self.assertFalse(are_isomorphic(ref, adjacency))
 
         adjacency = linear_graph(n + 1)
-        self.assertFalse(weisfeiler_lehman_isomorphism_test(ref, adjacency))
+        self.assertFalse(are_isomorphic(ref, adjacency))
