@@ -12,7 +12,7 @@ from os import environ, makedirs, remove, listdir, rmdir
 from os.path import exists, expanduser, join
 from pathlib import Path
 from typing import Optional, Union
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.request import urlretrieve
 
 import numpy as np
@@ -173,13 +173,17 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
                         data_home / (dataset + '.tar.bz2'))
             with tarfile.open(data_home / (dataset + '.tar.bz2'), 'r:bz2') as tar_ref:
                 tar_ref.extractall(data_home)
-        except (HTTPError, tarfile.ReadError):
+        except (URLError, HTTPError, tarfile.ReadError):
             rmdir(data_path)
             raise ValueError('Invalid dataset ' + dataset + '.'
                              + "\nExamples include 'actor-movie' and 'ego-facebook'."
                              + "\n See 'http://konect.uni-koblenz.de' for the full list.")
+        except ConnectionResetError:
+            rmdir(data_path)
+            raise RuntimeError("Could not reach Konect.")
         finally:
-            remove(data_home / (dataset + '.tar.bz2'))
+            if exists(data_home / (dataset + '.tar.bz2')):
+                remove(data_home / (dataset + '.tar.bz2'))
     elif exists(data_path / (dataset + '_bundle')):
         return load_from_numpy_bundle(dataset + '_bundle', data_path)
 
