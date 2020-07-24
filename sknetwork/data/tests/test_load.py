@@ -20,7 +20,7 @@ class TestLoader(unittest.TestCase):
         clear_data_home(tmp_data_dir)
         try:
             graph = load_netset('stub', tmp_data_dir)
-        except URLError:  # pragma: no cover
+        except RuntimeError:  # pragma: no cover
             warnings.warn('Could not reach Telecom Graphs. Corresponding test has not been performed.', RuntimeWarning)
             return
         n = 2
@@ -35,7 +35,7 @@ class TestLoader(unittest.TestCase):
             with self.assertRaises(ValueError):
                 load_netset('junk', tmp_data_dir)
 
-        except URLError:  # pragma: no cover
+        except RuntimeError:  # pragma: no cover
             warnings.warn('Could not reach Telecom Graphs. Corresponding test has not been performed.', RuntimeWarning)
             return
         load_netset()

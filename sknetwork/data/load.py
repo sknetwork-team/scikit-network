@@ -68,13 +68,6 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
     Returns
     -------
     graph : :class:`Bunch`
-
-    Example
-    -------
-    >>> from sknetwork.data import load_netset
-    >>> graph = load_netset('openflights')
-    >>> graph.adjacency.shape
-    (3097, 3097)
     """
     graph = Bunch()
 
@@ -94,6 +87,9 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
             raise ValueError('Invalid dataset: ' + dataset + '.'
                              + "\nAvailable datasets include 'openflights' and 'wikivitals'."
                              + "\nSee <https://graphs.telecom-paristech.fr/>")
+        except ConnectionResetError:
+            rmdir(data_path)
+            raise RuntimeError("Could not reach Netset.")
         with tarfile.open(data_home / (dataset + '_npz.tar.gz'), 'r:gz') as tar_ref:
             tar_ref.extractall(data_home)
         remove(data_home / (dataset + '_npz.tar.gz'))
@@ -147,13 +143,6 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
              * `adjacency` or `biadjacency`: the adjacency/biadjacency matrix for the dataset
              * `meta`: a dictionary containing the metadata as specified by Konect
              * each attribute specified by Konect (ent.* file)
-
-    Example
-    -------
-    >>> from sknetwork.data import load_konect
-    >>> graph = load_konect('dolphins')
-    >>> graph.adjacency.shape
-    (62, 62)
 
     Notes
     -----
