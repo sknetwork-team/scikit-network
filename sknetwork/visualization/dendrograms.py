@@ -60,13 +60,14 @@ def svg_dendrogram_top(dendrogram, names, width, height, margin, margin_text, sc
             x, y = position[i]
             x -= margin_text
             y += margin_text
+            text = str(names[i]).replace('&', ' ')
             if rotate_names:
                 svg += """<text x="{}" y="{}"  transform="rotate(60, {}, {})" font-size="{}">{}</text>""" \
-                    .format(x, y, x, y, font_size, str(names[i]))
+                    .format(x, y, x, y, font_size, text)
             else:
                 y += margin_text
                 svg += """<text x="{}" y="{}"  font-size="{}">{}</text>""" \
-                    .format(x, y, font_size, str(names[i]))
+                    .format(x, y, font_size, text)
 
     # tree
     for t in range(n - 1):
@@ -126,8 +127,9 @@ def svg_dendrogram_left(dendrogram, names, width, height, margin, margin_text, s
             x, y = position[i]
             x += margin_text
             y += unit_height / 3
+            text = str(names[i]).replace('&', ' ')
             svg += """<text x="{}" y="{}" font-size="{}">{}</text>""" \
-                .format(x, y, font_size, str(names[i]))
+                .format(x, y, font_size, text)
 
     # tree
     for t in range(n - 1):

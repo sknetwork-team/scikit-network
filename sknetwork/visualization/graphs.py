@@ -181,12 +181,13 @@ def svg_edge_directed(pos_1: np.ndarray, pos_2: np.ndarray, stroke_width: float 
 def svg_text(pos, text, font_size=12, align_right=False):
     """Return svg code for text."""
     x, y = pos.astype(int)
+    text = str(text).replace('&', ' ')
     if align_right:
         return """<text text-anchor="end" x="{}" y="{}" font-size="{}">{}</text>"""\
-            .format(x, y, font_size, str(text))
+            .format(x, y, font_size, text)
     else:
         return """<text x="{}" y="{}" font-size="{}">{}</text>"""\
-            .format(x, y, font_size, str(text))
+            .format(x, y, font_size, text)
 
 
 def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[np.ndarray] = None,
