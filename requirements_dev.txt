@@ -3,7 +3,7 @@ pip==20.1.1
 
 # base dependencies
 numpy==1.19.1
-scipy==1.5.1
+scipy==1.5.2
 
 # tool to automatically change version number in the package upon release
 bumpversion==0.6.0
@@ -12,7 +12,7 @@ bumpversion==0.6.0
 wheel==0.34.2
 
 # standard package to produce coverage from test runs
-coverage==5.2
+coverage==5.2.1
 
 # visualization of reports from coverage
 codecov==2.1.8
