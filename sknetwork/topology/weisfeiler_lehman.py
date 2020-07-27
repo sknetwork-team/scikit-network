@@ -92,8 +92,8 @@ class WeisfeilerLehman(Algorithm):
         return self.labels_
 
 
-def weisfeiler_lehman_isomorphism_test(adjacency1: sparse.csr_matrix,
-                                       adjacency2: sparse.csr_matrix, max_iter: int = -1) -> bool:
+def are_isomorphic(adjacency1: sparse.csr_matrix,
+                   adjacency2: sparse.csr_matrix, max_iter: int = -1) -> bool:
     """Weisfeiler-Lehman isomorphism test. If the test is False, the graphs cannot be isomorphic,
     otherwise, they might be.
 
@@ -112,11 +112,11 @@ def weisfeiler_lehman_isomorphism_test(adjacency1: sparse.csr_matrix,
 
     Example
     -------
-    >>> from sknetwork.topology import weisfeiler_lehman_isomorphism_test
+    >>> from sknetwork.topology import are_isomorphic
     >>> from sknetwork.data import house
     >>> adjacency_1 = house()
     >>> adjacency_2 = house()
-    >>> weisfeiler_lehman_isomorphism_test(adjacency_1, adjacency_2)
+    >>> are_isomorphic(adjacency_1, adjacency_2)
     True
 
     References
