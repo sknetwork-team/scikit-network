@@ -1,5 +1,7 @@
 # distutils: language = c++
 # cython: language_level=3
+# cython: linetrace=True
+# distutils: define_macros=CYTHON_TRACE_NOGIL=1
 """
 Created on April, 2020
 @author: Nathan de Lara <ndelara@enst.fr>
@@ -20,6 +22,7 @@ def vote_update(int[:] indptr, int[:] indices, float[:] data, int[:] labels, int
     cdef int jj
     cdef int n_indices = index.shape[0]
     cdef int label
+    cdef int label_neigh_size
     cdef float best_score
 
     cdef vector[int] labels_neigh
@@ -39,7 +42,8 @@ def vote_update(int[:] indptr, int[:] indices, float[:] data, int[:] labels, int
             votes_neigh.push_back(data[jj])
 
         labels_unique.clear()
-        for jj in range(labels_neigh.size()):
+        label_neigh_size = labels_neigh.size()
+        for jj in range(label_neigh_size):
             label = labels_neigh[jj]
             if label >= 0:
                 labels_unique.insert(label)
