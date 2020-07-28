@@ -35,4 +35,4 @@ Coloring
 Similarity
 ----------
 
-.. autofunction:: sknetwork.topology.weisfeiler_lehman_isomorphism_test
+.. autofunction:: sknetwork.topology.are_isomorphic
