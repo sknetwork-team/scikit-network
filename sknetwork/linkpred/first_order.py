@@ -497,3 +497,9 @@ class PreferentialAttachment(FirstOrder):
         tgt = np.array(targets)
         deg_tgt = self.indptr_[tgt+1] - self.indptr_[tgt]
         return deg_src * deg_tgt
+
+    def _predict_edges(self, edges: np.ndarray):
+        """Prediction for multiple edges."""
+        deg_src = self.indptr_[edges[:, 0] + 1] - self.indptr_[edges[:, 0]]
+        deg_tgt = self.indptr_[edges[:, 1] + 1] - self.indptr_[edges[:, 1]]
+        return deg_src * deg_tgt

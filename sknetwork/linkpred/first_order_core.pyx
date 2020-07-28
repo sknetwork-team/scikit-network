@@ -97,7 +97,26 @@ cdef vector[int] neighbors(int[:] indptr, int[:] indices, int node):
 
 cdef vector[float] predict_node_core(int[:] indptr, int[:] indices, int source, int[:] targets,
                                        vectors2float weight_func):
-    """Scores based on global information about common neighbors"""
+    """Scores based on global information about common neighbors for a single source.
+
+    Parameters
+    ----------
+    indptr :
+        indptr array of the adjacency matrix
+    indices :
+        indices array of the adjacency matrix
+    source :
+        source index
+    targets :
+        array of target indices
+    weight_func :
+        scoring function to be used
+
+    Returns
+    -------
+    scores :
+        vector of node pair scores
+    """
     cdef int target, i
     cdef int n_targets = targets.shape[0]
     cdef vector[float] preds
@@ -114,7 +133,24 @@ cdef vector[float] predict_node_core(int[:] indptr, int[:] indices, int source, 
 
 cdef vector[float] predict_edges_core(int[:] indptr, int[:] indices, int[:, :] edges,
                                        vectors2float weight_func):
-    """Scores based on global information about common neighbors for a list of edges"""
+    """Scores based on global information about common neighbors for a list of edges.
+
+    Parameters
+    ----------
+    indptr :
+        indptr array of the adjacency matrix
+    indices :
+        indices array of the adjacency matrix
+    edges:
+        array of node pairs to be scored
+    weight_func :
+        scoring function to be used
+
+    Returns
+    -------
+    scores :
+        vector of node pair scores
+    """
 
     cdef vector[float] preds
     cdef int source, target, i
@@ -178,7 +214,26 @@ def hub_depressed_edges_core(int[:] indptr, int[:] indices, int[:, :] edges):
 
 cdef vector[float] predict_node_weighted_core(int[:] indptr, int[:] indices, int source, int[:] targets,
                                               int2float weight_func):
-    """Scores based on local information about common neighbors"""
+    """Scores based on the degrees of common neighbors for a single source.
+
+    Parameters
+    ----------
+    indptr :
+        indptr array of the adjacency matrix
+    indices :
+        indices array of the adjacency matrix
+    source :
+        source index
+    targets :
+        array of target indices
+    weight_func :
+        scoring function to be used
+
+    Returns
+    -------
+    scores :
+        vector of node pair scores
+    """
     cdef int target, i, j
     cdef int n_targets = targets.shape[0]
     cdef float weight
@@ -202,8 +257,24 @@ cdef vector[float] predict_node_weighted_core(int[:] indptr, int[:] indices, int
 
 cdef vector[float] predict_edges_weighted_core(int[:] indptr, int[:] indices, int[:, :] edges,
                                                int2float weight_func):
-    """Scores based on global information about common neighbors for a list of edges"""
+    """Scores based on the degrees of common neighbors for a list of edges.
 
+    Parameters
+    ----------
+    indptr :
+        indptr array of the adjacency matrix
+    indices :
+        indices array of the adjacency matrix
+    edges:
+        array of node pairs to be scored
+    weight_func :
+        scoring function to be used
+
+    Returns
+    -------
+    scores :
+        vector of node pair scores
+    """
     cdef vector[float] preds
     cdef int source, target, i
     cdef float weight
