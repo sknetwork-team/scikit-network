@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 """tests for load.py"""
 
-from urllib.error import URLError
 import unittest
 import tempfile
 import warnings
 
 import numpy as np
 
-from sknetwork.data import load_netset, load_konect, clear_data_home, save, load
+# has to specify the exact file to avoid nosetests error on full tests
+from sknetwork.data.load import load_netset, load_konect, clear_data_home, save, load
 from sknetwork.data.toy_graphs import house, star_wars
 
 

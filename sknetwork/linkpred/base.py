@@ -15,6 +15,10 @@ from sknetwork.utils.base import Algorithm
 class BaseLinkPred(Algorithm, ABC):
     """Base class for link prediction algorithms."""
 
+    def _predict_base(self, source: int, targets: Iterable):
+        """Prediction for a single node and multiple targets"""
+        raise NotImplementedError
+
     def _predict_node(self, node: int):
         """Prediction for a single node."""
         raise NotImplementedError
@@ -28,7 +32,7 @@ class BaseLinkPred(Algorithm, ABC):
 
     def _predict_edge(self, source: int, target: int):
         """Prediction for a single edge."""
-        raise NotImplementedError
+        return self._predict_base(source, [target])[0]
 
     def _predict_edges(self, edges: np.ndarray):
         """Prediction for a list of edges."""

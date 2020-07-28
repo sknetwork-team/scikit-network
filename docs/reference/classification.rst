@@ -36,3 +36,7 @@ Nearest neighbors
 .. autoclass:: sknetwork.classification.KNN
 
 .. autoclass:: sknetwork.classification.BiKNN
+
+Metrics
+-------
+.. autofunction:: sknetwork.classification.accuracy_score

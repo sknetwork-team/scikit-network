@@ -3,7 +3,8 @@
 """"tests for shortest_path.py"""
 import unittest
 
-from sknetwork.path import distance, shortest_path
+# has to specify the exact file to avoid nosetests error on full tests
+from sknetwork.path.shortest_path import distance, shortest_path
 from sknetwork.data import karate_club, cyclic_digraph
 
 
