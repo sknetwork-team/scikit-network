@@ -12,7 +12,7 @@ from os import environ, makedirs, remove, listdir, rmdir
 from os.path import exists, expanduser, join
 from pathlib import Path
 from typing import Optional, Union
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.request import urlretrieve
 
 import numpy as np
@@ -68,13 +68,6 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
     Returns
     -------
     graph : :class:`Bunch`
-
-    Example
-    -------
-    >>> from sknetwork.data import load_netset
-    >>> graph = load_netset('openflights')
-    >>> graph.adjacency.shape
-    (3097, 3097)
     """
     graph = Bunch()
 
@@ -94,6 +87,9 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
             raise ValueError('Invalid dataset: ' + dataset + '.'
                              + "\nAvailable datasets include 'openflights' and 'wikivitals'."
                              + "\nSee <https://graphs.telecom-paristech.fr/>")
+        except ConnectionResetError:
+            rmdir(data_path)
+            raise RuntimeError("Could not reach Netset.")
         with tarfile.open(data_home / (dataset + '_npz.tar.gz'), 'r:gz') as tar_ref:
             tar_ref.extractall(data_home)
         remove(data_home / (dataset + '_npz.tar.gz'))
@@ -148,13 +144,6 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
              * `meta`: a dictionary containing the metadata as specified by Konect
              * each attribute specified by Konect (ent.* file)
 
-    Example
-    -------
-    >>> from sknetwork.data import load_konect
-    >>> graph = load_konect('dolphins')
-    >>> graph.adjacency.shape
-    (62, 62)
-
     Notes
     -----
     An attribute `meta` of the `Bunch` class is used to store information about the dataset if present. In any case,
@@ -178,8 +167,12 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
             raise ValueError('Invalid dataset ' + dataset + '.'
                              + "\nExamples include 'actor-movie' and 'ego-facebook'."
                              + "\n See 'http://konect.uni-koblenz.de' for the full list.")
+        except (URLError, ConnectionResetError):
+            rmdir(data_path)
+            raise RuntimeError("Could not reach Konect.")
         finally:
-            remove(data_home / (dataset + '.tar.bz2'))
+            if exists(data_home / (dataset + '.tar.bz2')):
+                remove(data_home / (dataset + '.tar.bz2'))
     elif exists(data_path / (dataset + '_bundle')):
         return load_from_numpy_bundle(dataset + '_bundle', data_path)
 

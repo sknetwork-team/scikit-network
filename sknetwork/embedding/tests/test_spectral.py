@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """tests for spectral embedding"""
-
 import unittest
 
 import numpy as np
 
-from sknetwork.embedding import Spectral
+from sknetwork.embedding import Spectral, LaplacianEmbedding
 from sknetwork.embedding.spectral import LaplacianOperator
 from sknetwork.data.test_graphs import test_graph, test_bigraph, test_digraph, test_graph_disconnect
 
@@ -26,13 +25,11 @@ class TestEmbeddings(unittest.TestCase):
 
     def test_regular(self):
         # regular Laplacian
-        spectral = Spectral(self.k, normalized_laplacian=False, barycenter=False, normalized=False)
+        spectral = LaplacianEmbedding(self.k, barycenter=False, normalized=False)
         embedding = spectral.fit_transform(self.adjacency)
         self.assertAlmostEqual(np.linalg.norm(embedding.mean(axis=0)), 0)
-        error = np.abs(spectral.predict(self.adjacency[1]) - embedding[1]).sum()
-        self.assertAlmostEqual(error, 0)
 
-        spectral = Spectral(self.k, normalized_laplacian=False, regularization=0, equalize=True)
+        spectral = LaplacianEmbedding(self.k, regularization=0, equalize=True)
         with self.assertRaises(ValueError):
             spectral.fit(test_bigraph())
         with self.assertRaises(ValueError):

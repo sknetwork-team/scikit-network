@@ -36,6 +36,12 @@ class TestVisualization(unittest.TestCase):
         self.assertEqual(image[1:4], 'svg')
         image = svg_graph(adjacency, position=None, scores={0: 0})
         self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency=None, position=position)
+        self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position, labels, label_colors={0: "red", 1: "blue"})
+        self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position, labels, label_colors=["red", "blue"])
+        self.assertEqual(image[1:4], 'svg')
 
     def test_directed(self):
         graph = painters(True)
@@ -77,14 +83,15 @@ class TestVisualization(unittest.TestCase):
         n_row, n_col = biadjacency.shape
         position_row = np.random.random((n_row, 2))
         position_col = np.random.random((n_col, 2))
-        image = svg_bigraph(biadjacency, np.arange(n_row), np.arange(n_col),
-                            np.arange(n_row), np.arange(n_col), np.arange(n_row), np.arange(n_col), [0, 1],
-                            [1, 2], position_row, position_col, color_row='red', color_col='white',
+        image = svg_bigraph(biadjacency=biadjacency, names_row=np.arange(n_row), names_col=np.arange(n_col),
+                            labels_row=np.arange(n_row), labels_col=np.arange(n_col), scores_row=np.arange(n_row),
+                            scores_col=np.arange(n_col), seeds_row=[0, 1], seeds_col=[1, 2],
+                            position_row=position_row, position_col=position_col, color_row='red', color_col='white',
                             width=200, height=200, margin=10, margin_text=5, scale=3, node_size=5,
                             node_size_min=1, node_size_max=30, node_weights_row=np.arange(n_row),
                             node_weights_col=np.arange(n_col), display_node_weight=True, node_width=2, node_width_max=5,
-                            edge_width=2, edge_width_min=0.3, edge_width_max=4, edge_color='red', display_edge_weight=True,
-                            font_size=14)
+                            edge_width=2, edge_width_min=0.3, edge_width_max=4, edge_color='red',
+                            display_edge_weight=True, font_size=14)
         self.assertEqual(image[1:4], 'svg')
 
     def test_disconnect(self):

@@ -131,7 +131,7 @@ class Propagation(BaseClassifier):
         while t < self.n_iter and not np.array_equal(labels_remain, labels[index_remain]):
             t += 1
             labels_remain = labels[index_remain].copy()
-            labels = vote_update(indptr, indices, data, labels, index_remain)
+            labels = np.asarray(vote_update(indptr, indices, data, labels, index_remain))
 
         membership = membership_matrix(labels)
         membership = normalize(adjacency.dot(membership))
