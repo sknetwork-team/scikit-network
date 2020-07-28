@@ -11,8 +11,11 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.linkpred.base import BaseLinkPred
-from sknetwork.linkpred.first_order_core import c_common_neigh, c_jaccard, c_salton, c_sorensen, c_hub_promoted,\
-    c_hub_depressed, adamic_adar, resource_allocation
+from sknetwork.linkpred.first_order_core import common_neighbors_node_core, jaccard_node_core, salton_node_core,\
+    sorensen_node_core, hub_promoted_node_core, hub_depressed_node_core, adamic_adar_node_core,\
+    resource_allocation_node_core,\
+    common_neighbors_edges_core, jaccard_edges_core, salton_edges_core, sorensen_edges_core, hub_promoted_edges_core,\
+    hub_depressed_edges_core, adamic_adar_edges_core, resource_allocation_edges_core
 from sknetwork.utils.check import check_format
 
 
@@ -43,7 +46,7 @@ class FirstOrder(BaseLinkPred, ABC):
         return self
 
     def _predict_node(self, source: int):
-        """Prediction for a single edge."""
+        """Prediction for a single node."""
         n = self.indptr_.shape[0] - 1
         return self._predict_base(source, np.arange(n))
 
@@ -84,8 +87,12 @@ class CommonNeighbors(FirstOrder):
 
     def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
-        return np.asarray(c_common_neigh(self.indptr_, self.indices_, np.int32(source),
-                                         np.array(targets, dtype=np.int32))).astype(int)
+        return np.asarray(common_neighbors_node_core(self.indptr_, self.indices_, np.int32(source),
+                                                     np.array(targets, dtype=np.int32))).astype(int)
+
+    def _predict_edges(self, edges: np.ndarray):
+        """Prediction for multiple edges."""
+        return np.asarray(common_neighbors_edges_core(self.indptr_, self.indices_, edges.astype(np.int32))).astype(int)
 
 
 class JaccardIndex(FirstOrder):
@@ -129,7 +136,11 @@ class JaccardIndex(FirstOrder):
 
     def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
-        return np.asarray(c_jaccard(self.indptr_, self.indices_, np.int32(source), np.array(targets, dtype=np.int32)))
+        return np.asarray(jaccard_node_core(self.indptr_, self.indices_, np.int32(source), np.array(targets, dtype=np.int32)))
+
+    def _predict_edges(self, edges: np.ndarray):
+        """Prediction for multiple edges."""
+        return np.asarray(jaccard_edges_core(self.indptr_, self.indices_, edges.astype(np.int32)))
 
 
 class SaltonIndex(FirstOrder):
@@ -175,7 +186,11 @@ class SaltonIndex(FirstOrder):
 
     def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
-        return np.asarray(c_salton(self.indptr_, self.indices_, np.int32(source), np.array(targets, dtype=np.int32)))
+        return np.asarray(salton_node_core(self.indptr_, self.indices_, np.int32(source), np.array(targets, dtype=np.int32)))
+
+    def _predict_edges(self, edges: np.ndarray):
+        """Prediction for multiple edges."""
+        return np.asarray(salton_edges_core(self.indptr_, self.indices_, edges.astype(np.int32)))
 
 
 class SorensenIndex(FirstOrder):
@@ -226,7 +241,11 @@ class SorensenIndex(FirstOrder):
 
     def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
-        return np.asarray(c_sorensen(self.indptr_, self.indices_, np.int32(source), np.array(targets, dtype=np.int32)))
+        return np.asarray(sorensen_node_core(self.indptr_, self.indices_, np.int32(source), np.array(targets, dtype=np.int32)))
+
+    def _predict_edges(self, edges: np.ndarray):
+        """Prediction for multiple edges."""
+        return np.asarray(sorensen_edges_core(self.indptr_, self.indices_, edges.astype(np.int32)))
 
 
 class HubPromotedIndex(FirstOrder):
@@ -272,8 +291,12 @@ class HubPromotedIndex(FirstOrder):
 
     def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
-        return np.asarray(c_hub_promoted(self.indptr_, self.indices_, np.int32(source),
-                                         np.array(targets, dtype=np.int32)))
+        return np.asarray(hub_promoted_node_core(self.indptr_, self.indices_, np.int32(source),
+                                                 np.array(targets, dtype=np.int32)))
+
+    def _predict_edges(self, edges: np.ndarray):
+        """Prediction for multiple edges."""
+        return np.asarray(hub_promoted_edges_core(self.indptr_, self.indices_, edges.astype(np.int32)))
 
 
 class HubDepressedIndex(FirstOrder):
@@ -319,8 +342,12 @@ class HubDepressedIndex(FirstOrder):
 
     def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
-        return np.asarray(c_hub_depressed(self.indptr_, self.indices_, np.int32(source),
-                                          np.array(targets, dtype=np.int32)))
+        return np.asarray(hub_depressed_node_core(self.indptr_, self.indices_, np.int32(source),
+                                                  np.array(targets, dtype=np.int32)))
+
+    def _predict_edges(self, edges: np.ndarray):
+        """Prediction for multiple edges."""
+        return np.asarray(hub_depressed_edges_core(self.indptr_, self.indices_, edges.astype(np.int32)))
 
 
 class AdamicAdar(FirstOrder):
@@ -365,7 +392,12 @@ class AdamicAdar(FirstOrder):
 
     def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
-        return np.asarray(adamic_adar(self.indptr_, self.indices_, np.int32(source), np.array(targets, dtype=np.int32)))
+        return np.asarray(adamic_adar_node_core(self.indptr_, self.indices_, np.int32(source),
+                                                np.array(targets, dtype=np.int32)))
+
+    def _predict_edges(self, edges: np.ndarray):
+        """Prediction for multiple edges."""
+        return np.asarray(adamic_adar_edges_core(self.indptr_, self.indices_, edges.astype(np.int32)))
 
 
 class ResourceAllocation(FirstOrder):
@@ -411,8 +443,12 @@ class ResourceAllocation(FirstOrder):
 
     def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
-        return np.asarray(resource_allocation(self.indptr_, self.indices_, np.int32(source),
-                                              np.array(targets, dtype=np.int32)))
+        return np.asarray(resource_allocation_node_core(self.indptr_, self.indices_, np.int32(source),
+                                                        np.array(targets, dtype=np.int32)))
+
+    def _predict_edges(self, edges: np.ndarray):
+        """Prediction for multiple edges."""
+        return np.asarray(resource_allocation_edges_core(self.indptr_, self.indices_, edges.astype(np.int32)))
 
 
 class PreferentialAttachment(FirstOrder):

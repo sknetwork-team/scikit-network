@@ -95,7 +95,7 @@ cdef vector[int] neighbors(int[:] indptr, int[:] indices, int node):
     return neigh
 
 
-cdef vector[float] common_neigh_global(int[:] indptr, int[:] indices, int source, int[:] targets,
+cdef vector[float] predict_node_core(int[:] indptr, int[:] indices, int source, int[:] targets,
                                        vectors2float weight_func):
     """Scores based on global information about common neighbors"""
     cdef int target, i
@@ -112,37 +112,72 @@ cdef vector[float] common_neigh_global(int[:] indptr, int[:] indices, int source
     return preds
 
 
-def c_common_neigh(int[:] indptr, int[:] indices, int source, int[:] targets):
+cdef vector[float] predict_edges_core(int[:] indptr, int[:] indices, int[:, :] edges,
+                                       vectors2float weight_func):
+    """Scores based on global information about common neighbors for a list of edges"""
+
+    cdef vector[float] preds
+    cdef int source, target, i
+
+    cdef int n_edges = edges.shape[0]
+    for i in range(n_edges):
+        source, target = edges[i, 0], edges[i, 1]
+        neigh_s = neighbors(indptr, indices, source)
+        neigh_t = neighbors(indptr, indices, target)
+        preds.push_back(weight_func(neigh_s, neigh_t))
+
+    return preds
+
+def common_neighbors_node_core(int[:] indptr, int[:] indices, int source, int[:] targets):
     """Number of common neighbors"""
-    return common_neigh_global(indptr, indices, source, targets, size_intersection)
+    return predict_node_core(indptr, indices, source, targets, size_intersection)
 
+def common_neighbors_edges_core(int[:] indptr, int[:] indices, int[:, :] edges):
+    """Number of common neighbors"""
+    return predict_edges_core(indptr, indices, edges, size_intersection)
 
-def c_jaccard(int[:] indptr, int[:] indices, int source, int[:] targets):
+def jaccard_node_core(int[:] indptr, int[:] indices, int source, int[:] targets):
     """Jaccard coefficient of common neighbors"""
-    return common_neigh_global(indptr, indices, source, targets, jaccard)
+    return predict_node_core(indptr, indices, source, targets, jaccard)
 
+def jaccard_edges_core(int[:] indptr, int[:] indices, int[:, :] edges):
+    """Number of common neighbors"""
+    return predict_edges_core(indptr, indices, edges, jaccard)
 
-def c_salton(int[:] indptr, int[:] indices, int source, int[:] targets):
+def salton_node_core(int[:] indptr, int[:] indices, int source, int[:] targets):
     """Salton coefficient of common neighbors"""
-    return common_neigh_global(indptr, indices, source, targets, salton)
+    return predict_node_core(indptr, indices, source, targets, salton)
 
+def salton_edges_core(int[:] indptr, int[:] indices, int[:, :] edges):
+    """Salton coefficient of common neighbors"""
+    return predict_edges_core(indptr, indices, edges, salton)
 
-def c_sorensen(int[:] indptr, int[:] indices, int source, int[:] targets):
+def sorensen_node_core(int[:] indptr, int[:] indices, int source, int[:] targets):
     """Sorensen coefficient of common neighbors"""
-    return common_neigh_global(indptr, indices, source, targets, sorensen)
+    return predict_node_core(indptr, indices, source, targets, sorensen)
 
+def sorensen_edges_core(int[:] indptr, int[:] indices, int[:, :] edges):
+    """Sorensen coefficient of common neighbors"""
+    return predict_edges_core(indptr, indices, edges, sorensen)
 
-def c_hub_promoted(int[:] indptr, int[:] indices, int source, int[:] targets):
+def hub_promoted_node_core(int[:] indptr, int[:] indices, int source, int[:] targets):
     """Hub promoted coefficient of common neighbors"""
-    return common_neigh_global(indptr, indices, source, targets, hub_promoted)
+    return predict_node_core(indptr, indices, source, targets, hub_promoted)
 
+def hub_promoted_edges_core(int[:] indptr, int[:] indices, int[:, :] edges):
+    """Hub promoted coefficient of common neighbors"""
+    return predict_edges_core(indptr, indices, edges, hub_promoted)
 
-def c_hub_depressed(int[:] indptr, int[:] indices, int source, int[:] targets):
+def hub_depressed_node_core(int[:] indptr, int[:] indices, int source, int[:] targets):
     """Hub depressed coefficient of common neighbors"""
-    return common_neigh_global(indptr, indices, source, targets, hub_depressed)
+    return predict_node_core(indptr, indices, source, targets, hub_depressed)
 
+def hub_depressed_edges_core(int[:] indptr, int[:] indices, int[:, :] edges):
+    """Hub depressed coefficient of common neighbors"""
+    return predict_edges_core(indptr, indices, edges, hub_depressed)
 
-cdef vector[float] common_neigh_local(int[:] indptr, int[:] indices, int source, int[:] targets, int2float weight_func):
+cdef vector[float] predict_node_weighted_core(int[:] indptr, int[:] indices, int source, int[:] targets,
+                                              int2float weight_func):
     """Scores based on local information about common neighbors"""
     cdef int target, i, j
     cdef int n_targets = targets.shape[0]
@@ -165,11 +200,43 @@ cdef vector[float] common_neigh_local(int[:] indptr, int[:] indices, int source,
     return preds
 
 
-def adamic_adar(int[:] indptr, int[:] indices, int source, int[:] targets):
+cdef vector[float] predict_edges_weighted_core(int[:] indptr, int[:] indices, int[:, :] edges,
+                                               int2float weight_func):
+    """Scores based on global information about common neighbors for a list of edges"""
+
+    cdef vector[float] preds
+    cdef int source, target, i
+    cdef float weight
+    cdef vector[int] intersection
+
+    cdef int n_edges = edges.shape[0]
+    for i in range(n_edges):
+        source, target = edges[i][0], edges[i][1]
+        neigh_s = neighbors(indptr, indices, source)
+        neigh_t = neighbors(indptr, indices, target)
+
+        intersection = vector_intersection(neigh_s, neigh_t)
+
+        weight = 0
+        for j in intersection:
+            weight += weight_func(indptr[j+1] - indptr[j])
+        preds.push_back(weight)
+
+    return preds
+
+
+def adamic_adar_node_core(int[:] indptr, int[:] indices, int source, int[:] targets):
     """Adamic Adar index"""
-    return common_neigh_local(indptr, indices, source, targets, inv_log)
+    return predict_node_weighted_core(indptr, indices, source, targets, inv_log)
 
+def adamic_adar_edges_core(int[:] indptr, int[:] indices, int[:, :] edges):
+    """Adamic Adar index"""
+    return predict_edges_weighted_core(indptr, indices, edges, inv_log)
 
-def resource_allocation(int[:] indptr, int[:] indices, int source, int[:] targets):
+def resource_allocation_node_core(int[:] indptr, int[:] indices, int source, int[:] targets):
     """Resource Allocation index"""
-    return common_neigh_local(indptr, indices, source, targets, inv)
+    return predict_node_weighted_core(indptr, indices, source, targets, inv)
+
+def resource_allocation_edges_core(int[:] indptr, int[:] indices, int[:, :] edges):
+    """Resource Allocation index"""
+    return predict_edges_weighted_core(indptr, indices, edges, inv)
