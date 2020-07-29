@@ -44,7 +44,7 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
 
     Returns
     -------
-    adjacency_ :
+    new_adjacency :
         New adjacency matrix (same format as input).
     """
     check_csr_or_slr(adjacency)
