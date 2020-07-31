@@ -122,13 +122,13 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
 
 def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto_numpy_bundle: bool = True) -> Bunch:
     """Load a dataset from the `Konect database
-    <http://konect.uni-koblenz.de>`_.
+    <http://konect.cc/networks/>`_.
 
     Parameters
     ----------
     dataset : str
-        The name of the dataset as specified in the download link (e.g. for the Actor movies dataset, the corresponding
-        name is ``'actor-movie'``).
+        The internal name of the dataset as specified on the Konect website (e.g. for the Zachary Karate club dataset,
+        the corresponding name is ``'ucidata-zachary'``).
     data_home : str or :class:`pathlib.Path`
         The folder to be used for dataset storage
     auto_numpy_bundle : bool
@@ -152,13 +152,13 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
     if dataset == '':
         raise ValueError("Please specify the dataset. "
                          + "\nExamples include 'actor-movie' and 'ego-facebook'."
-                         + "\n See 'http://konect.uni-koblenz.de' for the full list.")
+                         + "\n See 'http://konect.cc/networks/' for the full list.")
     data_home = get_data_home(data_home)
     data_path = data_home / dataset
     if not data_path.exists():
         makedirs(data_path, exist_ok=True)
         try:
-            urlretrieve('http://konect.uni-koblenz.de/downloads/tsv/' + dataset + '.tar.bz2',
+            urlretrieve('http://konect.cc/files/download.tsv.' + dataset + '.tar.bz2',
                         data_home / (dataset + '.tar.bz2'))
             with tarfile.open(data_home / (dataset + '.tar.bz2'), 'r:bz2') as tar_ref:
                 tar_ref.extractall(data_home)
@@ -166,7 +166,7 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
             rmdir(data_path)
             raise ValueError('Invalid dataset ' + dataset + '.'
                              + "\nExamples include 'actor-movie' and 'ego-facebook'."
-                             + "\n See 'http://konect.uni-koblenz.de' for the full list.")
+                             + "\n See 'http://konect.cc/networks/' for the full list.")
         except (URLError, ConnectionResetError):
             rmdir(data_path)
             raise RuntimeError("Could not reach Konect.")
