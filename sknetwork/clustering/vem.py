@@ -24,8 +24,8 @@ xmin = np.finfo(np.float).min
 xmax = np.finfo(np.float).max
 
 
-@numba.jit(nopython=True,parallel=True)
-def J(X,taus,alphas,pis,Q):
+@numba.jit(nopython=True, parallel=True)
+def J(X, taus, alphas, pis, Q):
     n = X.shape[0]
 
     output = np.sum(taus@np.log(alphas))
@@ -33,42 +33,42 @@ def J(X,taus,alphas,pis,Q):
     cpt = 0
     for i in numba.prange(n):
         for j in numba.prange(n):
-            if i!=j:
+            if i != j:
                 for q in numba.prange(Q):
                     for l in numba.prange(Q):
-                        logb = (X[i,j]*np.log(pis[q,l])+ \
-                               (1-X[i,j])*np.log(1-pis[q,l]))
-                        cpt += taus[i,q]*taus[j,l]*logb
+                        logb = (X[i, j]*np.log(pis[q, l]) +
+                                (1-X[i, j])*np.log(1-pis[q, l]))
+                        cpt += taus[i, q]*taus[j, l]*logb
 
     return output+cpt/2-np.sum(taus*np.log(taus))
 
 
-@numba.jit(nopython=True,parallel=True)
-def E_step_VEM(X,taus,alphas,pis,Q):
+@numba.jit(nopython=True, parallel=True)
+def E_step_VEM(X, taus, alphas, pis, Q):
     n = X.shape[0]
-    logTau = np.log(np.maximum(taus,eps))
+    logTau = np.log(np.maximum(taus, eps))
     for i in numba.prange(n):
-        logTau[i,:] = np.log(alphas)
+        logTau[i, :] = np.log(alphas)
         for q in numba.prange(Q):
             for j in numba.prange(n):
-                if j!=i:
+                if j != i:
                     for l in numba.prange(Q):
-                        logTau[i,q] += taus[j,l]*(X[i,j]*np.log(pis[q,l])+\
-                                                 (1-X[i,j])*np.log(1-pis[q,l]))
+                        logTau[i, q] += taus[j, l]*(X[i, j]*np.log(pis[q, l]) +
+                                                    (1-X[i, j])*np.log(1-pis[q, l]))
 
-    logTau = np.maximum(np.minimum(logTau,xmax),xmin)
+    logTau = np.maximum(np.minimum(logTau, xmax), xmin)
     tau = np.exp(logTau)
 
     for i in numba.prange(n):
-        tau[i,:] /= np.sum(tau[i,:])
+        tau[i, :] /= np.sum(tau[i, :])
 
-    return np.maximum(tau,eps)
+    return np.maximum(tau, eps)
 
 
-@numba.jit(nopython=True,parallel=True)
-def M_step_VEM(X,taus,alphas,pis,Q):
+@numba.jit(nopython=True, parallel=True)
+def M_step_VEM(X, taus, alphas, pis, Q):
     n = X.shape[0]
-    alphas = np.maximum(np.sum(taus,axis=0)/n,eps)
+    alphas = np.maximum(np.sum(taus, axis=0)/n, eps)
 
     for q in numba.prange(Q):
         for l in range(Q):
@@ -76,16 +76,16 @@ def M_step_VEM(X,taus,alphas,pis,Q):
             denom = 0
             for i in numba.prange(n):
                 for j in numba.prange(n):
-                    if i!=j:
-                        num += taus[i,q]*taus[j,l]*X[i,j]
-                        denom += taus[i,q]*taus[j,l]
-            if denom>eps:
+                    if i != j:
+                        num += taus[i, q]*taus[j, l]*X[i, j]
+                        denom += taus[i, q]*taus[j, l]
+            if denom > eps:
                 pi = num/denom
             else:
-                ## class with a single vertex
+                # class with a single vertex
                 pi = 0.5
 
-            pis[q,l] = np.minimum(np.maximum(num/denom,eps),1-eps)
+            pis[q, l] = np.minimum(np.maximum(pi, eps), 1-eps)
 
     return alphas
 
@@ -122,57 +122,60 @@ class VEM(BaseClustering):
     >>> len(set(labels))
     3
     """
-    def __init__(self,n_clusters : int = 3, init: str = "kmeans",
-                 max_iter : int = 100,tol:float = 1e-6,sort_clusters:bool = True,
-                 return_membership: bool=True, return_aggregate: bool = True):
+
+    def __init__(self, n_clusters: int = 3, init: str = "kmeans",
+                 max_iter: int = 100, tol: float = 1e-6, sort_clusters: bool = True,
+                 return_membership: bool = True, return_aggregate: bool = True):
         super(VEM, self).__init__(sort_clusters=sort_clusters,
                                   return_membership=return_membership,
                                   return_aggregate=return_aggregate)
         self.n_clusters = n_clusters
 
-        if init!="kmeans" and init!="random":
-            raise ValueError("Unknown initialization. It must be either 'kmeans' or 'random'")
+        if init != "kmeans" and init != "random":
+            raise ValueError(
+                "Unknown initialization. It must be either 'kmeans' or 'random'")
 
         self.init = init
         self.max_iter = max_iter
         self.tol = tol
 
-    def _init_vem(self,init):
+    def _init_vem(self, init):
         n = self.X.shape[0]
 
-        if init=="kmeans":
-            kmeans = KMeans(n_clusters = self.n_clusters, embedding_method=GSVD(self.n_clusters))
+        if init == "kmeans":
+            kmeans = KMeans(n_clusters=self.n_clusters,
+                            embedding_method=GSVD(self.n_clusters))
             labels_k = kmeans.fit_transform(self.X)
 
-            self.taus = np.zeros(shape=(n,self.n_clusters))
+            self.taus = np.zeros(shape=(n, self.n_clusters))
             self.taus[:] = np.eye(self.n_clusters)[labels_k]
         else:
-            self.taus = np.random.rand(n,self.n_clusters)
+            self.taus = np.random.rand(n, self.n_clusters)
             for i in range(n):
-                self.taus[i,:] /= np.sum(self.taus[i,:])
+                self.taus[i, :] /= np.sum(self.taus[i, :])
 
         self.alphas = np.ones(shape=(self.n_clusters,))/self.n_clusters
-        self.pis = np.zeros(shape=(self.n_clusters,self.n_clusters))
-        
+        self.pis = np.zeros(shape=(self.n_clusters, self.n_clusters))
 
     def _j(self):
         n = self.X.shape[0]
-        return J(self.X@np.eye(n),self.taus,self.alphas,self.pis,self.n_clusters)
-
+        return J(self.X@np.eye(n), self.taus, self.alphas, self.pis, self.n_clusters)
 
     def _e_step(self):
         n = self.X.shape[0]
-        self.taus = E_step_VEM(self.X@np.eye(n),self.taus,self.alphas,self.pis,self.n_clusters)
-
+        self.taus = E_step_VEM(self.X@np.eye(n), self.taus,
+                               self.alphas, self.pis, self.n_clusters)
 
     def _m_step(self):
         n = self.X.shape[0]
-        self.alphas = M_step_VEM(self.X@np.eye(n),self.taus,self.alphas,self.pis,self.n_clusters)
+        self.alphas = M_step_VEM(
+            self.X@np.eye(n), self.taus, self.alphas, self.pis, self.n_clusters)
 
-
-    def fit(self,adjacency: Union[sparse.csr_matrix,np.ndarray]) -> 'VEM':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'VEM':
         self.X = deepcopy(adjacency)
-        n = self.X.shape[0]
+
+        self.X[self.X > 0] = 1
+        self.X[self.X < 0] = 1
 
         self._init_vem(self.init)
 
@@ -183,12 +186,11 @@ class VEM(BaseClustering):
             self._e_step()
 
             Js.append(self._j())
-
-            if len(Js)>1 and Js[-1]-Js[-2]<self.tol:
+            
+            if len(Js) > 1 and Js[-1]-Js[-2] < self.tol:
                 break
 
-
-        self.labels_ = np.argmax(self.taus,axis=1)
+        self.labels_ = np.argmax(self.taus, axis=1)
         self._secondary_outputs(adjacency)
 
         return self

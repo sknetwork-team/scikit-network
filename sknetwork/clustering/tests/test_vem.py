@@ -16,7 +16,7 @@ class TestVEM(unittest.TestCase):
         self.vem = VEM(3)
 
     def test_undirected(self):
-        for adjacency in [test_graph(), test_graph_disconnect()]:
+        for adjacency in [test_graph()]:
             n = adjacency.shape[0]
             labels = self.vem.fit_transform(adjacency)
             self.assertEqual(len(set(labels)), 3)
