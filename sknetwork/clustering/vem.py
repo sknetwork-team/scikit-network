@@ -121,6 +121,18 @@ class VEM(BaseClustering):
     >>> labels = vem.fit_transform(adjacency)
     >>> len(set(labels))
     3
+    
+    References
+    ----------
+    * Daudin, J-J., Picard, F., & Robin, S. (2008).
+      `A mixture model for random graphs.
+      <http://pbil.univ-lyon1.fr/members/fpicard/franckpicard_fichiers/pdf/DPR08.pdf>`_
+      Statistics and computing, 2008
+      
+    * Miele, V., Picard, F., Daudin, J-J., Mariadassou, M. & Robin, S. (2007).
+      `Technical documentation about estimation in the ERMG model.
+      <http://www.math-evry.cnrs.fr/_media/logiciels/mixnet/mixnet-doc.pdf>`_
+
     """
 
     def __init__(self, n_clusters: int = 3, init: str = "kmeans",
