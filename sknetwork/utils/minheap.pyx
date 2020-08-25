@@ -10,6 +10,19 @@ Created on Jun 3, 2020
 cimport cython
 
 
+cdef inline int parent(int i):
+    """Index of the parent node of i in the tree."""
+    return (i - 1) // 2
+
+cdef inline int left(int i):
+    """Index of the left child of i in the tree."""
+    return 2 * i + 1
+
+cdef inline int right(int i):
+    """Index of the right child of i in the tree."""
+    return 2 * i + 2
+
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef class MinHeap:
