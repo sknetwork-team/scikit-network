@@ -74,9 +74,9 @@ class LaplacianEmbedding(BaseEmbedding):
     -------
     >>> from sknetwork.embedding import Spectral
     >>> from sknetwork.data import karate_club
-    >>> spectral = Spectral()
+    >>> laplacian = LaplacianEmbedding()
     >>> adjacency = karate_club()
-    >>> embedding = spectral.fit_transform(adjacency)
+    >>> embedding = laplacian.fit_transform(adjacency)
     >>> embedding.shape
     (34, 2)
 
