@@ -118,11 +118,14 @@ class LaplacianEmbedding(BaseEmbedding):
         check_symmetry(adjacency)
         n = adjacency.shape[0]
 
-        solver = set_solver(self.solver, adjacency)
-        n_components = 1 + check_n_components(self.n_components, n-2)
-
         regularize: bool = not (self.regularization is None or self.regularization == 0.)
         check_scaling(self.scaling, adjacency, regularize)
+
+        if regularize:
+            solver: EigSolver = LanczosEig()
+        else:
+            solver = set_solver(self.solver, adjacency)
+        n_components = 1 + check_n_components(self.n_components, n-2)
 
         weights = adjacency.dot(np.ones(n))
         regularization = self.regularization
