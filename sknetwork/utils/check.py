@@ -12,7 +12,7 @@ from scipy import sparse
 
 
 def has_nonnegative_entries(entry: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """Boolean indicating whether the array has non negative entries."""
+    """True if the array has non negative entries."""
     if type(entry) == sparse.csr_matrix:
         return np.all(entry.data >= 0)
     else:
@@ -28,7 +28,7 @@ def check_nonnegative(entry: Union[sparse.csr_matrix, np.ndarray]):
 
 
 def has_positive_entries(entry: np.ndarray) -> bool:
-    """Boolean indicating whether the array has positive entries."""
+    """True if the array has positive entries."""
     if type(entry) != np.ndarray:
         raise TypeError('Entry must be a dense NumPy array.')
     else:
@@ -44,12 +44,12 @@ def check_positive(entry: Union[sparse.csr_matrix, np.ndarray]):
 
 
 def is_proba_array(entry: np.ndarray) -> bool:
-    """Check whether each line of the array has non negative entries which sum to 1."""
+    """True if each line of the array has non negative entries which sum to 1."""
     if len(entry.shape) == 1:
         return has_nonnegative_entries(entry) and np.isclose(entry.sum(), 1)
     elif len(entry.shape) == 2:
-        n_samples, n_features = entry.shape
-        err = entry.dot(np.ones(n_features)) - np.ones(n_samples)
+        n_row, n_col = entry.shape
+        err = entry.dot(np.ones(n_col)) - np.ones(n_row)
         return has_nonnegative_entries(entry) and np.isclose(np.linalg.norm(err), 0)
     else:
         raise TypeError('Entry must be one or two-dimensional array.')
@@ -61,21 +61,21 @@ def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
 
 
 def check_square(adjacency: Union[sparse.csr_matrix, np.ndarray]):
-    """Check is a matrix is square and return an error otherwise."""
+    """Check whether a matrix is square and return an error otherwise."""
     if is_square(adjacency):
         return
     else:
         raise ValueError('The adjacency is expected to be square.')
 
 
-def is_symmetric(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1e-10) -> bool:
-    """Check whether the matrix is symmetric."""
+def is_symmetric(adjacency: sparse.csr_matrix, tol: float = 1e-10) -> bool:
+    """True if the matrix is symmetric."""
     sym_error = adjacency - adjacency.T
-    return np.all(np.abs(sym_error.data) <= tol)
+    return np.all(np.abs(sym_error.data) <= tol * np.abs(adjacency.data.max()))
 
 
-def check_symmetry(adjacency: Union[sparse.csr_matrix, np.ndarray], tol: float = 1e-10):
-    """Check is a matrix is symmetric and return an error otherwise."""
+def check_symmetry(adjacency: sparse.csr_matrix, tol: float = 1e-10):
+    """Check whether a matrix is symmetric and return an error otherwise."""
     if is_symmetric(adjacency, tol):
         return
     else:
@@ -94,7 +94,7 @@ def is_connected(adjacency: sparse.csr_matrix) -> bool:
     return n_cc == 1
 
 
-def check_connected(adjacency: Union[sparse.csr_matrix, np.ndarray]):
+def check_connected(adjacency: sparse.csr_matrix):
     """Check is a graph is connected and return an error otherwise."""
     if is_connected(adjacency):
         return
@@ -115,7 +115,7 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
    Returns
    -------
    node_weights: np.ndarray
-       Valid weights of nodes.
+       Weights of nodes.
     """
     n = adjacency.shape[0]
     if distribution == 'degree':
@@ -128,7 +128,7 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
 
 
 def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
-    """Check whether the matrix is an instance of a supported type (NumPy array or Scipy CSR matrix) and return
+    """Check whether the matrix is a NumPy array or a Scipy CSR matrix and return
     the corresponding Scipy CSR matrix.
     """
     if type(adjacency) not in {sparse.csr_matrix, np.ndarray}:
