@@ -24,3 +24,8 @@ class TestShortestPath(unittest.TestCase):
     def test_shortest_paths(self):
         with self.assertRaises(ValueError):
             shortest_path(cyclic_digraph(3), [0, 1], [0, 1])
+
+    def test_error_on_parallel_FW(self):
+        adjacency = karate_club()
+        self.assertRaises(ValueError, distance, adjacency, n_jobs=2, method='FW')
+
