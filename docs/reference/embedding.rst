@@ -14,6 +14,8 @@ Spectral
 
 .. autoclass:: sknetwork.embedding.BiSpectral
 
+.. autoclass:: sknetwork.embedding.LaplacianEmbedding
+
 SVD
 ---
 
