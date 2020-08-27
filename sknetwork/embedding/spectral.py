@@ -13,8 +13,8 @@ from scipy import sparse
 from sknetwork.embedding.base import BaseEmbedding, BaseBiEmbedding
 from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv, normalize, LaplacianOperator,\
     NormalizedAdjacencyOperator, RegularizedAdjacency
-from sknetwork.utils.check import check_format, check_square, check_symmetry, check_adjacency_vector, is_connected,\
-    check_nonnegative, check_n_components
+from sknetwork.utils.check import check_format, check_square, check_symmetry, check_adjacency_vector, \
+    check_nonnegative, check_n_components, check_scaling
 from sknetwork.utils.format import bipartite2undirected
 
 
@@ -43,12 +43,12 @@ class LaplacianEmbedding(BaseEmbedding):
         Add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
-    equalize : bool (default = ``False``)
-        If ``True``, equalize the energy levels of the corresponding physical system, i.e., use
-        :math:`U \\Lambda^{- \\frac 1 2}`. Require regularization if the graph is not connected.
-    barycenter : bool (default = ``True``)
-        If ``True``, use the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
-        with :math:`P = D^{-1}A`. Otherwise, use :math:`U`.
+    scaling : float (non-negative, default = ``0.5``)
+        Scaling factor :math:`\\alpha` so that each component is divided by
+        :math:`\\lambda^\\alpha`, with :math:`\\lambda` the corresponding eigenvalue of
+        the Laplacian matrix :math:`L`. Require regularization if positive and the graph is not connected.
+        The default value :math:`\\alpha=\\frac 1 2` equalizes the energy levels of
+        the corresponding mechanical system.
     normalized : bool (default = ``True``)
         If ``True``, normalize the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
@@ -86,15 +86,14 @@ class LaplacianEmbedding(BaseEmbedding):
     Neural computation.
     """
     def __init__(self, n_components: int = 2, regularization: Union[None, float] = 0.01,
-                 relative_regularization: bool = True, equalize: bool = False, barycenter: bool = True,
+                 relative_regularization: bool = True, scaling: float = 0.5,
                  normalized: bool = True, solver: str = 'auto'):
         super(LaplacianEmbedding, self).__init__()
 
         self.n_components = n_components
         self.regularization = None if regularization == 0 else regularization
         self.relative_regularization = relative_regularization
-        self.equalize = equalize
-        self.barycenter = barycenter
+        self.scaling = scaling
         self.normalized = normalized
         self.solver = solver
 
@@ -123,10 +122,7 @@ class LaplacianEmbedding(BaseEmbedding):
         n_components = 1 + check_n_components(self.n_components, n-2)
 
         regularize: bool = not (self.regularization is None or self.regularization == 0.)
-
-        if self.equalize and (not regularize) and not is_connected(adjacency):
-            raise ValueError("The option 'equalize' is valid only if the graph is connected or with regularization."
-                             "Call 'fit' either with 'equalize' = False or positive 'regularization'.")
+        check_scaling(self.scaling, adjacency, regularize)
 
         weights = adjacency.dot(np.ones(n))
         regularization = self.regularization
@@ -146,16 +142,9 @@ class LaplacianEmbedding(BaseEmbedding):
 
         embedding = eigenvectors.copy()
 
-        if self.equalize:
-            eigenvalues_sqrt_inv_diag = diag_pinv(np.sqrt(eigenvalues))
-            embedding = eigenvalues_sqrt_inv_diag.dot(embedding.T).T
-
-        if self.barycenter:
-            eigenvalues_diag = sparse.diags(eigenvalues)
-            subtract = eigenvalues_diag.dot(embedding.T).T
-            weights_inv_diag = diag_pinv(weights)
-            subtract = weights_inv_diag.dot(subtract)
-            embedding -= subtract
+        if self.scaling:
+            eigenvalues_inv_diag = diag_pinv(eigenvalues ** self.scaling)
+            embedding = eigenvalues_inv_diag.dot(embedding.T).T
 
         if self.normalized:
             embedding = normalize(embedding, p=2)
@@ -185,9 +174,9 @@ class Spectral(BaseEmbedding):
         Add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
-    scaling : float (default = ``0.5``)
-        Scaling factor :math:`\\alpha` so that each component is scaled by
-        :math:`(1 - \\lambda)^-\\alpha`, with :math:`\\lambda` the corresponding eigenvalue of
+    scaling : float (non-negative, default = ``0.5``)
+        Scaling factor :math:`\\alpha` so that each component is divided by
+        :math:`(1 - \\lambda)^\\alpha`, with :math:`\\lambda` the corresponding eigenvalue of
         the transition matrix :math:`P`. Require regularization if positive and the graph is not connected.
         The default value :math:`\\alpha=\\frac 1 2` equalizes the energy levels of
         the corresponding mechanical system.
@@ -264,13 +253,7 @@ class Spectral(BaseEmbedding):
         n_components = 1 + check_n_components(self.n_components, n-2)
 
         regularize: bool = not (self.regularization is None or self.regularization == 0.)
-
-        if self.scaling < 0:
-            raise ValueError("The 'scaling' parameter must be non-negative.")
-
-        if self.scaling and (not regularize) and not is_connected(adjacency):
-            raise ValueError("Positive 'scaling' is available only if the graph is connected or with regularization."
-                             "Call 'fit' either with 'equalize' = False or positive 'regularization'.")
+        check_scaling(self.scaling, adjacency, regularize)
 
         weights = adjacency.dot(np.ones(n))
         regularization = self.regularization
@@ -361,7 +344,7 @@ class BiSpectral(Spectral, BaseBiEmbedding):
         :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`
 
     where :math:`B` is the biadjacency matrix of the bipartite graph or the adjacency matrix
-    of the directed graph. 
+    of the directed graph.
 
     * Digraphs
     * Bigraphs
@@ -374,9 +357,9 @@ class BiSpectral(Spectral, BaseBiEmbedding):
         Add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
-    scaling : float (default = ``0.5``)
-        Scaling factor :math:`\\alpha` so that each component is scaled by
-        :math:`(1 - \\lambda)^-\\alpha`, with :math:`\\lambda` the corresponding eigenvalue of
+    scaling : float (non-negative, default = ``0.5``)
+        Scaling factor :math:`\\alpha` so that each component is divided by
+        :math:`(1 - \\lambda)^\\alpha`, with :math:`\\lambda` the corresponding eigenvalue of
         the transition matrix :math:`P`. Require regularization if positive and the graph is not connected.
         The default value :math:`\\alpha=\\frac 1 2` equalizes the energy levels of
         the corresponding mechanical system.

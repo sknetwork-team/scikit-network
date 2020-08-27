@@ -23,13 +23,13 @@ class TestEmbeddings(unittest.TestCase):
         x = operator.T.dot(np.ones((self.n, 3)))
         self.assertEqual(x.shape, (self.n, 3))
 
-    def test_regular(self):
+    def test_laplacian(self):
         # regular Laplacian
-        spectral = LaplacianEmbedding(self.k, barycenter=False, normalized=False)
+        spectral = LaplacianEmbedding(self.k, normalized=False)
         embedding = spectral.fit_transform(self.adjacency)
         self.assertAlmostEqual(np.linalg.norm(embedding.mean(axis=0)), 0)
 
-        spectral = LaplacianEmbedding(self.k, regularization=0, equalize=True)
+        spectral = LaplacianEmbedding(self.k, regularization=0)
         with self.assertRaises(ValueError):
             spectral.fit(test_bigraph())
         with self.assertRaises(ValueError):
@@ -41,14 +41,14 @@ class TestEmbeddings(unittest.TestCase):
             n = self.k - 1
             spectral.fit_transform(np.ones((n, n)))
 
-    def test_normalized(self):
+    def test_spectral(self):
         # normalized Laplacian
         spectral = Spectral(self.k, normalized=False)
         embedding = spectral.fit_transform(self.adjacency)
         weights = self.adjacency.dot(np.ones(self.n)) + self.n * spectral.regularization_
         self.assertAlmostEqual(np.linalg.norm(embedding.T.dot(weights)), 0)
         error = np.abs(spectral.predict(self.adjacency[:4]) - embedding[:4]).sum()
-        # self.assertAlmostEqual(error, 0)
+        self.assertAlmostEqual(error, 0)
 
     def test_solvers(self):
         # solver

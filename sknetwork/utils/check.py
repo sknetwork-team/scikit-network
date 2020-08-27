@@ -317,3 +317,13 @@ def check_n_components(n_components, n_min) -> int:
         return n_min
     else:
         return n_components
+
+
+def check_scaling(scaling: float, adjacency: sparse.csr_matrix, regularize: bool):
+    """Check the scaling factor"""
+    if scaling < 0:
+        raise ValueError("The 'scaling' parameter must be non-negative.")
+
+    if scaling and (not regularize) and not is_connected(adjacency):
+        raise ValueError("The option 'equalize' is valid only if the graph is connected or with regularization."
+                         "Call 'fit' either with 'equalize' = False or positive 'regularization'.")
