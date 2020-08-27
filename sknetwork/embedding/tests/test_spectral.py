@@ -43,7 +43,7 @@ class TestEmbeddings(unittest.TestCase):
 
     def test_normalized(self):
         # normalized Laplacian
-        spectral = Spectral(self.k, barycenter=False, normalized=False)
+        spectral = Spectral(self.k, normalized=False)
         embedding = spectral.fit_transform(self.adjacency)
         weights = self.adjacency.dot(np.ones(self.n)) + self.n * spectral.regularization_
         self.assertAlmostEqual(np.linalg.norm(embedding.T.dot(weights)), 0)
@@ -59,17 +59,17 @@ class TestEmbeddings(unittest.TestCase):
         embedding = spectral.fit_transform(self.adjacency)
         self.assertEqual(embedding.shape, (self.n, self.k))
 
-    def test_equalize(self):
-        spectral = Spectral(self.k, equalize=True)
+    def test_no_scaling(self):
+        spectral = Spectral(self.k, scaling=0)
         spectral.fit(self.adjacency)
         spectral.predict(np.ones(self.n))
 
-    def test_noreg(self):
+    def test_no_regularization(self):
         adjacency = test_graph_disconnect()
         n = adjacency.shape[0]
-        spectral = Spectral(regularization=None, equalize=True)
+        spectral = Spectral(regularization=None)
         with self.assertRaises(ValueError):
             spectral.fit(adjacency)
-        spectral = Spectral(regularization=0.)
+        spectral = Spectral(regularization=0., scaling=0)
         spectral.fit(adjacency)
         spectral.predict(np.random.rand(n))

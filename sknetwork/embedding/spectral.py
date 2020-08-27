@@ -50,7 +50,7 @@ class LaplacianEmbedding(BaseEmbedding):
         If ``True``, use the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
         with :math:`P = D^{-1}A`. Otherwise, use :math:`U`.
     normalized : bool (default = ``True``)
-        If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
+        If ``True``, normalize the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver : ``'auto'``, ``'halko'``, ``'lanczos'`` (default = ``'auto'``)
         Which eigenvalue solver to use.
@@ -169,9 +169,9 @@ class LaplacianEmbedding(BaseEmbedding):
 
 
 class Spectral(BaseEmbedding):
-    """Spectral embedding of graphs, based the spectral decomposition of the normalized Laplacian matrix
-    :math:`L = I - D^{-1/2}AD^{-1/2}`.
-    Eigenvectors are considered in increasing order of eigenvalues, skipping the first eigenvector.
+    """Spectral embedding of graphs, based the spectral decomposition of the transition matrix
+    :math:`P = D^{-1}A`.
+    Eigenvectors are considered in decreasing order of eigenvalues, skipping the first eigenvector.
 
     * Graphs
 
@@ -179,20 +179,20 @@ class Spectral(BaseEmbedding):
 
     Parameters
     ----------
-    n_components : int (default = 2)
+    n_components : int (default = ``2`)
         Dimension of the embedding space.
     regularization : ``None`` or float (default = ``0.01``)
         Add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
-    equalize : bool (default = ``False``)
-        If ``True``, equalize the energy levels of the corresponding physical system, i.e., use
-        :math:`U \\Lambda^{- \\frac 1 2}`. Require regularization if the graph is not connected.
-    barycenter : bool (default = ``True``)
-        If ``True``, use the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
-        with :math:`P = D^{-1}A`. Otherwise, use :math:`U`.
+    scaling : float (default = ``0.5``)
+        Scaling factor :math:`\\alpha` so that each component is scaled by
+        :math:`(1 - \\lambda)^-\\alpha`, with :math:`\\lambda` the corresponding eigenvalue of
+        the transition matrix :math:`P`. Require regularization if positive and the graph is not connected.
+        The default value :math:`\\alpha=\\frac 1 2` equalizes the energy levels of
+        the corresponding mechanical system.
     normalized : bool (default = ``True``)
-        If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
+        If ``True``, normalize the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
     solver : ``'auto'``, ``'halko'``, ``'lanczos'`` (default = ``'auto'``)
         Which eigenvalue solver to use.
@@ -206,7 +206,7 @@ class Spectral(BaseEmbedding):
     embedding_ : array, shape = (n, n_components)
         Embedding of the nodes.
     eigenvalues_ : array, shape = (n_components)
-        Eigenvalues in increasing order (first eigenvalue ignored).
+        Eigenvalues in decreasing order (first eigenvalue ignored).
     eigenvectors_ : array, shape = (n, n_components)
         Corresponding eigenvectors.
     regularization_ : ``None`` or float
@@ -228,15 +228,14 @@ class Spectral(BaseEmbedding):
     Neural computation.
     """
     def __init__(self, n_components: int = 2, regularization: Union[None, float] = 0.01,
-                 relative_regularization: bool = True, equalize: bool = False, barycenter: bool = True,
+                 relative_regularization: bool = True, scaling: float = 0.5,
                  normalized: bool = True, solver: str = 'auto'):
         super(Spectral, self).__init__()
 
         self.n_components = n_components
         self.regularization = None if regularization == 0 else regularization
         self.relative_regularization = relative_regularization
-        self.equalize = equalize
-        self.barycenter = barycenter
+        self.scaling = scaling
         self.normalized = normalized
         self.solver = solver
 
@@ -266,8 +265,11 @@ class Spectral(BaseEmbedding):
 
         regularize: bool = not (self.regularization is None or self.regularization == 0.)
 
-        if self.equalize and (not regularize) and not is_connected(adjacency):
-            raise ValueError("The option 'equalize' is valid only if the graph is connected or with regularization."
+        if self.scaling < 0:
+            raise ValueError("The 'scaling' parameter must be non-negative.")
+
+        if self.scaling and (not regularize) and not is_connected(adjacency):
+            raise ValueError("Positive 'scaling' is available only if the graph is connected or with regularization."
                              "Call 'fit' either with 'equalize' = False or positive 'regularization'.")
 
         weights = adjacency.dot(np.ones(n))
@@ -277,8 +279,7 @@ class Spectral(BaseEmbedding):
                 regularization = regularization * weights.sum() / n ** 2
             weights += regularization * n
 
-        # Finding the largest eigenvalues of the normalized adjacency is easier for the solver than finding the
-        # smallest eigenvalues of the normalized laplacian.
+        # Spectral decomposition of the normalized adjacency matrix
         weights_inv_sqrt_diag = diag_pinv(np.sqrt(weights))
 
         if regularization:
@@ -288,21 +289,16 @@ class Spectral(BaseEmbedding):
 
         solver.which = 'LA'
         solver.fit(matrix=norm_adjacency, n_components=n_components)
-        eigenvalues = 1 - solver.eigenvalues_  # eigenvalues of the Laplacian in increasing order in [0, 2]
-        index = np.argsort(eigenvalues)[1:]  # skip first eigenvalue and eigenvector
+        eigenvalues = solver.eigenvalues_
+        index = np.argsort(-eigenvalues)[1:]  # skip first eigenvalue
         eigenvalues = eigenvalues[index]
         eigenvectors = weights_inv_sqrt_diag.dot(solver.eigenvectors_[:, index])
 
         embedding = eigenvectors.copy()
 
-        if self.equalize:
-            eigenvalues_sqrt_inv_diag = diag_pinv(np.sqrt(eigenvalues))
-            embedding = eigenvalues_sqrt_inv_diag.dot(embedding.T).T
-
-        if self.barycenter:
-            eigenvalues_diag = sparse.diags(eigenvalues)
-            subtract = eigenvalues_diag.dot(embedding.T).T
-            embedding -= subtract
+        if self.scaling:
+            eigenvalues_inv_diag = diag_pinv((1 - eigenvalues) ** self.scaling)
+            embedding = eigenvalues_inv_diag.dot(embedding.T).T
 
         if self.normalized:
             embedding = normalize(embedding, p=2)
@@ -343,14 +339,11 @@ class Spectral(BaseEmbedding):
         # projection in the embedding space
         averaging = normalize(adjacency_vectors, p=1)
         embedding_vectors = averaging.dot(eigenvectors)
+        embedding_vectors = diag_pinv(eigenvalues).dot(embedding_vectors.T).T
 
-        if not self.barycenter:
-            factors = 1 - eigenvalues
-            factors_inv_diag = diag_pinv(factors)
-            embedding_vectors = factors_inv_diag.dot(embedding_vectors.T).T
-
-        if self.equalize:
-            embedding_vectors = diag_pinv(np.sqrt(eigenvalues)).dot(embedding_vectors.T).T
+        if self.scaling:
+            eigenvalues_inv_diag = diag_pinv((1 - eigenvalues) ** self.scaling)
+            embedding_vectors = eigenvalues_inv_diag.dot(embedding_vectors.T).T
 
         if self.normalized:
             embedding_vectors = normalize(embedding_vectors, p=2)
@@ -362,9 +355,13 @@ class Spectral(BaseEmbedding):
 
 
 class BiSpectral(Spectral, BaseBiEmbedding):
-    """Spectral embedding of graphs, based the spectral decomposition of the normalized Laplacian matrix
-    :math:`L = I - D^{-1/2}AD^{-1/2}`, with :math:`A` the adjacency matrix of the graph.
-    Eigenvectors are considered in increasing order of eigenvalues, skipping the first eigenvector.
+    """Spectral embedding of bipartite and directed graphs, based the spectral embedding
+    of the corresponding undirected graph, with adjacency matrix:
+
+        :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`
+
+    where :math:`B` is the biadjacency matrix of the bipartite graph or the adjacency matrix
+    of the directed graph. 
 
     * Digraphs
     * Bigraphs
@@ -377,12 +374,12 @@ class BiSpectral(Spectral, BaseBiEmbedding):
         Add edges of given weight between all pairs of nodes.
     relative_regularization : bool (default = ``True``)
         If ``True``, consider the regularization as relative to the total weight of the graph.
-    equalize : bool (default = ``False``)
-        If ``True``, equalize the energy levels of the corresponding physical system, i.e., use
-        :math:`U \\Lambda^{- \\frac 1 2}`. Requires regularization if the graph is not connected.
-    barycenter : bool (default = ``True``)
-        If ``True``, use the barycenter of neighboring nodes for the embedding, i.e., :math:`PU`
-        with :math:`P = D^{-1}A`. Otherwise use :math:`U`.
+    scaling : float (default = ``0.5``)
+        Scaling factor :math:`\\alpha` so that each component is scaled by
+        :math:`(1 - \\lambda)^-\\alpha`, with :math:`\\lambda` the corresponding eigenvalue of
+        the transition matrix :math:`P`. Require regularization if positive and the graph is not connected.
+        The default value :math:`\\alpha=\\frac 1 2` equalizes the energy levels of
+        the corresponding mechanical system.
     normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
@@ -424,9 +421,9 @@ class BiSpectral(Spectral, BaseBiEmbedding):
     Neural computation.
     """
     def __init__(self, n_components: int = 2, regularization: Union[None, float] = 0.01,
-                 relative_regularization: bool = True, equalize: bool = False, barycenter: bool = True,
+                 relative_regularization: bool = True, scaling: float = 0.5,
                  normalized: bool = True, solver: str = 'auto'):
-        super(BiSpectral, self).__init__(n_components, regularization, relative_regularization, equalize, barycenter,
+        super(BiSpectral, self).__init__(n_components, regularization, relative_regularization, scaling,
                                          normalized, solver)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiSpectral':
@@ -434,7 +431,7 @@ class BiSpectral(Spectral, BaseBiEmbedding):
 
         :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`
 
-        where :math:`B` is the input (biadjacency matrix).
+        where :math:`B` is the biadjacency matrix (or the adjacency matrix of a directed graph).
 
         Parameters
         ----------
