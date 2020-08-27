@@ -26,6 +26,12 @@ class TestPPR(unittest.TestCase):
         pr = get_pagerank(adjacency, damping_factor=0.85, n_iter=100, tol=10, solver='diteration', seeds=seeds)
         self.assertTrue(is_proba_array(pr))
 
+        # test invalid entry
+        adjacency = RegularizedAdjacency(house(), 0.1)
+        seeds = np.ones(adjacency.shape[0]) / adjacency.shape[0]
+        with self.assertRaises(ValueError):
+            get_pagerank(adjacency, damping_factor=0.85, n_iter=100, tol=10, solver='diteration', seeds=seeds)
+
     def test_piteration(self):
         # test on SparseLR matrix
         adjacency = RegularizedAdjacency(house(), 0.1)
