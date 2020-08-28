@@ -40,3 +40,9 @@ class TestWLColoring(unittest.TestCase):
         l1.sort()
         l2.sort()
         self.assertTrue((l1 == l2).all())
+
+    def test_early_stop(self):
+        adjacency = house()
+        wl = WeisfeilerLehman(max_iter=1)
+        labels = wl.fit_transform(adjacency)
+        self.assertTrue((labels == np.array([0, 1, 0, 0, 1])).all())
