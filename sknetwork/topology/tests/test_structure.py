@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """"tests for structure.py"""
-
 import unittest
 
 import numpy as np
