@@ -6,7 +6,6 @@ Created on April 2020
 Thomas Bonald <bonald@enst.fr>
 Quentin Lutz <qlutz@enst.fr>
 """
-
 from typing import Optional, Union, Iterable
 from warnings import warn
 

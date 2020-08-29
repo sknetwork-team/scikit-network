@@ -14,6 +14,8 @@ class TestCliqueListing(unittest.TestCase):
     def test_empty(self):
         adjacency = test_graph_empty()
         self.assertEqual(Cliques(2).fit_transform(adjacency), 0)
+        cliques = Cliques(1)
+        self.assertRaises(ValueError, cliques.fit_transform, adjacency)
 
     def test_disconnected(self):
         adjacency = test_graph_disconnect()

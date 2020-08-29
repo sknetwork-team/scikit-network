@@ -4,7 +4,6 @@
 Created on April 2020
 @author: Thomas Bonald <bonald@enst.fr>
 """
-
 from typing import Iterable, Optional
 
 import numpy as np
