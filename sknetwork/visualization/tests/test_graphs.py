@@ -23,20 +23,26 @@ class TestVisualization(unittest.TestCase):
         self.assertEqual(image[1:4], 'svg')
         image = svg_graph(adjacency, position, display_edges=False)
         self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position, height=None)
+        self.assertEqual(image[1:4], 'svg')
         n = adjacency.shape[0]
+        edge_labels = [(0, 1, 0), (1, 1, 1), (3, 10, 2)]
         image = svg_graph(adjacency, position=None, names=np.arange(n), labels=np.arange(n), scores=np.arange(n),
                           seeds=[0, 1], width=200, height=200, margin=10, margin_text=5, scale=3,
                           node_order=np.flip(np.arange(n)),
                           node_size=5, node_size_min=2, node_size_max=6, display_node_weight=True,
                           node_weights=np.arange(n),
                           node_width=2, node_width_max=5, node_color='red', edge_width=2, edge_width_min=2,
-                          edge_width_max=4, edge_color='blue', display_edge_weight=True, font_size=14)
+                          edge_width_max=4, edge_color='blue', edge_labels=edge_labels, display_edge_weight=True,
+                          font_size=14)
         self.assertEqual(image[1:4], 'svg')
         image = svg_graph(adjacency, position=None, labels={0: 0})
         self.assertEqual(image[1:4], 'svg')
         image = svg_graph(adjacency, position=None, scores={0: 0})
         self.assertEqual(image[1:4], 'svg')
         image = svg_graph(adjacency=None, position=position)
+        self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency=None, position=position, edge_labels=edge_labels)
         self.assertEqual(image[1:4], 'svg')
         image = svg_graph(adjacency, position, labels, label_colors={0: "red", 1: "blue"})
         self.assertEqual(image[1:4], 'svg')

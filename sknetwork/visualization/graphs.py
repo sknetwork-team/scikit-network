@@ -6,8 +6,7 @@ Created on April 2020
 Thomas Bonald <bonald@enst.fr>
 Quentin Lutz <qlutz@enst.fr>
 """
-from typing import Optional, Union, Iterable
-from warnings import warn
+from typing import Optional, Union, Iterable, Tuple
 
 import numpy as np
 from scipy import sparse
@@ -60,10 +59,26 @@ def rescale(position, width, height, margin, node_size_max, node_weight):
     return position, width, height
 
 
-def get_colors(n: int, labels: Optional[Iterable], scores: Optional[Iterable], membership: Optional[sparse.csr_matrix],
-               color: str, colors_label: Optional[Iterable]) -> np.ndarray:
-    """Return the colors using either labels or scores or default color."""
-    colors = np.array(n * [color]).astype('U64')
+def get_label_colors(label_colors: Optional[Iterable]):
+    """Return label svg colors."""
+    if label_colors is not None:
+        if isinstance(label_colors, dict):
+            index = np.array(list(label_colors.keys()))
+            values = np.array(list(label_colors.values()))
+            labels = np.array(max(index) + 1, dtype='U64')
+            labels[index] = values
+        elif isinstance(label_colors, list):
+            label_colors = np.array(label_colors)
+    else:
+        label_colors = STANDARD_COLORS.copy()
+    return label_colors
+
+
+def get_node_colors(n: int, labels: Optional[Iterable], scores: Optional[Iterable],
+                    membership: Optional[sparse.csr_matrix],
+                    node_color: str, label_colors: Optional[Iterable]) -> np.ndarray:
+    """Return the colors of the nodes using either labels or scores or default color."""
+    node_colors = np.array(n * [node_color]).astype('U64')
     if labels is not None:
         if isinstance(labels, dict):
             index = np.array(list(labels.keys()))
@@ -76,17 +91,8 @@ def get_colors(n: int, labels: Optional[Iterable], scores: Optional[Iterable], m
             else:
                 labels = np.array(labels)
         index = labels >= 0
-        if colors_label is not None:
-            if isinstance(colors_label, dict):
-                index = np.array(list(colors_label.keys()))
-                values = np.array(list(colors_label.values()))
-                labels = np.array(max(index) + 1, dtype='U64')
-                labels[index] = values
-            elif isinstance(colors_label, list):
-                colors_label = np.array(colors_label)
-        else:
-            colors_label = STANDARD_COLORS.copy()
-        colors[index] = colors_label[labels[index] % len(colors_label)]
+        label_colors = get_label_colors(label_colors)
+        node_colors[index] = label_colors[labels[index] % len(label_colors)]
     elif scores is not None:
         colors_score = COOLWARM_RGB.copy()
         n_colors = colors_score.shape[0]
@@ -95,7 +101,7 @@ def get_colors(n: int, labels: Optional[Iterable], scores: Optional[Iterable], m
             index = np.array(list(scores.keys()))
             values = np.array(list(scores.values()))
             scores = (min_max_scaling(values) * (n_colors - 1)).astype(int)
-            colors[index] = colors_score_svg[scores]
+            node_colors[index] = colors_score_svg[scores]
         else:
             if isinstance(scores, list):
                 if len(scores) != n:
@@ -103,17 +109,13 @@ def get_colors(n: int, labels: Optional[Iterable], scores: Optional[Iterable], m
                 else:
                     scores = np.array(scores)
             scores = (min_max_scaling(scores) * (n_colors - 1)).astype(int)
-            colors = colors_score_svg[scores]
+            node_colors = colors_score_svg[scores]
     elif membership is not None:
-        if colors_label is not None:
-            if isinstance(colors_label, dict):
-                raise TypeError("Label colors must be a list or an array when using a membership.")
-            elif isinstance(colors_label, list):
-                colors_label = np.array(colors_label)
-        else:
-            colors_label = STANDARD_COLORS.copy()
-        colors = colors_label
-    return colors
+        if isinstance(label_colors, dict):
+            raise TypeError("Label colors must be a list or an array when using a membership.")
+        label_colors = get_label_colors(label_colors)
+        node_colors = label_colors
+    return node_colors
 
 
 def get_node_widths(n: int, seeds: Union[int, dict, list], node_width: float, node_width_max: float) -> np.ndarray:
@@ -152,13 +154,41 @@ def get_node_sizes_bipartite(weights_row: np.ndarray, weights_col: np.ndarray, n
     return node_sizes_row, node_sizes_col
 
 
-def get_edge_widths(weights: np.ndarray, edge_width: float, edge_width_min: float, edge_width_max: float,
+def get_edge_colors(adjacency: sparse.csr_matrix, edge_labels: Optional[list], edge_color: str,
+                    label_colors: Optional[Iterable]) -> Tuple[np.ndarray, list]:
+    """Return the edge colors."""
+    n_row, n_col = adjacency.shape
+    n_edges = len(adjacency.data)
+    data = np.array(n_edges * [edge_color]).astype('U64')
+    indices = adjacency.indices
+    indptr = adjacency.indptr
+    adjacency_colors = sparse.csr_matrix((data, indices, indptr), shape=adjacency.shape)
+    edge_colors_residual = []
+    if edge_labels:
+        label_colors = get_label_colors(label_colors)
+        for i, j, label in edge_labels:
+            if i < 0 or i >= n_row or j < 0 or j >= n_col:
+                raise ValueError('Invalid node index in edge labels.')
+            if adjacency[i, j]:
+                adjacency_colors[i, j] = label_colors[label % len(label_colors)]
+            else:
+                color = label_colors[label % len(label_colors)]
+                edge_colors_residual.append((i, j, color))
+    edge_colors = adjacency_colors.data
+    return edge_colors, edge_colors_residual
+
+
+def get_edge_widths(adjacency: sparse.coo_matrix, edge_width: float, edge_width_min: float, edge_width_max: float,
                     edge_weight: bool) -> np.ndarray:
     """Return the edge widths."""
-    if edge_weight and np.min(weights) < np.max(weights):
-        edge_widths = edge_width_min + np.abs(edge_width_max - edge_width_min) * weights / np.max(weights)
+    weights = adjacency.data
+    if len(weights):
+        if edge_weight and np.min(weights) < np.max(weights):
+            edge_widths = edge_width_min + np.abs(edge_width_max - edge_width_min) * weights / np.max(weights)
+        else:
+            edge_widths = edge_width * np.ones_like(weights)
     else:
-        edge_widths = edge_width * np.ones_like(weights)
+        edge_widths = None
     return edge_widths
 
 
@@ -179,13 +209,12 @@ def svg_pie_chart_node(pos_node: np.ndarray, size: float, membership: np.ndarray
     cumsum = np.zeros(membership.shape[1] + 1)
     cumsum[1:] = np.cumsum(membership)
     if cumsum[-1] == 0:
-        warn('Found node without any membership value. Changed stroke and colored white.')
         return svg_node(pos_node, size, 'white', stroke_width=3)
-    sum = cumsum[-1]
+    sum_membership = cumsum[-1]
     cumsum = np.multiply(cumsum, (2 * np.pi) / cumsum[-1])
     x_array = size * np.cos(cumsum) + x
     y_array = size * np.sin(cumsum) + y
-    large = np.array(membership > sum / 2).ravel()
+    large = np.array(membership > sum_membership / 2).ravel()
     for index in range(membership.shape[1]):
         out += """<path d="M {} {} A {} {} 0 {} 1 {} {} L {} {}" style="fill:{};stroke:{};stroke-width:{}" />\n"""\
             .format(x_array[index], y_array[index], size, size, int(large[index]),
@@ -193,15 +222,15 @@ def svg_pie_chart_node(pos_node: np.ndarray, size: float, membership: np.ndarray
     return out
 
 
-def svg_edge(pos_1: np.ndarray, pos_2: np.ndarray, stroke_width: float = 1, stroke_color: str = 'black') -> str:
+def svg_edge(pos_1: np.ndarray, pos_2: np.ndarray, edge_width: float = 1, edge_color: str = 'black') -> str:
     """Return svg code for an edge."""
     x1, y1 = pos_1.astype(int)
     x2, y2 = pos_2.astype(int)
-    return """<path stroke-width="{}" stroke="{}" d="M {} {} {} {}" />\n"""\
-        .format(stroke_width, stroke_color, x1, y1, x2, y2)
+    return """<path stroke-width="{}" stroke="{}" d="M {} {} {} {}"/>\n"""\
+        .format(edge_width, edge_color, x1, y1, x2, y2)
 
 
-def svg_edge_directed(pos_1: np.ndarray, pos_2: np.ndarray, stroke_width: float = 1, stroke_color: str = 'black',
+def svg_edge_directed(pos_1: np.ndarray, pos_2: np.ndarray, edge_width: float = 1, edge_color: str = 'black',
                       node_size: float = 1.) -> str:
     """Return svg code for a directed edge."""
     vec = pos_2 - pos_1
@@ -211,7 +240,7 @@ def svg_edge_directed(pos_1: np.ndarray, pos_2: np.ndarray, stroke_width: float 
         x1, y1 = pos_1.astype(int)
         x2, y2 = pos_2.astype(int)
         return """<path stroke-width="{}" stroke="{}" d="M {} {} {} {}" marker-end="url(#arrow)"/>\n"""\
-            .format(stroke_width, stroke_color, x1, y1, x2 - x, y2 - y)
+            .format(edge_width, edge_color, x1, y1, x2 - x, y2 - y)
     else:
         return ""
 
@@ -237,7 +266,8 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
               node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20,
               display_node_weight: bool = False, node_weights: Optional[np.ndarray] = None, node_width: float = 1,
               node_width_max: float = 3, node_color: str = 'gray',
-              display_edges: bool = True, edge_width: float = 1, edge_width_min: float = 0.5,
+              display_edges: bool = True, edge_labels: Optional[list] = None,
+              edge_width: float = 1, edge_width_min: float = 0.5,
               edge_width_max: float = 20, display_edge_weight: bool = True,
               edge_color: Optional[str] = None, label_colors: Optional[Iterable] = None,
               font_size: int = 12, directed: bool = False, filename: Optional[str] = None) -> str:
@@ -289,6 +319,8 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
         Node weights (used only if **display_node_weight** is ``True``).
     display_edges :
         If ``True``, display edges.
+    edge_labels :
+        Labels of the edges, as a list of tuples (source, destination, label)
     edge_width :
         Width of edges.
     edge_width_min :
@@ -330,7 +362,7 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
             raise ValueError("You must specify either adjacency or position.")
         else:
             n = position.shape[0]
-            adjacency = sparse.identity(n)
+            adjacency = sparse.csr_matrix((n, n)).astype(int)
     else:
         n = adjacency.shape[0]
 
@@ -343,13 +375,8 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
         spring = Spring()
         position = spring.fit_transform(adjacency)
 
-    # colors
-    colors = get_colors(n, labels, scores, membership, node_color, label_colors)
-    if edge_color is None:
-        if names is None:
-            edge_color = 'black'
-        else:
-            edge_color = 'gray'
+    # node colors
+    node_colors = get_node_colors(n, labels, scores, membership, node_color, label_colors)
 
     # node sizes
     if node_weights is None:
@@ -358,10 +385,6 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
 
     # node widths
     node_widths = get_node_widths(n, seeds, node_width, node_width_max)
-
-    # edge widths
-    adjacency_ = sparse.coo_matrix(adjacency)
-    edge_widths = get_edge_widths(adjacency_.data, edge_width, edge_width_min, edge_width_max, display_edge_weight)
 
     # rescaling
     position, width, height = rescale(position, width, height, margin, node_size_max, display_node_weight)
@@ -382,27 +405,46 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
 
     # edges
     if display_edges:
-        n_edges = len(adjacency_.row)
-        for ix in range(n_edges):
-            i = adjacency_.row[ix]
-            j = adjacency_.col[ix]
+        adjacency_coo = sparse.coo_matrix(adjacency)
+
+        if edge_color is None:
+            if names is None:
+                edge_color = 'black'
+            else:
+                edge_color = 'gray'
+
+        edge_colors, edge_colors_residual = get_edge_colors(adjacency, edge_labels, edge_color, label_colors)
+        edge_widths = get_edge_widths(adjacency_coo, edge_width, edge_width_min, edge_width_max, display_edge_weight)
+
+        for ix, color in enumerate(edge_colors):
+            i = adjacency_coo.row[ix]
+            j = adjacency_coo.col[ix]
             if directed:
-                svg += svg_edge_directed(pos_1=position[i], pos_2=position[j], stroke_width=edge_widths[ix],
-                                         stroke_color=edge_color, node_size=node_sizes[j])
+                svg += svg_edge_directed(pos_1=position[i], pos_2=position[j], edge_width=edge_widths[ix],
+                                         edge_color=color, node_size=node_sizes[j])
+            elif i < j:
+                svg += svg_edge(pos_1=position[i], pos_2=position[j],
+                                edge_width=edge_widths[ix], edge_color=color)
+
+        for i, j, color in edge_colors_residual:
+            if directed:
+                svg += svg_edge_directed(pos_1=position[i], pos_2=position[j], edge_width=edge_width,
+                                         edge_color=color, node_size=node_sizes[j])
             else:
                 svg += svg_edge(pos_1=position[i], pos_2=position[j],
-                                stroke_width=edge_widths[ix], stroke_color=edge_color)
+                                edge_width=edge_width, edge_color=color)
 
     # nodes
     for i in node_order:
         if membership is None:
-            svg += svg_node(position[i], node_sizes[i], colors[i], node_widths[i])
+            svg += svg_node(position[i], node_sizes[i], node_colors[i], node_widths[i])
         else:
             if membership[i].nnz == 1:
                 index = membership[i].indices[0]
-                svg += svg_node(position[i], node_sizes[i], colors[index], node_widths[i])
+                svg += svg_node(position[i], node_sizes[i], node_colors[index], node_widths[i])
             else:
-                svg += svg_pie_chart_node(position[i], node_sizes[i], membership[i].todense(), colors, node_widths[i])
+                svg += svg_pie_chart_node(position[i], node_sizes[i], membership[i].todense(),
+                                          node_colors, node_widths[i])
 
     # text
     if names is not None:
@@ -426,7 +468,8 @@ def svg_digraph(adjacency: Optional[sparse.csr_matrix] = None, position: Optiona
                 node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20,
                 display_node_weight: bool = False, node_weights: Optional[np.ndarray] = None, node_width: float = 1,
                 node_width_max: float = 3, node_color: str = 'gray',
-                display_edges: bool = True, edge_width: float = 1, edge_width_min: float = 0.5,
+                display_edges: bool = True, edge_labels: Optional[list] = None,
+                edge_width: float = 1, edge_width_min: float = 0.5,
                 edge_width_max: float = 10, display_edge_weight: bool = True,
                 edge_color: Optional[str] = None, label_colors: Optional[Iterable] = None,
                 font_size: int = 12, filename: Optional[str] = None) -> str:
@@ -478,6 +521,8 @@ def svg_digraph(adjacency: Optional[sparse.csr_matrix] = None, position: Optiona
         Default color of nodes (svg color).
     display_edges :
         If ``True``, display edges.
+    edge_labels :
+        Labels of the edges, as a list of tuples (source, destination, label)
     edge_width :
         Width of edges.
     edge_width_min :
@@ -516,7 +561,7 @@ def svg_digraph(adjacency: Optional[sparse.csr_matrix] = None, position: Optiona
                      margin_text=margin_text, scale=scale, node_order=node_order, node_size=node_size,
                      node_size_min=node_size_min, node_size_max=node_size_max, display_node_weight=display_node_weight,
                      node_weights=node_weights, node_width=node_width, node_width_max=node_width_max,
-                     node_color=node_color, display_edges=display_edges,
+                     node_color=node_color, display_edges=display_edges, edge_labels=edge_labels,
                      edge_width=edge_width, edge_width_min=edge_width_min, edge_width_max=edge_width_max,
                      display_edge_weight=display_edge_weight, edge_color=edge_color, label_colors=label_colors,
                      font_size=font_size, directed=True, filename=filename)
@@ -539,8 +584,9 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
                 node_weights_row: Optional[np.ndarray] = None, node_weights_col: Optional[np.ndarray] = None,
                 node_width: float = 1, node_width_max: float = 3,
                 color_row: str = 'gray', color_col: str = 'gray', label_colors: Optional[Iterable] = None,
-                display_edges: bool = True, edge_width: float = 1, edge_width_min: float = 0.5,
-                edge_width_max: float = 10, edge_color: str = 'black', display_edge_weight: bool = True,
+                display_edges: bool = True, edge_labels: Optional[list] = None, edge_width: float = 1,
+                edge_width_min: float = 0.5, edge_width_max: float = 10, edge_color: str = 'black',
+                display_edge_weight: bool = True,
                 font_size: int = 12, filename: Optional[str] = None) -> str:
     """Return SVG image of a bigraph.
 
@@ -608,6 +654,8 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
         Colors of the labels (svg color).
     display_edges :
         If ``True``, display edges.
+    edge_labels :
+        Labels of the edges, as a list of tuples (source, destination, label)
     edge_width :
         Width of edges.
     edge_width_min :
@@ -639,6 +687,7 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     """
     n_row, n_col = biadjacency.shape
 
+    # node positions
     if position_row is None or position_col is None:
         position_row = np.zeros((n_row, 2))
         position_col = np.ones((n_col, 2))
@@ -652,10 +701,11 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
             index_col = np.arange(n_col)
         position_row[index_row, 1] = np.arange(n_row)
         position_col[index_col, 1] = np.arange(n_col) + .5 * (n_row - n_col)
+    position = np.vstack((position_row, position_col))
 
-    # colors
-    colors_row = get_colors(n_row, labels_row, scores_row, membership_row, color_row, label_colors)
-    colors_col = get_colors(n_col, labels_col, scores_col, membership_col, color_col, label_colors)
+    # node colors
+    colors_row = get_node_colors(n_row, labels_row, scores_row, membership_row, color_row, label_colors)
+    colors_col = get_node_colors(n_col, labels_col, scores_col, membership_col, color_col, label_colors)
 
     # node sizes
     if node_weights_row is None:
@@ -670,17 +720,12 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     node_widths_row = get_node_widths(n_row, seeds_row, node_width, node_width_max)
     node_widths_col = get_node_widths(n_col, seeds_col, node_width, node_width_max)
 
-    # edge widths
-    biadjacency_ = sparse.coo_matrix(biadjacency)
-    edge_widths = get_edge_widths(biadjacency_.data, edge_width, edge_width_min, edge_width_max, display_edge_weight)
-
-    position = np.vstack((position_row, position_col))
-
     # rescaling
     if not width and not height:
         raise ValueError("You must specify either the width or the height of the image.")
     position, width, height = rescale(position, width, height, margin, node_size_max, display_node_weight)
 
+    # node names
     if names_row is not None:
         text_length = np.max(np.array([len(str(name)) for name in names_row]))
         position[:, 0] += text_length * font_size * .5
@@ -697,11 +742,28 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     position_col = position[n_row:]
 
     svg = """<svg width="{}" height="{}"  xmlns="http://www.w3.org/2000/svg">\n""".format(width, height)
+
     # edges
     if display_edges:
-        for i in range(len(biadjacency_.row)):
-            svg += svg_edge(position_row[biadjacency_.row[i]], position_col[biadjacency_.col[i]],
-                            edge_widths[i], edge_color)
+        biadjacency_coo = sparse.coo_matrix(biadjacency)
+
+        if edge_color is None:
+            if names_row is None and names_col is None:
+                edge_color = 'black'
+            else:
+                edge_color = 'gray'
+
+        edge_colors, edge_colors_residual = get_edge_colors(biadjacency, edge_labels, edge_color, label_colors)
+        edge_widths = get_edge_widths(biadjacency_coo, edge_width, edge_width_min, edge_width_max, display_edge_weight)
+
+        for ix, color in enumerate(edge_colors):
+            i = biadjacency_coo.row[ix]
+            j = biadjacency_coo.col[ix]
+            svg += svg_edge(pos_1=position_row[i], pos_2=position_col[j], edge_width=edge_widths[ix], edge_color=color)
+
+        for i, j, color in edge_colors_residual:
+            svg += svg_edge(pos_1=position_row[i], pos_2=position_col[j], edge_width=edge_width, edge_color=color)
+
     # nodes
     for i in range(n_row):
         if membership_row is None:
