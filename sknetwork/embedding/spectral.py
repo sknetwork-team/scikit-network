@@ -171,7 +171,7 @@ class Spectral(BaseEmbedding):
 
     Parameters
     ----------
-    n_components : int (default = ``2`)
+    n_components : int (default = ``2``)
         Dimension of the embedding space.
     regularization : ``None`` or float (default = ``0.01``)
         Add edges of given weight between all pairs of nodes.
