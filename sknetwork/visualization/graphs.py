@@ -28,26 +28,32 @@ def min_max_scaling(x: np.ndarray) -> np.ndarray:
     return x
 
 
-def max_min_scaling(y: np.ndarray) -> np.ndarray:
-    """Shift and scale vector to be between 0 and 1."""
-    y = y.astype(float)
-    y = np.max(y) - y
-    if np.max(y):
-        y /= np.max(y)
-    else:
-        y = .5 * np.ones_like(y)
-    return y
-
-
 def rescale(position, width, height, margin, node_size_max, node_weight):
     """Rescale position and adjust parameters"""
-    x = min_max_scaling(position[:, 0])
-    y = max_min_scaling(position[:, 1])
+    x = position[:, 0]
+    y = position[:, 1]
+    span_x = np.max(x) - np.min(x)
+    span_y = np.max(y) - np.min(y)
+    x = min_max_scaling(x)
+    y = 1 - min_max_scaling(y)
     position = np.vstack((x, y)).T
+
+    # rescale
+    if not width or not height:
+        if width:
+            if span_x and span_y:
+                height = width * span_y / span_x
+            else:
+                height = width
+        elif height:
+            if span_x and span_y:
+                width = height * span_x / span_y
+            else:
+                width = height
     position = position * np.array([width, height])
 
     # margins
-    margin = max(margin, 4 * node_size_max * node_weight)
+    margin = max(margin, 5 * node_size_max * node_weight)
     position += margin
     width += 2 * margin
     height += 2 * margin
@@ -226,7 +232,7 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
               names: Optional[np.ndarray] = None,
               labels: Optional[Iterable] = None, scores: Optional[Iterable] = None,
               membership: Optional[sparse.csr_matrix] = None,
-              seeds: Union[list, dict] = None, width: float = 400, height: float = 300,
+              seeds: Union[list, dict] = None, width: Optional[float] = 400, height: Optional[float] = 300,
               margin: float = 20, margin_text: float = 3, scale: float = 1, node_order: Optional[np.ndarray] = None,
               node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20,
               display_node_weight: bool = False, node_weights: Optional[np.ndarray] = None, node_width: float = 1,
@@ -250,7 +256,7 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
     scores :
         Scores of the nodes (measure of importance).
     membership :
-        Membership of the nodes.
+        Membership of the nodes (label distribution).
     seeds :
         Nodes to be highlighted (if dict, only keys are considered).
     width :
@@ -398,7 +404,6 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
             else:
                 svg += svg_pie_chart_node(position[i], node_sizes[i], membership[i].todense(), colors, node_widths[i])
 
-
     # text
     if names is not None:
         for i in range(n):
@@ -416,7 +421,7 @@ def svg_digraph(adjacency: Optional[sparse.csr_matrix] = None, position: Optiona
                 names: Optional[np.ndarray] = None,
                 labels: Optional[Iterable] = None, scores: Optional[Iterable] = None,
                 membership: Optional[sparse.csr_matrix] = None,
-                seeds: Union[list, dict] = None, width: float = 400, height: float = 300,
+                seeds: Union[list, dict] = None, width: Optional[float] = 400, height: Optional[float] = 300,
                 margin: float = 20, margin_text: float = 10, scale: float = 1, node_order: Optional[np.ndarray] = None,
                 node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20,
                 display_node_weight: bool = False, node_weights: Optional[np.ndarray] = None, node_width: float = 1,
@@ -439,6 +444,8 @@ def svg_digraph(adjacency: Optional[sparse.csr_matrix] = None, position: Optiona
         Labels of the nodes (negative values mean no label).
     scores :
         Scores of the nodes (measure of importance).
+    membership :
+        Membership of the nodes (label distribution).
     seeds :
         Nodes to be highlighted (if dict, only keys are considered).
     width :
@@ -525,8 +532,8 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
                 membership_col: Optional[sparse.csr_matrix] = None,
                 seeds_row: Union[list, dict] = None, seeds_col: Union[list, dict] = None,
                 position_row: Optional[np.ndarray] = None, position_col: Optional[np.ndarray] = None,
-                reorder: bool = True, width: float = 400,
-                height: float = 300, margin: float = 20, margin_text: float = 3, scale: float = 1,
+                reorder: bool = True, width: Optional[float] = 400,
+                height: Optional[float] = 300, margin: float = 20, margin_text: float = 3, scale: float = 1,
                 node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20,
                 display_node_weight: bool = False,
                 node_weights_row: Optional[np.ndarray] = None, node_weights_col: Optional[np.ndarray] = None,
@@ -552,7 +559,11 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     scores_row :
         Scores of the rows (measure of importance).
     scores_col :
-        Scores of the rows (measure of importance).
+        Scores of the columns (measure of importance).
+    membership_row :
+        Membership of the rows (label distribution).
+    membership_col :
+        Membership of the columns (label distribution).
     seeds_row :
         Rows to be highlighted (if dict, only keys are considered).
     seeds_col :
@@ -666,6 +677,8 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     position = np.vstack((position_row, position_col))
 
     # rescaling
+    if not width and not height:
+        raise ValueError("You must specify either the width or the height of the image.")
     position, width, height = rescale(position, width, height, margin, node_size_max, display_node_weight)
 
     if names_row is not None:
