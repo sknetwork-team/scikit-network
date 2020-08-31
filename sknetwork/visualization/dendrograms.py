@@ -225,5 +225,5 @@ def svg_dendrogram(dendrogram: np.ndarray, names: Optional[np.ndarray] = None, r
     if filename is not None:
         with open(filename + '.svg', 'w') as f:
             f.write(svg)
-    else:
-        return svg
+
+    return svg
