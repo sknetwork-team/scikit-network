@@ -89,6 +89,7 @@ class TestVisualization(unittest.TestCase):
         n_row, n_col = biadjacency.shape
         position_row = np.random.random((n_row, 2))
         position_col = np.random.random((n_col, 2))
+        edge_labels = [(0, 1, 0), (1, 1, 1), (3, 10, 2)]
         image = svg_bigraph(biadjacency=biadjacency, names_row=np.arange(n_row), names_col=np.arange(n_col),
                             labels_row=np.arange(n_row), labels_col=np.arange(n_col), scores_row=np.arange(n_row),
                             scores_col=np.arange(n_col), seeds_row=[0, 1], seeds_col=[1, 2],
@@ -96,8 +97,8 @@ class TestVisualization(unittest.TestCase):
                             width=200, height=200, margin=10, margin_text=5, scale=3, node_size=5,
                             node_size_min=1, node_size_max=30, node_weights_row=np.arange(n_row),
                             node_weights_col=np.arange(n_col), display_node_weight=True, node_width=2, node_width_max=5,
-                            edge_width=2, edge_width_min=0.3, edge_width_max=4, edge_color='red',
-                            display_edge_weight=True, font_size=14)
+                            edge_labels=edge_labels, edge_width=2, edge_width_min=0.3, edge_width_max=4,
+                            edge_color='red', display_edge_weight=True, font_size=14)
         self.assertEqual(image[1:4], 'svg')
 
     def test_disconnect(self):
