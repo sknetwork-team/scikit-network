@@ -63,10 +63,10 @@ def get_label_colors(label_colors: Optional[Iterable]):
     """Return label svg colors."""
     if label_colors is not None:
         if isinstance(label_colors, dict):
-            index = np.array(list(label_colors.keys()))
+            keys = np.array(list(label_colors.keys()))
             values = np.array(list(label_colors.values()))
-            labels = np.array(max(index) + 1, dtype='U64')
-            labels[index] = values
+            labels = np.array(max(keys) + 1, dtype='U64')
+            labels[keys] = values
         elif isinstance(label_colors, list):
             label_colors = np.array(label_colors)
     else:
@@ -81,10 +81,10 @@ def get_node_colors(n: int, labels: Optional[Iterable], scores: Optional[Iterabl
     node_colors = np.array(n * [node_color]).astype('U64')
     if labels is not None:
         if isinstance(labels, dict):
-            index = np.array(list(labels.keys()))
+            keys = np.array(list(labels.keys()))
             values = np.array(list(labels.values())).astype(int)
             labels = -np.ones(n, dtype=int)
-            labels[index] = values
+            labels[keys] = values
         elif isinstance(labels, list):
             if len(labels) != n:
                 raise ValueError("The number of labels must be equal to the corresponding number of nodes.")
@@ -98,10 +98,10 @@ def get_node_colors(n: int, labels: Optional[Iterable], scores: Optional[Iterabl
         n_colors = colors_score.shape[0]
         colors_score_svg = np.array(['rgb' + str(tuple(colors_score[i])) for i in range(n_colors)])
         if isinstance(scores, dict):
-            index = np.array(list(scores.keys()))
+            keys = np.array(list(scores.keys()))
             values = np.array(list(scores.values()))
             scores = (min_max_scaling(values) * (n_colors - 1)).astype(int)
-            node_colors[index] = colors_score_svg[scores]
+            node_colors[keys] = colors_score_svg[scores]
         else:
             if isinstance(scores, list):
                 if len(scores) != n:
@@ -155,14 +155,12 @@ def get_node_sizes_bipartite(weights_row: np.ndarray, weights_col: np.ndarray, n
 
 
 def get_edge_colors(adjacency: sparse.csr_matrix, edge_labels: Optional[list], edge_color: str,
-                    label_colors: Optional[Iterable]) -> Tuple[np.ndarray, list]:
+                    label_colors: Optional[Iterable]) -> Tuple[np.ndarray, np.ndarray, list]:
     """Return the edge colors."""
     n_row, n_col = adjacency.shape
     n_edges = len(adjacency.data)
-    data = np.array(n_edges * [edge_color]).astype('U64')
-    indices = adjacency.indices
-    indptr = adjacency.indptr
-    adjacency_colors = sparse.csr_matrix((data, indices, indptr), shape=adjacency.shape)
+    adjacency_labels = (adjacency > 0).astype(int)
+    adjacency_labels.data = -adjacency_labels.data
     edge_colors_residual = []
     if edge_labels:
         label_colors = get_label_colors(label_colors)
@@ -170,12 +168,16 @@ def get_edge_colors(adjacency: sparse.csr_matrix, edge_labels: Optional[list], e
             if i < 0 or i >= n_row or j < 0 or j >= n_col:
                 raise ValueError('Invalid node index in edge labels.')
             if adjacency[i, j]:
-                adjacency_colors[i, j] = label_colors[label % len(label_colors)]
+                adjacency_labels[i, j] = label % len(label_colors)
             else:
                 color = label_colors[label % len(label_colors)]
                 edge_colors_residual.append((i, j, color))
-    edge_colors = adjacency_colors.data
-    return edge_colors, edge_colors_residual
+    edge_order = np.argsort(adjacency_labels.data)
+    edge_colors = np.array(n_edges * [edge_color]).astype('U64')
+    index = np.argwhere(adjacency_labels.data >= 0).ravel()
+    if len(index):
+        edge_colors[index] = label_colors[adjacency_labels.data[index]]
+    return edge_colors, edge_order, edge_colors_residual
 
 
 def get_edge_widths(adjacency: sparse.coo_matrix, edge_width: float, edge_width_min: float, edge_width_max: float,
@@ -413,12 +415,16 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
             else:
                 edge_color = 'gray'
 
-        edge_colors, edge_colors_residual = get_edge_colors(adjacency, edge_labels, edge_color, label_colors)
+        if not directed and edge_labels:
+            edge_labels = [(min(i, j), max(i, j), label) for i, j, label in edge_labels]
+        edge_colors, edge_order, edge_colors_residual = get_edge_colors(adjacency, edge_labels, edge_color,
+                                                                        label_colors)
         edge_widths = get_edge_widths(adjacency_coo, edge_width, edge_width_min, edge_width_max, display_edge_weight)
 
-        for ix, color in enumerate(edge_colors):
+        for ix in edge_order:
             i = adjacency_coo.row[ix]
             j = adjacency_coo.col[ix]
+            color = edge_colors[ix]
             if directed:
                 svg += svg_edge_directed(pos_1=position[i], pos_2=position[j], edge_width=edge_widths[ix],
                                          edge_color=color, node_size=node_sizes[j])
@@ -753,12 +759,13 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
             else:
                 edge_color = 'gray'
 
-        edge_colors, edge_colors_residual = get_edge_colors(biadjacency, edge_labels, edge_color, label_colors)
+        edge_colors, edge_order, edge_colors_residual = get_edge_colors(biadjacency, edge_labels, edge_color, label_colors)
         edge_widths = get_edge_widths(biadjacency_coo, edge_width, edge_width_min, edge_width_max, display_edge_weight)
 
-        for ix, color in enumerate(edge_colors):
+        for ix in edge_order:
             i = biadjacency_coo.row[ix]
             j = biadjacency_coo.col[ix]
+            color = edge_colors[ix]
             svg += svg_edge(pos_1=position_row[i], pos_2=position_col[j], edge_width=edge_widths[ix], edge_color=color)
 
         for i, j, color in edge_colors_residual:
