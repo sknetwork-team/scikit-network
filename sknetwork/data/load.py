@@ -87,7 +87,7 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
             raise ValueError('Invalid dataset: ' + dataset + '.'
                              + "\nAvailable datasets include 'openflights' and 'wikivitals'."
                              + "\nSee <https://graphs.telecom-paristech.fr/>")
-        except ConnectionResetError:
+        except ConnectionResetError:  # pragma: no cover
             rmdir(data_path)
             raise RuntimeError("Could not reach Netset.")
         with tarfile.open(data_home / (dataset + '_npz.tar.gz'), 'r:gz') as tar_ref:
@@ -167,7 +167,7 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
             raise ValueError('Invalid dataset ' + dataset + '.'
                              + "\nExamples include 'actor-movie' and 'ego-facebook'."
                              + "\n See 'http://konect.cc/networks/' for the full list.")
-        except (URLError, ConnectionResetError):
+        except (URLError, ConnectionResetError): # pragma: no cover
             rmdir(data_path)
             raise RuntimeError("Could not reach Konect.")
         finally:
