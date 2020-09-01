@@ -463,8 +463,6 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
             else:
                 edge_color = 'gray'
 
-        if not directed and edge_labels:
-            edge_labels = [(min(i, j), max(i, j), label) for i, j, label in edge_labels]
         edge_colors, edge_order, edge_colors_residual = get_edge_colors(adjacency, edge_labels, edge_color,
                                                                         label_colors)
         edge_widths = get_edge_widths(adjacency_coo, edge_width, edge_width_min, edge_width_max, display_edge_weight)
@@ -476,7 +474,7 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
             if directed:
                 svg += svg_edge_directed(pos_1=position[i], pos_2=position[j], edge_width=edge_widths[ix],
                                          edge_color=color, node_size=node_sizes[j])
-            elif i < j:
+            else:
                 svg += svg_edge(pos_1=position[i], pos_2=position[j],
                                 edge_width=edge_widths[ix], edge_color=color)
 
