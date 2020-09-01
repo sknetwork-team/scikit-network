@@ -5,7 +5,6 @@ Created on Nov 6 2018
 @author: Nathan De Lara <ndelara@enst.fr>
 Quality metrics for adjacency embeddings
 """
-
 import numpy as np
 
 from sknetwork.linalg import normalize

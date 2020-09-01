@@ -5,7 +5,6 @@ Created on July 10, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
-
 import numpy as np
 
 

@@ -118,6 +118,7 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
        Weights of nodes.
     """
     n = adjacency.shape[0]
+    distribution = distribution.lower()
     if distribution == 'degree':
         node_weights_vec = adjacency.dot(np.ones(adjacency.shape[1]))
     elif distribution == 'uniform':

@@ -48,7 +48,7 @@ class KMeansDense(Algorithm):
     """
     def __init__(self, n_clusters: int = 8, init: str = '++', n_init: int = 10, tol: float = 1e-4):
         self.n_clusters = n_clusters
-        self.init = init
+        self.init = init.lower()
         self.n_init = n_init
         self.tol = tol
 
