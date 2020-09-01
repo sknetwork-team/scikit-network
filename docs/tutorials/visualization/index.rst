@@ -7,4 +7,5 @@ Visualization
     graphs
     paths
     dendrograms
+    pie_charts
 
