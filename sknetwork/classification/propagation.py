@@ -65,14 +65,14 @@ class Propagation(BaseClassifier):
     <https://arxiv.org/pdf/0709.2938.pdf>`_
     Physical review E, 76(3), 036106.
     """
-    def __init__(self, n_iter: int = -1, node_order: str = 'random', weighted: bool = True):
+    def __init__(self, n_iter: int = -1, node_order: str = None, weighted: bool = True):
         super(Propagation, self).__init__()
 
         if n_iter < 0:
             self.n_iter = np.inf
         else:
             self.n_iter = n_iter
-        self.node_order = node_order.lower()
+        self.node_order = node_order
         self.weighted = weighted
 
     @staticmethod
