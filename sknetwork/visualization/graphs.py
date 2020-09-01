@@ -27,8 +27,33 @@ def min_max_scaling(x: np.ndarray) -> np.ndarray:
     return x
 
 
-def rescale(position, width, height, margin, node_size_max, node_weight):
-    """Rescale position and adjust parameters"""
+def rescale(position: np.ndarray, width: float, height: float, margin: float, node_size_max: float, node_weight: float):
+    """Rescale position and adjust parameters.
+
+    Parameters
+    ----------
+    position :
+        array to rescale
+    width :
+        Horizontal scaling parameter
+    height :
+        Vertical scaling parameter
+    margin :
+        Minimal margin for the plot
+    node_size_max :
+        ????
+    node_weight :
+        ????
+
+    Returns
+    -------
+    position :
+        Rescaled positions
+    width :
+        Rescaled width
+    height :
+        Rescaled height
+    """
     x = position[:, 0]
     y = position[:, 1]
     span_x = np.max(x) - np.min(x)
@@ -38,17 +63,15 @@ def rescale(position, width, height, margin, node_size_max, node_weight):
     position = np.vstack((x, y)).T
 
     # rescale
-    if not width or not height:
-        if width:
-            if span_x and span_y:
-                height = width * span_y / span_x
-            else:
-                height = width
-        elif height:
-            if span_x and span_y:
-                width = height * span_x / span_y
-            else:
-                width = height
+    if width and not height:
+        height = width
+        if span_x and span_y:
+            height *= span_y / span_x
+    elif height and not width:
+        width = height
+        if span_x and span_y:
+            width *= span_x / span_y
+
     position = position * np.array([width, height])
 
     # margins
@@ -60,13 +83,21 @@ def rescale(position, width, height, margin, node_size_max, node_weight):
 
 
 def get_label_colors(label_colors: Optional[Iterable]):
-    """Return label svg colors."""
+    """Return label svg colors.
+
+    Examples
+    --------
+    >>> get_label_colors(['black'])
+    array(['black'], dtype='<U5')
+    >>> get_label_colors({0: 'blue'})
+    array(['blue'], dtype='<U64')
+    """
     if label_colors is not None:
         if isinstance(label_colors, dict):
-            keys = np.array(list(label_colors.keys()))
-            values = np.array(list(label_colors.values()))
-            labels = np.array(max(keys) + 1, dtype='U64')
-            labels[keys] = values
+            keys = list(label_colors.keys())
+            values = list(label_colors.values())
+            label_colors = np.array(['black'] * (max(keys) + 1), dtype='U64')
+            label_colors[keys] = values
         elif isinstance(label_colors, list):
             label_colors = np.array(label_colors)
     else:
@@ -158,7 +189,7 @@ def get_edge_colors(adjacency: sparse.csr_matrix, edge_labels: Optional[list], e
                     label_colors: Optional[Iterable]) -> Tuple[np.ndarray, np.ndarray, list]:
     """Return the edge colors."""
     n_row, n_col = adjacency.shape
-    n_edges = len(adjacency.data)
+    n_edges = adjacency.nnz
     adjacency_labels = (adjacency > 0).astype(int)
     adjacency_labels.data = -adjacency_labels.data
     edge_colors_residual = []
@@ -184,19 +215,36 @@ def get_edge_widths(adjacency: sparse.coo_matrix, edge_width: float, edge_width_
                     edge_weight: bool) -> np.ndarray:
     """Return the edge widths."""
     weights = adjacency.data
+    edge_widths = None
     if len(weights):
         if edge_weight and np.min(weights) < np.max(weights):
             edge_widths = edge_width_min + np.abs(edge_width_max - edge_width_min) * weights / np.max(weights)
         else:
             edge_widths = edge_width * np.ones_like(weights)
-    else:
-        edge_widths = None
     return edge_widths
 
 
 def svg_node(pos_node: np.ndarray, size: float, color: str, stroke_width: float = 1, stroke_color: str = 'black') \
         -> str:
-    """Return svg code for a node."""
+    """Return svg code for a node.
+
+    Parameters
+    ----------
+    pos_node :
+        (x, y) coordinates of the node.
+    size :
+        Radius of disk in pixels.
+    color :
+        Color of the disk in SVG valid format.
+    stroke_width :
+        Width of the contour of the disk in pixels, centered around the circle.
+    stroke_color :
+        Color of the contour in SVG valid format.
+
+    Returns
+    -------
+    SVG code for the node.
+    """
     x, y = pos_node.astype(int)
     return """<circle cx="{}" cy="{}" r="{}" style="fill:{};stroke:{};stroke-width:{}"/>\n"""\
         .format(x, y, size, color, stroke_color, stroke_width)
@@ -759,7 +807,8 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
             else:
                 edge_color = 'gray'
 
-        edge_colors, edge_order, edge_colors_residual = get_edge_colors(biadjacency, edge_labels, edge_color, label_colors)
+        edge_colors, edge_order, edge_colors_residual = get_edge_colors(biadjacency, edge_labels, edge_color,
+                                                                        label_colors)
         edge_widths = get_edge_widths(biadjacency_coo, edge_width, edge_width_min, edge_width_max, display_edge_weight)
 
         for ix in edge_order:
