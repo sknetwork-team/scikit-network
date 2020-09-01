@@ -83,7 +83,7 @@ def check_symmetry(adjacency: sparse.csr_matrix, tol: float = 1e-10):
 
 
 def is_connected(adjacency: sparse.csr_matrix) -> bool:
-    """Check whether a graph is weakly connected. Bipartite graphs are treated as undirected ones.
+    """Check whether a graph is weakly connected.
 
     Parameters
     ----------
