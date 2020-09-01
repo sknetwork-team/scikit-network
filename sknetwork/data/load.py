@@ -167,7 +167,7 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
             raise ValueError('Invalid dataset ' + dataset + '.'
                              + "\nExamples include 'actor-movie' and 'ego-facebook'."
                              + "\n See 'http://konect.cc/networks/' for the full list.")
-        except (URLError, ConnectionResetError): # pragma: no cover
+        except (URLError, ConnectionResetError):  # pragma: no cover
             rmdir(data_path)
             raise RuntimeError("Could not reach Konect.")
         finally:
