@@ -119,5 +119,5 @@ class TestVisualization(unittest.TestCase):
         biadjacency = star_wars()
         membership_row = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0], [0, 1]])
         membership_col = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0]])
-        image = svg_bigraph(adjacency, membership_row=membership_row, membership_col=membership_col)
+        image = svg_bigraph(biadjacency, membership_row=membership_row, membership_col=membership_col)
         self.assertEqual(image[1:4], 'svg')
