@@ -8,7 +8,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.data.test_graphs import test_graph_disconnect, test_bigraph_disconnect
-from sknetwork.data.toy_graphs import karate_club, painters, movie_actor, bow_tie
+from sknetwork.data.toy_graphs import karate_club, painters, movie_actor, bow_tie, star_wars
 from sknetwork.visualization.graphs import svg_graph, svg_digraph, svg_bigraph
 
 
@@ -115,4 +115,9 @@ class TestVisualization(unittest.TestCase):
         adjacency = bow_tie()
         membership = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0], [0, 1], [0, 1]])
         image = svg_graph(adjacency, membership=membership)
+        self.assertEqual(image[1:4], 'svg')
+        biadjacency = star_wars()
+        membership_row = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0], [0, 1]])
+        membership_col = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0]])
+        image = svg_bigraph(adjacency, membership_row=membership_row, membership_col=membership_col)
         self.assertEqual(image[1:4], 'svg')
