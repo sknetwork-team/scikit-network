@@ -22,6 +22,8 @@ from sknetwork.data.parse import load_edge_list, load_labels, load_header, load_
 from sknetwork.utils import Bunch
 from sknetwork.utils.check import is_square
 
+NETSET_URL = 'https://netset.telecom-paris.fr'
+
 
 def get_data_home(data_home: Optional[Union[str, Path]] = None) -> Path:
     """
@@ -55,7 +57,7 @@ def clear_data_home(data_home: Optional[Union[str, Path]] = None):
 
 
 def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Path]] = None) -> Bunch:
-    """Load a dataset from the `NetSets database
+    """Load a dataset from the `NetSet database
     <https://graphs.telecom-paristech.fr/>`_.
 
     Parameters
@@ -70,23 +72,24 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
     graph : :class:`Bunch`
     """
     graph = Bunch()
+    npz_folder = NETSET_URL + '/datasets_npz/'
 
     if dataset is None:
         print("Please specify the dataset (e.g., 'openflights' or 'wikivitals').\n" +
-              "Complete list available here: <https://graphs.telecom-paristech.fr/datasets_npz/>")
+              f"Complete list available here: <{npz_folder}>")
         return graph
     data_home = get_data_home(data_home)
     data_path = data_home / dataset
     if not data_path.exists():
         makedirs(data_path, exist_ok=True)
         try:
-            urlretrieve("https://graphs.telecom-paristech.fr/datasets_npz/" + dataset + '_npz.tar.gz',
+            urlretrieve(npz_folder + dataset + '_npz.tar.gz',
                         data_home / (dataset + '_npz.tar.gz'))
         except HTTPError:
             rmdir(data_path)
             raise ValueError('Invalid dataset: ' + dataset + '.'
                              + "\nAvailable datasets include 'openflights' and 'wikivitals'."
-                             + "\nSee <https://graphs.telecom-paristech.fr/>")
+                             + f"\nSee <{NETSET_URL}>")
         except ConnectionResetError:  # pragma: no cover
             rmdir(data_path)
             raise RuntimeError("Could not reach Netset.")
