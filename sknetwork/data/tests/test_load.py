@@ -55,6 +55,17 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(data.name.shape[0], 829)
         clear_data_home(tmp_data_dir)
 
+        tmp_data_dir = tempfile.gettempdir() + '/ego-facebook'
+        try:
+            data = load_konect('ego-facebook', tmp_data_dir)
+        except RuntimeError:  # pragma: no cover
+            warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
+            return
+        self.assertEqual(data.adjacency.shape[0], 2888)
+        data = load_konect('ego-facebook', tmp_data_dir)
+        self.assertEqual(data.adjacency.shape[0], 2888)
+        clear_data_home(tmp_data_dir)
+
     def test_invalid_konect(self):
         tmp_data_dir = tempfile.gettempdir() + '/stub'
         clear_data_home(tmp_data_dir)

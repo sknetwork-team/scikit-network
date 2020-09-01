@@ -97,28 +97,7 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
             tar_ref.extractall(data_home)
         remove(data_home / (dataset + '_npz.tar.gz'))
 
-    files = [file for file in listdir(data_path)]
-
-    for file in files:
-        file_components = file.split('.')
-        if len(file_components) == 2:
-            file_name, file_extension = tuple(file_components)
-            if file_extension == 'npz':
-                graph[file_name] = sparse.load_npz(data_path / file)
-            elif file_extension == 'npy':
-                graph[file_name] = np.load(data_path / file)
-            elif file_extension == 'p':
-                with open(data_path / file, 'rb') as f:
-                    graph[file_name] = pickle.load(f)
-
-    if hasattr(graph, 'meta'):
-        if hasattr(graph.meta, 'name'):
-            pass
-        else:
-            graph.meta.name = dataset
-    else:
-        graph.meta = Bunch()
-        graph.meta.name = dataset
+    graph = load_from_numpy_bundle(dataset, data_home)
 
     return graph
 
