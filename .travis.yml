@@ -59,7 +59,7 @@ matrix:
           install:
               - python3 -m pip install cibuildwheel==1.5.5
           env:
-            - CIBW_BEFORE_BUILD="pip install -r requirements_dev.txt && pip install ."
+            - CIBW_BEFORE_BUILD="pip install -r requirements_dev.txt --user && pip install ."
             - CIBW_BUILD="cp36-* cp37-* cp38-*"
             - CIBW_SKIP=*-manylinux*
           script:
