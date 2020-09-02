@@ -323,5 +323,5 @@ def check_scaling(scaling: float, adjacency: sparse.csr_matrix, regularize: bool
         raise ValueError("The 'scaling' parameter must be non-negative.")
 
     if scaling and (not regularize) and not is_connected(adjacency):
-        raise ValueError("The option 'equalize' is valid only if the graph is connected or with regularization."
-                         "Call 'fit' either with 'equalize' = False or positive 'regularization'.")
+        raise ValueError("Positive 'scaling' is valid only if the graph is connected or with regularization."
+                         "Call 'fit' either with 'scaling' = 0 or positive 'regularization'.")
