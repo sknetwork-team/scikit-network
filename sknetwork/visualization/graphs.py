@@ -450,9 +450,6 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
     width *= scale
 
     svg = """<svg width="{}" height="{}" xmlns="http://www.w3.org/2000/svg">\n""".format(width, height)
-    if directed:
-        svg += """<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" >\n"""
-        svg += """<path d="M0,0 L0,6 L9,3 z" fill="{}"/></marker></defs>\n""".format(edge_color)
 
     # edges
     if display_edges:
@@ -463,6 +460,10 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
                 edge_color = 'black'
             else:
                 edge_color = 'gray'
+
+        if directed:
+            svg += """<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" >\n"""
+            svg += """<path d="M0,0 L0,6 L9,3 z" fill="{}"/></marker></defs>\n""".format(edge_color)
 
         edge_colors, edge_order, edge_colors_residual = get_edge_colors(adjacency, edge_labels, edge_color,
                                                                         label_colors)
