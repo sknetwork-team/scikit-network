@@ -30,7 +30,7 @@ sphinx-rtd-theme==0.5.0
 nbsphinx==0.7.1
 
 # used to run Jupyter notebooks (necessary for nbsphinx)
-ipython==7.18.1
+ipython==7.16.1
 jupyter_client==6.1.6
 ipykernel==5.3.4
 
