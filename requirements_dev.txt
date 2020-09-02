@@ -1,5 +1,5 @@
 # standard Python package manager
-pip==20.2
+pip==20.2.2
 
 # base dependencies
 numpy==1.19.1
