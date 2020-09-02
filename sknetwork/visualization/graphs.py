@@ -220,7 +220,7 @@ def get_edge_widths(adjacency: sparse.coo_matrix, edge_width: float, edge_width_
     if len(weights):
         if display_edge_weight and np.min(weights) < np.max(weights):
             edge_widths = edge_width_min + np.abs(edge_width_max - edge_width_min) * (weights - np.min(weights))\
-                          / np.max(weights)
+                          / (np.max(weights) - np.min(weights))
         else:
             edge_widths = edge_width * np.ones_like(weights)
     return edge_widths
