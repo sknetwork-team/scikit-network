@@ -2,11 +2,18 @@
 History
 =======
 
-Next release
-------------
+0.19.0 (2020-09-02)
+-------------------
+
+* Added link prediction module
+* Added pie-node visualization of memberships
+* Added Weisfeiler-Lehman graph coloring
+* Added Force Atlas 2 graph layout
 * Added triangle listing algorithm for directed and undirected graph
 * Added k-core decomposition algorithm
 * Added k-clique listing algorithm
+* Added color map option in visualization module
+* Updated NetSet URL
 
 0.18.0 (2020-06-08)
 -------------------
