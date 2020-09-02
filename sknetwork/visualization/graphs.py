@@ -219,7 +219,8 @@ def get_edge_widths(adjacency: sparse.coo_matrix, edge_width: float, edge_width_
     edge_widths = None
     if len(weights):
         if display_edge_weight and np.min(weights) < np.max(weights):
-            edge_widths = edge_width_min + np.abs(edge_width_max - edge_width_min) * weights / np.max(weights)
+            edge_widths = edge_width_min + np.abs(edge_width_max - edge_width_min) * (weights - np.min(weights))\
+                          / np.max(weights)
         else:
             edge_widths = edge_width * np.ones_like(weights)
     return edge_widths
@@ -524,7 +525,7 @@ def svg_digraph(adjacency: Optional[sparse.csr_matrix] = None, position: Optiona
                 node_width_max: float = 3, node_color: str = 'gray',
                 display_edges: bool = True, edge_labels: Optional[list] = None,
                 edge_width: float = 1, edge_width_min: float = 0.5,
-                edge_width_max: float = 10, display_edge_weight: bool = True,
+                edge_width_max: float = 5, display_edge_weight: bool = True,
                 edge_color: Optional[str] = None, label_colors: Optional[Iterable] = None,
                 font_size: int = 12, filename: Optional[str] = None) -> str:
     """Return SVG image of a digraph.
