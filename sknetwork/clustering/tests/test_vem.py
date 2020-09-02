@@ -7,13 +7,13 @@ Created on July 2020
 
 import unittest
 
-from sknetwork.clustering import VEM
+from sknetwork.clustering import VariationalEM
 from sknetwork.data.test_graphs import *
 
 class TestVEM(unittest.TestCase):
 
     def setUp(self):
-        self.vem = VEM(3)
+        self.vem = VariationalEM(3)
 
     def test_undirected(self):
         for adjacency in [test_graph()]:

@@ -44,7 +44,7 @@ def J(X, taus, alphas, pis, Q):
 
 
 @numba.jit(nopython=True, parallel=True)
-def E_step_VEM(X, taus, alphas, pis, Q):
+def expectation_step(X, taus, alphas, pis, Q):
     n = X.shape[0]
     logTau = np.log(np.maximum(taus, eps))
     for i in numba.prange(n):
@@ -66,7 +66,7 @@ def E_step_VEM(X, taus, alphas, pis, Q):
 
 
 @numba.jit(nopython=True, parallel=True)
-def M_step_VEM(X, taus, alphas, pis, Q):
+def maximization_step(X, taus, alphas, pis, Q):
     n = X.shape[0]
     alphas = np.maximum(np.sum(taus, axis=0)/n, eps)
 
@@ -90,7 +90,7 @@ def M_step_VEM(X, taus, alphas, pis, Q):
     return alphas
 
 
-class VEM(BaseClustering):
+class VariationalEM(BaseClustering):
     """ Variational EM
 
     Parameters
@@ -114,21 +114,21 @@ class VEM(BaseClustering):
 
     Example
     -------
-    >>> from sknetwork.clustering import VEM
+    >>> from sknetwork.clustering import VariationalEM
     >>> from sknetwork.data import karate_club
-    >>> vem = VEM(n_clusters=3)
+    >>> vem = VariationalEM(n_clusters=3)
     >>> adjacency = karate_club()
     >>> labels = vem.fit_transform(adjacency)
     >>> len(set(labels))
     3
-    
+
     References
     ----------
     * Daudin, J-J., Picard, F., & Robin, S. (2008).
       `A mixture model for random graphs.
       <http://pbil.univ-lyon1.fr/members/fpicard/franckpicard_fichiers/pdf/DPR08.pdf>`_
       Statistics and computing, 2008
-      
+
     * Miele, V., Picard, F., Daudin, J-J., Mariadassou, M. & Robin, S. (2007).
       `Technical documentation about estimation in the ERMG model.
       <http://www.math-evry.cnrs.fr/_media/logiciels/mixnet/mixnet-doc.pdf>`_
@@ -138,9 +138,9 @@ class VEM(BaseClustering):
     def __init__(self, n_clusters: int = 3, init: str = "kmeans",
                  max_iter: int = 100, tol: float = 1e-6, sort_clusters: bool = True,
                  return_membership: bool = True, return_aggregate: bool = True):
-        super(VEM, self).__init__(sort_clusters=sort_clusters,
-                                  return_membership=return_membership,
-                                  return_aggregate=return_aggregate)
+        super(VariationalEM, self).__init__(sort_clusters=sort_clusters,
+                                            return_membership=return_membership,
+                                            return_aggregate=return_aggregate)
         self.n_clusters = n_clusters
 
         if init != "kmeans" and init != "random":
@@ -175,15 +175,15 @@ class VEM(BaseClustering):
 
     def _e_step(self):
         n = self.X.shape[0]
-        self.taus = E_step_VEM(self.X@np.eye(n), self.taus,
-                               self.alphas, self.pis, self.n_clusters)
+        self.taus = expectation_step(self.X @ np.eye(n), self.taus,
+                                     self.alphas, self.pis, self.n_clusters)
 
     def _m_step(self):
         n = self.X.shape[0]
-        self.alphas = M_step_VEM(
+        self.alphas = maximization_step(
             self.X@np.eye(n), self.taus, self.alphas, self.pis, self.n_clusters)
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'VEM':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'VariationalEM':
         self.X = deepcopy(adjacency)
 
         self.X[self.X > 0] = 1
@@ -198,7 +198,7 @@ class VEM(BaseClustering):
             self._e_step()
 
             Js.append(self._j())
-            
+
             if len(Js) > 1 and Js[-1]-Js[-2] < self.tol:
                 break
 

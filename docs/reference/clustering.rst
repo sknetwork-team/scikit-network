@@ -42,7 +42,7 @@ K-Means
 
 Variation Expectation-Maximization
 ----------------------------------
-.. autoclass:: sknetwork.clustering.VEM
+.. autoclass:: sknetwork.clustering.VariationalEM
 
 
 Metrics
