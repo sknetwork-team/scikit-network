@@ -8,6 +8,7 @@ Embedding
    svd
    gsvd
    spring
+   forceatlas2
 
 
 

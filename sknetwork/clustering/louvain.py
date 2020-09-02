@@ -97,7 +97,7 @@ class Louvain(BaseClustering, VerboseMixin):
         VerboseMixin.__init__(self, verbose)
 
         self.resolution = np.float32(resolution)
-        self.modularity = modularity
+        self.modularity = modularity.lower()
         self.tol = np.float32(tol_optimization)
         self.tol_aggregation = tol_aggregation
         self.n_aggregations = n_aggregations

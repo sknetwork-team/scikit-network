@@ -70,6 +70,8 @@ class BaseBiClustering(BaseClustering, ABC):
         Labels of the rows (copy of **labels_**).
     labels_col_ : np.ndarray
         Labels of the columns.
+    membership_ : sparse.csr_matrix
+        Membership matrix of the rows (copy of **membership_**).
     membership_row_ : sparse.csr_matrix
         Membership matrix of the rows (copy of **membership_**).
     membership_col_ : sparse.csr_matrix
@@ -106,6 +108,7 @@ class BaseBiClustering(BaseClustering, ABC):
             membership_col = membership_matrix(self.labels_col_)
             self.membership_row_ = normalize(biadjacency.dot(membership_col))
             self.membership_col_ = normalize(biadjacency.T.dot(membership_row))
+            self.membership_ = self.membership_row_
 
         if self.return_aggregate:
             membership_row = membership_matrix(self.labels_row_)

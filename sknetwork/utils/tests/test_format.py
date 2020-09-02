@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """tests for format.py"""
-
 import unittest
 
 from sknetwork.data import star_wars, house, cyclic_digraph
@@ -28,6 +27,7 @@ class TestFormats(unittest.TestCase):
         self.assertEqual(error.nnz, 0)
 
         slr = SparseLR(adjacency, [(np.zeros(n), np.zeros(n))])
+        self.assertRaises(ValueError, directed2undirected, slr, weighted=False)
         slr = 0.5 * directed2undirected(slr)
         self.assertEqual(slr.shape, (n, n))
 

@@ -4,7 +4,6 @@
 Created on October 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
 import numpy as np
 from scipy.cluster.vq import kmeans2
 
@@ -49,7 +48,7 @@ class KMeansDense(Algorithm):
     """
     def __init__(self, n_clusters: int = 8, init: str = '++', n_init: int = 10, tol: float = 1e-4):
         self.n_clusters = n_clusters
-        self.init = init
+        self.init = init.lower()
         self.n_init = n_init
         self.tol = tol
 
@@ -73,3 +72,18 @@ class KMeansDense(Algorithm):
         self.labels_ = labels
 
         return self
+
+    def fit_transform(self, x: np.ndarray) -> np.ndarray:
+        """Fit algorithm to the data and return the labels.
+
+        Parameters
+        ----------
+        x:
+            Data to cluster.
+
+        Returns
+        -------
+        labels: np.ndarray
+        """
+        self.fit(x)
+        return self.labels_

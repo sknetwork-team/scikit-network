@@ -5,7 +5,6 @@ Created on Oct 12 2018
 @author: Nathan de Lara <ndelara@enst.fr>
 Part of this code was adapted from the scikit-learn project: https://scikit-learn.org/stable/.
 """
-
 from typing import Union, Tuple
 
 import numpy as np
@@ -204,7 +203,6 @@ def randomized_svd(matrix, n_components: int, n_oversamples: int = 10, n_iter='a
       analysis
       A. Szlam et al. 2014
     """
-
     random_state = check_random_state(random_state)
     n_random = n_components + n_oversamples
     n_row, n_col = matrix.shape
@@ -295,19 +293,23 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
     check_square(adjacency=matrix)
     random_state = check_random_state(random_state)
     n_random = n_components + n_oversamples
-    lambda_max = 0.
+    shift_value: float = 0.  # upper bound on spectral radius
 
     if which == 'SM':
-        lambda_max: float = 1.1 * randomized_eig(matrix, n_components=1)[0][0]
+        try:
+            shift_value = (abs(matrix).dot(np.ones(matrix.shape[1]))).max()
+        except TypeError:
+            shift_value: float = 1.1 * randomized_eig(matrix, n_components=1)[0][0]
+
         matrix *= -1
         if isinstance(matrix, SparseLR):
-            matrix += SparseLR(lambda_max * sparse.identity(matrix.shape[0]), [])
+            matrix += shift_value * sparse.identity(matrix.shape[0], format='csr')
         else:
-            matrix += lambda_max * sparse.identity(matrix.shape[0])
+            matrix += shift_value * sparse.identity(matrix.shape[0])
 
     if n_iter == 'auto':
         # Checks if the number of iterations is explicitly specified
-        # Adjust n_iter. 7 was found a good compromise for PCA. See #5299
+        # Adjust n_iter. 7 was found a good compromise for PCA.
         n_iter = 7 if n_components < .1 * min(matrix.shape) else 4
 
     range_matrix, random_matrix, random_proj = randomized_range_finder(matrix, n_random, n_iter,
@@ -326,6 +328,6 @@ def randomized_eig(matrix, n_components: int, which='LM', n_oversamples: int = 1
     eigenvectors = np.dot(range_matrix, eigenvectors)[:, values_order]
 
     if which == 'SM':
-        eigenvalues = lambda_max - eigenvalues
+        eigenvalues = shift_value - eigenvalues
 
     return eigenvalues[:n_components], eigenvectors[:, :n_components]

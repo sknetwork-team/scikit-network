@@ -5,8 +5,6 @@ Created on Thu May 31 17:16:22 2018
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
-
-import warnings
 from typing import Union
 
 import numpy as np

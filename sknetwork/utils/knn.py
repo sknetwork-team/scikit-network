@@ -133,7 +133,6 @@ class CNNDense(BaseTransformer):
     adjacency_ :
         Adjacency matrix of the  graph.
     """
-
     def __init__(self, n_neighbors: int = 1, undirected: bool = False):
         super(CNNDense, self).__init__(undirected)
 
@@ -153,7 +152,7 @@ class CNNDense(BaseTransformer):
         """
         rows, cols = [], []
         for j in range(x.shape[1]):
-            row, col = knn1d(x[:, j].astype(float), self.n_neighbors)
+            row, col = knn1d(x[:, j].astype(np.float32), self.n_neighbors)
             rows += row
             cols += col
 

@@ -19,3 +19,7 @@ Contributors
 * Fabien Mathieu
 * Yohann Robert
 * Julien Simonnet
+* Alexis Barreaux
+* Rémi Jaylet
+* Victor Manach
+* Pierre Pébereau

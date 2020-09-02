@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """tests for check.py"""
-
 import unittest
 
 from sknetwork.data import cyclic_digraph
@@ -61,8 +60,7 @@ class TestChecks(unittest.TestCase):
         check_is_proba(0.5)
         with self.assertRaises(TypeError):
             is_proba_array(np.ones((2, 2, 2)))
-        with self.assertRaises(TypeError):
-            check_is_proba('toto')
+        self.assertRaises(TypeError, check_is_proba, 'toto')
         with self.assertRaises(ValueError):
             check_is_proba(2)
 
@@ -112,6 +110,7 @@ class TestChecks(unittest.TestCase):
         self.assertTrue(np.allclose(labels_array, labels_dict))
         with self.assertRaises(ValueError):
             check_seeds(labels_array, 5)
+        self.assertRaises(TypeError, check_seeds, 'toto', 3)
         with self.assertWarns(Warning):
             seeds_dict[0] = -1
             check_seeds(seeds_dict, n)
@@ -169,3 +168,8 @@ class TestChecks(unittest.TestCase):
         self.assertEqual(5, check_n_components(5, 10))
         with self.assertWarns(Warning):
             self.assertEqual(2, check_n_components(5, 2))
+
+    def test_scaling(self):
+        adjacency = cyclic_digraph(3)
+        with self.assertRaises(ValueError):
+            check_scaling(-1, adjacency, regularize=True)

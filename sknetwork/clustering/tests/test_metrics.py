@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 # tests for metrics.py
 """"tests for clustering metrics"""
-
 import unittest
 
 import numpy as np
 
-from sknetwork.clustering import modularity, bimodularity, comodularity, normalized_std
-from sknetwork.data import star_wars
+from sknetwork.clustering import modularity, bimodularity, comodularity, normalized_std, Louvain
+from sknetwork.data import star_wars, karate_club
 from sknetwork.data.test_graphs import test_graph
 
 
@@ -31,6 +30,11 @@ class TestClusteringMetrics(unittest.TestCase):
 
             with self.assertRaises(ValueError):
                 metric(self.adjacency, self.labels[:3])
+
+    def test_modularity(self):
+        adjacency = karate_club()
+        labels = Louvain().fit_transform(adjacency)
+        self.assertAlmostEqual(0.42, modularity(adjacency, labels), places=2)
 
     def test_bimodularity(self):
         biadjacency = star_wars()

@@ -38,3 +38,6 @@ class TestCoNeighbors(unittest.TestCase):
         self.assertEqual(adjacency.shape, (n, n))
         adjacency = co_neighbor_graph(self.biadjacency, method='knn', normalized=False)
         self.assertEqual(adjacency.shape, (n, n))
+
+    def test_invalid(self):
+        self.assertRaises(ValueError, co_neighbor_graph, self.biadjacency, method='toto')

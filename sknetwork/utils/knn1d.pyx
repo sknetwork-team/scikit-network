@@ -1,5 +1,7 @@
 # distutils: language = c++
 # cython: language_level=3
+# cython: linetrace=True
+# distutils: define_macros=CYTHON_TRACE_NOGIL=1
 """ One dimensional nearest neighbor search.
 Created on Mar, 2020
 @author: Nathan de Lara <ndelara@enst.fr>
@@ -10,12 +12,10 @@ cimport numpy as np
 from libcpp.vector cimport vector
 cimport cython
 
-ctypedef np.int_t int_type_t
-ctypedef np.float_t float_type_t
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def knn1d(np.float_t[:] x, int n_neighbors):
+def knn1d(float[:] x, int n_neighbors):
     """K nearest neighbors search for 1-dimensional arrays.
 
     Parameters

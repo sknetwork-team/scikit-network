@@ -4,7 +4,6 @@
 Created on October 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
 import numpy as np
 from scipy.cluster.hierarchy import ward
 
@@ -43,5 +42,19 @@ class WardDense(Algorithm):
         self: :class:`WardDense`
         """
         self.dendrogram_ = ward(x)
-
         return self
+
+    def fit_transform(self, x: np.ndarray) -> np.ndarray:
+        """Apply algorithm to a dense matrix and return the dendrogram.
+
+        Parameters
+        ----------
+        x:
+            Data to cluster.
+
+        Returns
+        -------
+        dendrogram: np.ndarray
+        """
+        self.fit(x)
+        return self.dendrogram_
