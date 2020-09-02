@@ -213,12 +213,12 @@ def get_edge_colors(adjacency: sparse.csr_matrix, edge_labels: Optional[list], e
 
 
 def get_edge_widths(adjacency: sparse.coo_matrix, edge_width: float, edge_width_min: float, edge_width_max: float,
-                    edge_weight: bool) -> np.ndarray:
+                    display_edge_weight: bool) -> np.ndarray:
     """Return the edge widths."""
     weights = adjacency.data
     edge_widths = None
     if len(weights):
-        if edge_weight and np.min(weights) < np.max(weights):
+        if display_edge_weight and np.min(weights) < np.max(weights):
             edge_widths = edge_width_min + np.abs(edge_width_max - edge_width_min) * weights / np.max(weights)
         else:
             edge_widths = edge_width * np.ones_like(weights)
