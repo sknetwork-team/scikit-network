@@ -27,7 +27,8 @@ def min_max_scaling(x: np.ndarray) -> np.ndarray:
     return x
 
 
-def rescale(position: np.ndarray, width: float, height: float, margin: float, node_size_max: float, node_weight: float):
+def rescale(position: np.ndarray, width: float, height: float, margin: float, node_size_max: float,
+            display_node_weight: bool):
     """Rescale position and adjust parameters.
 
     Parameters
@@ -41,9 +42,9 @@ def rescale(position: np.ndarray, width: float, height: float, margin: float, no
     margin :
         Minimal margin for the plot
     node_size_max :
-        ????
-    node_weight :
-        ????
+        Maximum node size (used to adapt the margin)
+    display_node_weight :
+        If ``True``, display node weight (used to adapt the margin)
 
     Returns
     -------
@@ -75,7 +76,7 @@ def rescale(position: np.ndarray, width: float, height: float, margin: float, no
     position = position * np.array([width, height])
 
     # margins
-    margin = max(margin, 5 * node_size_max * node_weight)
+    margin = max(margin, 5 * node_size_max * display_node_weight)
     position += margin
     width += 2 * margin
     height += 2 * margin
