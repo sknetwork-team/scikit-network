@@ -40,6 +40,10 @@ K-Means
 
 .. autoclass:: sknetwork.clustering.BiKMeans
 
+Variation Expectation-Maximization
+----------------------------------
+.. autoclass:: sknetwork.clustering.VEM
+
 
 Metrics
 -------
