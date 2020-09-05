@@ -25,8 +25,28 @@ xmax = np.finfo(np.float).max
 
 
 @numba.jit(nopython=True, parallel=True)
-def J(X, taus, alphas, pis, Q):
-    n = X.shape[0]
+def J(adjacency, taus, alphas, pis, Q):
+    """Compute the approximated likelihood
+
+    Parameters
+    ----------
+    adjacency:
+        Adjacency matrix of the graph (np.ndarray because of numba, could probably be modified in csr_matrix).
+    taus:
+        Taus matrix
+    alphas:
+        Alphas array
+    pis:
+        Pis matrix
+    Q:
+        Number of clusters
+
+    Returns
+    -------
+    J:
+        J
+    """
+    n = adjacency.shape[0]
 
     output = np.sum(taus@np.log(alphas))
 
@@ -36,16 +56,37 @@ def J(X, taus, alphas, pis, Q):
             if i != j:
                 for q in numba.prange(Q):
                     for l in numba.prange(Q):
-                        logb = (X[i, j]*np.log(pis[q, l]) +
-                                (1-X[i, j])*np.log(1-pis[q, l]))
+                        logb = (adjacency[i, j]*np.log(pis[q, l]) +
+                                (1-adjacency[i, j])*np.log(1-pis[q, l]))
                         cpt += taus[i, q]*taus[j, l]*logb
 
     return output+cpt/2-np.sum(taus*np.log(taus))
 
 
 @numba.jit(nopython=True, parallel=True)
-def expectation_step(X, taus, alphas, pis, Q):
-    n = X.shape[0]
+def variational_step(adjacency, taus, alphas, pis, Q):
+    """Apply the variational step:
+    - update taus
+
+    Parameters
+    ----------
+    adjacency:
+        Adjacency matrix of the graph (np.ndarray because of numba, could probably be modified in csr_matrix).
+    taus:
+        Taus matrix
+    alphas:
+        Alphas array
+    pis:
+        Pis matrix
+    Q:
+        Number of clusters
+
+    Returns
+    -------
+    taus:
+        Taus array updated
+    """
+    n = adjacency.shape[0]
     logTau = np.log(np.maximum(taus, eps))
     for i in numba.prange(n):
         logTau[i, :] = np.log(alphas)
@@ -53,8 +94,8 @@ def expectation_step(X, taus, alphas, pis, Q):
             for j in numba.prange(n):
                 if j != i:
                     for l in numba.prange(Q):
-                        logTau[i, q] += taus[j, l]*(X[i, j]*np.log(pis[q, l]) +
-                                                    (1-X[i, j])*np.log(1-pis[q, l]))
+                        logTau[i, q] += taus[j, l]*(adjacency[i, j]*np.log(pis[q, l]) +
+                                                    (1-adjacency[i, j])*np.log(1-pis[q, l]))
 
     logTau = np.maximum(np.minimum(logTau, xmax), xmin)
     tau = np.exp(logTau)
@@ -66,8 +107,30 @@ def expectation_step(X, taus, alphas, pis, Q):
 
 
 @numba.jit(nopython=True, parallel=True)
-def maximization_step(X, taus, alphas, pis, Q):
-    n = X.shape[0]
+def maximization_step(adjacency, taus, alphas, pis, Q):
+    """Apply the maximization step:
+    - update in place pis
+    - update alphas
+
+    Parameters
+    ----------
+    adjacency:
+        Adjacency matrix of the graph (np.ndarray because of numba, could probably be modified in csr_matrix).
+    taus:
+        Taus matrix
+    alphas:
+        Alphas array
+    pis:
+        Pis matrix
+    Q:
+        Number of clusters
+
+    Returns
+    -------
+    alphas:
+        Alphas array updated
+    """
+    n = adjacency.shape[0]
     alphas = np.maximum(np.sum(taus, axis=0)/n, eps)
 
     for q in numba.prange(Q):
@@ -77,7 +140,7 @@ def maximization_step(X, taus, alphas, pis, Q):
             for i in numba.prange(n):
                 for j in numba.prange(n):
                     if i != j:
-                        num += taus[i, q]*taus[j, l]*X[i, j]
+                        num += taus[i, q]*taus[j, l]*adjacency[i, j]
                         denom += taus[i, q]*taus[j, l]
             if denom > eps:
                 pi = num/denom
@@ -152,12 +215,21 @@ class VariationalEM(BaseClustering):
         self.tol = tol
 
     def _init_vem(self, init):
-        n = self.X.shape[0]
+        """Initialize the algorithm
+
+        Parameters
+        ----------
+        init: str "kmeans" or "random"
+
+        If init=="kmeans", initialize tau by the labels of kmeans
+        else initialize randomly taus
+        """
+        n = self.adjacency.shape[0]
 
         if init == "kmeans":
             kmeans = KMeans(n_clusters=self.n_clusters,
                             embedding_method=GSVD(self.n_clusters))
-            labels_k = kmeans.fit_transform(self.X)
+            labels_k = kmeans.fit_transform(self.adjacency)
 
             self.taus = np.zeros(shape=(n, self.n_clusters))
             self.taus[:] = np.eye(self.n_clusters)[labels_k]
@@ -170,24 +242,45 @@ class VariationalEM(BaseClustering):
         self.pis = np.zeros(shape=(self.n_clusters, self.n_clusters))
 
     def _j(self):
-        n = self.X.shape[0]
-        return J(self.X@np.eye(n), self.taus, self.alphas, self.pis, self.n_clusters)
+        """Compute the lower bound of log(p(X))
+        (estimated likelihood)
+        """
+        n = self.adjacency.shape[0]
+        return J(self.adjacency@np.eye(n), self.taus, self.alphas, self.pis, self.n_clusters)
 
-    def _e_step(self):
-        n = self.X.shape[0]
-        self.taus = expectation_step(self.X @ np.eye(n), self.taus,
+    def _v_step(self):
+        """Apply the variational step
+        (ie update parameters taus)
+        """
+        n = self.adjacency.shape[0]
+        self.taus = variational_step(self.adjacency @ np.eye(n), self.taus,
                                      self.alphas, self.pis, self.n_clusters)
 
     def _m_step(self):
-        n = self.X.shape[0]
+        """Apply the maximization step
+        (ie update parameters alphas and pis)
+        """
+        n = self.adjacency.shape[0]
         self.alphas = maximization_step(
-            self.X@np.eye(n), self.taus, self.alphas, self.pis, self.n_clusters)
+            self.adjacency@np.eye(n), self.taus, self.alphas, self.pis, self.n_clusters)
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'VariationalEM':
-        self.X = deepcopy(adjacency)
+        """Apply the variational EM algorithm
 
-        self.X[self.X > 0] = 1
-        self.X[self.X < 0] = 1
+        Parameters
+        ----------
+        adjacency:
+            Adjacency matrix of the graph.
+
+        Returns
+        -------
+        self: :class:`VariationalEM`
+        """
+        self.adjacency = deepcopy(adjacency)
+
+        ## unweighted graphs
+        self.adjacency[self.adjacency > 0] = 1
+        self.adjacency[self.adjacency < 0] = 1
 
         self._init_vem(self.init)
 
@@ -195,7 +288,7 @@ class VariationalEM(BaseClustering):
 
         for k in range(self.max_iter):
             self._m_step()
-            self._e_step()
+            self._v_step()
 
             Js.append(self._j())
 
