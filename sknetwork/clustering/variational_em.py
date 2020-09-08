@@ -29,11 +29,11 @@ def likelihood(adjacency, membership_probs, cluster_mean_probs, cluster_transiti
     adjacency:
         Adjacency matrix of the graph (np.ndarray because of numba, could probably be modified in csr_matrix).
     membership_probs:
-        membership_probs matrix
+        Membership matrix given as a probability over clusters.
     cluster_mean_probs:
-        Alphas array
+        Average value of cluster probability over nodes.
     cluster_transition_probs:
-        Pis matrix
+        Probabilities of transition from one cluster to another in one hop.
     n_clusters:
         Number of clusters
 
@@ -66,11 +66,11 @@ def variational_step(adjacency, membership_probs, cluster_mean_probs, cluster_tr
     adjacency:
         Adjacency matrix of the graph (np.ndarray because of numba, could probably be modified in csr_matrix).
     membership_probs:
-        membership_probs matrix
+        Membership matrix given as a probability over clusters.
     cluster_mean_probs:
-        Alphas array
+        Average value of cluster probability over nodes.
     cluster_transition_probs:
-        Pis matrix
+        Probabilities of transition from one cluster to another in one hop.
     n_clusters:
         Number of clusters
 
@@ -109,9 +109,9 @@ def maximization_step(adjacency, membership_probs, cluster_transition_probs, n_c
     adjacency:
         Adjacency matrix of the graph (np.ndarray because of numba, could probably be modified in csr_matrix).
     membership_probs:
-        membership_probs matrix
+        Membership matrix given as a probability over clusters.
     cluster_transition_probs:
-        Pis matrix
+        Probabilities of transition from one cluster to another in one hop.
     n_clusters:
         Number of clusters
 
@@ -123,22 +123,22 @@ def maximization_step(adjacency, membership_probs, cluster_transition_probs, n_c
     n = adjacency.shape[0]
     cluster_mean_probs = np.maximum(np.sum(membership_probs, axis=0) / n, eps)
 
-    for q in range(n_clusters):
-        for r in range(n_clusters):
+    for cluster_1 in range(n_clusters):
+        for cluster_2 in range(n_clusters):
             num = 0
             denom = 0
             for i in range(n):
                 for j in range(n):
                     if i != j:
-                        num += membership_probs[i, q] * membership_probs[j, r] * adjacency[i, j]
-                        denom += membership_probs[i, q] * membership_probs[j, r]
+                        num += membership_probs[i, cluster_1] * membership_probs[j, cluster_2] * adjacency[i, j]
+                        denom += membership_probs[i, cluster_1] * membership_probs[j, cluster_2]
             if denom > eps:
-                pi = num / denom
+                cluster_transition_prob = num / denom
             else:
                 # class with a single vertex
-                pi = 0.5
+                cluster_transition_prob = 0.5
 
-            cluster_transition_probs[q, r] = np.minimum(np.maximum(pi, eps), 1 - eps)
+            cluster_transition_probs[cluster_1, cluster_2] = np.minimum(np.maximum(cluster_transition_prob, eps), 1 - eps)
 
     return cluster_mean_probs
 
