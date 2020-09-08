@@ -21,18 +21,18 @@ xmin = np.finfo(np.float).min
 xmax = np.finfo(np.float).max
 
 
-def likelihood(adjacency, taus, alphas, pis, n_clusters: int) -> float:
+def likelihood(adjacency, membership_probs, cluster_mean_probs, cluster_transition_probs, n_clusters: int) -> float:
     """Compute the approximated likelihood
 
     Parameters
     ----------
     adjacency:
         Adjacency matrix of the graph (np.ndarray because of numba, could probably be modified in csr_matrix).
-    taus:
-        Taus matrix
-    alphas:
+    membership_probs:
+        membership_probs matrix
+    cluster_mean_probs:
         Alphas array
-    pis:
+    cluster_transition_probs:
         Pis matrix
     n_clusters:
         Number of clusters
@@ -43,20 +43,21 @@ def likelihood(adjacency, taus, alphas, pis, n_clusters: int) -> float:
     """
     n = adjacency.shape[0]
 
-    output = np.sum(taus.dot(np.log(alphas)))
+    output = np.sum(membership_probs.dot(np.log(cluster_mean_probs)))
     cpt = 0
     for i in range(n):
         for j in range(n):
             if i != j:
                 for q in range(n_clusters):
                     for r in range(n_clusters):
-                        logb = (adjacency[i, j] * np.log(pis[q, r]) + (1-adjacency[i, j]) * np.log(1-pis[q, r]))
-                        cpt += taus[i, q] * taus[j, r] * logb
+                        logb = (adjacency[i, j] * np.log(cluster_transition_probs[q, r])
+                                + (1 - adjacency[i, j]) * np.log(1 - cluster_transition_probs[q, r]))
+                        cpt += membership_probs[i, q] * membership_probs[j, r] * logb
 
-    return output + cpt / 2 - np.sum(taus * np.log(taus))
+    return output + cpt / 2 - np.sum(membership_probs * np.log(membership_probs))
 
 
-def variational_step(adjacency, taus, alphas, pis, n_clusters: int):
+def variational_step(adjacency, membership_probs, cluster_mean_probs, cluster_transition_probs, n_clusters: int):
     """Apply the variational step:
     - update membership_probas
 
@@ -64,11 +65,11 @@ def variational_step(adjacency, taus, alphas, pis, n_clusters: int):
     ----------
     adjacency:
         Adjacency matrix of the graph (np.ndarray because of numba, could probably be modified in csr_matrix).
-    taus:
-        Taus matrix
-    alphas:
+    membership_probs:
+        membership_probs matrix
+    cluster_mean_probs:
         Alphas array
-    pis:
+    cluster_transition_probs:
         Pis matrix
     n_clusters:
         Number of clusters
@@ -76,28 +77,29 @@ def variational_step(adjacency, taus, alphas, pis, n_clusters: int):
     Returns
     -------
     membership_probas:
-        Taus array updated
+        membership_probs array updated
     """
     n = adjacency.shape[0]
-    log_tau = np.log(np.maximum(taus, eps))
+    log_membership_prob = np.log(np.maximum(membership_probs, eps))
     for i in range(n):
-        log_tau[i, :] = np.log(alphas)
+        log_membership_prob[i, :] = np.log(cluster_mean_probs)
         for q in range(n_clusters):
             for j in range(n):
                 if j != i:
                     for r in range(n_clusters):
-                        log_tau[i, q] += taus[j, r] * (adjacency[i, j] * np.log(pis[q, r])
-                                                       + (1-adjacency[i, j]) * np.log(1-pis[q, r]))
+                        log_membership_prob[i, q] += membership_probs[j, r] * \
+                                         (adjacency[i, j] * np.log(cluster_transition_probs[q, r])
+                                          + (1-adjacency[i, j]) * np.log(1 - cluster_transition_probs[q, r]))
 
-    log_tau = np.maximum(np.minimum(log_tau, xmax), xmin)
-    tau = np.exp(log_tau)
+    log_membership_prob = np.maximum(np.minimum(log_membership_prob, xmax), xmin)
+    membership_prob = np.exp(log_membership_prob)
 
-    tau = normalize(tau, p=1)
+    membership_prob = normalize(membership_prob, p=1)
 
-    return np.maximum(tau, eps)
+    return np.maximum(membership_prob, eps)
 
 
-def maximization_step(adjacency, taus, pis, n_clusters: int):
+def maximization_step(adjacency, membership_probs, cluster_transition_probs, n_clusters: int):
     """Apply the maximization step:
     - update in place pis
     - update cluster_mean_probas
@@ -106,9 +108,9 @@ def maximization_step(adjacency, taus, pis, n_clusters: int):
     ----------
     adjacency:
         Adjacency matrix of the graph (np.ndarray because of numba, could probably be modified in csr_matrix).
-    taus:
-        Taus matrix
-    pis:
+    membership_probs:
+        membership_probs matrix
+    cluster_transition_probs:
         Pis matrix
     n_clusters:
         Number of clusters
@@ -119,7 +121,7 @@ def maximization_step(adjacency, taus, pis, n_clusters: int):
         Alphas array updated
     """
     n = adjacency.shape[0]
-    alphas = np.maximum(np.sum(taus, axis=0)/n, eps)
+    cluster_mean_probs = np.maximum(np.sum(membership_probs, axis=0) / n, eps)
 
     for q in range(n_clusters):
         for r in range(n_clusters):
@@ -128,17 +130,17 @@ def maximization_step(adjacency, taus, pis, n_clusters: int):
             for i in range(n):
                 for j in range(n):
                     if i != j:
-                        num += taus[i, q] * taus[j, r] * adjacency[i, j]
-                        denom += taus[i, q] * taus[j, r]
+                        num += membership_probs[i, q] * membership_probs[j, r] * adjacency[i, j]
+                        denom += membership_probs[i, q] * membership_probs[j, r]
             if denom > eps:
                 pi = num / denom
             else:
                 # class with a single vertex
                 pi = 0.5
 
-            pis[q, r] = np.minimum(np.maximum(pi, eps), 1-eps)
+            cluster_transition_probs[q, r] = np.minimum(np.maximum(pi, eps), 1 - eps)
 
-    return alphas
+    return cluster_mean_probs
 
 
 class VariationalEM(BaseClustering):
@@ -199,9 +201,9 @@ class VariationalEM(BaseClustering):
         self.max_iter = max_iter
         self.tol = tol
 
-        self.cluster_mean_probas = None
-        self.membership_probas = None
-        self.pis = None
+        self.cluster_mean_probs = None
+        self.membership_probs = None
+        self.cluster_transition_probs = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'VariationalEM':
         """Apply the variational Expectation Maximization algorithm
@@ -221,33 +223,34 @@ class VariationalEM(BaseClustering):
         adjacency[adjacency > 0] = 1
         adjacency[adjacency < 0] = 1
 
-        self.cluster_mean_probas = np.ones(self.n_clusters) / self.n_clusters
-        self.pis = np.zeros((self.n_clusters, self.n_clusters))
+        self.cluster_mean_probs = np.ones(self.n_clusters) / self.n_clusters
+        self.cluster_transition_probs = np.zeros((self.n_clusters, self.n_clusters))
         n = adjacency.shape[0]
 
         if self.init == "kmeans":
             kmeans = KMeans(n_clusters=self.n_clusters, embedding_method=GSVD(self.n_clusters))
             labels = kmeans.fit_transform(adjacency)
 
-            self.membership_probas = np.zeros(shape=(n, self.n_clusters))
-            self.membership_probas[:] = np.eye(self.n_clusters)[labels]
+            self.membership_probs = np.zeros(shape=(n, self.n_clusters))
+            self.membership_probs[:] = np.eye(self.n_clusters)[labels]
         else:
-            self.membership_probas = normalize(np.random.rand(n, self.n_clusters), p=1)
+            self.membership_probs = normalize(np.random.rand(n, self.n_clusters), p=1)
 
         likelihoods = []
 
         for k in range(self.max_iter):
-            self.cluster_mean_probas = maximization_step(adjacency, self.membership_probas, self.pis, self.n_clusters)
-            self.membership_probas = variational_step(adjacency, self.membership_probas, self.cluster_mean_probas,
-                                                      self.pis, self.n_clusters)
+            self.cluster_mean_probs = maximization_step(adjacency, self.membership_probs, self.cluster_transition_probs,
+                                                        self.n_clusters)
+            self.membership_probs = variational_step(adjacency, self.membership_probs, self.cluster_mean_probs,
+                                                     self.cluster_transition_probs, self.n_clusters)
 
-            likelihoods.append(likelihood(adjacency, self.membership_probas, self.cluster_mean_probas, self.pis,
-                                          self.n_clusters))
+            likelihoods.append(likelihood(adjacency, self.membership_probs, self.cluster_mean_probs,
+                                          self.cluster_transition_probs, self.n_clusters))
 
-            if len(likelihoods) > 1 and (likelihoods[-1]-likelihoods[-2]) < self.tol:
+            if len(likelihoods) > 1 and (likelihoods[-1] - likelihoods[-2]) < self.tol:
                 break
 
-        self.labels_ = np.argmax(self.membership_probas, axis=1)
+        self.labels_ = np.argmax(self.membership_probs, axis=1)
         self._secondary_outputs(adjacency)
 
         return self
