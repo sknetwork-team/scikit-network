@@ -138,6 +138,7 @@ def maximization_step(adjacency, membership_probs, cluster_transition_probs):
        Updated probabilities of transition from one cluster to another in one hop.
     """
     n_clusters = membership_probs.shape[1]
+    cluster_transition_probs_new = np.zeros((n_clusters, n_clusters))
 
     for cluster_1 in range(n_clusters):
         for cluster_2 in range(n_clusters):
@@ -145,14 +146,14 @@ def maximization_step(adjacency, membership_probs, cluster_transition_probs):
             denom = membership_probs[:, cluster_1].sum() * membership_probs[:, cluster_2].sum() \
                 - np.dot(membership_probs[:, cluster_1], membership_probs[:, cluster_2])
             if denom > eps:
-                cluster_transition_prob = num / denom
+                cluster_transition_probs_new[cluster_1, cluster_2] = num / denom
             else:
                 # class with a single vertex
-                cluster_transition_prob = 0.5
+                cluster_transition_probs_new[cluster_1, cluster_2] = 0.5
 
-            cluster_transition_probs[cluster_1, cluster_2] = np.clip(cluster_transition_prob, eps, 1 - eps)
+    cluster_transition_probs_new = np.clip(cluster_transition_probs_new, eps, 1 - eps)
 
-    return cluster_transition_probs
+    return cluster_transition_probs_new
 
 
 class VariationalEM(BaseClustering):
