@@ -16,8 +16,6 @@ from sknetwork.linalg import normalize
 
 
 eps = np.finfo(float).eps
-xmin = np.finfo(np.float).min
-xmax = np.finfo(np.float).max
 
 
 def likelihood(indptr, indices, membership_probs, cluster_mean_probs, cluster_transition_probs) -> float:
@@ -106,7 +104,6 @@ def variational_step(indptr, indices, membership_probs, cluster_mean_probs, clus
                             (np.log(cluster_transition_probs[cluster_1, cluster_2])
                              - np.log(1 - cluster_transition_probs[cluster_1, cluster_2]))
 
-    log_membership_prob = np.clip(log_membership_prob, xmin, xmax)
     membership_prob = np.exp(log_membership_prob)
 
     membership_prob = normalize(membership_prob, p=1)
@@ -114,7 +111,7 @@ def variational_step(indptr, indices, membership_probs, cluster_mean_probs, clus
     return np.maximum(membership_prob, eps)
 
 
-def maximization_step(adjacency, membership_probs, cluster_transition_probs):
+def maximization_step(adjacency, membership_probs):
     """Apply the maximization step:
     - update in place cluster_transition_probs
     - update cluster_mean_probas
@@ -228,7 +225,6 @@ class VariationalEM(BaseClustering):
         """
         indptr, indices = adjacency.indptr, adjacency.indices
 
-        cluster_transition_probs = np.zeros((self.n_clusters, self.n_clusters))
         n = adjacency.shape[0]
 
         if self.init == "kmeans":
@@ -244,7 +240,7 @@ class VariationalEM(BaseClustering):
 
         for k in range(self.max_iter):
             cluster_mean_probs = np.maximum(np.mean(membership_probs, axis=0), eps)
-            cluster_transition_probs = maximization_step(adjacency, membership_probs, cluster_transition_probs)
+            cluster_transition_probs = maximization_step(adjacency, membership_probs)
             membership_probs = variational_step(indptr, indices, membership_probs, cluster_mean_probs,
                                                 cluster_transition_probs)
 
