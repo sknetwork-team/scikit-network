@@ -114,7 +114,7 @@ def variational_step(indptr, indices, membership_probs, cluster_mean_probs, clus
     return np.maximum(membership_prob, eps)
 
 
-def maximization_step(indptr, indices, membership_probs, cluster_transition_probs):
+def maximization_step(adjacency, membership_probs, cluster_transition_probs):
     """Apply the maximization step:
     - update in place cluster_transition_probs
     - update cluster_mean_probas
@@ -137,20 +137,13 @@ def maximization_step(indptr, indices, membership_probs, cluster_transition_prob
     cluster_transition_probs:
        Updated probabilities of transition from one cluster to another in one hop.
     """
-    n = indptr.shape[0] - 1
     n_clusters = membership_probs.shape[1]
 
     for cluster_1 in range(n_clusters):
         for cluster_2 in range(n_clusters):
-            num = 0
-            denom = 0
-            for i in range(n):
-                for j in range(n):
-                    if i != j:
-                        denom += membership_probs[i, cluster_1] * membership_probs[j, cluster_2]
-                for j in indices[indptr[i]:indptr[i+1]]:
-                    if i != j:
-                        num += membership_probs[i, cluster_1] * membership_probs[j, cluster_2]
+            num = membership_probs[:, cluster_1].dot(adjacency.dot(membership_probs[:, cluster_2]))
+            denom = membership_probs[:, cluster_1].sum() * membership_probs[:, cluster_2].sum() \
+                - np.dot(membership_probs[:, cluster_1], membership_probs[:, cluster_2])
             if denom > eps:
                 cluster_transition_prob = num / denom
             else:
@@ -250,7 +243,7 @@ class VariationalEM(BaseClustering):
 
         for k in range(self.max_iter):
             cluster_mean_probs = np.maximum(np.mean(membership_probs, axis=0), eps)
-            cluster_transition_probs = maximization_step(indptr, indices, membership_probs, cluster_transition_probs)
+            cluster_transition_probs = maximization_step(adjacency, membership_probs, cluster_transition_probs)
             membership_probs = variational_step(indptr, indices, membership_probs, cluster_mean_probs,
                                                 cluster_transition_probs)
 
