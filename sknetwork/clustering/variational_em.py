@@ -4,6 +4,7 @@
 Created on July 2020
 @author: Clément Bonet <cbonet@enst.fr>
 """
+from copy import deepcopy
 from typing import Union
 
 import numpy as np
@@ -12,8 +13,7 @@ from scipy import sparse
 from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering import KMeans
 from sknetwork.embedding import GSVD
-
-from copy import deepcopy
+from sknetwork.linalg import normalize
 
 
 eps = np.finfo(float).eps
@@ -39,12 +39,11 @@ def likelihood(adjacency, taus, alphas, pis, n_clusters: int) -> float:
 
     Returns
     -------
-    likelihood:
-        likelihood
+    likelihood: float
     """
     n = adjacency.shape[0]
 
-    output = np.sum(taus@np.log(alphas))
+    output = np.sum(taus.dot(np.log(alphas)))
     cpt = 0
     for i in range(n):
         for j in range(n):
@@ -59,7 +58,7 @@ def likelihood(adjacency, taus, alphas, pis, n_clusters: int) -> float:
 
 def variational_step(adjacency, taus, alphas, pis, n_clusters: int):
     """Apply the variational step:
-    - update taus
+    - update membership_probas
 
     Parameters
     ----------
@@ -76,25 +75,24 @@ def variational_step(adjacency, taus, alphas, pis, n_clusters: int):
 
     Returns
     -------
-    taus:
+    membership_probas:
         Taus array updated
     """
     n = adjacency.shape[0]
-    logTau = np.log(np.maximum(taus, eps))
+    log_tau = np.log(np.maximum(taus, eps))
     for i in range(n):
-        logTau[i, :] = np.log(alphas)
+        log_tau[i, :] = np.log(alphas)
         for q in range(n_clusters):
             for j in range(n):
                 if j != i:
                     for r in range(n_clusters):
-                        logTau[i, q] += taus[j, r] * (adjacency[i, j] * np.log(pis[q, r])
-                                                      + (1-adjacency[i, j]) * np.log(1-pis[q, r]))
+                        log_tau[i, q] += taus[j, r] * (adjacency[i, j] * np.log(pis[q, r])
+                                                       + (1-adjacency[i, j]) * np.log(1-pis[q, r]))
 
-    logTau = np.maximum(np.minimum(logTau, xmax), xmin)
-    tau = np.exp(logTau)
+    log_tau = np.maximum(np.minimum(log_tau, xmax), xmin)
+    tau = np.exp(log_tau)
 
-    for i in range(n):
-        tau[i, :] /= np.sum(tau[i, :])
+    tau = normalize(tau, p=1)
 
     return np.maximum(tau, eps)
 
@@ -102,7 +100,7 @@ def variational_step(adjacency, taus, alphas, pis, n_clusters: int):
 def maximization_step(adjacency, taus, pis, n_clusters: int):
     """Apply the maximization step:
     - update in place pis
-    - update alphas
+    - update cluster_mean_probas
 
     Parameters
     ----------
@@ -117,34 +115,34 @@ def maximization_step(adjacency, taus, pis, n_clusters: int):
 
     Returns
     -------
-    alphas:
+    cluster_mean_probas:
         Alphas array updated
     """
     n = adjacency.shape[0]
     alphas = np.maximum(np.sum(taus, axis=0)/n, eps)
 
     for q in range(n_clusters):
-        for l in range(n_clusters):
+        for r in range(n_clusters):
             num = 0
             denom = 0
             for i in range(n):
                 for j in range(n):
                     if i != j:
-                        num += taus[i, q] * taus[j, l] * adjacency[i, j]
-                        denom += taus[i, q] * taus[j, l]
+                        num += taus[i, q] * taus[j, r] * adjacency[i, j]
+                        denom += taus[i, q] * taus[j, r]
             if denom > eps:
                 pi = num / denom
             else:
                 # class with a single vertex
                 pi = 0.5
 
-            pis[q, l] = np.minimum(np.maximum(pi, eps), 1-eps)
+            pis[q, r] = np.minimum(np.maximum(pi, eps), 1-eps)
 
     return alphas
 
 
 class VariationalEM(BaseClustering):
-    """ Variational EM
+    """ Variational Expectation Maximization algorithm.
 
     Parameters
     ----------
@@ -155,7 +153,8 @@ class VariationalEM(BaseClustering):
     max_iter:
         Maximum number of iterations to perform.
     tol:
-        VEM will stop when the likelihood is not improved more than tol, defaults 1e-6
+        VEM will stop when the likelihood is not improved by more than tol, defaults 1e-6
+
     Attributes
     ----------
     labels_: np.ndarray
@@ -200,39 +199,12 @@ class VariationalEM(BaseClustering):
         self.max_iter = max_iter
         self.tol = tol
 
-        self.alphas = None
-        self.taus = None
+        self.cluster_mean_probas = None
+        self.membership_probas = None
         self.pis = None
 
-    def _init_vem(self, init, adjacency):
-        """Initialize the algorithm
-
-        Parameters
-        ----------
-        init: str "kmeans" or "random"
-
-        If init=="kmeans", initialize tau by the labels of kmeans
-        else initialize randomly taus
-        """
-        n = adjacency.shape[0]
-
-        if init == "kmeans":
-            kmeans = KMeans(n_clusters=self.n_clusters,
-                            embedding_method=GSVD(self.n_clusters))
-            labels = kmeans.fit_transform(adjacency)
-
-            self.taus = np.zeros(shape=(n, self.n_clusters))
-            self.taus[:] = np.eye(self.n_clusters)[labels]
-        else:
-            self.taus = np.random.rand(n, self.n_clusters)
-            for i in range(n):
-                self.taus[i, :] /= np.sum(self.taus[i, :])
-
-        self.alphas = np.ones(shape=(self.n_clusters,))/self.n_clusters
-        self.pis = np.zeros(shape=(self.n_clusters, self.n_clusters))
-
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'VariationalEM':
-        """Apply the variational EM algorithm
+        """Apply the variational Expectation Maximization algorithm
 
         Parameters
         ----------
@@ -244,26 +216,38 @@ class VariationalEM(BaseClustering):
         self: :class:`VariationalEM`
         """
         adjacency = deepcopy(adjacency)
-        n = adjacency.shape[0]
 
         # unweighted graphs
         adjacency[adjacency > 0] = 1
         adjacency[adjacency < 0] = 1
 
-        self._init_vem(self.init, adjacency)
+        self.cluster_mean_probas = np.ones(self.n_clusters) / self.n_clusters
+        self.pis = np.zeros((self.n_clusters, self.n_clusters))
+        n = adjacency.shape[0]
+
+        if self.init == "kmeans":
+            kmeans = KMeans(n_clusters=self.n_clusters, embedding_method=GSVD(self.n_clusters))
+            labels = kmeans.fit_transform(adjacency)
+
+            self.membership_probas = np.zeros(shape=(n, self.n_clusters))
+            self.membership_probas[:] = np.eye(self.n_clusters)[labels]
+        else:
+            self.membership_probas = normalize(np.random.rand(n, self.n_clusters), p=1)
 
         likelihoods = []
 
         for k in range(self.max_iter):
-            self.alphas = maximization_step(adjacency @ np.eye(n), self.taus, self.pis, self.n_clusters)
-            self.taus = variational_step(adjacency @ np.eye(n), self.taus, self.alphas, self.pis, self.n_clusters)
+            self.cluster_mean_probas = maximization_step(adjacency, self.membership_probas, self.pis, self.n_clusters)
+            self.membership_probas = variational_step(adjacency, self.membership_probas, self.cluster_mean_probas,
+                                                      self.pis, self.n_clusters)
 
-            likelihoods.append(likelihood(adjacency @ np.eye(n), self.taus, self.alphas, self.pis, self.n_clusters))
+            likelihoods.append(likelihood(adjacency, self.membership_probas, self.cluster_mean_probas, self.pis,
+                                          self.n_clusters))
 
-            if len(likelihoods) > 1 and likelihoods[-1]-likelihoods[-2] < self.tol:
+            if len(likelihoods) > 1 and (likelihoods[-1]-likelihoods[-2]) < self.tol:
                 break
 
-        self.labels_ = np.argmax(self.taus, axis=1)
+        self.labels_ = np.argmax(self.membership_probas, axis=1)
         self._secondary_outputs(adjacency)
 
         return self
