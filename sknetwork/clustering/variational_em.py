@@ -230,16 +230,18 @@ class VariationalEM(BaseClustering):
         else:
             membership_probs = normalize(np.random.rand(n, self.n_clusters), p=1)
 
-        likelihoods = []
+        likelihood_old, likelihood_new = 0., 0.
 
         for k in range(self.max_iter):
             cluster_mean_probs = maximization_step(adjacency, membership_probs, cluster_transition_probs)
             membership_probs = variational_step(adjacency, membership_probs, cluster_mean_probs,
                                                 cluster_transition_probs)
 
-            likelihoods.append(likelihood(adjacency, membership_probs, cluster_mean_probs, cluster_transition_probs))
+            likelihood_old, likelihood_new = likelihood_new, \
+                                             likelihood(adjacency, membership_probs,
+                                                        cluster_mean_probs, cluster_transition_probs)
 
-            if len(likelihoods) > 1 and (likelihoods[-1] - likelihoods[-2]) < self.tol:
+            if k > 1 and abs(likelihood_new - likelihood_old) < self.tol:
                 break
 
         self.labels_ = np.argmax(membership_probs, axis=1)
