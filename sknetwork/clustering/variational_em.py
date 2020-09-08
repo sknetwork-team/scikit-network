@@ -74,7 +74,7 @@ def variational_step(adjacency, membership_probs, cluster_mean_probs, cluster_tr
     Returns
     -------
     membership_probas:
-        membership_probs array updated
+        Updated membership matrix given as a probability over clusters.
     """
     n = adjacency.shape[0]
     n_clusters = membership_probs.shape[1]
@@ -115,7 +115,7 @@ def maximization_step(adjacency, membership_probs, cluster_transition_probs):
     Returns
     -------
     cluster_mean_probas:
-        Alphas array updated
+       Updated average value of cluster probability over nodes
     """
     n = adjacency.shape[0]
     n_clusters = membership_probs.shape[1]
@@ -136,7 +136,8 @@ def maximization_step(adjacency, membership_probs, cluster_transition_probs):
                 # class with a single vertex
                 cluster_transition_prob = 0.5
 
-            cluster_transition_probs[cluster_1, cluster_2] = np.minimum(np.maximum(cluster_transition_prob, eps), 1 - eps)
+            cluster_transition_probs[cluster_1, cluster_2] = np.minimum(np.maximum(cluster_transition_prob, eps),
+                                                                        1 - eps)
 
     return cluster_mean_probs
 
@@ -217,7 +218,6 @@ class VariationalEM(BaseClustering):
         adjacency[adjacency > 0] = 1
         adjacency[adjacency < 0] = 1
 
-        cluster_mean_probs = np.ones(self.n_clusters) / self.n_clusters
         cluster_transition_probs = np.zeros((self.n_clusters, self.n_clusters))
         n = adjacency.shape[0]
 
