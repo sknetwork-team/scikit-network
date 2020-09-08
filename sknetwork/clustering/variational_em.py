@@ -118,16 +118,10 @@ def maximization_step(adjacency, membership_probs):
 
     Parameters
     ----------
-    indptr:
-        Index pointer array of the adjacency matrix of the graph (np.ndarray because of numba, could probably be
-        modified in csr_matrix).
-    indices:
-        Indices array of the adjacency matrix of the graph (np.ndarray because of numba, could probably be
-        modified in csr_matrix).
+    adjacency:
+        Adjacency matrix of the graph (np.ndarray because of numba, could probably be modified in csr_matrix).
     membership_probs:
         Membership matrix given as a probability over clusters.
-    cluster_transition_probs:
-        Probabilities of transition from one cluster to another in one hop.
 
     Returns
     -------
@@ -244,9 +238,8 @@ class VariationalEM(BaseClustering):
             membership_probs = variational_step(indptr, indices, membership_probs, cluster_mean_probs,
                                                 cluster_transition_probs)
 
-            likelihood_old, likelihood_new = likelihood_new, \
-                                             likelihood(indptr, indices, membership_probs,
-                                                        cluster_mean_probs, cluster_transition_probs)
+            likelihood_old, likelihood_new = likelihood_new, likelihood(indptr, indices, membership_probs,
+                                                                        cluster_mean_probs, cluster_transition_probs)
 
             if k > 1 and abs(likelihood_new - likelihood_old) < self.tol:
                 break
