@@ -4,7 +4,6 @@
 Created on July 2020
 @author: Clément Bonet <cbonet@enst.fr>
 """
-from copy import deepcopy
 from typing import Union
 
 import numpy as np
@@ -47,11 +46,11 @@ def likelihood(adjacency, membership_probs, cluster_mean_probs, cluster_transiti
     for i in range(n):
         for j in range(n):
             if i != j:
-                for q in range(n_clusters):
-                    for r in range(n_clusters):
-                        logb = (adjacency[i, j] * np.log(cluster_transition_probs[q, r])
-                                + (1 - adjacency[i, j]) * np.log(1 - cluster_transition_probs[q, r]))
-                        cpt += membership_probs[i, q] * membership_probs[j, r] * logb
+                for cluster_1 in range(n_clusters):
+                    for cluster_2 in range(n_clusters):
+                        logb = (adjacency[i, j] * np.log(cluster_transition_probs[cluster_1, cluster_2])
+                                + (1 - adjacency[i, j]) * np.log(1 - cluster_transition_probs[cluster_1, cluster_2]))
+                        cpt += membership_probs[i, cluster_1] * membership_probs[j, cluster_2] * logb
 
     return output + cpt / 2 - np.sum(membership_probs * np.log(membership_probs))
 
@@ -62,8 +61,12 @@ def variational_step(adjacency, membership_probs, cluster_mean_probs, cluster_tr
 
     Parameters
     ----------
-    adjacency:
-        Adjacency matrix of the graph (np.ndarray because of numba, could probably be modified in csr_matrix).
+    indptr:
+        Index pointer array of the adjacency matrix of the graph (np.ndarray because of numba, could probably be
+        modified in csr_matrix).
+    indices:
+        Indices array of the adjacency matrix of the graph (np.ndarray because of numba, could probably be
+        modified in csr_matrix).
     membership_probs:
         Membership matrix given as a probability over clusters.
     cluster_mean_probs:
@@ -82,15 +85,16 @@ def variational_step(adjacency, membership_probs, cluster_mean_probs, cluster_tr
     log_membership_prob = np.log(np.maximum(membership_probs, eps))
     for i in range(n):
         log_membership_prob[i, :] = np.log(cluster_mean_probs)
-        for q in range(n_clusters):
+        for cluster_1 in range(n_clusters):
             for j in range(n):
                 if j != i:
-                    for r in range(n_clusters):
-                        log_membership_prob[i, q] += membership_probs[j, r] * \
-                                         (adjacency[i, j] * np.log(cluster_transition_probs[q, r])
-                                          + (1-adjacency[i, j]) * np.log(1 - cluster_transition_probs[q, r]))
+                    for cluster_2 in range(n_clusters):
+                        log_membership_prob[i, cluster_1] += \
+                            membership_probs[j, cluster_2] * \
+                            (adjacency[i, j] * np.log(cluster_transition_probs[cluster_1, cluster_2])
+                             + (1-adjacency[i, j]) * np.log(1 - cluster_transition_probs[cluster_1, cluster_2]))
 
-    log_membership_prob = np.maximum(np.minimum(log_membership_prob, xmax), xmin)
+    log_membership_prob = np.clip(log_membership_prob, xmin, xmax)
     membership_prob = np.exp(log_membership_prob)
 
     membership_prob = normalize(membership_prob, p=1)
@@ -98,15 +102,19 @@ def variational_step(adjacency, membership_probs, cluster_mean_probs, cluster_tr
     return np.maximum(membership_prob, eps)
 
 
-def maximization_step(adjacency, membership_probs, cluster_transition_probs):
+def maximization_step(indptr, indices, membership_probs, cluster_transition_probs):
     """Apply the maximization step:
-    - update in place pis
+    - update in place cluster_transition_probs
     - update cluster_mean_probas
 
     Parameters
     ----------
-    adjacency:
-        Adjacency matrix of the graph (np.ndarray because of numba, could probably be modified in csr_matrix).
+    indptr:
+        Index pointer array of the adjacency matrix of the graph (np.ndarray because of numba, could probably be
+        modified in csr_matrix).
+    indices:
+        Indices array of the adjacency matrix of the graph (np.ndarray because of numba, could probably be
+        modified in csr_matrix).
     membership_probs:
         Membership matrix given as a probability over clusters.
     cluster_transition_probs:
@@ -114,12 +122,11 @@ def maximization_step(adjacency, membership_probs, cluster_transition_probs):
 
     Returns
     -------
-    cluster_mean_probas:
-       Updated average value of cluster probability over nodes
+    cluster_transition_probs:
+       Updated probabilities of transition from one cluster to another in one hop.
     """
-    n = adjacency.shape[0]
+    n = indptr.shape[0] - 1
     n_clusters = membership_probs.shape[1]
-    cluster_mean_probs = np.maximum(np.sum(membership_probs, axis=0) / n, eps)
 
     for cluster_1 in range(n_clusters):
         for cluster_2 in range(n_clusters):
@@ -128,18 +135,19 @@ def maximization_step(adjacency, membership_probs, cluster_transition_probs):
             for i in range(n):
                 for j in range(n):
                     if i != j:
-                        num += membership_probs[i, cluster_1] * membership_probs[j, cluster_2] * adjacency[i, j]
                         denom += membership_probs[i, cluster_1] * membership_probs[j, cluster_2]
+                for j in indices[indptr[i]:indptr[i+1]]:
+                    if i != j:
+                        num += membership_probs[i, cluster_1] * membership_probs[j, cluster_2]
             if denom > eps:
                 cluster_transition_prob = num / denom
             else:
                 # class with a single vertex
                 cluster_transition_prob = 0.5
 
-            cluster_transition_probs[cluster_1, cluster_2] = np.minimum(np.maximum(cluster_transition_prob, eps),
-                                                                        1 - eps)
+            cluster_transition_probs[cluster_1, cluster_2] = np.clip(cluster_transition_prob, eps, 1 - eps)
 
-    return cluster_mean_probs
+    return cluster_transition_probs
 
 
 class VariationalEM(BaseClustering):
@@ -212,11 +220,7 @@ class VariationalEM(BaseClustering):
         -------
         self: :class:`VariationalEM`
         """
-        adjacency = deepcopy(adjacency)
-
-        # unweighted graphs
-        adjacency[adjacency > 0] = 1
-        adjacency[adjacency < 0] = 1
+        indptr, indices = adjacency.indptr, adjacency.indices
 
         cluster_transition_probs = np.zeros((self.n_clusters, self.n_clusters))
         n = adjacency.shape[0]
@@ -233,7 +237,8 @@ class VariationalEM(BaseClustering):
         likelihood_old, likelihood_new = 0., 0.
 
         for k in range(self.max_iter):
-            cluster_mean_probs = maximization_step(adjacency, membership_probs, cluster_transition_probs)
+            cluster_mean_probs = np.maximum(np.mean(membership_probs, axis=0), eps)
+            cluster_transition_probs = maximization_step(indptr, indices, membership_probs, cluster_transition_probs)
             membership_probs = variational_step(adjacency, membership_probs, cluster_mean_probs,
                                                 cluster_transition_probs)
 
