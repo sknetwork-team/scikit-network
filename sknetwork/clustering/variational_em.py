@@ -20,13 +20,17 @@ xmin = np.finfo(np.float).min
 xmax = np.finfo(np.float).max
 
 
-def likelihood(adjacency, membership_probs, cluster_mean_probs, cluster_transition_probs) -> float:
+def likelihood(indptr, indices, membership_probs, cluster_mean_probs, cluster_transition_probs) -> float:
     """Compute the approximated likelihood
 
     Parameters
     ----------
-    adjacency:
-        Adjacency matrix of the graph (np.ndarray because of numba, could probably be modified in csr_matrix).
+    indptr:
+        Index pointer array of the adjacency matrix of the graph (np.ndarray because of numba, could probably be
+        modified in csr_matrix).
+    indices:
+        Indices array of the adjacency matrix of the graph (np.ndarray because of numba, could probably be
+        modified in csr_matrix).
     membership_probs:
         Membership matrix given as a probability over clusters.
     cluster_mean_probs:
@@ -38,24 +42,28 @@ def likelihood(adjacency, membership_probs, cluster_mean_probs, cluster_transiti
     -------
     likelihood: float
     """
-    n = adjacency.shape[0]
+    n = indptr.shape[0] - 1
     n_clusters = membership_probs.shape[1]
 
     output = np.sum(membership_probs.dot(np.log(cluster_mean_probs)))
     cpt = 0
     for i in range(n):
-        for j in range(n):
-            if i != j:
-                for cluster_1 in range(n_clusters):
-                    for cluster_2 in range(n_clusters):
-                        logb = (adjacency[i, j] * np.log(cluster_transition_probs[cluster_1, cluster_2])
-                                + (1 - adjacency[i, j]) * np.log(1 - cluster_transition_probs[cluster_1, cluster_2]))
+        for cluster_1 in range(n_clusters):
+            for cluster_2 in range(n_clusters):
+                for j in range(n):
+                    if i != j:
+                        logb = np.log(1 - cluster_transition_probs[cluster_1, cluster_2])
+                        cpt += membership_probs[i, cluster_1] * membership_probs[j, cluster_2] * logb
+                for j in indices[indptr[i]:indptr[i+1]]:
+                    if i != j:
+                        logb = np.log(cluster_transition_probs[cluster_1, cluster_2]) \
+                               - np.log(1 - cluster_transition_probs[cluster_1, cluster_2])
                         cpt += membership_probs[i, cluster_1] * membership_probs[j, cluster_2] * logb
 
     return output + cpt / 2 - np.sum(membership_probs * np.log(membership_probs))
 
 
-def variational_step(adjacency, membership_probs, cluster_mean_probs, cluster_transition_probs):
+def variational_step(indptr, indices, membership_probs, cluster_mean_probs, cluster_transition_probs):
     """Apply the variational step:
     - update membership_probas
 
@@ -79,20 +87,24 @@ def variational_step(adjacency, membership_probs, cluster_mean_probs, cluster_tr
     membership_probas:
         Updated membership matrix given as a probability over clusters.
     """
-    n = adjacency.shape[0]
+    n = indptr.shape[0] - 1
     n_clusters = membership_probs.shape[1]
 
     log_membership_prob = np.log(np.maximum(membership_probs, eps))
     for i in range(n):
         log_membership_prob[i, :] = np.log(cluster_mean_probs)
         for cluster_1 in range(n_clusters):
-            for j in range(n):
-                if j != i:
-                    for cluster_2 in range(n_clusters):
+            for cluster_2 in range(n_clusters):
+                for j in range(n):
+                    if j != i:
+                        log_membership_prob[i, cluster_1] += \
+                            membership_probs[j, cluster_2] * np.log(1 - cluster_transition_probs[cluster_1, cluster_2])
+                for j in indices[indptr[i]:indptr[i+1]]:
+                    if j != i:
                         log_membership_prob[i, cluster_1] += \
                             membership_probs[j, cluster_2] * \
-                            (adjacency[i, j] * np.log(cluster_transition_probs[cluster_1, cluster_2])
-                             + (1-adjacency[i, j]) * np.log(1 - cluster_transition_probs[cluster_1, cluster_2]))
+                            (np.log(cluster_transition_probs[cluster_1, cluster_2])
+                             - np.log(1 - cluster_transition_probs[cluster_1, cluster_2]))
 
     log_membership_prob = np.clip(log_membership_prob, xmin, xmax)
     membership_prob = np.exp(log_membership_prob)
@@ -239,11 +251,11 @@ class VariationalEM(BaseClustering):
         for k in range(self.max_iter):
             cluster_mean_probs = np.maximum(np.mean(membership_probs, axis=0), eps)
             cluster_transition_probs = maximization_step(indptr, indices, membership_probs, cluster_transition_probs)
-            membership_probs = variational_step(adjacency, membership_probs, cluster_mean_probs,
+            membership_probs = variational_step(indptr, indices, membership_probs, cluster_mean_probs,
                                                 cluster_transition_probs)
 
             likelihood_old, likelihood_new = likelihood_new, \
-                                             likelihood(adjacency, membership_probs,
+                                             likelihood(indptr, indices, membership_probs,
                                                         cluster_mean_probs, cluster_transition_probs)
 
             if k > 1 and abs(likelihood_new - likelihood_old) < self.tol:
