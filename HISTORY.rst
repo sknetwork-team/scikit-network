@@ -2,6 +2,12 @@
 History
 =======
 
+0.19.1 (2020-09-09)
+-------------------
+
+* Fix visualization features
+* Fix documentation
+
 0.19.0 (2020-09-02)
 -------------------
 
