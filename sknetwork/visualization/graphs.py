@@ -27,7 +27,7 @@ def min_max_scaling(x: np.ndarray) -> np.ndarray:
     return x
 
 
-def rescale(position: np.ndarray, width: float, height: float, margin: float, node_size_max: float,
+def rescale(position: np.ndarray, width: float, height: float, margin: float, node_size: float, node_size_max: float,
             display_node_weight: bool):
     """Rescale position and adjust parameters.
 
@@ -41,6 +41,8 @@ def rescale(position: np.ndarray, width: float, height: float, margin: float, no
         Vertical scaling parameter
     margin :
         Minimal margin for the plot
+    node_size :
+        Node size (used to adapt the margin)
     node_size_max :
         Maximum node size (used to adapt the margin)
     display_node_weight :
@@ -76,7 +78,7 @@ def rescale(position: np.ndarray, width: float, height: float, margin: float, no
     position = position * np.array([width, height])
 
     # margins
-    margin = max(margin, 5 * node_size_max * display_node_weight)
+    margin = max(margin, 5 * node_size_max * display_node_weight, node_size)
     position += margin
     width += 2 * margin
     height += 2 * margin
@@ -439,7 +441,7 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
     node_widths = get_node_widths(n, seeds, node_width, node_width_max)
 
     # rescaling
-    position, width, height = rescale(position, width, height, margin, node_size_max, display_node_weight)
+    position, width, height = rescale(position, width, height, margin, node_size, node_size_max, display_node_weight)
 
     if names is not None:
         text_length = np.max(np.array([len(str(name)) for name in names]))
@@ -778,7 +780,7 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     # rescaling
     if not width and not height:
         raise ValueError("You must specify either the width or the height of the image.")
-    position, width, height = rescale(position, width, height, margin, node_size_max, display_node_weight)
+    position, width, height = rescale(position, width, height, margin, node_size, node_size_max, display_node_weight)
 
     # node names
     if names_row is not None:
