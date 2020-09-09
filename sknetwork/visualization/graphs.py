@@ -27,7 +27,7 @@ def min_max_scaling(x: np.ndarray) -> np.ndarray:
     return x
 
 
-def rescale(position: np.ndarray, width: float, height: float, margin: float, node_size_max: float,
+def rescale(position: np.ndarray, width: float, height: float, margin: float, node_size: float, node_size_max: float,
             display_node_weight: bool):
     """Rescale position and adjust parameters.
 
@@ -41,6 +41,8 @@ def rescale(position: np.ndarray, width: float, height: float, margin: float, no
         Vertical scaling parameter
     margin :
         Minimal margin for the plot
+    node_size :
+        Node size (used to adapt the margin)
     node_size_max :
         Maximum node size (used to adapt the margin)
     display_node_weight :
@@ -76,7 +78,7 @@ def rescale(position: np.ndarray, width: float, height: float, margin: float, no
     position = position * np.array([width, height])
 
     # margins
-    margin = max(margin, 5 * node_size_max * display_node_weight)
+    margin = max(margin, 5 * node_size_max * display_node_weight, node_size)
     position += margin
     width += 2 * margin
     height += 2 * margin
@@ -213,13 +215,14 @@ def get_edge_colors(adjacency: sparse.csr_matrix, edge_labels: Optional[list], e
 
 
 def get_edge_widths(adjacency: sparse.coo_matrix, edge_width: float, edge_width_min: float, edge_width_max: float,
-                    edge_weight: bool) -> np.ndarray:
+                    display_edge_weight: bool) -> np.ndarray:
     """Return the edge widths."""
     weights = adjacency.data
     edge_widths = None
     if len(weights):
-        if edge_weight and np.min(weights) < np.max(weights):
-            edge_widths = edge_width_min + np.abs(edge_width_max - edge_width_min) * weights / np.max(weights)
+        if display_edge_weight and np.min(weights) < np.max(weights):
+            edge_widths = edge_width_min + np.abs(edge_width_max - edge_width_min) * (weights - np.min(weights))\
+                          / (np.max(weights) - np.min(weights))
         else:
             edge_widths = edge_width * np.ones_like(weights)
     return edge_widths
@@ -438,7 +441,7 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
     node_widths = get_node_widths(n, seeds, node_width, node_width_max)
 
     # rescaling
-    position, width, height = rescale(position, width, height, margin, node_size_max, display_node_weight)
+    position, width, height = rescale(position, width, height, margin, node_size, node_size_max, display_node_weight)
 
     if names is not None:
         text_length = np.max(np.array([len(str(name)) for name in names]))
@@ -524,7 +527,7 @@ def svg_digraph(adjacency: Optional[sparse.csr_matrix] = None, position: Optiona
                 node_width_max: float = 3, node_color: str = 'gray',
                 display_edges: bool = True, edge_labels: Optional[list] = None,
                 edge_width: float = 1, edge_width_min: float = 0.5,
-                edge_width_max: float = 10, display_edge_weight: bool = True,
+                edge_width_max: float = 5, display_edge_weight: bool = True,
                 edge_color: Optional[str] = None, label_colors: Optional[Iterable] = None,
                 font_size: int = 12, filename: Optional[str] = None) -> str:
     """Return SVG image of a digraph.
@@ -777,7 +780,7 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     # rescaling
     if not width and not height:
         raise ValueError("You must specify either the width or the height of the image.")
-    position, width, height = rescale(position, width, height, margin, node_size_max, display_node_weight)
+    position, width, height = rescale(position, width, height, margin, node_size, node_size_max, display_node_weight)
 
     # node names
     if names_row is not None:
