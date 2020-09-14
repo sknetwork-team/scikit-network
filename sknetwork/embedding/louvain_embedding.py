@@ -47,12 +47,12 @@ class BiLouvainEmbedding(BaseBiEmbedding):
     Example
     -------
     >>> from sknetwork.embedding import BiLouvainEmbedding
-    >>> from sknetwork.data import star_wars
+    >>> from sknetwork.data import movie_actor
     >>> bilouvain = BiLouvainEmbedding()
-    >>> biadjacency = star_wars()
+    >>> biadjacency = movie_actor()
     >>> embedding = bilouvain.fit_transform(biadjacency)
     >>> embedding.shape
-    (4, 2)
+    (15, 5)
     """
     def __init__(self, resolution: float = 1, merge_isolated: bool = True, modularity: str = 'dugue',
                  tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
