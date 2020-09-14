@@ -8,8 +8,8 @@ Created on March 2019
 
 import unittest
 
-from sknetwork.hierarchy import Paris, cut_straight, cut_balanced, aggregate_dendrogram
 from sknetwork.data import karate_club
+from sknetwork.hierarchy import Paris, cut_straight, cut_balanced, aggregate_dendrogram
 
 
 # noinspection PyMissingOrEmptyDocstring

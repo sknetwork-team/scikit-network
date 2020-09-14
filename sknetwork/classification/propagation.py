@@ -8,15 +8,15 @@ from typing import Optional, Union
 
 import numpy as np
 from scipy import sparse
-
-from sknetwork.classification import BaseClassifier, BaseBiClassifier
 from sknetwork.classification.vote import vote_update
-from sknetwork.linalg import normalize
-from sknetwork.utils.check import check_seeds
-from sknetwork.utils.seeds import stack_seeds
+
+from sknetwork.classification.base import BaseClassifier, BaseBiClassifier
+from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_format
+from sknetwork.utils.check import check_seeds
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.membership import membership_matrix
+from sknetwork.utils.seeds import stack_seeds
 
 
 class Propagation(BaseClassifier):

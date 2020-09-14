@@ -5,8 +5,8 @@ import unittest
 
 import numpy as np
 
-from sknetwork.embedding.force_atlas import ForceAtlas2
 from sknetwork.data.test_graphs import test_graph, test_digraph
+from sknetwork.embedding.force_atlas import ForceAtlas2
 
 
 class TestEmbeddings(unittest.TestCase):

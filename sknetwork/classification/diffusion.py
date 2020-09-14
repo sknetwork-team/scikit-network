@@ -10,7 +10,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.classification.base_rank import RankClassifier, RankBiClassifier
-from sknetwork.ranking import Diffusion, Dirichlet
+from sknetwork.ranking.diffusion import Diffusion, Dirichlet
 from sknetwork.utils.check import check_labels
 
 

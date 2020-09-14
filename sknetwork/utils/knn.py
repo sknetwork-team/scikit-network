@@ -9,10 +9,10 @@ from abc import ABC
 import numpy as np
 from scipy import sparse
 from scipy.spatial import cKDTree
-
 from sknetwork.utils.knn1d import knn1d
-from sknetwork.utils.format import directed2undirected
+
 from sknetwork.utils.base import Algorithm
+from sknetwork.utils.format import directed2undirected
 
 
 class BaseTransformer(Algorithm, ABC):

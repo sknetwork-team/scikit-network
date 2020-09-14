@@ -13,8 +13,8 @@ from scipy.sparse.linalg import LinearOperator
 
 from sknetwork.linalg.ppr_solver import get_pagerank
 from sknetwork.ranking.base import BaseRanking, BaseBiRanking
-from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.check import check_format, check_square, check_damping_factor
+from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.seeds import seeds2probs, stack_seeds
 from sknetwork.utils.verbose import VerboseMixin
 

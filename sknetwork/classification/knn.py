@@ -11,8 +11,9 @@ import numpy as np
 from scipy import sparse
 from scipy.spatial import cKDTree
 
-from sknetwork.classification import BaseClassifier, BaseBiClassifier
-from sknetwork.embedding import BaseEmbedding, GSVD
+from sknetwork.classification.base import BaseClassifier, BaseBiClassifier
+from sknetwork.embedding.base import BaseEmbedding
+from sknetwork.embedding.svd import GSVD
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_seeds, check_n_neighbors, check_n_jobs
 from sknetwork.utils.seeds import stack_seeds

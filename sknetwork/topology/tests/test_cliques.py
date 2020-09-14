@@ -3,10 +3,10 @@
 """Tests for k-cliques count"""
 import unittest
 
-from sknetwork.topology import Cliques
-from sknetwork.data.test_graphs import *
-
 from scipy.special import comb
+
+from sknetwork.data.test_graphs import *
+from sknetwork.topology import Cliques
 
 
 class TestCliqueListing(unittest.TestCase):

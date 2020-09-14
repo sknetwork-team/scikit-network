@@ -6,8 +6,8 @@ Created on Sep 2020
 """
 from typing import Optional, Union
 
-from scipy import sparse
 import numpy as np
+from scipy import sparse
 
 from sknetwork.clustering.louvain import BiLouvain
 from sknetwork.embedding.base import BaseBiEmbedding
@@ -52,12 +52,7 @@ class BiLouvainEmbedding(BaseBiEmbedding):
     >>> biadjacency = star_wars()
     >>> embedding = bilouvain.fit_transform(biadjacency)
     >>> embedding.shape
-    (34, 2)
-
-    References
-    ----------
-    Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
-    Neural computation.
+    (4, 2)
     """
     def __init__(self, resolution: float = 1, merge_isolated: bool = True, modularity: str = 'dugue',
                  tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,

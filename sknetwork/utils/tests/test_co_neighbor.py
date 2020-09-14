@@ -8,9 +8,9 @@ import unittest
 
 import numpy as np
 
-from sknetwork.utils import co_neighbor_graph
 from sknetwork.data import movie_actor
 from sknetwork.linalg import CoNeighborOperator
+from sknetwork.utils import co_neighbor_graph
 
 
 class TestCoNeighbors(unittest.TestCase):

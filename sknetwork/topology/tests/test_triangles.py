@@ -4,11 +4,11 @@
 
 import unittest
 
-from sknetwork.topology import Triangles
-from sknetwork.data.test_graphs import *
-from sknetwork.data import karate_club, edgelist2adjacency
-
 from scipy.special import comb
+
+from sknetwork.data import karate_club, edgelist2adjacency
+from sknetwork.data.test_graphs import *
+from sknetwork.topology import Triangles
 
 
 class TestTriangleListing(unittest.TestCase):

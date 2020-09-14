@@ -12,8 +12,8 @@ from scipy import sparse
 from scipy.spatial import cKDTree
 
 from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.utils.format import directed2undirected
 from sknetwork.utils.check import check_format, is_symmetric, check_square
+from sknetwork.utils.format import directed2undirected
 
 
 class ForceAtlas2(BaseEmbedding):

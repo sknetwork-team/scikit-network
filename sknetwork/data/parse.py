@@ -5,10 +5,10 @@ Created on Dec 5, 2018
 @author: Quentin Lutz <qlutz@enst.fr>
 Nathan de Lara <ndelara@enst.fr>
 """
+import warnings
 from csv import reader
 from typing import Optional
 from xml.etree import ElementTree
-import warnings
 
 import numpy as np
 from scipy import sparse

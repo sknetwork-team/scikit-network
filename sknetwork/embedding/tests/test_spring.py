@@ -4,8 +4,8 @@
 
 import unittest
 
-from sknetwork.embedding import Spring
 from sknetwork.data.test_graphs import *
+from sknetwork.embedding import Spring
 
 
 class TestEmbeddings(unittest.TestCase):

@@ -6,8 +6,8 @@ import unittest
 
 import numpy as np
 
-from sknetwork.linalg import LanczosEig, HalkoEig, SparseLR
 from sknetwork.data import miserables, karate_club
+from sknetwork.linalg import LanczosEig, HalkoEig, SparseLR
 
 
 def eigenvector_err(matrix, eigenvectors, eigenvalues):
