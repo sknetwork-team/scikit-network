@@ -24,4 +24,4 @@ Glossary
 
     graph
         Mathematical object :math:`G = (V, E)`, where :math:`V` is the set of vertices or nodes
-        and :math:`E \\in V \\times V` the set of edges.
+        and :math:`E \in V \times V` the set of edges.
