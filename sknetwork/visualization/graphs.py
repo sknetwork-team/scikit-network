@@ -78,7 +78,7 @@ def rescale(position: np.ndarray, width: float, height: float, margin: float, no
     position = position * np.array([width, height])
 
     # margins
-    margin = max(margin, 5 * node_size_max * display_node_weight, node_size)
+    margin = max(margin, node_size_max * display_node_weight, node_size)
     position += margin
     width += 2 * margin
     height += 2 * margin
