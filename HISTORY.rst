@@ -2,6 +2,11 @@
 History
 =======
 
+0.19.2 (2020-09-14)
+-------------------
+
+* Fix documentation with new dataset website URLs.
+
 0.19.1 (2020-09-09)
 -------------------
 
