@@ -224,7 +224,7 @@ class LouvainEmbedding(BaseEmbedding):
         self: :class:`LouvainEmbedding`
         """
         bilouvain = BiLouvainEmbedding(resolution=self.resolution, merge_isolated=self.merge_isolated,
-                                       modularity=self.modularity, tol_optimization =self.tol_optimization,
+                                       modularity=self.modularity, tol_optimization=self.tol_optimization,
                                        tol_aggregation=self.tol_aggregation, n_aggregations=self.n_aggregations,
                                        shuffle_nodes=self.shuffle_nodes, random_state=self.random_state)
         bilouvain.fit(adjacency)
