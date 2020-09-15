@@ -5,8 +5,8 @@ import unittest
 
 import numpy as np
 
-from sknetwork.data.test_graphs import test_graph
-from sknetwork.embedding import LouvainEmbedding
+from sknetwork.data.test_graphs import test_graph, test_bigraph
+from sknetwork.embedding import LouvainEmbedding, BiLouvainEmbedding
 
 
 class TestLouvainEmbedding(unittest.TestCase):
@@ -15,4 +15,9 @@ class TestLouvainEmbedding(unittest.TestCase):
         louvain = LouvainEmbedding()
         louvain.fit(test_graph())
         embedding_vector = louvain.predict(np.array([1, 0, 0, 0, 1, 1, 0, 0, 0, 1]))
+        self.assertEqual(embedding_vector.shape[0], 1)
+
+        bilouvain = BiLouvainEmbedding()
+        bilouvain.fit(test_bigraph())
+        embedding_vector = bilouvain.predict(np.array([1, 0, 0, 0, 1, 1]))
         self.assertEqual(embedding_vector.shape[0], 1)

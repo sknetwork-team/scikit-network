@@ -12,6 +12,7 @@ from scipy import sparse
 from sknetwork.clustering.louvain import BiLouvain
 from sknetwork.embedding.base import BaseBiEmbedding, BaseEmbedding
 from sknetwork.utils.check import check_random_state, check_adjacency_vector, check_nonnegative
+from sknetwork.utils.membership import membership_matrix
 
 
 class BiLouvainEmbedding(BaseBiEmbedding):
@@ -97,11 +98,10 @@ class BiLouvainEmbedding(BaseBiEmbedding):
         if self.merge_isolated:
             _, counts_row = np.unique(bilouvain.labels_row_, return_counts=True)
 
-            n_clusters = len(counts_row)
-
+            n_clusters_row = embedding_row.shape[1]
             n_isolated_nodes_row = (counts_row == 1).sum()
             if n_isolated_nodes_row:
-                n_remaining_row = n_clusters - n_isolated_nodes_row
+                n_remaining_row = n_clusters_row - n_isolated_nodes_row
                 indptr_row = np.zeros(n_remaining_row + 2, dtype=int)
                 indptr_row[-1] = n_isolated_nodes_row
                 combiner_row = sparse.vstack([sparse.eye(n_remaining_row, n_remaining_row + 1, format='csr'),
@@ -111,12 +111,13 @@ class BiLouvainEmbedding(BaseBiEmbedding):
                                                                  np.arange(n_isolated_nodes_row + 1, dtype=int)
                                                                  ))])
                 embedding_row = embedding_row.dot(combiner_row)
-                self.labels_ = self.labels_.dot(combiner_row)
+                self.labels_[n_remaining_row + 1:] = self.labels_[n_remaining_row + 1]
 
             _, counts_col = np.unique(bilouvain.labels_col_, return_counts=True)
+            n_clusters_col = embedding_col.shape[1]
             n_isolated_nodes_col = (counts_col == 1).sum()
             if n_isolated_nodes_col:
-                n_remaining_col = n_clusters - n_isolated_nodes_col
+                n_remaining_col = n_clusters_col - n_isolated_nodes_col
                 indptr_col = np.zeros(n_remaining_col + 2, dtype=int)
                 indptr_col[-1] = n_isolated_nodes_col
                 combiner_col = sparse.vstack([sparse.eye(n_remaining_col, n_remaining_col + 1, format='csr'),
@@ -127,15 +128,8 @@ class BiLouvainEmbedding(BaseBiEmbedding):
                                                                  ))])
                 embedding_col = embedding_col.dot(combiner_col)
 
-        cluster_degrees_row = np.array(embedding_row.sum(axis=1)).ravel()
-        reindex_row = np.argsort(cluster_degrees_row)[::-1]
-
-        cluster_degrees_col = np.array(embedding_col.sum(axis=1)).ravel()
-        reindex_col = np.argsort(cluster_degrees_col)[::-1]
-
-        self.embedding_row_ = embedding_row[reindex_row]
-        self.embedding_col_ = embedding_col[reindex_col]
-        self.labels_ = self.labels_[reindex_row]
+        self.embedding_row_ = embedding_row
+        self.embedding_col_ = embedding_col
         self.embedding_ = self.embedding_row_
 
         return self
@@ -156,13 +150,10 @@ class BiLouvainEmbedding(BaseBiEmbedding):
         """
         self._check_fitted()
         n = self.embedding_.shape[0]
-        n_clusters = len(self.labels_)
 
         adjacency_vectors = check_adjacency_vector(adjacency_vectors, n)
         check_nonnegative(adjacency_vectors)
-
-        membership = sparse.csr_matrix((np.ones(n_clusters, dtype=int),
-                                        (np.arange(n_clusters, dtype=int), self.labels_)))
+        membership = membership_matrix(self.labels_)
 
         return adjacency_vectors.dot(membership)
 
@@ -258,12 +249,10 @@ class LouvainEmbedding(BaseEmbedding):
         """
         self._check_fitted()
         n = self.embedding_.shape[0]
-        n_clusters = len(self.labels_)
 
         adjacency_vectors = check_adjacency_vector(adjacency_vectors, n)
         check_nonnegative(adjacency_vectors)
 
-        membership = sparse.csr_matrix((np.ones(n_clusters, dtype=int),
-                                        (np.arange(n_clusters, dtype=int), self.labels_)))
+        membership = membership_matrix(self.labels_)
 
         return adjacency_vectors.dot(membership)
