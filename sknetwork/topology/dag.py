@@ -6,8 +6,8 @@ Created on Jun 3, 2020
 """
 import numpy as np
 from scipy import sparse
-
 from sknetwork.topology.dag_core import fit_core
+
 from sknetwork.utils.base import Algorithm
 
 

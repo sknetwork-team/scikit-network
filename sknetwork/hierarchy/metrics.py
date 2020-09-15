@@ -6,11 +6,11 @@ Created on March 2019
 """
 import numpy as np
 from scipy import sparse
-
 from sknetwork.hierarchy.paris import AggregateGraph
+
 from sknetwork.utils.check import check_format, check_probs, check_square
-from sknetwork.utils.format import directed2undirected
 from sknetwork.utils.check import check_min_size, check_min_nnz
+from sknetwork.utils.format import directed2undirected
 
 
 def _instanciate_vars(adjacency: sparse.csr_matrix, weights: str = 'uniform'):

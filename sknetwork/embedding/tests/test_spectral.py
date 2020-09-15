@@ -5,9 +5,9 @@ import unittest
 
 import numpy as np
 
+from sknetwork.data.test_graphs import test_graph, test_bigraph, test_digraph, test_graph_disconnect
 from sknetwork.embedding import Spectral, LaplacianEmbedding
 from sknetwork.embedding.spectral import LaplacianOperator
-from sknetwork.data.test_graphs import test_graph, test_bigraph, test_digraph, test_graph_disconnect
 
 
 class TestEmbeddings(unittest.TestCase):

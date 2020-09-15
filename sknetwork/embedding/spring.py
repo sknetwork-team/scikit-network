@@ -10,11 +10,11 @@ import numpy as np
 from scipy import sparse
 from scipy.spatial import cKDTree
 
-from sknetwork.embedding.spectral import Spectral
 from sknetwork.embedding.base import BaseEmbedding
+from sknetwork.embedding.spectral import Spectral
+from sknetwork.linalg import normalize
 from sknetwork.utils.check import check_adjacency_vector, check_format, check_square, is_symmetric
 from sknetwork.utils.format import directed2undirected
-from sknetwork.linalg import normalize
 
 
 class Spring(BaseEmbedding):

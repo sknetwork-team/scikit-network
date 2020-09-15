@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding.base import BaseEmbedding, BaseBiEmbedding
-from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv, normalize, LaplacianOperator,\
+from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv, normalize, LaplacianOperator, \
     NormalizedAdjacencyOperator, RegularizedAdjacency
 from sknetwork.utils.check import check_format, check_square, check_symmetry, check_adjacency_vector, \
     check_nonnegative, check_n_components, check_scaling

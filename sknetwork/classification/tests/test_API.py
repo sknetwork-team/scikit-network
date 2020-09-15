@@ -5,8 +5,8 @@
 import unittest
 
 from sknetwork.classification import *
-from sknetwork.data.test_graphs import *
 from sknetwork.data import movie_actor
+from sknetwork.data.test_graphs import *
 from sknetwork.embedding import GSVD
 
 

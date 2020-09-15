@@ -9,8 +9,8 @@ from typing import Union
 
 import numpy as np
 from scipy import sparse
-
 from sknetwork.topology.weisfeiler_lehman_core import weisfeiler_lehman_coloring
+
 from sknetwork.utils.base import Algorithm
 
 

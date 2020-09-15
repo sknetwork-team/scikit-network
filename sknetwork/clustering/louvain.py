@@ -10,12 +10,12 @@ from typing import Union, Optional
 
 import numpy as np
 from scipy import sparse
+from sknetwork.clustering.louvain_core import fit_core
 
 from sknetwork.clustering.base import BaseClustering, BaseBiClustering
-from sknetwork.clustering.louvain_core import fit_core
 from sknetwork.clustering.postprocess import reindex_labels
-from sknetwork.utils.format import bipartite2directed, directed2undirected, bipartite2undirected
 from sknetwork.utils.check import check_format, check_random_state, check_probs, check_square
+from sknetwork.utils.format import bipartite2directed, directed2undirected, bipartite2undirected
 from sknetwork.utils.membership import membership_matrix
 from sknetwork.utils.verbose import VerboseMixin
 

@@ -6,9 +6,9 @@ import unittest
 
 import numpy as np
 
+from sknetwork.data import house, star_wars
 from sknetwork.linalg.randomized_methods import randomized_svd, randomized_eig
 from sknetwork.linalg.sparse_lowrank import SparseLR
-from sknetwork.data import house, star_wars
 
 
 class TestSparseLowRank(unittest.TestCase):

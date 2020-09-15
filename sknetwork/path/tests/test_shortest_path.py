@@ -3,9 +3,9 @@
 """"tests for shortest_path.py"""
 import unittest
 
+from sknetwork.data import karate_club, cyclic_digraph
 # has to specify the exact file to avoid nosetests error on full tests
 from sknetwork.path.shortest_path import distance, shortest_path
-from sknetwork.data import karate_club, cyclic_digraph
 
 
 class TestShortestPath(unittest.TestCase):

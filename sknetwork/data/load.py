@@ -6,8 +6,8 @@ Created on November 15, 2019
 """
 
 import pickle
-import tarfile
 import shutil
+import tarfile
 from os import environ, makedirs, remove, listdir, rmdir
 from os.path import exists, expanduser, join
 from pathlib import Path

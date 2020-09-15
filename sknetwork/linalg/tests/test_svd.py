@@ -6,8 +6,8 @@ import unittest
 
 import numpy as np
 
-from sknetwork.linalg import LanczosSVD, HalkoSVD, SparseLR
 from sknetwork.data import movie_actor
+from sknetwork.linalg import LanczosSVD, HalkoSVD, SparseLR
 
 
 def svd_err(matrix, u, v, sigma):

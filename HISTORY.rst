@@ -2,6 +2,11 @@
 History
 =======
 
+Next release
+-------------------
+
+* Added Louvain-based embedding
+
 0.19.2 (2020-09-14)
 -------------------
 

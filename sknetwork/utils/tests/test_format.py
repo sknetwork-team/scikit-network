@@ -4,8 +4,8 @@
 import unittest
 
 from sknetwork.data import star_wars, house, cyclic_digraph
-from sknetwork.utils.format import *
 from sknetwork.utils.check import is_symmetric
+from sknetwork.utils.format import *
 
 
 class TestFormats(unittest.TestCase):

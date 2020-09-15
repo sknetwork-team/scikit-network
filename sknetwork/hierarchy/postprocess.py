@@ -7,8 +7,8 @@ Created on June 2019
 @author: Quentin Lutz <qlutz@enst.fr>
 """
 
-from collections import defaultdict
 import copy
+from collections import defaultdict
 from typing import Optional, Union, Tuple
 
 import numpy as np

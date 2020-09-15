@@ -4,11 +4,10 @@
 
 import tempfile
 import unittest
-from urllib.error import URLError
 import warnings
 
-from sknetwork.data.toy_graphs import *
 from sknetwork.data.load import *
+from sknetwork.data.toy_graphs import *
 from sknetwork.utils import Bunch
 
 

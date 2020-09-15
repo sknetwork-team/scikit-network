@@ -4,9 +4,9 @@
 
 import unittest
 
+from sknetwork.data.test_graphs import test_bigraph, test_graph
 from sknetwork.embedding import GSVD
 from sknetwork.embedding.metrics import cosine_modularity
-from sknetwork.data.test_graphs import test_bigraph, test_graph
 
 
 class TestClusteringMetrics(unittest.TestCase):

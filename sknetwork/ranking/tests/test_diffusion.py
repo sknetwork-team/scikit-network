@@ -4,8 +4,8 @@
 
 import unittest
 
-from sknetwork.ranking import Diffusion, BiDiffusion, Dirichlet, BiDirichlet
 from sknetwork.data.test_graphs import *
+from sknetwork.ranking import Diffusion, BiDiffusion, Dirichlet, BiDirichlet
 
 
 # noinspection DuplicatedCode

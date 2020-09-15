@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """tests for link prediction API"""
+import unittest
 from abc import ABC
 from typing import Iterable
-import unittest
 
 import numpy as np
 

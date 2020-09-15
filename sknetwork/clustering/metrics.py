@@ -11,8 +11,8 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.linalg import diag_pinv
-from sknetwork.utils.format import bipartite2directed
 from sknetwork.utils.check import check_format, check_probs, check_square
+from sknetwork.utils.format import bipartite2directed
 from sknetwork.utils.membership import membership_matrix
 
 
