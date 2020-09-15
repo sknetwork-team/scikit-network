@@ -5,7 +5,7 @@
 import unittest
 
 from sknetwork.data.test_graphs import test_bigraph, test_graph
-from sknetwork.embedding import GSVD
+from sknetwork.embedding import GSVD, LouvainEmbedding
 from sknetwork.embedding.metrics import cosine_modularity
 
 
@@ -28,3 +28,8 @@ class TestClusteringMetrics(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             cosine_modularity(biadjacency, embedding)
+
+        louvain = LouvainEmbedding()
+        embedding = louvain.fit_transform(adjacency)
+        fit, div, modularity = cosine_modularity(adjacency, embedding, return_all=True)
+        self.assertAlmostEqual(modularity, fit - div)
