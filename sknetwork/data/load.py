@@ -58,7 +58,7 @@ def clear_data_home(data_home: Optional[Union[str, Path]] = None):
 
 def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Path]] = None) -> Bunch:
     """Load a dataset from the `NetSet database
-    <https://graphs.telecom-paristech.fr/>`_.
+    <https://netset.telecom-paris.fr/>`_.
 
     Parameters
     ----------
