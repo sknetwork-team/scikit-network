@@ -9,18 +9,19 @@ from typing import Union, Iterable
 
 import numpy as np
 from scipy import sparse
+from sknetwork.linkpred.first_order_core import common_neighbors_node_core, jaccard_node_core, salton_node_core, \
+    sorensen_node_core, hub_promoted_node_core, hub_depressed_node_core, adamic_adar_node_core, \
+    resource_allocation_node_core, \
+    common_neighbors_edges_core, jaccard_edges_core, salton_edges_core, sorensen_edges_core, hub_promoted_edges_core, \
+    hub_depressed_edges_core, adamic_adar_edges_core, resource_allocation_edges_core
 
 from sknetwork.linkpred.base import BaseLinkPred
-from sknetwork.linkpred.first_order_core import common_neighbors_node_core, jaccard_node_core, salton_node_core,\
-    sorensen_node_core, hub_promoted_node_core, hub_depressed_node_core, adamic_adar_node_core,\
-    resource_allocation_node_core,\
-    common_neighbors_edges_core, jaccard_edges_core, salton_edges_core, sorensen_edges_core, hub_promoted_edges_core,\
-    hub_depressed_edges_core, adamic_adar_edges_core, resource_allocation_edges_core
 from sknetwork.utils.check import check_format
 
 
 class FirstOrder(BaseLinkPred, ABC):
     """Base class for first order algorithms."""
+
     def __init__(self):
         super(FirstOrder, self).__init__()
         self.indptr_ = None

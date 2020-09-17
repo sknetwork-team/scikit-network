@@ -4,15 +4,13 @@
 Created on Mar, 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-from typing import Optional, Union
+from typing import Optional
 
 import numpy as np
 from scipy import sparse
 
 from sknetwork.classification.base_rank import RankClassifier, RankBiClassifier
-from sknetwork.linalg.normalization import normalize
-from sknetwork.ranking import PageRank
-from sknetwork.utils.check import check_seeds
+from sknetwork.ranking.pagerank import PageRank
 
 
 class PageRankClassifier(RankClassifier):

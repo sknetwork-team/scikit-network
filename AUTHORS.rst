@@ -23,3 +23,4 @@ Contributors
 * Rémi Jaylet
 * Victor Manach
 * Pierre Pébereau
+* Armand Boschin

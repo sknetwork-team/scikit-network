@@ -26,6 +26,13 @@ GSVD
 
 .. autoclass:: sknetwork.embedding.GSVD
 
+Louvain
+-------
+
+.. autoclass:: sknetwork.embedding.LouvainEmbedding
+
+.. autoclass:: sknetwork.embedding.BiLouvainEmbedding
+
 Force Atlas 2
 -------------
 

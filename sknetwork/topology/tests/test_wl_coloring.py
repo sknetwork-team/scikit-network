@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 """Tests for Weisfeiler-Lehman coloring"""
 import unittest
-from sknetwork.topology import WeisfeilerLehman
-from sknetwork.data.test_graphs import *
+
 from sknetwork.data import house, bow_tie
+from sknetwork.data.test_graphs import *
+from sknetwork.topology import WeisfeilerLehman
 
 
 class TestWLColoring(unittest.TestCase):

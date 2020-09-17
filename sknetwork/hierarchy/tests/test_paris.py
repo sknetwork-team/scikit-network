@@ -8,8 +8,8 @@ Created on March 2019
 
 import unittest
 
-from sknetwork.hierarchy import Paris
 from sknetwork.data.test_graphs import test_graph
+from sknetwork.hierarchy import Paris
 
 
 class TestParis(unittest.TestCase):

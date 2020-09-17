@@ -6,8 +6,8 @@ Created on November 15, 2019
 """
 
 import pickle
-import tarfile
 import shutil
+import tarfile
 from os import environ, makedirs, remove, listdir, rmdir
 from os.path import exists, expanduser, join
 from pathlib import Path
@@ -58,7 +58,7 @@ def clear_data_home(data_home: Optional[Union[str, Path]] = None):
 
 def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Path]] = None) -> Bunch:
     """Load a dataset from the `NetSet database
-    <https://graphs.telecom-paristech.fr/>`_.
+    <https://netset.telecom-paris.fr/>`_.
 
     Parameters
     ----------

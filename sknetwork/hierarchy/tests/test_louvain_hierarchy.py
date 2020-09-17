@@ -8,8 +8,8 @@ Created on March 2020
 
 import unittest
 
-from sknetwork.hierarchy.louvain_hierarchy import LouvainHierarchy
 from sknetwork.data.test_graphs import test_graph
+from sknetwork.hierarchy.louvain_hierarchy import LouvainHierarchy
 
 
 class TestLouvainHierarchy(unittest.TestCase):

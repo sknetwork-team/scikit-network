@@ -7,8 +7,8 @@ Created on March 2019
 
 import unittest
 
-from sknetwork.hierarchy import Paris, LouvainHierarchy, dasgupta_cost, dasgupta_score, tree_sampling_divergence
 from sknetwork.data.test_graphs import *
+from sknetwork.hierarchy import Paris, LouvainHierarchy, dasgupta_cost, dasgupta_score, tree_sampling_divergence
 
 
 # noinspection PyMissingOrEmptyDocstring

@@ -3,8 +3,8 @@
 """Tests for k-core decimposition"""
 import unittest
 
-from sknetwork.topology import CoreDecomposition
 from sknetwork.data.test_graphs import *
+from sknetwork.topology import CoreDecomposition
 
 
 class TestCoreDecomposition(unittest.TestCase):
