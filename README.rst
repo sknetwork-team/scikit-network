@@ -53,4 +53,23 @@ Import scikit-network in a Python project::
 
 See examples in the tutorials; the notebooks are available here_.
 
+Citing
+------
+
+If you want to cite *scikit-network*, please refer to the publication in
+the `Journal of Machine Learning Research <https://jmlr.org>`_:
+
+.. code::
+
+    @article{JMLR:v21:20-412,
+      author  = {Thomas Bonald and Nathan de Lara and Quentin Lutz and Bertrand Charpentier},
+      title   = {Scikit-network: Graph Analysis in Python},
+      journal = {Journal of Machine Learning Research},
+      year    = {2020},
+      volume  = {21},
+      number  = {185},
+      pages   = {1-6},
+      url     = {http://jmlr.org/papers/v21/20-412.html}
+    }
+
 .. _here: https://github.com/sknetwork-team/scikit-network/tree/master/docs/tutorials
