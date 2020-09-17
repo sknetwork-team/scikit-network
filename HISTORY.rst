@@ -2,10 +2,11 @@
 History
 =======
 
-Next release
+0.19.3 (2020-09-17)
 -------------------
 
 * Added Louvain-based embedding
+* Fix documentation with new dataset website URLs
 
 0.19.2 (2020-09-14)
 -------------------
