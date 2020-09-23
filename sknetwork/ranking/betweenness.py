@@ -29,9 +29,9 @@ class Betweenness(BaseRanking):
     >>> from sknetwork.data.toy_graphs import bow_tie
     >>> betweenness = Betweenness()
     >>> adjacency = bow_tie()
-    >>> bw = betweeness.fit(adjacency)
+    >>> bw = betweenness.fit(adjacency)
     >>> bw.betweenness_values_
-    [4., 0., 0., 0., 0.]
+    array([4., 0., 0., 0., 0.])
     """
 
     def __init__(self, normalized: bool = False):
