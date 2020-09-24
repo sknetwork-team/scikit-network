@@ -21,7 +21,8 @@ def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, w
                    named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True,
                    fast_format: bool = True) -> Bunch:
     """Parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets in the form of
-    edge lists.
+    edge lists. The order for the elements of an edge should be `node1 node2 [weight]`. Weights can only be floats or
+    integers.
 
     Parameters
     ----------
