@@ -20,7 +20,7 @@ class Betweenness(BaseRanking):
 
     Attributes
     ----------
-    betweenness_values_ : np.ndarray
+    scores_ : np.ndarray
         Betweenness centrality value of each node
 
     Example
@@ -30,13 +30,12 @@ class Betweenness(BaseRanking):
     >>> betweenness = Betweenness()
     >>> adjacency = bow_tie()
     >>> bw = betweenness.fit(adjacency)
-    >>> bw.betweenness_values_
+    >>> bw.scores_
     array([4., 0., 0., 0., 0.])
     """
 
     def __init__(self, normalized: bool = False):
         super(Betweenness, self).__init__()
-        self.betweenness_values_ = None
         self.normalized_ = normalized
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Betweenness':
@@ -45,7 +44,7 @@ class Betweenness(BaseRanking):
         check_connected(adjacency)
 
         n = adjacency.shape[0]
-        self.betweenness_values_ = np.zeros(n) # [ 0.0 for i in range(num_nodes) ]
+        self.scores_ = np.zeros(n) # [ 0.0 for i in range(num_nodes) ]
         neighbours = lambda x: sparse.find(adjacency.getrow(x))[1] # Returns neighbours of node x
 
         seen = [] # Using list as stack
@@ -77,15 +76,15 @@ class Betweenness(BaseRanking):
                 for v in preds[w]:
                     delta[v] = delta[v] + ((sigma[v]/sigma[w]) * (1 + delta[w]))
                 if w != source:
-                    self.betweenness_values_[w] = self.betweenness_values_[w] + delta[w]
+                    self.scores_[w] = self.scores_[w] + delta[w]
 
         if self.normalized_:
             # Normalize by the max number of (source,target) pairs
             norm_value = 2 / ((n - 1) * (n - 2))
-            self.betweenness_values_ = self.betweenness_values_ * norm_value
+            self.scores_ = self.scores_ * norm_value
 
         # Undirected graph, divide all values by two
-        self.betweenness_values_ = 1/2 * self.betweenness_values_
+        self.scores_ = 1/2 * self.scores_
 
         return self
 
