@@ -87,17 +87,3 @@ class Betweenness(BaseRanking):
         self.scores_ = 1/2 * self.scores_
 
         return self
-
-    def fit_transform(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'np.ndarray':
-        """Fit algorithm to the data and return the betweenness value of each node.
-        Same parameters as the ```fit``` method.
-
-        * Graph
-
-        Returns
-        -------
-        values :
-            Betweenness values of the nodes
-        """
-        self.fit(adjacency)
-        return self.betweenness_values_
