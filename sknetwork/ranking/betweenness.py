@@ -38,16 +38,15 @@ class Betweenness(BaseRanking):
         super(Betweenness, self).__init__()
         self.normalized_ = normalized
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Betweenness':
+    def fit(self,
+            adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Betweenness':
         adjacency = check_format(adjacency)
         check_square(adjacency)
         check_connected(adjacency)
 
         n = adjacency.shape[0]
-        self.scores_ = np.zeros(n) # [ 0.0 for i in range(num_nodes) ]
-        neighbours = lambda x: sparse.find(adjacency.getrow(x))[1] # Returns neighbours of node x
-
-        seen = [] # Using list as stack
+        self.scores_ = np.zeros(n)
+        seen = []  # Using list as stack
         bfs_queue = deque()
 
         for source in range(n):
@@ -61,11 +60,12 @@ class Betweenness(BaseRanking):
             while len(bfs_queue) != 0:
                 v = bfs_queue.popleft()
                 seen.append(v)
-                for w in neighbours(v):
-                    if dists[w] < 0: # w found for the first time?
+                neighbours = adjacency.indices[adjacency.indptr[v]:adjacency.indptr[v+1]]
+                for w in neighbours:
+                    if dists[w] < 0:  # w found for the first time?
                         dists[w] = dists[v] + 1
                         bfs_queue.append(w)
-                    if dists[w] == dists[v] + 1: # shortest path to w via v?
+                    if dists[w] == dists[v] + 1:  # shortest path to w via v?
                         sigma[w] = sigma[w] + sigma[v]
                         preds[w].append(v)
 
