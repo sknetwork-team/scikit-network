@@ -78,11 +78,6 @@ class Betweenness(BaseRanking):
                 if w != source:
                     self.scores_[w] = self.scores_[w] + delta[w]
 
-        if self.normalized_:
-            # Normalize by the max number of (source,target) pairs
-            norm_value = 2 / ((n - 1) * (n - 2))
-            self.scores_ = self.scores_ * norm_value
-
         # Undirected graph, divide all values by two
         self.scores_ = 1/2 * self.scores_
 
