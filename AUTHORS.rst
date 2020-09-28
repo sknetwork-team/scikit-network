@@ -19,3 +19,4 @@ Contributors
 * Fabien Mathieu
 * Yohann Robert
 * Julien Simonnet
+* Clément Bonet

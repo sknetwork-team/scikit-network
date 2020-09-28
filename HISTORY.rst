@@ -2,6 +2,11 @@
 History
 =======
 
+0.18.1 (2020-09-28)
+-------------------
+
+* Added Variational Expectation Maximization (VEM) algorithm
+
 0.18.0 (2020-06-08)
 -------------------
 
