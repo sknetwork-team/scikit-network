@@ -4,7 +4,7 @@
 # distutils: define_macros=CYTHON_TRACE_NOGIL=1
 """
 Created on July 1, 2020
-@author: Pierre Pebereau <pierre.pebereau@telecom-paris.fr>
+@author: Pierre Pebereau <pierre.pebereau@telecom-paris.fr> 
 @author: Alexis Barreaux <alexis.barreaux@telecom-paris.fr>
 """
 from libcpp.vector cimport vector
