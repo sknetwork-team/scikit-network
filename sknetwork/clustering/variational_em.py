@@ -125,7 +125,8 @@ class VariationalEM(BaseClustering):
         -------
         self: :class:`VariationalEM`
         """
-        indptr, indices = adjacency.indptr, adjacency.indices
+        indptr: np.ndarray = adjacency.indptr.astype(np.int32)
+        indices: np.ndarray = adjacency.indices.astype(np.int32)
 
         n = adjacency.shape[0]
 
@@ -135,18 +136,20 @@ class VariationalEM(BaseClustering):
 
             membership_probs = np.zeros(shape=(n, self.n_clusters))
             membership_probs[:] = np.eye(self.n_clusters)[labels]
+            membership_probs = membership_probs.astype(np.float32)
         else:
-            membership_probs = normalize(np.random.rand(n, self.n_clusters), p=1)
+            membership_probs = normalize(np.random.rand(n, self.n_clusters), p=1).astype(np.float32)
 
         likelihood_old, likelihood_new = 0., 0.
 
         for k in range(self.max_iter):
-            cluster_mean_probs = np.maximum(np.mean(membership_probs, axis=0), eps)
-            cluster_transition_probs = maximization_step(adjacency, membership_probs)
+            cluster_mean_probs = np.maximum(np.mean(membership_probs, axis=0), eps).astype(np.float32)
+            cluster_transition_probs = maximization_step(adjacency, membership_probs).astype(np.float32)
+            
             membership_probs = variational_step(indptr, indices, membership_probs, cluster_mean_probs,
                                                 cluster_transition_probs)
 
-            likelihood_old, likelihood_new = likelihood_new, likelihood(indptr, indices, membership_probs,
+            likelihood_old, likelihood_new = likelihood_new, likelihood(indptr, indices, membership_probs.astype(np.float32),
                                                                         cluster_mean_probs, cluster_transition_probs)
 
             if k > 1 and abs(likelihood_new - likelihood_old) < self.tol:

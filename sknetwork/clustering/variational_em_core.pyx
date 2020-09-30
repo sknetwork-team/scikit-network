@@ -11,6 +11,8 @@ import numpy as np
 cimport numpy as np
 from sknetwork.linalg import normalize
 
+from libc.math cimport log
+
 cdef float eps = np.finfo(float).eps
 
 @cython.boundscheck(False)
@@ -41,7 +43,7 @@ def likelihood(int[:] indptr,int[:] indices, float[:,:] membership_probs, float[
     cdef int n = indptr.shape[0] - 1
     cdef int n_clusters = membership_probs.shape[1]
 
-    cdef float output = np.sum(membership_probs.dot(np.log(cluster_mean_probs)))
+    cdef float output = np.sum(np.dot(membership_probs,np.log(cluster_mean_probs)))
     cdef float cpt = 0
     cdef int i
     cdef int j
@@ -95,7 +97,7 @@ def variational_step(int[:] indptr, int[:] indices, float[:,:] membership_probs,
     -------
     membership_probas:
         Updated membership matrix given as a probability over clusters.
-    """
+    """    
     cdef int n = indptr.shape[0] - 1
     cdef int n_clusters = membership_probs.shape[1]
     cdef float[:,:] log_membership_prob = np.log(np.maximum(membership_probs, eps))
@@ -106,8 +108,13 @@ def variational_step(int[:] indptr, int[:] indices, float[:,:] membership_probs,
     cdef int n_neighbours
     
     for i in prange(n, nogil=True, schedule='guided'):
-        with gil:
-            log_membership_prob[i, :] = np.log(cluster_mean_probs)
+        for j in prange(n, schedule='guided'):
+            with gil:
+                if cluster_mean_probs[j]>eps:
+                    log_membership_prob[i, j] = log(cluster_mean_probs[j])
+                else:
+                    log_membership_prob[i,j] = eps
+            
         for cluster_1 in prange(n_clusters, schedule='guided'):
             for cluster_2 in prange(n_clusters, schedule='guided'):
                 for j in prange(n, schedule='guided'):
