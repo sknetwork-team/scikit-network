@@ -378,7 +378,7 @@ def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     biadjacency = sparse.csr_matrix((np.ones(len(row), dtype=bool), (row, col)), shape=(4, 3))
 
     if metadata:
-        villains = np.array(['Jabba', 'Greedo', 'Vador', 'Boba'])
+        villains = np.array(['Jabba', 'Greedo', 'Vader', 'Boba'])
         movies = np.array(['A New Hope', 'The Empire Strikes Back', 'Return Of The Jedi'])
         graph = Bunch()
         graph.biadjacency = biadjacency
