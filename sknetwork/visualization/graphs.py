@@ -6,7 +6,7 @@ Created on April 2020
 Thomas Bonald <bonald@enst.fr>
 Quentin Lutz <qlutz@enst.fr>
 """
-from typing import Optional, Union, Iterable, Tuple
+from typing import Optional, Iterable, Union, Tuple
 
 import numpy as np
 from scipy import sparse
@@ -16,12 +16,16 @@ from sknetwork.embedding import Spring
 from sknetwork.visualization.colors import STANDARD_COLORS, COOLWARM_RGB
 
 
-def min_max_scaling(x: np.ndarray) -> np.ndarray:
+def min_max_scaling(x: np.ndarray, x_min: Optional[float] = None, x_max: Optional[float] = None) -> np.ndarray:
     """Shift and scale vector to be between 0 and 1."""
     x = x.astype(float)
-    x -= np.min(x)
-    if np.max(x):
-        x /= np.max(x)
+    if x_min is None:
+        x_min = np.min(x)
+    if x_max is None:
+        x_max = np.max(x)
+    x -= x_min
+    if x_max > x_min:
+        x /= (x_max - x_min)
     else:
         x = .5 * np.ones_like(x)
     return x
@@ -110,7 +114,8 @@ def get_label_colors(label_colors: Optional[Iterable]):
 
 def get_node_colors(n: int, labels: Optional[Iterable], scores: Optional[Iterable],
                     membership: Optional[sparse.csr_matrix],
-                    node_color: str, label_colors: Optional[Iterable]) -> np.ndarray:
+                    node_color: str, label_colors: Optional[Iterable],
+                    score_min: Optional[float] = None, score_max: Optional[float] = None) -> np.ndarray:
     """Return the colors of the nodes using either labels or scores or default color."""
     node_colors = np.array(n * [node_color]).astype('U64')
     if labels is not None:
@@ -134,7 +139,7 @@ def get_node_colors(n: int, labels: Optional[Iterable], scores: Optional[Iterabl
         if isinstance(scores, dict):
             keys = np.array(list(scores.keys()))
             values = np.array(list(scores.values()))
-            scores = (min_max_scaling(values) * (n_colors - 1)).astype(int)
+            scores = (min_max_scaling(values, score_min, score_max) * (n_colors - 1)).astype(int)
             node_colors[keys] = colors_score_svg[scores]
         else:
             if isinstance(scores, list):
@@ -142,7 +147,7 @@ def get_node_colors(n: int, labels: Optional[Iterable], scores: Optional[Iterabl
                     raise ValueError("The number of scores must be equal to the corresponding number of nodes.")
                 else:
                     scores = np.array(scores)
-            scores = (min_max_scaling(scores) * (n_colors - 1)).astype(int)
+            scores = (min_max_scaling(scores, score_min, score_max) * (n_colors - 1)).astype(int)
             node_colors = colors_score_svg[scores]
     elif membership is not None:
         if isinstance(label_colors, dict):
@@ -761,8 +766,22 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
     position = np.vstack((position_row, position_col))
 
     # node colors
-    colors_row = get_node_colors(n_row, labels_row, scores_row, membership_row, color_row, label_colors)
-    colors_col = get_node_colors(n_col, labels_col, scores_col, membership_col, color_col, label_colors)
+    if scores_row is not None and scores_col is not None:
+        if isinstance(scores_row, dict):
+            scores_row = np.array(list(scores_row.values()))
+        if isinstance(scores_col, dict):
+            scores_col = np.array(list(scores_col.values()))
+        scores = np.hstack((scores_row, scores_col))
+        score_min = np.min(scores)
+        score_max = np.max(scores)
+    else:
+        score_min = None
+        score_max = None
+
+    colors_row = get_node_colors(n_row, labels_row, scores_row, membership_row, color_row, label_colors,
+                                 score_min, score_max)
+    colors_col = get_node_colors(n_col, labels_col, scores_col, membership_col, color_col, label_colors,
+                                 score_min, score_max)
 
     # node sizes
     if node_weights_row is None:
