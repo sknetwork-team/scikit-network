@@ -24,7 +24,7 @@ History
 
 * Added link prediction module
 * Added pie-node visualization of memberships
-* Added Weisfeiler-Lehman graph coloring
+* Added Weisfeiler-Lehman graph coloring (Pierre Pebereau, Alexis Barreaux)
 * Added Force Atlas 2 graph layout
 * Added triangle listing algorithm for directed and undirected graph
 * Added k-core decomposition algorithm
