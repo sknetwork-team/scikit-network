@@ -17,9 +17,9 @@ from sknetwork.utils import Bunch
 from sknetwork.utils.format import directed2undirected
 
 
-def parse_edge_list(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
-                    named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True,
-                    fast_format: bool = True) -> Bunch:
+def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
+                   named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True,
+                   fast_format: bool = True) -> Bunch:
     """Parse Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets in the form of
     edge lists.
 
@@ -102,8 +102,8 @@ def parse_edge_list(file: str, directed: bool = False, bipartite: bool = False, 
                           reindex=reindex, named=named)
 
 
-def load_edge_list(edge_list: Union[np.ndarray, List[Tuple], List[List]], directed: bool = False,
-                   bipartite: bool = False, reindex: bool = True, named: Optional[bool] = None) -> Bunch:
+def convert_edge_list(edge_list: Union[np.ndarray, List[Tuple], List[List]], directed: bool = False,
+                      bipartite: bool = False, reindex: bool = True, named: Optional[bool] = None) -> Bunch:
     """Turn an edge list into a :class:`Bunch`.
 
     Parameters
@@ -224,8 +224,8 @@ def from_edge_list(row: np.ndarray, col: np.ndarray, data: np.ndarray, directed:
     return graph
 
 
-def parse_adjacency_list(file: str, bipartite: bool = False, comment: str = '%#',
-                         delimiter: str = None, ) -> Bunch:
+def load_adjacency_list(file: str, bipartite: bool = False, comment: str = '%#',
+                        delimiter: str = None, ) -> Bunch:
     """Parse Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets in the form of
     adjacency lists.
 
@@ -350,7 +350,7 @@ def load_metadata(file: str, delimiter: str = ': ') -> Bunch:
     return metadata
 
 
-def parse_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 512) -> Bunch:
+def load_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 512) -> Bunch:
     """Parse GraphML datasets.
 
     Hyperedges and nested graphs are not supported.
