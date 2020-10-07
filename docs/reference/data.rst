@@ -48,15 +48,17 @@ Load
 
 You can find some datasets on NetRep_.
 
-.. autofunction:: sknetwork.data.load_edge_list
+.. autofunction:: sknetwork.data.parse_edge_list
 
-.. autofunction:: sknetwork.data.load_adjacency_list
+.. autofunction:: sknetwork.data.parse_adjacency_list
 
-.. autofunction:: sknetwork.data.load_graphml
+.. autofunction:: sknetwork.data.parse_graphml
 
 .. autofunction:: sknetwork.data.load_netset
 
 .. autofunction:: sknetwork.data.load_konect
+
+.. autofunction:: sknetwork.data.load_edge_list
 
 .. _NetRep: http://networkrepository.com/
 
