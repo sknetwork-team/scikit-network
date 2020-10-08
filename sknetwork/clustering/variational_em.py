@@ -144,7 +144,6 @@ class VariationalEM(BaseClustering):
         for k in range(self.max_iter):
             cluster_mean_probs = np.maximum(np.mean(membership_probs, axis=0), eps).astype(np.float32)
             cluster_transition_probs = maximization_step(adjacency, membership_probs).astype(np.float32)
-            
             membership_probs = variational_step(indptr, indices, membership_probs.astype(np.float32),
                                                 cluster_mean_probs, cluster_transition_probs)
 

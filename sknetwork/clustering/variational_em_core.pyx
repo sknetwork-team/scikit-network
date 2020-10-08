@@ -50,25 +50,24 @@ def likelihood(int[:] indptr,int[:] indices, float[:,:] membership_probs, float[
     cdef int cluster_1
     cdef int cluster_2
     cdef float logb
-    cdef int[:] neighbours
-    cdef int n_neighbours
+    cdef int ind1, ind2, ind
 
     for i in prange(n, nogil=True, schedule='guided'):
         for cluster_1 in prange(n_clusters, schedule='guided'):
             for cluster_2 in prange(n_clusters, schedule='guided'):
-                for j in prange(n, schedule='guided'):
+                for j in range(n):
                     if i != j:
-                        with gil:
-                            logb = np.log(1 - cluster_transition_probs[cluster_1, cluster_2])
-                            cpt += membership_probs[i, cluster_1] * membership_probs[j, cluster_2] * logb
+                        logb = log(1 - cluster_transition_probs[cluster_1, cluster_2])
+                        cpt += membership_probs[i, cluster_1] * membership_probs[j, cluster_2] * logb
 
-                n_neighbours = len(indices[indptr[i]:indptr[i+1]])
-                for j in prange(n_neighbours, schedule='guided'):
-                    if i != indptr[i]+j:
-                        with gil:
-                            logb = np.log(cluster_transition_probs[cluster_1, cluster_2]) \
-                                   - np.log(1 - cluster_transition_probs[cluster_1, cluster_2])
-                            cpt += membership_probs[i, cluster_1] * membership_probs[indices[indptr[i]+j], cluster_2] * logb
+                ind1 = indptr[i]
+                ind2 = indptr[i + 1]
+                for ind in range(ind1, ind2):
+                    j = indices[ind]
+                    if j != i:
+                        logb = log(cluster_transition_probs[cluster_1, cluster_2]) \
+                                - log(1 - cluster_transition_probs[cluster_1, cluster_2])
+                        cpt += membership_probs[i, cluster_1] * membership_probs[j, cluster_2] * logb
 
     return output + cpt / 2 - np.sum(membership_probs * np.log(membership_probs))
 
@@ -107,31 +106,29 @@ def variational_step(int[:] indptr, int[:] indices, float[:,:] membership_probs,
     cdef int j
     cdef int cluster_1
     cdef int cluster_2
-    cdef int n_neighbours
+    cdef int ind1, ind2, ind
 
-    for i in prange(n, nogil=True, schedule='guided'):
-        for j in prange(n, schedule='guided'):
-            with gil:
-                if cluster_mean_probs[j]>eps:
-                    log_membership_prob[i, j] = log(cluster_mean_probs[j])
-                else:
-                    log_membership_prob[i,j] = eps
+    for i in range(n):
+        for cluster in range(n_clusters):
+            log_membership_prob[i, cluster] = log(cluster_mean_probs[cluster])
 
-        for cluster_1 in prange(n_clusters, schedule='guided'):
+        for cluster_1 in prange(n_clusters, nogil=True, schedule='guided'):
             for cluster_2 in prange(n_clusters, schedule='guided'):
-                for j in prange(n, schedule='guided'):
+                for j in range(n):
                     if j != i:
-                        with gil:
-                            log_membership_prob[i, cluster_1] += \
-                                membership_probs[j, cluster_2] * np.log(1 - cluster_transition_probs[cluster_1, cluster_2])
-                n_neighbours = len(indices[indptr[i]:indptr[i+1]])
-                for j in prange(n_neighbours, schedule='guided'):
-                    if indptr[i]+j != i:
-                        with gil:
-                            log_membership_prob[i, cluster_1] += \
-                                membership_probs[indptr[i]+j, cluster_2] * \
-                                (np.log(cluster_transition_probs[cluster_1, cluster_2])
-        	                 - np.log(1 - cluster_transition_probs[cluster_1, cluster_2]))
+                        log_membership_prob[i, cluster_1] += \
+                            membership_probs[j, cluster_2] * log(1 - cluster_transition_probs[cluster_1, cluster_2])
+
+                ind1 = indptr[i]
+                ind2 = indptr[i + 1]
+                for ind in range(ind1, ind2):
+                    j = indices[ind]
+                    if j != i:
+                        log_membership_prob[i, cluster_1] += \
+                            membership_probs[j, cluster_2] * \
+                            (log(cluster_transition_probs[cluster_1, cluster_2])
+                            - log(1 - cluster_transition_probs[cluster_1, cluster_2]))
+
 
     membership_prob = np.exp(log_membership_prob)
 
