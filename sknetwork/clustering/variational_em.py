@@ -136,9 +136,8 @@ class VariationalEM(BaseClustering):
 
             membership_probs = np.zeros(shape=(n, self.n_clusters))
             membership_probs[:] = np.eye(self.n_clusters)[labels]
-            membership_probs = membership_probs.astype(np.float32)
         else:
-            membership_probs = normalize(np.random.rand(n, self.n_clusters), p=1).astype(np.float32)
+            membership_probs = normalize(np.random.rand(n, self.n_clusters), p=1)
 
         likelihood_old, likelihood_new = 0., 0.
 
@@ -146,8 +145,8 @@ class VariationalEM(BaseClustering):
             cluster_mean_probs = np.maximum(np.mean(membership_probs, axis=0), eps).astype(np.float32)
             cluster_transition_probs = maximization_step(adjacency, membership_probs).astype(np.float32)
             
-            membership_probs = variational_step(indptr, indices, membership_probs, cluster_mean_probs,
-                                                cluster_transition_probs)
+            membership_probs = variational_step(indptr, indices, membership_probs.astype(np.float32),
+                                                cluster_mean_probs, cluster_transition_probs)
 
             likelihood_old, likelihood_new = likelihood_new, likelihood(indptr, indices, membership_probs.astype(np.float32),
                                                                         cluster_mean_probs, cluster_transition_probs)
