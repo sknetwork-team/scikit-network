@@ -14,7 +14,7 @@ from sknetwork.utils.check import check_format, check_square, check_connected
 
 
 class Betweenness(BaseRanking):
-    """ Betweenness centrality algorithm, from Brandes 2001.
+    """ Betweenness centrality, based on Brandes' algorithm.
 
     * Graphs
 
