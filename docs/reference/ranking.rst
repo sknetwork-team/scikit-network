@@ -36,7 +36,7 @@ HITS
 .. autoclass:: sknetwork.ranking.HITS
 
 Betweenness centrality
---------------------
+----------------------
 .. autoclass:: sknetwork.ranking.Betweenness
 
 Closeness centrality

@@ -32,14 +32,17 @@ class Betweenness(BaseRanking):
     >>> scores = betweenness.fit_transform(adjacency)
     >>> scores
     array([4., 0., 0., 0., 0.])
+
+    References
+    ----------
+    Brandes, Ulrik (2001). A faster algorithm for betweenness centrality. Journal of Mathematical Sociology.
     """
 
     def __init__(self, normalized: bool = False):
         super(Betweenness, self).__init__()
         self.normalized_ = normalized
 
-    def fit(self,
-            adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Betweenness':
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Betweenness':
         adjacency = check_format(adjacency)
         check_square(adjacency)
         check_connected(adjacency)
@@ -50,10 +53,10 @@ class Betweenness(BaseRanking):
         bfs_queue = deque()
 
         for source in range(n):
-            preds = [[] for i in range(n)]
-            sigma = n * [0.0]
-            sigma[source] = 1.0
-            dists = n * [-1]
+            preds = [[] for _ in range(n)]
+            sigma = np.zeros(n)
+            sigma[source] = 1
+            dists = -np.ones(n, dtype=int)
             dists[source] = 0
             bfs_queue.append(source)
 
@@ -70,7 +73,7 @@ class Betweenness(BaseRanking):
                         preds[j].append(i)
 
             # Now backtrack to compute betweenness scores
-            delta = n * [0.0]
+            delta = np.zeros(n)
             while len(seen) != 0:
                 j = seen.pop()
                 for i in preds[j]:
