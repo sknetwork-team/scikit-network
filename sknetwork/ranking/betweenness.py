@@ -29,8 +29,8 @@ class Betweenness(BaseRanking):
     >>> from sknetwork.data.toy_graphs import bow_tie
     >>> betweenness = Betweenness()
     >>> adjacency = bow_tie()
-    >>> bw = betweenness.fit(adjacency)
-    >>> bw.scores_
+    >>> scores = betweenness.fit_transform(adjacency)
+    >>> scores
     array([4., 0., 0., 0., 0.])
     """
 
@@ -51,34 +51,34 @@ class Betweenness(BaseRanking):
 
         for source in range(n):
             preds = [[] for i in range(n)]
-            sigma = [0.0 for i in range(n)]
+            sigma = n * [0.0]
             sigma[source] = 1.0
-            dists = [-1 for i in range(n)]
+            dists = n * [-1]
             dists[source] = 0
             bfs_queue.append(source)
 
             while len(bfs_queue) != 0:
-                v = bfs_queue.popleft()
-                seen.append(v)
-                neighbours = adjacency.indices[adjacency.indptr[v]:adjacency.indptr[v+1]]
-                for w in neighbours:
-                    if dists[w] < 0:  # w found for the first time?
-                        dists[w] = dists[v] + 1
-                        bfs_queue.append(w)
-                    if dists[w] == dists[v] + 1:  # shortest path to w via v?
-                        sigma[w] = sigma[w] + sigma[v]
-                        preds[w].append(v)
+                i = bfs_queue.popleft()
+                seen.append(i)
+                neighbors = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
+                for j in neighbors:
+                    if dists[j] < 0:  # j found for the first time?
+                        dists[j] = dists[i] + 1
+                        bfs_queue.append(j)
+                    if dists[j] == dists[i] + 1:  # shortest path to j via i?
+                        sigma[j] += sigma[i]
+                        preds[j].append(i)
 
             # Now backtrack to compute betweenness scores
-            delta = [0.0 for i in range(n)]
+            delta = n * [0.0]
             while len(seen) != 0:
-                w = seen.pop()
-                for v in preds[w]:
-                    delta[v] = delta[v] + ((sigma[v]/sigma[w]) * (1 + delta[w]))
-                if w != source:
-                    self.scores_[w] = self.scores_[w] + delta[w]
+                j = seen.pop()
+                for i in preds[j]:
+                    delta[i] += sigma[i] / sigma[j] * (1 + delta[j])
+                if j != source:
+                    self.scores_[j] += delta[j]
 
         # Undirected graph, divide all values by two
-        self.scores_ = 1/2 * self.scores_
+        self.scores_ = 1 / 2 * self.scores_
 
         return self
