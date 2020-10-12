@@ -47,7 +47,7 @@ class TestLoader(unittest.TestCase):
         try:
             with TimeOut(2):
                 data = load_konect('moreno_crime', tmp_data_dir)
-        except TimeoutError:  # pragma: no cover
+        except (TimeoutError, RuntimeError):  # pragma: no cover
             warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
             return
         self.assertEqual(data.biadjacency.shape[0], 829)
@@ -61,7 +61,7 @@ class TestLoader(unittest.TestCase):
         try:
             with TimeOut(2):
                 data = load_konect('ego-facebook', tmp_data_dir)
-        except TimeoutError:  # pragma: no cover
+        except (TimeoutError, RuntimeError):  # pragma: no cover
             warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
             return
         self.assertEqual(data.adjacency.shape[0], 2888)
@@ -78,7 +78,7 @@ class TestLoader(unittest.TestCase):
                     load_konect('junk', tmp_data_dir)
                 with self.assertRaises(ValueError):
                     load_konect('', tmp_data_dir)
-        except TimeoutError:  # pragma: no cover
+        except (TimeoutError, RuntimeError):  # pragma: no cover
             warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
             return
 
