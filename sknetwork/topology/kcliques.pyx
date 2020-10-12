@@ -22,6 +22,10 @@ from sknetwork.topology.kcore import CoreDecomposition
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef class ListingBox:
+    cdef int[:] ns
+    cdef np.ndarray degrees
+    cdef np.ndarray subs
+    cdef short[:] lab
 
     def __cinit__(self, vector[int] indptr, int k):
         cdef int n = indptr.size() - 1
