@@ -70,21 +70,14 @@ def test_graph_bool():
 
 
 def test_graph_clique():
-    """Simple undirected graph, used for testing, where
-    all nodes are connected. 10 nodes, 45 edges
+    """Clique of 10 nodes.
     """
-    row = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                    3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6,
-                    6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9])
-    col = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 3, 4, 5, 6, 7, 8, 9,
-                    0, 1, 2, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5,
-                    7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8])
-    data = np.ones((row.size,), dtype=bool)
-    return sparse.csr_matrix((data, (row, col)), shape=(10, 10), dtype=bool)
+    adjacency = sparse.csr_matrix(np.ones((10, 10), dtype=bool))
+    adjacency.setdiag(0)
+    return adjacency
 
 
 def test_graph_empty():
-    """Simple undirected graph, used for testing, where
-    no nodes are connected. 10 nodes, 0 edges
+    """Empty graph of 10 nodes.
     """
     return sparse.csr_matrix((10, 10), dtype=bool)
