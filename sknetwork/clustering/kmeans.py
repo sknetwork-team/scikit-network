@@ -14,7 +14,7 @@ from sknetwork.clustering.base import BaseClustering, BaseBiClustering
 from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.embedding.base import BaseEmbedding, BaseBiEmbedding
 from sknetwork.embedding.svd import GSVD
-from sknetwork.linalg import normalize
+from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_n_clusters
 from sknetwork.utils.kmeans import KMeansDense
 from sknetwork.utils.membership import membership_matrix

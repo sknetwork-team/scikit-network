@@ -9,7 +9,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.linalg import SparseLR
+from sknetwork.linalg.sparse_lowrank import SparseLR
 
 
 def check_csr_or_slr(adjacency):

@@ -11,8 +11,8 @@ from typing import Optional, Iterable, Union, Tuple
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering import BiLouvain
-from sknetwork.embedding import Spring
+from sknetwork.clustering.louvain import BiLouvain
+from sknetwork.embedding.spring import Spring
 from sknetwork.visualization.colors import STANDARD_COLORS, COOLWARM_RGB
 
 
