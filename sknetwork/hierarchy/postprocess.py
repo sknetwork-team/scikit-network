@@ -7,8 +7,8 @@ Created on June 2019
 @author: Quentin Lutz <qlutz@enst.fr>
 """
 
-from collections import defaultdict
 import copy
+from collections import defaultdict
 from typing import Optional, Union, Tuple
 
 import numpy as np
@@ -35,12 +35,12 @@ def get_labels(dendrogram: np.ndarray, cluster: dict, sort_clusters: bool, retur
     """Returns the labels from clusters."""
     n = dendrogram.shape[0] + 1
     n_clusters = len(cluster)
-    clusters = np.array(list(cluster.values()))
+    clusters = list(cluster.values())
     index = None
     if sort_clusters:
         sizes = np.array([len(nodes) for nodes in clusters])
         index = np.argsort(-sizes)
-        clusters = clusters[index]
+        clusters = [clusters[i] for i in index]
 
     labels = np.zeros(n, dtype=int)
     for label, nodes in enumerate(clusters):

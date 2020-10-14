@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """"tests for structure.py"""
-
 import unittest
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.topology import largest_connected_component, is_bipartite
-from sknetwork.data import star_wars, cyclic_digraph
+from sknetwork.data import star_wars, cyclic_digraph, linear_digraph, linear_graph
+from sknetwork.topology import largest_connected_component, is_bipartite, is_acyclic
 from sknetwork.utils.format import bipartite2undirected, directed2undirected
 
 
@@ -56,8 +55,18 @@ class TestStructure(unittest.TestCase):
         with self.assertRaises(ValueError):
             is_bipartite(cyclic_digraph(3))
 
-        self.assertTrue(~is_bipartite(sparse.eye(3)))
+        self.assertFalse(is_bipartite(sparse.eye(3)))
 
         adjacency = directed2undirected(cyclic_digraph(3))
         bipartite = is_bipartite(adjacency, return_biadjacency=False)
         self.assertEqual(bipartite, False)
+
+    def test_is_acyclic(self):
+        adjacency_with_self_loops = sparse.identity(2, format='csr')
+        self.assertFalse(is_acyclic(adjacency_with_self_loops))
+        directed_cycle = cyclic_digraph(3)
+        self.assertFalse(is_acyclic(directed_cycle))
+        undirected_line = linear_graph(2)
+        self.assertFalse(is_acyclic(undirected_line))
+        acyclic_graph = linear_digraph(2)
+        self.assertTrue(is_acyclic(acyclic_graph))

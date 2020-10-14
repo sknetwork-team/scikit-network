@@ -132,3 +132,5 @@ docs/tutorials/data/mygraph/
 *.npy
 *.npz
 *.p
+
+karate_club.svg

@@ -7,9 +7,9 @@ Created on October 2019
 
 import unittest
 
-from sknetwork.hierarchy import Ward
-from sknetwork.embedding import Spectral
 from sknetwork.data.test_graphs import test_graph
+from sknetwork.embedding import Spectral
+from sknetwork.hierarchy import Ward
 
 
 class TestWard(unittest.TestCase):

@@ -6,8 +6,8 @@ import unittest
 
 import numpy as np
 
-from sknetwork.path import breadth_first_search, depth_first_search
 from sknetwork.data import cyclic_digraph
+from sknetwork.path import breadth_first_search, depth_first_search
 
 
 class TestSearch(unittest.TestCase):

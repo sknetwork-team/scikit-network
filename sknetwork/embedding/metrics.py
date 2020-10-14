@@ -5,8 +5,8 @@ Created on Nov 6 2018
 @author: Nathan De Lara <ndelara@enst.fr>
 Quality metrics for adjacency embeddings
 """
-
 import numpy as np
+from scipy import sparse
 
 from sknetwork.linalg import normalize
 from sknetwork.utils.check import check_format, check_probs, check_square
@@ -63,7 +63,7 @@ def cosine_modularity(adjacency, embedding: np.ndarray, embedding_col=None, reso
     >>> adjacency = graph.adjacency
     >>> embedding = graph.position
     >>> np.round(cosine_modularity(adjacency, embedding), 2)
-    0.17
+    0.35
     """
     adjacency = check_format(adjacency)
     total_weight: float = adjacency.data.sum()
@@ -72,13 +72,17 @@ def cosine_modularity(adjacency, embedding: np.ndarray, embedding_col=None, reso
         check_square(adjacency)
         embedding_col = embedding.copy()
 
-    embedding_row_norm = normalize(embedding, p=1)
-    embedding_col_norm = normalize(embedding_col, p=1)
+    embedding_row_norm = normalize(embedding, p=2)
+    embedding_col_norm = normalize(embedding_col, p=2)
 
     probs_row = check_probs(weights, adjacency)
     probs_col = check_probs(weights, adjacency.T)
 
-    fit: float = 0.5 * (1 + (np.multiply(embedding_row_norm, adjacency.dot(embedding_col_norm))).sum() / total_weight)
+    if isinstance(embedding_row_norm, sparse.csr_matrix) and isinstance(embedding_col_norm, sparse.csr_matrix):
+        fit: float = 0.5 * (1 + (embedding_row_norm.multiply(adjacency.dot(embedding_col_norm))).sum() / total_weight)
+    else:
+        fit: float = 0.5 * (
+            1 + (np.multiply(embedding_row_norm, adjacency.dot(embedding_col_norm))).sum() / total_weight)
     div: float = 0.5 * (1 + (embedding.T.dot(probs_row)).dot(embedding_col.T.dot(probs_col)))
 
     if return_all:

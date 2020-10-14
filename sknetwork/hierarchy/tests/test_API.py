@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Tests for hierarchy API"""
-
 import unittest
 
-from sknetwork.hierarchy import *
 from sknetwork.data.test_graphs import *
 from sknetwork.embedding import GSVD
+from sknetwork.hierarchy import *
 
 
 class TestHierarchyAPI(unittest.TestCase):

@@ -11,12 +11,12 @@ from typing import Union, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork.classification import BaseClassifier, BaseBiClassifier
+from sknetwork.classification.base import BaseClassifier, BaseBiClassifier
 from sknetwork.linalg.normalization import normalize
-from sknetwork.ranking import BaseRanking
-from sknetwork.utils.seeds import stack_seeds
+from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.check import check_seeds, check_labels, check_n_jobs
 from sknetwork.utils.format import bipartite2undirected
+from sknetwork.utils.seeds import stack_seeds
 from sknetwork.utils.verbose import VerboseMixin
 
 

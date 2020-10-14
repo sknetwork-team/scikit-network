@@ -2,10 +2,41 @@
 History
 =======
 
-0.18.1 (2020-09-28)
+
+0.19.4 (2020-09-28)
 -------------------
 
 * Added Variational Expectation Maximization (VEM) algorithm
+
+0.19.3 (2020-09-17)
+-------------------
+
+* Added Louvain-based embedding
+* Fix documentation with new dataset website URLs
+
+0.19.2 (2020-09-14)
+-------------------
+
+* Fix documentation with new dataset website URLs.
+
+0.19.1 (2020-09-09)
+-------------------
+
+* Fix visualization features
+* Fix documentation
+
+0.19.0 (2020-09-02)
+-------------------
+
+* Added link prediction module
+* Added pie-node visualization of memberships
+* Added Weisfeiler-Lehman graph coloring
+* Added Force Atlas 2 graph layout
+* Added triangle listing algorithm for directed and undirected graph
+* Added k-core decomposition algorithm
+* Added k-clique listing algorithm
+* Added color map option in visualization module
+* Updated NetSet URL
 
 0.18.0 (2020-06-08)
 -------------------

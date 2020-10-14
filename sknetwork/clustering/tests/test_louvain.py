@@ -3,11 +3,9 @@
 """Tests for Louvain"""
 import unittest
 
-import numpy as np
-
 from sknetwork.clustering import Louvain, BiLouvain
-from sknetwork.data.test_graphs import *
 from sknetwork.data import karate_club, star_wars
+from sknetwork.data.test_graphs import *
 from sknetwork.utils import bipartite2undirected
 
 
@@ -68,3 +66,9 @@ class TestLouvainClustering(unittest.TestCase):
 
         # aggregate graph
         Louvain(n_aggregations=1, sort_clusters=False).fit(adjacency)
+
+    def test_invalid(self):
+        adjacency = karate_club()
+        louvain = Louvain(modularity='toto')
+        with self.assertRaises(ValueError):
+            louvain.fit(adjacency)

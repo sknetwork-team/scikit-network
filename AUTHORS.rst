@@ -6,6 +6,7 @@ Development Lead
 ----------------
 
 * Thomas Bonald <thomas.bonald@telecom-paris.fr>
+* Marc Jeanmougin <marc.jeanmougin@telecom-paris.fr>
 * Nathan de Lara <nathan.delara@telecom-paris.fr>
 * Quentin Lutz <quentin.lutz@telecom-paris.fr>
 
@@ -19,4 +20,9 @@ Contributors
 * Fabien Mathieu
 * Yohann Robert
 * Julien Simonnet
+* Alexis Barreaux
+* Rémi Jaylet
+* Victor Manach
+* Pierre Pébereau
+* Armand Boschin
 * Clément Bonet

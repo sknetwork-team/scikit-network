@@ -33,6 +33,9 @@ def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak')
     labels : np.ndarray
         Connected component of each node.
     """
+    adjacency = check_format(adjacency)
+    if len(adjacency.data) == 0:
+        raise ValueError('The graph is empty (no edge).')
     return sparse.csgraph.connected_components(adjacency, not is_symmetric(adjacency), connection, True)[1]
 
 
@@ -57,7 +60,6 @@ def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray],
     indices : array or tuple of array
         Indices of the nodes in the original graph. For biadjacency matrices,
         ``indices[0]`` corresponds to the rows and ``indices[1]`` to the columns.
-
     """
     adjacency = check_format(adjacency)
     n_row, n_col = adjacency.shape
@@ -147,3 +149,25 @@ def is_bipartite(adjacency: sparse.csr_matrix, return_biadjacency: bool = False)
         return True, adjacency[rows, :][:, cols], rows, cols
     else:
         return True
+
+
+def is_acyclic(adjacency: sparse.csr_matrix) -> bool:
+    """Check whether a graph has no cycle.
+
+    Parameters
+    ----------
+    adjacency:
+        Adjacency matrix of the graph.
+
+    Returns
+    -------
+    is_acyclic : bool
+        A boolean with value True if the graph has no cycle and False otherwise
+    """
+    n_nodes = adjacency.shape[0]
+    n_cc = sparse.csgraph.connected_components(adjacency, (not is_symmetric(adjacency)), 'strong', False)
+    if n_cc == n_nodes:
+        # check for self-loops has they always induce a cycle
+        return (adjacency.diagonal() == 0).all()
+    else:
+        return False

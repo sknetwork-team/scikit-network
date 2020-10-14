@@ -5,7 +5,6 @@ Created on October 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
-
 from typing import Union
 
 import numpy as np
@@ -13,8 +12,9 @@ from scipy import sparse
 
 from sknetwork.clustering.base import BaseClustering, BaseBiClustering
 from sknetwork.clustering.postprocess import reindex_labels
-from sknetwork.embedding import BaseEmbedding, BaseBiEmbedding, GSVD
-from sknetwork.linalg import normalize
+from sknetwork.embedding.base import BaseEmbedding, BaseBiEmbedding
+from sknetwork.embedding.svd import GSVD
+from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_n_clusters
 from sknetwork.utils.kmeans import KMeansDense
 from sknetwork.utils.membership import membership_matrix

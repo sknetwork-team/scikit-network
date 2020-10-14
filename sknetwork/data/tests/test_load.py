@@ -2,15 +2,16 @@
 # -*- coding: utf-8 -*-
 """tests for load.py"""
 
-from urllib.error import URLError
-import unittest
 import tempfile
+import unittest
 import warnings
 
 import numpy as np
 
-from sknetwork.data import load_netset, load_konect, clear_data_home, save, load
+# has to specify the exact file to avoid nosetests error on full tests
+from sknetwork.data.load import load_netset, load_konect, clear_data_home, save, load
 from sknetwork.data.toy_graphs import house, star_wars
+from sknetwork.utils.timeout import TimeOut
 
 
 class TestLoader(unittest.TestCase):
@@ -20,7 +21,7 @@ class TestLoader(unittest.TestCase):
         clear_data_home(tmp_data_dir)
         try:
             graph = load_netset('stub', tmp_data_dir)
-        except URLError:  # pragma: no cover
+        except:  # pragma: no cover
             warnings.warn('Could not reach Telecom Graphs. Corresponding test has not been performed.', RuntimeWarning)
             return
         n = 2
@@ -35,7 +36,7 @@ class TestLoader(unittest.TestCase):
             with self.assertRaises(ValueError):
                 load_netset('junk', tmp_data_dir)
 
-        except URLError:  # pragma: no cover
+        except:  # pragma: no cover
             warnings.warn('Could not reach Telecom Graphs. Corresponding test has not been performed.', RuntimeWarning)
             return
         load_netset()
@@ -44,8 +45,9 @@ class TestLoader(unittest.TestCase):
         tmp_data_dir = tempfile.gettempdir() + '/moreno_crime'
         clear_data_home(tmp_data_dir)
         try:
-            data = load_konect('moreno_crime', tmp_data_dir)
-        except URLError:  # pragma: no cover
+            with TimeOut(2):
+                data = load_konect('moreno_crime', tmp_data_dir)
+        except (TimeoutError, RuntimeError):  # pragma: no cover
             warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
             return
         self.assertEqual(data.biadjacency.shape[0], 829)
@@ -55,15 +57,28 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(data.name.shape[0], 829)
         clear_data_home(tmp_data_dir)
 
+        tmp_data_dir = tempfile.gettempdir() + '/ego-facebook'
+        try:
+            with TimeOut(2):
+                data = load_konect('ego-facebook', tmp_data_dir)
+        except (TimeoutError, RuntimeError):  # pragma: no cover
+            warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
+            return
+        self.assertEqual(data.adjacency.shape[0], 2888)
+        data = load_konect('ego-facebook', tmp_data_dir)
+        self.assertEqual(data.adjacency.shape[0], 2888)
+        clear_data_home(tmp_data_dir)
+
     def test_invalid_konect(self):
         tmp_data_dir = tempfile.gettempdir() + '/stub'
         clear_data_home(tmp_data_dir)
         try:
-            with self.assertRaises(ValueError):
-                load_konect('junk', tmp_data_dir)
-            with self.assertRaises(ValueError):
-                load_konect('', tmp_data_dir)
-        except URLError:  # pragma: no cover
+            with TimeOut(4):
+                with self.assertRaises(ValueError):
+                    load_konect('junk', tmp_data_dir)
+                with self.assertRaises(ValueError):
+                    load_konect('', tmp_data_dir)
+        except (TimeoutError, RuntimeError):  # pragma: no cover
             warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
             return
 

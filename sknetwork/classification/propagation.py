@@ -9,14 +9,14 @@ from typing import Optional, Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.classification import BaseClassifier, BaseBiClassifier
+from sknetwork.classification.base import BaseClassifier, BaseBiClassifier
 from sknetwork.classification.vote import vote_update
-from sknetwork.linalg import normalize
-from sknetwork.utils.check import check_seeds
-from sknetwork.utils.seeds import stack_seeds
+from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_format
+from sknetwork.utils.check import check_seeds
 from sknetwork.utils.format import bipartite2undirected
 from sknetwork.utils.membership import membership_matrix
+from sknetwork.utils.seeds import stack_seeds
 
 
 class Propagation(BaseClassifier):
@@ -131,7 +131,7 @@ class Propagation(BaseClassifier):
         while t < self.n_iter and not np.array_equal(labels_remain, labels[index_remain]):
             t += 1
             labels_remain = labels[index_remain].copy()
-            labels = vote_update(indptr, indices, data, labels, index_remain)
+            labels = np.asarray(vote_update(indptr, indices, data, labels, index_remain))
 
         membership = membership_matrix(labels)
         membership = normalize(adjacency.dot(membership))

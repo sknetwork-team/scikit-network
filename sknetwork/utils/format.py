@@ -4,13 +4,12 @@
 Created on Apr 8, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
 from typing import Union
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.linalg import SparseLR
+from sknetwork.linalg.sparse_lowrank import SparseLR
 
 
 def check_csr_or_slr(adjacency):
@@ -45,15 +44,16 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
 
     Returns
     -------
-    adjacency_ :
+    new_adjacency :
         New adjacency matrix (same format as input).
     """
     check_csr_or_slr(adjacency)
     if type(adjacency) == sparse.csr_matrix:
         if weighted:
-            new_adjacency = adjacency + adjacency.T
+            new_adjacency = adjacency.astype(float)
+            new_adjacency += adjacency.T
         else:
-            new_adjacency = adjacency.maximum(adjacency.T)
+            new_adjacency = (adjacency + adjacency.T).astype(bool)
         new_adjacency.tocsr().sort_indices()
         return new_adjacency
     else:

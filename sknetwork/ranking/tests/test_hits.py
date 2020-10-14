@@ -4,8 +4,8 @@
 
 import unittest
 
-from sknetwork.ranking import HITS
 from sknetwork.data.test_graphs import test_bigraph
+from sknetwork.ranking import HITS
 
 
 class TestHITS(unittest.TestCase):

@@ -4,8 +4,8 @@
 
 import unittest
 
-from sknetwork.ranking.closeness import Closeness
 from sknetwork.data.test_graphs import *
+from sknetwork.ranking.closeness import Closeness
 
 
 class TestDiffusion(unittest.TestCase):

@@ -3,10 +3,8 @@
 """tests for ranking API"""
 import unittest
 
-import numpy as np
-
-from sknetwork.ranking import *
 from sknetwork.data.test_graphs import test_bigraph, test_graph, test_digraph
+from sknetwork.ranking import *
 
 
 class TestPageRank(unittest.TestCase):

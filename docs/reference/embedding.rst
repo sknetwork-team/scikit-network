@@ -14,6 +14,8 @@ Spectral
 
 .. autoclass:: sknetwork.embedding.BiSpectral
 
+.. autoclass:: sknetwork.embedding.LaplacianEmbedding
+
 SVD
 ---
 
@@ -23,6 +25,18 @@ GSVD
 ----
 
 .. autoclass:: sknetwork.embedding.GSVD
+
+Louvain
+-------
+
+.. autoclass:: sknetwork.embedding.LouvainEmbedding
+
+.. autoclass:: sknetwork.embedding.BiLouvainEmbedding
+
+Force Atlas 2
+-------------
+
+.. autoclass:: sknetwork.embedding.ForceAtlas2
 
 Spring
 ------

@@ -5,10 +5,10 @@ Created on Dec 5, 2018
 @author: Quentin Lutz <qlutz@enst.fr>
 Nathan de Lara <ndelara@enst.fr>
 """
-from csv import reader
-from typing import Optional
-from xml.etree import ElementTree
 import warnings
+from csv import reader
+from typing import Optional, List, Tuple, Union
+from xml.etree import ElementTree
 
 import numpy as np
 from scipy import sparse
@@ -20,7 +20,7 @@ from sknetwork.utils.format import directed2undirected
 def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, weighted: Optional[bool] = None,
                    named: Optional[bool] = None, comment: str = '%#', delimiter: str = None, reindex: bool = True,
                    fast_format: bool = True) -> Bunch:
-    """Parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets in the form of
+    """Parse Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets in the form of
     edge lists.
 
     Parameters
@@ -54,7 +54,6 @@ def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, w
     -------
     graph: :class:`Bunch`
     """
-    reindexed = False
     header_len, guess_delimiter, guess_weighted, guess_named, guess_string_present, guess_type = scan_header(file,
                                                                                                              comment)
 
@@ -97,8 +96,88 @@ def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, w
                         col.append(int(line[1]))
                     if weighted:
                         data.append(float(line[2]))
-    n_edges = len(row)
+            row, col, data = np.array(row), np.array(col), np.array(data)
 
+    return from_edge_list(row=row, col=col, data=data, directed=directed, bipartite=bipartite,
+                          reindex=reindex, named=named)
+
+
+def convert_edge_list(edge_list: Union[np.ndarray, List[Tuple], List[List]], directed: bool = False,
+                      bipartite: bool = False, reindex: bool = True, named: Optional[bool] = None) -> Bunch:
+    """Turn an edge list into a :class:`Bunch`.
+
+    Parameters
+    ----------
+    edge_list : Union[np.ndarray, List[Tuple], List[List]]
+        The edge list to convert, given as a NumPy array of size (n, 2) or (n, 3) or a list of either lists or tuples of
+        length 2 or 3.
+    directed : bool
+        If ``True``, considers the graph as directed.
+    bipartite : bool
+        If ``True``, returns a biadjacency matrix of shape (n1, n2).
+    reindex : bool
+        If True and the graph nodes have numeric values, the size of the returned adjacency will be determined by the
+        maximum of those values. Does not work for bipartite graphs.
+    named : Optional[bool]
+        Retrieves the names given to the nodes and renumbers them. Returns an additional array. None makes a guess
+        based on the first lines.
+
+    Returns
+    -------
+    graph: :class:`Bunch`
+    """
+    if isinstance(edge_list, list):
+        if edge_list:
+            if isinstance(edge_list[0], tuple) or isinstance(edge_list[0], list):
+                edge_list = np.array(edge_list)
+    if isinstance(edge_list, np.ndarray):
+        if edge_list.ndim == 2:
+            if edge_list.shape[1] == 2:
+                row, col, data = edge_list[:, 0], edge_list[:, 1], np.array([])
+            elif edge_list.shape[1] == 3:
+                row, col, data = edge_list[:, 0], edge_list[:, 1], edge_list[:, 2].astype(float)
+            else:
+                raise ValueError('Edges must be given as couples or triplets.')
+        else:
+            raise ValueError('Too many dimensions.')
+    else:
+        raise TypeError('Edge lists must be given as NumPy arrays or lists of lists or lists of tuples.')
+    return from_edge_list(row=row, col=col, data=data, directed=directed, bipartite=bipartite,
+                          reindex=reindex, named=named)
+
+
+def from_edge_list(row: np.ndarray, col: np.ndarray, data: np.ndarray, directed: bool = False, bipartite: bool = False,
+                   reindex: bool = True, named: Optional[bool] = None) -> Bunch:
+    """Turn an edge list given as a triplet of NumPy arrays into a :class:`Bunch`.
+
+    Parameters
+    ----------
+    row : np.ndarray
+        The array of sources in the graph.
+    col : np.ndarray
+        The array of targets in the graph.
+    data : np.ndarray
+        The array of weights in the graph. Pass an empty array for unweighted graphs.
+    directed : bool
+        If ``True``, considers the graph as directed.
+    bipartite : bool
+        If ``True``, returns a biadjacency matrix of shape (n1, n2).
+    reindex : bool
+        If True and the graph nodes have numeric values, the size of the returned adjacency will be determined by the
+        maximum of those values. Does not work for bipartite graphs.
+    named : Optional[bool]
+        Retrieves the names given to the nodes and renumbers them. Returns an additional array. None makes a guess
+        based on the first lines.
+
+    Returns
+    -------
+    graph: :class:`Bunch`
+    """
+    reindexed = False
+    if named is None:
+        named = (row.dtype != int) or (col.dtype != int)
+    weighted = bool(len(data))
+    n_edges = len(row)
     graph = Bunch()
     if bipartite:
         names_row, row = np.unique(row, return_inverse=True)
@@ -145,8 +224,9 @@ def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, w
     return graph
 
 
-def load_adjacency_list(file: str, bipartite: bool = False, comment: str = '%#', delimiter: str = None, ) -> Bunch:
-    """Parser for Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets in the form of
+def load_adjacency_list(file: str, bipartite: bool = False, comment: str = '%#',
+                        delimiter: str = None, ) -> Bunch:
+    """Parse Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets in the form of
     adjacency lists.
 
     Parameters
@@ -195,6 +275,7 @@ def load_adjacency_list(file: str, bipartite: bool = False, comment: str = '%#',
 
 
 def scan_header(file: str, comment: str):
+    """Infer some properties of the graph in a TSV file from the first few lines."""
     header_len = -1
     possible_delimiters = ['\t', ',', ' ']
     del_count = np.zeros(3, dtype=int)
@@ -270,7 +351,7 @@ def load_metadata(file: str, delimiter: str = ': ') -> Bunch:
 
 
 def load_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 512) -> Bunch:
-    """Parser for GraphML datasets.
+    """Parse GraphML datasets.
 
     Hyperedges and nested graphs are not supported.
 

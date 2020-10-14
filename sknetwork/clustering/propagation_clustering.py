@@ -9,8 +9,8 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering import BaseClustering, BaseBiClustering
 from sknetwork.classification.propagation import Propagation
+from sknetwork.clustering.base import BaseClustering, BaseBiClustering
 from sknetwork.utils.check import check_format
 from sknetwork.utils.format import bipartite2undirected
 

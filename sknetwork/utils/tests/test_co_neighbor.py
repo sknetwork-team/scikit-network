@@ -8,9 +8,9 @@ import unittest
 
 import numpy as np
 
-from sknetwork.utils import co_neighbor_graph
 from sknetwork.data import movie_actor
 from sknetwork.linalg import CoNeighborOperator
+from sknetwork.utils import co_neighbor_graph
 
 
 class TestCoNeighbors(unittest.TestCase):
@@ -38,3 +38,6 @@ class TestCoNeighbors(unittest.TestCase):
         self.assertEqual(adjacency.shape, (n, n))
         adjacency = co_neighbor_graph(self.biadjacency, method='knn', normalized=False)
         self.assertEqual(adjacency.shape, (n, n))
+
+    def test_invalid(self):
+        self.assertRaises(ValueError, co_neighbor_graph, self.biadjacency, method='toto')

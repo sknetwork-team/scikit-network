@@ -3,7 +3,6 @@
 """authors:
 Thomas Bonald <bonald@enst.fr>
 Quentin Lutz <qlutz@enst.fr>"""
-
 import unittest
 
 from sknetwork.data.models import *
@@ -42,6 +41,3 @@ class TestModels(unittest.TestCase):
         labels = graph.labels
         self.assertEqual(adjacency.shape, (15, 15))
         self.assertEqual(len(labels), 15)
-
-        with self.assertRaises(ValueError):
-            block_model(np.array([4, 5, 6]), 0.05, 0.2)

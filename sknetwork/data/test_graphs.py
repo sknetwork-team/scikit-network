@@ -62,8 +62,23 @@ def test_bigraph_disconnect():
 
 
 def test_graph_bool():
-    """Simple undirected graph with boolean entries, used for testing.
-    10 nodes, 10 edges."""
+    """Simple undirected graph with boolean entries, used for testing (10 nodes, 10 edges)."""
     adjacency = test_graph()
     adjacency.data = adjacency.data.astype(bool)
     return adjacency
+
+
+def test_graph_clique():
+    """Clique graph, used for testing (10 nodes, 45 edges).
+    """
+    n = 10
+    adjacency = sparse.csr_matrix(np.ones((n, n), dtype=bool))
+    adjacency.setdiag(0)
+    adjacency.eliminate_zeros()
+    return adjacency
+
+
+def test_graph_empty():
+    """Empty graph, used for testing (10 nodes, 0 edges).
+    """
+    return sparse.csr_matrix((10, 10), dtype=bool)

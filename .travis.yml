@@ -4,9 +4,9 @@ language: python
 # lists all jobs to be run (with conditions depending on the setup: ie. making a release or updating develop)
 matrix:
   include:
-# release setup (builds wheels for Python 3.[6,7,8] on OSX, Windows and ManyLinux)
+# release and pull request setup (builds wheels for Python 3.[6,7,8] on OSX, Windows and ManyLinux)
     # perform a linux build (see https://github.com/pypa/manylinux)
-        - if: tag IS present
+        - if: tag IS present OR type = "pull_request"
           services: docker
           env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
                PLAT=manylinux2010_x86_64
@@ -21,17 +21,17 @@ matrix:
             - ls wheelhouse/
           after_success:
               - |
-                if [[ $TRAVIS_TAG ]]; then
+                if [[ $TRAVIS_TAG ]] && [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
                   python3 -m pip install twine
                   python3 -m twine upload wheelhouse/*.whl
                 fi
       # and a mac build (see https://cibuildwheel.readthedocs.io/en/stable/)
-        - if: tag IS present
+        - if: tag IS present OR type = "pull_request"
           os: osx
           language: shell
           install:
             - brew install llvm libomp
-            - python3 -m pip install cibuildwheel==1.3.0
+            - python3 -m pip install cibuildwheel==1.5.5
           env:
             - CIBW_BEFORE_BUILD="pip install -r requirements_dev.txt && pip install ."
             - CIBW_BUILD="cp36-* cp37-* cp38-*"
@@ -43,12 +43,12 @@ matrix:
               - ls wheelhouse/
           after_success:
               - |
-                if [[ $TRAVIS_TAG ]]; then
+                if [[ $TRAVIS_TAG ]] && [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
                   python3 -m pip install twine
                   python3 -m twine upload wheelhouse/*.whl
                 fi
         # and a windows build (see https://cibuildwheel.readthedocs.io/en/stable/)
-        - if: tag IS present
+        - if: tag IS present OR type = "pull_request"
           os: windows
           language: shell
           before_install:
@@ -57,9 +57,9 @@ matrix:
             # make sure it's on PATH as 'python3'
             - ln -s /c/Python38/python.exe /c/Python38/python3.exe
           install:
-              - python3 -m pip install cibuildwheel==1.3.0
+              - python3 -m pip install cibuildwheel==1.5.5
           env:
-            - CIBW_BEFORE_BUILD="pip install -r requirements_dev.txt && pip install ."
+            - CIBW_BEFORE_BUILD="pip install -r requirements_dev.txt --user && pip install ."
             - CIBW_BUILD="cp36-* cp37-* cp38-*"
             - CIBW_SKIP=*-manylinux*
           script:
@@ -68,7 +68,7 @@ matrix:
               - ls wheelhouse/
           after_success:
               - |
-                if [[ $TRAVIS_TAG ]]; then
+                if [[ $TRAVIS_TAG ]] && [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
                   python3 -m pip install twine
                   python3 -m twine upload wheelhouse/*.whl
                 fi

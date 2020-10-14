@@ -5,7 +5,6 @@ Created on March 2020
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Thomas Bonald <tbonald@enst.fr>
 """
-
 from typing import Optional, Union
 
 import numpy as np
