@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# distutils: language = c++
+# cython: language_level=3
+# cython: linetrace=True
 """
 Created on September 17 2020
 @author: Tiphaine Viard <tiphaine.viard@telecom-paris.fr>
@@ -12,6 +15,8 @@ from scipy import sparse
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.check import check_format, check_square, check_connected
 
+from libcpp.vector cimport vector
+from libcpp.queue cimport queue
 
 class Betweenness(BaseRanking):
     """ Betweenness centrality, based on Brandes' algorithm.
@@ -46,11 +51,19 @@ class Betweenness(BaseRanking):
         adjacency = check_format(adjacency)
         check_square(adjacency)
         check_connected(adjacency)
+        
+        cdef int source
+        cdef vector[ vector[int] ] preds
+        cdef vector[int] sigma
+        cdef vector[int] dists
+        cdef int i
+        cdef int j
+        cdef vector[float] delta
 
-        n = adjacency.shape[0]
+        cdef int n = adjacency.shape[0]
         self.scores_ = np.zeros(n)
-        seen = []  # Using list as stack
-        bfs_queue = deque()
+        cdef vector[int] seen  # Using list as stack
+        cdef queue[int] bfs_queue
 
         for source in range(n):
             preds = [[] for _ in range(n)]
@@ -58,24 +71,27 @@ class Betweenness(BaseRanking):
             sigma[source] = 1
             dists = -np.ones(n, dtype=int)
             dists[source] = 0
-            bfs_queue.append(source)
+            bfs_queue.push(source)
 
-            while len(bfs_queue) != 0:
-                i = bfs_queue.popleft()
-                seen.append(i)
+            while bfs_queue.size() != 0:
+                i = bfs_queue.front()
+                bfs_queue.pop()
+                
+                seen.push_back(i)
                 neighbors = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
                 for j in neighbors:
                     if dists[j] < 0:  # j found for the first time?
                         dists[j] = dists[i] + 1
-                        bfs_queue.append(j)
+                        bfs_queue.push(j)
                     if dists[j] == dists[i] + 1:  # shortest path to j via i?
                         sigma[j] += sigma[i]
-                        preds[j].append(i)
+                        preds[j].push_back(i)
 
             # Now backtrack to compute betweenness scores
             delta = np.zeros(n)
             while len(seen) != 0:
-                j = seen.pop()
+                j = seen.back()
+                seen.pop_back()
                 for i in preds[j]:
                     delta[i] += sigma[i] / sigma[j] * (1 + delta[j])
                 if j != source:
