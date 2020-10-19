@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 # distutils: language = c++
 # cython: language_level=3
 # cython: linetrace=True
+# distutils: define_macros=CYTHON_TRACE_NOGIL=1
 """
 Created on September 17 2020
 @author: Tiphaine Viard <tiphaine.viard@telecom-paris.fr>
