@@ -9,7 +9,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.linalg import normalize
+from sknetwork.linalg.normalization import normalize
 
 
 def projection_simplex_array(array: np.ndarray, scale: float = 1) -> np.ndarray:

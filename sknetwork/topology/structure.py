@@ -33,6 +33,9 @@ def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak')
     labels : np.ndarray
         Connected component of each node.
     """
+    adjacency = check_format(adjacency)
+    if len(adjacency.data) == 0:
+        raise ValueError('The graph is empty (no edge).')
     return sparse.csgraph.connected_components(adjacency, not is_symmetric(adjacency), connection, True)[1]
 
 

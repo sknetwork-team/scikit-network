@@ -11,6 +11,7 @@ import numpy as np
 # has to specify the exact file to avoid nosetests error on full tests
 from sknetwork.data.load import load_netset, load_konect, clear_data_home, save, load
 from sknetwork.data.toy_graphs import house, star_wars
+from sknetwork.utils.timeout import TimeOut
 
 
 class TestLoader(unittest.TestCase):
@@ -44,8 +45,9 @@ class TestLoader(unittest.TestCase):
         tmp_data_dir = tempfile.gettempdir() + '/moreno_crime'
         clear_data_home(tmp_data_dir)
         try:
-            data = load_konect('moreno_crime', tmp_data_dir)
-        except RuntimeError:  # pragma: no cover
+            with TimeOut(2):
+                data = load_konect('moreno_crime', tmp_data_dir)
+        except (TimeoutError, RuntimeError):  # pragma: no cover
             warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
             return
         self.assertEqual(data.biadjacency.shape[0], 829)
@@ -57,8 +59,9 @@ class TestLoader(unittest.TestCase):
 
         tmp_data_dir = tempfile.gettempdir() + '/ego-facebook'
         try:
-            data = load_konect('ego-facebook', tmp_data_dir)
-        except RuntimeError:  # pragma: no cover
+            with TimeOut(2):
+                data = load_konect('ego-facebook', tmp_data_dir)
+        except (TimeoutError, RuntimeError):  # pragma: no cover
             warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
             return
         self.assertEqual(data.adjacency.shape[0], 2888)
@@ -70,11 +73,12 @@ class TestLoader(unittest.TestCase):
         tmp_data_dir = tempfile.gettempdir() + '/stub'
         clear_data_home(tmp_data_dir)
         try:
-            with self.assertRaises(ValueError):
-                load_konect('junk', tmp_data_dir)
-            with self.assertRaises(ValueError):
-                load_konect('', tmp_data_dir)
-        except RuntimeError:  # pragma: no cover
+            with TimeOut(4):
+                with self.assertRaises(ValueError):
+                    load_konect('junk', tmp_data_dir)
+                with self.assertRaises(ValueError):
+                    load_konect('', tmp_data_dir)
+        except (TimeoutError, RuntimeError):  # pragma: no cover
             warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
             return
 

@@ -8,7 +8,7 @@ from typing import Iterable, Optional
 
 import numpy as np
 
-from sknetwork.hierarchy import cut_straight
+from sknetwork.hierarchy.postprocess import cut_straight
 from sknetwork.visualization.colors import STANDARD_COLORS
 
 

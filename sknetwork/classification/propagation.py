@@ -8,9 +8,9 @@ from typing import Optional, Union
 
 import numpy as np
 from scipy import sparse
-from sknetwork.classification.vote import vote_update
 
 from sknetwork.classification.base import BaseClassifier, BaseBiClassifier
+from sknetwork.classification.vote import vote_update
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_format
 from sknetwork.utils.check import check_seeds
