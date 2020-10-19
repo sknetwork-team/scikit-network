@@ -25,5 +25,4 @@ class TestCliqueListing(unittest.TestCase):
         adjacency = test_graph_clique()
         n = adjacency.shape[0]
         self.assertEqual(Cliques(3).fit_transform(adjacency), comb(n, 3, exact=True))
-
         self.assertEqual(Cliques(4).fit_transform(adjacency), comb(n, 4, exact=True))

@@ -7,7 +7,7 @@ Nathan de Lara <ndelara@enst.fr>
 import numpy as np
 from scipy import sparse
 
-from sknetwork.utils import directed2undirected
+from sknetwork.utils.format import directed2undirected
 
 
 def edgelist2adjacency(edgelist: list, undirected: bool = False) -> sparse.csr_matrix:

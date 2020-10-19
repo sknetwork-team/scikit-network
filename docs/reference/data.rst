@@ -58,6 +58,8 @@ You can find some datasets on NetRep_.
 
 .. autofunction:: sknetwork.data.load_konect
 
+.. autofunction:: sknetwork.data.convert_edge_list
+
 .. _NetRep: http://networkrepository.com/
 
 Save

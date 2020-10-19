@@ -142,6 +142,13 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
     -----
     An attribute `meta` of the `Bunch` class is used to store information about the dataset if present. In any case,
     `meta` has the attribute `name` which, if not given, is equal to the name of the dataset as passed to this function.
+
+    References
+    ----------
+    Kunegis, J. (2013, May).
+    `Konect: the Koblenz network collection.
+    <https://dl.acm.org/doi/abs/10.1145/2487788.2488173>`_
+    In Proceedings of the 22nd International Conference on World Wide Web (pp. 1343-1350).
     """
     if dataset == '':
         raise ValueError("Please specify the dataset. "
