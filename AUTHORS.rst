@@ -25,3 +25,4 @@ Contributors
 * Victor Manach
 * Pierre Pébereau
 * Armand Boschin
+* Tiphaine Viard

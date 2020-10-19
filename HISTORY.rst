@@ -2,6 +2,11 @@
 History
 =======
 
+0.19.4 (2020-09-25)
+-------------------
+
+* Added betweenness algorithm
+
 0.19.3 (2020-09-17)
 -------------------
 
@@ -24,7 +29,7 @@ History
 
 * Added link prediction module
 * Added pie-node visualization of memberships
-* Added Weisfeiler-Lehman graph coloring
+* Added Weisfeiler-Lehman graph coloring (Pierre Pebereau, Alexis Barreaux)
 * Added Force Atlas 2 graph layout
 * Added triangle listing algorithm for directed and undirected graph
 * Added k-core decomposition algorithm
