@@ -2,7 +2,7 @@
 History
 =======
 
-0.19.4 (2020-09-25)
+0.20.0 (2020-10-20)
 -------------------
 
 * Added betweenness algorithm by Tiphaine Viard (#444)
