@@ -3,7 +3,8 @@ Credits
 =======
 
 The project started with the Master internship of Bertrand Charpentier and
-the PhD theses of Nathan de Lara and Quentin Lutz, under the supervision of Thomas Bonald.
+the PhD theses of Nathan de Lara and Quentin Lutz, under the supervision of Thomas Bonald at Télécom Paris,
+Institut Polytechnique de Paris.
 
 Development Lead
 ----------------
