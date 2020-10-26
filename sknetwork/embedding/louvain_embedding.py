@@ -72,7 +72,7 @@ class BiLouvainEmbedding(BaseBiEmbedding):
 
         self.labels_ = None
 
-    def fit(self, biadjacency):
+    def fit(self, biadjacency: sparse.csr_matrix):
         """Embedding of bipartite graphs from a clustering obtained with Louvain.
 
         Parameters
@@ -99,9 +99,11 @@ class BiLouvainEmbedding(BaseBiEmbedding):
             _, counts_row = np.unique(bilouvain.labels_row_, return_counts=True)
             n_isolated_nodes_row = (counts_row == 1).sum()
             if n_isolated_nodes_row:
+                size_row = (biadjacency.shape[0], len(counts_row))
+                embedding_row.resize(size_row)
                 labels_row = bilouvain.labels_row_
                 labels_row[-n_isolated_nodes_row:] = labels_row[-n_isolated_nodes_row]
-                merge_labels_row = np.arange(embedding_row.shape[1], dtype=int)
+                merge_labels_row = np.arange(len(counts_row), dtype=int)
                 merge_labels_row[-n_isolated_nodes_row:] = merge_labels_row[-n_isolated_nodes_row]
                 combiner_row = membership_matrix(merge_labels_row)
                 embedding_row = embedding_row.dot(combiner_row)
@@ -110,6 +112,8 @@ class BiLouvainEmbedding(BaseBiEmbedding):
             _, counts_col = np.unique(bilouvain.labels_col_, return_counts=True)
             n_isolated_nodes_col = (counts_col == 1).sum()
             if n_isolated_nodes_col:
+                size_col = (biadjacency.shape[0], len(counts_col))
+                embedding_col.resize(size_col)
                 merge_labels_col = np.arange(embedding_col.shape[1], dtype=int)
                 merge_labels_col[-n_isolated_nodes_col:] = merge_labels_col[-n_isolated_nodes_col]
                 combiner_col = membership_matrix(merge_labels_col)
@@ -198,7 +202,7 @@ class LouvainEmbedding(BaseEmbedding):
 
         self.labels_ = None
 
-    def fit(self, adjacency):
+    def fit(self, adjacency: sparse.csr_matrix):
         """Embedding of graphs from a clustering obtained with Louvain.
 
         Parameters
