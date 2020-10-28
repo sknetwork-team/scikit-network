@@ -123,7 +123,7 @@ class GSVD(BaseBiEmbedding):
         self.weights_col_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'GSVD':
-        """Compute the GSVD of the adjacency or biadjacency matrix.
+        """Compute the embedding of the graph.
 
         Parameters
         ----------
