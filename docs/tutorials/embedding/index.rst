@@ -7,9 +7,10 @@ Embedding
    spectral
    svd
    gsvd
+   pca
    louvain_embedding
    spring
-   forceatlas2
+   forceatlas
 
 
 

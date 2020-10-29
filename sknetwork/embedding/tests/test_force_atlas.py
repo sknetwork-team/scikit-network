@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 
 from sknetwork.data.test_graphs import test_graph, test_digraph
-from sknetwork.embedding.force_atlas import ForceAtlas2
+from sknetwork.embedding.force_atlas import ForceAtlas
 
 
 class TestEmbeddings(unittest.TestCase):
@@ -15,15 +15,15 @@ class TestEmbeddings(unittest.TestCase):
         for adjacency in [test_graph(), test_digraph()]:
             n = adjacency.shape[0]
 
-            force_atlas = ForceAtlas2()
+            force_atlas = ForceAtlas()
             layout = force_atlas.fit_transform(adjacency)
             self.assertEqual((n, 2), layout.shape)
 
-            force_atlas = ForceAtlas2(lin_log=True)
+            force_atlas = ForceAtlas(lin_log=True)
             layout = force_atlas.fit_transform(adjacency)
             self.assertEqual((n, 2), layout.shape)
 
-            force_atlas = ForceAtlas2(approx_radius=1.)
+            force_atlas = ForceAtlas(approx_radius=1.)
             layout = force_atlas.fit_transform(adjacency)
             self.assertEqual((n, 2), layout.shape)
 
@@ -32,4 +32,4 @@ class TestEmbeddings(unittest.TestCase):
     def test_errors(self):
         adjacency = test_graph()
         with self.assertRaises(ValueError):
-            ForceAtlas2().fit(adjacency, pos_init=np.ones((5, 7)))
+            ForceAtlas().fit(adjacency, pos_init=np.ones((5, 7)))

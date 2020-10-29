@@ -26,6 +26,11 @@ GSVD
 
 .. autoclass:: sknetwork.embedding.GSVD
 
+PCA
+---
+
+.. autoclass:: sknetwork.embedding.PCA
+
 Louvain
 -------
 
@@ -33,10 +38,10 @@ Louvain
 
 .. autoclass:: sknetwork.embedding.BiLouvainEmbedding
 
-Force Atlas 2
--------------
+Force Atlas
+-----------
 
-.. autoclass:: sknetwork.embedding.ForceAtlas2
+.. autoclass:: sknetwork.embedding.ForceAtlas
 
 Spring
 ------
