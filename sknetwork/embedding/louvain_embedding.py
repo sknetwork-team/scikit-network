@@ -112,7 +112,7 @@ class BiLouvainEmbedding(BaseBiEmbedding):
             _, counts_col = np.unique(bilouvain.labels_col_, return_counts=True)
             n_isolated_nodes_col = (counts_col == 1).sum()
             if n_isolated_nodes_col:
-                size_col = (biadjacency.shape[0], len(counts_col))
+                size_col = (biadjacency.shape[1], len(counts_col))
                 embedding_col.resize(size_col)
                 merge_labels_col = np.arange(embedding_col.shape[1], dtype=int)
                 merge_labels_col[-n_isolated_nodes_col:] = merge_labels_col[-n_isolated_nodes_col]
