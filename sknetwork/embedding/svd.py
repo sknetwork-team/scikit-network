@@ -12,8 +12,19 @@ from scipy import sparse
 
 from sknetwork.embedding.base import BaseBiEmbedding
 from sknetwork.linalg import SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv, normalize, \
-    RegularizedAdjacency
+    RegularizedAdjacency, SparseLR
 from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, check_n_components
+
+
+def set_svd_solver(solver: str, adjacency):
+    """SVD solver based on keyword"""
+    if solver == 'auto':
+        solver: str = auto_solver(adjacency.nnz)
+    if solver == 'lanczos':
+        solver: SVDSolver = LanczosSVD()
+    else:  # pragma: no cover
+        solver: SVDSolver = HalkoSVD()
+    return solver
 
 
 class GSVD(BaseBiEmbedding):
@@ -109,12 +120,7 @@ class GSVD(BaseBiEmbedding):
         self.factor_col = factor_col
         self.factor_singular = factor_singular
         self.normalized = normalized
-        if solver == 'halko':
-            self.solver: SVDSolver = HalkoSVD()
-        elif solver == 'lanczos':
-            self.solver: SVDSolver = LanczosSVD()
-        else:
-            self.solver = solver
+        self.solver = solver
 
         self.singular_values_ = None
         self.singular_vectors_left_ = None
@@ -123,7 +129,7 @@ class GSVD(BaseBiEmbedding):
         self.weights_col_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'GSVD':
-        """Compute the GSVD of the adjacency or biadjacency matrix.
+        """Compute the embedding of the graph.
 
         Parameters
         ----------
@@ -138,13 +144,8 @@ class GSVD(BaseBiEmbedding):
         n_row, n_col = adjacency.shape
         n_components = check_n_components(self.n_components, min(n_row, n_col) - 1)
 
-        if self.solver == 'auto':
-            solver = auto_solver(adjacency.nnz)
-            if solver == 'lanczos':
-                self.solver: SVDSolver = LanczosSVD()
-            else:  # pragma: no cover
-                self.solver: SVDSolver = HalkoSVD()
-
+        if isinstance(self.solver, str):
+            self.solver = set_svd_solver(self.solver, adjacency)
         regularization = self.regularization
         if regularization:
             if self.relative_regularization:
@@ -308,7 +309,7 @@ class SVD(GSVD):
     Abdi, H. (2007).
     `Singular value decomposition (SVD) and generalized singular value decomposition.
     <https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf>`_
-    Encyclopedia of measurement and statistics, 907-912.
+    Encyclopedia of measurement and statistics.
     """
     def __init__(self, n_components=2, regularization: Union[None, float] = None, relative_regularization: bool = True,
                  factor_singular: float = 0., normalized: bool = False, solver: Union[str, SVDSolver] = 'auto'):
@@ -319,3 +320,95 @@ class SVD(GSVD):
     @staticmethod
     def _check_adj_vector(adjacency_vectors: np.ndarray):
         return
+
+
+class PCA(SVD):
+    """Graph embedding by Principal Component Analysis of the adjacency or biadjacency matrix.
+
+    * Graphs
+    * Digraphs
+    * Bigraphs
+
+    Parameters
+    ----------
+    n_components : int
+        Dimension of the embedding.
+    normalized : bool (default = ``False``)
+        If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
+        each vector lies on the unit sphere.
+    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
+        Which singular value solver to use.
+
+        * ``'auto'``: call the auto_solver function.
+        * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
+        * ``'lanczos'``: power-iteration based method.
+        * :class:`SVDSolver`: custom solver.
+
+    Attributes
+    ----------
+    embedding_ : np.ndarray, shape = (n_row, n_components)
+        Embedding of the rows.
+    embedding_row_ : np.ndarray, shape = (n_row, n_components)
+        Embedding of the rows (copy of **embedding_**).
+    embedding_col_ : np.ndarray, shape = (n_col, n_components)
+        Embedding of the columns.
+    singular_values_ : np.ndarray, shape = (n_components)
+        Singular values.
+    singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
+        Left singular vectors.
+    singular_vectors_right_ : np.ndarray, shape = (n_col, n_components)
+        Right singular vectors.
+    regularization_ : ``None`` or float
+        Regularization factor added to all pairs of nodes.
+
+    Example
+    -------
+    >>> from sknetwork.embedding import PCA
+    >>> from sknetwork.data import karate_club
+    >>> pca = PCA()
+    >>> adjacency = karate_club()
+    >>> embedding = pca.fit_transform(adjacency)
+    >>> embedding.shape
+    (34, 2)
+
+    References
+    ----------
+    Jolliffe, I.T. (2002).
+    `Principal Component Analysis`
+    Series: Springer Series in Statistics.
+    """
+    def __init__(self, n_components=2, normalized: bool = False, solver: Union[str, SVDSolver] = 'auto'):
+        super(PCA, self).__init__()
+        self.n_components = n_components
+        self.normalized = normalized
+        self.solver = solver
+
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'PCA':
+        """Compute the embedding of the graph.
+
+        Parameters
+        ----------
+        adjacency :
+            Adjacency or biadjacency matrix of the graph.
+
+        Returns
+        -------
+        self: :class:`PCA`
+        """
+        adjacency = check_format(adjacency).asfptype()
+        n_row, n_col = adjacency.shape
+        adjacency_centered = SparseLR(adjacency, (-np.ones(n_row), adjacency.T.dot(np.ones(n_row)) / n_row))
+
+        if isinstance(self.solver, str):
+            self.solver = set_svd_solver(self.solver, adjacency)
+
+        svd = self.solver
+        svd.fit(adjacency_centered, self.n_components)
+        self.embedding_row_ = svd.singular_vectors_left_
+        self.embedding_col_ = svd.singular_vectors_right_
+        self.embedding_ = svd.singular_vectors_left_
+        self.singular_values_ = svd.singular_values_
+        self.singular_vectors_left_ = svd.singular_vectors_left_
+        self.singular_vectors_right_ = svd.singular_vectors_right_
+
+        return self

@@ -16,8 +16,8 @@ from sknetwork.utils.check import check_format, is_symmetric, check_square
 from sknetwork.utils.format import directed2undirected
 
 
-class ForceAtlas2(BaseEmbedding):
-    """Force Atlas 2 layout for displaying graphs.
+class ForceAtlas(BaseEmbedding):
+    """Force Atlas layout for displaying graphs.
 
     * Graphs
     * Digraphs
@@ -52,9 +52,9 @@ class ForceAtlas2(BaseEmbedding):
 
     Example
     -------
-    >>> from sknetwork.embedding.force_atlas import ForceAtlas2
+    >>> from sknetwork.embedding.force_atlas import ForceAtlas
     >>> from sknetwork.data import karate_club
-    >>> force_atlas = ForceAtlas2()
+    >>> force_atlas = ForceAtlas()
     >>> adjacency = karate_club()
     >>> embedding = force_atlas.fit_transform(adjacency)
     >>> embedding.shape
@@ -70,7 +70,7 @@ class ForceAtlas2(BaseEmbedding):
     def __init__(self, n_components: int = 2, n_iter: int = 50, approx_radius: float = -1, lin_log: bool = False,
                  gravity_factor: float = 0.01, repulsive_factor: float = 0.1, tolerance: float = 0.1,
                  speed: float = 0.1, speed_max: float = 10):
-        super(ForceAtlas2, self).__init__()
+        super(ForceAtlas, self).__init__()
         self.n_components = n_components
         self.n_iter = n_iter
         self.approx_radius = approx_radius
@@ -82,7 +82,7 @@ class ForceAtlas2(BaseEmbedding):
         self.speed_max = speed_max
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], pos_init: Optional[np.ndarray] = None,
-            n_iter: Optional[int] = None) -> 'ForceAtlas2':
+            n_iter: Optional[int] = None) -> 'ForceAtlas':
         """Compute layout.
 
         Parameters
@@ -97,7 +97,7 @@ class ForceAtlas2(BaseEmbedding):
 
         Returns
         -------
-        self: :class:`ForceAtlas2`
+        self: :class:`ForceAtlas`
         """
         # verify the format of the adjacency matrix
         adjacency = check_format(adjacency)

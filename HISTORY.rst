@@ -2,11 +2,15 @@
 History
 =======
 
-
-0.19.4 (2020-09-28)
+0.20.1 (2020-11-3)
 -------------------
 
 * Added Variational Expectation Maximization (VEM) algorithm
+
+0.20.0 (2020-10-20)
+-------------------
+
+* Added betweenness algorithm by Tiphaine Viard (#444)
 
 0.19.3 (2020-09-17)
 -------------------
@@ -30,11 +34,11 @@ History
 
 * Added link prediction module
 * Added pie-node visualization of memberships
-* Added Weisfeiler-Lehman graph coloring
-* Added Force Atlas 2 graph layout
-* Added triangle listing algorithm for directed and undirected graph
-* Added k-core decomposition algorithm
-* Added k-clique listing algorithm
+* Added Weisfeiler-Lehman graph coloring by Pierre Pebereau and Alexis Barreaux (#394)
+* Added Force Atlas 2 graph layout by Victor Manach and Rémi Jaylet (#396)
+* Added triangle listing algorithm for directed and undirected graph by Julien Simonnet and Yohann Robert (#376)
+* Added k-core decomposition algorithm by Julien Simonnet and Yohann Robert (#377)
+* Added k-clique listing algorithm by Julien Simonnet and Yohann Robert (#377)
 * Added color map option in visualization module
 * Updated NetSet URL
 
