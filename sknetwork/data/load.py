@@ -268,14 +268,15 @@ def load_from_numpy_bundle(bundle_name: str, data_home: Optional[Union[str, Path
         files = listdir(data_path)
         data = Bunch()
         for file in files:
-            file_name, file_extension = file.split('.')
-            if file_extension == 'npz':
-                data[file_name] = sparse.load_npz(data_path / file)
-            elif file_extension == 'npy':
-                data[file_name] = np.load(data_path / file)
-            elif file_extension == 'p':
-                with open(data_path / file, 'rb') as f:
-                    data[file_name] = pickle.load(f)
+            if len(file.split('.')) == 2:
+                file_name, file_extension = file.split('.')
+                if file_extension == 'npz':
+                    data[file_name] = sparse.load_npz(data_path / file)
+                elif file_extension == 'npy':
+                    data[file_name] = np.load(data_path / file)
+                elif file_extension == 'p':
+                    with open(data_path / file, 'rb') as f:
+                        data[file_name] = pickle.load(f)
         return data
 
 
