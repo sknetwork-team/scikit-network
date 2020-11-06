@@ -281,7 +281,7 @@ def load_from_numpy_bundle(bundle_name: str, data_home: Optional[Union[str, Path
 
 def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Bunch]):
     """Save a Bunch or a CSR matrix in the current directory to a collection of Numpy and Pickle files for faster
-    subsequent loads.
+    subsequent loads. Supported attribute types include sparse matrices, NumPy arrays, strings and Bunch.
 
     Parameters
     ----------
