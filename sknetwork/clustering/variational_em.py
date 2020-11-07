@@ -10,9 +10,9 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering.base import BaseClustering
-from sknetwork.clustering import KMeans
-from sknetwork.embedding import GSVD
-from sknetwork.linalg import normalize
+from sknetwork.clustering.kmeans import KMeans
+from sknetwork.embedding.svd import GSVD
+from sknetwork.linalg.normalization import normalize
 from sknetwork.clustering.variational_em_core import likelihood, variational_step
 
 
