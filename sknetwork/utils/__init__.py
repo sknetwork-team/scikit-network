@@ -10,7 +10,6 @@ from sknetwork.utils.simplex import projection_simplex, projection_simplex_array
 from sknetwork.utils.ward import WardDense
 
 
-
 class Bunch(dict):
     """Container object for datasets.
     Dictionary-like object that exposes its keys as attributes.
@@ -28,7 +27,6 @@ class Bunch(dict):
     >>> b['c']
     6
     """
-
     def __init__(self, **kwargs):
         super().__init__(kwargs)
 
