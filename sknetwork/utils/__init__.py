@@ -15,17 +15,17 @@ class Bunch(dict):
     Dictionary-like object that exposes its keys as attributes.
 
     This code is taken from scikit-learn.
-    >>> b = Bunch(a=1, b=2)
-    >>> b['b']
-    2
-    >>> b.b
-    2
-    >>> b.a = 3
-    >>> b['a']
+    >>> bunch = Bunch(a=1, b=2)
+    >>> bunch['a']
+    1
+    >>> bunch.a
+    1
+    >>> bunch.b = 3
+    >>> bunch['b']
     3
-    >>> b.c = 6
-    >>> b['c']
-    6
+    >>> bunch.c = 4
+    >>> bunch['c']
+    4
     """
     def __init__(self, **kwargs):
         super().__init__(kwargs)
