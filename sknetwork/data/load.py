@@ -76,8 +76,10 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
 
     if dataset is None:
         print("Please specify the dataset (e.g., 'openflights' or 'wikivitals').\n" +
-              f"Complete list available here: <{npz_folder}>")
+              f"Complete list available here: <{npz_folder}>.")
         return graph
+    else:
+        dataset = dataset.lower()
     data_home = get_data_home(data_home)
     data_path = data_home / dataset
     if not data_path.exists():
