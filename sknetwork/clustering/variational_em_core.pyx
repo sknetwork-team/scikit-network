@@ -17,7 +17,7 @@ cdef float eps = np.finfo(float).eps
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def likelihood(int[:] indptr,int[:] indices, float[:,:] membership_probs, float[:] cluster_mean_probs,
+def likelihood_core(int[:] indptr,int[:] indices, float[:,:] membership_probs, float[:] cluster_mean_probs,
 		float[:,:] cluster_transition_probs) -> float:
     """Compute the approximated likelihood
 
@@ -38,12 +38,11 @@ def likelihood(int[:] indptr,int[:] indices, float[:,:] membership_probs, float[
 
     Returns
     -------
-    likelihood: float
+    part_likelihood: float
     """
     cdef int n = indptr.shape[0] - 1
     cdef int n_clusters = membership_probs.shape[1]
 
-    cdef float output = np.sum(np.dot(membership_probs,np.log(cluster_mean_probs)))
     cdef float cpt = 0
     cdef int i
     cdef int j
@@ -69,13 +68,13 @@ def likelihood(int[:] indptr,int[:] indices, float[:,:] membership_probs, float[
                                 - log(1 - cluster_transition_probs[cluster_1, cluster_2])
                         cpt += membership_probs[i, cluster_1] * membership_probs[j, cluster_2] * logb
 
-    return output + cpt / 2 - np.sum(membership_probs * np.log(membership_probs))
+    return cpt
 
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def variational_step(int[:] indptr, int[:] indices, float[:,:] membership_probs, float[:] cluster_mean_probs,
-		     float[:,:] cluster_transition_probs):
+def variational_step_core(int[:] indptr, int[:] indices, float[:,:] membership_probs,
+             float[:] cluster_mean_probs, float[:,:] cluster_transition_probs):
     """Apply the variational step:
     - update membership_probas
 
@@ -96,8 +95,8 @@ def variational_step(int[:] indptr, int[:] indices, float[:,:] membership_probs,
 
     Returns
     -------
-    membership_probas:
-        Updated membership matrix given as a probability over clusters.
+    log_membership_probs:
+        Updated membership matrix given as a log probability over clusters.
     """
     cdef int n = indptr.shape[0] - 1
     cdef int n_clusters = membership_probs.shape[1]
@@ -129,9 +128,4 @@ def variational_step(int[:] indptr, int[:] indices, float[:,:] membership_probs,
                             (log(cluster_transition_probs[cluster_1, cluster_2])
                             - log(1 - cluster_transition_probs[cluster_1, cluster_2]))
 
-
-    membership_prob = np.exp(log_membership_prob)
-
-    membership_prob = normalize(membership_prob, p=1)
-
-    return np.maximum(membership_prob, eps)
+    return log_membership_prob

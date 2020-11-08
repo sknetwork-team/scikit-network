@@ -13,16 +13,81 @@ from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.kmeans import KMeans
 from sknetwork.embedding.svd import GSVD
 from sknetwork.linalg.normalization import normalize
-from sknetwork.clustering.variational_em_core import likelihood, variational_step
+from sknetwork.clustering.variational_em_core import likelihood_core, variational_step_core
 
 
 eps = np.finfo(float).eps
+
+def likelihood(indptr, indices, membership_probs, cluster_mean_probs,
+        cluster_transition_probs) -> float:
+    """Compute the approximated likelihood
+
+    Parameters
+    ----------
+    indptr:
+        Index pointer array of the adjacency matrix of the graph (np.ndarray because of numba, could probably be
+        modified in csr_matrix).
+    indices:
+        Indices array of the adjacency matrix of the graph (np.ndarray because of numba, could probably be
+        modified in csr_matrix).
+    membership_probs:
+        Membership matrix given as a probability over clusters.
+    cluster_mean_probs:
+        Average value of cluster probability over nodes.
+    cluster_transition_probs:
+        Probabilities of transition from one cluster to another in one hop.
+
+    Returns
+    -------
+    likelihood: float
+    """
+
+    cpt1 = np.sum(np.dot(membership_probs,np.log(cluster_mean_probs)))
+    cpt2 = likelihood_core(indptr, indices, membership_probs, cluster_mean_probs,
+                        cluster_transition_probs)
+    cpt3 = np.sum(membership_probs * np.log(membership_probs))
+
+    return cpt1 + cpt2/2 - cpt3
+
+
+def variational_step(indptr, indices, membership_probs, cluster_mean_probs,
+            cluster_transition_probs):
+    """Apply the variational step:
+    - update membership_probas
+
+    Parameters
+    ----------
+    indptr:
+        Index pointer array of the adjacency matrix of the graph (np.ndarray because of numba, could probably be
+        modified in csr_matrix).
+    indices:
+        Indices array of the adjacency matrix of the graph (np.ndarray because of numba, could probably be
+        modified in csr_matrix).
+    membership_probs:
+        Membership matrix given as a probability over clusters.
+    cluster_mean_probs:
+        Average value of cluster probability over nodes.
+    cluster_transition_probs:
+        Probabilities of transition from one cluster to another in one hop.
+
+    Returns
+    -------
+    membership_probs:
+        Updated membership matrix given as a probability over clusters.
+    """
+
+    log_membership_prob = variational_step_core(indptr, indices, membership_probs,
+                                        cluster_mean_probs, cluster_transition_probs)
+    membership_probs = np.exp(log_membership_prob)
+    membership_probs = normalize(membership_probs, p=1)
+
+    return np.maximum(membership_probs, eps)
 
 
 def maximization_step(adjacency, membership_probs):
     """Apply the maximization step:
     - update in place cluster_transition_probs
-    - update cluster_mean_probas
+    - update cluster_mean_probs
 
     Parameters
     ----------
