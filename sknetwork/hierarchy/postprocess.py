@@ -72,6 +72,7 @@ def cut_straight(dendrogram: np.ndarray, n_clusters: Optional[int] = None, thres
         Dendrogram.
     n_clusters :
         Number of clusters (optional).
+        The number of clusters can be larger than n_clusters in case of equal heights in the dendrogram.
     threshold :
         Threshold on height (optional).
         If both n_clusters and threshold are ``None``, n_clusters is set to 2.
