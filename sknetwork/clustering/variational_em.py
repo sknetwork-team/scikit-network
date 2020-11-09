@@ -4,22 +4,23 @@
 Created on July 2020
 @author: Clément Bonet <cbonet@enst.fr>
 """
-from typing import Union
+from typing import Union, Optional
 
 import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.kmeans import KMeans
+from sknetwork.clustering.variational_em_core import likelihood_core, variational_step_core
 from sknetwork.embedding.svd import GSVD
 from sknetwork.linalg.normalization import normalize
-from sknetwork.clustering.variational_em_core import likelihood_core, variational_step_core
-
+from sknetwork.utils.check import check_random_state
 
 eps = np.finfo(float).eps
 
+
 def likelihood(indptr, indices, membership_probs, cluster_mean_probs,
-        cluster_transition_probs) -> float:
+               cluster_transition_probs) -> float:
     """Compute the approximated likelihood
 
     Parameters
@@ -147,7 +148,7 @@ class VariationalEM(BaseClustering):
     -------
     >>> from sknetwork.clustering import VariationalEM
     >>> from sknetwork.data import karate_club
-    >>> vem = VariationalEM(n_clusters=3)
+    >>> vem = VariationalEM(n_clusters=3, random_state=2)
     >>> adjacency = karate_club()
     >>> labels = vem.fit_transform(adjacency)
     >>> len(set(labels))
@@ -166,7 +167,8 @@ class VariationalEM(BaseClustering):
     """
     def __init__(self, n_clusters: int = 3, init: str = "kmeans",
                  max_iter: int = 100, tol: float = 1e-6, sort_clusters: bool = True,
-                 return_membership: bool = True, return_aggregate: bool = True):
+                 return_membership: bool = True, return_aggregate: bool = True,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None):
         super(VariationalEM, self).__init__(sort_clusters=sort_clusters,
                                             return_membership=return_membership,
                                             return_aggregate=return_aggregate)
@@ -177,6 +179,7 @@ class VariationalEM(BaseClustering):
         self.init = init
         self.max_iter = max_iter
         self.tol = tol
+        self.random_state = check_random_state(random_state)
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'VariationalEM':
         """Apply the variational Expectation Maximization algorithm
@@ -202,7 +205,7 @@ class VariationalEM(BaseClustering):
             membership_probs = np.zeros(shape=(n, self.n_clusters))
             membership_probs[:] = np.eye(self.n_clusters)[labels]
         else:
-            membership_probs = normalize(np.random.rand(n, self.n_clusters), p=1)
+            membership_probs = normalize(self.random_state.rand(n, self.n_clusters), p=1)
 
         likelihood_old, likelihood_new = 0., 0.
 
@@ -212,7 +215,8 @@ class VariationalEM(BaseClustering):
             membership_probs = variational_step(indptr, indices, membership_probs.astype(np.float32),
                                                 cluster_mean_probs, cluster_transition_probs)
 
-            likelihood_old, likelihood_new = likelihood_new, likelihood(indptr, indices, membership_probs.astype(np.float32),
+            likelihood_old, likelihood_new = likelihood_new, likelihood(indptr, indices,
+                                                                        membership_probs.astype(np.float32),
                                                                         cluster_mean_probs, cluster_transition_probs)
 
             if k > 1 and abs(likelihood_new - likelihood_old) < self.tol:

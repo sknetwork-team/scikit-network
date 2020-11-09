@@ -9,7 +9,6 @@ from cython.parallel import prange
 
 import numpy as np
 cimport numpy as np
-from sknetwork.linalg import normalize
 
 from libc.math cimport log
 
