@@ -81,31 +81,35 @@ def lexicographic_breadth_first_search(adjacency: Union[sparse.csr_matrix, np.nd
 
     Returns
     -------
-    numbers: int list
-        The numbers assigned to each vertex with the number of vertex i in numbers[i].
+    lex_order: int list
+        The vertices sorted in lexicographic bread-first search order. lex_order[i] contains the i-th vertex in this
+        order.
     """
     n = adjacency.indptr.shape[0] - 1
     labels = [[] for _ in range(n)]
-    numbers = [-1 for _ in range(n)]
+    position = [-1 for _ in range(n)]
 
     for i in range(n - 1, -1, -1):
         if i == n - 1:
             biggest_label_vertex = rd.randint(0, n - 1)
             print(biggest_label_vertex)
         else:
-            unumbered = [i for i in range(n) if numbers[i] < 0]
+            unumbered = [i for i in range(n) if position[i] < 0]
             biggest_label_vertex = unumbered[0]
             for u in unumbered:
                 if labels[u] > labels[biggest_label_vertex]:
                     biggest_label_vertex = u
-        numbers[biggest_label_vertex] = i
+        position[biggest_label_vertex] = i
 
         # Adding i to the labels of unumbered adjacent vertices.
         for j in adjacency.indices[adjacency.indptr[biggest_label_vertex]:adjacency.indptr[biggest_label_vertex + 1]]:
-            if numbers[j] < 0:
+            if position[j] < 0:
                 labels[j].append(str(i))
 
-    return numbers
+    lex_order = [0 for _ in range(n)]
+    for i in range(n):
+        lex_order[position[i]] = i
+    return lex_order
 
 
 def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
@@ -121,7 +125,7 @@ def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     result: bool
         A boolean stating wether this graph is chordal or not.
     """
-    
+
     lex_order = lexicographic_breadth_first_search(adjacency)
     # We can start from the third vertex since our conditions will be on the vertices before the neighbor of another
     # vertex.
