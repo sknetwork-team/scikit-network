@@ -184,15 +184,22 @@ def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     n = adjacency.indptr.shape[0] - 1
     for i in range(2, n):
         vertex = lex_order[i]
-        neighbors = adjacency.indices[adjacency.indptr[vertex], adjacency.indptr[vertex + 1]]
-        prior_neighbors = [i for i in lex_order[:vertex:-1] if i in neighbors]
-        if not prior_neighbors:
+        neighbors = adjacency.indices[adjacency.indptr[vertex]: adjacency.indptr[vertex + 1]]
+        closest_prior_neighbor = -1
+        for j in range(vertex - 1, -1, -1):
+            if lex_order[j] in neighbors:
+                closest_prior_neighbor = lex_order[j]
+                break
+
+        if closest_prior_neighbor < 0:
             continue
         else:
-            latest_prior_neigh_neighbors = adjacency.indices[adjacency.indptr[prior_neighbors[-1]],
-                                                             adjacency.indptr[prior_neighbors[-1] + 1]]
-            for j in prior_neighbors[:-1]:
-                if j not in latest_prior_neigh_neighbors:
+            closest_neighbors = adjacency.indices[adjacency.indptr[closest_prior_neighbor]:
+                                                  adjacency.indptr[closest_prior_neighbor + 1]]
+            for v in lex_order[:closest_prior_neighbor]:
+                # If the set of earlier neighbors of vertex (excluding the closest itself) is not a subset of the set
+                # of earlier neighbors of the closest, the graph is not chordal.
+                if v in neighbors and v not in closest_neighbors:
                     return False
                 else:
                     continue
