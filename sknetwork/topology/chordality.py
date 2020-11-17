@@ -91,17 +91,16 @@ def lexicographic_breadth_first_search(adjacency: Union[sparse.csr_matrix, np.nd
 
     for i in range(n - 1, -1, -1):
         if i == n - 1:
-            biggest_label_vertex = rd.randint(0, n - 1)
-            print(biggest_label_vertex)
+            biggest_label_vertex = 0
         else:
-            unumbered = [i for i in range(n) if position[i] < 0]
-            biggest_label_vertex = unumbered[0]
-            for u in unumbered:
+            unnumbered = [i for i in range(n) if position[i] < 0]
+            biggest_label_vertex = unnumbered[0]
+            for u in unnumbered:
                 if labels[u] > labels[biggest_label_vertex]:
                     biggest_label_vertex = u
         position[biggest_label_vertex] = i
 
-        # Adding i to the labels of unumbered adjacent vertices.
+        # Adding i to the labels of unnumbered adjacent vertices.
         for j in adjacency.indices[adjacency.indptr[biggest_label_vertex]:adjacency.indptr[biggest_label_vertex + 1]]:
             if position[j] < 0:
                 labels[j].append(str(i))
