@@ -8,6 +8,7 @@ Created on November 17, 2020
 from typing import Union
 
 import numpy as np
+import random as rd
 from scipy import sparse
 
 from sknetwork.utils.base import Algorithm
@@ -68,3 +69,40 @@ class ChordalityTest(Algorithm):
         """
         self.fit(adjacency)
         return np.zeros(10)
+
+
+def lexicographic_breadth_first_search(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> list:
+    """
+    Sorts the vertices of a graph in lexicographic breadth-first search order.
+    Parameters
+    ----------
+    adjacency: Union[sparse.csr_matrix, np.ndarray]
+        Adjacency matrix of the graph.
+
+    Returns
+    -------
+    numbers: int list
+        The numbers assigned to each vertex with the number of vertex i in numbers[i].
+    """
+    n = adjacency.indptr.shape[0] - 1
+    labels = [[] for _ in range(n)]
+    numbers = [-1 for _ in range(n)]
+
+    for i in range(n - 1, -1, -1):
+        if i == n - 1:
+            biggest_label_vertex = rd.randint(0, n - 1)
+            print(biggest_label_vertex)
+        else:
+            unumbered = [i for i in range(n) if numbers[i] < 0]
+            biggest_label_vertex = unumbered[0]
+            for u in unumbered:
+                if labels[u] > labels[biggest_label_vertex]:
+                    biggest_label_vertex = u
+        numbers[biggest_label_vertex] = i
+
+        # Adding i to the labels of unumbered adjacent vertices.
+        for j in adjacency.indices[adjacency.indptr[biggest_label_vertex]:adjacency.indptr[biggest_label_vertex + 1]]:
+            if numbers[j] < 0:
+                labels[j].append(str(i))
+
+    return numbers
