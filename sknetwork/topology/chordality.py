@@ -71,6 +71,59 @@ class ChordalityTest(Algorithm):
         return np.zeros(10)
 
 
+def lexicographic_breadth_first_search_v2(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> list:
+    """
+    Sorts the vertices of a graph in lexicographic breadth-first search order.
+    Parameters
+    ----------
+    adjacency: Union[sparse.csr_matrix, np.ndarray]
+        Adjacency matrix of the graph.
+
+    Returns
+    -------
+    lex_order: int list
+        The vertices sorted in lexicographic bread-first search order. lex_order[i] contains the i-th vertex in this
+        order.
+    """
+    n = adjacency.indptr.shape[0] - 1
+    lex_order = [-1 for _ in range(n)]
+
+    vertices_sets = [[i for i in range(n)]]
+
+    for i in range(n - 1, -1, -1):
+        cur_vertex = vertices_sets[-1].pop()
+        if len(vertices_sets[-1]) == 0:
+            vertices_sets.pop()
+
+        # Assigning number to cur_vertex.
+        lex_order[i] = cur_vertex
+        # Searching for neighbors of cur_vertex.
+        cur_neighbors = adjacency.indices[adjacency.indptr[cur_vertex]:adjacency.indptr[cur_vertex + 1]]
+        count = 0  # The position on which to add the next new set.
+
+        while count < len(vertices_sets):
+            vset = vertices_sets[count]
+            count += 1
+            new_set = []
+
+            # Creating new set.
+            for candidate in vset:
+                if candidate in cur_neighbors:
+                    new_set.append(candidate)
+
+            # Updating old set and list of sets.
+            if len(new_set) > 0:
+                for vertex in new_set:
+                    vset.remove(vertex)
+                if len(vset) == 0:
+                    count -= 1
+                    vertices_sets.pop(count)
+                vertices_sets.insert(count, new_set)
+                count += 1
+
+    return lex_order
+
+
 def lexicographic_breadth_first_search(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> list:
     """
     Sorts the vertices of a graph in lexicographic breadth-first search order.
@@ -91,7 +144,7 @@ def lexicographic_breadth_first_search(adjacency: Union[sparse.csr_matrix, np.nd
 
     for i in range(n - 1, -1, -1):
         if i == n - 1:
-            biggest_label_vertex = 0
+            biggest_label_vertex = n - 1
         else:
             unnumbered = [i for i in range(n) if position[i] < 0]
             biggest_label_vertex = unnumbered[0]
