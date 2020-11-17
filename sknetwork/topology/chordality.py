@@ -106,3 +106,39 @@ def lexicographic_breadth_first_search(adjacency: Union[sparse.csr_matrix, np.nd
                 labels[j].append(str(i))
 
     return numbers
+
+
+def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
+    """
+    Takes the adjacency matrix of a graph and tells if it is chordal or not.
+    Parameters
+    ----------
+    adjacency: Union[sparse.csr_matrix, np.ndarray]
+        Adjacency matrix of the graph.
+
+    Returns
+    -------
+    result: bool
+        A boolean stating wether this graph is chordal or not.
+    """
+    
+    lex_order = lexicographic_breadth_first_search(adjacency)
+    # We can start from the third vertex since our conditions will be on the vertices before the neighbor of another
+    # vertex.
+    n = adjacency.indptr.shape[0] - 1
+    for i in range(2, n):
+        vertex = lex_order[i]
+        neighbors = adjacency.indices[adjacency.indptr[vertex], adjacency.indptr[vertex + 1]]
+        prior_neighbors = [i for i in lex_order[:vertex:-1] if i in neighbors]
+        if not prior_neighbors:
+            continue
+        else:
+            latest_prior_neigh_neighbors = adjacency.indices[adjacency.indptr[prior_neighbors[-1]],
+                                                             adjacency.indptr[prior_neighbors[-1] + 1]]
+            for j in prior_neighbors[:-1]:
+                if j not in latest_prior_neigh_neighbors:
+                    return False
+                else:
+                    continue
+
+    return True
