@@ -85,6 +85,7 @@ def lexicographic_breadth_first_search_v2(adjacency: Union[sparse.csr_matrix, np
         The vertices sorted in lexicographic bread-first search order. lex_order[i] contains the i-th vertex in this
         order.
     """
+    # TODO : j'ai inversé le sens de l'algo sur wiki, j'ai placé les plus longs labels au bout.
     n = adjacency.indptr.shape[0] - 1
     lex_order = [-1 for _ in range(n)]
 
@@ -179,16 +180,26 @@ def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     """
 
     lex_order = lexicographic_breadth_first_search(adjacency)
+
+    n = adjacency.indptr.shape[0] - 1
+
+    if n <= 3:
+        # Any graph with at most 3 vertices is chordal.
+        return True
+
     # We can start from the third vertex since our conditions will be on the vertices before the neighbor of another
     # vertex.
-    n = adjacency.indptr.shape[0] - 1
     for i in range(2, n):
         vertex = lex_order[i]
         neighbors = adjacency.indices[adjacency.indptr[vertex]: adjacency.indptr[vertex + 1]]
+
+        # Searching for a neighbor of the current vertex placed before him and as close as possible to him in the
+        # lexicographic order.
         closest_prior_neighbor = -1
-        for j in range(vertex - 1, -1, -1):
+        for j in range(i - 1, -1, -1):
             if lex_order[j] in neighbors:
                 closest_prior_neighbor = lex_order[j]
+                pos_closest = j
                 break
 
         if closest_prior_neighbor < 0:
@@ -196,7 +207,7 @@ def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
         else:
             closest_neighbors = adjacency.indices[adjacency.indptr[closest_prior_neighbor]:
                                                   adjacency.indptr[closest_prior_neighbor + 1]]
-            for v in lex_order[:closest_prior_neighbor]:
+            for v in lex_order[:pos_closest]:
                 # If the set of earlier neighbors of vertex (excluding the closest itself) is not a subset of the set
                 # of earlier neighbors of the closest, the graph is not chordal.
                 if v in neighbors and v not in closest_neighbors:
