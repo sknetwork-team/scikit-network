@@ -147,11 +147,12 @@ def lexicographic_breadth_first_search(adjacency: Union[sparse.csr_matrix, np.nd
         if i == n - 1:
             biggest_label_vertex = n - 1
         else:
-            unnumbered = [i for i in range(n) if position[i] < 0]
+            unnumbered = [v for v in range(n) if position[v] < 0]
             biggest_label_vertex = unnumbered[0]
             for u in unnumbered:
-                if labels[u] > labels[biggest_label_vertex]:
+                if labels[u] >= labels[biggest_label_vertex]:
                     biggest_label_vertex = u
+        print(labels)
         position[biggest_label_vertex] = i
 
         # Adding i to the labels of unnumbered adjacent vertices.
@@ -162,6 +163,7 @@ def lexicographic_breadth_first_search(adjacency: Union[sparse.csr_matrix, np.nd
     lex_order = [0 for _ in range(n)]
     for i in range(n):
         lex_order[position[i]] = i
+
     return lex_order
 
 
