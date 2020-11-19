@@ -33,9 +33,19 @@ class TestChordality(unittest.TestCase):
         adjacency = karate_club()
         self.assertFalse(is_chordal(adjacency))
 
-    def paper_graph_test(self):
+    def paper_graph_test_1(self):
         row = np.array([0, 0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 5])
         col = np.array([2, 3, 2, 4, 0, 1, 5, 0, 5, 1, 5, 2, 3, 4])
         data = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
         graph_test_1 = csr_matrix((data, (row, col)), shape=(6, 6))
         self.assertFalse(is_chordal(graph_test_1))
+
+    def paper_graph_test_2(self):
+        row = np.array(
+            [0, 0, 0, 0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7, 8, 8, 9, 9, 9, 9, 9])
+        col = np.array(
+            [1, 3, 4, 5, 0, 2, 3, 1, 3, 0, 1, 2, 0, 5, 6, 7, 9, 0, 4, 9, 4, 7, 9, 4, 6, 8, 9, 7, 9, 4, 5, 6, 7, 8])
+        data = np.array(
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+        graph_test_2 = csr_matrix((data, (row, col)), shape=(10, 10))
+        self.assertFalse(is_chordal(graph_test_2))

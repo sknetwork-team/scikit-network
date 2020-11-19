@@ -136,8 +136,8 @@ def lexicographic_breadth_first_search(adjacency: Union[sparse.csr_matrix, np.nd
     Returns
     -------
     lex_order: int list
-        The vertices sorted in lexicographic bread-first search order. lex_order[i] contains the i-th vertex in this
-        order.
+        The vertices sorted in the opposite of a lexicographic bread-first search order. lex_order[i] contains the i-th
+        vertex in this order.
     """
     n = adjacency.indptr.shape[0] - 1
     labels = [[] for _ in range(n)]
@@ -180,7 +180,6 @@ def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     result: bool
         A boolean stating wether this graph is chordal or not.
     """
-
     lex_order = lexicographic_breadth_first_search(adjacency)
 
     n = adjacency.indptr.shape[0] - 1
@@ -189,29 +188,32 @@ def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
         # Any graph with at most 3 vertices is chordal.
         return True
 
-    # We can start from the third vertex since our conditions will be on the vertices before the neighbor of another
-    # vertex.
-    for i in range(2, n):
+    # We must check if for any vertex, his neighbors other than the closest one are also neighbors of his closest
+    # neighbor. Said in another manner, we must check if for any vertex, him and his neighbors found after him in the
+    # sorting make a clique.
+
+    for i in range(0, n - 2): # We can stop before the two last vertex since two neighbors form a clique.
+
         vertex = lex_order[i]
         neighbors = adjacency.indices[adjacency.indptr[vertex]: adjacency.indptr[vertex + 1]]
 
-        # Searching for a neighbor of the current vertex placed before him and as close as possible to him in the
-        # lexicographic order.
-        closest_prior_neighbor = -1
-        for j in range(i - 1, -1, -1):
+        # Searching for a neighbor of the current vertex placed after him and as close as possible in the sorting.
+        closest_neighbor = -1
+        pos_closest = - 1
+        for j in range(i + 1, n):
             if lex_order[j] in neighbors:
-                closest_prior_neighbor = lex_order[j]
+                closest_neighbor = lex_order[j]
                 pos_closest = j
                 break
 
-        if closest_prior_neighbor < 0:
+        if closest_neighbor < 0:
             continue
         else:
-            closest_neighbors = adjacency.indices[adjacency.indptr[closest_prior_neighbor]:
-                                                  adjacency.indptr[closest_prior_neighbor + 1]]
-            for v in lex_order[:pos_closest]:
-                # If the set of earlier neighbors of vertex (excluding the closest itself) is not a subset of the set
-                # of earlier neighbors of the closest, the graph is not chordal.
+            closest_neighbors = adjacency.indices[adjacency.indptr[closest_neighbor]:
+                                                  adjacency.indptr[closest_neighbor + 1]]
+            for v in lex_order[pos_closest + 1:n]: # If pos_closest = n - 1 it will be empty
+                # If the set of other neighbors of vertex (excluding the closest itself) is not a subset of the set
+                # of neighbors of the closest, the graph is not chordal.
                 if v in neighbors and v not in closest_neighbors:
                     return False
                 else:
