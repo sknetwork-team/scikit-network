@@ -192,7 +192,7 @@ def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     # neighbor. Said in another manner, we must check if for any vertex, him and his neighbors found after him in the
     # sorting make a clique.
 
-    for i in range(0, n - 2): # We can stop before the two last vertex since two neighbors form a clique.
+    for i in range(0, n - 2):  # We can stop before the two last vertex since two neighbors form a clique.
 
         vertex = lex_order[i]
         neighbors = adjacency.indices[adjacency.indptr[vertex]: adjacency.indptr[vertex + 1]]
@@ -211,7 +211,7 @@ def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
         else:
             closest_neighbors = adjacency.indices[adjacency.indptr[closest_neighbor]:
                                                   adjacency.indptr[closest_neighbor + 1]]
-            for v in lex_order[pos_closest + 1:n]: # If pos_closest = n - 1 it will be empty
+            for v in lex_order[pos_closest + 1:n]:  # If pos_closest = n - 1 it will be empty
                 # If the set of other neighbors of vertex (excluding the closest itself) is not a subset of the set
                 # of neighbors of the closest, the graph is not chordal.
                 if v in neighbors and v not in closest_neighbors:

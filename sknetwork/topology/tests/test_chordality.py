@@ -48,4 +48,4 @@ class TestChordality(unittest.TestCase):
         data = np.array(
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
         graph_test_2 = csr_matrix((data, (row, col)), shape=(10, 10))
-        self.assertFalse(is_chordal(graph_test_2))
+        self.assertTrue(is_chordal(graph_test_2))
