@@ -85,7 +85,6 @@ def lexicographic_breadth_first_search_v2(adjacency: Union[sparse.csr_matrix, np
         The vertices sorted in lexicographic bread-first search order. lex_order[i] contains the i-th vertex in this
         order.
     """
-    # TODO : j'ai inversé le sens de l'algo sur wiki, j'ai placé les plus longs labels au bout.
     n = adjacency.indptr.shape[0] - 1
     lex_order = [-1 for _ in range(n)]
 
@@ -100,8 +99,8 @@ def lexicographic_breadth_first_search_v2(adjacency: Union[sparse.csr_matrix, np
         lex_order[i] = cur_vertex
         # Searching for neighbors of cur_vertex.
         cur_neighbors = adjacency.indices[adjacency.indptr[cur_vertex]:adjacency.indptr[cur_vertex + 1]]
-        count = 0  # The position on which to add the next new set.
 
+        count = 0  # The position on which to add the next new set.
         while count < len(vertices_sets):
             vset = vertices_sets[count]
             count += 1
@@ -152,7 +151,6 @@ def lexicographic_breadth_first_search(adjacency: Union[sparse.csr_matrix, np.nd
             for u in unnumbered:
                 if labels[u] >= labels[biggest_label_vertex]:
                     biggest_label_vertex = u
-        print(labels)
         position[biggest_label_vertex] = i
 
         # Adding i to the labels of unnumbered adjacent vertices.
@@ -180,7 +178,7 @@ def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     result: bool
         A boolean stating wether this graph is chordal or not.
     """
-    lex_order = lexicographic_breadth_first_search(adjacency)
+    lex_order = lexicographic_breadth_first_search_v2(adjacency)
 
     n = adjacency.indptr.shape[0] - 1
 
@@ -220,3 +218,50 @@ def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
                     continue
 
     return True
+
+
+def fill(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> (list, list):
+    alpha = lexicographic_breadth_first_search(adjacency)
+    n = adjacency.indptr.shape[0] - 1
+
+    # Initialise test.
+    test = [False for _ in range(n)]
+
+    # Storing adjacency lists.
+    adjacencies = []
+    for i in range(n):
+        # TODO ugly and just a fill in to copy the np array to a list and append / remove on it. To be modified.
+        adjacencies.append([u for u in adjacency.indices[adjacency.indptr[i]: adjacency.indptr[i + 1]]])
+
+    # alpha_inv stores the position of the vertices in the elimination oder (which is alpha).
+    alpha_inv = [0 for _ in range(n)]
+    for i in range(n):
+        alpha_inv[alpha[i]] = i
+
+    # m is the result.
+    m = [0 for _ in range(n)]
+
+    # Main loop
+    for i in range(n - 1):
+        k = n - 1
+        vertex = alpha[i]
+
+        # Eliminating duplicates in A(vertex)
+        for w in adjacencies[vertex]:
+            if test[alpha_inv[w]]:
+                adjacencies[vertex].remove(w)
+
+            else:
+                test[alpha_inv[w]] = True
+                k = min(k, alpha_inv[w])
+
+        m[vertex] = alpha[k]
+
+        # Adding required fill in edges and resetting test
+
+        for w in adjacencies[vertex]:
+            test[alpha_inv[w]] = False
+            if w != m[vertex]:
+                adjacencies[m[vertex]].append(w)
+
+    return m, adjacencies
