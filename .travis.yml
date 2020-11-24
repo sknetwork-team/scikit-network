@@ -30,7 +30,7 @@ matrix:
           os: osx
           language: shell
           install:
-            - brew install llvm libomp
+            - travis_wait brew install llvm libomp
             - python3 -m pip install cibuildwheel==1.5.5
           env:
             - CIBW_BEFORE_BUILD="pip install -r requirements_dev.txt && pip install ."
