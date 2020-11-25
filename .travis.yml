@@ -54,7 +54,7 @@ matrix:
           language: shell
           before_install:
             - cd $HOME
-            - wget --quiet http://curl.haxx.se/ca/cacert.pem
+            - wget --quiet --no-check-certificate https://curl.haxx.se/ca/cacert.pem
             - export SSL_CERT_FILE=$HOME/cacert.pem
             - python -m pip install --upgrade pip
             - choco install python --version 3.8.0
