@@ -30,7 +30,8 @@ matrix:
           os: osx
           language: shell
           install:
-            - travis_wait brew install llvm libomp
+            # travis_wait increases Travis timeout (to 30 minutes) because brew takes a long time to update
+            - travis_wait 30 brew install llvm libomp
             - python3 -m pip install cibuildwheel==1.5.5
           env:
             - CIBW_BEFORE_BUILD="pip install -r requirements_dev.txt && pip install ."
@@ -55,6 +56,7 @@ matrix:
             - cd $HOME
             - wget --quiet http://curl.haxx.se/ca/cacert.pem
             - export SSL_CERT_FILE=$HOME/cacert.pem
+            - python -m pip install --upgrade pip
             - choco install python --version 3.8.0
             - export PATH="/c/Python38:/c/Python38/Scripts:$PATH"
             # make sure it's on PATH as 'python3'
