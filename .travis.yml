@@ -56,11 +56,11 @@ matrix:
             - cd $HOME
             - wget --quiet --no-check-certificate https://curl.haxx.se/ca/cacert.pem
             - export SSL_CERT_FILE=$HOME/cacert.pem
-            - python -m pip install --upgrade pip
             - choco install python --version 3.8.0
             - export PATH="/c/Python38:/c/Python38/Scripts:$PATH"
             # make sure it's on PATH as 'python3'
             - ln -s /c/Python38/python.exe /c/Python38/python3.exe
+            - python3 -m pip install --upgrade pip
           install:
               - python3 -m pip install cibuildwheel==1.5.5
           env:
