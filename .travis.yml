@@ -31,7 +31,8 @@ matrix:
           language: shell
           install:
             # travis_wait increases Travis timeout (to 30 minutes) because brew takes a long time to update
-            - travis_wait 60 brew install llvm libomp
+            - softwareupdate --all --install --force
+            - travis_wait brew install llvm libomp
             - python3 -m pip install cibuildwheel==1.5.5
           env:
             - CIBW_BEFORE_BUILD="pip install -r requirements_dev.txt && pip install ."
