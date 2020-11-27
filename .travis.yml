@@ -33,7 +33,7 @@ matrix:
             - softwareupdate --all --install --force
             - brew update
             - brew cleanup
-            - brew install llvm libomp
+            - travis_wait brew install llvm libomp
             - python3 -m pip install cibuildwheel==1.5.5
           env:
             - HOMEBREW_NO_AUTO_UPDATE=1
