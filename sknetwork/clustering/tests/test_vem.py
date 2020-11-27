@@ -16,6 +16,8 @@ class TestVEM(unittest.TestCase):
     def test_undirected(self):
         self.vem = VariationalEM(3, random_state=643)
         for adjacency in [test_graph()]:
+            adjacency.data = adjacency.data.astype(bool)
+            adjacency.setdiag(0)
             n = adjacency.shape[0]
             labels = self.vem.fit_transform(adjacency)
             self.assertEqual(len(set(labels)), 3)

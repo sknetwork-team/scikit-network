@@ -14,7 +14,7 @@ from sknetwork.clustering.kmeans import KMeans
 from sknetwork.clustering.variational_em_core import likelihood_core, variational_step_core
 from sknetwork.embedding.svd import GSVD
 from sknetwork.linalg.normalization import normalize
-from sknetwork.utils.check import check_random_state
+from sknetwork.utils.check import check_random_state, check_self_loops, check_symmetry, check_unweighted
 
 eps = np.finfo(float).eps
 
@@ -122,7 +122,8 @@ def maximization_step(adjacency, membership_probs):
 
 
 class VariationalEM(BaseClustering):
-    """ Variational Expectation Maximization algorithm.
+    """ Variational Expectation Maximization algorithm. Appropriate for unweighted,
+    undirected graphs without self-loops only.
 
     Parameters
     ----------
@@ -148,11 +149,11 @@ class VariationalEM(BaseClustering):
     -------
     >>> from sknetwork.clustering import VariationalEM
     >>> from sknetwork.data import karate_club
-    >>> vem = VariationalEM(n_clusters=3, random_state=2)
+    >>> vem = VariationalEM(n_clusters=2, random_state=123)
     >>> adjacency = karate_club()
     >>> labels = vem.fit_transform(adjacency)
     >>> len(set(labels))
-    3
+    2
 
     References
     ----------
@@ -193,6 +194,9 @@ class VariationalEM(BaseClustering):
         -------
         self: :class:`VariationalEM`
         """
+        check_unweighted(adjacency)
+        check_symmetry(adjacency)
+        check_self_loops(adjacency)
         indptr: np.ndarray = adjacency.indptr.astype(np.int32)
         indices: np.ndarray = adjacency.indices.astype(np.int32)
 

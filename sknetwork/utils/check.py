@@ -82,6 +82,22 @@ def check_symmetry(adjacency: sparse.csr_matrix, tol: float = 1e-10):
         raise ValueError('The adjacency is expected to be symmetric.')
 
 
+def check_self_loops(adjacency: sparse.csr_matrix, tol: float = 1e-10):
+    """Check whether a matrix has a zero diagonal and return an error otherwise."""
+    if (adjacency.diagonal() <= tol).all():
+        return
+    else:
+        raise ValueError('The adjacency is expected to have a zero diagonal.')
+
+
+def check_unweighted(adjacency: sparse.csr_matrix):
+    """Check whether a matrix has boolean entries in its data array and return an error otherwise."""
+    if adjacency.data.dtype == bool:
+        return
+    else:
+        raise ValueError('The adjacency is expected to have boolean entries.')
+
+
 def is_connected(adjacency: sparse.csr_matrix) -> bool:
     """Check whether a graph is weakly connected.
 

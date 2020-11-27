@@ -2,10 +2,10 @@
 History
 =======
 
-0.20.1 (2020-11-3)
--------------------
+Next release
+------------
 
-* Added Variational Expectation Maximization (VEM) algorithm
+* Added Variational Expectation Maximization (VEM) algorithm by Clément Bonet (#435)
 
 0.20.0 (2020-10-20)
 -------------------
