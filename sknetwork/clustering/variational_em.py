@@ -16,7 +16,9 @@ from sknetwork.embedding.svd import GSVD
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_random_state, check_self_loops, check_symmetry, check_unweighted
 
-eps = np.finfo(float).eps
+eps = np.finfo(np.float32).eps
+xmin = np.finfo(np.float32).min
+xmax = np.finfo(np.float32).max
 
 
 def likelihood(indptr, indices, membership_probs, cluster_mean_probs,
@@ -79,6 +81,7 @@ def variational_step(indptr, indices, membership_probs, cluster_mean_probs,
 
     log_membership_prob = variational_step_core(indptr, indices, membership_probs,
                                         cluster_mean_probs, cluster_transition_probs)
+    log_membership_prob = np.maximum(np.minimum(log_membership_prob,xmax),xmin)
     membership_probs = np.exp(log_membership_prob)
     membership_probs = normalize(membership_probs, p=1)
 
