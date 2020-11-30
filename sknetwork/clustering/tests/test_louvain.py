@@ -67,6 +67,39 @@ class TestLouvainClustering(unittest.TestCase):
         # aggregate graph
         Louvain(n_aggregations=1, sort_clusters=False).fit(adjacency)
 
+    def test_options_with_64_bit(self):
+        adjacency = karate_club()
+        # force 64-bit index
+        adjacency.indices = adjacency.indices.astype(np.int64)
+        adjacency.indptr = adjacency.indptr.astype(np.int64)
+
+        # resolution
+        louvain = Louvain(resolution=2)
+        labels = louvain.fit_transform(adjacency)
+        self.assertEqual(len(set(labels)), 7)
+
+        # tolerance
+        louvain = Louvain(resolution=2, tol_aggregation=0.1)
+        labels = louvain.fit_transform(adjacency)
+        self.assertEqual(len(set(labels)), 12)
+
+        # shuffling
+        louvain = Louvain(resolution=2, shuffle_nodes=True, random_state=42)
+        labels = louvain.fit_transform(adjacency)
+        self.assertEqual(len(set(labels)), 9)
+
+        # aggregate graph
+        louvain = Louvain(return_aggregate=True)
+        labels = louvain.fit_transform(adjacency)
+        n_labels = len(set(labels))
+        self.assertEqual(louvain.adjacency_.shape, (n_labels, n_labels))
+
+        # aggregate graph
+        Louvain(n_aggregations=1, sort_clusters=False).fit(adjacency)
+
+        # check if labels are 64-bit
+        self.assertEqual(labels.dtype, np.int64)
+
     def test_invalid(self):
         adjacency = karate_club()
         louvain = Louvain(modularity='toto')

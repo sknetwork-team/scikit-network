@@ -6,11 +6,14 @@ from libcpp.set cimport set
 from libcpp.vector cimport vector
 cimport cython
 
+ctypedef fused int_or_long:
+    int
+    long
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def fit_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_node_probs, float[:] self_loops,
-             float[:] data, int[:] indices, int[:] indptr):  # pragma: no cover
+             float[:] data, int_or_long[:] indices, int_or_long[:] indptr):  # pragma: no cover
     """Fit the clusters to the objective function.
 
     Parameters
@@ -39,16 +42,16 @@ def fit_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_no
     total_increase :
         Score of the clustering (total increase in modularity).
     """
-    cdef int n = indptr.shape[0] - 1
-    cdef int increase = 1
-    cdef int cluster
-    cdef int cluster_best
-    cdef int cluster_node
-    cdef int i
-    cdef int j
-    cdef int j1
-    cdef int j2
-    cdef int label
+    cdef int_or_long n = indptr.shape[0] - 1
+    cdef int_or_long increase = 1
+    cdef int_or_long cluster
+    cdef int_or_long cluster_best
+    cdef int_or_long cluster_node
+    cdef int_or_long i
+    cdef int_or_long j
+    cdef int_or_long j1
+    cdef int_or_long j2
+    cdef int_or_long label
 
     cdef float increase_total = 0
     cdef float increase_pass
@@ -61,11 +64,11 @@ def fit_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_no
     cdef float ratio_in
     cdef float ratio_ou
 
-    cdef vector[int] labels
+    cdef vector[int_or_long] labels
     cdef vector[float] neighbor_clusters_weights
     cdef vector[float] ou_clusters_weights
     cdef vector[float] in_clusters_weights
-    cdef set[int] unique_clusters = ()
+    cdef set[int_or_long] unique_clusters = ()
 
     for i in range(n):
         labels.push_back(i)
