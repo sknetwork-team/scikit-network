@@ -31,7 +31,7 @@ matrix:
           language: shell
           install:
             # travis_wait increases Travis timeout (to 30 minutes) because brew takes a long time to update
-            - softwareupdate --all --install --force
+            - softwareupdate -i "Command Line Tools (macOS High Sierra version 10.13) for Xcode-10.1"
             - travis_wait brew install llvm libomp
             - python3 -m pip install cibuildwheel==1.5.5
           env:
