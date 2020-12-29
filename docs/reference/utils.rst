@@ -3,7 +3,7 @@
 Utils
 *****
 
-Various tools.
+Various tools for graph analysis.
 
 Build graphs
 ------------
@@ -21,6 +21,12 @@ Convert graphs
 .. autofunction:: sknetwork.utils.bipartite2undirected
 
 .. autofunction:: sknetwork.utils.directed2undirected
+
+
+Get neighbors
+-------------
+
+.. autofunction:: sknetwork.utils.get_neighbors
 
 
 Clustering
