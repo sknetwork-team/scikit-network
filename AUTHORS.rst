@@ -30,5 +30,4 @@ Contributors
 * Victor Manach
 * Pierre Pébereau
 * Armand Boschin
-* Tiphaine Viard
-* Flávio Juvenal <flavio@vinta.com.br>
+* Flávio Juvenal
