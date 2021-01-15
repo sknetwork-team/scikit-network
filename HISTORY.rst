@@ -2,6 +2,11 @@
 History
 =======
 
+Next release
+------------
+
+* Added random projection by Thomas Bonald (#461)
+
 0.20.0 (2020-10-20)
 -------------------
 
