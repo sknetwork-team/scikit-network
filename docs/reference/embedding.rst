@@ -31,6 +31,13 @@ PCA
 
 .. autoclass:: sknetwork.embedding.PCA
 
+Random Projection
+-----------------
+
+.. autoclass:: sknetwork.embedding.RandomProjection
+
+.. autoclass:: sknetwork.embedding.BiRandomProjection
+
 Louvain
 -------
 
