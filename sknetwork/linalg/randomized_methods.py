@@ -92,12 +92,12 @@ def randomized_range_finder(matrix: np.ndarray, size: int, n_iter: int, power_it
             range_matrix, _ = linalg.lu(safe_sparse_dot(matrix, range_matrix), permute_l=True)
             range_matrix, _ = linalg.lu(safe_sparse_dot(matrix.T, range_matrix), permute_l=True)
         elif power_iteration_normalizer == 'QR':
-            range_matrix, _ = linalg.qr(safe_sparse_dot(matrix, range_matrix))
-            range_matrix, _ = linalg.qr(safe_sparse_dot(matrix.T, range_matrix))
+            range_matrix, _ = linalg.qr(safe_sparse_dot(matrix, range_matrix), mode='economic')
+            range_matrix, _ = linalg.qr(safe_sparse_dot(matrix.T, range_matrix), mode='economic')
 
     # Sample the range of 'matrix' using by linear projection of 'range_matrix'
     # Extract an orthonormal basis
-    range_matrix, _ = linalg.qr(safe_sparse_dot(matrix, range_matrix))
+    range_matrix, _ = linalg.qr(safe_sparse_dot(matrix, range_matrix), mode='economic')
     if return_all:
         return range_matrix, random_matrix, matrix.dot(random_matrix)
     else:
