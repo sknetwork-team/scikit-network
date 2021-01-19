@@ -16,7 +16,8 @@ from sknetwork.utils.membership import membership_matrix
 
 
 class BiLouvainEmbedding(BaseBiEmbedding):
-    """Embedding of bipartite graphs from a clustering obtained with Louvain.
+    """Embedding of bipartite graphs induced by Louvain clustering. Each component of the embedding corresponds
+    to a cluster obtained by Louvain.
 
     Parameters
     ----------
@@ -150,7 +151,8 @@ class BiLouvainEmbedding(BaseBiEmbedding):
 
 
 class LouvainEmbedding(BaseEmbedding):
-    """Embedding of graphs from a clustering obtained with Louvain.
+    """Graph embedding induced by Louvain clustering. There is one component per cluster and the embedding
+    corresponds to the distribution of the neighbors of each node over clusters.
 
     Parameters
     ----------
