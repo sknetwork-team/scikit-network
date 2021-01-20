@@ -96,11 +96,11 @@ class LouvainNE(BaseEmbedding):
         clusters = np.unique(labels)
 
         if len(clusters) != 1:
-            for cluster in clusters:
-                random_vector = (self.scale ** depth) * self.random_state.rand(self.n_components)
+            random_vectors = (self.scale ** depth) * self.random_state.rand(self.n_components, len(clusters))
+            for index, cluster in enumerate(clusters):
                 mask = (labels == cluster)
                 nodes_cluster = nodes[mask]
-                self.embedding_[nodes_cluster, :] += random_vector
+                self.embedding_[nodes_cluster, :] += random_vectors[:, index]
                 adjacency_cluster = adjacency[mask, :][:, mask]
                 self._recursive_louvain(adjacency_cluster, depth + 1, nodes_cluster)
 
