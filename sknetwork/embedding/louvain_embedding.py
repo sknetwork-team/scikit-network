@@ -58,9 +58,10 @@ class BiLouvainEmbedding(BaseBiEmbedding):
     >>> embedding.shape
     (15, 5)
     """
-    def __init__(self, resolution: float = 1, merge_isolated: bool = True, modularity: str = 'dugue',
-                 tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
-                 shuffle_nodes: bool = False, random_state: Optional[Union[np.random.RandomState, int]] = None):
+    def __init__(self, resolution: float = 1, remove_isolated: bool = True,  merge_isolated: bool = False,
+                 modularity: str = 'dugue', tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3,
+                 n_aggregations: int = -1, shuffle_nodes: bool = False,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None):
         super(BiLouvainEmbedding, self).__init__()
         self.resolution = np.float32(resolution)
         self.modularity = modularity.lower()
@@ -70,6 +71,7 @@ class BiLouvainEmbedding(BaseBiEmbedding):
         self.shuffle_nodes = shuffle_nodes
         self.random_state = check_random_state(random_state)
         self.merge_isolated = merge_isolated
+        self.remove_isolated = remove_isolated
 
         self.labels_ = None
 
@@ -95,6 +97,15 @@ class BiLouvainEmbedding(BaseBiEmbedding):
 
         embedding_row = bilouvain.membership_row_
         embedding_col = bilouvain.membership_col_
+
+        if self.remove_isolated:
+            _, counts_row = np.unique(bilouvain.labels_row_, return_counts=True)
+            non_isolated_nodes_row = (counts_row > 1)
+            embedding_row = embedding_row[:, non_isolated_nodes_row]
+
+            _, counts_col = np.unique(bilouvain.labels_col_, return_counts=True)
+            non_isolated_nodes_col = (counts_col > 1)
+            embedding_col = embedding_col[:, non_isolated_nodes_col]
 
         if self.merge_isolated:
             _, counts_row = np.unique(bilouvain.labels_row_, return_counts=True)
@@ -189,9 +200,10 @@ class LouvainEmbedding(BaseEmbedding):
     >>> embedding.shape
     (34, 7)
     """
-    def __init__(self, resolution: float = 1, merge_isolated: bool = True, modularity: str = 'dugue',
-                 tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
-                 shuffle_nodes: bool = False, random_state: Optional[Union[np.random.RandomState, int]] = None):
+    def __init__(self, resolution: float = 1, remove_isolated: bool = True, merge_isolated: bool = True,
+                 modularity: str = 'dugue', tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3,
+                 n_aggregations: int = -1, shuffle_nodes: bool = False,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None):
         super(LouvainEmbedding, self).__init__()
         self.resolution = np.float32(resolution)
         self.modularity = modularity.lower()
@@ -201,6 +213,7 @@ class LouvainEmbedding(BaseEmbedding):
         self.shuffle_nodes = shuffle_nodes
         self.random_state = check_random_state(random_state)
         self.merge_isolated = merge_isolated
+        self.remove_isolated = remove_isolated
 
         self.labels_ = None
 

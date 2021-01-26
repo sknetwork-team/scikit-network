@@ -12,12 +12,17 @@ from sknetwork.embedding import LouvainEmbedding, BiLouvainEmbedding
 class TestLouvainEmbedding(unittest.TestCase):
 
     def test_predict(self):
+        louvain = LouvainEmbedding(remove_isolated=False, merge_isolated=True)
+        louvain.fit(test_graph())
+        embedding_vector = louvain.predict(np.array([1, 0, 0, 0, 1, 1, 0, 0, 0, 1]))
+        self.assertEqual(embedding_vector.shape[0], 1)
+
         louvain = LouvainEmbedding()
         louvain.fit(test_graph())
         embedding_vector = louvain.predict(np.array([1, 0, 0, 0, 1, 1, 0, 0, 0, 1]))
         self.assertEqual(embedding_vector.shape[0], 1)
 
-        bilouvain = BiLouvainEmbedding()
+        bilouvain = BiLouvainEmbedding(remove_isolated=False, merge_isolated=True)
         bilouvain.fit(test_bigraph())
         embedding_vector = bilouvain.predict(np.array([1, 0, 0, 0, 1, 1]))
         self.assertEqual(embedding_vector.shape[0], 1)
