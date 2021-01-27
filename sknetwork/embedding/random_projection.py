@@ -16,7 +16,12 @@ from sknetwork.utils.format import bipartite2undirected
 
 
 class RandomProjection(BaseEmbedding):
-    """Embedding of graphs based the random projection of the adjacency matrix.
+    """Embedding of graphs based the random projection of the adjacency matrix:
+
+    :math:`(I + \\alpha A +... + (\\alpha A)^K)G`
+
+    where :math:`A` is the adjacency matrix, :math:`G` is a random Gaussian matrix,
+    :math:`\\alpha` is some smoothing factor and :math:`K` non-negative integer.
 
     * Graphs
     * Digraphs
@@ -29,10 +34,12 @@ class RandomProjection(BaseEmbedding):
         Smoothing parameter.
     n_iter : int (default = 3)
         Number of power iterations of the adjacency matrix.
+    random_walk : bool (default = ``False``)
+        If ``True``, use the transition matrix of the random walk, :math:`P = D^{-1}A`, instead of the adjacency matrix.
     normalized : bool (default = ``True``)
         If ``True``, normalize the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    random_state: int, optional
+    random_state : int, optional
         Seed used by the random number generator.
 
     Attributes
@@ -55,13 +62,14 @@ class RandomProjection(BaseEmbedding):
     Zhang, Z., Cui, P., Li, H., Wang, X., & Zhu, W. (2018).
     Billion-scale network embedding with iterative random projection, ICDM.
     """
-    def __init__(self, n_components: int = 2, alpha: float = 0.5, n_iter: int = 3, normalized: bool = True,
-                 random_state: int = None):
+    def __init__(self, n_components: int = 2, alpha: float = 0.5, n_iter: int = 3, random_walk: bool = False ,
+                 normalized: bool = True, random_state: int = None):
         super(RandomProjection, self).__init__()
 
         self.n_components = n_components
         self.alpha = alpha
         self.n_iter = n_iter
+        self.random_walk = random_walk
         self.normalized = normalized
         self.random_state = random_state
 
@@ -89,8 +97,14 @@ class RandomProjection(BaseEmbedding):
 
         factor = random_matrix
         embedding = factor.copy()
+
+        if self.random_walk:
+            transition = normalize(adjacency)
+        else:
+            transition = adjacency
+
         for t in range(self.n_iter):
-            factor = self.alpha * adjacency.dot(factor)
+            factor = self.alpha * transition.dot(factor)
             embedding += factor
 
         if self.normalized:
@@ -118,6 +132,8 @@ class BiRandomProjection(RandomProjection, BaseBiEmbedding):
         Smoothing parameter.
     n_iter : int (default = 3)
         Number of power iterations of the adjacency matrix.
+    random_walk : bool (default = ``False``)
+        If ``True``, use the transition matrix of the random walk, :math:`P = D^{-1}A`, instead of the adjacency matrix.
     normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
@@ -146,8 +162,9 @@ class BiRandomProjection(RandomProjection, BaseBiEmbedding):
     Zhang, Z., Cui, P., Li, H., Wang, X., & Zhu, W. (2018).
     Billion-scale network embedding with iterative random projection, ICDM.
     """
-    def __init__(self, n_components: int = 2, alpha: float = 0.5, n_iter: int = 3, normalized: bool = True):
-        super(BiRandomProjection, self).__init__(n_components, alpha, n_iter, normalized)
+    def __init__(self, n_components: int = 2, alpha: float = 0.5, n_iter: int = 3, random_walk: bool = False,
+                 normalized: bool = True):
+        super(BiRandomProjection, self).__init__(n_components, alpha, n_iter, random_walk, normalized)
 
     def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiRandomProjection':
         """Compute the embedding.
