@@ -10,20 +10,20 @@ from sknetwork.embedding import BiRandomProjection, RandomProjection
 class TestEmbeddings(unittest.TestCase):
 
     def test_random_projection(self):
-        random_projection = RandomProjection()
-        adjacency = test_graph()
-        embedding = random_projection.fit_transform(adjacency)
-        self.assertEqual(embedding.shape[1], 2)
-        adjacency = test_digraph()
-        embedding = random_projection.fit_transform(adjacency)
-        self.assertEqual(embedding.shape[1], 2)
-        adjacency = test_graph_disconnect()
-        embedding = random_projection.fit_transform(adjacency)
-        self.assertEqual(embedding.shape[1], 2)
+        for algo in [RandomProjection(), RandomProjection(random_walk=True)]:
+            adjacency = test_graph()
+            embedding = algo.fit_transform(adjacency)
+            self.assertEqual(embedding.shape[1], 2)
+            adjacency = test_digraph()
+            embedding = algo.fit_transform(adjacency)
+            self.assertEqual(embedding.shape[1], 2)
+            adjacency = test_graph_disconnect()
+            embedding = algo.fit_transform(adjacency)
+            self.assertEqual(embedding.shape[1], 2)
 
     def test_birandom_projection(self):
-        birandom_projection = BiRandomProjection()
-        biadjacency = test_bigraph()
-        embedding = birandom_projection.fit_transform(biadjacency)
-        self.assertEqual(embedding.shape[1], 2)
-        self.assertEqual(birandom_projection.embedding_col_.shape[1], 2)
+        for algo in [BiRandomProjection(), BiRandomProjection(random_walk=True)]:
+            biadjacency = test_bigraph()
+            embedding = algo.fit_transform(biadjacency)
+            self.assertEqual(embedding.shape[1], 2)
+            self.assertEqual(algo.embedding_col_.shape[1], 2)
