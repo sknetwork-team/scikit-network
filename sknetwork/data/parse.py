@@ -257,8 +257,8 @@ def load_adjacency_list(file: str, bipartite: bool = False, comment: str = '%#',
             indptr.append(indptr[-1] + len(neighbors))
     indices = np.array(indices)
     n_rows = len(indptr) - 1
-    min_index = indices.min()
-    n_cols = indices.max() + 1 - min_index
+    min_index = np.min(indices)
+    n_cols = np.max(indices) + 1 - min_index
     indices -= min_index
     graph = Bunch()
     if not bipartite:
