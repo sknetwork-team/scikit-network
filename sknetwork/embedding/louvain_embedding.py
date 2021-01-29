@@ -120,8 +120,8 @@ class BiLouvainEmbedding(BaseBiEmbedding):
                 combiner_col = membership_matrix(merge_labels_col)
                 embedding_col = embedding_col.dot(combiner_col)
 
-        self.embedding_row_ = embedding_row
-        self.embedding_col_ = embedding_col
+        self.embedding_row_ = embedding_row.toarray()
+        self.embedding_col_ = embedding_col.toarray()
         self.embedding_ = self.embedding_row_
 
         return self
