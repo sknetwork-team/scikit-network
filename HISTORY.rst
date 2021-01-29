@@ -2,10 +2,11 @@
 History
 =======
 
-Next release
-------------
+0.21.0 (2021-01-29)
+-------------------
 
 * Added random projection by Thomas Bonald (#461)
+* Added PCA
 
 0.20.0 (2020-10-20)
 -------------------
