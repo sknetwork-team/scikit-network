@@ -42,7 +42,7 @@ matrix:
             - CC=/usr/local/opt/llvm/bin/clang++
           script:
               # build the wheels, put them into './wheelhouse'
-              - travis_wait python3 -m cibuildwheel --output-dir wheelhouse
+              - travis_wait 60 python3 -m cibuildwheel --output-dir wheelhouse
               - ls wheelhouse/
           after_success:
               - |
