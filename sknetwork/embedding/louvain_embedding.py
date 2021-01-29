@@ -16,7 +16,8 @@ from sknetwork.utils.membership import membership_matrix
 
 
 class BiLouvainEmbedding(BaseBiEmbedding):
-    """Embedding of bipartite graphs from a clustering obtained with Louvain.
+    """Embedding of bipartite graphs induced by Louvain clustering. Each component of the embedding corresponds
+    to a cluster obtained by Louvain.
 
     Parameters
     ----------
@@ -72,7 +73,7 @@ class BiLouvainEmbedding(BaseBiEmbedding):
 
         self.labels_ = None
 
-    def fit(self, biadjacency):
+    def fit(self, biadjacency: sparse.csr_matrix):
         """Embedding of bipartite graphs from a clustering obtained with Louvain.
 
         Parameters
@@ -97,39 +98,30 @@ class BiLouvainEmbedding(BaseBiEmbedding):
 
         if self.merge_isolated:
             _, counts_row = np.unique(bilouvain.labels_row_, return_counts=True)
-
-            n_clusters_row = embedding_row.shape[1]
             n_isolated_nodes_row = (counts_row == 1).sum()
             if n_isolated_nodes_row:
-                n_remaining_row = n_clusters_row - n_isolated_nodes_row
-                indptr_row = np.zeros(n_remaining_row + 2, dtype=int)
-                indptr_row[-1] = n_isolated_nodes_row
-                combiner_row = sparse.vstack([sparse.eye(n_remaining_row, n_remaining_row + 1, format='csr'),
-                                              sparse.csr_matrix((np.ones(n_isolated_nodes_row, dtype=int),
-                                                                 np.full(n_isolated_nodes_row, n_remaining_row,
-                                                                         dtype=int),
-                                                                 np.arange(n_isolated_nodes_row + 1, dtype=int)
-                                                                 ))])
+                size_row = (biadjacency.shape[0], len(counts_row))
+                embedding_row.resize(size_row)
+                labels_row = bilouvain.labels_row_
+                labels_row[-n_isolated_nodes_row:] = labels_row[-n_isolated_nodes_row]
+                merge_labels_row = np.arange(len(counts_row), dtype=int)
+                merge_labels_row[-n_isolated_nodes_row:] = merge_labels_row[-n_isolated_nodes_row]
+                combiner_row = membership_matrix(merge_labels_row)
                 embedding_row = embedding_row.dot(combiner_row)
-                self.labels_[n_remaining_row + 1:] = self.labels_[n_remaining_row + 1]
+                self.labels_ = labels_row
 
             _, counts_col = np.unique(bilouvain.labels_col_, return_counts=True)
-            n_clusters_col = embedding_col.shape[1]
             n_isolated_nodes_col = (counts_col == 1).sum()
             if n_isolated_nodes_col:
-                n_remaining_col = n_clusters_col - n_isolated_nodes_col
-                indptr_col = np.zeros(n_remaining_col + 2, dtype=int)
-                indptr_col[-1] = n_isolated_nodes_col
-                combiner_col = sparse.vstack([sparse.eye(n_remaining_col, n_remaining_col + 1, format='csr'),
-                                              sparse.csr_matrix((np.ones(n_isolated_nodes_col, dtype=int),
-                                                                 np.full(n_isolated_nodes_col, n_remaining_col,
-                                                                         dtype=int),
-                                                                 np.arange(n_isolated_nodes_col + 1, dtype=int)
-                                                                 ))])
+                size_col = (biadjacency.shape[1], len(counts_col))
+                embedding_col.resize(size_col)
+                merge_labels_col = np.arange(embedding_col.shape[1], dtype=int)
+                merge_labels_col[-n_isolated_nodes_col:] = merge_labels_col[-n_isolated_nodes_col]
+                combiner_col = membership_matrix(merge_labels_col)
                 embedding_col = embedding_col.dot(combiner_col)
 
-        self.embedding_row_ = embedding_row
-        self.embedding_col_ = embedding_col
+        self.embedding_row_ = embedding_row.toarray()
+        self.embedding_col_ = embedding_col.toarray()
         self.embedding_ = self.embedding_row_
 
         return self
@@ -159,7 +151,8 @@ class BiLouvainEmbedding(BaseBiEmbedding):
 
 
 class LouvainEmbedding(BaseEmbedding):
-    """Embedding of graphs from a clustering obtained with Louvain.
+    """Graph embedding induced by Louvain clustering. There is one component per cluster and the embedding
+    corresponds to the distribution of the neighbors of each node over clusters.
 
     Parameters
     ----------
@@ -211,7 +204,7 @@ class LouvainEmbedding(BaseEmbedding):
 
         self.labels_ = None
 
-    def fit(self, adjacency):
+    def fit(self, adjacency: sparse.csr_matrix):
         """Embedding of graphs from a clustering obtained with Louvain.
 
         Parameters

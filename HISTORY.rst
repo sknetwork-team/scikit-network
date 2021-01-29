@@ -2,6 +2,16 @@
 History
 =======
 
+0.21.0 (2021-01-29)
+-------------------
+
+* Added random projection embedding by Thomas Bonald (#461)
+* Added PCA-based embedding by Thomas Bonald (#461)
+* Added 64-bit support for Louvain by Flávio Juvenal (#450)
+* Added verbosity options for dataset loaders
+* Fixed Louvain embedding
+* Various doc and tutorial updates
+
 0.20.0 (2020-10-20)
 -------------------
 

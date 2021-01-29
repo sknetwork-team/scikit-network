@@ -130,8 +130,8 @@ class Louvain(BaseClustering, VerboseMixin):
 
         self_loops = adjacency.diagonal().astype(np.float32)
 
-        indptr: np.ndarray = adjacency.indptr.astype(np.int32)
-        indices: np.ndarray = adjacency.indices.astype(np.int32)
+        indptr: np.ndarray = adjacency.indptr
+        indices: np.ndarray = adjacency.indices
         data: np.ndarray = adjacency.data.astype(np.float32)
 
         return fit_core(self.resolution, self.tol, node_probs_ou, node_probs_in, self_loops, data, indices, indptr)
@@ -188,7 +188,7 @@ class Louvain(BaseClustering, VerboseMixin):
         else:
             raise ValueError('Unknown modularity function.')
 
-        nodes = np.arange(n, dtype=np.int32)
+        nodes = np.arange(n)
         if self.shuffle_nodes:
             nodes = self.random_state.permutation(nodes)
             adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()

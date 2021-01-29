@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 
 from sknetwork.data import star_wars
-from sknetwork.embedding import GSVD
+from sknetwork.embedding import GSVD, PCA
 
 
 class TestSVD(unittest.TestCase):
@@ -26,3 +26,7 @@ class TestSVD(unittest.TestCase):
         gsvd = GSVD(n_components=1, regularization=0.1, solver='halko', relative_regularization=True)
         gsvd.fit(biadjacency)
         gsvd.predict(np.random.rand(n_col))
+
+        pca = PCA(n_components=min_dim, solver='halko')
+        pca.fit(biadjacency)
+        self.assertEqual(pca.embedding_row_.shape, (n_row, min_dim))

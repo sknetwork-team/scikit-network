@@ -21,6 +21,7 @@ from scipy import sparse
 from sknetwork.data.parse import load_edge_list, load_labels, load_header, load_metadata
 from sknetwork.utils import Bunch
 from sknetwork.utils.check import is_square
+from sknetwork.utils.verbose import Log
 
 NETSET_URL = 'https://netset.telecom-paris.fr'
 
@@ -56,7 +57,8 @@ def clear_data_home(data_home: Optional[Union[str, Path]] = None):
     shutil.rmtree(data_home)
 
 
-def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Path]] = None) -> Bunch:
+def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Path]] = None,
+                verbose: bool = True) -> Bunch:
     """Load a dataset from the `NetSet database
     <https://netset.telecom-paris.fr/>`_.
 
@@ -66,6 +68,8 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
         The name of the dataset (all low-case). Examples include 'openflights', 'cinema' and 'wikivitals'.
     data_home : str or :class:`pathlib.Path`
         The folder to be used for dataset storage.
+    verbose : bool
+        Enable verbosity.
 
     Returns
     -------
@@ -73,16 +77,20 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
     """
     graph = Bunch()
     npz_folder = NETSET_URL + '/datasets_npz/'
+    logger = Log(verbose)
 
     if dataset is None:
         print("Please specify the dataset (e.g., 'openflights' or 'wikivitals').\n" +
-              f"Complete list available here: <{npz_folder}>")
+              f"Complete list available here: <{npz_folder}>.")
         return graph
+    else:
+        dataset = dataset.lower()
     data_home = get_data_home(data_home)
     data_path = data_home / dataset
     if not data_path.exists():
         makedirs(data_path, exist_ok=True)
         try:
+            logger.print('Downloading', dataset, 'from NetSet...')
             urlretrieve(npz_folder + dataset + '_npz.tar.gz',
                         data_home / (dataset + '_npz.tar.gz'))
         except HTTPError:
@@ -94,11 +102,12 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
             rmdir(data_path)
             raise RuntimeError("Could not reach Netset.")
         with tarfile.open(data_home / (dataset + '_npz.tar.gz'), 'r:gz') as tar_ref:
+            logger.print('Unpacking archive...')
             tar_ref.extractall(data_home)
         remove(data_home / (dataset + '_npz.tar.gz'))
 
     files = [file for file in listdir(data_path)]
-
+    logger.print('Parsing files...')
     for file in files:
         file_components = file.split('.')
         if len(file_components) == 2:
@@ -111,10 +120,12 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
                 with open(data_path / file, 'rb') as f:
                     graph[file_name] = pickle.load(f)
 
+    logger.print('Done.')
     return graph
 
 
-def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto_numpy_bundle: bool = True) -> Bunch:
+def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto_numpy_bundle: bool = True,
+                verbose: bool = True) -> Bunch:
     """Load a dataset from the `Konect database
     <http://konect.cc/networks/>`_.
 
@@ -128,6 +139,8 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
     auto_numpy_bundle : bool
         Denotes if the dataset should be stored in its default format (False) or using Numpy files for faster
         subsequent access to the dataset (True).
+    verbose : bool
+        Enable verbosity.
 
     Returns
     -------
@@ -150,6 +163,7 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
     <https://dl.acm.org/doi/abs/10.1145/2487788.2488173>`_
     In Proceedings of the 22nd International Conference on World Wide Web (pp. 1343-1350).
     """
+    logger = Log(verbose)
     if dataset == '':
         raise ValueError("Please specify the dataset. "
                          + "\nExamples include 'actor-movie' and 'ego-facebook'."
@@ -157,11 +171,13 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
     data_home = get_data_home(data_home)
     data_path = data_home / dataset
     if not data_path.exists():
+        logger.print('Downloading', dataset, 'from Konect...')
         makedirs(data_path, exist_ok=True)
         try:
             urlretrieve('http://konect.cc/files/download.tsv.' + dataset + '.tar.bz2',
                         data_home / (dataset + '.tar.bz2'))
             with tarfile.open(data_home / (dataset + '.tar.bz2'), 'r:bz2') as tar_ref:
+                logger.print('Unpacking archive...')
                 tar_ref.extractall(data_home)
         except (HTTPError, tarfile.ReadError):
             rmdir(data_path)
@@ -175,12 +191,13 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
             if exists(data_home / (dataset + '.tar.bz2')):
                 remove(data_home / (dataset + '.tar.bz2'))
     elif exists(data_path / (dataset + '_bundle')):
+        logger.print('Loading from local bundle...')
         return load_from_numpy_bundle(dataset + '_bundle', data_path)
 
     data = Bunch()
 
     files = [file for file in listdir(data_path) if dataset in file]
-
+    logger.print('Parsing files...')
     matrix = [file for file in files if 'out.' in file]
     if matrix:
         file = matrix[0]
@@ -268,20 +285,21 @@ def load_from_numpy_bundle(bundle_name: str, data_home: Optional[Union[str, Path
         files = listdir(data_path)
         data = Bunch()
         for file in files:
-            file_name, file_extension = file.split('.')
-            if file_extension == 'npz':
-                data[file_name] = sparse.load_npz(data_path / file)
-            elif file_extension == 'npy':
-                data[file_name] = np.load(data_path / file)
-            elif file_extension == 'p':
-                with open(data_path / file, 'rb') as f:
-                    data[file_name] = pickle.load(f)
+            if len(file.split('.')) == 2:
+                file_name, file_extension = file.split('.')
+                if file_extension == 'npz':
+                    data[file_name] = sparse.load_npz(data_path / file)
+                elif file_extension == 'npy':
+                    data[file_name] = np.load(data_path / file)
+                elif file_extension == 'p':
+                    with open(data_path / file, 'rb') as f:
+                        data[file_name] = pickle.load(f)
         return data
 
 
 def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Bunch]):
     """Save a Bunch or a CSR matrix in the current directory to a collection of Numpy and Pickle files for faster
-    subsequent loads.
+    subsequent loads. Supported attribute types include sparse matrices, NumPy arrays, strings and Bunch.
 
     Parameters
     ----------
