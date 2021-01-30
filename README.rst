@@ -38,8 +38,8 @@ Resources
 * Documentation: https://scikit-network.readthedocs.io
 
 
-Quickstart
-----------
+Quick Start
+-----------
 
 Install scikit-network:
 

@@ -26,6 +26,9 @@ Each graph is represented by its :term:`adjacency` matrix, either as a dense ``n
 or a sparse ``scipy CSR matrix``.
 A bipartite graph can be represented by its biadjacency matrix, in the same format.
 
+Check our tutorial Getting started for various ways of loading a graph
+(from a list of edges, a dataframe or a TSV file, for instance).
+
 Documentation
 -------------
 
