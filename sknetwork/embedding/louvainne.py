@@ -101,7 +101,13 @@ class LouvainNE(BaseEmbedding):
                 mask = (labels == cluster)
                 nodes_cluster = nodes[mask]
                 self.embedding_[nodes_cluster, :] += random_vectors[:, index]
-                adjacency_cluster = adjacency[mask, :][:, mask]
+                n_row = len(mask)
+                indptr = np.zeros(n_row + 1, dtype=int)
+                indptr[1:] = np.cumsum(mask)
+                n_col = indptr[-1]
+                combiner = sparse.csr_matrix((np.ones(n_col), np.arange(n_col, dtype=int), indptr),
+                                             shape=(n_row, n_col))
+                adjacency_cluster = adjacency[mask, :].dot(combiner)
                 self._recursive_louvain(adjacency_cluster, depth + 1, nodes_cluster)
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]):
