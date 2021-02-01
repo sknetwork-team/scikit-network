@@ -9,7 +9,7 @@ from typing import Optional, Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering.louvain import BiLouvain
+from sknetwork.clustering.louvain import BiLouvain, Louvain
 from sknetwork.embedding.base import BaseBiEmbedding, BaseEmbedding
 from sknetwork.utils.check import check_random_state, check_adjacency_vector, check_nonnegative
 from sknetwork.utils.membership import membership_matrix
@@ -58,9 +58,10 @@ class BiLouvainEmbedding(BaseBiEmbedding):
     >>> embedding.shape
     (15, 5)
     """
-    def __init__(self, resolution: float = 1, merge_isolated: bool = True, modularity: str = 'dugue',
-                 tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
-                 shuffle_nodes: bool = False, random_state: Optional[Union[np.random.RandomState, int]] = None):
+    def __init__(self, resolution: float = 1, remove_isolated: bool = True,  merge_isolated: bool = False,
+                 modularity: str = 'dugue', tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3,
+                 n_aggregations: int = -1, shuffle_nodes: bool = False,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None):
         super(BiLouvainEmbedding, self).__init__()
         self.resolution = np.float32(resolution)
         self.modularity = modularity.lower()
@@ -70,6 +71,7 @@ class BiLouvainEmbedding(BaseBiEmbedding):
         self.shuffle_nodes = shuffle_nodes
         self.random_state = check_random_state(random_state)
         self.merge_isolated = merge_isolated
+        self.remove_isolated = remove_isolated
 
         self.labels_ = None
 
@@ -95,6 +97,15 @@ class BiLouvainEmbedding(BaseBiEmbedding):
 
         embedding_row = bilouvain.membership_row_
         embedding_col = bilouvain.membership_col_
+
+        if self.remove_isolated:
+            _, counts_row = np.unique(bilouvain.labels_row_, return_counts=True)
+            non_isolated_nodes_row = (counts_row > 1)
+            embedding_row = embedding_row[:, non_isolated_nodes_row]
+
+            _, counts_col = np.unique(bilouvain.labels_col_, return_counts=True)
+            non_isolated_nodes_col = (counts_col > 1)
+            embedding_col = embedding_col[:, non_isolated_nodes_col]
 
         if self.merge_isolated:
             _, counts_row = np.unique(bilouvain.labels_row_, return_counts=True)
@@ -151,12 +162,12 @@ class BiLouvainEmbedding(BaseBiEmbedding):
 
 
 class LouvainEmbedding(BaseEmbedding):
-    """Graph embedding induced by Louvain clustering. There is one component per cluster and the embedding
-    corresponds to the distribution of the neighbors of each node over clusters.
+    """Embedding of graphs induced by Louvain clustering. Each component of the embedding corresponds
+    to a cluster obtained by Louvain.
 
     Parameters
     ----------
-    resolution :
+    resolution : float
         Resolution parameter.
     merge_isolated : bool
         Denotes if clusters consisting of just one node should be merged.
@@ -187,11 +198,12 @@ class LouvainEmbedding(BaseEmbedding):
     >>> adjacency = karate_club()
     >>> embedding = louvain.fit_transform(adjacency)
     >>> embedding.shape
-    (34, 7)
+    (34, 4)
     """
-    def __init__(self, resolution: float = 1, merge_isolated: bool = True, modularity: str = 'dugue',
-                 tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3, n_aggregations: int = -1,
-                 shuffle_nodes: bool = False, random_state: Optional[Union[np.random.RandomState, int]] = None):
+    def __init__(self, resolution: float = 1, remove_isolated: bool = True,  merge_isolated: bool = False,
+                 modularity: str = 'dugue', tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3,
+                 n_aggregations: int = -1, shuffle_nodes: bool = False,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None):
         super(LouvainEmbedding, self).__init__()
         self.resolution = np.float32(resolution)
         self.modularity = modularity.lower()
@@ -201,11 +213,12 @@ class LouvainEmbedding(BaseEmbedding):
         self.shuffle_nodes = shuffle_nodes
         self.random_state = check_random_state(random_state)
         self.merge_isolated = merge_isolated
+        self.remove_isolated = remove_isolated
 
         self.labels_ = None
 
     def fit(self, adjacency: sparse.csr_matrix):
-        """Embedding of graphs from a clustering obtained with Louvain.
+        """Embedding of bipartite graphs from a clustering obtained with Louvain.
 
         Parameters
         ----------
@@ -214,25 +227,48 @@ class LouvainEmbedding(BaseEmbedding):
 
         Returns
         -------
-        self: :class:`LouvainEmbedding`
+        self: :class:`BiLouvainEmbedding`
         """
-        bilouvain = BiLouvainEmbedding(resolution=self.resolution, merge_isolated=self.merge_isolated,
-                                       modularity=self.modularity, tol_optimization=self.tol_optimization,
-                                       tol_aggregation=self.tol_aggregation, n_aggregations=self.n_aggregations,
-                                       shuffle_nodes=self.shuffle_nodes, random_state=self.random_state)
-        bilouvain.fit(adjacency)
-        self.labels_ = bilouvain.labels_
-        self.embedding_ = bilouvain.embedding_
+        louvain = Louvain(resolution=self.resolution, modularity=self.modularity,
+                          tol_optimization=self.tol_optimization, tol_aggregation=self.tol_aggregation,
+                          n_aggregations=self.n_aggregations, shuffle_nodes=self.shuffle_nodes, sort_clusters=True,
+                          return_membership=True, return_aggregate=True, random_state=self.random_state)
+        louvain.fit(adjacency)
+
+        self.labels_ = louvain.labels_
+
+        embedding_ = louvain.membership_
+
+        if self.remove_isolated:
+            _, counts = np.unique(louvain.labels_, return_counts=True)
+            non_isolated_nodes = (counts > 1)
+            embedding_ = embedding_[:, non_isolated_nodes]
+
+        if self.merge_isolated:
+            _, counts = np.unique(louvain.labels_, return_counts=True)
+            n_isolated_nodes = (counts == 1).sum()
+            if n_isolated_nodes:
+                size = (adjacency.shape[0], len(counts))
+                embedding_.resize(size)
+                labels = louvain.labels_
+                labels[-n_isolated_nodes:] = labels[-n_isolated_nodes]
+                merge_labels = np.arange(len(counts), dtype=int)
+                merge_labels[-n_isolated_nodes:] = merge_labels[-n_isolated_nodes]
+                combiner = membership_matrix(merge_labels)
+                embedding_ = embedding_.dot(combiner)
+                self.labels_ = labels
+
+        self.embedding_ = embedding_.toarray()
 
         return self
 
     def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
-        """Predict the embedding of new nodes, defined by their adjacency vectors.
+        """Predict the embedding of new rows, defined by their adjacency vectors.
 
         Parameters
         ----------
         adjacency_vectors :
-            Adjacency vectors of nodes.
+            Adjacency vectors of rows.
             Array of shape (n_col,) (single vector) or (n_vectors, n_col)
 
         Returns
@@ -245,7 +281,6 @@ class LouvainEmbedding(BaseEmbedding):
 
         adjacency_vectors = check_adjacency_vector(adjacency_vectors, n)
         check_nonnegative(adjacency_vectors)
-
         membership = membership_matrix(self.labels_)
 
         return adjacency_vectors.dot(membership)
