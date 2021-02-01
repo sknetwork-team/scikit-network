@@ -8,6 +8,7 @@ Embedding
    svd
    gsvd
    pca
+   random_projection
    louvain_embedding
    spring
    forceatlas

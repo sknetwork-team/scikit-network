@@ -36,6 +36,7 @@ nbsphinx==0.7.1
 ipython==7.16.1
 jupyter_client==6.1.6
 ipykernel==5.3.4
+pandas==1.1.4
 
 # tests on Linux images (upon release)
 nose==1.3.7

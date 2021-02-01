@@ -78,11 +78,7 @@ def cosine_modularity(adjacency, embedding: np.ndarray, embedding_col=None, reso
     probs_row = check_probs(weights, adjacency)
     probs_col = check_probs(weights, adjacency.T)
 
-    if isinstance(embedding_row_norm, sparse.csr_matrix) and isinstance(embedding_col_norm, sparse.csr_matrix):
-        fit: float = 0.5 * (1 + (embedding_row_norm.multiply(adjacency.dot(embedding_col_norm))).sum() / total_weight)
-    else:
-        fit: float = 0.5 * (
-            1 + (np.multiply(embedding_row_norm, adjacency.dot(embedding_col_norm))).sum() / total_weight)
+    fit: float = 0.5 * (1 + (np.multiply(embedding_row_norm, adjacency.dot(embedding_col_norm))).sum() / total_weight)
     div: float = 0.5 * (1 + (embedding.T.dot(probs_row)).dot(embedding_col.T.dot(probs_col)))
 
     if return_all:
