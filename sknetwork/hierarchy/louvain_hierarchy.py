@@ -91,11 +91,11 @@ class LouvainHierarchy(BaseHierarchy):
         depth :
             Depth of the recursion.
         nodes :
-            The current nodes index in the original graph.
+            The indices of the current nodes in the original graph.
 
         Returns
         -------
-        tree: :class:`Tree`
+        result: list of list of nodes by cluster
         """
         n = adjacency.shape[0]
         if nodes is None:
