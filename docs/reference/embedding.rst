@@ -45,6 +45,10 @@ Louvain
 
 .. autoclass:: sknetwork.embedding.BiLouvainEmbedding
 
+.. autoclass:: sknetwork.embedding.LouvainNE
+
+.. autoclass:: sknetwork.embedding.BiLouvainNE
+
 Force Atlas
 -----------
 
