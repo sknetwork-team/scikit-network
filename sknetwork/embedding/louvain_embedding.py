@@ -11,6 +11,7 @@ from scipy import sparse
 
 from sknetwork.clustering.louvain import BiLouvain, Louvain
 from sknetwork.embedding.base import BaseBiEmbedding, BaseEmbedding
+from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_random_state, check_adjacency_vector, check_nonnegative
 from sknetwork.utils.membership import membership_matrix
 
@@ -23,6 +24,8 @@ class BiLouvainEmbedding(BaseBiEmbedding):
     ----------
     resolution : float
         Resolution parameter.
+    remove_isolated : bool
+        Denotes if clusters consisting of just one node should be removed.
     merge_isolated : bool
         Denotes if clusters consisting of just one node should be merged.
     modularity : str
@@ -56,7 +59,7 @@ class BiLouvainEmbedding(BaseBiEmbedding):
     >>> biadjacency = movie_actor()
     >>> embedding = bilouvain.fit_transform(biadjacency)
     >>> embedding.shape
-    (15, 5)
+    (15, 4)
     """
     def __init__(self, resolution: float = 1, remove_isolated: bool = True,  merge_isolated: bool = False,
                  modularity: str = 'dugue', tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3,
@@ -89,7 +92,7 @@ class BiLouvainEmbedding(BaseBiEmbedding):
         """
         bilouvain = BiLouvain(resolution=self.resolution, modularity=self.modularity,
                               tol_optimization=self.tol_optimization, tol_aggregation=self.tol_aggregation,
-                              n_aggregations=self.n_aggregations, shuffle_nodes=self.shuffle_nodes, sort_clusters=True,
+                              n_aggregations=self.n_aggregations, shuffle_nodes=self.shuffle_nodes, sort_clusters=False,
                               return_membership=True, return_aggregate=True, random_state=self.random_state)
         bilouvain.fit(biadjacency)
 
@@ -99,13 +102,27 @@ class BiLouvainEmbedding(BaseBiEmbedding):
         embedding_col = bilouvain.membership_col_
 
         if self.remove_isolated:
-            _, counts_row = np.unique(bilouvain.labels_row_, return_counts=True)
-            non_isolated_nodes_row = (counts_row > 1)
-            embedding_row = embedding_row[:, non_isolated_nodes_row]
+            labels_row = bilouvain.labels_row_
+            labels_col = bilouvain.labels_col_
 
-            _, counts_col = np.unique(bilouvain.labels_col_, return_counts=True)
-            non_isolated_nodes_col = (counts_col > 1)
-            embedding_col = embedding_col[:, non_isolated_nodes_col]
+            # remove singletons from column labels
+            labels_unique, counts = np.unique(labels_col, return_counts=True)
+            labels_new = -np.ones(max(labels_unique) + 1, dtype='int')
+            labels_old = labels_unique[counts > 1]
+            labels_new[labels_old] = np.arange(len(labels_old))
+            labels_col = labels_new[labels_col]
+
+            # reindex row labels accordingly
+            labels_unique = np.unique(labels_row)
+            labels_new = -np.ones(max(labels_unique) + 1, dtype='int')
+            labels_new[labels_old] = np.arange(len(labels_old))
+            labels_row = labels_new[labels_row]
+
+            # embedding
+            probs = normalize(biadjacency)
+            embedding_row = probs.dot(membership_matrix(labels_col))
+            probs = normalize(biadjacency.T)
+            embedding_col = probs.dot(membership_matrix(labels_row))
 
         if self.merge_isolated:
             _, counts_row = np.unique(bilouvain.labels_row_, return_counts=True)
@@ -169,6 +186,8 @@ class LouvainEmbedding(BaseEmbedding):
     ----------
     resolution : float
         Resolution parameter.
+    remove_isolated : bool
+        Denotes if clusters consisting of just one node should be removed.
     merge_isolated : bool
         Denotes if clusters consisting of just one node should be merged.
     modularity : str
