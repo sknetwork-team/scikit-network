@@ -33,7 +33,7 @@ Pygments==2.7.4
 nbsphinx==0.8.1
 
 # used to run Jupyter notebooks (necessary for nbsphinx)
-ipython==7.20.0
+ipython==7.16.1
 jupyter_client==6.1.11
 ipykernel==5.4.3
 pandas==1.2.1
