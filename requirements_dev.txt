@@ -3,7 +3,7 @@ pip==21.0.1
 
 # base dependencies
 numpy==1.19.5
-scipy==1.6.0
+scipy==1.5.4
 
 # tool to automatically change version number in the package upon release
 bumpversion==0.6.0
