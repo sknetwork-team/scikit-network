@@ -24,10 +24,6 @@ class BiLouvainEmbedding(BaseBiEmbedding):
     ----------
     resolution : float
         Resolution parameter.
-    remove_isolated : bool
-        Denotes if clusters consisting of just one node should be removed.
-    merge_isolated : bool
-        Denotes if clusters consisting of just one node should be merged.
     modularity : str
         Which objective function to maximize. Can be ``'dugue'``, ``'newman'`` or ``'potts'``.
     tol_optimization :
@@ -40,7 +36,9 @@ class BiLouvainEmbedding(BaseBiEmbedding):
     shuffle_nodes :
         Enables node shuffling before optimization.
     random_state :
-        Random number generator or random seed. If None, numpy.random is used.
+        Random number generator or random seed. If ``None``, numpy.random is used.
+    isolated_nodes : str
+        What to do with isolated column nodes. Can be ``'remove'`` (default), ``'merge'`` or ``'keep'``.
 
     Attributes
     ----------
@@ -61,10 +59,9 @@ class BiLouvainEmbedding(BaseBiEmbedding):
     >>> embedding.shape
     (15, 4)
     """
-    def __init__(self, resolution: float = 1, remove_isolated: bool = True,  merge_isolated: bool = False,
-                 modularity: str = 'dugue', tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3,
-                 n_aggregations: int = -1, shuffle_nodes: bool = False,
-                 random_state: Optional[Union[np.random.RandomState, int]] = None):
+    def __init__(self, resolution: float = 1, modularity: str = 'dugue', tol_optimization: float = 1e-3,
+                 tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None, isolated_nodes: str = 'remove'):
         super(BiLouvainEmbedding, self).__init__()
         self.resolution = np.float32(resolution)
         self.modularity = modularity.lower()
@@ -73,13 +70,12 @@ class BiLouvainEmbedding(BaseBiEmbedding):
         self.n_aggregations = n_aggregations
         self.shuffle_nodes = shuffle_nodes
         self.random_state = check_random_state(random_state)
-        self.merge_isolated = merge_isolated
-        self.remove_isolated = remove_isolated
+        self.isolated_nodes = isolated_nodes
 
         self.labels_ = None
 
     def fit(self, biadjacency: sparse.csr_matrix):
-        """Embedding of bipartite graphs from a clustering obtained with Louvain.
+        """Embedding of bipartite graphs from the clustering obtained with Louvain.
 
         Parameters
         ----------
@@ -101,52 +97,30 @@ class BiLouvainEmbedding(BaseBiEmbedding):
         embedding_row = bilouvain.membership_row_
         embedding_col = bilouvain.membership_col_
 
-        if self.remove_isolated:
-            labels_row = bilouvain.labels_row_
-            labels_col = bilouvain.labels_col_
-
-            # remove singletons from column labels
-            labels_unique, counts = np.unique(labels_col, return_counts=True)
-            labels_new = -np.ones(max(labels_unique) + 1, dtype='int')
+        if self.isolated_nodes in ['remove', 'merge']:
+            # remove or merge isolated column nodes and reindex labels
+            labels_unique, counts = np.unique(bilouvain.labels_col_, return_counts=True)
+            n_labels = max(labels_unique) + 1
             labels_old = labels_unique[counts > 1]
+            if self.isolated_nodes == 'remove':
+                labels_new = -np.ones(n_labels, dtype='int')
+            else:
+                labels_new = len(labels_old) * np.ones(n_labels, dtype='int')
             labels_new[labels_old] = np.arange(len(labels_old))
-            labels_col = labels_new[labels_col]
+            labels_col = labels_new[bilouvain.labels_col_]
 
             # reindex row labels accordingly
-            labels_unique = np.unique(labels_row)
-            labels_new = -np.ones(max(labels_unique) + 1, dtype='int')
+            labels_unique = np.unique(bilouvain.labels_row_)
+            n_labels = max(labels_unique) + 1
+            labels_new = -np.ones(n_labels, dtype='int')
             labels_new[labels_old] = np.arange(len(labels_old))
-            labels_row = labels_new[labels_row]
+            labels_row = labels_new[bilouvain.labels_row_]
 
-            # embedding
+            # get embeddings
             probs = normalize(biadjacency)
             embedding_row = probs.dot(membership_matrix(labels_col))
             probs = normalize(biadjacency.T)
             embedding_col = probs.dot(membership_matrix(labels_row))
-
-        if self.merge_isolated:
-            _, counts_row = np.unique(bilouvain.labels_row_, return_counts=True)
-            n_isolated_nodes_row = (counts_row == 1).sum()
-            if n_isolated_nodes_row:
-                size_row = (biadjacency.shape[0], len(counts_row))
-                embedding_row.resize(size_row)
-                labels_row = bilouvain.labels_row_
-                labels_row[-n_isolated_nodes_row:] = labels_row[-n_isolated_nodes_row]
-                merge_labels_row = np.arange(len(counts_row), dtype=int)
-                merge_labels_row[-n_isolated_nodes_row:] = merge_labels_row[-n_isolated_nodes_row]
-                combiner_row = membership_matrix(merge_labels_row)
-                embedding_row = embedding_row.dot(combiner_row)
-                self.labels_ = labels_row
-
-            _, counts_col = np.unique(bilouvain.labels_col_, return_counts=True)
-            n_isolated_nodes_col = (counts_col == 1).sum()
-            if n_isolated_nodes_col:
-                size_col = (biadjacency.shape[1], len(counts_col))
-                embedding_col.resize(size_col)
-                merge_labels_col = np.arange(embedding_col.shape[1], dtype=int)
-                merge_labels_col[-n_isolated_nodes_col:] = merge_labels_col[-n_isolated_nodes_col]
-                combiner_col = membership_matrix(merge_labels_col)
-                embedding_col = embedding_col.dot(combiner_col)
 
         self.embedding_row_ = embedding_row.toarray()
         self.embedding_col_ = embedding_col.toarray()
@@ -186,10 +160,6 @@ class LouvainEmbedding(BaseEmbedding):
     ----------
     resolution : float
         Resolution parameter.
-    remove_isolated : bool
-        Denotes if clusters consisting of just one node should be removed.
-    merge_isolated : bool
-        Denotes if clusters consisting of just one node should be merged.
     modularity : str
         Which objective function to maximize. Can be ``'dugue'``, ``'newman'`` or ``'potts'``.
     tol_optimization :
@@ -203,6 +173,8 @@ class LouvainEmbedding(BaseEmbedding):
         Enables node shuffling before optimization.
     random_state :
         Random number generator or random seed. If None, numpy.random is used.
+    isolated_nodes : str
+        What to do with isolated nodes. Can be ``'remove'`` (default), ``'merge'`` or ``'keep'``.
 
     Attributes
     ----------
@@ -219,10 +191,9 @@ class LouvainEmbedding(BaseEmbedding):
     >>> embedding.shape
     (34, 4)
     """
-    def __init__(self, resolution: float = 1, remove_isolated: bool = True,  merge_isolated: bool = False,
-                 modularity: str = 'dugue', tol_optimization: float = 1e-3, tol_aggregation: float = 1e-3,
-                 n_aggregations: int = -1, shuffle_nodes: bool = False,
-                 random_state: Optional[Union[np.random.RandomState, int]] = None):
+    def __init__(self, resolution: float = 1, modularity: str = 'dugue',  tol_optimization: float = 1e-3,
+                 tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None, isolated_nodes: str = 'remove'):
         super(LouvainEmbedding, self).__init__()
         self.resolution = np.float32(resolution)
         self.modularity = modularity.lower()
@@ -231,8 +202,7 @@ class LouvainEmbedding(BaseEmbedding):
         self.n_aggregations = n_aggregations
         self.shuffle_nodes = shuffle_nodes
         self.random_state = check_random_state(random_state)
-        self.merge_isolated = merge_isolated
-        self.remove_isolated = remove_isolated
+        self.isolated_nodes = isolated_nodes
 
         self.labels_ = None
 
@@ -258,24 +228,21 @@ class LouvainEmbedding(BaseEmbedding):
 
         embedding_ = louvain.membership_
 
-        if self.remove_isolated:
-            _, counts = np.unique(louvain.labels_, return_counts=True)
-            non_isolated_nodes = (counts > 1)
-            embedding_ = embedding_[:, non_isolated_nodes]
+        if self.isolated_nodes in ['remove', 'merge']:
+            # remove or merge isolated nodes and reindex labels
+            labels_unique, counts = np.unique(louvain.labels_, return_counts=True)
+            n_labels = max(labels_unique) + 1
+            labels_old = labels_unique[counts > 1]
+            if self.isolated_nodes == 'remove':
+                labels_new = -np.ones(n_labels, dtype='int')
+            else:
+                labels_new = len(labels_old) * np.ones(n_labels, dtype='int')
+            labels_new[labels_old] = np.arange(len(labels_old))
+            labels_ = labels_new[louvain.labels_]
 
-        if self.merge_isolated:
-            _, counts = np.unique(louvain.labels_, return_counts=True)
-            n_isolated_nodes = (counts == 1).sum()
-            if n_isolated_nodes:
-                size = (adjacency.shape[0], len(counts))
-                embedding_.resize(size)
-                labels = louvain.labels_
-                labels[-n_isolated_nodes:] = labels[-n_isolated_nodes]
-                merge_labels = np.arange(len(counts), dtype=int)
-                merge_labels[-n_isolated_nodes:] = merge_labels[-n_isolated_nodes]
-                combiner = membership_matrix(merge_labels)
-                embedding_ = embedding_.dot(combiner)
-                self.labels_ = labels
+            # get embeddings
+            probs = normalize(adjacency)
+            embedding_ = probs.dot(membership_matrix(labels_))
 
         self.embedding_ = embedding_.toarray()
 
