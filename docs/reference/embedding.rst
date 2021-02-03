@@ -45,9 +45,12 @@ Louvain
 
 .. autoclass:: sknetwork.embedding.BiLouvainEmbedding
 
-.. autoclass:: sknetwork.embedding.LouvainNE
+Hierarchical Louvain
+--------------------
 
-.. autoclass:: sknetwork.embedding.BiLouvainNE
+.. autoclass:: sknetwork.embedding.HLouvainEmbedding
+
+.. autoclass:: sknetwork.embedding.BiHLouvainEmbedding
 
 Force Atlas
 -----------
