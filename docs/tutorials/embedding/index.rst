@@ -10,7 +10,7 @@ Embedding
    pca
    random_projection
    louvain_embedding
-   louvainne
+   louvain_hierarchy
    spring
    forceatlas
 

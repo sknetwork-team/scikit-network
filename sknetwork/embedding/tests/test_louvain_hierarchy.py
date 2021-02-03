@@ -4,17 +4,17 @@
 import unittest
 
 from sknetwork.data.test_graphs import test_bigraph, test_graph
-from sknetwork.embedding import BiLouvainNE, LouvainNE
+from sknetwork.embedding import BiHLouvainEmbedding, HLouvainEmbedding
 
 
-class TestLouvainEmbedding(unittest.TestCase):
+class TestHLouvainEmbedding(unittest.TestCase):
 
-    def test_louvainne(self):
-        lne = LouvainNE()
+    def test_louvain_hierarchy(self):
+        lne = HLouvainEmbedding()
         lne.fit(test_graph())
         self.assertTupleEqual(lne.embedding_.shape, (10, 2))
 
-    def test_bilouvainne(self):
-        blne = BiLouvainNE()
+    def test_bilouvain_hierarchy(self):
+        blne = BiHLouvainEmbedding()
         blne.fit(test_bigraph())
         self.assertTupleEqual(blne.embedding_.shape, (6, 2))
