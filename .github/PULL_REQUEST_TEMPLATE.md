@@ -10,6 +10,7 @@
 
 ### This pull request:
 (your PR must match these criteria before review)
+- [ ] **targets the `develop` branch**
 - [ ] **does not decrease code coverage**
 - [ ] **passes the tests**
 - [ ] **is documented** and **the documentation build passes**
