@@ -2,6 +2,13 @@
 History
 =======
 
+0.22.0 (2021-02-09)
+-------------------
+
+* Added hierarchical Louvain embedding by Quentin Lutz (#468)
+* Doc fixes and updates
+* Requirements update
+
 0.21.0 (2021-01-29)
 -------------------
 
