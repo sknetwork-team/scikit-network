@@ -138,7 +138,7 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/sknetwork-team/scikit-network',
-    version='0.20.0',
+    version='0.22.0',
     zip_safe=False,
     ext_modules=ext_modules,
     include_dirs=[numpy.get_include()],

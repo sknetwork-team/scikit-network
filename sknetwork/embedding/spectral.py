@@ -72,7 +72,7 @@ class LaplacianEmbedding(BaseEmbedding):
 
     Example
     -------
-    >>> from sknetwork.embedding import Spectral
+    >>> from sknetwork.embedding import LaplacianEmbedding
     >>> from sknetwork.data import karate_club
     >>> laplacian = LaplacianEmbedding()
     >>> adjacency = karate_club()
