@@ -104,15 +104,17 @@ class BaseBiClustering(BaseClustering, ABC):
                 biadjacency = biadjacency.astype(float)
 
         if self.return_membership:
-            membership_row = membership_matrix(self.labels_row_)
-            membership_col = membership_matrix(self.labels_col_)
+            n_labels = max(max(self.labels_row_), max(self.labels_col_)) + 1
+            membership_row = membership_matrix(self.labels_row_, n_labels=n_labels)
+            membership_col = membership_matrix(self.labels_col_, n_labels=n_labels)
             self.membership_row_ = normalize(biadjacency.dot(membership_col))
             self.membership_col_ = normalize(biadjacency.T.dot(membership_row))
             self.membership_ = self.membership_row_
 
         if self.return_aggregate:
-            membership_row = membership_matrix(self.labels_row_)
-            membership_col = membership_matrix(self.labels_col_)
+            n_labels = max(max(self.labels_row_), max(self.labels_col_)) + 1
+            membership_row = membership_matrix(self.labels_row_, n_labels=n_labels)
+            membership_col = membership_matrix(self.labels_col_, n_labels=n_labels)
             biadjacency_ = sparse.csr_matrix(membership_row.T.dot(biadjacency))
             biadjacency_ = biadjacency_.dot(membership_col)
             self.biadjacency_ = biadjacency_
