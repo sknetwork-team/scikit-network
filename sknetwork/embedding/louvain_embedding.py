@@ -48,6 +48,10 @@ class BiLouvainEmbedding(BaseBiEmbedding):
         Embedding of the rows (copy of **embedding_**).
     embedding_col_ : array, shape = (n_col, n_components)
         Embedding of the columns.
+    labels_row_ : np.ndarray
+        Labels of the rows (used to build the embedding of the columns).
+    labels_col_ : np.ndarray
+        Labels of the columns (used to build the embedding of the rows).
 
     Example
     -------
@@ -71,8 +75,8 @@ class BiLouvainEmbedding(BaseBiEmbedding):
         self.shuffle_nodes = shuffle_nodes
         self.random_state = check_random_state(random_state)
         self.isolated_nodes = isolated_nodes
-
-        self.labels_ = None
+        self.labels_row_ = None
+        self.labels_col_ = None
 
     def fit(self, biadjacency: sparse.csr_matrix):
         """Embedding of bipartite graphs from the clustering obtained with Louvain.
@@ -91,8 +95,6 @@ class BiLouvainEmbedding(BaseBiEmbedding):
                               n_aggregations=self.n_aggregations, shuffle_nodes=self.shuffle_nodes, sort_clusters=False,
                               return_membership=True, return_aggregate=True, random_state=self.random_state)
         bilouvain.fit(biadjacency)
-
-        self.labels_ = bilouvain.labels_
 
         embedding_row = bilouvain.membership_row_
         embedding_col = bilouvain.membership_col_
@@ -122,6 +124,9 @@ class BiLouvainEmbedding(BaseBiEmbedding):
             probs = normalize(biadjacency.T)
             embedding_col = probs.dot(membership_matrix(labels_row))
 
+        self.labels_row_ = bilouvain.labels_row_
+        self.labels_col_ = bilouvain.labels_col_
+
         self.embedding_row_ = embedding_row.toarray()
         self.embedding_col_ = embedding_col.toarray()
         self.embedding_ = self.embedding_row_
@@ -143,13 +148,13 @@ class BiLouvainEmbedding(BaseBiEmbedding):
             Embedding of the nodes.
         """
         self._check_fitted()
-        n = self.embedding_.shape[0]
+        n = self.labels_col_.shape[0]
 
         adjacency_vectors = check_adjacency_vector(adjacency_vectors, n)
         check_nonnegative(adjacency_vectors)
-        membership = membership_matrix(self.labels_)
+        membership = membership_matrix(self.labels_col_)
 
-        return adjacency_vectors.dot(membership)
+        return normalize(adjacency_vectors).dot(membership)
 
 
 class LouvainEmbedding(BaseEmbedding):
@@ -269,4 +274,4 @@ class LouvainEmbedding(BaseEmbedding):
         check_nonnegative(adjacency_vectors)
         membership = membership_matrix(self.labels_)
 
-        return adjacency_vectors.dot(membership)
+        return normalize(adjacency_vectors.dot(membership))
