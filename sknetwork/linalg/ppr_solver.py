@@ -11,6 +11,7 @@ from scipy import sparse
 from scipy.sparse.linalg import eigs, LinearOperator, bicgstab
 
 from sknetwork.linalg.diteration import diffusion
+from sknetwork.linalg.push import push_pagerank
 from sknetwork.linalg.normalization import normalize
 from sknetwork.linalg.polynome import Polynome
 
@@ -101,6 +102,9 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
       `An iteration method for the solution of the eigenvalue problem of linear differential and integral operators.
       <http://www.cs.umd.edu/~oleary/lanczos1950.pdf>`_
       Los Angeles, CA: United States Governm. Press Office.
+    * Whang, J. , Lenharth, A. , Dhillon, I. , & Pingali, K. . (2015).
+      `Scalable Data-Driven PageRank: Algorithms, System Issues, and Lessons Learned`. 9233, 438-450.
+      <https://www.cs.utexas.edu/users/inderjit/public_papers/scalable_pagerank_europar15.pdf>
     """
     n = adjacency.shape[0]
 
@@ -118,6 +122,19 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         scores = np.zeros(n, dtype=np.float32)
         fluid = (1 - damping_factor) * seeds.astype(np.float32)
         diffusion(indptr, indices, data, scores, fluid, damping_factor, n_iter, tol)
+
+    elif solver == 'push':
+        n = adjacency.shape[0]
+        degrees = adjacency.dot(np.ones(n)).astype(np.int32)
+        rev_adjacency = adjacency.transpose().tocsr()
+
+        indptr = adjacency.indptr.astype(np.int32)
+        indices = adjacency.indices.astype(np.int32)
+        rev_indptr = rev_adjacency.indptr.astype(np.int32)
+        rev_indices = rev_adjacency.indices.astype(np.int32)
+
+        scores = push_pagerank(n, degrees, indptr, indices, rev_indptr, rev_indices, seeds.astype(np.float32),
+                               damping_factor, tol)
 
     elif solver == 'RH':
         coeffs = np.ones(n_iter+1)
