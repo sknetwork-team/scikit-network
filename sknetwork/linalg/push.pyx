@@ -4,7 +4,7 @@
 # distutils: define_macros=CYTHON_TRACE_NOGIL=1
 """
 Created on Mars 2021
-@author: Wenzhuo Zhao <wenzhuo.zhao@etu.sorbonne-unversite.fr>
+@author: Wenzhuo Zhao <wenzhuo.zhao@etu.sorbonne-universite.fr>
 """
 import numpy as np
 cimport numpy as np
