@@ -125,6 +125,8 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
 
     elif solver == 'push':
         n = adjacency.shape[0]
+        damping_factor = np.float32(damping_factor)
+        tol = np.float32(tol)
         degrees = adjacency.dot(np.ones(n)).astype(np.int32)
         rev_adjacency = adjacency.transpose().tocsr()
 

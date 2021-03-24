@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from sknetwork.data import house, edgelist2adjacency
+from sknetwork.data import house, karate_club, edgelist2adjacency
 from sknetwork.linalg.operators import RegularizedAdjacency
 from sknetwork.linalg.ppr_solver import get_pagerank
 from sknetwork.utils.check import is_proba_array
@@ -34,9 +34,9 @@ class TestPPR(unittest.TestCase):
 
     def test_push(self):
         # test convergence by tolerance
-        adjacency = house()
+        adjacency = karate_club()
         seeds = np.ones(adjacency.shape[0]) / adjacency.shape[0]
-        pr = get_pagerank(adjacency, damping_factor=0.85, n_iter=100, tol=10, solver='push', seeds=seeds)
+        pr = get_pagerank(adjacency, damping_factor=0.85, n_iter=100, tol=1e-2, solver='push', seeds=seeds)
         self.assertTrue(is_proba_array(pr))
 
     def test_piteration(self):
