@@ -71,6 +71,53 @@ class ChordalityTest(Algorithm):
         return np.zeros(10)
 
 
+def lexicographic_naive(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> list:
+    """
+    Sorts the vertices of a graph in lexicographic breadth-first search order.
+    Parameters
+    ----------
+    adjacency: Union[sparse.csr_matrix, np.ndarray]
+        Adjacency matrix of the graph.
+
+    Returns
+    -------
+    lex_order: int list
+        The vertices sorted in the opposite of a lexicographic bread-first search order. lex_order[i] contains the i-th
+        vertex in this order.
+    """
+    n = adjacency.indptr.shape[0] - 1
+    labels = [[] for _ in range(n)]
+    alpha = [-1 for _ in range(n)]
+
+    for i in range(n - 1, -1, -1):
+        unnumbered = [v for v in range(n) if alpha[v] < 0]
+        # Peut être moyen de mieux mettre à jour ceux avec les plus grands labels?
+        # We destroy already used labels later on to guarantee this is safe
+        try:
+            biggest_label_vertex = np.argmax(labels)
+        # If we can't use argmax, it means all labels are empty, in this case just take the first unnumbered vertex
+        # showing up.
+        except ValueError:
+            for j in range(n):
+                if alpha[j] < 0:
+                    biggest_label_vertex = j
+                    break
+                # There will always be one because of the for.
+
+        alpha[biggest_label_vertex] = i
+        labels[biggest_label_vertex] = []
+        # Adding i to the labels of unnumbered adjacent vertices.
+        for j in adjacency.indices[adjacency.indptr[biggest_label_vertex]:adjacency.indptr[biggest_label_vertex + 1]]:
+            if alpha[j] < 0:
+                labels[j].append(str(i))
+
+    lex_order = [0 for _ in range(n)]
+    for i in range(n):
+        lex_order[alpha[i]] = i
+
+    return lex_order
+
+
 def lexicographic_breadth_first_search_v2(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> list:
     """
     Sorts the vertices of a graph in lexicographic breadth-first search order.
@@ -152,7 +199,7 @@ def lexicographic_breadth_first_search(adjacency: Union[sparse.csr_matrix, np.nd
                 if labels[u] >= labels[biggest_label_vertex]:
                     biggest_label_vertex = u
         position[biggest_label_vertex] = i
-
+        print(labels, biggest_label_vertex)
         # Adding i to the labels of unnumbered adjacent vertices.
         for j in adjacency.indices[adjacency.indptr[biggest_label_vertex]:adjacency.indptr[biggest_label_vertex + 1]]:
             if position[j] < 0:
@@ -178,7 +225,7 @@ def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     result: bool
         A boolean stating wether this graph is chordal or not.
     """
-    lex_order = lexicographic_breadth_first_search_v2(adjacency)
+    lex_order = lexicographic_naive(adjacency)
 
     n = adjacency.indptr.shape[0] - 1
 
@@ -239,7 +286,7 @@ def fill(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> (list, list):
         alpha_inv[alpha[i]] = i
 
     # m is the result.
-    m = [0 for _ in range(n)]
+    m = [-1 for _ in range(n)]
 
     # Main loop
     for i in range(n - 1):
@@ -256,7 +303,6 @@ def fill(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> (list, list):
                 k = min(k, alpha_inv[w])
 
         m[vertex] = alpha[k]
-
         # Adding required fill in edges and resetting test
 
         for w in adjacencies[vertex]:
@@ -265,3 +311,8 @@ def fill(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> (list, list):
                 adjacencies[m[vertex]].append(w)
 
     return m, adjacencies
+
+
+"""
+we must check in adjacencies at the end are different than those at the beginning.
+"""
