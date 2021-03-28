@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 Created on November 17, 2020
-@author: Pierre Pebereau <pierre.pebereau@telecom-paris.fr>
 @author: Alexis Barreaux <alexis.barreaux@telecom-paris.fr>
 """
-from typing import Union
+from typing import Union, List
 
 import numpy as np
 import random as rd
 from scipy import sparse
+from traitlets import Tuple
 
 from sknetwork.utils.base import Algorithm
 
@@ -71,7 +71,7 @@ class ChordalityTest(Algorithm):
         return np.zeros(10)
 
 
-def lexicographic_naive(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> list:
+def lexicographic_naive(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> Tuple(List[int], List[int]):
     """
     Sorts the vertices of a graph in lexicographic breadth-first search order.
     Parameters
@@ -87,10 +87,9 @@ def lexicographic_naive(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> list
     """
     n = adjacency.indptr.shape[0] - 1
     labels = [[] for _ in range(n)]
-    alpha = [-1 for _ in range(n)]
+    alpha_inv = [-1 for _ in range(n)]
 
     for i in range(n - 1, -1, -1):
-        unnumbered = [v for v in range(n) if alpha[v] < 0]
         # Peut être moyen de mieux mettre à jour ceux avec les plus grands labels?
         # We destroy already used labels later on to guarantee this is safe
         try:
@@ -99,23 +98,24 @@ def lexicographic_naive(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> list
         # showing up.
         except ValueError:
             for j in range(n):
-                if alpha[j] < 0:
+                if alpha_inv[j] < 0:
                     biggest_label_vertex = j
                     break
                 # There will always be one because of the for.
 
-        alpha[biggest_label_vertex] = i
+        alpha_inv[biggest_label_vertex] = i
         labels[biggest_label_vertex] = []
         # Adding i to the labels of unnumbered adjacent vertices.
         for j in adjacency.indices[adjacency.indptr[biggest_label_vertex]:adjacency.indptr[biggest_label_vertex + 1]]:
-            if alpha[j] < 0:
+            if alpha_inv[j] < 0:
                 labels[j].append(str(i))
 
-    lex_order = [0 for _ in range(n)]
+    alpha = [0 for _ in range(n)]
     for i in range(n):
-        lex_order[alpha[i]] = i
+        alpha[alpha_inv[i]] = i
 
-    return lex_order
+    # Pour moi, lex_order[::-1] est un bfs.
+    return alpha, alpha_inv
 
 
 def lexicographic_breadth_first_search_v2(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> list:
@@ -212,7 +212,72 @@ def lexicographic_breadth_first_search(adjacency: Union[sparse.csr_matrix, np.nd
     return lex_order
 
 
-def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
+def fill_naive(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> (list, list):
+    alpha, alpha_inv = lexicographic_naive(adjacency)
+    n = adjacency.indptr.shape[0] - 1
+    m = [0 for _ in range(n)]
+
+    adjacencies = []
+    for i in range(n):
+        # TODO ugly and just a fill in to copy the np array to a list and append / remove on it. To be modified.
+        adjacencies.append([u for u in adjacency.indices[adjacency.indptr[i]: adjacency.indptr[i + 1]]])
+
+    for i in range(n - 1):
+        v = alpha[i]
+        m[v] = alpha[min([alpha_inv[w] for w in adjacencies[v]])]
+
+        for w in adjacencies[v]:
+            if w != m[v]:
+                adjacencies[m[v]].append(w)
+
+    return adjacencies
+
+
+def fill(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> (list, list):
+    # TODO utiliser l'objet set de python plutôt que des listes
+    alpha, alpha_inv = lexicographic_naive(adjacency)
+    n = adjacency.indptr.shape[0] - 1
+
+    # Initialise test.
+    test = [False for _ in range(n)]
+
+    # Storing adjacency lists.
+    adjacencies = []
+    for i in range(n):
+        # TODO ugly and just a fill in to copy the np array to a list and append / remove on it. To be modified.
+        adjacencies.append([u for u in adjacency.indices[adjacency.indptr[i]: adjacency.indptr[i + 1]]])
+
+    # m as used in the paper.
+    m = [-1 for _ in range(n)]
+
+    # Main loop
+    for i in range(n - 1):
+        k = n - 1
+        vertex = alpha[i]
+
+        # Eliminating duplicates in A(vertex)
+        for w in adjacencies[vertex]:
+            if test[alpha_inv[w]]:
+                # TODO this isn't linear, I could store indexes when I have a duplicate and attempt to pop them afterwards
+                adjacencies[vertex].remove(w)
+
+            else:
+                test[alpha_inv[w]] = True
+                k = min(k, alpha_inv[w])
+
+        m[vertex] = alpha[k]
+        # Adding required fill in edges and resetting test
+
+        for w in adjacencies[vertex]:
+            test[alpha_inv[w]] = False
+            if w != m[vertex]:
+                # TODO trouver un moyen linéaire en la taille de G de sortir ici si on ajoute un arc pas pré existant.
+                adjacencies[m[vertex]].append(w)
+
+    return adjacencies
+
+
+def is_chordal_other(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     """
     Takes the adjacency matrix of a graph and tells if it is chordal or not.
     Parameters
@@ -267,50 +332,25 @@ def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     return True
 
 
-def fill(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> (list, list):
-    alpha = lexicographic_breadth_first_search(adjacency)
+def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
+    """
+    Takes the adjacency matrix of a graph and tells if it is chordal or not.
+    Parameters
+    ----------
+    adjacency: Union[sparse.csr_matrix, np.ndarray]
+        Adjacency matrix of the graph.
+
+    Returns
+    -------
+    result: bool
+        A boolean stating wether this graph is chordal or not.
+    """
+    adjacencies = fill(adjacency)
+
     n = adjacency.indptr.shape[0] - 1
-
-    # Initialise test.
-    test = [False for _ in range(n)]
-
-    # Storing adjacency lists.
-    adjacencies = []
-    for i in range(n):
-        # TODO ugly and just a fill in to copy the np array to a list and append / remove on it. To be modified.
-        adjacencies.append([u for u in adjacency.indices[adjacency.indptr[i]: adjacency.indptr[i + 1]]])
-
-    # alpha_inv stores the position of the vertices in the elimination oder (which is alpha).
-    alpha_inv = [0 for _ in range(n)]
-    for i in range(n):
-        alpha_inv[alpha[i]] = i
-
-    # m is the result.
-    m = [-1 for _ in range(n)]
-
-    # Main loop
-    for i in range(n - 1):
-        k = n - 1
-        vertex = alpha[i]
-
-        # Eliminating duplicates in A(vertex)
-        for w in adjacencies[vertex]:
-            if test[alpha_inv[w]]:
-                adjacencies[vertex].remove(w)
-
-            else:
-                test[alpha_inv[w]] = True
-                k = min(k, alpha_inv[w])
-
-        m[vertex] = alpha[k]
-        # Adding required fill in edges and resetting test
-
-        for w in adjacencies[vertex]:
-            test[alpha_inv[w]] = False
-            if w != m[vertex]:
-                adjacencies[m[vertex]].append(w)
-
-    return m, adjacencies
+    # TODO ideas : i could get rid of all duplicates in adjacencies and then compare the lengths of the adjacencies.
+    # idea : finding before hand which edges shouldn't be added.
+    return True
 
 
 """

@@ -15,23 +15,23 @@ class TestChordality(unittest.TestCase):
 
     def test_empty(self):
         adjacency = test_graph_empty()
-        self.assertTrue(is_chordal(adjacency))
+        self.assertTrue(is_chordal_other(adjacency))
 
     def test_cliques(self):
         adjacency = test_graph_clique()
-        self.assertTrue(is_chordal(adjacency))
+        self.assertTrue(is_chordal_other(adjacency))
 
     def test_house(self):
         adjacency = house()
-        self.assertFalse(is_chordal(adjacency))
+        self.assertFalse(is_chordal_other(adjacency))
 
     def test_bow_tie(self):
         adjacency = bow_tie()
-        self.assertTrue(is_chordal(adjacency))
+        self.assertTrue(is_chordal_other(adjacency))
 
     def test_karate_club(self):
         adjacency = karate_club()
-        self.assertFalse(is_chordal(adjacency))
+        self.assertFalse(is_chordal_other(adjacency))
 
     def paper_graph_test_1(self):
         row = np.array([0, 0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 5])
@@ -48,4 +48,4 @@ class TestChordality(unittest.TestCase):
         data = np.array(
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
         graph_test_2 = csr_matrix((data, (row, col)), shape=(10, 10))
-        self.assertTrue(is_chordal(graph_test_2))
+        self.assertTrue(is_chordal_other(graph_test_2))
