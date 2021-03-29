@@ -171,7 +171,7 @@ def lexicographic_breadth_first_search_v2(adjacency: Union[sparse.csr_matrix, np
     return lex_order
 
 
-def lexicographic_breadth_first_search(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> list:
+def lexicographic_breadth_first_search_v3(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> Tuple(List[int], List[int]):
     """
     Sorts the vertices of a graph in lexicographic breadth-first search order.
     Parameters
@@ -182,34 +182,210 @@ def lexicographic_breadth_first_search(adjacency: Union[sparse.csr_matrix, np.nd
     Returns
     -------
     lex_order: int list
-        The vertices sorted in the opposite of a lexicographic bread-first search order. lex_order[i] contains the i-th
-        vertex in this order.
+        The vertices sorted in lexicographic bread-first search order. lex_order[i] contains the i-th vertex in this
+        order.
     """
     n = adjacency.indptr.shape[0] - 1
-    labels = [[] for _ in range(n)]
-    position = [-1 for _ in range(n)]
+    alpha_inv = [-1 for _ in range(n)]
 
+    vertices_sets = dict()
+    vertices_sets[0] = [-1, -1, set([i for i in range(n)])]
+    current_set_positions = [0 for _ in range(n)]
+    last_set_id = 0
+    max_set_id = 0
+    """
+    chaque set est une liste comprenant :
+        - le nom du set précédent ou -1
+        - le nom du set suivant ou -1
+        - les noeuds qui ont comme label celui associé au set
+        - un identifiant unique (dans un dict par exemple)
+    """
     for i in range(n - 1, -1, -1):
-        if i == n - 1:
-            biggest_label_vertex = n - 1
-        else:
-            unnumbered = [v for v in range(n) if position[v] < 0]
-            biggest_label_vertex = unnumbered[0]
-            for u in unnumbered:
-                if labels[u] >= labels[biggest_label_vertex]:
-                    biggest_label_vertex = u
-        position[biggest_label_vertex] = i
-        print(labels, biggest_label_vertex)
-        # Adding i to the labels of unnumbered adjacent vertices.
-        for j in adjacency.indices[adjacency.indptr[biggest_label_vertex]:adjacency.indptr[biggest_label_vertex + 1]]:
-            if position[j] < 0:
-                labels[j].append(str(i))
+        # Getting a vertex with max label.
+        while len(vertices_sets[last_set_id][2]) == 0:
+            # TODO check why one of this MAJ of last set id is done wrong or why we update previous / next wrongly
+            assert(vertices_sets[last_set_id][1] == -1)
+            # If the last set is empty (we popped all the vertices)
+            # We update the next and previous sets and then delete our empty set. Since it is the last, he has not next
+            # set but might have a previous one.
+            if vertices_sets[last_set_id][0] == -1:
+                # The previous one doesn't exist, in this case we are going to finish
+                raise Exception("Sets are empty too early")
+                # This shouldn't happen, since we shouldn't have no previous in our last set.
+            else:
+                # There is a previous set
+                vertices_sets[vertices_sets[last_set_id][0]][1] = -1
+                # Our previous set is going to have his next set be transformed to -1
 
-    lex_order = [0 for _ in range(n)]
+            # Update last_set_id
+            new_last = vertices_sets[last_set_id][0]
+            if last_set_id == 34:
+                print("11111111111111111")
+            del vertices_sets[last_set_id]
+            last_set_id = new_last
+
+        print(vertices_sets)
+
+        cur_vertex = vertices_sets[last_set_id][2].pop()
+        # Setting alpha_inv
+        alpha_inv[cur_vertex] = i
+
+        new_sets = dict()
+        new_last = last_set_id
+        for w in adjacency.indices[adjacency.indptr[cur_vertex]:adjacency.indptr[cur_vertex + 1]]:
+            # Checking if this vertex has already been numbered or not:
+            if alpha_inv[w] >= 0:
+                # If it has, don't take it
+                continue
+            else:
+                # We check for all these neighbors where we need to take them from
+                try:
+                    # If the set is not already added:
+                    new_sets[current_set_positions[w]].append(w)
+
+                except KeyError:
+                    new_sets[current_set_positions[w]] = [w]
+
+        for k in new_sets:
+            for w in new_sets[k]:
+                vertices_sets[k][2].remove(w)
+                try:
+                    # Try to add this neighbor in his new set
+                    vertices_sets[max_set_id + 1][2].add(w)
+                except KeyError:
+                    # Otherwise creates this new set
+                    suc_of_prec = vertices_sets[k][1]
+                    vertices_sets[max_set_id + 1] = [k, suc_of_prec, set([w])]
+                    if suc_of_prec != -1:
+                        vertices_sets[suc_of_prec][0] = max_set_id + 1
+                    else:
+                        new_last = max_set_id + 1
+                    vertices_sets[k][1] = max_set_id + 1
+
+                current_set_positions[w] = max_set_id + 1
+
+            max_set_id += 1
+
+            """
+            # Remove empty sets here.
+            if len(vertices_sets[k][2]) == 0:
+                if vertices_sets[k][0] == -1:
+                    # The previous one doesn't exist, in this case we are going to continue
+                    if vertices_sets[k][1] == -1:
+                        pass
+                    else:
+                        # We must update the previous set of the next set.
+                        vertices_sets[vertices_sets[k][1]][0] = -1
+                else:
+                    # There is a previous set.
+                    if vertices_sets[k][1] == -1:
+                        # There is no next set
+                        vertices_sets[vertices_sets[k][0]][1] = -1
+                    else:
+                        vertices_sets[vertices_sets[k][0]][1] = vertices_sets[k][1]
+                        vertices_sets[vertices_sets[k][1]][0] = vertices_sets[k][0]
+
+                del vertices_sets[k]
+            """
+
+
+        last_set_id = new_last
+
+    alpha = [0 for _ in range(n)]
     for i in range(n):
-        lex_order[position[i]] = i
+        alpha[alpha_inv[i]] = i
+    return alpha, alpha_inv
 
-    return lex_order
+
+def lexicographic_linear(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> Tuple(List[int], List[int]):
+    """
+    Sorts the vertices of a graph in lexicographic breadth-first search order.
+    Parameters
+    ----------
+    adjacency: Union[sparse.csr_matrix, np.ndarray]
+        Adjacency matrix of the graph.
+
+    Returns
+    -------
+    lex_order: int list
+        The vertices sorted in lexicographic bread-first search order. lex_order[i] contains the i-th vertex in this
+        order.
+    """
+
+
+    n = adjacency.indptr.shape[0] - 1
+    alpha = [-1 for _ in range(2*n)]
+    alpha_inv = [0 for _ in range(2*n)]
+
+    head = [0 for _ in range(2*n)]
+    back = [0 for _ in range(2*n)]
+    next = [0 for _ in range(2*n)]
+    flag = [0 for _ in range(2*n)]
+    cell = [0 for _ in range(2*n)]
+
+    # Init
+    head[0], head[1] = 2, 0
+    back[0], back[1] = 0, 1
+    next[0] = 0
+    flag[0], flag[1] = 0, 0
+    # c is the number of the first empty cell.
+    c = 2
+
+    for i in range(n):
+        head[c] = i
+        cell[i] = c
+        next[c - 1] = c
+        flag[c] = 1
+        back[c] = c - 1
+        c += 1
+        alpha_inv[i] = 0
+
+    next[c - 1] = 0
+    for i in range(n - 1, -1, -1):
+        while next[head[0]] == 0:
+            head[0] = head[head[0]]
+            back[head[0]] = 1
+
+        # TODO pas sûr ici
+        p = next[head[0]]
+        next[head[0]] = next[p]
+        # TODO bizarre le truc avec des w ici
+        alpha[i] = p
+        alpha_inv[p] = i
+        fixlist = []
+
+        for w in adjacency.indices[adjacency.indptr[p]: adjacency.indptr[p + 1]]:
+            if alpha_inv[w] == 0:
+                next[back[cell[w]]] = next[cell[w]]
+
+                if next[cell[w]] != 0:
+                    back[next[cell[w]]] = back[cell[w]]
+
+                h = back[flag[cell[w]]]
+
+                if flag[h] == 0:
+                    print(c, h)
+                    head[c] = head[h]
+                    head[h] = c
+                    back[head[c]] = c
+                    back[c] = h
+                    flag[c] = 1
+                    next[c] = 0
+                    fixlist.append(c)
+                    h = c
+                    c += 1
+
+                next[cell[w]] = next[h]
+                if next[h] != 0:
+                    back[next[h]] = cell[w]
+                flag[cell[w]] = h
+                back[cell[w]] = h
+                next[h] = cell[w]
+
+            for h in fixlist:
+                flag[h] = p
+
+    return alpha, alpha_inv
 
 
 def fill_naive(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> (list, list):
@@ -275,6 +451,50 @@ def fill(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> (list, list):
                 adjacencies[m[vertex]].append(w)
 
     return adjacencies
+
+
+def fill_2(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> (list, int):
+    alpha, alpha_inv = lexicographic_breadth_first_search_v3(adjacency)
+    n = adjacency.indptr.shape[0] - 1
+
+    # Initialise test.
+    test = [False for _ in range(n)]
+
+    # Storing adjacency lists and calculating initial len.
+    init_len = 0
+    adjacencies = []
+    for i in range(n):
+        adjacencies.append(set(adjacency.indices[adjacency.indptr[i]: adjacency.indptr[i + 1]]))
+        init_len += len(adjacencies[i])
+
+    # m as used in the paper.
+    m = [-1 for _ in range(n)]
+
+    # Main loop
+    for i in range(n - 1):
+        k = n - 1
+        vertex = alpha[i]
+
+        # Eliminating duplicates in A(vertex)
+        for w in adjacencies[vertex]:
+            if test[alpha_inv[w]]:
+                # In a set we don't need to remove anymore.
+                continue
+
+            else:
+                test[alpha_inv[w]] = True
+                k = min(k, alpha_inv[w])
+
+        m[vertex] = alpha[k]
+        # Adding required fill in edges and resetting test
+
+        for w in adjacencies[vertex]:
+            test[alpha_inv[w]] = False
+            if w != m[vertex]:
+                # Should be linear too
+                adjacencies[m[vertex]].add(w)
+
+    return adjacencies, init_len
 
 
 def is_chordal_other(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
@@ -345,14 +565,10 @@ def is_chordal(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     result: bool
         A boolean stating wether this graph is chordal or not.
     """
-    adjacencies = fill(adjacency)
+    adjacencies, init_len = fill_2(adjacency)
 
     n = adjacency.indptr.shape[0] - 1
-    # TODO ideas : i could get rid of all duplicates in adjacencies and then compare the lengths of the adjacencies.
-    # idea : finding before hand which edges shouldn't be added.
-    return True
-
-
-"""
-we must check in adjacencies at the end are different than those at the beginning.
-"""
+    final_len = 0
+    for i in range(n):
+        final_len += len(adjacencies[i])
+    return final_len == init_len
