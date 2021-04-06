@@ -33,7 +33,7 @@ def reorder_dendrogram(dendrogram: np.ndarray):
 
 def get_labels(dendrogram: np.ndarray, cluster: dict, sort_clusters: bool, return_dendrogram: bool):
     """Returns the labels from clusters."""
-    n = dendrogram.shape[0] + 1
+    n = len(dendrogram) + 1
     n_clusters = len(cluster)
     clusters = list(cluster.values())
     index = None
@@ -47,15 +47,24 @@ def get_labels(dendrogram: np.ndarray, cluster: dict, sort_clusters: bool, retur
         labels[nodes] = label
 
     if return_dendrogram:
-        indices_clusters = np.array(list(cluster.keys()))
-        if sort_clusters:
-            indices_clusters = indices_clusters[index]
-        index_new = np.zeros(2 * n - 1, int)
-        index_new[np.array(indices_clusters)] = np.arange(n_clusters)
-        index_new[- n_clusters + 1:] = np.arange(n_clusters, 2 * n_clusters - 1)
-        dendrogram_new = dendrogram[- n_clusters + 1:].copy()
-        dendrogram_new[:, 0] = index_new[dendrogram_new[:, 0].astype(int)]
-        dendrogram_new[:, 1] = index_new[dendrogram_new[:, 1].astype(int)]
+        cluster_index = {i: label for i, label in enumerate(labels)}
+        cluster_size = {i: len(cluster) for i, cluster in enumerate(clusters)}
+        dendrogram_new = []
+        current_cluster = len(labels)
+        current_cluster_new = len(clusters)
+        for i, j, height, _ in dendrogram:
+            i_new = cluster_index.pop(int(i))
+            j_new = cluster_index.pop(int(j))
+            if i_new != j_new:
+                size = cluster_size.pop(i_new) + cluster_size.pop(j_new)
+                cluster_size[current_cluster_new] = size
+                cluster_index[current_cluster] = current_cluster_new
+                dendrogram_new.append([i_new, j_new, height, size])
+                current_cluster_new += 1
+            else:
+                cluster_index[current_cluster] = i_new
+            current_cluster += 1
+        dendrogram_new = np.array(dendrogram_new)
         return labels, dendrogram_new
     else:
         return labels
