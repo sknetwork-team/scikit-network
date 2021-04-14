@@ -135,7 +135,9 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         rev_indptr = rev_adjacency.indptr.astype(np.int32)
         rev_indices = rev_adjacency.indices.astype(np.int32)
 
-        scores = push_pagerank(n, degrees, indptr, indices, rev_indptr, rev_indices, seeds.astype(np.float32),
+        scores = push_pagerank(n, degrees, indptr, indices,
+                               rev_indptr, rev_indices,
+                               seeds.astype(np.float32),
                                damping_factor, tol)
 
     elif solver == 'RH':
