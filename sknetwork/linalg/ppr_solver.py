@@ -11,6 +11,7 @@ from scipy import sparse
 from scipy.sparse.linalg import eigs, LinearOperator, bicgstab
 
 from sknetwork.linalg.diteration import diffusion
+from sknetwork.linalg.push import push_pagerank
 from sknetwork.linalg.normalization import normalize
 from sknetwork.linalg.polynome import Polynome
 
@@ -34,6 +35,7 @@ class RandomSurferOperator(LinearOperator):
     b : np.ndarray
         Scaled restart probability vector.
     """
+
     def __init__(self, adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.ndarray, damping_factor):
         super(RandomSurferOperator, self).__init__(shape=adjacency.shape, dtype=float)
 
@@ -69,9 +71,9 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
     n_iter : int
         Number of iterations for some of the solvers such as ``'piteration'`` or ``'diteration'``.
     tol : float
-        Tolerance for the convergence of some solvers such as ``'bicgstab'`` or ``'lanczos'``.
+        Tolerance for the convergence of some solvers such as ``'bicgstab'`` or ``'lanczos'`` or ``'push'``.
     solver : :obj:`str`
-        Which solver to use: ``'piteration'``, ``'diteration'``, ``'bicgstab'``, ``'lanczos'``, `̀'RH'``.
+        Which solver to use: ``'piteration'``, ``'diteration'``, ``'bicgstab'``, ``'lanczos'``, ``̀'RH'``, ``'push'``.
 
     Returns
     -------
@@ -101,6 +103,9 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
       `An iteration method for the solution of the eigenvalue problem of linear differential and integral operators.
       <http://www.cs.umd.edu/~oleary/lanczos1950.pdf>`_
       Los Angeles, CA: United States Governm. Press Office.
+    * Whang, J. , Lenharth, A. , Dhillon, I. , & Pingali, K. . (2015).
+      `Scalable Data-Driven PageRank: Algorithms, System Issues, and Lessons Learned`. 9233, 438-450.
+      <https://www.cs.utexas.edu/users/inderjit/public_papers/scalable_pagerank_europar15.pdf>
     """
     n = adjacency.shape[0]
 
@@ -119,8 +124,25 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
         fluid = (1 - damping_factor) * seeds.astype(np.float32)
         diffusion(indptr, indices, data, scores, fluid, damping_factor, n_iter, tol)
 
+    elif solver == 'push':
+        n = adjacency.shape[0]
+        damping_factor = np.float32(damping_factor)
+        tol = np.float32(tol)
+        degrees = adjacency.dot(np.ones(n)).astype(np.int32)
+        rev_adjacency = adjacency.transpose().tocsr()
+
+        indptr = adjacency.indptr.astype(np.int32)
+        indices = adjacency.indices.astype(np.int32)
+        rev_indptr = rev_adjacency.indptr.astype(np.int32)
+        rev_indices = rev_adjacency.indices.astype(np.int32)
+
+        scores = push_pagerank(n, degrees, indptr, indices,
+                               rev_indptr, rev_indices,
+                               seeds.astype(np.float32),
+                               damping_factor, tol)
+
     elif solver == 'RH':
-        coeffs = np.ones(n_iter+1)
+        coeffs = np.ones(n_iter + 1)
         polynome = Polynome(damping_factor * normalize(adjacency, p=1).T.tocsr(), coeffs)
         scores = polynome.dot(seeds)
 
