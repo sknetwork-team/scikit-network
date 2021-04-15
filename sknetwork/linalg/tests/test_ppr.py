@@ -37,7 +37,7 @@ class TestPPR(unittest.TestCase):
         adjacency = karate_club()
         seeds = np.ones(adjacency.shape[0]) / adjacency.shape[0]
         pr = get_pagerank(adjacency, damping_factor=0.85,
-                          n_iter=100, tol=1e-2, solver='push', seeds=seeds)
+                          n_iter=100, tol=1e-1, solver='push', seeds=seeds)
         self.assertTrue(is_proba_array(pr))
 
     def test_piteration(self):

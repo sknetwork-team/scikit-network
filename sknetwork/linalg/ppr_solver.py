@@ -35,6 +35,7 @@ class RandomSurferOperator(LinearOperator):
     b : np.ndarray
         Scaled restart probability vector.
     """
+
     def __init__(self, adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.ndarray, damping_factor):
         super(RandomSurferOperator, self).__init__(shape=adjacency.shape, dtype=float)
 
@@ -70,9 +71,9 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
     n_iter : int
         Number of iterations for some of the solvers such as ``'piteration'`` or ``'diteration'``.
     tol : float
-        Tolerance for the convergence of some solvers such as ``'bicgstab'`` or ``'lanczos'``.
+        Tolerance for the convergence of some solvers such as ``'bicgstab'`` or ``'lanczos'`` or ``'push'``.
     solver : :obj:`str`
-        Which solver to use: ``'piteration'``, ``'diteration'``, ``'bicgstab'``, ``'lanczos'``, `̀'RH'``.
+        Which solver to use: ``'piteration'``, ``'diteration'``, ``'bicgstab'``, ``'lanczos'``, ``̀'RH'``, ``'push'``.
 
     Returns
     -------
@@ -141,7 +142,7 @@ def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.
                                damping_factor, tol)
 
     elif solver == 'RH':
-        coeffs = np.ones(n_iter+1)
+        coeffs = np.ones(n_iter + 1)
         polynome = Polynome(damping_factor * normalize(adjacency, p=1).T.tocsr(), coeffs)
         scores = polynome.dot(seeds)
 
