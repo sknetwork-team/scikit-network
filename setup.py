@@ -11,7 +11,7 @@ from distutils.command.build_ext import build_ext
 import os
 from glob import glob
 
-dist.Distribution().fetch_build_eggs(['Cython', 'numpy==1.18.3'])
+dist.Distribution().fetch_build_eggs(['Cython', 'numpy==1.20.0'])
 
 import numpy
 
