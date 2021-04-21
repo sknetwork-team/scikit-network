@@ -234,7 +234,7 @@ class Paris(BaseHierarchy):
         if n <= 1:
             raise ValueError('The graph must contain at least two nodes.')
 
-        aggregate_graph = AggregateGraph(out_weights, in_weights, sym_adjacency.data.astype(np.float),
+        aggregate_graph = AggregateGraph(out_weights, in_weights, sym_adjacency.data.astype(float),
                                          sym_adjacency.indices, sym_adjacency.indptr)
 
         cdef vector[(int, int)] connected_components
