@@ -4,7 +4,7 @@ language: python
 # lists all jobs to be run (with conditions depending on the setup: ie. making a release or updating develop)
 matrix:
   include:
-# release and pull request setup (builds wheels for Python 3.[6,7,8] on OSX, Windows and ManyLinux)
+# release and pull request setup (builds wheels for Python 3.[7,8,9] on OSX, Windows and ManyLinux)
     # perform a linux build (see https://github.com/pypa/manylinux)
         - if: tag IS present OR type = "pull_request"
           services: docker
@@ -80,16 +80,6 @@ matrix:
                 fi
         # jobs for dev setup (tests on Linux only for shorter runs)
         -   dist: xenial
-            python: 3.6
-            install:
-                - pip install -r requirements_dev.txt
-                - pip install codecov
-                - python setup.py develop
-            script:
-                - py.test --doctest-modules --cov-report=xml --cov=sknetwork
-            after_success:
-                - codecov
-        -   dist: xenial   # required for Python >= 3.7
             python: 3.7
             install:
                 - pip install -r requirements_dev.txt
@@ -99,8 +89,18 @@ matrix:
                 - py.test --doctest-modules --cov-report=xml --cov=sknetwork
             after_success:
                 - codecov
-        -   dist: xenial
+        -   dist: xenial   # required for Python >= 3.7
             python: 3.8
+            install:
+                - pip install -r requirements_dev.txt
+                - pip install codecov
+                - python setup.py develop
+            script:
+                - py.test --doctest-modules --cov-report=xml --cov=sknetwork
+            after_success:
+                - codecov
+        -   dist: xenial
+            python: 3.9
             install:
                 - pip install -r requirements_dev.txt
                 - pip install codecov
