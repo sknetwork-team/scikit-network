@@ -102,7 +102,7 @@ class KNNDense(BaseTransformer):
         self : :class:`KNNDense`
         """
         tree = cKDTree(x, self.leaf_size)
-        _, neighbors = tree.query(x, self.n_neighbors + 1, self.eps, self.p, n_jobs=self.n_jobs)
+        _, neighbors = tree.query(x, self.n_neighbors + 1, self.eps, self.p, workers=self.n_jobs)
 
         n: int = x.shape[0]
         indptr: np.ndarray = np.arange(n + 1) * (self.n_neighbors + 1)
