@@ -39,7 +39,7 @@ class TestSparseLowRank(unittest.TestCase):
         slr -= adjacency
         slr.left_sparse_dot(adjacency)
         slr.right_sparse_dot(adjacency)
-        slr.astype(np.float)
+        slr.astype(float)
 
     def test_product(self):
         prod = self.undirected.dot(np.ones(5))

@@ -20,7 +20,7 @@ def _instanciate_vars(adjacency: sparse.csr_matrix, weights: str = 'uniform'):
     weights_col = check_probs(weights, adjacency.T)
     sym_adjacency = directed2undirected(adjacency)
 
-    aggregate_graph = AggregateGraph(weights_row, weights_col, sym_adjacency.data.astype(np.float),
+    aggregate_graph = AggregateGraph(weights_row, weights_col, sym_adjacency.data.astype(float),
                                      sym_adjacency.indices, sym_adjacency.indptr)
 
     height = np.zeros(n - 1)

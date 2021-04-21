@@ -22,7 +22,7 @@ class TestOperators(unittest.TestCase):
         x = transition.dot(np.ones(transition.shape[1]))
 
         self.assertAlmostEqual(np.linalg.norm(x - np.ones(operator.shape[0])), 0)
-        operator.astype(np.float)
+        operator.astype(float)
         operator.right_sparse_dot(sparse.eye(operator.shape[1], format='csr'))
 
         operator1 = CoNeighborOperator(biadjacency, normalized=False)
