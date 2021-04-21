@@ -39,7 +39,7 @@ matrix:
             - CIBW_BEFORE_BUILD="pip install -r requirements_dev.txt && pip install ."
             - CIBW_BUILD="cp37-* cp38-* cp39-*"
             - CIBW_SKIP=*-manylinux*
-            - CIBW_ARCHS_MACOS= "x86_64 universal2"
+            - CIBW_ARCHS_MACOS="x86_64 universal2"
             - CC=/usr/local/opt/llvm/bin/clang++
           script:
               # build the wheels, put them into './wheelhouse'
