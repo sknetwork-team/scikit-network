@@ -8,8 +8,8 @@ matrix:
     # perform a linux build (see https://github.com/pypa/manylinux)
         - if: tag IS present OR type = "pull_request"
           services: docker
-          env: DOCKER_IMAGE=quay.io/pypa/manylinux2010_x86_64
-               PLAT=manylinux2010_x86_64
+          env: DOCKER_IMAGE=quay.io/pypa/manylinux2014_x86_64
+               PLAT=manylinux2014_x86_64
           install:
             - pip install codecov
             - docker pull $DOCKER_IMAGE
@@ -37,7 +37,7 @@ matrix:
           env:
             - HOMEBREW_NO_AUTO_UPDATE=1
             - CIBW_BEFORE_BUILD="pip install -r requirements_dev.txt && pip install ."
-            - CIBW_BUILD="cp36-* cp37-* cp38-* cp39-*"
+            - CIBW_BUILD="cp37-* cp38-* cp39-*"
             - CIBW_SKIP=*-manylinux*
             - CC=/usr/local/opt/llvm/bin/clang++
           script:
@@ -66,7 +66,7 @@ matrix:
               - python3 -m pip install cibuildwheel==1.5.5
           env:
             - CIBW_BEFORE_BUILD="pip install -r requirements_dev.txt --user && pip install ."
-            - CIBW_BUILD="cp36-* cp37-* cp38-*"
+            - CIBW_BUILD="cp37-* cp38-* cp39-*"
             - CIBW_SKIP=*-manylinux*
           script:
               # build the wheels, put them into './wheelhouse'
