@@ -134,3 +134,4 @@ docs/tutorials/data/mygraph/
 *.p
 
 karate_club.svg
+/venv39/
