@@ -2,6 +2,14 @@
 History
 =======
 
+
+0.23.0 (2021-04-23)
+-------------------
+
+* New push-based implementation of PageRank by Wenzhuo Zhao (#475)
+* Fixed cut_balanced in hierarchy
+* Dropped Python 3.6, wheels for Python 3.9 (switched to manylinux2014)
+
 0.22.0 (2021-02-09)
 -------------------
 
