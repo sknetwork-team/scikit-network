@@ -5,7 +5,7 @@
 set -e -x
 
 # Add/remove Python versions here (desired distribution must be present on the quay.io docker images)
-versions="/opt/python/cp36-cp36m/bin /opt/python/cp37-cp37m/bin /opt/python/cp38-cp38/bin"
+versions="/opt/python/cp37-cp37m/bin /opt/python/cp38-cp38/bin /opt/python/cp39-cp39/bin"
 
 # Compile wheels
 for PYBIN in $versions; do

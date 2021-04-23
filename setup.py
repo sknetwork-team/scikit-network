@@ -11,7 +11,7 @@ from distutils.command.build_ext import build_ext
 import os
 from glob import glob
 
-dist.Distribution().fetch_build_eggs(['Cython', 'numpy==1.18.3'])
+dist.Distribution().fetch_build_eggs(['Cython', 'numpy==1.20.0'])
 
 import numpy
 
@@ -36,14 +36,14 @@ test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 COMPILE_OPTIONS = {"other": []}
 LINK_OPTIONS = {"other": []}
 
-OPENMP_COMPILE_FLAG = '-fopenmp'
-OPENMP_LINK_FLAG = '-fopenmp'
+EXTRA_COMPILE_ARGS = ['-fopenmp']
+EXTRA_LINK_ARGS = ['-fopenmp']
 
 # Check whether we're on OSX >= 10.10
 name = distutils.util.get_platform()
 if name.startswith("macosx-10"):
-    OPENMP_COMPILE_FLAG = '-lomp'
-    OPENMP_LINK_FLAG = '-lomp'
+    EXTRA_COMPILE_ARGS = ['-lomp']
+    EXTRA_LINK_ARGS = ['-lomp']
     minor_version = int(name.split("-")[1].split(".")[1])
     if minor_version >= 7:
         COMPILE_OPTIONS["other"].append("-stdlib=libc++")
@@ -53,8 +53,8 @@ if name.startswith("macosx-10"):
         LINK_OPTIONS["other"].append("-nodefaultlibs")
 # Windows does not (yet) support OpenMP
 if name.startswith("win"):
-    OPENMP_COMPILE_FLAG = ''
-    OPENMP_LINK_FLAG = ''
+    EXTRA_COMPILE_ARGS = ['/d2FH4-']
+    EXTRA_LINK_ARGS = []
 
 
 class BuildExtSubclass(build_ext):
@@ -101,8 +101,8 @@ if HAVE_CYTHON:
             os.remove(c_path)
 
         ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()],
-                                           extra_compile_args=[OPENMP_COMPILE_FLAG],
-                                           extra_link_args=[OPENMP_LINK_FLAG]), annotate=True)
+                                           extra_compile_args=EXTRA_COMPILE_ARGS,
+                                           extra_link_args=EXTRA_LINK_ARGS), annotate=True)
 else:
     ext_modules = [Extension(modules[index], [c_paths[index]], include_dirs=[numpy.get_include()])
                    for index in range(len(modules))]
@@ -112,13 +112,17 @@ setup(
     author="Scikit-network team",
     author_email='bonald@enst.fr',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
+        'Intended Audience :: Information Technology',
+        'Intended Audience :: Education',
+        'Intended Audience :: Science/Research',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Cython',
         'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8'
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9'
     ],
     description="Graph algorithms",
     entry_points={

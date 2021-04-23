@@ -13,9 +13,6 @@ cimport numpy as np
 
 cimport cython
 
-ctypedef np.int_t int_type_t
-ctypedef np.float_t float_type_t
-
 from libcpp.vector cimport vector
 
 from typing import Union
@@ -64,7 +61,7 @@ cdef class AggregateGraph:
     cdef public dict cluster_out_weights
     cdef public dict cluster_in_weights
 
-    def __init__(self, np.float_t[:] out_weights, np.float_t[:] in_weights, np.float_t[:] data, int[:] indices,
+    def __init__(self, double[:] out_weights, double[:] in_weights, double[:] data, int[:] indices,
                  int[:] indptr):
         cdef int n = indptr.shape[0] - 1
         cdef float total_weight = np.sum(data) / 2
@@ -237,7 +234,7 @@ class Paris(BaseHierarchy):
         if n <= 1:
             raise ValueError('The graph must contain at least two nodes.')
 
-        aggregate_graph = AggregateGraph(out_weights, in_weights, sym_adjacency.data.astype(np.float),
+        aggregate_graph = AggregateGraph(out_weights, in_weights, sym_adjacency.data.astype(float),
                                          sym_adjacency.indices, sym_adjacency.indptr)
 
         cdef vector[(int, int)] connected_components

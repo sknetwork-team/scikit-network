@@ -38,6 +38,7 @@ class PageRank(BaseRanking, VerboseMixin):
         * ``'lanczos'``, use eigensolver with a given tolerance.
         * ``'bicgstab'``, use Biconjugate Gradient Stabilized method for a given tolerance.
         * ``'RH'``, use a Ruffini-Horner polynomial evaluation.
+        * ``'push'``, use push-based algorithm for a given tolerance
     n_iter : int
         Number of iterations for some solvers.
     tol : float

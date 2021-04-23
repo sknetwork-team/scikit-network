@@ -88,7 +88,7 @@ class LanczosEig(EigSolver):
         -------
         self: :class:`EigSolver`
         """
-        eigenvalues, eigenvectors = eigsh(matrix.astype(np.float), n_components, which=self.which, maxiter=self.maxiter,
+        eigenvalues, eigenvectors = eigsh(matrix.astype(float), n_components, which=self.which, maxiter=self.maxiter,
                                           tol=self.tol, v0=v0)
         self.eigenvectors_ = eigenvectors
         self.eigenvalues_ = eigenvalues

@@ -31,3 +31,4 @@ Contributors
 * Pierre Pébereau
 * Armand Boschin
 * Flávio Juvenal
+* Wenzhuo Zhao

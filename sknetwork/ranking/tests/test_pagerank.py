@@ -32,6 +32,8 @@ class TestPageRank(unittest.TestCase):
 
         PageRank(solver='diteration').fit_transform(self.adjacency)
 
+        PageRank(solver='push').fit_transform(self.adjacency)
+
         with self.assertRaises(ValueError):
             PageRank(solver='toto').fit_transform(self.adjacency)
 

@@ -80,7 +80,7 @@ class LanczosSVD(SVDSolver):
         -------
         self: :class:`SVDSolver`
         """
-        u, s, vt = svds(matrix.astype(np.float), n_components, v0=v0)
+        u, s, vt = svds(matrix.astype(float), n_components, v0=v0)
         # order the singular values by decreasing order
         index = np.argsort(s)[::-1]
         self.singular_vectors_left_ = u[:, index]

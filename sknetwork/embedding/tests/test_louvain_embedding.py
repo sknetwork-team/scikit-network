@@ -21,5 +21,5 @@ class TestLouvainEmbedding(unittest.TestCase):
         for method in ['remove', 'merge', 'keep']:
             bilouvain = BiLouvainEmbedding(isolated_nodes=method)
             bilouvain.fit(test_bigraph())
-            embedding_vector = bilouvain.predict(np.array([1, 0, 0, 0, 1, 1]))
+            embedding_vector = bilouvain.predict(np.array([1, 0, 0, 0, 1, 1, 0, 1]))
             self.assertEqual(embedding_vector.shape[0], 1)
