@@ -101,8 +101,8 @@ if HAVE_CYTHON:
             os.remove(c_path)
 
         ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()],
-                                           extra_compile_args=[OPENMP_COMPILE_FLAG] + extra_compile_args,
-                                           extra_link_args=[OPENMP_LINK_FLAG]), annotate=True)
+                                           extra_compile_args=EXTRA_COMPILE_ARGS,
+                                           extra_link_args=EXTRA_LINK_ARGS), annotate=True)
 else:
     ext_modules = [Extension(modules[index], [c_paths[index]], include_dirs=[numpy.get_include()])
                    for index in range(len(modules))]
