@@ -38,6 +38,7 @@ LINK_OPTIONS = {"other": []}
 
 OPENMP_COMPILE_FLAG = '-fopenmp'
 OPENMP_LINK_FLAG = '-fopenmp'
+extra_compile_args = []
 
 # Check whether we're on OSX >= 10.10
 name = distutils.util.get_platform()
@@ -55,6 +56,7 @@ if name.startswith("macosx-10"):
 if name.startswith("win"):
     OPENMP_COMPILE_FLAG = ''
     OPENMP_LINK_FLAG = ''
+    extra_compile_args = ['/d2FH4-']
 
 
 class BuildExtSubclass(build_ext):
@@ -101,7 +103,7 @@ if HAVE_CYTHON:
             os.remove(c_path)
 
         ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()],
-                                           extra_compile_args=[OPENMP_COMPILE_FLAG],
+                                           extra_compile_args=[OPENMP_COMPILE_FLAG] + extra_compile_args,
                                            extra_link_args=[OPENMP_LINK_FLAG]), annotate=True)
 else:
     ext_modules = [Extension(modules[index], [c_paths[index]], include_dirs=[numpy.get_include()])
