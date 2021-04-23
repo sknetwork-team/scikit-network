@@ -36,15 +36,14 @@ test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 COMPILE_OPTIONS = {"other": []}
 LINK_OPTIONS = {"other": []}
 
-OPENMP_COMPILE_FLAG = '-fopenmp'
-OPENMP_LINK_FLAG = '-fopenmp'
-extra_compile_args = []
+EXTRA_COMPILE_ARGS = ['-fopenmp']
+EXTRA_LINK_ARGS = ['-fopenmp']
 
 # Check whether we're on OSX >= 10.10
 name = distutils.util.get_platform()
 if name.startswith("macosx-10"):
-    OPENMP_COMPILE_FLAG = '-lomp'
-    OPENMP_LINK_FLAG = '-lomp'
+    EXTRA_COMPILE_ARGS = ['-lomp']
+    EXTRA_LINK_ARGS = ['-lomp']
     minor_version = int(name.split("-")[1].split(".")[1])
     if minor_version >= 7:
         COMPILE_OPTIONS["other"].append("-stdlib=libc++")
@@ -54,9 +53,8 @@ if name.startswith("macosx-10"):
         LINK_OPTIONS["other"].append("-nodefaultlibs")
 # Windows does not (yet) support OpenMP
 if name.startswith("win"):
-    OPENMP_COMPILE_FLAG = ''
-    OPENMP_LINK_FLAG = ''
-    extra_compile_args = ['/d2FH4-']
+    EXTRA_COMPILE_ARGS = ['/d2FH4-']
+    EXTRA_LINK_ARGS = []
 
 
 class BuildExtSubclass(build_ext):
