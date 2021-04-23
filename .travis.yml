@@ -55,8 +55,6 @@ matrix:
           os: windows
           language: shell
           before_install:
-            - wget --quiet --no-check-certificate https://curl.haxx.se/ca/cacert.pem
-            - export SSL_CERT_FILE=$PWD/cacert.pem
             - choco install python --version 3.9.4
             - export PATH="/c/Python39:/c/Python39/Scripts:$PATH"
             # make sure it's on PATH as 'python3'
