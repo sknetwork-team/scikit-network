@@ -11,8 +11,8 @@ from scipy.sparse.linalg import LinearOperator
 
 
 def safe_sparse_dot(a, b):
-    """Dot product that handles the sparse matrix case correctly.
-    Uses BLAS GEMM as replacement for numpy.dot where possible to avoid unnecessary copies.
+    """Dot product with proper use of the sparse matrix format.
+    Use BLAS instead of numpy.dot when possible to avoid unnecessary copies.
 
     Parameters
     ----------
