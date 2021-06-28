@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tests for diffusion.py"""
+"""Tests for his.py"""
 
 import unittest
 
@@ -14,7 +14,7 @@ class TestHITS(unittest.TestCase):
         biadjacency = test_bigraph()
         n_row, n_col = biadjacency.shape
 
-        for hits in [HITS(solver='lanczos', tol=0.1), HITS(solver='halko', n_oversamples=1)]:
-            hits.fit(biadjacency)
-            self.assertEqual(hits.scores_row_.shape, (n_row,))
-            self.assertEqual(hits.scores_col_.shape, (n_col,))
+        hits = HITS()
+        hits.fit(biadjacency)
+        self.assertEqual(hits.scores_row_.shape, (n_row,))
+        self.assertEqual(hits.scores_col_.shape, (n_col,))

@@ -11,22 +11,11 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding.base import BaseEmbedding, BaseBiEmbedding
-from sknetwork.linalg import EigSolver, HalkoEig, LanczosEig, auto_solver, diag_pinv, normalize, LaplacianOperator, \
+from sknetwork.linalg import EigSolver, LanczosEig, diag_pinv, normalize, LaplacianOperator, \
     NormalizedAdjacencyOperator, RegularizedAdjacency
 from sknetwork.utils.check import check_format, check_square, check_symmetry, check_adjacency_vector, \
     check_nonnegative, check_n_components, check_scaling
 from sknetwork.utils.format import bipartite2undirected
-
-
-def set_solver(solver: str, adjacency):
-    """Eigenvalue solver based on keyword"""
-    if solver == 'auto':
-        solver: str = auto_solver(adjacency.nnz)
-    if solver == 'lanczos':
-        solver: EigSolver = LanczosEig()
-    else:  # pragma: no cover
-        solver: EigSolver = HalkoEig()
-    return solver
 
 
 class LaplacianEmbedding(BaseEmbedding):
@@ -52,12 +41,8 @@ class LaplacianEmbedding(BaseEmbedding):
     normalized : bool (default = ``True``)
         If ``True``, normalize the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` (default = ``'auto'``)
-        Which eigenvalue solver to use.
-
-        * ``'auto'`` call the auto_solver function.
-        * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
-        * ``'lanczos'``: power-iteration based method.
+    solver : ``'lanczos'`` (Lanczos algorithm, default) or :class:`EigSolver` (custom solver)
+        Which solver to use.
 
     Attributes
     ----------
@@ -87,7 +72,7 @@ class LaplacianEmbedding(BaseEmbedding):
     """
     def __init__(self, n_components: int = 2, regularization: Union[None, float] = 0.01,
                  relative_regularization: bool = True, scaling: float = 0.5,
-                 normalized: bool = True, solver: str = 'auto'):
+                 normalized: bool = True, solver: Union[str, EigSolver] = 'lanczos'):
         super(LaplacianEmbedding, self).__init__()
 
         self.n_components = n_components
@@ -95,8 +80,10 @@ class LaplacianEmbedding(BaseEmbedding):
         self.relative_regularization = relative_regularization
         self.scaling = scaling
         self.normalized = normalized
-        self.solver = solver
-
+        if isinstance(solver, str):
+            self.solver = LanczosEig(which='SM')
+        else:
+            self.solver = solver
         self.eigenvalues_ = None
         self.eigenvectors_ = None
         self.regularization_ = None
@@ -121,10 +108,6 @@ class LaplacianEmbedding(BaseEmbedding):
         regularize: bool = not (self.regularization is None or self.regularization == 0.)
         check_scaling(self.scaling, adjacency, regularize)
 
-        if regularize:
-            solver: EigSolver = LanczosEig()
-        else:
-            solver = set_solver(self.solver, adjacency)
         n_components = 1 + check_n_components(self.n_components, n-2)
 
         weights = adjacency.dot(np.ones(n))
@@ -138,7 +121,7 @@ class LaplacianEmbedding(BaseEmbedding):
             weight_diag = sparse.diags(weights, format='csr')
             laplacian = weight_diag - adjacency
 
-        solver.which = 'SM'
+        solver = self.solver
         solver.fit(matrix=laplacian, n_components=n_components)
         eigenvalues = solver.eigenvalues_[1:]
         eigenvectors = solver.eigenvectors_[:, 1:]
@@ -186,12 +169,8 @@ class Spectral(BaseEmbedding):
     normalized : bool (default = ``True``)
         If ``True``, normalize the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` (default = ``'auto'``)
-        Which eigenvalue solver to use.
-
-        * ``'auto'`` call the auto_solver function.
-        * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
-        * ``'lanczos'``: power-iteration based method.
+    solver : ``'lanczos'`` (Lanczos algorithm, default) or :class:`EigSolver` (custom solver)
+        Which solver to use.
 
     Attributes
     ----------
@@ -221,7 +200,7 @@ class Spectral(BaseEmbedding):
     """
     def __init__(self, n_components: int = 2, regularization: Union[None, float] = 0.01,
                  relative_regularization: bool = True, scaling: float = 0.5,
-                 normalized: bool = True, solver: str = 'auto'):
+                 normalized: bool = True, solver: Union[str, EigSolver] = 'lanczos'):
         super(Spectral, self).__init__()
 
         self.n_components = n_components
@@ -229,8 +208,10 @@ class Spectral(BaseEmbedding):
         self.relative_regularization = relative_regularization
         self.scaling = scaling
         self.normalized = normalized
-        self.solver = solver
-
+        if isinstance(solver, str):
+            self.solver = LanczosEig(which='LA')
+        else:
+            self.solver = solver
         self.eigenvalues_ = None
         self.eigenvectors_ = None
         self.regularization_ = None
@@ -252,7 +233,6 @@ class Spectral(BaseEmbedding):
         check_symmetry(adjacency)
         n = adjacency.shape[0]
 
-        solver = set_solver(self.solver, adjacency)
         n_components = 1 + check_n_components(self.n_components, n-2)
 
         regularize: bool = not (self.regularization is None or self.regularization == 0.)
@@ -273,7 +253,7 @@ class Spectral(BaseEmbedding):
         else:
             norm_adjacency = weights_inv_sqrt_diag.dot(adjacency.dot(weights_inv_sqrt_diag))
 
-        solver.which = 'LA'
+        solver = self.solver
         solver.fit(matrix=norm_adjacency, n_components=n_components)
         eigenvalues = solver.eigenvalues_
         index = np.argsort(-eigenvalues)[1:]  # skip first eigenvalue
@@ -369,12 +349,8 @@ class BiSpectral(Spectral, BaseBiEmbedding):
     normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` (default = ``'auto'``)
-        Which eigenvalue solver to use.
-
-        * ``'auto'`` call the auto_solver function.
-        * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
-        * ``'lanczos'``: power-iteration based method.
+    solver : ``'lanczos'`` (Lanczos algorithm, default) or :class:`EigSolver` (custom solver)
+        Which solver to use.
 
     Attributes
     ----------
@@ -408,7 +384,7 @@ class BiSpectral(Spectral, BaseBiEmbedding):
     """
     def __init__(self, n_components: int = 2, regularization: Union[None, float] = 0.01,
                  relative_regularization: bool = True, scaling: float = 0.5,
-                 normalized: bool = True, solver: str = 'auto'):
+                 normalized: bool = True, solver: Union[str, EigSolver] = 'lanczos'):
         super(BiSpectral, self).__init__(n_components, regularization, relative_regularization, scaling,
                                          normalized, solver)
 

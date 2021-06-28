@@ -10,7 +10,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.linalg import SVDSolver, HalkoSVD, LanczosSVD, auto_solver
+from sknetwork.linalg import SVDSolver, LanczosSVD
 from sknetwork.ranking.base import BaseBiRanking
 from sknetwork.utils.check import check_format
 
@@ -25,17 +25,8 @@ class HITS(BaseBiRanking):
 
     Parameters
     ----------
-    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
-        Which singular value solver to use.
-
-        * ``'auto'`` call the auto_solver function.
-        * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
-        * ``'lanczos'``: power-iteration based method.
-        * :class:`SVDSolver`: custom solver.
-
-    **kwargs :
-        See :ref:`sknetwork.linalg.svd_solver.LanczosSVD <lanczossvd>`
-        or :ref:`sknetwork.linalg.svd_solver.HalkoSVD <halkosvd>`.
+    solver : ``'lanczos'`` (default, Lanczos algorithm) or :class:`SVDSolver` (custom solver)
+        Which solver to use.
 
     Attributes
     ----------
@@ -59,15 +50,13 @@ class HITS(BaseBiRanking):
     References
     ----------
     Kleinberg, J. M. (1999). Authoritative sources in a hyperlinked environment.
-    Journal of the ACM (JACM), 46(5), 604-632.
+    Journal of the ACM, 46(5), 604-632.
     """
-    def __init__(self, solver: Union[str, SVDSolver] = 'auto', **kwargs):
+    def __init__(self, solver: Union[str, SVDSolver] = 'lanczos'):
         super(HITS, self).__init__()
 
-        if solver == 'halko':
-            self.solver: SVDSolver = HalkoSVD(**kwargs)
-        elif solver == 'lanczos':
-            self.solver: SVDSolver = LanczosSVD(**kwargs)
+        if type(solver) == str:
+            self.solver: SVDSolver = LanczosSVD()
         else:
             self.solver = solver
 
@@ -84,13 +73,6 @@ class HITS(BaseBiRanking):
         self: :class:`HITS`
         """
         adjacency = check_format(adjacency)
-
-        if self.solver == 'auto':
-            solver = auto_solver(adjacency.nnz)
-            if solver == 'lanczos':
-                self.solver: SVDSolver = LanczosSVD()
-            else:  # pragma: no cover
-                self.solver: SVDSolver = HalkoSVD()
 
         self.solver.fit(adjacency, 1)
         hubs: np.ndarray = self.solver.singular_vectors_left_.reshape(-1)

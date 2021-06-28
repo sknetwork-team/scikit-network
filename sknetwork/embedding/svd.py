@@ -11,20 +11,11 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding.base import BaseBiEmbedding
-from sknetwork.linalg import SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv, normalize, \
+from sknetwork.linalg import SVDSolver, LanczosSVD, safe_sparse_dot, diag_pinv, normalize, \
     RegularizedAdjacency, SparseLR
 from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, check_n_components
 
-
-def set_svd_solver(solver: str, adjacency):
-    """SVD solver based on keyword"""
-    if solver == 'auto':
-        solver: str = auto_solver(adjacency.nnz)
-    if solver == 'lanczos':
-        solver: SVDSolver = LanczosSVD()
-    else:  # pragma: no cover
-        solver: SVDSolver = HalkoSVD()
-    return solver
+LanczosSVD()
 
 
 class GSVD(BaseBiEmbedding):
@@ -61,13 +52,8 @@ class GSVD(BaseBiEmbedding):
     normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
-        Which singular value solver to use.
-
-        * ``'auto'``: call the auto_solver function.
-        * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
-        * ``'lanczos'``: power-iteration based method.
-        * :class:`SVDSolver`: custom solver.
+    solver : ``'lanczos'`` (Lanczos algorithm, default) or :class:`SVDSolver` (custom solver)
+        Which solver to use.
 
     Attributes
     ----------
@@ -107,7 +93,7 @@ class GSVD(BaseBiEmbedding):
     """
     def __init__(self, n_components=2, regularization: Union[None, float] = None, relative_regularization: bool = True,
                  factor_row: float = 0.5, factor_col: float = 0.5, factor_singular: float = 0., normalized: bool = True,
-                 solver: Union[str, SVDSolver] = 'auto'):
+                 solver: Union[str, SVDSolver] = 'lanczos'):
         super(GSVD, self).__init__()
 
         self.n_components = n_components
@@ -145,7 +131,7 @@ class GSVD(BaseBiEmbedding):
         n_components = check_n_components(self.n_components, min(n_row, n_col) - 1)
 
         if isinstance(self.solver, str):
-            self.solver = set_svd_solver(self.solver, adjacency)
+            self.solver = LanczosSVD()
         regularization = self.regularization
         if regularization:
             if self.relative_regularization:
@@ -269,13 +255,8 @@ class SVD(GSVD):
     normalized : bool (default = ``False``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
-        Which singular value solver to use.
-
-        * ``'auto'``: call the auto_solver function.
-        * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
-        * ``'lanczos'``: power-iteration based method.
-        * :class:`SVDSolver`: custom solver.
+    solver : ``'lanczos'`` (Lanczos algorithm, default) or :class:`SVDSolver` (custom solver)
+        Which solver to use.
 
     Attributes
     ----------
@@ -312,7 +293,7 @@ class SVD(GSVD):
     Encyclopedia of measurement and statistics.
     """
     def __init__(self, n_components=2, regularization: Union[None, float] = None, relative_regularization: bool = True,
-                 factor_singular: float = 0., normalized: bool = False, solver: Union[str, SVDSolver] = 'auto'):
+                 factor_singular: float = 0., normalized: bool = False, solver: Union[str, SVDSolver] = 'lanczos'):
         super(SVD, self).__init__(n_components=n_components, regularization=regularization,
                                   relative_regularization=relative_regularization, factor_singular=factor_singular,
                                   factor_row=0., factor_col=0., normalized=normalized, solver=solver)
@@ -336,13 +317,8 @@ class PCA(SVD):
     normalized : bool (default = ``False``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
-        Which singular value solver to use.
-
-        * ``'auto'``: call the auto_solver function.
-        * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
-        * ``'lanczos'``: power-iteration based method.
-        * :class:`SVDSolver`: custom solver.
+    solver : ``'lanczos'`` (Lanczos algorithm, default) or :class:`SVDSolver` (custom solver)
+        Which solver to use.
 
     Attributes
     ----------
@@ -377,11 +353,14 @@ class PCA(SVD):
     `Principal Component Analysis`
     Series: Springer Series in Statistics.
     """
-    def __init__(self, n_components=2, normalized: bool = False, solver: Union[str, SVDSolver] = 'auto'):
+    def __init__(self, n_components=2, normalized: bool = False, solver: Union[str, SVDSolver] = 'lanczos'):
         super(PCA, self).__init__()
         self.n_components = n_components
         self.normalized = normalized
-        self.solver = solver
+        if isinstance(solver, str):
+            self.solver = LanczosSVD()
+        else:
+            self.solver = solver
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'PCA':
         """Compute the embedding of the graph.
@@ -398,9 +377,6 @@ class PCA(SVD):
         adjacency = check_format(adjacency).asfptype()
         n_row, n_col = adjacency.shape
         adjacency_centered = SparseLR(adjacency, (-np.ones(n_row), adjacency.T.dot(np.ones(n_row)) / n_row))
-
-        if isinstance(self.solver, str):
-            self.solver = set_svd_solver(self.solver, adjacency)
 
         svd = self.solver
         svd.fit(adjacency_centered, self.n_components)
