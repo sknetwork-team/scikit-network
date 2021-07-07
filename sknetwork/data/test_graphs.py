@@ -15,17 +15,17 @@ from sknetwork.utils import directed2undirected
 
 def test_digraph():
     """Simple directed graph, used for testing.
-    10 nodes, 10 edges
+    10 nodes, 12 edges
     """
-    row = np.array([0, 0, 1, 3, 4, 6, 6, 6, 7, 8, 9])
-    col = np.array([1, 4, 3, 2, 5, 4, 5, 7, 9, 9, 9])
-    data = np.array([1, 1, 2.5, 1, 2, 2, 1, 2, 2, 1.5, 2])
+    row = np.array([0, 1, 1, 3, 4, 6, 6, 6, 6, 7, 8, 8, 9])
+    col = np.array([1, 4, 3, 2, 5, 4, 5, 7, 1, 9, 9, 2, 9])
+    data = np.array([1, 1, 2.5, 1, 2, 2, 1, 2, 2, 1.5, 2, 1, 2])
     return sparse.csr_matrix((data, (row, col)), shape=(10, 10))
 
 
 def test_graph():
     """Simple undirected graph, used for testing.
-    10 nodes, 10 edges.
+    10 nodes, 12 edges.
     """
     return directed2undirected(test_digraph(), weighted=True)
 

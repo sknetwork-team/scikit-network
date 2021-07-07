@@ -21,7 +21,7 @@ class RandomProjection(BaseEmbedding):
     :math:`(I + \\alpha A +... + (\\alpha A)^K)G`
 
     where :math:`A` is the adjacency matrix, :math:`G` is a random Gaussian matrix,
-    :math:`\\alpha` is some smoothing factor and :math:`K` non-negative integer.
+    :math:`\\alpha` is some smoothing factor and :math:`K` some non-negative integer.
 
     * Graphs
     * Digraphs

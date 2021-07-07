@@ -313,6 +313,40 @@ def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr
         return adjacency
 
 
+def star(n_branches: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+    """Star (undirected).
+
+    Parameters
+    ----------
+    n_branches : int
+        Number of branches.
+    metadata : bool
+        If ``True``, return a `Bunch` object with metadata (positions).
+
+    Returns
+    -------
+    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+        Adjacency matrix or graph with metadata (positions).
+
+    Example
+    -------
+    >>> from sknetwork.data import star
+    >>> adjacency = star()
+    >>> adjacency.shape
+    (4, 4)
+    """
+    edges = [(0, i+1) for i in range(n_branches)]
+    adjacency = edgelist2adjacency(edges, undirected=True)
+    if metadata:
+        graph = Bunch()
+        graph.adjacency = adjacency
+        angles = 2 * np.pi * np.arange(n_branches) / n_branches
+        graph.position = np.vstack([np.cos(angles), np.sin(angles)]).T
+        return graph
+    else:
+        return adjacency
+
+
 def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True, seed: Optional[int] = None) \
         -> sparse.csr_matrix:
     """Albert-Barabasi model.

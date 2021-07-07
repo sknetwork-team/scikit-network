@@ -10,6 +10,7 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 
+from sknetwork.linalg import diag_pinv
 from sknetwork.linalg.normalization import normalize
 from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.utils.check import check_format
@@ -44,11 +45,13 @@ class RegularizedAdjacency(SparseLR):
         super(RegularizedAdjacency, self).__init__(adjacency, (x, y))
 
 
-class RegularizedLaplacian(LinearOperator):
+class Laplacian(LinearOperator):
     """Regularized Laplacian matrix as a Scipy LinearOperator.
 
     Defined by :math:`L = D - A` where :math:`A` is the regularized adjacency matrix and :math:`D` the corresponding
     diagonal matrix of degrees.
+
+    If normalized, defined by :math:`L = I - D^{-1/2}AD^{-1/2}`.
 
     Parameters
     ----------
@@ -56,30 +59,43 @@ class RegularizedLaplacian(LinearOperator):
         :term:`Adjacency <adjacency>` matrix of the graph.
     regularization : float
         Regularization factor.
-        Default value = 1.
+        Default value = 0.
+    normalized_laplacian : bool
+        If ``True``, use normalized Laplacian.
+        Default value = ``False``.
 
     Examples
     --------
     >>> from sknetwork.data import house
     >>> adjacency = house()
-    >>> laplacian = RegularizedLaplacian(adjacency)
-    >>> laplacian.dot(np.ones(adjacency.shape[1]))
+    >>> laplacian = Laplacian(adjacency)
+    >>> laplacian.dot(np.ones(5))
     array([0., 0., 0., 0., 0.])
     """
-    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 1):
-        super(RegularizedLaplacian, self).__init__(dtype=float, shape=adjacency.shape)
+    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0,
+                 normalized_laplacian: bool = False):
+        super(Laplacian, self).__init__(dtype=float, shape=adjacency.shape)
         n = adjacency.shape[0]
         self.regularization = regularization
-        self.weights = adjacency.dot(np.ones(n)) + regularization
+        self.normalized_laplacian = normalized_laplacian
+        self.weights = adjacency.dot(np.ones(n))
         self.laplacian = sparse.diags(self.weights, format='csr') - adjacency
+        if self.normalized_laplacian:
+            self.norm_diag = diag_pinv(np.sqrt(self.weights + regularization))
 
     def _matvec(self, matrix: np.ndarray):
-        prod = self.laplacian.dot(matrix)
-        n = self.shape[0]
-        if matrix.ndim == 2:
-            prod -= self.regularization * np.tile(matrix.sum(axis=0), (n, 1)) / n
+        if self.normalized_laplacian:
+            prod = self.laplacian.dot(self.norm_diag.dot(matrix))
         else:
-            prod -= self.regularization * matrix.sum() / n
+            prod = self.laplacian.dot(matrix)
+        if self.regularization > 0:
+            n = self.shape[0]
+            if matrix.ndim == 2:
+                prod += self.regularization * (matrix - np.tile(matrix.sum(axis=0), (n, 1)) / n)
+            else:
+                prod += self.regularization * (matrix - matrix.sum() / n)
+        if self.normalized_laplacian:
+            prod = self.norm_diag.dot(prod)
         return prod
 
     def _transpose(self):
@@ -89,65 +105,6 @@ class RegularizedLaplacian(LinearOperator):
         """Change dtype of the object."""
         self.dtype = np.dtype(dtype)
         self.laplacian = self.laplacian.astype(self.dtype)
-        self.weights = self.weights.astype(self.dtype)
-
-        return self
-
-
-class NormalizedRegularizedLaplacian(LinearOperator):
-    """Normalized regularized Laplacian matrix as a Scipy LinearOperator.
-
-    Defined by :math:`L = I - D^{-1/2}AD^{-1/2}` where :math:`A` is the regularized adjacency matrix
-    and :math:`D` the corresponding diagonal matrix of degrees.
-
-    Parameters
-    ----------
-    adjacency :
-        :term:`Adjacency <adjacency>` matrix of the graph.
-    regularization : float
-        Regularization factor.
-        Default value = 1.
-
-    Examples
-    --------
-    >>> from sknetwork.data import house
-    >>> adjacency = house()
-    >>> laplacian = NormalizedRegularizedLaplacian(adjacency, regularization=0)
-    >>> degrees = adjacency.dot(np.ones(5))
-    >>> all(np.abs(laplacian.dot(np.sqrt(degrees))) < 1e-10)
-    True
-    """
-    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 1):
-        super(NormalizedRegularizedLaplacian, self).__init__(dtype=float, shape=adjacency.shape)
-        n = adjacency.shape[0]
-        self.regularization = regularization
-        weights = adjacency.dot(np.ones(n)) + regularization
-        weights_inv = np.zeros(n)
-        weights_inv[weights > 0] = 1 / weights[weights > 0]
-        self.weights_inv_sqrt = np.sqrt(weights_inv)
-        self.weights_inv_sqrt_vec = self.weights_inv_sqrt.reshape(-1, 1)
-        weights_inv_sqrt_diag = sparse.diags(self.weights_inv_sqrt)
-        laplacian = sparse.diags(weights, format='csr') - adjacency
-        self.normalized_laplacian = weights_inv_sqrt_diag.dot(laplacian).dot(weights_inv_sqrt_diag)
-
-    def _matvec(self, matrix: np.ndarray):
-        prod = self.normalized_laplacian.dot(matrix)
-        n = self.shape[0]
-        if matrix.ndim == 2:
-            prod -= self.regularization * self.weights_inv_sqrt_vec.dot(self.weights_inv_sqrt_vec.T.dot(matrix)) / n
-        else:
-            prod -= self.regularization * self.weights_inv_sqrt * np.inner(self.weights_inv_sqrt, matrix) / n
-        return prod
-
-    def _transpose(self):
-        return self
-
-    def astype(self, dtype: Union[str, np.dtype]):
-        """Change dtype of the object."""
-        self.dtype = np.dtype(dtype)
-        self.normalized_laplacian = self.normalized_laplacian.astype(self.dtype)
-        self.weights_inv_sqrt = self.weights_inv_sqrt.astype(self.dtype)
-        self.weights_inv_sqrt_vec = self.weights_inv_sqrt.astype(self.dtype)
         return self
 
 
