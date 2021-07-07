@@ -10,7 +10,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.embedding.base import BaseEmbedding, BaseBiEmbedding
+from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import LanczosEig, diag_pinv, normalize, Laplacian, RegularizedAdjacency
 from sknetwork.utils.check import is_symmetric, is_connected
 from sknetwork.utils.check import check_format,  check_adjacency_vector, check_nonnegative, check_n_components
@@ -74,8 +74,11 @@ class Spectral(BaseEmbedding):
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'Spectral':
         """Compute the graph embedding.
-        The adjacency matrix of the graph is :math:`A=M` if the input matrix :math:`M` is square and symmetric,
-        and :math:`A  = \\begin{bmatrix} 0 & M \\\\ M^T & 0 \\end{bmatrix}` otherwise.
+
+        If the input matrix :math:`B` is not square (e.g., biadjacency matrix of a bipartite graph) or not symmetric
+        (e.g., adjacency matrix of a directed graph), use the adjacency matrix
+         :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}` and return the embedding for both rows and
+         columns of the input matrix :math:`B`.
 
         Parameters
         ----------
@@ -168,97 +171,5 @@ class Spectral(BaseEmbedding):
 
         if embedding_vectors.shape[0] == 1:
             embedding_vectors = embedding_vectors.ravel()
-
-        return embedding_vectors
-
-
-class BiSpectral(Spectral, BaseBiEmbedding):
-    """Spectral embedding of bipartite and directed graphs, based the spectral embedding
-    of the corresponding undirected graph, with adjacency matrix:
-
-        :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`
-
-    where :math:`B` is the biadjacency matrix of the bipartite graph or the adjacency matrix
-    of the directed graph.
-
-    * Digraphs
-    * Bigraphs
-
-    Parameters
-    ----------
-    n_components : int (default = 2)
-        Dimension of the embedding space.
-    regularization : ``None`` or float (default = ``0.01``)
-        Add edges of given weight between all pairs of nodes.
-    normalized : bool (default = ``False``)
-        If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
-        each vector lies on the unit sphere.
-
-    Attributes
-    ----------
-    embedding_ : array, shape = (n_row, n_components)
-        Embedding of the rows.
-    embedding_row_ : array, shape = (n_row, n_components)
-        Embedding of the rows (copy of **embedding_**).
-    embedding_col_ : array, shape = (n_col, n_components)
-        Embedding of the columns.
-    eigenvalues_ : array, shape = (n_components)
-        Eigenvalues.
-    eigenvectors_ : array, shape = (n, n_components)
-        Eigenvectors.
-
-    References
-    ----------
-    Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
-    Neural computation.
-    """
-    def __init__(self, n_components: int = 2, regularization: Union[None, float] = 0, normalized: bool = False):
-        super(BiSpectral, self).__init__(n_components, False, regularization, normalized)
-
-    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'BiSpectral':
-        """Spectral embedding of the bipartite graph considered as undirected, with adjacency matrix:
-
-        :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`
-
-        where :math:`B` is the biadjacency matrix (or the adjacency matrix of a directed graph).
-
-        Parameters
-        ----------
-        biadjacency:
-            Biadjacency matrix of the graph.
-
-        Returns
-        -------
-        self: :class:`BiSpectral`
-        """
-        biadjacency = check_format(biadjacency)
-        n_row, _ = biadjacency.shape
-        Spectral.fit(self, bipartite2undirected(biadjacency))
-        self._split_vars(n_row)
-
-        return self
-
-    def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
-        """Predict the embedding of new rows, defined by their adjacency vectors.
-
-        Parameters
-        ----------
-        adjacency_vectors :
-            Adjacency vectors of nodes.
-            Array of shape (n_col,) (single vector) or (n_vectors, n_col)
-
-        Returns
-        -------
-        embedding_vectors : np.ndarray
-            Embedding of the nodes.
-        """
-        self._check_fitted()
-        n_row, _ = self.embedding_row_.shape
-        n_col, _ = self.embedding_col_.shape
-
-        adjacency_vectors = check_adjacency_vector(adjacency_vectors, n_col)
-        empty_block = sparse.csr_matrix((adjacency_vectors.shape[0], n_row))
-        adjacency_vectors = sparse.bmat([[empty_block, adjacency_vectors]], format='csr')
-        embedding_vectors = Spectral.predict(self, adjacency_vectors)
 
         return embedding_vectors

@@ -85,15 +85,14 @@ class Laplacian(LinearOperator):
 
     def _matvec(self, matrix: np.ndarray):
         if self.normalized_laplacian:
-            prod = self.laplacian.dot(self.norm_diag.dot(matrix))
-        else:
-            prod = self.laplacian.dot(matrix)
+            matrix = self.norm_diag.dot(matrix)
+        prod = self.laplacian.dot(matrix)
         if self.regularization > 0:
             n = self.shape[0]
             if matrix.ndim == 2:
-                prod += self.regularization * (matrix - np.tile(matrix.sum(axis=0), (n, 1)) / n)
+                prod += self.regularization * (matrix - np.outer(matrix.mean(axis=0), np.ones(n)))
             else:
-                prod += self.regularization * (matrix - matrix.sum() / n)
+                prod += self.regularization * (matrix - matrix.mean())
         if self.normalized_laplacian:
             prod = self.norm_diag.dot(prod)
         return prod
