@@ -10,10 +10,17 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.data import movie_actor
-from sknetwork.linalg import CoNeighborOperator, normalize
+from sknetwork.linalg import RegularizedAdjacency, CoNeighborOperator, normalize
 
 
 class TestOperators(unittest.TestCase):
+
+    def test_regularization(self):
+        biadjacency = movie_actor(metadata=False)
+        operator = RegularizedAdjacency(biadjacency)
+        n_row, n_col = biadjacency.shape
+        weights_row = biadjacency.dot(np.ones(n_col))
+        self.assertTrue(all(operator.dot(np.ones(n_col)) == weights_row + 1))
 
     def test_coneighbors(self):
         biadjacency = movie_actor(metadata=False)

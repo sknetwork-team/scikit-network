@@ -13,7 +13,7 @@ from scipy import sparse
 from sknetwork.utils.check import is_symmetric, is_square, check_format
 
 
-def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak') -> np.ndarray:
+def get_connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak') -> np.ndarray:
     """Extract the connected components of the graph.
 
     * Graphs
@@ -39,7 +39,29 @@ def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak')
     return sparse.csgraph.connected_components(adjacency, not is_symmetric(adjacency), connection, True)[1]
 
 
-def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], return_labels: bool = False):
+def is_connected(adjacency: sparse.csr_matrix, connection: str = 'weak') -> bool:
+    """Test if the graph is connected.
+
+    * Graphs
+    * Digraphs
+
+    Parameters
+    ----------
+    adjacency :
+        Adjacency matrix of the graph.
+    connection :
+        Must be ``'weak'`` (default) or ``'strong'``. The type of connection to use for directed graphs.
+
+    Returns
+    -------
+    connected : bool
+        `True` if the graph is connected.
+    """
+    n_connected_components = len(np.unique(get_connected_components(adjacency, connection)))
+    return n_connected_components == 1
+
+
+def get_largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], return_labels: bool = False):
     """Extract the largest connected component of a graph. Bipartite graphs are treated as undirected.
 
     * Graphs
@@ -70,7 +92,7 @@ def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray],
         bipartite: bool = False
         full_adjacency = adjacency
 
-    labels = connected_components(full_adjacency)
+    labels = get_connected_components(full_adjacency)
     unique_labels, counts = np.unique(labels, return_counts=True)
     component_label = unique_labels[np.argmax(counts)]
     component_indices = np.where(labels == component_label)[0]

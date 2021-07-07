@@ -20,7 +20,7 @@ Operators
 
 .. autoclass:: sknetwork.linalg.RegularizedAdjacency
 
-.. autoclass:: sknetwork.linalg.LaplacianOperator
+.. autoclass:: sknetwork.linalg.RegularizedLaplacian
 
 .. autoclass:: sknetwork.linalg.NormalizedAdjacencyOperator
 

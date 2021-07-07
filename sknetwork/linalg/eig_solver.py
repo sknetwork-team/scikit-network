@@ -46,8 +46,11 @@ class LanczosEig(EigSolver):
     which : str
         Which eigenvectors and eigenvalues to find:
 
-        * ``'LM'`` : Largest (in magnitude) eigenvalues.
-        * ``'SM'`` : Smallest (in magnitude) eigenvalues.
+        * ``'LM'`` : Largest (in modulus) eigenvalues.
+        * ``'SM'`` : Smallest (in modulus) eigenvalues.
+        * ``'LA'`` : Largest (algebraic) eigenvalues.
+        * ``'SA'`` : Smallest (algebraic) eigenvalues.
+
     n_iter : int
         Maximum number of Arnoldi update iterations allowed.
         Default = 10 * nb of rows.
@@ -70,30 +73,29 @@ class LanczosEig(EigSolver):
         self.n_iter = n_iter
         self.tol = tol
 
-    def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator], n_components: int,
-            init_vector: np.ndarray = None):
-        """Perform eigenvalue decomposition on symmetric input matrix.
+    def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator], n_components: int = 2,
+            right_matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator] = None):
+        """Perform spectral decomposition on symmetric input matrix.
 
         Parameters
         ----------
-        matrix :
+        matrix : sparse.csr_matrix or linear operator
             Matrix to decompose.
         n_components : int
             Number of eigenvectors to compute
-        init_vector : np.ndarray
-            Starting vector for iteration. Default: random.
+        right_matrix : sparse.csr_matrix or linear operator
+            Right matrix for generalized spectral decomposition.
         Returns
         -------
         self: :class:`EigSolver`
         """
-        eigenvalues, eigenvectors = eigsh(matrix.astype(float), n_components, which=self.which, maxiter=self.n_iter,
-                                          tol=self.tol, v0=init_vector)
+        if right_matrix is None:
+            eigenvalues, eigenvectors = eigsh(matrix.astype(float), n_components, which=self.which,
+                                              maxiter=self.n_iter, tol=self.tol)
+        else:
+            eigenvalues, eigenvectors = eigsh(matrix.astype(float), n_components, which=self.which,
+                                              maxiter=self.n_iter, tol=self.tol, M=right_matrix)
         self.eigenvectors_ = eigenvectors
         self.eigenvalues_ = eigenvalues
-
-        if self.which in ['LM', 'LA']:
-            index = np.argsort(-self.eigenvalues_)
-            self.eigenvalues_ = self.eigenvalues_[index]
-            self.eigenvectors_ = self.eigenvectors_[:, index]
 
         return self
