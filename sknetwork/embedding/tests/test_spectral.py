@@ -22,10 +22,25 @@ class TestEmbeddings(unittest.TestCase):
             if not is_connected(adjacency):
                 weights += 1
             self.assertAlmostEqual(np.linalg.norm(embedding.T.dot(weights)), 0)
+            self.assertAlmostEqual(np.linalg.norm(embedding[1:4] - spectral.predict(adjacency[1:4])), 0)
             # regular Laplacian
             spectral = Spectral(3, normalized_laplacian=False)
             embedding = spectral.fit_transform(adjacency)
             self.assertAlmostEqual(np.linalg.norm(embedding.sum(axis=0)), 0)
+            self.assertAlmostEqual(np.linalg.norm(embedding[1:4] - spectral.predict(adjacency[1:4])), 0)
+
+    def test_directed(self):
+        for adjacency in [test_digraph(), test_digraph().astype(bool)]:
+            n_row, n_col = adjacency.shape
+            # normalized Laplacian
+            spectral = Spectral(3)
+            embedding = spectral.fit_transform(adjacency)
+            self.assertAlmostEqual(np.linalg.norm(embedding[6:8] - spectral.predict(adjacency[6:8])), 0)
+            # regular Laplacian
+            spectral = Spectral(3, normalized_laplacian=False)
+            embedding = spectral.fit_transform(adjacency)
+            self.assertAlmostEqual(np.linalg.norm(spectral.eigenvectors_.sum(axis=0)), 0)
+            self.assertAlmostEqual(np.linalg.norm(embedding[6:8] - spectral.predict(adjacency[6:8])), 0)
 
     def test_regularization(self):
         for adjacency in [test_graph(), test_graph_disconnect()]:

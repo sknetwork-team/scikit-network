@@ -2,6 +2,7 @@
 # coding: utf-8
 """
 Created on Apr 2020
+@author: Thomas Bonald <bonald@enst.fr>
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 from typing import Union
@@ -46,7 +47,7 @@ class RegularizedAdjacency(SparseLR):
 
 
 class Laplacian(LinearOperator):
-    """Regularized Laplacian matrix as a Scipy LinearOperator.
+    """Laplacian matrix as a Scipy LinearOperator.
 
     Defined by :math:`L = D - A` where :math:`A` is the regularized adjacency matrix and :math:`D` the corresponding
     diagonal matrix of degrees.
@@ -90,7 +91,7 @@ class Laplacian(LinearOperator):
         if self.regularization > 0:
             n = self.shape[0]
             if matrix.ndim == 2:
-                prod += self.regularization * (matrix - np.outer(matrix.mean(axis=0), np.ones(n)))
+                prod += self.regularization * (matrix - np.outer(np.ones(n), matrix.mean(axis=0)))
             else:
                 prod += self.regularization * (matrix - matrix.mean())
         if self.normalized_laplacian:
@@ -107,44 +108,46 @@ class Laplacian(LinearOperator):
         return self
 
 
-class NormalizedAdjacencyOperator(LinearOperator):
-    """Regularized normalized adjacency matrix as a Scipy LinearOperator.
+class Normalizer(LinearOperator):
+    """Normalized matrix as a Scipy LinearOperator.
 
-    The normalized adjacency operator is then defined as
-    :math:`\\bar{A} = D^{-1/2}AD^{-1/2}`.
+    Defined by :math:`D^{-1}A` where :math:`A` is the regularized adjacency matrix and :math:`D` the corresponding
+    diagonal matrix of degrees (sums over rows).
 
     Parameters
     ----------
     adjacency :
         :term:`Adjacency <adjacency>` matrix of the graph.
     regularization : float
-        Constant added to all entries of the adjacency matrix.
+        Regularization factor.
+        Default value = 0.
 
     Examples
     --------
     >>> from sknetwork.data import house
     >>> adjacency = house()
-    >>> adj_norm = NormalizedAdjacencyOperator(adjacency, 0.)
-    >>> x = np.sqrt(adjacency.dot(np.ones(5)))
-    >>> np.allclose(x, adj_norm.dot(x))
-    True
+    >>> normalizer = Normalizer(adjacency)
+    >>> normalizer.dot(np.ones(5))
+    array([1., 1., 1., 1., 1.])
     """
-    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0.):
-        super(NormalizedAdjacencyOperator, self).__init__(dtype=float, shape=adjacency.shape)
-        self.adjacency = adjacency
+    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0):
+        if adjacency.ndim == 1:
+            adjacency = adjacency.reshape(1, -1)
+        super(Normalizer, self).__init__(dtype=float, shape=adjacency.shape)
+        n_col = adjacency.shape[1]
         self.regularization = regularization
-
-        n = self.adjacency.shape[0]
-        self.weights_sqrt = np.sqrt(self.adjacency.dot(np.ones(n)) + self.regularization * n)
+        self.adjacency = adjacency
+        self.norm_diag = diag_pinv(adjacency.dot(np.ones(n_col)) + regularization)
 
     def _matvec(self, matrix: np.ndarray):
-        matrix = (matrix.T / self.weights_sqrt).T
         prod = self.adjacency.dot(matrix)
-        if matrix.ndim == 2:
-            prod += self.regularization * np.tile(matrix.sum(axis=0), (self.shape[0], 1))
-        else:
-            prod += self.regularization * matrix.sum()
-        return (prod.T / self.weights_sqrt).T
+        if self.regularization > 0:
+            n_row = self.shape[0]
+            if matrix.ndim == 2:
+                prod += self.regularization * np.outer(np.ones(n_row), matrix.mean(axis=0))
+            else:
+                prod += self.regularization * matrix.mean() * np.ones(n_row)
+        return self.norm_diag.dot(prod)
 
     def _transpose(self):
         return self
@@ -153,8 +156,7 @@ class NormalizedAdjacencyOperator(LinearOperator):
         """Change dtype of the object."""
         self.dtype = np.dtype(dtype)
         self.adjacency = self.adjacency.astype(self.dtype)
-        self.weights_sqrt = self.weights_sqrt.astype(self.dtype)
-
+        self.norm_diag = self.norm_diag.astype(self.dtype)
         return self
 
 

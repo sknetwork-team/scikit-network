@@ -11,75 +11,68 @@ import numpy as np
 from scipy import sparse
 
 
-def has_nonnegative_entries(entry: Union[sparse.csr_matrix, np.ndarray]) -> bool:
+def has_nonnegative_entries(input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     """True if the array has non negative entries."""
-    if type(entry) == sparse.csr_matrix:
-        return np.all(entry.data >= 0)
+    if type(input_matrix) == sparse.csr_matrix:
+        return np.all(input_matrix.data >= 0)
     else:
-        return np.all(entry >= 0)
+        return np.all(input_matrix >= 0)
 
 
-def check_nonnegative(entry: Union[sparse.csr_matrix, np.ndarray]):
+def check_nonnegative(input_matrix: Union[sparse.csr_matrix, np.ndarray]):
     """Check whether the array has non negative entries."""
-    if not has_nonnegative_entries(entry):
+    if not has_nonnegative_entries(input_matrix):
         raise ValueError('Only nonnegative values are expected.')
-    else:
-        return
 
 
-def has_positive_entries(entry: np.ndarray) -> bool:
+def has_positive_entries(input_matrix: np.ndarray) -> bool:
     """True if the array has positive entries."""
-    if type(entry) != np.ndarray:
+    if type(input_matrix) != np.ndarray:
         raise TypeError('Entry must be a dense NumPy array.')
     else:
-        return np.all(entry > 0)
+        return np.all(input_matrix > 0)
 
 
-def check_positive(entry: Union[sparse.csr_matrix, np.ndarray]):
+def check_positive(input_matrix: Union[sparse.csr_matrix, np.ndarray]):
     """Check whether the array has positive entries."""
-    if not has_positive_entries(entry):
+    if not has_positive_entries(input_matrix):
         raise ValueError('Only positive values are expected.')
-    else:
-        return
 
 
-def is_proba_array(entry: np.ndarray) -> bool:
+def is_proba_array(input_matrix: np.ndarray) -> bool:
     """True if each line of the array has non negative entries which sum to 1."""
-    if len(entry.shape) == 1:
-        return has_nonnegative_entries(entry) and np.isclose(entry.sum(), 1)
-    elif len(entry.shape) == 2:
-        n_row, n_col = entry.shape
-        err = entry.dot(np.ones(n_col)) - np.ones(n_row)
-        return has_nonnegative_entries(entry) and np.isclose(np.linalg.norm(err), 0)
+    if len(input_matrix.shape) == 1:
+        return has_nonnegative_entries(input_matrix) and np.isclose(input_matrix.sum(), 1)
+    elif len(input_matrix.shape) == 2:
+        n_row, n_col = input_matrix.shape
+        err = input_matrix.dot(np.ones(n_col)) - np.ones(n_row)
+        return has_nonnegative_entries(input_matrix) and np.isclose(np.linalg.norm(err), 0)
     else:
         raise TypeError('Entry must be one or two-dimensional array.')
 
 
-def is_square(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> bool:
+def is_square(input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     """True if the matrix is square."""
-    return adjacency.shape[0] == adjacency.shape[1]
+    return input_matrix.shape[0] == input_matrix.shape[1]
 
 
-def check_square(adjacency: Union[sparse.csr_matrix, np.ndarray]):
+def check_square(input_matrix: Union[sparse.csr_matrix, np.ndarray]):
     """Check whether a matrix is square and return an error otherwise."""
-    if is_square(adjacency):
+    if is_square(input_matrix):
         return
     else:
         raise ValueError('The adjacency is expected to be square.')
 
 
-def is_symmetric(adjacency: sparse.csr_matrix, tol: float = 1e-10) -> bool:
+def is_symmetric(input_matrix: sparse.csr_matrix) -> bool:
     """True if the matrix is symmetric."""
-    sym_error = adjacency - adjacency.T
-    return np.all(np.abs(sym_error.data) <= tol * np.abs(adjacency.data.max()))
+    return sparse.csr_matrix(input_matrix - input_matrix.T).nnz == 0
 
 
-def check_symmetry(adjacency: sparse.csr_matrix, tol: float = 1e-10):
+def check_symmetry(input_matrix: sparse.csr_matrix):
     """Check whether a matrix is symmetric and return an error otherwise."""
-    if is_symmetric(adjacency, tol):
-        return
-    else:
-        raise ValueError('The adjacency is expected to be symmetric.')
+    if not is_symmetric(input_matrix):
+        raise ValueError('The input matrix is expected to be symmetric.')
 
 
 def is_connected(adjacency: sparse.csr_matrix) -> bool:
@@ -96,9 +89,7 @@ def is_connected(adjacency: sparse.csr_matrix) -> bool:
 
 def check_connected(adjacency: sparse.csr_matrix):
     """Check is a graph is connected and return an error otherwise."""
-    if is_connected(adjacency):
-        return
-    else:
+    if not is_connected(adjacency):
         raise ValueError('The adjacency is expected to be connected.')
 
 
@@ -128,14 +119,16 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
     return node_weights_vec
 
 
-def check_format(adjacency: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
+def check_format(input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
     """Check whether the matrix is a NumPy array or a Scipy CSR matrix and return
     the corresponding Scipy CSR matrix.
     """
-    if type(adjacency) not in {sparse.csr_matrix, np.ndarray}:
-        raise TypeError('Adjacency must be in Scipy CSR format or Numpy ndarray format.')
-    else:
-        return sparse.csr_matrix(adjacency)
+    if type(input_matrix) not in {sparse.csr_matrix, np.ndarray}:
+        raise TypeError('The input matrix must be in Scipy CSR format or Numpy ndarray format.')
+    input_matrix = sparse.csr_matrix(input_matrix)
+    if input_matrix.nnz == 0:
+        raise ValueError('The input matrix is empty.')
+    return input_matrix
 
 
 def check_is_proba(entry: Union[float, int], name: str = None):
@@ -265,11 +258,8 @@ def check_adjacency_vector(adjacency_vectors: Union[sparse.csr_matrix, np.ndarra
                            n: Optional[int] = None) -> sparse.csr_matrix:
     """Check format of new samples for predict methods"""
     adjacency_vectors = check_format(adjacency_vectors)
-
-    if n is not None:
-        if adjacency_vectors.shape[1] != n:
-            raise ValueError('The adjacency vector must be of length equal to the number nodes in the initial graph.')
-
+    if adjacency_vectors.shape[1] != n:
+        raise ValueError('The adjacency vector must be of length equal to the number nodes in the graph.')
     return adjacency_vectors
 
 

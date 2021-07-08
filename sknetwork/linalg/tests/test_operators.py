@@ -2,28 +2,51 @@
 # -*- coding: utf-8 -*-
 """
 Created on Apr 2020
+@author: Thomas Bonald <bonald@enst.fr>
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 import unittest
 
 import numpy as np
-from scipy import sparse
 
-from sknetwork.data import movie_actor
-from sknetwork.linalg import RegularizedAdjacency, CoNeighborOperator, normalize
+from sknetwork.data.test_graphs import *
+from sknetwork.linalg import Laplacian, Normalizer, CoNeighborOperator, normalize
 
 
 class TestOperators(unittest.TestCase):
 
-    def test_regularization(self):
-        biadjacency = movie_actor(metadata=False)
-        operator = RegularizedAdjacency(biadjacency)
-        n_row, n_col = biadjacency.shape
-        weights_row = biadjacency.dot(np.ones(n_col))
-        self.assertTrue(all(operator.dot(np.ones(n_col)) == weights_row + 1))
+    def test_laplacian(self):
+        for adjacency in [test_graph(), test_graph_disconnect()]:
+            n = adjacency.shape[1]
+            # regular Laplacian
+            laplacian = Laplacian(adjacency)
+            self.assertAlmostEqual(np.linalg.norm(laplacian.dot(np.ones(n))), 0)
+            # normalized Laplacian
+            laplacian = Laplacian(adjacency, normalized_laplacian=True)
+            weights = adjacency.dot(np.ones(n))
+            self.assertAlmostEqual(np.linalg.norm(laplacian.dot(np.sqrt(weights))), 0)
+            # regularization
+            regularization = 0.1
+            laplacian = Laplacian(adjacency, regularization=regularization, normalized_laplacian=True)
+            weights = adjacency.dot(np.ones(n)) + regularization
+            self.assertAlmostEqual(np.linalg.norm(laplacian.dot(np.sqrt(weights))), 0)
+
+    def test_normalizer(self):
+        for adjacency in [test_graph(), test_graph_disconnect()]:
+            n_row, n_col = adjacency.shape
+            # square matrix
+            normalizer = Normalizer(adjacency)
+            non_zeros = adjacency.dot(np.ones(n_col)) > 0
+            self.assertAlmostEqual(np.linalg.norm(normalizer.dot(np.ones(n_col)) - non_zeros), 0)
+            # single row
+            normalizer = Normalizer(adjacency[1])
+            self.assertAlmostEqual(float(normalizer.dot(np.ones(n_col))), 1)
+            # regularization
+            normalizer = Normalizer(adjacency, 1)
+            self.assertAlmostEqual(np.linalg.norm(normalizer.dot(np.ones(n_col)) - np.ones(n_row)), 0)
 
     def test_coneighbors(self):
-        biadjacency = movie_actor(metadata=False)
+        biadjacency = test_bigraph()
         operator = CoNeighborOperator(biadjacency)
         transition = normalize(operator)
         x = transition.dot(np.ones(transition.shape[1]))
