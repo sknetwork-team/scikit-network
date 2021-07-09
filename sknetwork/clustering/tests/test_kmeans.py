@@ -26,7 +26,7 @@ class TestKMeans(unittest.TestCase):
             labels = self.kmeans.fit_transform(adjacency)
             self.assertEqual(len(set(labels)), 3)
             self.assertEqual(self.kmeans.membership_.shape, (n, 3))
-            self.assertEqual(self.kmeans.adjacency_.shape, (3, 3))
+            self.assertEqual(self.kmeans.aggregate_.shape, (3, 3))
             labels = self.kmeans_options.fit_transform(adjacency)
             self.assertEqual(len(set(labels)), 4)
 
@@ -36,7 +36,7 @@ class TestKMeans(unittest.TestCase):
         labels = self.kmeans.fit_transform(adjacency)
         self.assertEqual(len(set(labels)), 3)
         self.assertEqual(self.kmeans.membership_.shape, (n, 3))
-        self.assertEqual(self.kmeans.adjacency_.shape, (3, 3))
+        self.assertEqual(self.kmeans.aggregate_.shape, (3, 3))
         labels = self.kmeans_options.fit_transform(adjacency)
         self.assertEqual(len(set(labels)), 4)
 
@@ -47,12 +47,12 @@ class TestKMeans(unittest.TestCase):
             self.assertEqual(len(set(self.bikmeans.labels_row_)), 3)
             self.assertEqual(self.bikmeans.membership_.shape, (n_row, 3))
             self.assertEqual(self.bikmeans.membership_row_.shape, (n_row, 3))
-            self.assertEqual(self.bikmeans.biadjacency_.shape, (3, n_col))
+            self.assertEqual(self.bikmeans.aggregate_.shape, (3, n_col))
             self.bikmeans_options.fit(biadjacency)
             labels = np.hstack((self.bikmeans_options.labels_row_, self.bikmeans_options.labels_col_))
             self.assertEqual(len(set(labels)), 4)
             self.assertEqual(self.bikmeans_options.membership_.shape, (n_row, 4))
             self.assertEqual(self.bikmeans_options.membership_row_.shape, (n_row, 4))
             self.assertEqual(self.bikmeans_options.membership_col_.shape, (n_col, 4))
-            self.assertEqual(self.bikmeans_options.biadjacency_.shape, (4, 4))
+            self.assertEqual(self.bikmeans_options.aggregate_.shape, (4, 4))
 

@@ -12,10 +12,10 @@ from scipy import sparse
 
 from sknetwork.clustering.base import BaseClustering, BaseBiClustering
 from sknetwork.clustering.postprocess import reindex_labels
-from sknetwork.embedding.base import BaseEmbedding, BaseBiEmbedding
+from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.embedding.svd import GSVD
 from sknetwork.linalg.normalization import normalize
-from sknetwork.utils.check import check_n_clusters
+from sknetwork.utils.check import check_n_clusters, check_format
 from sknetwork.utils.kmeans import KMeansDense
 from sknetwork.utils.membership import membership_matrix
 
@@ -32,6 +32,8 @@ class KMeans(BaseClustering):
         Number of desired clusters.
     embedding_method :
         Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
+    co_cluster :
+        If ``True``, co-cluster rows and columns, considered as different nodes (default = ``False``).
     sort_clusters :
             If ``True``, sort labels in decreasing order of cluster size.
     return_membership :
@@ -57,39 +59,55 @@ class KMeans(BaseClustering):
     >>> len(set(labels))
     3
     """
-    def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10), sort_clusters: bool = True,
-                 return_membership: bool = True, return_aggregate: bool = True):
+    def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10), co_cluster: bool = False,
+                 sort_clusters: bool = True, return_membership: bool = True, return_aggregate: bool = True):
         super(KMeans, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
                                      return_aggregate=return_aggregate)
         self.n_clusters = n_clusters
         self.embedding_method = embedding_method
+        self.co_cluster = co_cluster
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'KMeans':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'KMeans':
         """Apply embedding method followed by K-means.
 
         Parameters
         ----------
-        adjacency:
-            Adjacency matrix of the graph.
+        input_matrix :
+            Adjacency matrix or biadjacency matrix of the graph.
 
         Returns
         -------
         self: :class:`KMeans`
         """
-        n = adjacency.shape[0]
-        check_n_clusters(self.n_clusters, n)
+        # input
+        check_format(input_matrix)
+        check_n_clusters(self.n_clusters, input_matrix.shape[0])
 
-        embedding = self.embedding_method.fit_transform(adjacency)
+        # embedding
+        method = self.embedding_method
+        method.fit(input_matrix)
+        if self.co_cluster:
+            embedding = np.vstack((method.embedding_row_, method.embedding_col_))
+        else:
+            embedding = method.embedding_
+
+        # clustering
         kmeans = KMeansDense(self.n_clusters)
         kmeans.fit(embedding)
 
+        # sort
         if self.sort_clusters:
             labels = reindex_labels(kmeans.labels_)
         else:
             labels = kmeans.labels_
 
+        # output
         self.labels_ = labels
-        self._secondary_outputs(adjacency)
+        if self.co_cluster:
+            self._split_vars(input_matrix.shape[0])
+        else:
+            self.labels_row_ = labels
+        self._secondary_outputs(input_matrix)
 
         return self
 
@@ -200,6 +218,6 @@ class BiKMeans(KMeans, BaseBiClustering):
             if self.labels_col_ is not None:
                 membership_col = membership_matrix(self.labels_col_, n_labels=self.n_clusters)
                 biadjacency_ = biadjacency_.dot(membership_col)
-            self.biadjacency_ = biadjacency_
+            self.aggregate_ = biadjacency_
 
         return self

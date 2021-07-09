@@ -8,7 +8,7 @@ import numpy as np
 from scipy import sparse
 from sknetwork.hierarchy.paris import AggregateGraph
 
-from sknetwork.utils.check import check_format, check_probs, check_square
+from sknetwork.utils.check import check_format, get_probs, check_square
 from sknetwork.utils.check import check_min_size, check_min_nnz
 from sknetwork.utils.format import directed2undirected
 
@@ -16,8 +16,8 @@ from sknetwork.utils.format import directed2undirected
 def _instanciate_vars(adjacency: sparse.csr_matrix, weights: str = 'uniform'):
     """Initialize standard variables for metrics."""
     n = adjacency.shape[0]
-    weights_row = check_probs(weights, adjacency)
-    weights_col = check_probs(weights, adjacency.T)
+    weights_row = get_probs(weights, adjacency)
+    weights_col = get_probs(weights, adjacency.T)
     sym_adjacency = directed2undirected(adjacency)
 
     aggregate_graph = AggregateGraph(weights_row, weights_col, sym_adjacency.data.astype(float),

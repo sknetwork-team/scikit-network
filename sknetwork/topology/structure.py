@@ -16,9 +16,6 @@ from sknetwork.utils.check import is_symmetric, is_square, check_format
 def get_connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak') -> np.ndarray:
     """Extract the connected components of the graph.
 
-    * Graphs
-    * Digraphs
-
     Based on SciPy (scipy.sparse.csgraph.connected_components).
 
     Parameters
@@ -40,33 +37,19 @@ def get_connected_components(adjacency: sparse.csr_matrix, connection: str = 'we
 
 
 def is_connected(adjacency: sparse.csr_matrix, connection: str = 'weak') -> bool:
-    """Test if the graph is connected.
-
-    * Graphs
-    * Digraphs
-
+    """Return True if the graph is connected.
     Parameters
     ----------
     adjacency :
         Adjacency matrix of the graph.
     connection :
         Must be ``'weak'`` (default) or ``'strong'``. The type of connection to use for directed graphs.
-
-    Returns
-    -------
-    connected : bool
-        `True` if the graph is connected.
     """
-    n_connected_components = len(np.unique(get_connected_components(adjacency, connection)))
-    return n_connected_components == 1
+    return len(get_connected_components(adjacency, connection)) == 1
 
 
 def get_largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], return_labels: bool = False):
     """Extract the largest connected component of a graph. Bipartite graphs are treated as undirected.
-
-    * Graphs
-    * Digraphs
-    * Bigraphs
 
     Parameters
     ----------

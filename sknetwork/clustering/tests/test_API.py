@@ -4,7 +4,7 @@
 import unittest
 
 from sknetwork.clustering import *
-from sknetwork.data import house, star_wars
+from sknetwork.data import house
 from sknetwork.data.test_graphs import *
 from sknetwork.embedding.svd import GSVD
 
@@ -27,13 +27,13 @@ class TestClusteringAPI(unittest.TestCase):
                 self.assertEqual(labels2.shape, (n,))
 
                 n_labels = len(set(labels2))
-                self.assertEqual(clustering_algo.adjacency_.shape, (n_labels, n_labels))
+                self.assertEqual(clustering_algo.aggregate_.shape, (n_labels, n_labels))
 
     def test_bipartite(self):
         biadjacency = test_bigraph()
         n_row, n_col = biadjacency.shape
 
-        clustering = [BiLouvain(return_aggregate=True),
+        clustering = [Louvain(return_aggregate=True),
                       BiKMeans(embedding_method=GSVD(3), co_cluster=True, return_aggregate=True),
                       BiPropagationClustering(return_aggregate=True)]
         for clustering_algo in clustering:
@@ -45,12 +45,6 @@ class TestClusteringAPI(unittest.TestCase):
 
     def test_aggregate(self):
         adjacency = house()
-        biadjacency = star_wars()
-
         louvain = Louvain(return_aggregate=True)
         louvain.fit(adjacency)
-        self.assertTrue(np.issubdtype(louvain.adjacency_.dtype, np.float_))
-
-        bilouvain = BiLouvain(return_aggregate=True)
-        bilouvain.fit(biadjacency)
-        self.assertTrue(np.issubdtype(bilouvain.biadjacency_.dtype, np.float_))
+        self.assertTrue(np.issubdtype(louvain.aggregate_.dtype, np.float_))

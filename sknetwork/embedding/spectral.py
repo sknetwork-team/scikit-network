@@ -12,6 +12,7 @@ from scipy import sparse
 
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import LanczosEig, Laplacian, Normalizer
+from sknetwork.utils.format import get_adjacency
 from sknetwork.utils.check import check_adjacency_vector, check_nonnegative, check_n_components
 
 
@@ -87,7 +88,7 @@ class Spectral(BaseEmbedding):
         self: :class:`Spectral`
         """
         # input
-        adjacency, self.bipartite, input_shape = self._check_input(input_matrix)
+        adjacency, self.bipartite = get_adjacency(input_matrix)
         n = adjacency.shape[0]
 
         # regularization
@@ -117,7 +118,7 @@ class Spectral(BaseEmbedding):
         self.eigenvalues_ = eigenvalues
         self.eigenvectors_ = eigenvectors
         if self.bipartite:
-            self._split_vars(input_shape[0])
+            self._split_vars(input_matrix.shape[0])
 
         return self
 

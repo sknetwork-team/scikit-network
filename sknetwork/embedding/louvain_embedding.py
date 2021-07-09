@@ -9,7 +9,7 @@ from typing import Optional, Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering.louvain import BiLouvain, Louvain
+from sknetwork.clustering.louvain import Louvain
 from sknetwork.embedding.base import BaseBiEmbedding, BaseEmbedding
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_random_state, check_adjacency_vector, check_nonnegative
@@ -90,10 +90,10 @@ class BiLouvainEmbedding(BaseBiEmbedding):
         -------
         self: :class:`BiLouvainEmbedding`
         """
-        bilouvain = BiLouvain(resolution=self.resolution, modularity=self.modularity,
-                              tol_optimization=self.tol_optimization, tol_aggregation=self.tol_aggregation,
-                              n_aggregations=self.n_aggregations, shuffle_nodes=self.shuffle_nodes, sort_clusters=False,
-                              return_membership=True, return_aggregate=True, random_state=self.random_state)
+        bilouvain = Louvain(resolution=self.resolution, modularity=self.modularity,
+                            tol_optimization=self.tol_optimization, tol_aggregation=self.tol_aggregation,
+                            n_aggregations=self.n_aggregations, shuffle_nodes=self.shuffle_nodes, sort_clusters=False,
+                            return_membership=True, return_aggregate=True, random_state=self.random_state)
         bilouvain.fit(biadjacency)
 
         embedding_row = bilouvain.membership_row_

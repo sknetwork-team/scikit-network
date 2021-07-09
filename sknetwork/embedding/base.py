@@ -5,15 +5,12 @@ Created on Nov, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 from abc import ABC
-from typing import Union, Tuple
 
 import numpy as np
 from scipy import sparse
 
 from sknetwork.topology.structure import is_connected
 from sknetwork.utils.base import Algorithm
-from sknetwork.utils.check import check_format, is_square, is_symmetric
-from sknetwork.utils.format import bipartite2undirected
 
 
 class BaseEmbedding(Algorithm, ABC):
@@ -41,20 +38,6 @@ class BaseEmbedding(Algorithm, ABC):
                              " Call 'fit' with appropriate arguments before using this method.")
         else:
             return self
-
-    @staticmethod
-    def _check_input(input_matrix: Union[sparse.csr_matrix, np.ndarray], symmetric: bool = True)\
-            -> Tuple[sparse.csr_matrix, bool, tuple]:
-        """Check the input matrix and return a proper adjacency matrix."""
-        input_matrix = check_format(input_matrix)
-        input_shape = input_matrix.shape
-        if not is_square(input_matrix) or (symmetric and not is_symmetric(input_matrix)):
-            bipartite = True
-            adjacency = bipartite2undirected(input_matrix)
-        else:
-            bipartite = False
-            adjacency = input_matrix
-        return adjacency, bipartite, input_shape
 
     @staticmethod
     def _get_regularization(regularization: float, adjacency: sparse.csr_matrix) -> float:

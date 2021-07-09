@@ -19,6 +19,25 @@ def has_nonnegative_entries(input_matrix: Union[sparse.csr_matrix, np.ndarray]) 
         return np.all(input_matrix >= 0)
 
 
+def is_connected(adjacency: sparse.csr_matrix) -> bool:
+    """Check whether a graph is weakly connected.
+    Parameters
+    ----------
+    adjacency:
+        Adjacency matrix of the graph.
+    """
+    n_cc = sparse.csgraph.connected_components(adjacency, (not is_symmetric(adjacency)), 'weak', False)
+    return n_cc == 1
+
+
+def check_connected(adjacency: sparse.csr_matrix):
+    """Check is a graph is connected and return an error otherwise."""
+    if is_connected(adjacency):
+        return
+    else:
+        raise ValueError('The graph is expected to be connected.')
+
+
 def check_nonnegative(input_matrix: Union[sparse.csr_matrix, np.ndarray]):
     """Check whether the array has non negative entries."""
     if not has_nonnegative_entries(input_matrix):
@@ -73,24 +92,6 @@ def check_symmetry(input_matrix: sparse.csr_matrix):
     """Check whether a matrix is symmetric and return an error otherwise."""
     if not is_symmetric(input_matrix):
         raise ValueError('The input matrix is expected to be symmetric.')
-
-
-def is_connected(adjacency: sparse.csr_matrix) -> bool:
-    """Check whether a graph is weakly connected.
-
-    Parameters
-    ----------
-    adjacency:
-        Adjacency matrix of the graph.
-    """
-    n_cc = sparse.csgraph.connected_components(adjacency, (not is_symmetric(adjacency)), 'weak', False)
-    return n_cc == 1
-
-
-def check_connected(adjacency: sparse.csr_matrix):
-    """Check is a graph is connected and return an error otherwise."""
-    if not is_connected(adjacency):
-        raise ValueError('The adjacency is expected to be connected.')
 
 
 def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
@@ -186,8 +187,8 @@ def check_weights(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr
     return node_weights_vec
 
 
-def check_probs(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_matrix, sparse.csc_matrix],
-                positive_entries: bool = False) -> np.ndarray:
+def get_probs(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_matrix, sparse.csc_matrix],
+              positive_entries: bool = False) -> np.ndarray:
     """Check whether the weights are a valid distribution for the adjacency
     and return a normalized probability vector.
     """

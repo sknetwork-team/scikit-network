@@ -4,12 +4,13 @@
 Created on Apr 8, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-from typing import Union
+from typing import Union, Tuple
 
 import numpy as np
 from scipy import sparse
 
 from sknetwork.linalg.sparse_lowrank import SparseLR
+from sknetwork.utils.check import check_format, is_square, is_symmetric
 
 
 def check_csr_or_slr(adjacency):
@@ -127,3 +128,29 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
             new_tuples.append((np.hstack((x, np.zeros(n_col))), np.hstack((np.zeros(n_row), y))))
             new_tuples.append((np.hstack((np.zeros(n_row), y)), np.hstack((x, np.zeros(n_col)))))
         return SparseLR(bipartite2undirected(biadjacency.sparse_mat), new_tuples)
+
+
+def get_adjacency(input_matrix: Union[sparse.csr_matrix, np.ndarray], which: str = 'bipartite')\
+        -> Tuple[sparse.csr_matrix, bool]:
+    """Check the input matrix and return a proper adjacency matrix.
+    Parameters
+    ----------
+    input_matrix :
+        Adjacency matrix of biadjacency matrix of the graph.
+    which :
+        Which graph to get.
+        If 'bipartite', :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}` if the input matrix :math:`B`
+        is not square or not symmetric.
+        If 'directed', :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}` if the input matrix :math:`B`
+        is not square (otherwise, :math:`A  = B`).
+    """
+    input_matrix = check_format(input_matrix)
+    if is_square(input_matrix):
+        if is_symmetric(input_matrix) or which == 'directed':
+            adjacency = input_matrix
+            return adjacency, False
+    if which == 'bipartite':
+        adjacency = bipartite2undirected(input_matrix)
+    else:
+        adjacency = bipartite2directed(input_matrix)
+    return adjacency, True

@@ -12,6 +12,7 @@ from scipy import sparse
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import Regularizer, Normalizer, normalize
 from sknetwork.utils.check import check_random_state
+from sknetwork.utils.format import get_adjacency
 
 
 class RandomProjection(BaseEmbedding):
@@ -89,7 +90,7 @@ class RandomProjection(BaseEmbedding):
         self: :class:`RandomProjection`
         """
         # input
-        adjacency, self.bipartite, input_shape = self._check_input(input_matrix, symmetric=False)
+        adjacency, self.bipartite = get_adjacency(input_matrix)
         n = adjacency.shape[0]
 
         # regularization
@@ -121,5 +122,5 @@ class RandomProjection(BaseEmbedding):
         # output
         self.embedding_ = embedding
         if self.bipartite:
-            self._split_vars(input_shape[0])
+            self._split_vars(input_matrix.shape[0])
         return self

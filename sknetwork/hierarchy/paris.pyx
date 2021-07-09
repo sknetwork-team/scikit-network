@@ -20,9 +20,9 @@ from typing import Union
 from scipy import sparse
 
 from sknetwork.hierarchy.base import BaseHierarchy, BaseBiHierarchy
-from sknetwork.hierarchy.postprocess import reorder_dendrogram, split_dendrogram
+from sknetwork.hierarchy.postprocess import reorder_dendrogram
 from sknetwork.utils.format import bipartite2undirected, directed2undirected
-from sknetwork.utils.check import check_format, check_probs, check_square
+from sknetwork.utils.check import check_format, get_probs, check_square
 
 
 cdef class AggregateGraph:
@@ -228,8 +228,8 @@ class Paris(BaseHierarchy):
         sym_adjacency = directed2undirected(adjacency)
 
         weights = self.weights
-        out_weights = check_probs(weights, adjacency)
-        in_weights = check_probs(weights, adjacency.T)
+        out_weights = get_probs(weights, adjacency)
+        in_weights = get_probs(weights, adjacency.T)
 
         if n <= 1:
             raise ValueError('The graph must contain at least two nodes.')
