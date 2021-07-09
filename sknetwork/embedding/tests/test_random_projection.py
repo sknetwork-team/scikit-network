@@ -4,7 +4,7 @@
 import unittest
 
 from sknetwork.data.test_graphs import test_graph, test_bigraph, test_digraph, test_graph_disconnect
-from sknetwork.embedding import BiRandomProjection, RandomProjection
+from sknetwork.embedding import RandomProjection
 
 
 class TestEmbeddings(unittest.TestCase):
@@ -20,9 +20,6 @@ class TestEmbeddings(unittest.TestCase):
             adjacency = test_graph_disconnect()
             embedding = algo.fit_transform(adjacency)
             self.assertEqual(embedding.shape[1], 2)
-
-    def test_birandom_projection(self):
-        for algo in [BiRandomProjection(), BiRandomProjection(random_walk=True)]:
             biadjacency = test_bigraph()
             embedding = algo.fit_transform(biadjacency)
             self.assertEqual(embedding.shape[1], 2)

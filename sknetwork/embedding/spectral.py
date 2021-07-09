@@ -12,9 +12,7 @@ from scipy import sparse
 
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import LanczosEig, Laplacian, Normalizer
-from sknetwork.utils.check import is_symmetric, is_connected
-from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, check_n_components
-from sknetwork.utils.format import bipartite2undirected
+from sknetwork.utils.check import check_adjacency_vector, check_nonnegative, check_n_components
 
 
 class Spectral(BaseEmbedding):
@@ -60,8 +58,7 @@ class Spectral(BaseEmbedding):
     Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
     Neural computation.
     """
-    def __init__(self, n_components: int = 2, normalized_laplacian: bool = True, regularization: float = -1,
-                 normalized_embedding: bool = False):
+    def __init__(self, n_components: int = 2, normalized_laplacian: bool = True, regularization: float = -1):
         super(Spectral, self).__init__()
 
         self.n_components = n_components
@@ -90,22 +87,11 @@ class Spectral(BaseEmbedding):
         self: :class:`Spectral`
         """
         # input
-        adjacency = check_format(input_matrix)
-        n_row, n_col = adjacency.shape
-        self.bipartite = False
-        if n_row != n_col or not is_symmetric(adjacency):
-            self.bipartite = True
-            adjacency = bipartite2undirected(adjacency)
+        adjacency, self.bipartite, input_shape = self._check_input(input_matrix)
         n = adjacency.shape[0]
 
         # regularization
-        if self.regularization < 0:
-            if is_connected(adjacency):
-                regularization = 0
-            else:
-                regularization = np.abs(self.regularization)
-        else:
-            regularization = self.regularization
+        regularization = self._get_regularization(self.regularization, adjacency)
         self.regularized = regularization > 0
 
         # laplacian
@@ -131,7 +117,7 @@ class Spectral(BaseEmbedding):
         self.eigenvalues_ = eigenvalues
         self.eigenvectors_ = eigenvectors
         if self.bipartite:
-            self._split_vars(n_row)
+            self._split_vars(input_shape[0])
 
         return self
 

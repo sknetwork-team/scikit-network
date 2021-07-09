@@ -35,15 +35,60 @@ class Regularizer(SparseLR):
     --------
     >>> from sknetwork.data import house
     >>> adjacency = house()
-    >>> adjacency_reg = Regularizer(adjacency)
-    >>> adjacency_reg.dot(np.ones(5))
+    >>> regularizer = Regularizer(adjacency)
+    >>> regularizer.dot(np.ones(5))
     array([3., 4., 3., 3., 4.])
     """
     def __init__(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], regularization: float = 1):
         n_row, n_col = input_matrix.shape
-        x = regularization * np.ones(n_row)
-        y = np.ones(n_col) / n_col
-        super(Regularizer, self).__init__(input_matrix, (x, y))
+        u = regularization * np.ones(n_row)
+        v = np.ones(n_col) / n_col
+        super(Regularizer, self).__init__(input_matrix, (u, v))
+
+
+class Normalizer(LinearOperator):
+    """Normalized matrix as a Scipy LinearOperator.
+
+    Defined by :math:`D^{-1}A` where :math:`A` is the regularized adjacency matrix and :math:`D` the corresponding
+    diagonal matrix of degrees (sums over rows).
+
+    Parameters
+    ----------
+    adjacency :
+        :term:`Adjacency <adjacency>` matrix of the graph.
+    regularization : float
+        Regularization factor.
+        Default value = 0.
+
+    Examples
+    --------
+    >>> from sknetwork.data import house
+    >>> adjacency = house()
+    >>> normalizer = Normalizer(adjacency)
+    >>> normalizer.dot(np.ones(5))
+    array([1., 1., 1., 1., 1.])
+    """
+    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0):
+        if adjacency.ndim == 1:
+            adjacency = adjacency.reshape(1, -1)
+        super(Normalizer, self).__init__(dtype=float, shape=adjacency.shape)
+        n_col = adjacency.shape[1]
+        self.regularization = regularization
+        self.adjacency = adjacency
+        self.norm_diag = diag_pinv(adjacency.dot(np.ones(n_col)) + regularization)
+
+    def _matvec(self, matrix: np.ndarray):
+        prod = self.adjacency.dot(matrix)
+        if self.regularization > 0:
+            n_row = self.shape[0]
+            if matrix.ndim == 2:
+                prod += self.regularization * np.outer(np.ones(n_row), matrix.mean(axis=0))
+            else:
+                prod += self.regularization * matrix.mean() * np.ones(n_row)
+        return self.norm_diag.dot(prod)
+
+    def _transpose(self):
+        return self
 
 
 class Laplacian(LinearOperator):
@@ -105,58 +150,6 @@ class Laplacian(LinearOperator):
         """Change dtype of the object."""
         self.dtype = np.dtype(dtype)
         self.laplacian = self.laplacian.astype(self.dtype)
-        return self
-
-
-class Normalizer(LinearOperator):
-    """Normalized matrix as a Scipy LinearOperator.
-
-    Defined by :math:`D^{-1}A` where :math:`A` is the regularized adjacency matrix and :math:`D` the corresponding
-    diagonal matrix of degrees (sums over rows).
-
-    Parameters
-    ----------
-    adjacency :
-        :term:`Adjacency <adjacency>` matrix of the graph.
-    regularization : float
-        Regularization factor.
-        Default value = 0.
-
-    Examples
-    --------
-    >>> from sknetwork.data import house
-    >>> adjacency = house()
-    >>> normalizer = Normalizer(adjacency)
-    >>> normalizer.dot(np.ones(5))
-    array([1., 1., 1., 1., 1.])
-    """
-    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 0):
-        if adjacency.ndim == 1:
-            adjacency = adjacency.reshape(1, -1)
-        super(Normalizer, self).__init__(dtype=float, shape=adjacency.shape)
-        n_col = adjacency.shape[1]
-        self.regularization = regularization
-        self.adjacency = adjacency
-        self.norm_diag = diag_pinv(adjacency.dot(np.ones(n_col)) + regularization)
-
-    def _matvec(self, matrix: np.ndarray):
-        prod = self.adjacency.dot(matrix)
-        if self.regularization > 0:
-            n_row = self.shape[0]
-            if matrix.ndim == 2:
-                prod += self.regularization * np.outer(np.ones(n_row), matrix.mean(axis=0))
-            else:
-                prod += self.regularization * matrix.mean() * np.ones(n_row)
-        return self.norm_diag.dot(prod)
-
-    def _transpose(self):
-        return self
-
-    def astype(self, dtype: Union[str, np.dtype]):
-        """Change dtype of the object."""
-        self.dtype = np.dtype(dtype)
-        self.adjacency = self.adjacency.astype(self.dtype)
-        self.norm_diag = self.norm_diag.astype(self.dtype)
         return self
 
 
