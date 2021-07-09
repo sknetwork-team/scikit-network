@@ -32,7 +32,9 @@ class Spectral(BaseEmbedding):
         :math:`P = D^{-1}A`.
         If ``False``, use the regular Laplacian matrix :math:`L = D - A`
     regularization : float (default = ``-1``)
-        Regularization factor. If negative, regularization is applied only if the graph is disconnected.
+        Regularization factor :math:`\\alpha` so that the matrix is :math:`A + \\alpha \frac{11^T}{n}`.
+        If negative, regularization is applied only if the graph is disconnected (and then equal to the absolute value
+        of the parameter).
 
     Attributes
     ----------
@@ -136,7 +138,7 @@ class Spectral(BaseEmbedding):
     def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """Predict the embedding of new nodes, when possible (otherwise return 0).
 
-        Each new node is defined by its adjacency vector (i.e., neighbors in the graph).
+        Each new node is defined by its adjacency row vector.
 
         Parameters
         ----------

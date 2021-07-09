@@ -17,33 +17,33 @@ from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.utils.check import check_format
 
 
-class RegularizedAdjacency(SparseLR):
-    """Regularized adjacency matrix as a Scipy LinearOperator.
+class Regularizer(SparseLR):
+    """Regularized matrix as a Scipy LinearOperator.
 
-    Defined by :math:`A + \\alpha \\frac{11^T}n` where :math:`A` is the adjacency matrix
+    Defined by :math:`A + \\alpha \\frac{11^T}n` where :math:`A` is the input matrix
     and :math:`\\alpha` the regularization factor.
 
     Parameters
     ----------
-    adjacency :
-        :term:`Adjacency <adjacency>` matrix of the graph.
+    input_matrix :
+        Input matrix.
     regularization : float
-        Regularization factor `\\alpha`.
+        Regularization factor.
         Default value = 1.
 
     Examples
     --------
     >>> from sknetwork.data import house
     >>> adjacency = house()
-    >>> adjacency_reg = RegularizedAdjacency(adjacency)
+    >>> adjacency_reg = Regularizer(adjacency)
     >>> adjacency_reg.dot(np.ones(5))
     array([3., 4., 3., 3., 4.])
     """
-    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], regularization: float = 1):
-        n_row, n_col = adjacency.shape
+    def __init__(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], regularization: float = 1):
+        n_row, n_col = input_matrix.shape
         x = regularization * np.ones(n_row)
         y = np.ones(n_col) / n_col
-        super(RegularizedAdjacency, self).__init__(adjacency, (x, y))
+        super(Regularizer, self).__init__(input_matrix, (x, y))
 
 
 class Laplacian(LinearOperator):

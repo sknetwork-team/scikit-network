@@ -112,7 +112,7 @@ class BiWard(Ward, BaseBiHierarchy):
     * Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
       Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery, 2(1), 86-97.
     """
-    def __init__(self, embedding_method: BaseBiEmbedding = GSVD(10), cluster_col: bool = False,
+    def __init__(self, embedding_method: BaseEmbedding = GSVD(10), cluster_col: bool = False,
                  cluster_both: bool = False):
         super(BiWard, self).__init__(embedding_method=embedding_method)
         self.cluster_col = cluster_col
@@ -130,7 +130,7 @@ class BiWard(Ward, BaseBiHierarchy):
         -------
         self: :class:`BiWard`
         """
-        method: BaseBiEmbedding = self.embedding_method
+        method: BaseEmbedding = self.embedding_method
         method.fit(biadjacency)
         embedding_row = method.embedding_row_
         embedding_col = method.embedding_col_

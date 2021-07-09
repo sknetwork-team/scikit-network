@@ -140,7 +140,7 @@ class BiKMeans(KMeans, BaseBiClustering):
     >>> len(labels)
     15
     """
-    def __init__(self, n_clusters: int = 2, embedding_method: BaseBiEmbedding = GSVD(10), co_cluster: bool = False,
+    def __init__(self, n_clusters: int = 2, embedding_method: BaseEmbedding = GSVD(10), co_cluster: bool = False,
                  sort_clusters: bool = True, return_membership: bool = True, return_aggregate: bool = True):
         super(BiKMeans, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
                                        return_aggregate=return_aggregate, n_clusters=n_clusters,

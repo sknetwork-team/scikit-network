@@ -23,9 +23,6 @@ class RandomProjection(BaseEmbedding):
     where :math:`A` is the adjacency matrix, :math:`G` is a random Gaussian matrix,
     :math:`\\alpha` is some smoothing factor and :math:`K` some non-negative integer.
 
-    * Graphs
-    * Digraphs
-
     Parameters
     ----------
     n_components : int (default = 2)

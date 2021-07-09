@@ -258,7 +258,7 @@ def check_adjacency_vector(adjacency_vectors: Union[sparse.csr_matrix, np.ndarra
                            n: Optional[int] = None) -> sparse.csr_matrix:
     """Check format of new samples for predict methods"""
     adjacency_vectors = check_format(adjacency_vectors)
-    if adjacency_vectors.shape[1] != n:
+    if n is not None and adjacency_vectors.shape[1] != n:
         raise ValueError('The adjacency vector must be of length equal to the number nodes in the graph.')
     return adjacency_vectors
 
