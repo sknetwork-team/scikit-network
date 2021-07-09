@@ -6,7 +6,6 @@ Created on Nov 6 2018
 Quality metrics for adjacency embeddings
 """
 import numpy as np
-from scipy import sparse
 
 from sknetwork.linalg import normalize
 from sknetwork.utils.check import check_format, get_probs, check_square

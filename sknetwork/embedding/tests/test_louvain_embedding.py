@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 
 from sknetwork.data.test_graphs import test_graph, test_bigraph
-from sknetwork.embedding import LouvainEmbedding, BiLouvainEmbedding
+from sknetwork.embedding import LouvainEmbedding
 
 
 class TestLouvainEmbedding(unittest.TestCase):
@@ -19,7 +19,7 @@ class TestLouvainEmbedding(unittest.TestCase):
             self.assertEqual(embedding_vector.shape[0], 1)
 
         for method in ['remove', 'merge', 'keep']:
-            bilouvain = BiLouvainEmbedding(isolated_nodes=method)
+            bilouvain = LouvainEmbedding(isolated_nodes=method)
             bilouvain.fit(test_bigraph())
             embedding_vector = bilouvain.predict(np.array([1, 0, 0, 0, 1, 1, 0, 1]))
             self.assertEqual(embedding_vector.shape[0], 1)
