@@ -55,19 +55,3 @@ class BaseEmbedding(Algorithm, ABC):
         self.embedding_col_ = self.embedding_[n_row:]
         self.embedding_ = self.embedding_row_
         return self
-
-
-class BaseBiEmbedding(BaseEmbedding, ABC):
-    """Base class for embedding algorithms."""
-
-    def __init__(self):
-        super(BaseBiEmbedding, self).__init__()
-        self.embedding_row_ = None
-        self.embedding_col_ = None
-
-    def _split_vars(self, n_row):
-        """Split labels_ into labels_row_ and labels_col_"""
-        self.embedding_row_ = self.embedding_[:n_row]
-        self.embedding_col_ = self.embedding_[n_row:]
-        self.embedding_ = self.embedding_row_
-        return self

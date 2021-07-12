@@ -38,7 +38,11 @@ class Spectral(BaseEmbedding):
     Attributes
     ----------
     embedding_ : array, shape = (n, n_components)
-        Embedding of the nodes.
+        Embedding of the nodes (rows for bipartite graphs)
+    embedding_row_ : array, shape = (n_row, n_components)
+        Embedding of the rows (for bipartite graphs).
+    embedding_col_ : array, shape = (n_col, n_components)
+        Embedding of the columns (for bipartite graphs).
     eigenvalues_ : array, shape = (n_components)
         Eigenvalues.
     eigenvectors_ : array, shape = (n, n_components)

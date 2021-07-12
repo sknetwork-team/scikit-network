@@ -11,7 +11,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.embedding import BaseEmbedding, BaseBiEmbedding, GSVD
+from sknetwork.embedding import BaseEmbedding, GSVD
 from sknetwork.hierarchy.base import BaseHierarchy, BaseBiHierarchy
 from sknetwork.utils.ward import WardDense
 
