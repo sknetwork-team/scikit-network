@@ -101,7 +101,7 @@ class PropagationClustering(BaseClustering, Propagation):
         _, labels = np.unique(self.labels_, return_inverse=True)
         self.labels_ = labels
         if self.bipartite:
-            self._split_vars(input_matrix.shape[0])
+            self._split_vars(input_matrix.shape)
         self._secondary_outputs(input_matrix)
 
         return self

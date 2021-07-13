@@ -243,7 +243,7 @@ class Louvain(BaseClustering, VerboseMixin):
 
         self.labels_ = labels
         if self.bipartite:
-            self._split_vars(input_matrix.shape[0])
+            self._split_vars(input_matrix.shape)
         self._secondary_outputs(input_matrix)
 
         return self

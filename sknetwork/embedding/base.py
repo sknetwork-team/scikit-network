@@ -52,8 +52,9 @@ class BaseEmbedding(Algorithm, ABC):
         self.embedding_row_ = None
         self.embedding_col_ = None
 
-    def _split_vars(self, n_row):
+    def _split_vars(self, shape):
         """Split labels_ into labels_row_ and labels_col_"""
+        n_row = shape[0]
         self.embedding_row_ = self.embedding_[:n_row]
         self.embedding_col_ = self.embedding_[n_row:]
         self.embedding_ = self.embedding_row_

@@ -52,7 +52,7 @@ class BaseClustering(Algorithm, ABC):
         return self.labels_
 
     def _init_vars(self):
-        """Init attributes."""
+        """Init variables."""
         self.labels_ = None
         self.labels_row_ = None
         self.labels_col_ = None
@@ -62,8 +62,9 @@ class BaseClustering(Algorithm, ABC):
         self.aggregate_ = None
         return self
 
-    def _split_vars(self, n_row):
+    def _split_vars(self, shape):
         """Split labels_ into labels_row_ and labels_col_"""
+        n_row = shape[0]
         self.labels_row_ = self.labels_[:n_row]
         self.labels_col_ = self.labels_[n_row:]
         self.labels_ = self.labels_row_
@@ -99,36 +100,3 @@ class BaseClustering(Algorithm, ABC):
                     self.aggregate_ = aggregate_
 
         return self
-
-
-class BaseBiClustering(BaseClustering, ABC):
-    """Base class for clustering algorithms.
-
-    Attributes
-    ----------
-    labels_ : np.ndarray
-        Labels of the rows.
-    labels_row_ : np.ndarray
-        Labels of the rows (copy of **labels_**).
-    labels_col_ : np.ndarray
-        Labels of the columns.
-    membership_ : sparse.csr_matrix
-        Membership matrix of the rows (copy of **membership_**).
-    membership_row_ : sparse.csr_matrix
-        Membership matrix of the rows (copy of **membership_**).
-    membership_col_ : sparse.csr_matrix
-        Membership matrix of the columns. Only valid if **cluster_both** = `True`.
-    biadjacency_ : sparse.csr_matrix
-        Biadjacency matrix of the aggregate graph between clusters.
-    """
-
-    def __init__(self, sort_clusters: bool = True, return_membership: bool = False, return_aggregate: bool = False):
-        super(BaseBiClustering, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
-                                               return_aggregate=return_aggregate)
-
-        self.labels_ = None
-        self.labels_row_ = None
-        self.labels_col_ = None
-        self.membership_row_ = None
-        self.membership_col_ = None
-        self.biadjacency_ = None

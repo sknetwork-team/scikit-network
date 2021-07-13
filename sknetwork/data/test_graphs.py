@@ -35,8 +35,8 @@ def test_bigraph():
     6 + 8 nodes, 9 edges.
     """
     row = np.array([0, 1, 1, 2, 2, 3, 4, 5, 5])
-    col = np.array([1, 2, 3, 1, 0, 4, 7, 7, 6])
-    data = np.array([1, 2.5, 1, 2, 2, 1.5, 1, 0, 3])
+    col = np.array([1, 2, 3, 1, 0, 4, 7, 5, 6])
+    data = np.array([1, 2.5, 1, 2, 2, 1.5, 1, 2, 3])
     return sparse.csr_matrix((data, (row, col)), shape=(6, 8))
 
 

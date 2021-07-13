@@ -15,6 +15,7 @@ from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.embedding.svd import GSVD
 from sknetwork.utils.check import check_n_clusters, check_format, is_square
+from sknetwork.utils.format import get_embedding
 from sknetwork.utils.kmeans import KMeansDense
 
 
@@ -91,16 +92,9 @@ class KMeans(BaseClustering):
             check_n_clusters(self.n_clusters, np.sum(input_matrix.shape))
         else:
             check_n_clusters(self.n_clusters, input_matrix.shape[0])
-        self.bipartite = (not is_square(input_matrix)) or self.co_cluster
 
         # embedding
-        method = self.embedding_method
-        if self.co_cluster:
-            method.fit(input_matrix, force_bipartite=True)
-            embedding = np.vstack((method.embedding_row_, method.embedding_col_))
-        else:
-            method.fit(input_matrix)
-            embedding = method.embedding_
+        embedding, self.bipartite = get_embedding(input_matrix, self.embedding_method, self.co_cluster)
 
         # clustering
         kmeans = KMeansDense(self.n_clusters)
@@ -115,7 +109,7 @@ class KMeans(BaseClustering):
         # output
         self.labels_ = labels
         if self.co_cluster:
-            self._split_vars(input_matrix.shape[0])
+            self._split_vars(input_matrix.shape)
         self._secondary_outputs(input_matrix)
 
         return self

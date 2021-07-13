@@ -136,5 +136,5 @@ class LouvainNE(BaseEmbedding):
         self._recursive_louvain(adjacency, 0)
 
         if self.bipartite:
-            self._split_vars(input_matrix.shape[0])
+            self._split_vars(input_matrix.shape)
         return self

@@ -122,5 +122,5 @@ class RandomProjection(BaseEmbedding):
         # output
         self.embedding_ = embedding
         if self.bipartite:
-            self._split_vars(input_matrix.shape[0])
+            self._split_vars(input_matrix.shape)
         return self

@@ -125,7 +125,7 @@ class Spectral(BaseEmbedding):
         self.eigenvalues_ = eigenvalues
         self.eigenvectors_ = eigenvectors
         if self.bipartite:
-            self._split_vars(input_matrix.shape[0])
+            self._split_vars(input_matrix.shape)
 
         return self
 
