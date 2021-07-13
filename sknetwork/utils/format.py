@@ -130,27 +130,33 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
         return SparseLR(bipartite2undirected(biadjacency.sparse_mat), new_tuples)
 
 
-def get_adjacency(input_matrix: Union[sparse.csr_matrix, np.ndarray], which: str = 'bipartite')\
+def get_adjacency(input_matrix: Union[sparse.csr_matrix, np.ndarray], allow_directed: bool = True,
+                  force_bipartite: bool = False, force_directed: bool = False)\
         -> Tuple[sparse.csr_matrix, bool]:
     """Check the input matrix and return a proper adjacency matrix.
     Parameters
     ----------
     input_matrix :
         Adjacency matrix of biadjacency matrix of the graph.
-    which :
-        Which graph to get.
-        If 'bipartite', :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}` if the input matrix :math:`B`
-        is not square or not symmetric.
-        If 'directed', :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}` if the input matrix :math:`B`
-        is not square (otherwise, :math:`A  = B`).
+    allow_directed :
+        If ``True``, allow the graph to be directed.
+    force_bipartite : bool
+        If ``True``, return the adjacency matrix of a bipartite graph.
+        Otherwise, do it only if the input matrix is not square or not symmetric with ``allow_directed=False``.
+    force_directed :
+        If ``True`` return :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}`.
+        Otherwise, return :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`.
     """
     input_matrix = check_format(input_matrix)
-    if is_square(input_matrix):
-        if is_symmetric(input_matrix) or which == 'directed':
-            adjacency = input_matrix
-            return adjacency, False
-    if which == 'bipartite':
-        adjacency = bipartite2undirected(input_matrix)
+    bipartite = False
+    if force_bipartite or not is_square(input_matrix) or not (allow_directed or is_symmetric(input_matrix)):
+        bipartite = True
+    if bipartite:
+        if force_directed:
+            adjacency = bipartite2directed(input_matrix)
+        else:
+            adjacency = bipartite2undirected(input_matrix)
     else:
-        adjacency = bipartite2directed(input_matrix)
-    return adjacency, True
+        adjacency = input_matrix
+    return adjacency, bipartite
+

@@ -63,7 +63,8 @@ class Spectral(BaseEmbedding):
     Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
     Neural computation.
     """
-    def __init__(self, n_components: int = 2, normalized_laplacian: bool = True, regularization: float = -1):
+    def __init__(self, n_components: int = 2, normalized_laplacian: bool = True, regularization: float = -1,
+                 force_bipartite: bool = False):
         super(Spectral, self).__init__()
 
         self.n_components = n_components
@@ -74,7 +75,7 @@ class Spectral(BaseEmbedding):
         self.eigenvalues_ = None
         self.eigenvectors_ = None
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'Spectral':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], force_bipartite: bool = False) -> 'Spectral':
         """Compute the graph embedding.
 
         If the input matrix :math:`B` is not square (e.g., biadjacency matrix of a bipartite graph) or not symmetric
@@ -86,13 +87,15 @@ class Spectral(BaseEmbedding):
         ----------
         input_matrix :
               Adjacency matrix or biadjacency matrix of the graph.
+        force_bipartite : bool (default = ``False``)
+            If ``True``, force the input matrix to be considered as a biadjacency matrix.
 
         Returns
         -------
         self: :class:`Spectral`
         """
         # input
-        adjacency, self.bipartite = get_adjacency(input_matrix)
+        adjacency, self.bipartite = get_adjacency(input_matrix, allow_directed=False, force_bipartite=force_bipartite)
         n = adjacency.shape[0]
 
         # regularization

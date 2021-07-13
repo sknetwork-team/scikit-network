@@ -12,7 +12,6 @@ from scipy import sparse
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.base import Algorithm
 from sknetwork.utils.membership import membership_matrix
-from sknetwork.utils.check import is_square
 
 
 class BaseClustering(Algorithm, ABC):
@@ -21,23 +20,25 @@ class BaseClustering(Algorithm, ABC):
     Attributes
     ----------
     labels_ : np.ndarray
-        Label of each node.
+        Labels of the nodes (rows for bipartite graphs)
+    labels_row_ : np.ndarray
+        Labels of the rows (for bipartite graphs).
+    labels_col_ : np.ndarray
+        Labels of the columns (for bipartite graphs, in case of co-clustering).
     membership_ : sparse.csr_matrix
-        Membership matrix.
+        Membership matrix of the nodes, shape (n_nodes, n_clusters).
+    membership_row_ : sparse.csr_matrix
+        Membership matrix of the rows (for bipartite graphs).
+    membership_col_ : sparse.csr_matrix
+        Membership matrix of the columns (for bipartite graphs, in case of co-clustering).
     aggregate_ : sparse.csr_matrix
-        Adjacency matrix or biadjacency matrix between clusters.
+        Aggregate adjacency matrix or biadjacency matrix between clusters.
     """
     def __init__(self, sort_clusters: bool = True, return_membership: bool = False, return_aggregate: bool = False):
         self.sort_clusters = sort_clusters
         self.return_membership = return_membership
         self.return_aggregate = return_aggregate
-
-        self.labels_ = None
-        self.labels_row_ = None
-        self.labels_col_ = None
-        self.membership_row_ = None
-        self.membership_col_ = None
-        self.aggregate_ = None
+        self._init_vars()
 
     def fit_transform(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
@@ -49,6 +50,17 @@ class BaseClustering(Algorithm, ABC):
         """
         self.fit(*args, **kwargs)
         return self.labels_
+
+    def _init_vars(self):
+        """Init attributes."""
+        self.labels_ = None
+        self.labels_row_ = None
+        self.labels_col_ = None
+        self.membership_ = None
+        self.membership_row_ = None
+        self.membership_col_ = None
+        self.aggregate_ = None
+        return self
 
     def _split_vars(self, n_row):
         """Split labels_ into labels_row_ and labels_col_"""
@@ -62,16 +74,21 @@ class BaseClustering(Algorithm, ABC):
         if self.return_membership or self.return_aggregate:
             if np.issubdtype(input_matrix.data.dtype, np.bool_):
                 input_matrix = input_matrix.astype(float)
-            if is_square(input_matrix):
+            if not self.bipartite:
                 membership = membership_matrix(self.labels_)
                 if self.return_membership:
                     self.membership_ = normalize(input_matrix.dot(membership))
                 if self.return_aggregate:
                     self.aggregate_ = sparse.csr_matrix(membership.T.dot(input_matrix.dot(membership)))
             else:
-                n_labels = max(max(self.labels_row_), max(self.labels_col_)) + 1
-                membership_row = membership_matrix(self.labels_row_, n_labels=n_labels)
-                membership_col = membership_matrix(self.labels_col_, n_labels=n_labels)
+                if self.labels_col_ is None:
+                    n_labels = max(self.labels_) + 1
+                    membership_row = membership_matrix(self.labels_, n_labels=n_labels)
+                    membership_col = normalize(input_matrix.T.dot(membership_row))
+                else:
+                    n_labels = max(max(self.labels_row_), max(self.labels_col_)) + 1
+                    membership_row = membership_matrix(self.labels_row_, n_labels=n_labels)
+                    membership_col = membership_matrix(self.labels_col_, n_labels=n_labels)
                 if self.return_membership:
                     self.membership_row_ = normalize(input_matrix.dot(membership_col))
                     self.membership_col_ = normalize(input_matrix.T.dot(membership_row))

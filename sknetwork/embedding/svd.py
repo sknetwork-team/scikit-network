@@ -102,19 +102,21 @@ class GSVD(BaseEmbedding):
         self.regularization_ = None
         self.weights_col_ = None
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'GSVD':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'GSVD':
         """Compute the embedding of the graph.
 
         Parameters
         ----------
-        adjacency :
-            Adjacency or biadjacency matrix of the graph.
+        input_matrix :
+            Adjacency matrix or biadjacency matrix of the graph.
 
         Returns
         -------
         self: :class:`GSVD`
         """
-        adjacency = check_format(adjacency).asfptype()
+        self._init_vars()
+
+        adjacency = check_format(input_matrix).asfptype()
         n_row, n_col = adjacency.shape
         n_components = check_n_components(self.n_components, min(n_row, n_col) - 1)
 

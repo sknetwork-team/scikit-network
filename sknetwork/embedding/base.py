@@ -17,9 +17,7 @@ class BaseEmbedding(Algorithm, ABC):
     """Base class for embedding algorithms."""
 
     def __init__(self):
-        self.embedding_ = None
-        self.embedding_row_ = None
-        self.embedding_col_ = None
+        self._init_vars()
 
     def fit_transform(self, *args, **kwargs) -> np.ndarray:
         """Fit to data and return the embedding. Same parameters as the ``fit`` method.
@@ -48,6 +46,11 @@ class BaseEmbedding(Algorithm, ABC):
             else:
                 regularization = np.abs(regularization)
         return regularization
+
+    def _init_vars(self):
+        self.embedding_ = None
+        self.embedding_row_ = None
+        self.embedding_col_ = None
 
     def _split_vars(self, n_row):
         """Split labels_ into labels_row_ and labels_col_"""

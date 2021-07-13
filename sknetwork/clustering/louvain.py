@@ -23,9 +23,6 @@ from sknetwork.utils.verbose import VerboseMixin
 class Louvain(BaseClustering, VerboseMixin):
     """Louvain algorithm for clustering graphs by maximization of modularity.
 
-    * Graphs
-    * Digraphs
-
     Parameters
     ----------
     resolution :
@@ -55,11 +52,19 @@ class Louvain(BaseClustering, VerboseMixin):
     Attributes
     ----------
     labels_ : np.ndarray
-        Label of each node.
+        Labels of the nodes (rows for bipartite graphs)
+    labels_row_ : np.ndarray
+        Labels of the rows (for bipartite graphs).
+    labels_col_ : np.ndarray
+        Labels of the columns (for bipartite graphs, in case of co-clustering).
     membership_ : sparse.csr_matrix
-        Membership matrix.
-    adjacency_ : sparse.csr_matrix
-        Adjacency matrix between clusters.
+        Membership matrix of the nodes, shape (n_nodes, n_clusters).
+    membership_row_ : sparse.csr_matrix
+        Membership matrix of the rows (for bipartite graphs).
+    membership_col_ : sparse.csr_matrix
+        Membership matrix of the columns (for bipartite graphs, in case of co-clustering).
+    aggregate_ : sparse.csr_matrix
+        Aggregate adjacency matrix or biadjacency matrix between clusters.
 
     Example
     -------
@@ -96,14 +101,13 @@ class Louvain(BaseClustering, VerboseMixin):
                                       return_aggregate=return_aggregate)
         VerboseMixin.__init__(self, verbose)
 
-        self.resolution = np.float32(resolution)
+        self.resolution = resolution
         self.modularity = modularity.lower()
-        self.tol = np.float32(tol_optimization)
+        self.tol = tol_optimization
         self.tol_aggregation = tol_aggregation
         self.n_aggregations = n_aggregations
         self.shuffle_nodes = shuffle_nodes
         self.random_state = check_random_state(random_state)
-
         self.bipartite = None
 
     def _optimize(self, adjacency_norm, probs_ou, probs_in):
@@ -174,8 +178,10 @@ class Louvain(BaseClustering, VerboseMixin):
         -------
         self: :class:`Louvain`
         """
+        self._init_vars()
+
         if self.modularity == 'dugue':
-            adjacency, self.bipartite = get_adjacency(input_matrix, 'directed')
+            adjacency, self.bipartite = get_adjacency(input_matrix, force_directed=True)
         else:
             adjacency, self.bipartite = get_adjacency(input_matrix)
 
