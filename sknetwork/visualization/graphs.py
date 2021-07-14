@@ -344,7 +344,7 @@ def svg_text(pos, text, margin_text, font_size=12, position: str = 'right'):
         pos[1] -= margin_text
         anchor = 'middle'
     elif position == 'below':
-        pos[1] += margin_text
+        pos[1] += 2 * margin_text
         anchor = 'middle'
     else:
         pos[0] += margin_text
