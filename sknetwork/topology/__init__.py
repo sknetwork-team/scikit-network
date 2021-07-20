@@ -1,4 +1,4 @@
-"""path module"""
+"""Module on topology."""
 from sknetwork.topology.kcliques import Cliques
 from sknetwork.topology.kcore import CoreDecomposition
 from sknetwork.topology.triangles import Triangles

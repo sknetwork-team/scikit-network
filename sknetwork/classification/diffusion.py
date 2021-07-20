@@ -65,24 +65,20 @@ class DiffusionClassifier(RankClassifier):
         Number of steps of the diffusion in discrete time (must be positive).
     damping_factor : float (optional)
         Damping factor (default value = 1).
-    n_jobs :
+    n_jobs : int
         If positive, number of parallel jobs allowed (-1 means maximum number).
         If ``None``, no parallel computations are made.
 
     Attributes
     ----------
-    labels_ : np.ndarray
-        Label of each node (hard classification).
+    labels_ : np.ndarray, shape (n_labels,)
+        Label of each node.
     membership_ : sparse.csr_matrix, shape (n_row, n_labels)
         Membership matrix (soft classification).
-    labels_row_ : np.ndarray
-        Label of each row (for bipartite graphs).
-    labels_col_ : np.ndarray
-        Label of each column (for bipartite graphs).
-    membership_row_ : sparse.csr_matrix
-        Membership matrix of rows (for bipartite graphs).
-    membership_col_ : sparse.csr_matrix
-        Membership matrix of columns (for bipartite graphs).
+    labels_row_ , labels_col_ : np.ndarray
+        Label of rows and columns (for bipartite graphs).
+    membership_row_, membership_col_ : sparse.csr_matrix, shapes (n_row, n_labels) and (n_col, n_labels)
+        Membership matrices of rows and columns (for bipartite graphs).
 
     Example
     -------
@@ -100,11 +96,11 @@ class DiffusionClassifier(RankClassifier):
     ----------
     * de Lara, N., & Bonald, T. (2020).
       `A Consistent Diffusion-Based Algorithm for Semi-Supervised Classification on Graphs.
-      <https://arxiv.org/pdf/2008.11944.pdf>`_
+      <https://arxiv.org/pdf/2008.11944.pdf>`
       arXiv preprint arXiv:2008.11944.
 
     * Zhu, X., Lafferty, J., & Rosenfeld, R. (2005). `Semi-supervised learning with graphs
-      <http://pages.cs.wisc.edu/~jerryzhu/machineteaching/pub/thesis.pdf>`_
+      <http://pages.cs.wisc.edu/~jerryzhu/machineteaching/pub/thesis.pdf>`
       (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
     """
     def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, n_jobs: Optional[int] = None):
@@ -123,13 +119,13 @@ class DirichletClassifier(RankClassifier):
         Otherwise, the solution is computed through BiConjugate Stabilized Gradient descent.
     damping_factor : float (optional)
         Damping factor (default value = 1).
-    n_jobs :
+    n_jobs : int
         If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
         If ``None``, no parallel computations are made.
     verbose :
         Verbose mode.
 
-   Attributes
+    Attributes
     ----------
     labels_ : np.ndarray
         Label of each node (hard classification).

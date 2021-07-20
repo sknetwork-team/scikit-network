@@ -21,7 +21,7 @@ class Propagation(BaseClassifier):
 
     Parameters
     ----------
-    n_iter : int
+    n_iter : float
         Maximum number of iterations (-1 for infinity).
     node_order : str
         * `'random'`: node labels are updated in random order.
@@ -63,7 +63,7 @@ class Propagation(BaseClassifier):
     <https://arxiv.org/pdf/0709.2938.pdf>`_
     Physical review E, 76(3), 036106.
     """
-    def __init__(self, n_iter: int = -1, node_order: str = None, weighted: bool = True):
+    def __init__(self, n_iter: float = -1, node_order: str = None, weighted: bool = True):
         super(Propagation, self).__init__()
 
         if n_iter < 0:

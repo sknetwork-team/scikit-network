@@ -153,7 +153,7 @@ class Laplacian(LinearOperator):
         return self
 
 
-class CoNeighborOperator(LinearOperator):
+class CoNeighbor(LinearOperator):
     """Co-neighborhood adjacency as a LinearOperator.
 
     * Graphs
@@ -177,14 +177,14 @@ class CoNeighborOperator(LinearOperator):
     >>> from sknetwork.data import star_wars
     >>> biadjacency = star_wars(metadata=False)
     >>> d_out = biadjacency.dot(np.ones(3))
-    >>> coneigh = CoNeighborOperator(biadjacency)
+    >>> coneigh = CoNeighbor(biadjacency)
     >>> np.allclose(d_out, coneigh.dot(np.ones(4)))
     True
     """
     def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], normalized: bool = True):
         adjacency = check_format(adjacency).astype(float)
         n = adjacency.shape[0]
-        super(CoNeighborOperator, self).__init__(dtype=float, shape=(n, n))
+        super(CoNeighbor, self).__init__(dtype=float, shape=(n, n))
 
         if normalized:
             self.forward = normalize(adjacency.T).tocsr()
@@ -206,7 +206,7 @@ class CoNeighborOperator(LinearOperator):
 
     def _transpose(self):
         """Transposed operator"""
-        operator = CoNeighborOperator(self.backward)
+        operator = CoNeighbor(self.backward)
         operator.backward = self.forward.T.tocsr()
         operator.forward = self.backward.T.tocsr()
         return operator

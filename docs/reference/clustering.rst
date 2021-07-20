@@ -26,20 +26,13 @@ Here are the available modularities for the Louvain algorithm:
 
 .. autoclass:: sknetwork.clustering.Louvain
 
-.. autoclass:: sknetwork.clustering.BiLouvain
-
 Propagation
 -----------
 .. autoclass:: sknetwork.clustering.PropagationClustering
 
-.. autoclass:: sknetwork.clustering.BiPropagationClustering
-
 K-Means
 -------
 .. autoclass:: sknetwork.clustering.KMeans
-
-.. autoclass:: sknetwork.clustering.BiKMeans
-
 
 Metrics
 -------

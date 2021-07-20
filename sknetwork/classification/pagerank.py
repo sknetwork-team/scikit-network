@@ -7,7 +7,6 @@ Created on Mar, 2020
 from typing import Optional
 
 import numpy as np
-from scipy import sparse
 
 from sknetwork.classification.base_rank import RankClassifier
 from sknetwork.ranking.pagerank import PageRank
@@ -15,9 +14,6 @@ from sknetwork.ranking.pagerank import PageRank
 
 class PageRankClassifier(RankClassifier):
     """Node classification by multiple personalized PageRanks.
-
-    * Graphs
-    * Digraphs
 
     Parameters
     ----------
@@ -32,10 +28,14 @@ class PageRankClassifier(RankClassifier):
 
     Attributes
     ----------
-    labels_ : np.ndarray
-        Label of each node (hard classification).
-    membership_ : sparse.csr_matrix
-        Membership matrix (soft classification, columns = labels).
+    labels_ : np.ndarray, shape (n_labels,)
+        Label of each node.
+    membership_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Membership matrix.
+    labels_row_ , labels_col_ : np.ndarray
+        Label of rows and columns (for bipartite graphs).
+    membership_row_, membership_col_ : sparse.csr_matrix, shapes (n_row, n_labels) and (n_col, n_labels)
+        Membership matrices of rows and columns (for bipartite graphs).
 
     Example
     -------

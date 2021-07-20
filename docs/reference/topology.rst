@@ -8,9 +8,9 @@ Algorithms for the analysis of graph topology.
 Structure
 ---------
 
-.. autofunction:: sknetwork.topology.connected_components
+.. autofunction:: sknetwork.topology.get_connected_components
 
-.. autofunction:: sknetwork.topology.largest_connected_component
+.. autofunction:: sknetwork.topology.get_largest_connected_component
 
 .. autoclass:: sknetwork.topology.CoreDecomposition
 

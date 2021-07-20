@@ -18,7 +18,9 @@ from sknetwork.utils.check import check_adjacency_vector, check_nonnegative, che
 
 class Spectral(BaseEmbedding):
     """Spectral embedding of graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`
-    or the normalized Laplacian matrix :math:`L = I - D^{-1/2}AD^{-1/2}` (default).
+    or the normalized Laplacian matrix :math:`L = I - D^{-1/2}AD^{-1/2}` (default), where :math:`D` is the
+    diagonal matrix of degrees.
+
     Eigenvectors are considered in increasing order of eigenvalues, skipping the first.
 
     Parameters
@@ -29,9 +31,9 @@ class Spectral(BaseEmbedding):
         If ``True`` (default), use the normalized Laplacian matrix :math:`L = I - D^{-1/2}AD^{-1/2}`.
         This is equivalent to the spectral decomposition of the transition matrix of the random walk,
         :math:`P = D^{-1}A`.
-        If ``False``, use the regular Laplacian matrix :math:`L = D - A`
+        If ``False``, use the regular Laplacian matrix :math:`L = D - A`.
     regularization : float (default = ``-1``)
-        Regularization factor :math:`\\alpha` so that the matrix is :math:`A + \\alpha \frac{11^T}{n}`.
+        Regularization factor :math:`\\alpha` so that the matrix is :math:`A + \\alpha \\frac{11^T}{n}`.
         If negative, regularization is applied only if the graph is disconnected (and then equal to the absolute value
         of the parameter).
 
@@ -80,8 +82,10 @@ class Spectral(BaseEmbedding):
 
         If the input matrix :math:`B` is not square (e.g., biadjacency matrix of a bipartite graph) or not symmetric
         (e.g., adjacency matrix of a directed graph), use the adjacency matrix
-         :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}` and return the embedding for both rows and
-         columns of the input matrix :math:`B`.
+
+        :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`
+
+        and return the embedding for both rows and columns of the input matrix :math:`B`.
 
         Parameters
         ----------

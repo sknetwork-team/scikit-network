@@ -39,7 +39,7 @@ class Louvain(BaseClustering, VerboseMixin):
     shuffle_nodes :
         Enables node shuffling before optimization.
     sort_clusters :
-            If ``True``, sort labels in decreasing order of cluster size.
+        If ``True``, sort labels in decreasing order of cluster size.
     return_membership :
             If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
     return_aggregate :
@@ -166,13 +166,15 @@ class Louvain(BaseClustering, VerboseMixin):
         probs_out = np.array(membership.T.dot(probs_out).T)
         return adjacency_norm, probs_out, probs_in
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'Louvain':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], force_bipartite: bool = False) -> 'Louvain':
         """Fit algorithm to the data.
 
         Parameters
         ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
+        force_bipartite :
+            If ``True``, force the input matrix to be considered as a biadjacency matrix even if square.
 
         Returns
         -------
@@ -181,9 +183,10 @@ class Louvain(BaseClustering, VerboseMixin):
         self._init_vars()
 
         if self.modularity == 'dugue':
-            adjacency, self.bipartite = get_adjacency(input_matrix, force_directed=True)
+            adjacency, self.bipartite = get_adjacency(input_matrix, force_directed=True,
+                                                      force_bipartite=force_bipartite)
         else:
-            adjacency, self.bipartite = get_adjacency(input_matrix)
+            adjacency, self.bipartite = get_adjacency(input_matrix, force_bipartite=force_bipartite)
 
         n = adjacency.shape[0]
 

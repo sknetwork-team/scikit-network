@@ -4,18 +4,15 @@ Welcome to scikit-network's documentation!
 .. include:: readme.rst
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Installation & Reference
+   :maxdepth: 1
+   :caption: Getting started
 
-   installation
-   reference/index
-
+   getting_started
 
 .. toctree::
    :maxdepth: 2
    :caption: Tutorials
 
-   tutorials/getting_started
    tutorials/data/index
    tutorials/topology/index
    tutorials/path/index
@@ -29,12 +26,28 @@ Welcome to scikit-network's documentation!
    tutorials/visualization/index
 
 .. toctree::
+   :maxdepth: 2
+   :caption: Reference
+
+   reference/data
+   reference/topology
+   reference/path
+   reference/clustering
+   reference/hierarchy
+   reference/ranking
+   reference/classification
+   reference/embedding
+   reference/linkpred
+   reference/linalg
+   reference/utils
+   reference/visualization
+
+.. toctree::
    :maxdepth: 1
    :caption: About
 
-   contributing
    authors
    history
+   contributing
    genindex
    glossary
-

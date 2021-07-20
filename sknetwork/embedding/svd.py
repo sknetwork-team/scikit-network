@@ -26,7 +26,7 @@ class GSVD(BaseEmbedding):
     n_components : int
         Dimension of the embedding.
     regularization : ``None`` or float (default = ``None``)
-        Regularization factor :math:`\\alpha` so that the matrix is :math:`A + \\alpha \frac{11^T}{n}`.
+        Regularization factor :math:`\\alpha` so that the matrix is :math:`A + \\alpha \\frac{11^T}{n}`.
     factor_row : float (default = 0.5)
         Power factor :math:`\\alpha_1` applied to the diagonal matrix of row weights.
     factor_col : float (default = 0.5)
@@ -48,12 +48,10 @@ class GSVD(BaseEmbedding):
 
     Attributes
     ----------
-    embedding_ : np.ndarray, shape = (n1, n_components)
-        Embedding of the rows.
-    embedding_row_ : np.ndarray, shape = (n1, n_components)
-        Embedding of the rows (copy of **embedding_**).
-    embedding_col_ : np.ndarray, shape = (n2, n_components)
-        Embedding of the columns.
+    embedding_ : np.ndarray, shape = (n_row, n_components)
+        Embedding of the nodes.
+    embedding_row_,  embedding_col_ : np.ndarray, shapes = (n_row, n_components) and (n_col, n_components)
+        Embedding of the rows and columns (for bipartite graphs).
     singular_values_ : np.ndarray, shape = (n_components)
         Singular values.
     singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
@@ -223,7 +221,7 @@ class SVD(GSVD):
     n_components : int
         Dimension of the embedding.
     regularization : ``None`` or float (default = ``None``)
-        Regularization factor :math:`\\alpha` so that the matrix is :math:`A + \\alpha \frac{11^T}{n}`.
+        Regularization factor :math:`\\alpha` so that the matrix is :math:`A + \\alpha \\frac{11^T}{n}`.
     factor_singular : float (default = 0.)
         Power factor :math:`\\alpha` applied to the singular values on right singular vectors.
         The embedding of rows and columns are respectively :math:`U \\Sigma^{1-\\alpha}` and
@@ -242,11 +240,9 @@ class SVD(GSVD):
     Attributes
     ----------
     embedding_ : np.ndarray, shape = (n_row, n_components)
-        Embedding of the rows.
-    embedding_row_ : np.ndarray, shape = (n_row, n_components)
-        Embedding of the rows (copy of **embedding_**).
-    embedding_col_ : np.ndarray, shape = (n_col, n_components)
-        Embedding of the columns.
+        Embedding of the nodes.
+    embedding_row_,  embedding_col_ : np.ndarray, shapes = (n_row, n_components) and (n_col, n_components)
+        Embedding of the rows and columns (for bipartite graphs).
     singular_values_ : np.ndarray, shape = (n_components)
         Singular values.
     singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
@@ -298,11 +294,9 @@ class PCA(SVD):
     Attributes
     ----------
     embedding_ : np.ndarray, shape = (n_row, n_components)
-        Embedding of the rows.
-    embedding_row_ : np.ndarray, shape = (n_row, n_components)
-        Embedding of the rows (copy of **embedding_**).
-    embedding_col_ : np.ndarray, shape = (n_col, n_components)
-        Embedding of the columns.
+        Embedding of the nodes.
+    embedding_row_,  embedding_col_ : np.ndarray, shapes = (n_row, n_components) and (n_col, n_components)
+        Embedding of the rows and columns (for bipartite graphs).
     singular_values_ : np.ndarray, shape = (n_components)
         Singular values.
     singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)

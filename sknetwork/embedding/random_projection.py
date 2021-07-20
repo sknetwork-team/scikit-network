@@ -19,7 +19,7 @@ class RandomProjection(BaseEmbedding):
     """Embedding of graphs based the random projection of the adjacency matrix:
 
     :math:`(I + \\alpha A +... + (\\alpha A)^K)G`
-
+    
     where :math:`A` is the adjacency matrix, :math:`G` is a random Gaussian matrix,
     :math:`\\alpha` is some smoothing factor and :math:`K` some non-negative integer.
 
@@ -34,7 +34,7 @@ class RandomProjection(BaseEmbedding):
     random_walk : bool (default = ``False``)
         If ``True``, use the transition matrix of the random walk, :math:`P = D^{-1}A`, instead of the adjacency matrix.
     regularization : float (default = ``-1``)
-        Regularization factor :math:`\\alpha` so that the matrix is :math:`A + \\alpha \frac{11^T}{n}`.
+        Regularization factor :math:`\\alpha` so that the matrix is :math:`A + \\alpha \\frac{11^T}{n}`.
         If negative, regularization is applied only if the graph is disconnected (and then equal to the absolute value
         of the parameter).
     normalized : bool (default = ``True``)

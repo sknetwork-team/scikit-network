@@ -16,10 +16,14 @@ class BaseClassifier(Algorithm, ABC):
 
     Attributes
     ----------
-    labels_ : np.ndarray
-        Label of each row.
-    membership_ : sparse.csr_matrix
-        Membership matrix of rows (soft classification, labels on columns).
+    labels_ : np.ndarray, shape (n_labels,)
+        Label of each node.
+    membership_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Membership matrix (soft classification).
+    labels_row_ , labels_col_ : np.ndarray
+        Label of rows and columns (for bipartite graphs).
+    membership_row_, membership_col_ : sparse.csr_matrix, shapes (n_row, n_labels) and (n_col, n_labels)
+        Membership matrices of rows and columns (for bipartite graphs).
     """
 
     def __init__(self):

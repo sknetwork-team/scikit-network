@@ -9,7 +9,7 @@ import unittest
 import numpy as np
 
 from sknetwork.data import movie_actor
-from sknetwork.linalg import CoNeighborOperator
+from sknetwork.linalg import CoNeighbor
 from sknetwork.utils import co_neighbor_graph
 
 
@@ -26,7 +26,7 @@ class TestCoNeighbors(unittest.TestCase):
         adjacency = co_neighbor_graph(self.biadjacency, method='exact')
         self.assertEqual(adjacency.shape, (n, n))
 
-        operator = CoNeighborOperator(self.biadjacency)
+        operator = CoNeighbor(self.biadjacency)
         x = np.random.randn(n)
         y1 = adjacency.dot(x)
         y2 = operator.dot(x)

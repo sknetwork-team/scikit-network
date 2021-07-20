@@ -11,25 +11,17 @@ PageRank
 --------
 .. autoclass:: sknetwork.ranking.PageRank
 
-.. autoclass:: sknetwork.ranking.BiPageRank
-
 Diffusion
 ---------
 .. autoclass:: sknetwork.ranking.Diffusion
-
-.. autoclass:: sknetwork.ranking.BiDiffusion
 
 Dirichlet
 ---------
 .. autoclass:: sknetwork.ranking.Dirichlet
 
-.. autoclass:: sknetwork.ranking.BiDirichlet
-
 Katz
 ----
 .. autoclass:: sknetwork.ranking.Katz
-
-.. autoclass:: sknetwork.ranking.BiKatz
 
 HITS
 ----

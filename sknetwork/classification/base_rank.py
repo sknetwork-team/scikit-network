@@ -34,10 +34,14 @@ class RankClassifier(BaseClassifier, VerboseMixin):
 
     Attributes
     ----------
-    labels_ : np.ndarray
+    labels_ : np.ndarray, shape (n_labels,)
         Label of each node.
-    membership_ : sparse.csr_matrix
-        Membership matrix (labels = columns).
+    membership_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Membership matrix (soft classification).
+    labels_row_ , labels_col_ : np.ndarray
+        Label of rows and columns (for bipartite graphs).
+    membership_row_, membership_col_ : sparse.csr_matrix, shapes (n_row, n_labels) and (n_col, n_labels)
+        Membership matrices of rows and columns (for bipartite graphs).
     """
     def __init__(self, algorithm: BaseRanking, n_jobs: Optional[int] = None, verbose: bool = False):
         super(RankClassifier, self).__init__()
@@ -84,7 +88,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         return scores
 
     def _split_vars(self, shape):
-        """Split labels_ into labels_row_ and labels_col_"""
+        """Split the vector of labels and build membership matrix."""
         n_row = shape[0]
         self.labels_row_ = self.labels_[:n_row]
         self.labels_col_ = self.labels_[n_row:]
