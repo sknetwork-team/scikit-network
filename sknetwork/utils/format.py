@@ -4,7 +4,7 @@
 Created on Apr 8, 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-from typing import Union, Tuple
+from typing import Union, Tuple, Optional
 
 import numpy as np
 from scipy import sparse
@@ -12,6 +12,7 @@ from scipy import sparse
 from sknetwork.embedding import BaseEmbedding
 from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.utils.check import check_format, is_square, is_symmetric
+from sknetwork.utils.seeds import stack_seeds, get_seeds
 
 
 def check_csr_or_slr(adjacency):
@@ -140,13 +141,14 @@ def get_adjacency(input_matrix: Union[sparse.csr_matrix, np.ndarray], allow_dire
     input_matrix :
         Adjacency matrix of biadjacency matrix of the graph.
     allow_directed :
-        If ``True``, allow the graph to be directed.
+        If ``True`` (default), allow the graph to be directed.
     force_bipartite : bool
         If ``True``, return the adjacency matrix of a bipartite graph.
-        Otherwise, do it only if the input matrix is not square or not symmetric with ``allow_directed=False``.
+        Otherwise (default), do it only if the input matrix is not square or not symmetric
+        with ``allow_directed=False``.
     force_directed :
         If ``True`` return :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}`.
-        Otherwise, return :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`.
+        Otherwise (default), return :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`.
     """
     input_matrix = check_format(input_matrix)
     bipartite = False
@@ -160,6 +162,59 @@ def get_adjacency(input_matrix: Union[sparse.csr_matrix, np.ndarray], allow_dire
     else:
         adjacency = input_matrix
     return adjacency, bipartite
+
+
+def get_adjacency_seeds(input_matrix: Union[sparse.csr_matrix, np.ndarray], allow_directed: bool = True,
+                        force_bipartite: bool = False, force_directed: bool = False,
+                        seeds: Optional[Union[dict, np.ndarray]] = None,
+                        seeds_row: Optional[Union[dict, np.ndarray]] = None,
+                        seeds_col: Optional[Union[dict, np.ndarray]] = None,
+                        default_value: float = -1,
+                        which: Optional[str] = None) \
+        -> Tuple[sparse.csr_matrix, np.ndarray, bool]:
+    """Check the input matrix and return a proper adjacency matrix with seeds.
+    Parameters
+    ----------
+    input_matrix :
+        Adjacency matrix of biadjacency matrix of the graph.
+    allow_directed :
+        If ``True`` (default), allow the graph to be directed.
+    force_bipartite : bool
+        If ``True``, return the adjacency matrix of a bipartite graph.
+        Otherwise (default), do it only if the input matrix is not square or not symmetric
+        with ``allow_directed=False``.
+    force_directed :
+        If ``True`` return :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}`.
+        Otherwise (default), return :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`.
+    seeds :
+        Values of seed nodes in initial state (dictionary or vector). Negative values ignored.
+    seeds_row, seeds_col :
+        Values of rows and columns for bipartite graphs. Negative values ignored.
+    default_value :
+        Value of non-seed nodes (default = -1).
+    which :
+        Which seed values.
+        If ``'probs'``, return a probability distribution.
+        If ``'labels'``, return distinct integer values if all are equal.
+    """
+    if seeds_row is not None or seeds_col is not None:
+        force_bipartite = True
+    adjacency, bipartite = get_adjacency(input_matrix, allow_directed=allow_directed,
+                                         force_bipartite=force_bipartite, force_directed=force_directed)
+    if bipartite:
+        if seeds is None:
+            seeds = stack_seeds(input_matrix.shape, seeds_row, seeds_col, default_value=default_value)
+        else:
+            seeds = stack_seeds(input_matrix.shape, seeds, default_value=default_value)
+    else:
+        seeds = get_seeds(input_matrix.shape, seeds, default_value=default_value)
+    if which == 'probs':
+        if seeds.sum() > 0:
+            seeds /= seeds.sum()
+    elif which == 'labels':
+        if len(set(seeds[seeds >= 0])) == 1:
+            seeds = np.arange(len(seeds))
+    return adjacency, seeds, bipartite
 
 
 def get_embedding(input_matrix: Union[sparse.csr_matrix, np.ndarray], method: BaseEmbedding,

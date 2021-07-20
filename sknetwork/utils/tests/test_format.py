@@ -3,8 +3,7 @@
 """tests for format.py"""
 import unittest
 
-from sknetwork.data import star_wars, house, cyclic_digraph
-from sknetwork.utils.check import is_symmetric
+from sknetwork.data.test_graphs import *
 from sknetwork.utils.format import *
 
 
@@ -12,19 +11,18 @@ class TestFormats(unittest.TestCase):
 
     def setUp(self):
         """Basic biadjacency for tests."""
-        self.biadjacency = star_wars()
+        self.biadjacency = test_bigraph()
 
-    def test_dir2undir(self):
-        n = 3
-        adjacency = cyclic_digraph(n)
+    def test_directed2undirected(self):
+        adjacency = test_digraph()
         ref = directed2undirected(adjacency)
         self.assertEqual(ref.shape, adjacency.shape)
         self.assertTrue(is_symmetric(ref))
 
-        adjacency = house()
+        adjacency = test_graph().astype(bool)
         n = adjacency.shape[0]
-        error = directed2undirected(adjacency, weighted=False) - adjacency
-        self.assertEqual(error.nnz, 0)
+        diff = directed2undirected(adjacency, weighted=False) - adjacency
+        self.assertEqual(diff.nnz, 0)
 
         slr = SparseLR(adjacency, [(np.zeros(n), np.zeros(n))])
         self.assertRaises(ValueError, directed2undirected, slr, weighted=False)
@@ -35,7 +33,7 @@ class TestFormats(unittest.TestCase):
         error = np.linalg.norm(slr.dot(x) - adjacency.dot(x))
         self.assertAlmostEqual(error, 0)
 
-    def test_bip2dir(self):
+    def test_bipartite2directed(self):
         n_row, n_col = self.biadjacency.shape
         n = n_row + n_col
 
@@ -46,7 +44,7 @@ class TestFormats(unittest.TestCase):
         directed_graph = bipartite2directed(slr)
         self.assertTrue(type(directed_graph) == SparseLR)
 
-    def test_bip2undir(self):
+    def test_bipartite2undirected(self):
         n_row, n_col = self.biadjacency.shape
         n = n_row + n_col
 

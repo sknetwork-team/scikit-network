@@ -92,16 +92,16 @@ class PropagationClustering(BaseClustering, Propagation):
         self._init_vars()
 
         # input
-        adjacency, self.bipartite = get_adjacency(input_matrix)
+        adjacency, bipartite = get_adjacency(input_matrix)
 
         # propagation
         Propagation.fit(self, adjacency)
 
         # output
-        _, labels = np.unique(self.labels_, return_inverse=True)
-        self.labels_ = labels
-        if self.bipartite:
+        _, self.labels_ = np.unique(self.labels_, return_inverse=True)
+        if bipartite:
             self._split_vars(input_matrix.shape)
+            self.bipartite = True
         self._secondary_outputs(input_matrix)
 
         return self

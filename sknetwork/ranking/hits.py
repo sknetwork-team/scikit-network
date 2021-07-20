@@ -11,11 +11,11 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.linalg import SVDSolver, LanczosSVD
-from sknetwork.ranking.base import BaseBiRanking
+from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.check import check_format
 
 
-class HITS(BaseBiRanking):
+class HITS(BaseRanking):
     """Hub and authority scores of each node.
     For bipartite graphs, the hub score is computed on rows and the authority score on columns.
 

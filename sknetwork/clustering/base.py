@@ -60,6 +60,7 @@ class BaseClustering(Algorithm, ABC):
         self.membership_row_ = None
         self.membership_col_ = None
         self.aggregate_ = None
+        self.bipartite = None
         return self
 
     def _split_vars(self, shape):

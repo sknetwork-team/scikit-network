@@ -11,12 +11,11 @@ from typing import Union, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork.classification.base import BaseClassifier, BaseBiClassifier
+from sknetwork.classification.base import BaseClassifier
 from sknetwork.linalg.normalization import normalize
 from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.check import check_seeds, check_labels, check_n_jobs
-from sknetwork.utils.format import bipartite2undirected
-from sknetwork.utils.seeds import stack_seeds
+from sknetwork.utils.check import check_labels, check_n_jobs
+from sknetwork.utils.format import get_adjacency_seeds
 from sknetwork.utils.verbose import VerboseMixin
 
 
@@ -80,28 +79,40 @@ class RankClassifier(BaseClassifier, VerboseMixin):
 
         Returns
         -------
-        scores: np.ndarray
+        scores : np.ndarray
         """
         return scores
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]) -> 'RankClassifier':
-        """Fit algorithm to the data.
+    def _split_vars(self, shape):
+        """Split labels_ into labels_row_ and labels_col_"""
+        n_row = shape[0]
+        self.labels_row_ = self.labels_[:n_row]
+        self.labels_col_ = self.labels_[n_row:]
+        self.labels_ = self.labels_row_
+        self.membership_row_ = self.membership_[:n_row]
+        self.membership_col_ = self.membership_[n_row:]
+        self.membership_ = self.membership_row_
+
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict] = None,
+            seeds_row: Union[np.ndarray, dict] = None, seeds_col: Union[np.ndarray, dict] = None) -> 'RankClassifier':
+        """Fit algorithm to data.
 
         Parameters
         ----------
-        adjacency:
-            Adjacency matrix of the graph.
-        seeds:
+        input_matrix :
+            Adjacency matrix or biadjacency matrix of the graph.
+        seeds :
             Seed nodes (labels as dictionary or array; negative values ignored).
-
+        seeds_row, seeds_col :
+            Seed rows and columns (for bipartite graphs).
         Returns
         -------
         self: :class:`RankClassifier`
         """
-        n = adjacency.shape[0]
-        seeds_labels = check_seeds(seeds, n).astype(int)
+        adjacency, seeds_labels, bipartite = get_adjacency_seeds(input_matrix, seeds=seeds, seeds_row=seeds_row,
+                                                                 seeds_col=seeds_col)
+        seeds_labels = seeds_labels.astype(int)
         classes, n_classes = check_labels(seeds_labels)
-
         seeds_all = self._process_seeds(seeds_labels)
         local_function = partial(self.algorithm.fit_transform, adjacency)
         with Pool(self.n_jobs) as pool:
@@ -116,43 +127,9 @@ class RankClassifier(BaseClassifier, VerboseMixin):
 
         labels = np.argmax(scores, axis=1)
         self.labels_ = classes[labels]
-        self.membership_ = sparse.csr_matrix(membership, shape=(n, np.max(seeds_labels) + 1))
+        self.membership_ = sparse.csr_matrix(membership, shape=(adjacency.shape[0], np.max(seeds_labels) + 1))
 
-        return self
-
-
-class RankBiClassifier(RankClassifier, BaseBiClassifier):
-    """Generic class for ranking based classifiers on bipartite graphs."""
-    def __init__(self, algorithm: BaseRanking, n_jobs: Optional[int] = None, verbose: bool = False):
-        super(RankBiClassifier, self).__init__(algorithm=algorithm, n_jobs=n_jobs, verbose=verbose)
-
-    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray],
-            seeds_row: Union[np.ndarray, dict], seeds_col: Union[np.ndarray, dict, None] = None) -> 'RankClassifier':
-        """Compute labels.
-
-        Parameters
-        ----------
-        biadjacency :
-            Biadjacency matrix of the graph.
-        seeds_row :
-            Seed rows (labels as dictionary or array; negative values ignored).
-        seeds_col :
-            Seed columns (optional). Same format.
-
-        Returns
-        -------
-        self: :class:`BiPageRankClassifier`
-        """
-        n_row, n_col = biadjacency.shape
-        labels = stack_seeds(n_row, n_col, seeds_row, seeds_col)
-        adjacency = bipartite2undirected(biadjacency)
-        RankClassifier.fit(self, adjacency, labels)
-
-        self.labels_row_ = self.labels_[:n_row]
-        self.labels_col_ = self.labels_[n_row:]
-        self.labels_ = self.labels_row_
-        self.membership_row_ = self.membership_[:n_row]
-        self.membership_col_ = self.membership_[n_row:]
-        self.membership_ = self.membership_row_
+        if bipartite:
+            self._split_vars(input_matrix.shape)
 
         return self

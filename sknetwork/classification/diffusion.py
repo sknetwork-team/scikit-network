@@ -9,7 +9,7 @@ from typing import Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork.classification.base_rank import RankClassifier, RankBiClassifier
+from sknetwork.classification.base_rank import RankClassifier
 from sknetwork.ranking.diffusion import Diffusion, Dirichlet
 from sknetwork.utils.check import check_labels
 
@@ -59,9 +59,6 @@ def process_scores(scores: np.ndarray) -> np.ndarray:
 class DiffusionClassifier(RankClassifier):
     """Node classification using multiple diffusions.
 
-    * Graphs
-    * Digraphs
-
     Parameters
     ----------
     n_iter : int
@@ -76,8 +73,16 @@ class DiffusionClassifier(RankClassifier):
     ----------
     labels_ : np.ndarray
         Label of each node (hard classification).
-    membership_ : sparse.csr_matrix
-        Membership matrix (soft classification, labels on columns).
+    membership_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Membership matrix (soft classification).
+    labels_row_ : np.ndarray
+        Label of each row (for bipartite graphs).
+    labels_col_ : np.ndarray
+        Label of each column (for bipartite graphs).
+    membership_row_ : sparse.csr_matrix
+        Membership matrix of rows (for bipartite graphs).
+    membership_col_ : sparse.csr_matrix
+        Membership matrix of columns (for bipartite graphs).
 
     Example
     -------
@@ -108,55 +113,8 @@ class DiffusionClassifier(RankClassifier):
         self._process_scores = process_scores
 
 
-class BiDiffusionClassifier(DiffusionClassifier, RankBiClassifier):
-    """Node classification using multiple diffusions.
-
-    * Bigraphs
-
-    Parameters
-    ----------
-    n_iter : int
-        Number of steps of the diffusion in discrete time (must be positive).
-    damping_factor : float (optional)
-        Damping factor (default value = 1).
-    n_jobs :
-        If positive, number of parallel jobs allowed (-1 means maximum number).
-        If ``None``, no parallel computations are made.
-
-    Attributes
-    ----------
-    labels_ : np.ndarray
-        Label of each row.
-    labels_row_ : np.ndarray
-        Label of each row (copy of **labels_**).
-    labels_col_ : np.ndarray
-        Label of each column.
-    membership_ : sparse.csr_matrix
-        Membership matrix of rows (soft classification, labels on columns).
-    membership_row_ : sparse.csr_matrix
-        Membership matrix of rows (copy of **membership_**).
-    membership_col_ : sparse.csr_matrix
-        Membership matrix of columns.
-
-    Example
-    -------
-    >>> from sknetwork.classification import BiDiffusionClassifier
-    >>> from sknetwork.data import star_wars
-    >>> bidiffusion = BiDiffusionClassifier(n_iter=2)
-    >>> biadjacency = star_wars()
-    >>> seeds = {0: 1, 2: 0}
-    >>> bidiffusion.fit_transform(biadjacency, seeds)
-    array([1, 1, 0, 0])
-    """
-    def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, n_jobs: Optional[int] = None):
-        super(BiDiffusionClassifier, self).__init__(n_iter=n_iter, damping_factor=damping_factor, n_jobs=n_jobs)
-
-
 class DirichletClassifier(RankClassifier):
     """Node classification using multiple Dirichlet problems.
-
-    * Graphs
-    * Digraphs
 
     Parameters
     ----------
@@ -171,12 +129,20 @@ class DirichletClassifier(RankClassifier):
     verbose :
         Verbose mode.
 
-    Attributes
+   Attributes
     ----------
     labels_ : np.ndarray
         Label of each node (hard classification).
-    membership_ : sparse.csr_matrix
-        Membership matrix (soft classification, labels on columns).
+    membership_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Membership matrix (soft classification).
+    labels_row_ : np.ndarray
+        Label of each row (for bipartite graphs).
+    labels_col_ : np.ndarray
+        Label of each column (for bipartite graphs).
+    membership_row_ : sparse.csr_matrix
+        Membership matrix of rows (for bipartite graphs).
+    membership_col_ : sparse.csr_matrix
+        Membership matrix of columns (for bipartite graphs).
 
     Example
     -------
@@ -202,51 +168,3 @@ class DirichletClassifier(RankClassifier):
         super(DirichletClassifier, self).__init__(algorithm, n_jobs, verbose)
         self._process_seeds = hot_and_cold_seeds
         self._process_scores = process_scores
-
-
-class BiDirichletClassifier(DirichletClassifier, RankBiClassifier):
-    """Node classification using multiple diffusions.
-
-    * Bigraphs
-
-    Parameters
-    ----------
-    n_iter : int
-        If positive, the solution to the Dirichlet problem is approximated by power iteration for n_iter steps.
-        Otherwise, the solution is computed through BiConjugate Stabilized Gradient descent.
-    damping_factor : float (optional)
-        Damping factor (default value = 1).
-    n_jobs :
-        If positive, number of parallel jobs allowed (-1 means maximum number).
-        If ``None``, no parallel computations are made.
-    verbose :
-        Verbose mode.
-
-    Attributes
-    ----------
-    labels_ : np.ndarray
-        Label of each row.
-    labels_row_ : np.ndarray
-        Label of each row (copy of **labels_**).
-    labels_col_ : np.ndarray
-        Label of each column.
-    membership_ : sparse.csr_matrix
-        Membership matrix of rows (soft classification, labels on columns).
-    membership_row_ : sparse.csr_matrix
-        Membership matrix of rows (copy of **membership_**).
-    membership_col_ : sparse.csr_matrix
-        Membership matrix of columns.
-
-    Example
-    -------
-    >>> from sknetwork.data import star_wars
-    >>> bidirichlet = BiDirichletClassifier()
-    >>> biadjacency = star_wars()
-    >>> seeds = {0: 1, 2: 0}
-    >>> bidirichlet.fit_transform(biadjacency, seeds)
-    array([1, 1, 0, 0])
-    """
-    def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, n_jobs: Optional[int] = None,
-                 verbose: bool = False):
-        super(BiDirichletClassifier, self).__init__(n_iter=n_iter, damping_factor=damping_factor, verbose=verbose,
-                                                    n_jobs=n_jobs)

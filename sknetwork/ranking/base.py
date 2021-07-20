@@ -33,25 +33,8 @@ class BaseRanking(Algorithm, ABC):
         self.fit(*args, **kwargs)
         return self.scores_
 
-
-class BaseBiRanking(BaseRanking, ABC):
-    """Base class for ranking algorithms.
-
-    Attributes
-    ----------
-    scores_ : np.ndarray
-        PageRank score of each node.
-    scores_row_ : np.ndarray
-        PageRank score of each row (copy of **scores_**).
-    scores_col_ : np.ndarray
-        PageRank score of each column.
-    """
-    def __init__(self):
-        super(BaseBiRanking, self).__init__()
-        self.scores_row_ = None
-        self.scores_col_ = None
-
-    def _split_vars(self, n_row):
+    def _split_vars(self, shape):
+        n_row = shape[0]
         self.scores_row_ = self.scores_[:n_row]
         self.scores_col_ = self.scores_[n_row:]
         self.scores_ = self.scores_row_
