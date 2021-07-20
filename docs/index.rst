@@ -7,7 +7,7 @@ Welcome to scikit-network's documentation!
    :maxdepth: 1
    :caption: Getting started
 
-   getting_started
+   first_steps
 
 .. toctree::
    :maxdepth: 2
@@ -22,7 +22,6 @@ Welcome to scikit-network's documentation!
    tutorials/classification/index
    tutorials/embedding/index
    tutorials/linkpred/index
-   tutorials/utils/index
    tutorials/visualization/index
 
 .. toctree::
