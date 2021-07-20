@@ -19,7 +19,7 @@ class RandomProjection(BaseEmbedding):
     """Embedding of graphs based the random projection of the adjacency matrix:
 
     :math:`(I + \\alpha A +... + (\\alpha A)^K)G`
-    
+
     where :math:`A` is the adjacency matrix, :math:`G` is a random Gaussian matrix,
     :math:`\\alpha` is some smoothing factor and :math:`K` some non-negative integer.
 
