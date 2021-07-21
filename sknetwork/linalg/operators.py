@@ -156,10 +156,6 @@ class Laplacian(LinearOperator):
 class CoNeighbor(LinearOperator):
     """Co-neighborhood adjacency as a LinearOperator.
 
-    * Graphs
-    * Digraphs
-    * Bigraphs
-
     :math:`\\tilde{A} = AF^{-1}A^T`, or :math:`\\tilde{B} = BF^{-1}B^T`.
 
     where F is a weight matrix.

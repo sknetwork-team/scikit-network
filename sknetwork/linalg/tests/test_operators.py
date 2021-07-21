@@ -9,6 +9,7 @@ import unittest
 
 from sknetwork.data.test_graphs import *
 from sknetwork.linalg import Laplacian, Normalizer, CoNeighbor, normalize
+from sknetwork.linalg.basics import safe_sparse_dot
 
 
 class TestOperators(unittest.TestCase):
@@ -31,6 +32,7 @@ class TestOperators(unittest.TestCase):
             # product
             shape = (n, 3)
             self.assertEqual(laplacian.dot(np.ones(shape)).shape, shape)
+            self.assertEqual(safe_sparse_dot(laplacian, np.ones(shape)).shape, shape)
 
     def test_normalizer(self):
         for adjacency in [test_graph(), test_graph_disconnect()]:
