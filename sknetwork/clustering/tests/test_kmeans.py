@@ -15,16 +15,17 @@ from sknetwork.embedding import GSVD, Spectral
 class TestKMeans(unittest.TestCase):
 
     def test_undirected(self):
-        algo = KMeans(3, GSVD(2))
-        algo_options = KMeans(4, Spectral(3), co_cluster=True, sort_clusters=False)
+        n_clusters = 3
+        algo = KMeans(n_clusters, GSVD(2))
+        algo_options = KMeans(n_clusters, Spectral(3), co_cluster=True, sort_clusters=False)
         for adjacency in [test_graph(), test_graph_disconnect(), test_digraph()]:
             n = adjacency.shape[0]
             labels = algo.fit_transform(adjacency)
-            self.assertEqual(len(set(labels)), 3)
-            self.assertEqual(algo.membership_.shape, (n, 3))
-            self.assertEqual(algo.aggregate_.shape, (3, 3))
+            self.assertEqual(len(set(labels)), n_clusters)
+            self.assertEqual(algo.membership_.shape, (n, n_clusters))
+            self.assertEqual(algo.aggregate_.shape, (n_clusters, n_clusters))
             labels = algo_options.fit_transform(adjacency)
-            self.assertEqual(len(set(labels)), 4)
+            self.assertEqual(len(set(labels)), n_clusters)
 
     def test_bipartite(self):
         algo = KMeans(3, GSVD(2))

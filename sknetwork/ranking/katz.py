@@ -20,13 +20,21 @@ class Katz(BaseRanking):
 
     :math:`\\sum_{k=1}^K\\alpha^k(A^k)^T\\mathbf{1}`.
 
-
     Parameters
     ----------
     damping_factor : float
         Decay parameter for path contributions.
     path_length : int
         Maximum length of the paths to take into account.
+
+    Attributes
+    ----------
+    scores_ : np.ndarray
+        Score of each node.
+    scores_row_: np.ndarray
+        Scores of rows, for bipartite graphs.
+    scores_col_: np.ndarray
+        Scores of columns, for bipartite graphs.
 
     Examples
     --------

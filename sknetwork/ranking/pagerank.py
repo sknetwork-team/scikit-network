@@ -44,6 +44,10 @@ class PageRank(BaseRanking, VerboseMixin):
     ----------
     scores_ : np.ndarray
         PageRank score of each node.
+    scores_row_: np.ndarray
+        Scores of rows, for bipartite graphs.
+    scores_col_: np.ndarray
+        Scores of columns, for bipartite graphs.
 
     Example
     -------

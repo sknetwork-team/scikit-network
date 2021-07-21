@@ -31,13 +31,13 @@ class Ward(BaseHierarchy):
     Attributes
     ----------
     dendrogram_ :
-        Dendrogram for the nodes (rows).
+        Dendrogram of the graph.
     dendrogram_row_ :
-        Dendrogram for the rows (for bipartite graphs).
+        Dendrogram for the rows, for bipartite graphs.
     dendrogram_col_ :
-        Dendrogram for the columns (for bipartite graphs).
+        Dendrogram for the columns, for bipartite graphs.
     dendrogram_full_ :
-        Dendrogram for both rows and columns, indexed in this order.
+        Dendrogram for both rows and columns, indexed in this order, for bipartite graphs.
 
     Examples
     --------

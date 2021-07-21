@@ -18,10 +18,12 @@ class BaseEmbedding(Algorithm, ABC):
 
     Attributes
     ----------
-    embedding_ : np.ndarray, shape = (n_row, n_components)
+    embedding_ : array, shape = (n, n_components)
         Embedding of the nodes.
-    embedding_row_,  embedding_col_ : np.ndarray, shapes = (n_row, n_components) and (n_col, n_components)
-        Embedding of the rows and columns (for bipartite graphs).
+    embedding_row_ : array, shape = (n_row, n_components)
+        Embedding of the rows, for bipartite graphs.
+    embedding_col_ : array, shape = (n_col, n_components)
+        Embedding of the columns, for bipartite graphs.
     """
 
     def __init__(self):

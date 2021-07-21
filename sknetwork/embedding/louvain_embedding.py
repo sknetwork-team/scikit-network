@@ -69,9 +69,9 @@ class LouvainEmbedding(BaseEmbedding):
     embedding_ : array, shape = (n, n_components)
         Embedding of the nodes.
     embedding_row_ : array, shape = (n_row, n_components)
-        Embedding of the rows (copy of **embedding_**).
+        Embedding of the rows, for bipartite graphs.
     embedding_col_ : array, shape = (n_col, n_components)
-        Embedding of the columns.
+        Embedding of the columns, for bipartite graphs.
     labels_row_ : np.ndarray
         Labels of the rows (used to build the embedding of the columns).
     labels_col_ : np.ndarray

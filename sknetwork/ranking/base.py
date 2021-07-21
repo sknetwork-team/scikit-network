@@ -17,7 +17,11 @@ class BaseRanking(Algorithm, ABC):
     Attributes
     ----------
     scores_ : np.ndarray
-        PageRank score of each node.
+        Score of each node.
+    scores_row_: np.ndarray
+        Scores of rows, for bipartite graphs.
+    scores_col_: np.ndarray
+        Scores of columns, for bipartite graphs.
     """
     def __init__(self):
         self.scores_ = None

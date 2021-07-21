@@ -47,6 +47,10 @@ class RandomProjection(BaseEmbedding):
     ----------
     embedding_ : array, shape = (n, n_components)
         Embedding of the nodes.
+    embedding_row_ : array, shape = (n_row, n_components)
+        Embedding of the rows, for bipartite graphs.
+    embedding_col_ : array, shape = (n_col, n_components)
+        Embedding of the columns, for bipartite graphs.
 
     Example
     -------

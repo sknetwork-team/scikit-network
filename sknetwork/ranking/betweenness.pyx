@@ -19,8 +19,6 @@ from libcpp.queue cimport queue
 class Betweenness(BaseRanking):
     """ Betweenness centrality, based on Brandes' algorithm.
 
-    * Graphs
-
     Attributes
     ----------
     scores_ : np.ndarray

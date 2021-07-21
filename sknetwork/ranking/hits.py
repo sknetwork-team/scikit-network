@@ -19,10 +19,6 @@ class HITS(BaseRanking):
     """Hub and authority scores of each node.
     For bipartite graphs, the hub score is computed on rows and the authority score on columns.
 
-    * Graphs
-    * Digraphs
-    * Bigraphs
-
     Parameters
     ----------
     solver : ``'lanczos'`` (default, Lanczos algorithm) or :class:`SVDSolver` (custom solver)
@@ -31,11 +27,11 @@ class HITS(BaseRanking):
     Attributes
     ----------
     scores_ : np.ndarray
-        Hub score of each row.
+        Hub score of each node.
     scores_row_ : np.ndarray
-        Hub score of each row (copy of **scores_row_**).
+        Hub score of each row, for bipartite graphs.
     scores_col_ : np.ndarray
-        Authority score of each column.
+        Authority score of each column, for bipartite graphs.
 
     Example
     -------

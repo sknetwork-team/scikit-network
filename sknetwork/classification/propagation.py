@@ -38,10 +38,14 @@ class Propagation(BaseClassifier):
         Label of each node.
     membership_ : sparse.csr_matrix, shape (n_row, n_labels)
         Membership matrix.
-    labels_row_ , labels_col_ : np.ndarray
-        Label of rows and columns (for bipartite graphs).
-    membership_row_, membership_col_ : sparse.csr_matrix, shapes (n_row, n_labels) and (n_col, n_labels)
-        Membership matrices of rows and columns (for bipartite graphs).
+    labels_row_ : np.ndarray
+        Labels of rows, for bipartite graphs.
+    labels_col_ : np.ndarray
+        Labels of columns, for bipartite graphs.
+    membership_row_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Membership matrix of rows, for bipartite graphs.
+    membership_col_ : sparse.csr_matrix, shape (n_col, n_labels)
+        Membership matrix of columns, for bipartite graphs.
 
     Example
     -------

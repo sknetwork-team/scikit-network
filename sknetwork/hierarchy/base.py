@@ -13,7 +13,18 @@ from sknetwork.utils.base import Algorithm
 
 
 class BaseHierarchy(Algorithm, ABC):
-    """Base class for hierarchical clustering algorithms."""
+    """Base class for hierarchical clustering algorithms.
+    Attributes
+    ----------
+    dendrogram_ :
+        Dendrogram of the graph.
+    dendrogram_row_ :
+        Dendrogram for the rows, for bipartite graphs.
+    dendrogram_col_ :
+        Dendrogram for the columns, for bipartite graphs.
+    dendrogram_full_ :
+        Dendrogram for both rows and columns, indexed in this order, for bipartite graphs.
+    """
 
     def __init__(self):
         self._init_vars()

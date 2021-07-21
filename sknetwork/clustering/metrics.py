@@ -19,10 +19,7 @@ from sknetwork.utils.membership import membership_matrix
 def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray,
                weights: Union[str, np.ndarray] = 'degree', weights_in: Union[str, np.ndarray] = 'degree',
                resolution: float = 1, return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
-    """Modularity of a clustering (node partition).
-
-    * Graphs
-    * Digraphs
+    """Modularity of a clustering.
 
     The modularity of a clustering is
 
@@ -30,7 +27,7 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
     for graphs,
 
     :math:`Q = \\dfrac{1}{w} \\sum_{i,j}\\left(A_{ij} - \\gamma \\dfrac{d^+_id^-_j}{w}\\right)\\delta_{c_i,c_j}`
-    for digraphs,
+    for directed graphs,
 
     where
 
@@ -96,9 +93,7 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
 def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray, labels_col: np.ndarray,
                  weights: Union[str, np.ndarray] = 'degree', weights_col: Union[str, np.ndarray] = 'degree',
                  resolution: float = 1, return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
-    """Bimodularity of a clustering (node partition).
-
-    * Bigraphs
+    """Bimodularity of the clustering (for bipartite graphs).
 
     The bimodularity of a clustering is
 
@@ -172,10 +167,6 @@ def comodularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.nda
                  return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
     """Modularity of a clustering in the normalized co-neighborhood graph.
 
-    * Graphs
-    * Digraphs
-    * Bigraphs
-
     Quality metric of a clustering given by:
 
     :math:`Q = \\dfrac{1}{w}\\sum_{i,j}\\left((AD_2^{-1}A^T)_{ij} - \\gamma \\dfrac{d_id_j}{w}\\right)
@@ -184,13 +175,14 @@ def comodularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.nda
     where
 
     * :math:`c_i` is the cluster of node `i`,\n
+    * :math:`D_2` is the diagonal matrix of the weights of columns,\n
     * :math:`\\delta` is the Kronecker symbol,\n
     * :math:`\\gamma \\ge 0` is the resolution parameter.
 
     Parameters
     ----------
     adjacency :
-        Adjacency matrix of the graph.
+        Adjacency matrix or biadjacency matrix of the graph.
     labels :
        Labels of the nodes.
     resolution :

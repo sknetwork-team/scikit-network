@@ -48,10 +48,12 @@ class GSVD(BaseEmbedding):
 
     Attributes
     ----------
-    embedding_ : np.ndarray, shape = (n_row, n_components)
+    embedding_ : array, shape = (n, n_components)
         Embedding of the nodes.
-    embedding_row_,  embedding_col_ : np.ndarray, shapes = (n_row, n_components) and (n_col, n_components)
-        Embedding of the rows and columns (for bipartite graphs).
+    embedding_row_ : array, shape = (n_row, n_components)
+        Embedding of the rows, for bipartite graphs.
+    embedding_col_ : array, shape = (n_col, n_components)
+        Embedding of the columns, for bipartite graphs.
     singular_values_ : np.ndarray, shape = (n_components)
         Singular values.
     singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
@@ -239,10 +241,12 @@ class SVD(GSVD):
 
     Attributes
     ----------
-    embedding_ : np.ndarray, shape = (n_row, n_components)
+    embedding_ : array, shape = (n, n_components)
         Embedding of the nodes.
-    embedding_row_,  embedding_col_ : np.ndarray, shapes = (n_row, n_components) and (n_col, n_components)
-        Embedding of the rows and columns (for bipartite graphs).
+    embedding_row_ : array, shape = (n_row, n_components)
+        Embedding of the rows, for bipartite graphs.
+    embedding_col_ : array, shape = (n_col, n_components)
+        Embedding of the columns, for bipartite graphs.
     singular_values_ : np.ndarray, shape = (n_components)
         Singular values.
     singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
@@ -293,10 +297,12 @@ class PCA(SVD):
 
     Attributes
     ----------
-    embedding_ : np.ndarray, shape = (n_row, n_components)
+    embedding_ : array, shape = (n, n_components)
         Embedding of the nodes.
-    embedding_row_,  embedding_col_ : np.ndarray, shapes = (n_row, n_components) and (n_col, n_components)
-        Embedding of the rows and columns (for bipartite graphs).
+    embedding_row_ : array, shape = (n_row, n_components)
+        Embedding of the rows, for bipartite graphs.
+    embedding_col_ : array, shape = (n_col, n_components)
+        Embedding of the columns, for bipartite graphs.
     singular_values_ : np.ndarray, shape = (n_components)
         Singular values.
     singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)

@@ -171,8 +171,14 @@ class Paris(BaseHierarchy):
 
     Attributes
     ----------
-    dendrogram_ : numpy array of shape (total number of nodes - 1, 4)
-        Dendrogram.
+    dendrogram_ :
+        Dendrogram of the graph.
+    dendrogram_row_ :
+        Dendrogram for the rows, for bipartite graphs.
+    dendrogram_col_ :
+        Dendrogram for the columns, for bipartite graphs.
+    dendrogram_full_ :
+        Dendrogram for both rows and columns, indexed in this order, for bipartite graphs.
 
     Examples
     --------

@@ -104,8 +104,10 @@ class Diffusion(BaseRanking):
     ----------
     scores_ : np.ndarray
         Score of each node (= temperature).
-    scores_row_, scores_col_ : np.ndarray
-        Scores of rows and columns (for bipartite graphs).
+    scores_row_: np.ndarray
+        Scores of rows, for bipartite graphs.
+    scores_col_: np.ndarray
+        Scores of columns, for bipartite graphs.
     Example
     -------
     >>> from sknetwork.data import house

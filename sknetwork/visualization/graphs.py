@@ -755,7 +755,7 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
         position_col = np.ones((n_col, 2))
         if reorder:
             louvain = Louvain()
-            louvain.fit(biadjacency)
+            louvain.fit(biadjacency, force_bipartite=True)
             index_row = np.argsort(louvain.labels_row_)
             index_col = np.argsort(louvain.labels_col_)
         else:

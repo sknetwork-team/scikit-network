@@ -39,17 +39,17 @@ class KMeans(BaseClustering):
     Attributes
     ----------
     labels_ : np.ndarray
-        Labels of the nodes (rows for bipartite graphs)
+        Labels of the nodes.
     labels_row_ : np.ndarray
         Labels of the rows (for bipartite graphs).
     labels_col_ : np.ndarray
-        Labels of the columns (for bipartite graphs, in case of co-clustering).
+        Labels of the columns (for bipartite graphs).
     membership_ : sparse.csr_matrix
         Membership matrix of the nodes, shape (n_nodes, n_clusters).
     membership_row_ : sparse.csr_matrix
         Membership matrix of the rows (for bipartite graphs).
     membership_col_ : sparse.csr_matrix
-        Membership matrix of the columns (for bipartite graphs, in case of co-clustering).
+        Membership matrix of the columns (for bipartite graphs).
     aggregate_ : sparse.csr_matrix
         Aggregate adjacency matrix or biadjacency matrix between clusters.
 
