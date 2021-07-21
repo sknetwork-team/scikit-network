@@ -1,8 +1,5 @@
 .. _getting_started:
 
-First steps
-***********
-
 :mod:`scikit-network` is an open-source python package for the analysis of large graphs.
 
 
