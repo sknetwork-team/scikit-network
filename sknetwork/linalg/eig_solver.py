@@ -73,8 +73,7 @@ class LanczosEig(EigSolver):
         self.n_iter = n_iter
         self.tol = tol
 
-    def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator], n_components: int = 2,
-            right_matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator] = None):
+    def fit(self, matrix: Union[sparse.csr_matrix, sparse.linalg.LinearOperator], n_components: int = 2):
         """Perform spectral decomposition on symmetric input matrix.
 
         Parameters
@@ -83,19 +82,12 @@ class LanczosEig(EigSolver):
             Matrix to decompose.
         n_components : int
             Number of eigenvectors to compute
-        right_matrix : sparse.csr_matrix or linear operator
-            Right matrix for generalized spectral decomposition.
+
         Returns
         -------
         self: :class:`EigSolver`
         """
-        if right_matrix is None:
-            eigenvalues, eigenvectors = eigsh(matrix.astype(float), n_components, which=self.which,
-                                              maxiter=self.n_iter, tol=self.tol)
-        else:
-            eigenvalues, eigenvectors = eigsh(matrix.astype(float), n_components, which=self.which,
-                                              maxiter=self.n_iter, tol=self.tol, M=right_matrix)
-        self.eigenvectors_ = eigenvectors
-        self.eigenvalues_ = eigenvalues
+        self.eigenvalues_, self.eigenvectors_ = eigsh(matrix.astype(float), n_components, which=self.which,
+                                                      maxiter=self.n_iter, tol=self.tol)
 
         return self

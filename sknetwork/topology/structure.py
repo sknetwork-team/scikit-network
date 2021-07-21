@@ -172,7 +172,7 @@ def is_acyclic(adjacency: sparse.csr_matrix) -> bool:
     n_nodes = adjacency.shape[0]
     n_cc = sparse.csgraph.connected_components(adjacency, (not is_symmetric(adjacency)), 'strong', False)
     if n_cc == n_nodes:
-        # check for self-loops has they always induce a cycle
+        # check for self-loops (= cycles)
         return (adjacency.diagonal() == 0).all()
     else:
         return False

@@ -7,8 +7,6 @@ Created on Apr 2020
 """
 import unittest
 
-import numpy as np
-
 from sknetwork.data.test_graphs import *
 from sknetwork.linalg import Laplacian, Normalizer, CoNeighbor, normalize
 
@@ -30,6 +28,9 @@ class TestOperators(unittest.TestCase):
             laplacian = Laplacian(adjacency, regularization=regularization, normalized_laplacian=True)
             weights = adjacency.dot(np.ones(n)) + regularization
             self.assertAlmostEqual(np.linalg.norm(laplacian.dot(np.sqrt(weights))), 0)
+            # product
+            shape = (n, 3)
+            self.assertEqual(laplacian.dot(np.ones(shape)).shape, shape)
 
     def test_normalizer(self):
         for adjacency in [test_graph(), test_graph_disconnect()]:
@@ -40,6 +41,8 @@ class TestOperators(unittest.TestCase):
             self.assertAlmostEqual(np.linalg.norm(normalizer.dot(np.ones(n_col)) - non_zeros), 0)
             # single row
             normalizer = Normalizer(adjacency[1])
+            self.assertAlmostEqual(float(normalizer.dot(np.ones(n_col))), 1)
+            normalizer = Normalizer(adjacency[2].toarray().ravel())
             self.assertAlmostEqual(float(normalizer.dot(np.ones(n_col))), 1)
             # regularization
             normalizer = Normalizer(adjacency, 1)
@@ -52,7 +55,7 @@ class TestOperators(unittest.TestCase):
         x = transition.dot(np.ones(transition.shape[1]))
 
         self.assertAlmostEqual(np.linalg.norm(x - np.ones(operator.shape[0])), 0)
-        operator.astype(float)
+        operator.astype('float')
         operator.right_sparse_dot(sparse.eye(operator.shape[1], format='csr'))
 
         operator1 = CoNeighbor(biadjacency, normalized=False)

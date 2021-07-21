@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tests for format.py"""
+"""Tests for format.py"""
 import unittest
 
 from sknetwork.data.test_graphs import *
@@ -55,3 +55,7 @@ class TestFormats(unittest.TestCase):
         slr = SparseLR(self.biadjacency, [(np.ones(n_row), np.ones(n_col))])
         undirected_graph = bipartite2undirected(slr)
         self.assertTrue(type(undirected_graph) == SparseLR)
+
+    def test_check(self):
+        with self.assertRaises(ValueError):
+            check_format(sparse.csr_matrix((3, 4)))

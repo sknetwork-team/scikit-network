@@ -36,7 +36,7 @@ class TestEmbeddings(unittest.TestCase):
             spectral = Spectral(3)
             embedding = spectral.fit_transform(adjacency)
             self.assertAlmostEqual(np.linalg.norm(embedding[6:8] - spectral.predict(adjacency[6:8])), 0)
-            # regular Laplacian
+            # standard Laplacian
             spectral = Spectral(3, normalized_laplacian=False)
             embedding = spectral.fit_transform(adjacency)
             self.assertAlmostEqual(np.linalg.norm(spectral.eigenvectors_.sum(axis=0)), 0)
@@ -51,8 +51,12 @@ class TestEmbeddings(unittest.TestCase):
             embedding = spectral.fit_transform(adjacency)
             weights = adjacency.dot(np.ones(n)) + regularization
             self.assertAlmostEqual(np.linalg.norm(embedding.T.dot(weights)), 0)
-            # regular Laplacian
-            spectral = Spectral(3, normalized_laplacian=False, regularization=regularization)
+            # standard Laplacian
+            spectral = Spectral(3, normalized_laplacian=False, regularization=1)
+            embedding = spectral.fit_transform(adjacency)
+            self.assertAlmostEqual(np.linalg.norm(embedding.sum(axis=0)), 0)
+            # without regularization
+            spectral = Spectral(3, normalized_laplacian=False, regularization=-1)
             embedding = spectral.fit_transform(adjacency)
             self.assertAlmostEqual(np.linalg.norm(embedding.sum(axis=0)), 0)
 
