@@ -32,7 +32,7 @@ Import
 
 Import :mod:`scikit-network` in Python:
 
-.. code-block:: console
+.. code-block:: python
 
     import sknetwork as skn
 
@@ -43,7 +43,7 @@ Each graph is represented by its :term:`adjacency` matrix, either as a dense ``n
 or a sparse ``scipy CSR matrix``.
 A bipartite graph can be represented by its :term:`biadjacency` matrix (rectangular matrix), in the same format.
 
-Check our tutorials ``Data`` for various ways of loading a graph
+Check our tutorials in :ref:`Data<DataTag>` for various ways of loading a graph
 (from a list of edges, a dataframe or a TSV file, for instance).
 
 Algorithms
@@ -53,7 +53,7 @@ Each algorithm is represented as an object with a ``fit`` method.
 
 Here is an example to cluster the `Karate club graph`_ with the `Louvain algorithm`_:
 
-.. code-block:: console
+.. code-block:: python
 
     from sknetwork.data import karate_club
     from sknetwork.clustering import Louvain

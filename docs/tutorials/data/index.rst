@@ -1,3 +1,5 @@
+.. _DataTag:
+
 Data
 ****
 
