@@ -198,8 +198,8 @@ def get_probs(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_mat
 
 def check_random_state(random_state: Optional[Union[np.random.RandomState, int]]):
     """Check whether the argument is a seed or a NumPy random state. If None, numpy.random is used by default."""
-    if random_state is None or random_state is np.random:
-        return np.random
+    if random_state is None:
+        return np.random.RandomState()
     elif type(random_state) == int:
         return np.random.RandomState(random_state)
     elif type(random_state) == np.random.RandomState:
