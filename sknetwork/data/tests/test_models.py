@@ -22,6 +22,8 @@ class TestModels(unittest.TestCase):
 
         adjacency = star(n)
         self.assertEqual(adjacency.shape, (n+1, n+1))
+        graph = star(n, metadata=True)
+        self.assertTrue(hasattr(graph, 'position'))
 
         adjacency = erdos_renyi(n)
         self.assertEqual(adjacency.shape, (n, n))

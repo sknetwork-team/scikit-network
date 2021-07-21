@@ -45,7 +45,7 @@ def is_connected(adjacency: sparse.csr_matrix, connection: str = 'weak') -> bool
     connection :
         Must be ``'weak'`` (default) or ``'strong'``. The type of connection to use for directed graphs.
     """
-    return len(get_connected_components(adjacency, connection)) == 1
+    return len(set(get_connected_components(adjacency, connection))) == 1
 
 
 def get_largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], return_labels: bool = False):

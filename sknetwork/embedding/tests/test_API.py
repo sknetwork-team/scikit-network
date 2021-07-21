@@ -66,3 +66,8 @@ class TestEmbeddings(unittest.TestCase):
         for method in self.methods:
             embedding = method.fit_transform(adjacency)
             self.assertEqual(embedding.shape, (n, 2))
+
+    def test_regularization(self):
+        adjacency = test_graph()
+        method = Spectral()
+        self.assertEqual(method._get_regularization(-1, adjacency), 0)
