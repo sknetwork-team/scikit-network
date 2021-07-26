@@ -22,7 +22,7 @@ class TestPageRank(unittest.TestCase):
         biadjacency = test_bigraph()
         n_row, n_col = biadjacency.shape
 
-        methods = [BiPageRank(), BiDiffusion(), HITS(), BiKatz(), BiDirichlet()]
+        methods = [PageRank(), Diffusion(), HITS(), Katz(), Dirichlet()]
         for method in methods:
             method.fit(biadjacency)
             scores_row = method.scores_row_

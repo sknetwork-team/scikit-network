@@ -16,19 +16,13 @@ Paris
 -----
 .. autoclass:: sknetwork.hierarchy.Paris
 
-.. autoclass:: sknetwork.hierarchy.BiParis
-
 Louvain
 -------
 .. autoclass:: sknetwork.hierarchy.LouvainHierarchy
 
-.. autoclass:: sknetwork.hierarchy.BiLouvainHierarchy
-
 Ward
 ----
 .. autoclass:: sknetwork.hierarchy.Ward
-
-.. autoclass:: sknetwork.hierarchy.BiWard
 
 Metrics
 -------

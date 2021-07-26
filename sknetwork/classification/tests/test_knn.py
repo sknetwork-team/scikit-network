@@ -3,22 +3,22 @@
 """Tests for KNN"""
 import unittest
 
-import numpy as np
-
 from sknetwork.classification import KNN
-from sknetwork.data import karate_club
+from sknetwork.data.test_graphs import *
+from sknetwork.embedding import LouvainEmbedding
 
 
 class TestDiffusionClassifier(unittest.TestCase):
 
     def test_parallel(self):
-        adjacency = karate_club(metadata=False)
-        seeds = {0: 0, 1: 1}
+        for adjacency in [test_graph(), test_digraph(), test_bigraph()]:
+            seeds = {0: 0, 1: 1}
 
-        clf1 = KNN(n_neighbors=1, n_jobs=None)
-        clf2 = KNN(n_neighbors=1, n_jobs=-1)
+            algo1 = KNN(n_neighbors=1, n_jobs=None, embedding_method=LouvainEmbedding())
+            algo2 = KNN(n_neighbors=1, n_jobs=-1, embedding_method=LouvainEmbedding())
 
-        labels1 = clf1.fit_transform(adjacency, seeds)
-        labels2 = clf2.fit_transform(adjacency, seeds)
+            labels1 = algo1.fit_transform(adjacency, seeds)
+            labels2 = algo2.fit_transform(adjacency, seeds)
 
-        self.assertTrue(np.allclose(labels1, labels2))
+            self.assertTrue(np.allclose(labels1, labels2))
+

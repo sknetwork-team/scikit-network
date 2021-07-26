@@ -8,16 +8,16 @@ import numpy as np
 from scipy import sparse
 from sknetwork.hierarchy.paris import AggregateGraph
 
-from sknetwork.utils.check import check_format, check_probs, check_square
+from sknetwork.utils.check import check_format, get_probs, check_square
 from sknetwork.utils.check import check_min_size, check_min_nnz
 from sknetwork.utils.format import directed2undirected
 
 
-def _instanciate_vars(adjacency: sparse.csr_matrix, weights: str = 'uniform'):
+def _instantiate_vars(adjacency: sparse.csr_matrix, weights: str = 'uniform'):
     """Initialize standard variables for metrics."""
     n = adjacency.shape[0]
-    weights_row = check_probs(weights, adjacency)
-    weights_col = check_probs(weights, adjacency.T)
+    weights_row = get_probs(weights, adjacency)
+    weights_col = get_probs(weights, adjacency.T)
     sym_adjacency = directed2undirected(adjacency)
 
     aggregate_graph = AggregateGraph(weights_row, weights_col, sym_adjacency.data.astype(float),
@@ -33,9 +33,6 @@ def _instanciate_vars(adjacency: sparse.csr_matrix, weights: str = 'uniform'):
 def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights: str = 'uniform',
                   normalized: bool = False) -> float:
     """Dasgupta's cost of a hierarchy.
-
-    * Graphs
-    * Digraphs
 
     Expected size (weights = ``'uniform'``) or expected weight (weights = ``'degree'``) of the cluster induced by
     random edge sampling (closest ancestor of the two nodes in the hierarchy).
@@ -79,7 +76,7 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights:
     n = adjacency.shape[0]
     check_min_size(n, 2)
 
-    aggregate_graph, height, edge_sampling, cluster_weight, _, _ = _instanciate_vars(adjacency, weights)
+    aggregate_graph, height, edge_sampling, cluster_weight, _, _ = _instantiate_vars(adjacency, weights)
 
     for t in range(n - 1):
         i = int(dendrogram[t][0])
@@ -110,9 +107,6 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights:
 
 def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights: str = 'uniform') -> float:
     """Dasgupta's score of a hierarchy (quality metric, between 0 and 1).
-
-    * Graphs
-    * Digraphs
 
     Defined as 1 - normalized Dasgupta's cost.
 
@@ -153,9 +147,6 @@ def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights
 def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights: str = 'degree',
                              normalized: bool = True) -> float:
     """Tree sampling divergence of a hierarchy (quality metric).
-
-    * Graphs
-    * Digraphs
 
     Parameters
     ----------
@@ -202,7 +193,7 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
 
     adjacency.data /= adjacency.data.sum()
 
-    aggregate_graph, height, cluster_weight, edge_sampling, weights_row, weights_col = _instanciate_vars(adjacency,
+    aggregate_graph, height, cluster_weight, edge_sampling, weights_row, weights_col = _instantiate_vars(adjacency,
                                                                                                          weights)
     node_sampling = np.zeros(n - 1)
 

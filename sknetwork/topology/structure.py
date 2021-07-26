@@ -13,11 +13,8 @@ from scipy import sparse
 from sknetwork.utils.check import is_symmetric, is_square, check_format
 
 
-def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak') -> np.ndarray:
+def get_connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak') -> np.ndarray:
     """Extract the connected components of the graph.
-
-    * Graphs
-    * Digraphs
 
     Based on SciPy (scipy.sparse.csgraph.connected_components).
 
@@ -39,12 +36,20 @@ def connected_components(adjacency: sparse.csr_matrix, connection: str = 'weak')
     return sparse.csgraph.connected_components(adjacency, not is_symmetric(adjacency), connection, True)[1]
 
 
-def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], return_labels: bool = False):
-    """Extract the largest connected component of a graph. Bipartite graphs are treated as undirected.
+def is_connected(adjacency: sparse.csr_matrix, connection: str = 'weak') -> bool:
+    """Return True if the graph is connected.
+    Parameters
+    ----------
+    adjacency :
+        Adjacency matrix of the graph.
+    connection :
+        Must be ``'weak'`` (default) or ``'strong'``. The type of connection to use for directed graphs.
+    """
+    return len(set(get_connected_components(adjacency, connection))) == 1
 
-    * Graphs
-    * Digraphs
-    * Bigraphs
+
+def get_largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], return_labels: bool = False):
+    """Extract the largest connected component of a graph. Bipartite graphs are treated as undirected.
 
     Parameters
     ----------
@@ -70,7 +75,7 @@ def largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray],
         bipartite: bool = False
         full_adjacency = adjacency
 
-    labels = connected_components(full_adjacency)
+    labels = get_connected_components(full_adjacency)
     unique_labels, counts = np.unique(labels, return_counts=True)
     component_label = unique_labels[np.argmax(counts)]
     component_indices = np.where(labels == component_label)[0]
@@ -167,7 +172,7 @@ def is_acyclic(adjacency: sparse.csr_matrix) -> bool:
     n_nodes = adjacency.shape[0]
     n_cc = sparse.csgraph.connected_components(adjacency, (not is_symmetric(adjacency)), 'strong', False)
     if n_cc == n_nodes:
-        # check for self-loops has they always induce a cycle
+        # check for self-loops (= cycles)
         return (adjacency.diagonal() == 0).all()
     else:
         return False

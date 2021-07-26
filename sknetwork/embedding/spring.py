@@ -109,7 +109,7 @@ class Spring(BaseEmbedding):
             if self.position_init == 'random':
                 position = np.random.randn(n, self.n_components)
             elif self.position_init == 'spectral':
-                position = Spectral(n_components=self.n_components, normalized=False).fit_transform(adjacency)
+                position = Spectral(n_components=self.n_components).fit_transform(adjacency)
         elif isinstance(position_init, np.ndarray):
             if position_init.shape == (n, self.n_components):
                 position = position_init.copy()

@@ -99,22 +99,6 @@ class TestChecks(unittest.TestCase):
             # noinspection PyTypeChecker
             check_random_state('junk')
 
-    def test_check_seeds(self):
-        n = 10
-        seeds_array = -np.ones(n)
-        seeds_array[:2] = np.arange(2)
-        seeds_dict = {0: 0, 1: 1}
-        labels_array = check_seeds(seeds_array, n)
-        labels_dict = check_seeds(seeds_dict, n)
-
-        self.assertTrue(np.allclose(labels_array, labels_dict))
-        with self.assertRaises(ValueError):
-            check_seeds(labels_array, 5)
-        self.assertRaises(TypeError, check_seeds, 'toto', 3)
-        with self.assertWarns(Warning):
-            seeds_dict[0] = -1
-            check_seeds(seeds_dict, n)
-
     def test_check_labels(self):
         with self.assertRaises(ValueError):
             check_labels(np.ones(3))
@@ -173,3 +157,6 @@ class TestChecks(unittest.TestCase):
         adjacency = cyclic_digraph(3)
         with self.assertRaises(ValueError):
             check_scaling(-1, adjacency, regularize=True)
+        adjacency = test_graph_disconnect()
+        with self.assertRaises(ValueError):
+            check_scaling(-1, adjacency, regularize=False)

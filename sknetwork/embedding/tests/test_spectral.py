@@ -1,75 +1,79 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tests for spectral embedding"""
+"""Tests for spectral embedding."""
+
 import unittest
 
-import numpy as np
-
-from sknetwork.data.test_graphs import test_graph, test_bigraph, test_digraph, test_graph_disconnect
-from sknetwork.embedding import Spectral, LaplacianEmbedding
-from sknetwork.embedding.spectral import LaplacianOperator
+from sknetwork.data.test_graphs import *
+from sknetwork.embedding import Spectral
+from sknetwork.topology import is_connected
+from sknetwork.utils import bipartite2undirected
 
 
 class TestEmbeddings(unittest.TestCase):
 
-    def setUp(self) -> None:
-        """Simple case for testing"""
-        self.adjacency = test_graph()
-        self.n = self.adjacency.shape[0]
-        self.k = 5
+    def test_undirected(self):
+        for adjacency in [test_graph(), test_graph_disconnect()]:
+            n = adjacency.shape[0]
+            # normalized Laplacian
+            spectral = Spectral(3)
+            embedding = spectral.fit_transform(adjacency)
+            weights = adjacency.dot(np.ones(n))
+            if not is_connected(adjacency):
+                weights += 1
+            self.assertAlmostEqual(np.linalg.norm(embedding.T.dot(weights)), 0)
+            self.assertAlmostEqual(np.linalg.norm(embedding[1:4] - spectral.predict(adjacency[1:4])), 0)
+            # regular Laplacian
+            spectral = Spectral(3, normalized_laplacian=False)
+            embedding = spectral.fit_transform(adjacency)
+            self.assertAlmostEqual(np.linalg.norm(embedding.sum(axis=0)), 0)
+            self.assertAlmostEqual(np.linalg.norm(embedding[1:4] - spectral.predict(adjacency[1:4])), 0)
 
-    def test_laplacian_operator(self):
-        operator = LaplacianOperator(self.adjacency)
-        x = operator.T.dot(np.ones((self.n, 3)))
-        self.assertEqual(x.shape, (self.n, 3))
+    def test_directed(self):
+        for adjacency in [test_digraph(), test_digraph().astype(bool)]:
+            n_row, n_col = adjacency.shape
+            # normalized Laplacian
+            spectral = Spectral(3)
+            embedding = spectral.fit_transform(adjacency)
+            self.assertAlmostEqual(np.linalg.norm(embedding[6:8] - spectral.predict(adjacency[6:8])), 0)
+            # standard Laplacian
+            spectral = Spectral(3, normalized_laplacian=False)
+            embedding = spectral.fit_transform(adjacency)
+            self.assertAlmostEqual(np.linalg.norm(spectral.eigenvectors_.sum(axis=0)), 0)
+            self.assertAlmostEqual(np.linalg.norm(embedding[6:8] - spectral.predict(adjacency[6:8])), 0)
 
-    def test_laplacian(self):
-        # regular Laplacian
-        spectral = LaplacianEmbedding(self.k, normalized=False)
-        embedding = spectral.fit_transform(self.adjacency)
-        self.assertAlmostEqual(np.linalg.norm(embedding.mean(axis=0)), 0)
+    def test_regularization(self):
+        for adjacency in [test_graph(), test_graph_disconnect()]:
+            n = adjacency.shape[0]
+            # normalized Laplacian
+            regularization = 0.1
+            spectral = Spectral(3, regularization=regularization)
+            embedding = spectral.fit_transform(adjacency)
+            weights = adjacency.dot(np.ones(n)) + regularization
+            self.assertAlmostEqual(np.linalg.norm(embedding.T.dot(weights)), 0)
+            # standard Laplacian
+            spectral = Spectral(3, normalized_laplacian=False, regularization=1)
+            embedding = spectral.fit_transform(adjacency)
+            self.assertAlmostEqual(np.linalg.norm(embedding.sum(axis=0)), 0)
+            # without regularization
+            spectral = Spectral(3, normalized_laplacian=False, regularization=-1)
+            embedding = spectral.fit_transform(adjacency)
+            self.assertAlmostEqual(np.linalg.norm(embedding.sum(axis=0)), 0)
 
-        spectral = LaplacianEmbedding(self.k, regularization=0)
-        with self.assertRaises(ValueError):
-            spectral.fit(test_bigraph())
-        with self.assertRaises(ValueError):
-            spectral.fit(test_digraph())
-        with self.assertRaises(ValueError):
-            spectral.fit(test_graph_disconnect())
-
-        with self.assertWarns(Warning):
-            n = self.k - 1
-            spectral.fit_transform(np.ones((n, n)))
-
-    def test_spectral(self):
-        # normalized Laplacian
-        spectral = Spectral(self.k, normalized=False)
-        embedding = spectral.fit_transform(self.adjacency)
-        weights = self.adjacency.dot(np.ones(self.n)) + self.n * spectral.regularization_
-        self.assertAlmostEqual(np.linalg.norm(embedding.T.dot(weights)), 0)
-        error = np.abs(spectral.predict(self.adjacency[:4]) - embedding[:4]).sum()
-        self.assertAlmostEqual(error, 0)
-
-    def test_solvers(self):
-        # solver
-        spectral = Spectral(self.k, solver='lanczos')
-        embedding = spectral.fit_transform(self.adjacency)
-        self.assertEqual(embedding.shape, (self.n, self.k))
-        spectral = Spectral(self.k, solver='halko')
-        embedding = spectral.fit_transform(self.adjacency)
-        self.assertEqual(embedding.shape, (self.n, self.k))
-
-    def test_no_scaling(self):
-        spectral = Spectral(self.k, scaling=0)
-        spectral.fit(self.adjacency)
-        spectral.predict(np.ones(self.n))
-
-    def test_no_regularization(self):
-        adjacency = test_graph_disconnect()
-        n = adjacency.shape[0]
-        spectral = Spectral(regularization=None)
-        with self.assertRaises(ValueError):
-            spectral.fit(adjacency)
-        spectral = Spectral(regularization=0., scaling=0)
-        spectral.fit(adjacency)
-        spectral.predict(np.random.rand(n))
+    def test_bipartite(self):
+        for biadjacency in [test_digraph(), test_bigraph(), test_bigraph_disconnect()]:
+            n_row, n_col = biadjacency.shape
+            adjacency = bipartite2undirected(biadjacency)
+            # normalized Laplacian
+            spectral = Spectral(3)
+            spectral.fit(biadjacency)
+            embedding_full = np.vstack([spectral.embedding_row_, spectral.embedding_col_])
+            weights = adjacency.dot(np.ones(n_row + n_col))
+            if not is_connected(adjacency):
+                weights += 1
+            self.assertAlmostEqual(np.linalg.norm(embedding_full.T.dot(weights)), 0)
+            # regular Laplacian
+            spectral = Spectral(3, normalized_laplacian=False)
+            spectral.fit(biadjacency)
+            embedding_full = np.vstack([spectral.embedding_row_, spectral.embedding_col_])
+            self.assertAlmostEqual(np.linalg.norm(embedding_full.sum(axis=0)), 0)

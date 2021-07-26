@@ -3,7 +3,7 @@
 """Tests for Louvain"""
 import unittest
 
-from sknetwork.clustering import Louvain, BiLouvain
+from sknetwork.clustering import Louvain
 from sknetwork.data import karate_club, star_wars
 from sknetwork.data.test_graphs import *
 from sknetwork.utils import bipartite2undirected
@@ -31,13 +31,10 @@ class TestLouvainClustering(unittest.TestCase):
     def test_bilouvain(self):
         biadjacency = star_wars()
         adjacency = bipartite2undirected(biadjacency)
-
         louvain = Louvain(modularity='newman')
-        bilouvain = BiLouvain(modularity='newman')
-
         labels1 = louvain.fit_transform(adjacency)
-        bilouvain.fit(biadjacency)
-        labels2 = np.concatenate((bilouvain.labels_row_, bilouvain.labels_col_))
+        louvain.fit(biadjacency)
+        labels2 = np.concatenate((louvain.labels_row_, louvain.labels_col_))
         self.assertTrue((labels1 == labels2).all())
 
     def test_options(self):
@@ -62,7 +59,7 @@ class TestLouvainClustering(unittest.TestCase):
         louvain = Louvain(return_aggregate=True)
         labels = louvain.fit_transform(adjacency)
         n_labels = len(set(labels))
-        self.assertEqual(louvain.adjacency_.shape, (n_labels, n_labels))
+        self.assertEqual(louvain.aggregate_.shape, (n_labels, n_labels))
 
         # aggregate graph
         Louvain(n_aggregations=1, sort_clusters=False).fit(adjacency)
@@ -92,7 +89,7 @@ class TestLouvainClustering(unittest.TestCase):
         louvain = Louvain(return_aggregate=True)
         labels = louvain.fit_transform(adjacency)
         n_labels = len(set(labels))
-        self.assertEqual(louvain.adjacency_.shape, (n_labels, n_labels))
+        self.assertEqual(louvain.aggregate_.shape, (n_labels, n_labels))
 
         # aggregate graph
         Louvain(n_aggregations=1, sort_clusters=False).fit(adjacency)

@@ -7,52 +7,42 @@ Created on October 2019
 
 import unittest
 
-from sknetwork.clustering import BiKMeans, KMeans
+from sknetwork.clustering import KMeans
 from sknetwork.data.test_graphs import *
-from sknetwork.embedding import GSVD, SVD, BiSpectral
+from sknetwork.embedding import GSVD, Spectral
 
 
 class TestKMeans(unittest.TestCase):
 
-    def setUp(self):
-        self.kmeans = KMeans(3, GSVD(2))
-        self.bikmeans = BiKMeans(3, GSVD(2))
-        self.kmeans_options = KMeans(4, SVD(3), sort_clusters=False)
-        self.bikmeans_options = BiKMeans(4, BiSpectral(3), co_cluster=True, sort_clusters=False)
-
     def test_undirected(self):
-        for adjacency in [test_graph(), test_graph_disconnect()]:
+        n_clusters = 3
+        algo = KMeans(n_clusters, GSVD(2))
+        algo_options = KMeans(n_clusters, Spectral(3), co_cluster=True, sort_clusters=False)
+        for adjacency in [test_graph(), test_graph_disconnect(), test_digraph()]:
             n = adjacency.shape[0]
-            labels = self.kmeans.fit_transform(adjacency)
-            self.assertEqual(len(set(labels)), 3)
-            self.assertEqual(self.kmeans.membership_.shape, (n, 3))
-            self.assertEqual(self.kmeans.adjacency_.shape, (3, 3))
-            labels = self.kmeans_options.fit_transform(adjacency)
-            self.assertEqual(len(set(labels)), 4)
-
-    def test_directed(self):
-        adjacency = test_digraph()
-        n = adjacency.shape[0]
-        labels = self.kmeans.fit_transform(adjacency)
-        self.assertEqual(len(set(labels)), 3)
-        self.assertEqual(self.kmeans.membership_.shape, (n, 3))
-        self.assertEqual(self.kmeans.adjacency_.shape, (3, 3))
-        labels = self.kmeans_options.fit_transform(adjacency)
-        self.assertEqual(len(set(labels)), 4)
+            labels = algo.fit_transform(adjacency)
+            self.assertEqual(len(set(labels)), n_clusters)
+            self.assertEqual(algo.membership_.shape, (n, n_clusters))
+            self.assertEqual(algo.aggregate_.shape, (n_clusters, n_clusters))
+            labels = algo_options.fit_transform(adjacency)
+            self.assertEqual(len(set(labels)), n_clusters)
 
     def test_bipartite(self):
+        algo = KMeans(3, GSVD(2))
+        algo_options = KMeans(4, Spectral(3), co_cluster=True, sort_clusters=False)
         for biadjacency in [test_bigraph(), test_bigraph_disconnect()]:
             n_row, n_col = biadjacency.shape
-            self.bikmeans.fit(biadjacency)
-            self.assertEqual(len(set(self.bikmeans.labels_row_)), 3)
-            self.assertEqual(self.bikmeans.membership_.shape, (n_row, 3))
-            self.assertEqual(self.bikmeans.membership_row_.shape, (n_row, 3))
-            self.assertEqual(self.bikmeans.biadjacency_.shape, (3, n_col))
-            self.bikmeans_options.fit(biadjacency)
-            labels = np.hstack((self.bikmeans_options.labels_row_, self.bikmeans_options.labels_col_))
+            algo.fit(biadjacency)
+            self.assertEqual(len(algo.labels_), n_row)
+            self.assertEqual(algo.membership_.shape, (n_row, 3))
+            self.assertEqual(algo.membership_row_.shape, (n_row, 3))
+            self.assertEqual(algo.membership_col_.shape, (n_col, 3))
+            self.assertEqual(algo.aggregate_.shape, (3, 3))
+            algo_options.fit(biadjacency)
+            labels = np.hstack((algo_options.labels_row_, algo_options.labels_col_))
             self.assertEqual(len(set(labels)), 4)
-            self.assertEqual(self.bikmeans_options.membership_.shape, (n_row, 4))
-            self.assertEqual(self.bikmeans_options.membership_row_.shape, (n_row, 4))
-            self.assertEqual(self.bikmeans_options.membership_col_.shape, (n_col, 4))
-            self.assertEqual(self.bikmeans_options.biadjacency_.shape, (4, 4))
+            self.assertEqual(algo_options.membership_.shape, (n_row, 4))
+            self.assertEqual(algo_options.membership_row_.shape, (n_row, 4))
+            self.assertEqual(algo_options.membership_col_.shape, (n_col, 4))
+            self.assertEqual(algo_options.aggregate_.shape, (4, 4))
 

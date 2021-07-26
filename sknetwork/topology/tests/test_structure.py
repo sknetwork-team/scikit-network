@@ -7,7 +7,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.data import star_wars, cyclic_digraph, linear_digraph, linear_graph
-from sknetwork.topology import largest_connected_component, is_bipartite, is_acyclic
+from sknetwork.topology import get_largest_connected_component, is_bipartite, is_acyclic
 from sknetwork.utils.format import bipartite2undirected, directed2undirected
 
 
@@ -16,13 +16,13 @@ class TestStructure(unittest.TestCase):
     def test_largest_cc(self):
         adjacency = cyclic_digraph(3)
         adjacency += adjacency.T
-        largest_cc, indices = largest_connected_component(adjacency, return_labels=True)
+        largest_cc, indices = get_largest_connected_component(adjacency, return_labels=True)
 
         self.assertAlmostEqual(np.linalg.norm(largest_cc.toarray() - np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]])), 0)
         self.assertEqual(np.linalg.norm(indices - np.array([0, 1, 2])), 0)
 
         biadjacency = star_wars(metadata=False)
-        largest_cc, indices = largest_connected_component(biadjacency, return_labels=True)
+        largest_cc, indices = get_largest_connected_component(biadjacency, return_labels=True)
 
         self.assertAlmostEqual(np.linalg.norm(largest_cc.toarray() - np.array([[1, 0, 1],
                                                                                [1, 0, 0],
@@ -31,7 +31,7 @@ class TestStructure(unittest.TestCase):
         self.assertEqual(np.linalg.norm(indices[0] - np.array([0, 1, 2, 3])), 0)
         self.assertEqual(np.linalg.norm(indices[1] - np.array([0, 1, 2])), 0)
 
-        self.assertTrue(isinstance(largest_connected_component(adjacency, return_labels=False), sparse.csr_matrix))
+        self.assertTrue(isinstance(get_largest_connected_component(adjacency, return_labels=False), sparse.csr_matrix))
 
     def test_is_bipartite(self):
         biadjacency = star_wars(metadata=False)

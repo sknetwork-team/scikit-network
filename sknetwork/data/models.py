@@ -13,12 +13,13 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.utils import Bunch
+from sknetwork.utils.check import check_random_state
 from sknetwork.utils.format import directed2undirected
 from sknetwork.utils.parse import edgelist2adjacency
 
 
 def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_out: float = .05,
-                random_state: Optional[int] = None, metadata: bool = False) \
+                seed: Optional[int] = None, metadata: bool = False) \
                 -> Union[sparse.csr_matrix, Bunch]:
     """Stochastic block model.
 
@@ -30,7 +31,7 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
         Probability of connection within blocks.
     p_out :
         Probability of connection across blocks.
-    random_state :
+    seed :
         Seed of the random generator (optional).
     metadata :
         If ``True``, return a `Bunch` object with metadata.
@@ -54,7 +55,7 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     `Mixed membership stochastic blockmodels. <https://arxiv.org/pdf/0705.4485.pdf>`_
     Journal of Machine Learning Research.
     """
-    np.random.seed(random_state)
+    random_state = check_random_state(seed)
     sizes = np.array(sizes)
 
     if isinstance(p_in, (np.floating, float)):
@@ -72,9 +73,9 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
             if j < i:
                 row.append(None)
             elif j > i:
-                row.append(sparse.random(a, b, p_out, dtype=bool))
+                row.append(sparse.random(a, b, p_out, dtype=bool, random_state=random_state))
             else:
-                row.append(sparse.random(a, a, p_in[i], dtype=bool))
+                row.append(sparse.random(a, a, p_in[i], dtype=bool, random_state=random_state))
         matrix.append(row)
     adjacency = sparse.bmat(matrix)
     adjacency.setdiag(0)
@@ -90,7 +91,7 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
         return adjacency
 
 
-def erdos_renyi(n: int = 20, p: float = .3, random_state: Optional[int] = None) -> sparse.csr_matrix:
+def erdos_renyi(n: int = 20, p: float = .3, seed: Optional[int] = None) -> sparse.csr_matrix:
     """Erdos-Renyi graph.
 
     Parameters
@@ -99,7 +100,7 @@ def erdos_renyi(n: int = 20, p: float = .3, random_state: Optional[int] = None) 
          Number of nodes.
     p :
         Probability of connection between nodes.
-    random_state :
+    seed :
         Seed of the random generator (optional).
 
     Returns
@@ -119,7 +120,7 @@ def erdos_renyi(n: int = 20, p: float = .3, random_state: Optional[int] = None) 
     Erdős, P., Rényi, A. (1959). `On Random Graphs. <https://www.renyi.hu/~p_erdos/1959-11.pdf>`_
     Publicationes Mathematicae.
     """
-    return block_model(np.array([n]), p, 0., random_state, metadata=False)
+    return block_model(np.array([n]), p, 0., seed, metadata=False)
 
 
 def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
@@ -313,6 +314,40 @@ def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr
         return adjacency
 
 
+def star(n_branches: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+    """Star (undirected).
+
+    Parameters
+    ----------
+    n_branches : int
+        Number of branches.
+    metadata : bool
+        If ``True``, return a `Bunch` object with metadata (positions).
+
+    Returns
+    -------
+    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+        Adjacency matrix or graph with metadata (positions).
+
+    Example
+    -------
+    >>> from sknetwork.data import star
+    >>> adjacency = star()
+    >>> adjacency.shape
+    (4, 4)
+    """
+    edges = [(0, i+1) for i in range(n_branches)]
+    adjacency = edgelist2adjacency(edges, undirected=True)
+    if metadata:
+        graph = Bunch()
+        graph.adjacency = adjacency
+        angles = 2 * np.pi * np.arange(n_branches) / n_branches
+        graph.position = np.vstack([np.cos(angles), np.sin(angles)]).T
+        return graph
+    else:
+        return adjacency
+
+
 def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True, seed: Optional[int] = None) \
         -> sparse.csr_matrix:
     """Albert-Barabasi model.
@@ -346,12 +381,12 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True, seed
     <https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.74.47>`_
     Reviews of Modern Physics.
     """
-    np.random.seed(seed)
+    random_state = check_random_state(seed)
     degrees = np.zeros(n, int)
     degrees[:degree] = degree - 1
     edges = [(i, j) for i in range(degree) for j in range(i)]
     for i in range(degree, n):
-        neighbors = np.random.choice(i, p=degrees[:i]/degrees.sum(), size=degree, replace=False)
+        neighbors = random_state.choice(a=i, p=degrees[:i]/degrees.sum(), size=degree, replace=False)
         degrees[neighbors] += 1
         degrees[i] = degree
         edges += [(i, j) for j in neighbors]
@@ -390,7 +425,7 @@ def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, seed: Opti
     ----------
     Watts, D., Strogatz, S. (1998). Collective dynamics of small-world networks, Nature.
     """
-    np.random.seed(seed)
+    random_state = check_random_state(seed)
     edges = np.array([(i, (i + j + 1) % n) for i in range(n) for j in range(degree // 2)])
     row, col = edges[:, 0], edges[:, 1]
     adjacency = sparse.coo_matrix((np.ones_like(row, int), (row, col)), shape=(n, n))
@@ -400,8 +435,8 @@ def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, seed: Opti
         neighbors = adjacency.rows[i]
         candidates = list(set(nodes) - set(neighbors) - {i})
         for j in neighbors:
-            if np.random.random() < prob:
-                node = np.random.choice(candidates)
+            if random_state.random() < prob:
+                node = random_state.choice(candidates)
                 adjacency[i, node] = 1
                 adjacency[node, i] = 1
                 adjacency[i, j] = 0

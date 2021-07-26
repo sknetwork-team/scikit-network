@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu May 31 17:16:22 2018
+Created in May 2018
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
@@ -10,41 +10,23 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.embedding.base import BaseBiEmbedding
-from sknetwork.linalg import SVDSolver, HalkoSVD, LanczosSVD, auto_solver, safe_sparse_dot, diag_pinv, normalize, \
-    RegularizedAdjacency, SparseLR
+from sknetwork.embedding.base import BaseEmbedding
+from sknetwork.linalg import SVDSolver, LanczosSVD, safe_sparse_dot, diag_pinv, normalize, Regularizer, SparseLR
 from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, check_n_components
 
 
-def set_svd_solver(solver: str, adjacency):
-    """SVD solver based on keyword"""
-    if solver == 'auto':
-        solver: str = auto_solver(adjacency.nnz)
-    if solver == 'lanczos':
-        solver: SVDSolver = LanczosSVD()
-    else:  # pragma: no cover
-        solver: SVDSolver = HalkoSVD()
-    return solver
-
-
-class GSVD(BaseBiEmbedding):
+class GSVD(BaseEmbedding):
     """Graph embedding by Generalized Singular Value Decomposition of the adjacency or biadjacency matrix :math:`A`.
     This is equivalent to the Singular Value Decomposition of the matrix :math:`D_1^{- \\alpha_1}AD_2^{- \\alpha_2}`
     where :math:`D_1, D_2` are the diagonal matrices of row weights and columns weights, respectively, and
     :math:`\\alpha_1, \\alpha_2` are parameters.
-
-    * Graphs
-    * Digraphs
-    * Bigraphs
 
     Parameters
     -----------
     n_components : int
         Dimension of the embedding.
     regularization : ``None`` or float (default = ``None``)
-        Implicitly add edges of given weight between all pairs of nodes.
-    relative_regularization : bool (default = ``True``)
-        If ``True``, consider the regularization as relative to the total weight of the graph.
+        Regularization factor :math:`\\alpha` so that the matrix is :math:`A + \\alpha \\frac{11^T}{n}`.
     factor_row : float (default = 0.5)
         Power factor :math:`\\alpha_1` applied to the diagonal matrix of row weights.
     factor_col : float (default = 0.5)
@@ -61,30 +43,23 @@ class GSVD(BaseBiEmbedding):
     normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
-        Which singular value solver to use.
-
-        * ``'auto'``: call the auto_solver function.
-        * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
-        * ``'lanczos'``: power-iteration based method.
-        * :class:`SVDSolver`: custom solver.
+    solver : ``'lanczos'`` (Lanczos algorithm, default) or :class:`SVDSolver` (custom solver)
+        Which solver to use.
 
     Attributes
     ----------
-    embedding_ : np.ndarray, shape = (n1, n_components)
-        Embedding of the rows.
-    embedding_row_ : np.ndarray, shape = (n1, n_components)
-        Embedding of the rows (copy of **embedding_**).
-    embedding_col_ : np.ndarray, shape = (n2, n_components)
-        Embedding of the columns.
+    embedding_ : array, shape = (n, n_components)
+        Embedding of the nodes.
+    embedding_row_ : array, shape = (n_row, n_components)
+        Embedding of the rows, for bipartite graphs.
+    embedding_col_ : array, shape = (n_col, n_components)
+        Embedding of the columns, for bipartite graphs.
     singular_values_ : np.ndarray, shape = (n_components)
         Singular values.
     singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
         Left singular vectors.
     singular_vectors_right_ : np.ndarray, shape = (n_col, n_components)
         Right singular vectors.
-    regularization_ : ``None`` or float
-        Regularization factor added to all pairs of nodes.
     weights_col_ : np.ndarray, shape = (n2)
         Weights applied to columns.
 
@@ -105,9 +80,9 @@ class GSVD(BaseBiEmbedding):
     <https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf>`_
     Encyclopedia of measurement and statistics, 907-912.
     """
-    def __init__(self, n_components=2, regularization: Union[None, float] = None, relative_regularization: bool = True,
+    def __init__(self, n_components=2, regularization: Union[None, float] = None,
                  factor_row: float = 0.5, factor_col: float = 0.5, factor_singular: float = 0., normalized: bool = True,
-                 solver: Union[str, SVDSolver] = 'auto'):
+                 solver: Union[str, SVDSolver] = 'lanczos'):
         super(GSVD, self).__init__()
 
         self.n_components = n_components
@@ -115,7 +90,6 @@ class GSVD(BaseBiEmbedding):
             self.regularization = None
         else:
             self.regularization = regularization
-        self.relative_regularization = relative_regularization
         self.factor_row = factor_row
         self.factor_col = factor_col
         self.factor_singular = factor_singular
@@ -128,29 +102,29 @@ class GSVD(BaseBiEmbedding):
         self.regularization_ = None
         self.weights_col_ = None
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'GSVD':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'GSVD':
         """Compute the embedding of the graph.
 
         Parameters
         ----------
-        adjacency :
-            Adjacency or biadjacency matrix of the graph.
+        input_matrix :
+            Adjacency matrix or biadjacency matrix of the graph.
 
         Returns
         -------
         self: :class:`GSVD`
         """
-        adjacency = check_format(adjacency).asfptype()
+        self._init_vars()
+
+        adjacency = check_format(input_matrix).asfptype()
         n_row, n_col = adjacency.shape
         n_components = check_n_components(self.n_components, min(n_row, n_col) - 1)
 
         if isinstance(self.solver, str):
-            self.solver = set_svd_solver(self.solver, adjacency)
+            self.solver = LanczosSVD()
         regularization = self.regularization
         if regularization:
-            if self.relative_regularization:
-                regularization = regularization * np.sum(adjacency.data) / (n_row * n_col)
-            adjacency_reg = RegularizedAdjacency(adjacency, regularization)
+            adjacency_reg = Regularizer(adjacency, regularization)
         else:
             adjacency_reg = adjacency
 
@@ -183,7 +157,6 @@ class GSVD(BaseBiEmbedding):
         self.singular_values_ = singular_values
         self.singular_vectors_left_ = singular_vectors_left
         self.singular_vectors_right_ = singular_vectors_right
-        self.regularization_ = regularization
         self.weights_col_ = weights_col
 
         return self
@@ -217,8 +190,8 @@ class GSVD(BaseBiEmbedding):
         self._check_adj_vector(adjacency_vectors)
 
         # regularization
-        if self.regularization_:
-            adjacency_vectors = RegularizedAdjacency(adjacency_vectors, self.regularization_)
+        if self.regularization:
+            adjacency_vectors = Regularizer(adjacency_vectors, self.regularization)
 
         # weighting
         weights_row = adjacency_vectors.dot(np.ones(n_col))
@@ -236,27 +209,21 @@ class GSVD(BaseBiEmbedding):
         if self.normalized:
             embedding_vectors = normalize(embedding_vectors, p=2)
 
-        if embedding_vectors.shape[0] == 1:
+        if len(embedding_vectors) == 1:
             embedding_vectors = embedding_vectors.ravel()
 
         return embedding_vectors
 
 
 class SVD(GSVD):
-    """Graph embedding by Singular Value Decomposition of the adjacency or biadjacency matrix.
-
-    * Graphs
-    * Digraphs
-    * Bigraphs
+    """Graph embedding by Singular Value Decomposition of the adjacency or biadjacency matrix of the graph.
 
     Parameters
     ----------
     n_components : int
         Dimension of the embedding.
     regularization : ``None`` or float (default = ``None``)
-        Implicitly add edges of given weight between all pairs of nodes.
-    relative_regularization : bool (default = ``True``)
-        If ``True``, consider the regularization as relative to the total weight of the graph.
+        Regularization factor :math:`\\alpha` so that the matrix is :math:`A + \\alpha \\frac{11^T}{n}`.
     factor_singular : float (default = 0.)
         Power factor :math:`\\alpha` applied to the singular values on right singular vectors.
         The embedding of rows and columns are respectively :math:`U \\Sigma^{1-\\alpha}` and
@@ -269,30 +236,23 @@ class SVD(GSVD):
     normalized : bool (default = ``False``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
-        Which singular value solver to use.
-
-        * ``'auto'``: call the auto_solver function.
-        * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
-        * ``'lanczos'``: power-iteration based method.
-        * :class:`SVDSolver`: custom solver.
+    solver : ``'lanczos'`` (Lanczos algorithm, default) or :class:`SVDSolver` (custom solver)
+        Which solver to use.
 
     Attributes
     ----------
-    embedding_ : np.ndarray, shape = (n_row, n_components)
-        Embedding of the rows.
-    embedding_row_ : np.ndarray, shape = (n_row, n_components)
-        Embedding of the rows (copy of **embedding_**).
-    embedding_col_ : np.ndarray, shape = (n_col, n_components)
-        Embedding of the columns.
+    embedding_ : array, shape = (n, n_components)
+        Embedding of the nodes.
+    embedding_row_ : array, shape = (n_row, n_components)
+        Embedding of the rows, for bipartite graphs.
+    embedding_col_ : array, shape = (n_col, n_components)
+        Embedding of the columns, for bipartite graphs.
     singular_values_ : np.ndarray, shape = (n_components)
         Singular values.
     singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
         Left singular vectors.
     singular_vectors_right_ : np.ndarray, shape = (n_col, n_components)
         Right singular vectors.
-    regularization_ : ``None`` or float
-        Regularization factor added to all pairs of nodes.
 
     Example
     -------
@@ -311,11 +271,11 @@ class SVD(GSVD):
     <https://www.cs.cornell.edu/cv/ResearchPDF/Generalizing%20The%20Singular%20Value%20Decomposition.pdf>`_
     Encyclopedia of measurement and statistics.
     """
-    def __init__(self, n_components=2, regularization: Union[None, float] = None, relative_regularization: bool = True,
-                 factor_singular: float = 0., normalized: bool = False, solver: Union[str, SVDSolver] = 'auto'):
+    def __init__(self, n_components=2, regularization: Union[None, float] = None, factor_singular: float = 0.,
+                 normalized: bool = False, solver: Union[str, SVDSolver] = 'lanczos'):
         super(SVD, self).__init__(n_components=n_components, regularization=regularization,
-                                  relative_regularization=relative_regularization, factor_singular=factor_singular,
-                                  factor_row=0., factor_col=0., normalized=normalized, solver=solver)
+                                  factor_singular=factor_singular, factor_row=0., factor_col=0., normalized=normalized,
+                                  solver=solver)
 
     @staticmethod
     def _check_adj_vector(adjacency_vectors: np.ndarray):
@@ -325,10 +285,6 @@ class SVD(GSVD):
 class PCA(SVD):
     """Graph embedding by Principal Component Analysis of the adjacency or biadjacency matrix.
 
-    * Graphs
-    * Digraphs
-    * Bigraphs
-
     Parameters
     ----------
     n_components : int
@@ -336,30 +292,23 @@ class PCA(SVD):
     normalized : bool (default = ``False``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
-    solver : ``'auto'``, ``'halko'``, ``'lanczos'`` or :class:`SVDSolver`
-        Which singular value solver to use.
-
-        * ``'auto'``: call the auto_solver function.
-        * ``'halko'``: randomized method, fast but less accurate than ``'lanczos'`` for ill-conditioned matrices.
-        * ``'lanczos'``: power-iteration based method.
-        * :class:`SVDSolver`: custom solver.
+    solver : ``'lanczos'`` (Lanczos algorithm, default) or :class:`SVDSolver` (custom solver)
+        Which solver to use.
 
     Attributes
     ----------
-    embedding_ : np.ndarray, shape = (n_row, n_components)
-        Embedding of the rows.
-    embedding_row_ : np.ndarray, shape = (n_row, n_components)
-        Embedding of the rows (copy of **embedding_**).
-    embedding_col_ : np.ndarray, shape = (n_col, n_components)
-        Embedding of the columns.
+    embedding_ : array, shape = (n, n_components)
+        Embedding of the nodes.
+    embedding_row_ : array, shape = (n_row, n_components)
+        Embedding of the rows, for bipartite graphs.
+    embedding_col_ : array, shape = (n_col, n_components)
+        Embedding of the columns, for bipartite graphs.
     singular_values_ : np.ndarray, shape = (n_components)
         Singular values.
     singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
         Left singular vectors.
     singular_vectors_right_ : np.ndarray, shape = (n_col, n_components)
         Right singular vectors.
-    regularization_ : ``None`` or float
-        Regularization factor added to all pairs of nodes.
 
     Example
     -------
@@ -377,11 +326,14 @@ class PCA(SVD):
     `Principal Component Analysis`
     Series: Springer Series in Statistics.
     """
-    def __init__(self, n_components=2, normalized: bool = False, solver: Union[str, SVDSolver] = 'auto'):
+    def __init__(self, n_components=2, normalized: bool = False, solver: Union[str, SVDSolver] = 'lanczos'):
         super(PCA, self).__init__()
         self.n_components = n_components
         self.normalized = normalized
-        self.solver = solver
+        if isinstance(solver, str):
+            self.solver = LanczosSVD()
+        else:
+            self.solver = solver
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'PCA':
         """Compute the embedding of the graph.
@@ -398,9 +350,6 @@ class PCA(SVD):
         adjacency = check_format(adjacency).asfptype()
         n_row, n_col = adjacency.shape
         adjacency_centered = SparseLR(adjacency, (-np.ones(n_row), adjacency.T.dot(np.ones(n_row)) / n_row))
-
-        if isinstance(self.solver, str):
-            self.solver = set_svd_solver(self.solver, adjacency)
 
         svd = self.solver
         svd.fit(adjacency_centered, self.n_components)

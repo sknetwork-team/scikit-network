@@ -11,7 +11,7 @@ from typing import Optional, Iterable, Union, Tuple
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering.louvain import BiLouvain
+from sknetwork.clustering.louvain import Louvain
 from sknetwork.embedding.spring import Spring
 from sknetwork.visualization.colors import STANDARD_COLORS, COOLWARM_RGB
 
@@ -793,10 +793,10 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
         position_row = np.zeros((n_row, 2))
         position_col = np.ones((n_col, 2))
         if reorder:
-            bilouvain = BiLouvain()
-            bilouvain.fit(biadjacency)
-            index_row = np.argsort(bilouvain.labels_row_)
-            index_col = np.argsort(bilouvain.labels_col_)
+            louvain = Louvain()
+            louvain.fit(biadjacency, force_bipartite=True)
+            index_row = np.argsort(louvain.labels_row_)
+            index_col = np.argsort(louvain.labels_col_)
         else:
             index_row = np.arange(n_row)
             index_col = np.arange(n_col)

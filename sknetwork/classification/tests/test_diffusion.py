@@ -4,11 +4,22 @@
 
 import unittest
 
-from sknetwork.classification import DiffusionClassifier
+from sknetwork.classification import DiffusionClassifier, DirichletClassifier
 from sknetwork.data.test_graphs import *
 
 
 class TestDiffusionClassifier(unittest.TestCase):
+
+    def test_bipartite(self):
+        biadjacency = test_bigraph()
+        n_row, n_col = biadjacency.shape
+        seeds_row = {0: 0, 1: 1}
+        seeds_col = {5: 1}
+        algos = [DiffusionClassifier(), DirichletClassifier()]
+        for algo in algos:
+            algo.fit(biadjacency, seeds_row=seeds_row, seeds_col=seeds_col)
+            self.assertTrue(len(algo.labels_row_) == n_row)
+            self.assertTrue(len(algo.labels_col_) == n_col)
 
     def test_parallel(self):
         adjacency = test_graph()

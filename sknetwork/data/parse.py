@@ -265,12 +265,16 @@ def load_adjacency_list(file: str, bipartite: bool = False, comment: str = '%#',
         max_dim = max(n_rows, n_cols)
         new_indptr = np.full(max_dim + 1, indptr[-1])
         new_indptr[:len(indptr)] = indptr
-        graph.adjacency = sparse.csr_matrix((np.ones_like(indices, dtype=bool), indices, new_indptr),
+        graph.adjacency = sparse.csr_matrix((np.ones_like(indices, dtype=int), indices, new_indptr),
                                             shape=(max_dim, max_dim))
+        if max(graph.adjacency.data) == 1:
+            graph.adjacency = graph.adjacency.astype(bool)
     else:
         indptr = np.array(indptr)
-        graph.biadjacency = sparse.csr_matrix((np.ones_like(indices, dtype=bool), indices, indptr),
+        graph.biadjacency = sparse.csr_matrix((np.ones_like(indices, dtype=int), indices, indptr),
                                               shape=(n_rows, n_cols))
+        if max(graph.biadjacency.data) == 1:
+            graph.biadjacency = graph.biadjacency.astype(bool)
     return graph
 
 

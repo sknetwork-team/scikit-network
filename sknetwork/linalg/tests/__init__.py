@@ -1,1 +1,1 @@
-"""tests for linalg"""
+"""Tests for linalg"""

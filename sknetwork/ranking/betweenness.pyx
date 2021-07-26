@@ -6,7 +6,6 @@
 Created on September 17 2020
 @author: Tiphaine Viard <tiphaine.viard@telecom-paris.fr>
 """
-from collections import deque
 from typing import Union
 import numpy as np
 from scipy import sparse
@@ -19,8 +18,6 @@ from libcpp.queue cimport queue
 
 class Betweenness(BaseRanking):
     """ Betweenness centrality, based on Brandes' algorithm.
-
-    * Graphs
 
     Attributes
     ----------
@@ -50,7 +47,7 @@ class Betweenness(BaseRanking):
         adjacency = check_format(adjacency)
         check_square(adjacency)
         check_connected(adjacency)
-        
+
         cdef int source
         cdef vector[ vector[int] ] preds
         cdef vector[int] sigma
@@ -75,7 +72,7 @@ class Betweenness(BaseRanking):
             while bfs_queue.size() != 0:
                 i = bfs_queue.front()
                 bfs_queue.pop()
-                
+
                 seen.push_back(i)
                 neighbors = adjacency.indices[adjacency.indptr[i]:adjacency.indptr[i + 1]]
                 for j in neighbors:

@@ -6,10 +6,9 @@ Created on Nov 6 2018
 Quality metrics for adjacency embeddings
 """
 import numpy as np
-from scipy import sparse
 
 from sknetwork.linalg import normalize
-from sknetwork.utils.check import check_format, check_probs, check_square
+from sknetwork.utils.check import check_format, get_probs, check_square
 
 
 def cosine_modularity(adjacency, embedding: np.ndarray, embedding_col=None, resolution=1., weights='degree',
@@ -75,8 +74,8 @@ def cosine_modularity(adjacency, embedding: np.ndarray, embedding_col=None, reso
     embedding_row_norm = normalize(embedding, p=2)
     embedding_col_norm = normalize(embedding_col, p=2)
 
-    probs_row = check_probs(weights, adjacency)
-    probs_col = check_probs(weights, adjacency.T)
+    probs_row = get_probs(weights, adjacency)
+    probs_col = get_probs(weights, adjacency.T)
 
     fit: float = 0.5 * (1 + (np.multiply(embedding_row_norm, adjacency.dot(embedding_col_norm))).sum() / total_weight)
     div: float = 0.5 * (1 + (embedding.T.dot(probs_row)).dot(embedding_col.T.dot(probs_col)))

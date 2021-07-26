@@ -21,9 +21,6 @@ class Closeness(BaseRanking):
 
     For a directed graph, the closeness centrality is computed in terms of outgoing paths.
 
-    * Graphs
-    * Digraphs
-
     Parameters
     ----------
     method :
