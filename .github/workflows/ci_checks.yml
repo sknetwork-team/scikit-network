@@ -1,3 +1,5 @@
+# Taken from https://github.com/mclegrand/scikit-network/blob/master/.github/workflows/python-package.yml
+
 name: CI Checks
 
 on:
