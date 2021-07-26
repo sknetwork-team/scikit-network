@@ -8,8 +8,8 @@
 .. image:: https://img.shields.io/pypi/v/scikit-network.svg
         :target: https://pypi.python.org/pypi/scikit-network
 
-.. image:: https://travis-ci.org/sknetwork-team/scikit-network.svg
-        :target: https://travis-ci.org/sknetwork-team/scikit-network
+.. image:: https://github.com/sknetwork-team/scikit-network/actions/workflows/ci_checks.yml/badge.svg
+        :target: https://github.com/sknetwork-team/scikit-network/actions/workflows/ci_checks.yml
 
 .. image:: https://readthedocs.org/projects/scikit-network/badge/?version=latest
         :target: https://scikit-network.readthedocs.io/en/latest/?badge=latest
