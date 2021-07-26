@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import contextlib
 import signal
+import warnings
 
 
 class TimeOut(contextlib.ContextDecorator):
@@ -26,8 +27,12 @@ class TimeOut(contextlib.ContextDecorator):
         raise TimeoutError("Code timed out.")
 
     def __enter__(self):
-        signal.signal(signal.SIGALRM, self._timeout_handler)
-        signal.alarm(self.seconds)
+        if hasattr(signal, "SIGALRM"):
+            signal.signal(signal.SIGALRM, self._timeout_handler)
+            signal.alarm(self.seconds)
+        else:
+            warnings.warn("SIGALRM is unavailable on Windows. Timeouts are not functional.")
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        signal.alarm(0)
+        if hasattr(signal, "SIGALRM"):
+            signal.alarm(0)
