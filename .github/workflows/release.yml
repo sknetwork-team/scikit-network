@@ -1,8 +1,13 @@
 # Taken from https://cibuildwheel.readthedocs.io/en/stable/setup/
 
-name: Wheels build
+name: Release
 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "v*"
 
 jobs:
   build_wheels:
@@ -25,9 +30,39 @@ jobs:
           CIBW_ENVIRONMENT_MACOS: CC=/usr/local/opt/llvm/bin/clang++
           CIBW_BEFORE_BUILD_MACOS: "brew install llvm libomp && pip install -r requirements_dev.txt --user && pip install ."
           CIBW_BUILD: cp37-* cp38-* cp39-*
-          CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: py.test --doctest-modules --cov-report=xml --cov=sknetwork
 
       - uses: actions/upload-artifact@v2
         with:
           path: ./wheelhouse/*.whl
+
+  build_sdist:
+      name: Build source distribution
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+
+        - uses: actions/setup-python@v2
+          name: Install Python
+          with:
+            python-version: '3.9'
+
+        - name: Build sdist
+          run: python setup.py sdist
+
+        - uses: actions/upload-artifact@v2
+          with:
+            path: dist/*.tar.gz
+
+  upload_pypi:
+      needs: [ build_wheels, build_sdist ]
+      runs-on: ubuntu-latest
+      steps:
+          - uses: actions/download-artifact@v2
+            with:
+              name: artifact
+              path: dist
+
+          - uses: pypa/gh-action-pypi-publish@v1.4.2
+            with:
+              user: __token__
+              password: ${{ secrets.TWINE_PASSWORD }}
