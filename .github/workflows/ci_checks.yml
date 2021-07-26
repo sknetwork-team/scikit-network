@@ -2,9 +2,7 @@
 
 name: CI Checks
 
-on:
-  push:
-    branches: [ develop ]
+on: [push]
 
 jobs:
   build:
