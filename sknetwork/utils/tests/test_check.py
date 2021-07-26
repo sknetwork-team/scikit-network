@@ -157,3 +157,6 @@ class TestChecks(unittest.TestCase):
         adjacency = cyclic_digraph(3)
         with self.assertRaises(ValueError):
             check_scaling(-1, adjacency, regularize=True)
+        adjacency = test_graph_disconnect()
+        with self.assertRaises(ValueError):
+            check_scaling(-1, adjacency, regularize=False)
