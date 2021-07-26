@@ -17,9 +17,10 @@ jobs:
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.0.1
-        # to supply options, put them in 'env', like:
-        # env:
-        #   CIBW_SOME_OPTION: value
+        env:
+          CIBW_BEFORE_BUILD: "pip install -r requirements_dev.txt --user && pip install ."
+          CIBW_BUILD: "cp37-* cp38-* cp39-*"
+          CIBW_SKIP: "*-manylinux*"
 
       - uses: actions/upload-artifact@v2
         with:
