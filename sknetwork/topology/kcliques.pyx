@@ -121,17 +121,15 @@ cdef long fit_core(vector[int] indptr, vector[int] indices, int l, ListingBox bo
 class Cliques:
     """ Clique counting algorithm.
 
-    * Graphs
-
     Parameters
     ----------
     k : int
-        k value of cliques to list
+        Clique order (e.g., k = 3 means triangles).
 
     Attributes
     ----------
     n_cliques_ : int
-        Number of cliques
+        Number of cliques.
 
     Example
     -------
