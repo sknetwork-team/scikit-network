@@ -2,6 +2,14 @@
 History
 =======
 
+0.24.0 (2021-07-27)
+-------------------
+
+* Merge Bi* algorithms (e.g., BiLouvain -> Louvain) by Thomas Bonald (#490)
+* Transition from Travis to Github actions by Quentin Lutz (#488)
+* Added sdist build for conda recipes
+* Added name position for graph visualization
+* Removed randomized algorithms
 
 0.23.1 (2021-04-24)
 -------------------
