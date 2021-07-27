@@ -329,8 +329,8 @@ def svg_edge_directed(pos_1: np.ndarray, pos_2: np.ndarray, edge_width: float = 
         x, y = ((vec / norm) * node_size).astype(int)
         x1, y1 = pos_1.astype(int)
         x2, y2 = pos_2.astype(int)
-        return """<path stroke-width="{}" stroke="{}" d="M {} {} {} {}" marker-end="url(#arrow)"/>\n"""\
-            .format(edge_width, edge_color, x1, y1, x2 - x, y2 - y)
+        return """<path stroke-width="{}" stroke="{}" d="M {} {} {} {}" marker-end="url(#arrow-{})"/>\n"""\
+            .format(edge_width, edge_color, x1, y1, x2 - x, y2 - y, edge_color)
     else:
         return ""
 
@@ -506,13 +506,15 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
             else:
                 edge_color = 'gray'
 
-        if directed:
-            svg += """<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" >\n"""
-            svg += """<path d="M0,0 L0,6 L9,3 z" fill="{}"/></marker></defs>\n""".format(edge_color)
-
         edge_colors, edge_order, edge_colors_residual = get_edge_colors(adjacency, edge_labels, edge_color,
                                                                         label_colors)
         edge_widths = get_edge_widths(adjacency_coo, edge_width, edge_width_min, edge_width_max, display_edge_weight)
+
+        if directed:
+            for edge_color in set(edge_colors):
+                svg += """<defs><marker id="arrow-{}" markerWidth="10" markerHeight="10" refX="9" refY="3" 
+                orient="auto" >\n""".format(edge_color)
+                svg += """<path d="M0,0 L0,6 L9,3 z" fill="{}"/></marker></defs>\n""".format(edge_color)
 
         for ix in edge_order:
             i = adjacency_coo.row[ix]
