@@ -25,8 +25,8 @@ jobs:
           CIBW_ENVIRONMENT_MACOS: CC=/usr/local/opt/llvm/bin/clang++
           CIBW_BEFORE_BUILD_MACOS: "brew install llvm libomp && pip install -r requirements_dev.txt --user && pip install ."
           CIBW_BUILD: cp37-* cp38-* cp39-*
-          CIBW_TEST_REQUIRES: nose
-          CIBW_TEST_COMMAND: nosetests sknetwork
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: pytest sknetwork
 
       - uses: actions/upload-artifact@v2
         with:
