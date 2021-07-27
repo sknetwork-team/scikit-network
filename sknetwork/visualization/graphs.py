@@ -355,8 +355,8 @@ def svg_text(pos, text, margin_text, font_size=12, position: str = 'right'):
 
 
 def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[np.ndarray] = None,
-              names: Optional[np.ndarray] = None, name_position: str = 'right',
-              labels: Optional[Iterable] = None, scores: Optional[Iterable] = None,
+              names: Optional[np.ndarray] = None, labels: Optional[Iterable] = None,
+              name_position: str = 'right',scores: Optional[Iterable] = None,
               membership: Optional[sparse.csr_matrix] = None,
               seeds: Union[list, dict] = None, width: Optional[float] = 400, height: Optional[float] = 300,
               margin: float = 20, margin_text: float = 3, scale: float = 1, node_order: Optional[np.ndarray] = None,
@@ -378,10 +378,10 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
         Positions of the nodes.
     names :
         Names of the nodes.
-    name_position :
-        Position of the names (left, right, above, below)
     labels :
         Labels of the nodes (negative values mean no label).
+    name_position :
+        Position of the names (left, right, above, below)
     scores :
         Scores of the nodes (measure of importance).
     membership :
@@ -561,8 +561,8 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
 
 
 def svg_digraph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[np.ndarray] = None,
-                names: Optional[np.ndarray] = None, name_position: str = 'right',
-                labels: Optional[Iterable] = None, scores: Optional[Iterable] = None,
+                names: Optional[np.ndarray] = None,
+                labels: Optional[Iterable] = None, name_position: str = 'right', scores: Optional[Iterable] = None,
                 membership: Optional[sparse.csr_matrix] = None,
                 seeds: Union[list, dict] = None, width: Optional[float] = 400, height: Optional[float] = 300,
                 margin: float = 20, margin_text: float = 10, scale: float = 1, node_order: Optional[np.ndarray] = None,
@@ -584,10 +584,10 @@ def svg_digraph(adjacency: Optional[sparse.csr_matrix] = None, position: Optiona
         Positions of the nodes.
     names :
         Names of the nodes.
-    name_position :
-        Position of the names (left, right, above, below)
     labels :
         Labels of the nodes (negative values mean no label).
+    name_position :
+        Position of the names (left, right, above, below)
     scores :
         Scores of the nodes (measure of importance).
     membership :
