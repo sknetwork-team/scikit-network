@@ -5,25 +5,21 @@ Created on Thu July 10 2018
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
-
 from typing import Union, Tuple
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.linalg import diag_pinv
+from sknetwork.linalg.normalization import diag_pinv
+from sknetwork.utils.check import check_format, get_probs, check_square
 from sknetwork.utils.format import bipartite2directed
-from sknetwork.utils.check import check_format, check_probs, check_square
 from sknetwork.utils.membership import membership_matrix
 
 
 def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray,
                weights: Union[str, np.ndarray] = 'degree', weights_in: Union[str, np.ndarray] = 'degree',
                resolution: float = 1, return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
-    """Modularity of a clustering (node partition).
-
-    * Graphs
-    * Digraphs
+    """Modularity of a clustering.
 
     The modularity of a clustering is
 
@@ -31,7 +27,7 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
     for graphs,
 
     :math:`Q = \\dfrac{1}{w} \\sum_{i,j}\\left(A_{ij} - \\gamma \\dfrac{d^+_id^-_j}{w}\\right)\\delta_{c_i,c_j}`
-    for digraphs,
+    for directed graphs,
 
     where
 
@@ -81,8 +77,8 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
     if len(labels) != adjacency.shape[0]:
         raise ValueError('Dimension mismatch between labels and adjacency matrix.')
 
-    probs_row = check_probs(weights, adjacency)
-    probs_col = check_probs(weights_in, adjacency.T)
+    probs_row = get_probs(weights, adjacency)
+    probs_col = get_probs(weights_in, adjacency.T)
     membership = membership_matrix(labels)
 
     fit: float = membership.multiply(adjacency.dot(membership)).data.sum() / adjacency.data.sum()
@@ -97,9 +93,7 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
 def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray, labels_col: np.ndarray,
                  weights: Union[str, np.ndarray] = 'degree', weights_col: Union[str, np.ndarray] = 'degree',
                  resolution: float = 1, return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
-    """Bimodularity of a clustering (node partition).
-
-    * Bigraphs
+    """Bimodularity of the clustering (for bipartite graphs).
 
     The bimodularity of a clustering is
 
@@ -159,9 +153,9 @@ def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.n
 
     adjacency = bipartite2directed(biadjacency)
 
-    weights_ = check_probs(weights, biadjacency)
+    weights_ = get_probs(weights, biadjacency)
     weights_ = np.hstack((weights_, np.zeros(n_col)))
-    weights_col_ = check_probs(weights_col, biadjacency.T)
+    weights_col_ = get_probs(weights_col, biadjacency.T)
     weights_col_ = np.hstack((np.zeros(n_row), weights_col_))
 
     labels_ = np.hstack((labels, labels_col))
@@ -173,10 +167,6 @@ def comodularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.nda
                  return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
     """Modularity of a clustering in the normalized co-neighborhood graph.
 
-    * Graphs
-    * Digraphs
-    * Bigraphs
-
     Quality metric of a clustering given by:
 
     :math:`Q = \\dfrac{1}{w}\\sum_{i,j}\\left((AD_2^{-1}A^T)_{ij} - \\gamma \\dfrac{d_id_j}{w}\\right)
@@ -185,13 +175,14 @@ def comodularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.nda
     where
 
     * :math:`c_i` is the cluster of node `i`,\n
+    * :math:`D_2` is the diagonal matrix of the weights of columns,\n
     * :math:`\\delta` is the Kronecker symbol,\n
     * :math:`\\gamma \\ge 0` is the resolution parameter.
 
     Parameters
     ----------
     adjacency :
-        Adjacency matrix of the graph.
+        Adjacency matrix or biadjacency matrix of the graph.
     labels :
        Labels of the nodes.
     resolution :
@@ -218,7 +209,6 @@ def comodularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.nda
     -----
     Does not require the computation of the adjacency matrix of the normalized co-neighborhood graph.
     """
-
     adjacency = check_format(adjacency).astype(float)
 
     n_row, n_col = adjacency.shape

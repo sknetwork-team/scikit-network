@@ -4,8 +4,8 @@
 
 import unittest
 
-from sknetwork.embedding import Spring
 from sknetwork.data.test_graphs import *
+from sknetwork.embedding import Spring
 
 
 class TestEmbeddings(unittest.TestCase):
@@ -17,6 +17,10 @@ class TestEmbeddings(unittest.TestCase):
             layout = spring.fit_transform(adjacency)
             self.assertEqual((n, 2), layout.shape)
 
+            spring = Spring(n_components=3)
+            layout = spring.fit_transform(adjacency)
+            self.assertEqual((n, 3), layout.shape)
+
     def test_pos_init(self):
         adjacency = test_graph()
         n = adjacency.shape[0]
@@ -25,6 +29,14 @@ class TestEmbeddings(unittest.TestCase):
         layout = spring.fit_transform(adjacency)
         self.assertEqual((n, 2), layout.shape)
         layout = spring.fit_transform(adjacency, position_init=layout)
+        self.assertEqual((n, 2), layout.shape)
+
+    def test_approx_radius(self):
+        adjacency = test_graph()
+        n = adjacency.shape[0]
+
+        spring = Spring(approx_radius=1.)
+        layout = spring.fit_transform(adjacency)
         self.assertEqual((n, 2), layout.shape)
 
     def test_errors(self):

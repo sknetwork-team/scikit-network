@@ -4,7 +4,6 @@
 Created on October 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
 import unittest
 
 import numpy as np

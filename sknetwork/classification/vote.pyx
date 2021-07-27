@@ -1,13 +1,14 @@
 # distutils: language = c++
 # cython: language_level=3
+# cython: linetrace=True
+# distutils: define_macros=CYTHON_TRACE_NOGIL=1
 """
 Created on April, 2020
 @author: Nathan de Lara <ndelara@enst.fr>
 """
 from libcpp.set cimport set
 from libcpp.vector cimport vector
-import numpy as np
-cimport numpy as np
+
 cimport cython
 
 
@@ -19,14 +20,18 @@ def vote_update(int[:] indptr, int[:] indices, float[:] data, int[:] labels, int
     cdef int ii
     cdef int j
     cdef int jj
-    cdef int n_indices = len(index)
+    cdef int n_indices = index.shape[0]
     cdef int label
+    cdef int label_neigh_size
     cdef float best_score
 
     cdef vector[int] labels_neigh
-    cdef vector[float] votes_neigh
+    cdef vector[float] votes_neigh, votes
     cdef set[int] labels_unique = ()
-    cdef float[:] votes = np.zeros_like(labels, dtype=np.float32)
+
+    cdef int n = labels.shape[0]
+    for i in range(n):
+        votes.push_back(0)
 
     for ii in range(n_indices):
         i = index[ii]
@@ -37,7 +42,8 @@ def vote_update(int[:] indptr, int[:] indices, float[:] data, int[:] labels, int
             votes_neigh.push_back(data[jj])
 
         labels_unique.clear()
-        for jj in range(labels_neigh.size()):
+        label_neigh_size = labels_neigh.size()
+        for jj in range(label_neigh_size):
             label = labels_neigh[jj]
             if label >= 0:
                 labels_unique.insert(label)
@@ -49,4 +55,4 @@ def vote_update(int[:] indptr, int[:] indices, float[:] data, int[:] labels, int
                 labels[i] = label
                 best_score = votes[label]
             votes[label] = 0
-    return np.asarray(labels)
+    return labels

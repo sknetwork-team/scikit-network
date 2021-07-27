@@ -4,8 +4,8 @@
 
 import unittest
 
-from sknetwork.ranking import Diffusion, BiDiffusion, Dirichlet, BiDirichlet
 from sknetwork.data.test_graphs import *
+from sknetwork.ranking import Diffusion, Dirichlet
 
 
 # noinspection DuplicatedCode
@@ -30,10 +30,10 @@ class TestDiffusion(unittest.TestCase):
                 self.assertTrue(np.all(scores <= 1) and np.all(scores >= 0))
 
         biadjacency = test_bigraph()
-        for algo in [BiDiffusion(), BiDirichlet()]:
-            scores = algo.fit_transform(biadjacency, {0: 1})
+        for algo in [Diffusion(), Dirichlet()]:
+            scores = algo.fit_transform(biadjacency, seeds_row={0: 1})
             self.assertTrue(np.all(scores <= 1) and np.all(scores >= 0))
-            scores = algo.fit_transform(biadjacency, {0: 0.1}, {1: 2}, 0.3)
+            scores = algo.fit_transform(biadjacency, seeds_row={0: 0.1}, seeds_col={1: 2}, init=0.3)
             self.assertTrue(np.all(scores <= 2) and np.all(scores >= 0.1))
 
     def test_initial_state(self):

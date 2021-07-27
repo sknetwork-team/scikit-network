@@ -116,7 +116,9 @@ venv-3.8/
 
 \.DS_Store
 
-
+*.npy
+*.npz
+*.p
 *.ipynb
 
 #allow notebooks and pickled objects for tutorials
@@ -129,6 +131,5 @@ sknetwork/*/*.html
 
 docs/tutorials/data/mygraph/
 
-*.npy
-*.npz
-*.p
+karate_club.svg
+/venv39/

@@ -1,7 +1,0 @@
-Utils
-*****
-
-
-.. toctree::
-
-    knn

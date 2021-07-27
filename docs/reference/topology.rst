@@ -3,19 +3,36 @@
 Topology
 ********
 
-Standard algorithms related to graph topology.
-
-Most algorithms are adapted from SciPy_.
-
+Algorithms for the analysis of graph topology.
 
 Structure
 ---------
 
-.. autofunction:: sknetwork.topology.connected_components
+.. autofunction:: sknetwork.topology.get_connected_components
 
-.. autofunction:: sknetwork.topology.largest_connected_component
+.. autofunction:: sknetwork.topology.get_largest_connected_component
+
+.. autoclass:: sknetwork.topology.CoreDecomposition
 
 .. autofunction:: sknetwork.topology.is_bipartite
 
+.. autofunction:: sknetwork.topology.is_acyclic
 
-.. _SciPy: https://docs.scipy.org/doc/scipy/reference/sparse.csgraph.html
+.. autoclass:: sknetwork.topology.DAG
+
+Counting
+--------
+
+.. autoclass:: sknetwork.topology.Triangles
+
+.. autoclass:: sknetwork.topology.Cliques
+
+Coloring
+--------
+
+.. autoclass:: sknetwork.topology.WeisfeilerLehman
+
+Similarity
+----------
+
+.. autofunction:: sknetwork.topology.are_isomorphic

@@ -4,12 +4,11 @@
 Created on April 2020
 @author: Thomas Bonald <bonald@enst.fr>
 """
-
-from typing import Optional
+from typing import Iterable, Optional
 
 import numpy as np
 
-from sknetwork.hierarchy import cut_straight
+from sknetwork.hierarchy.postprocess import cut_straight
 from sknetwork.visualization.colors import STANDARD_COLORS
 
 
@@ -29,8 +28,8 @@ def get_index(dendrogram, reorder=True):
     return list(tree.values())[0]
 
 
-def svg_dendrogram_top(dendrogram, names, width, height, margin, margin_text, scale, line_width, n_clusters, color,
-                       font_size, reorder, rotate_names):
+def svg_dendrogram_top(dendrogram, names, width, height, margin, margin_text, scale, line_width, n_clusters,
+                       color, colors, font_size, reorder, rotate_names):
     """Dendrogram as SVG image with root on top."""
 
     # scaling
@@ -60,13 +59,14 @@ def svg_dendrogram_top(dendrogram, names, width, height, margin, margin_text, sc
             x, y = position[i]
             x -= margin_text
             y += margin_text
+            text = str(names[i]).replace('&', ' ')
             if rotate_names:
                 svg += """<text x="{}" y="{}"  transform="rotate(60, {}, {})" font-size="{}">{}</text>""" \
-                    .format(x, y, x, y, font_size, str(names[i]))
+                    .format(x, y, x, y, font_size, text)
             else:
                 y += margin_text
                 svg += """<text x="{}" y="{}"  font-size="{}">{}</text>""" \
-                    .format(x, y, font_size, str(names[i]))
+                    .format(x, y, font_size, text)
 
     # tree
     for t in range(n - 1):
@@ -77,7 +77,7 @@ def svg_dendrogram_top(dendrogram, names, width, height, margin, margin_text, sc
         l1 = label.pop(i)
         l2 = label.pop(j)
         if l1 == l2:
-            line_color = STANDARD_COLORS[l1 % len(STANDARD_COLORS)]
+            line_color = colors[l1 % len(colors)]
         else:
             line_color = color
         x = .5 * (x1 + x2)
@@ -95,8 +95,8 @@ def svg_dendrogram_top(dendrogram, names, width, height, margin, margin_text, sc
     return svg
 
 
-def svg_dendrogram_left(dendrogram, names, width, height, margin, margin_text, scale, line_width, n_clusters, color,
-                        font_size, reorder):
+def svg_dendrogram_left(dendrogram, names, width, height, margin, margin_text, scale, line_width, n_clusters,
+                        color, colors, font_size, reorder):
     """Dendrogram as SVG image with root on left side."""
 
     # scaling
@@ -125,8 +125,10 @@ def svg_dendrogram_left(dendrogram, names, width, height, margin, margin_text, s
         for i in range(n):
             x, y = position[i]
             x += margin_text
+            y += unit_height / 3
+            text = str(names[i]).replace('&', ' ')
             svg += """<text x="{}" y="{}" font-size="{}">{}</text>""" \
-                .format(x, y, font_size, str(names[i]))
+                .format(x, y, font_size, text)
 
     # tree
     for t in range(n - 1):
@@ -137,7 +139,7 @@ def svg_dendrogram_left(dendrogram, names, width, height, margin, margin_text, s
         l1 = label.pop(i)
         l2 = label.pop(j)
         if l1 == l2:
-            line_color = STANDARD_COLORS[l1 % len(STANDARD_COLORS)]
+            line_color = colors[l1 % len(colors)]
         else:
             line_color = color
         y = .5 * (y1 + y2)
@@ -158,8 +160,9 @@ def svg_dendrogram_left(dendrogram, names, width, height, margin, margin_text, s
 
 def svg_dendrogram(dendrogram: np.ndarray, names: Optional[np.ndarray] = None, rotate: bool = False, width: float = 400,
                    height: float = 300, margin: float = 10, margin_text: float = 5, scale: float = 1,
-                   line_width: float = 2, n_clusters: int = 2, color: str = 'black', font_size: int = 12,
-                   reorder: bool = False, rotate_names: bool = True, filename: Optional[str] = None):
+                   line_width: float = 2, n_clusters: int = 2, color: str = 'black', colors: Optional[Iterable] = None,
+                   font_size: int = 12, reorder: bool = False, rotate_names: bool = True,
+                   filename: Optional[str] = None):
     """Return SVG image of a dendrogram.
 
     Parameters
@@ -186,6 +189,8 @@ def svg_dendrogram(dendrogram: np.ndarray, names: Optional[np.ndarray] = None, r
         Number of coloured clusters to display.
     color :
         Default SVG color for the dendrogram.
+    colors :
+        SVG colors of the clusters of the dendrogram (optional).
     font_size :
         Font size.
     reorder :
@@ -203,16 +208,22 @@ def svg_dendrogram(dendrogram: np.ndarray, names: Optional[np.ndarray] = None, r
     >>> image[1:4]
     'svg'
     """
+    if colors is None:
+        colors = STANDARD_COLORS
+    elif isinstance(colors, dict):
+        colors = np.array(list(colors.values()))
+    elif isinstance(colors, list):
+        colors = np.array(colors)
 
     if rotate:
         svg = svg_dendrogram_left(dendrogram, names, width, height, margin, margin_text, scale, line_width, n_clusters,
-                                  color, font_size, reorder)
+                                  color, colors, font_size, reorder)
     else:
         svg = svg_dendrogram_top(dendrogram, names, width, height, margin, margin_text, scale, line_width, n_clusters,
-                                 color, font_size, reorder, rotate_names)
+                                 color, colors, font_size, reorder, rotate_names)
 
     if filename is not None:
         with open(filename + '.svg', 'w') as f:
             f.write(svg)
-    else:
-        return svg
+
+    return svg

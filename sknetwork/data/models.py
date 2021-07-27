@@ -13,12 +13,14 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.utils import Bunch
+from sknetwork.utils.check import check_random_state
 from sknetwork.utils.format import directed2undirected
 from sknetwork.utils.parse import edgelist2adjacency
 
 
 def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_out: float = .05,
-                seed: Optional[int] = None, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+                seed: Optional[int] = None, metadata: bool = False) \
+                -> Union[sparse.csr_matrix, Bunch]:
     """Stochastic block model.
 
     Parameters
@@ -28,7 +30,7 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     p_in :
         Probability of connection within blocks.
     p_out :
-        Probability of connection across blocks (must be less than **p_in**).
+        Probability of connection across blocks.
     seed :
         Seed of the random generator (optional).
     metadata :
@@ -50,30 +52,34 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     References
     ----------
     Airoldi, E.,  Blei, D., Feinberg, S., Xing, E. (2007).
-    `Mixed membership stochastic blockmodels. <https://arxiv.org/abs/0803.0476>`_
+    `Mixed membership stochastic blockmodels. <https://arxiv.org/pdf/0705.4485.pdf>`_
     Journal of Machine Learning Research.
     """
-    np.random.seed(seed)
+    random_state = check_random_state(seed)
     sizes = np.array(sizes)
 
-    if type(p_in) != np.ndarray:
+    if isinstance(p_in, (np.floating, float)):
         p_in = p_in * np.ones_like(sizes)
-    if np.min(p_in) < p_out:
-        raise ValueError('The probability of connection across blocks p_out must be less that the probability of '
-                         'connection within a block p_in.')
+    else:
+        p_in = np.array(p_in)
 
     # each edge is considered twice
     p_in = p_in / 2
-    p_out = p_out / 2
 
-    p_diff = p_in - p_out
-    blocks_in = [(sparse.random(s, s, p_diff[k]) > 0) for k, s in enumerate(sizes)]
-    adjacency_in = sparse.block_diag(blocks_in)
-    n = sizes.sum()
-    adjacency_out = sparse.random(n, n, p_out) > 0
-    adjacency = sparse.lil_matrix(adjacency_in + adjacency_out)
+    matrix = []
+    for i, a in enumerate(sizes):
+        row = []
+        for j, b in enumerate(sizes):
+            if j < i:
+                row.append(None)
+            elif j > i:
+                row.append(sparse.random(a, b, p_out, dtype=bool, random_state=random_state))
+            else:
+                row.append(sparse.random(a, a, p_in[i], dtype=bool, random_state=random_state))
+        matrix.append(row)
+    adjacency = sparse.bmat(matrix)
     adjacency.setdiag(0)
-    adjacency = directed2undirected(adjacency.tocsr(), weighted=False).astype(bool)
+    adjacency = directed2undirected(adjacency.tocsr(), weighted=False)
 
     if metadata:
         graph = Bunch()
@@ -108,6 +114,11 @@ def erdos_renyi(n: int = 20, p: float = .3, seed: Optional[int] = None) -> spars
     >>> adjacency = erdos_renyi(7)
     >>> adjacency.shape
     (7, 7)
+
+    References
+    ----------
+    Erdős, P., Rényi, A. (1959). `On Random Graphs. <https://www.renyi.hu/~p_erdos/1959-11.pdf>`_
+    Publicationes Mathematicae.
     """
     return block_model(np.array([n]), p, 0., seed, metadata=False)
 
@@ -181,6 +192,26 @@ def linear_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix,
         return adjacency
 
 
+def cyclic_position(n: int) -> np.ndarray:
+    """Position nodes on a circle of unit radius.
+
+    Parameters
+    ----------
+    n : int
+        Number of nodes.
+
+    Returns
+    -------
+    position : np.ndarray
+        Position of nodes.
+    """
+    t = 2 * pi * np.arange(n).astype(float) / n
+    x = np.cos(t)
+    y = np.sin(t)
+    position = np.array((x, y)).T
+    return position
+
+
 def cyclic_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     """Cyclic graph (directed).
 
@@ -208,12 +239,9 @@ def cyclic_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
     adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(n, n))
 
     if metadata:
-        t = 2 * pi * np.arange(n).astype(float) / n
-        x = np.cos(t)
-        y = np.sin(t)
         graph = Bunch()
         graph.adjacency = adjacency
-        graph.position = np.array((x, y)).T
+        graph.position = cyclic_position(n)
         return graph
     else:
         return adjacency
@@ -286,6 +314,40 @@ def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr
         return adjacency
 
 
+def star(n_branches: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+    """Star (undirected).
+
+    Parameters
+    ----------
+    n_branches : int
+        Number of branches.
+    metadata : bool
+        If ``True``, return a `Bunch` object with metadata (positions).
+
+    Returns
+    -------
+    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+        Adjacency matrix or graph with metadata (positions).
+
+    Example
+    -------
+    >>> from sknetwork.data import star
+    >>> adjacency = star()
+    >>> adjacency.shape
+    (4, 4)
+    """
+    edges = [(0, i+1) for i in range(n_branches)]
+    adjacency = edgelist2adjacency(edges, undirected=True)
+    if metadata:
+        graph = Bunch()
+        graph.adjacency = adjacency
+        angles = 2 * np.pi * np.arange(n_branches) / n_branches
+        graph.position = np.vstack([np.cos(angles), np.sin(angles)]).T
+        return graph
+    else:
+        return adjacency
+
+
 def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True, seed: Optional[int] = None) \
         -> sparse.csr_matrix:
     """Albert-Barabasi model.
@@ -316,15 +378,15 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True, seed
     References
     ----------
     Albert, R., Barabási, L. (2002). `Statistical mechanics of complex networks
-    <https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.74.47>`
+    <https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.74.47>`_
     Reviews of Modern Physics.
     """
-    np.random.seed(seed)
+    random_state = check_random_state(seed)
     degrees = np.zeros(n, int)
     degrees[:degree] = degree - 1
     edges = [(i, j) for i in range(degree) for j in range(i)]
     for i in range(degree, n):
-        neighbors = np.random.choice(i, p=degrees[:i]/degrees.sum(), size=degree, replace=False)
+        neighbors = random_state.choice(a=i, p=degrees[:i]/degrees.sum(), size=degree, replace=False)
         degrees[neighbors] += 1
         degrees[i] = degree
         edges += [(i, j) for j in neighbors]
@@ -363,29 +425,27 @@ def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, seed: Opti
     ----------
     Watts, D., Strogatz, S. (1998). Collective dynamics of small-world networks, Nature.
     """
-    np.random.seed(seed)
+    random_state = check_random_state(seed)
     edges = np.array([(i, (i + j + 1) % n) for i in range(n) for j in range(degree // 2)])
     row, col = edges[:, 0], edges[:, 1]
     adjacency = sparse.coo_matrix((np.ones_like(row, int), (row, col)), shape=(n, n))
     adjacency = sparse.lil_matrix(adjacency + adjacency.T)
-    set_reference = set(np.arange(n))
+    nodes = np.arange(n)
     for i in range(n):
-        candidates = list(set_reference - set(adjacency.rows[i]) - {i})
-        for j in adjacency.rows[i]:
-            if np.random.random() < prob:
-                node = np.random.choice(candidates)
+        neighbors = adjacency.rows[i]
+        candidates = list(set(nodes) - set(neighbors) - {i})
+        for j in neighbors:
+            if random_state.random() < prob:
+                node = random_state.choice(candidates)
                 adjacency[i, node] = 1
                 adjacency[node, i] = 1
                 adjacency[i, j] = 0
                 adjacency[j, i] = 0
     adjacency = sparse.csr_matrix(adjacency, shape=adjacency.shape)
     if metadata:
-        t = 2 * pi * np.arange(n).astype(float) / n
-        x = np.cos(t)
-        y = np.sin(t)
         graph = Bunch()
         graph.adjacency = adjacency
-        graph.position = np.array((x, y)).T
+        graph.position = cyclic_position(n)
         return graph
     else:
         return adjacency

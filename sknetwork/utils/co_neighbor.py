@@ -4,7 +4,6 @@
 Created on October 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 """
-
 from typing import Union
 
 import numpy as np
@@ -51,7 +50,7 @@ def co_neighbor_graph(adjacency: Union[sparse.csr_matrix, np.ndarray], normalize
         Adjacency of the co-neighborhood.
     """
     adjacency = check_format(adjacency).astype(float)
-
+    method = method.lower()
     if method == 'exact':
         if normalized:
             forward = normalize(adjacency.T).tocsr()

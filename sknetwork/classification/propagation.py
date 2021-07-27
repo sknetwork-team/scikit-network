@@ -4,30 +4,24 @@
 Created on April, 2020
 @author: Thomas Bonald <tbonald@enst.fr>
 """
-from typing import Optional, Union
+from typing import Union
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.classification import BaseClassifier, BaseBiClassifier
+from sknetwork.classification.base import BaseClassifier
 from sknetwork.classification.vote import vote_update
-from sknetwork.linalg import normalize
-from sknetwork.utils.check import check_seeds
-from sknetwork.utils.seeds import stack_seeds
-from sknetwork.utils.check import check_format
-from sknetwork.utils.format import bipartite2undirected
+from sknetwork.linalg.normalization import normalize
+from sknetwork.utils.format import get_adjacency_seeds
 from sknetwork.utils.membership import membership_matrix
 
 
 class Propagation(BaseClassifier):
     """Node classification by label propagation.
 
-    * Graphs
-    * Digraphs
-
     Parameters
     ----------
-    n_iter : int
+    n_iter : float
         Maximum number of iterations (-1 for infinity).
     node_order : str
         * `'random'`: node labels are updated in random order.
@@ -40,10 +34,18 @@ class Propagation(BaseClassifier):
 
     Attributes
     ----------
-    labels_ : np.ndarray
+    labels_ : np.ndarray, shape (n_labels,)
         Label of each node.
-    membership_ : sparse.csr_matrix
-        Membership matrix (columns = labels).
+    membership_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Membership matrix.
+    labels_row_ : np.ndarray
+        Labels of rows, for bipartite graphs.
+    labels_col_ : np.ndarray
+        Labels of columns, for bipartite graphs.
+    membership_row_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Membership matrix of rows, for bipartite graphs.
+    membership_col_ : sparse.csr_matrix, shape (n_col, n_labels)
+        Membership matrix of columns, for bipartite graphs.
 
     Example
     -------
@@ -65,7 +67,7 @@ class Propagation(BaseClassifier):
     <https://arxiv.org/pdf/0709.2938.pdf>`_
     Physical review E, 76(3), 036106.
     """
-    def __init__(self, n_iter: int = -1, node_order: str = None, weighted: bool = True):
+    def __init__(self, n_iter: float = -1, node_order: str = None, weighted: bool = True):
         super(Propagation, self).__init__()
 
         if n_iter < 0:
@@ -74,38 +76,43 @@ class Propagation(BaseClassifier):
             self.n_iter = n_iter
         self.node_order = node_order
         self.weighted = weighted
+        self.bipartite = None
 
     @staticmethod
-    def _instanciate_vars(adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict]):
-        n = adjacency.shape[0]
-        if seeds is None:
-            labels = np.arange(n, dtype=np.int32)
+    def _instantiate_vars(seeds: np.ndarray):
+        """Instantiate variables for label propagation."""
+        n = len(seeds)
+        if len(set(seeds)) == n:
+            index_seed = np.arange(n)
             index_remain = np.arange(n)
+            labels = seeds
         else:
-            labels = check_seeds(seeds, n)
-            index_remain = np.argwhere(labels < 0).ravel()
-        index_seed = np.argwhere(labels >= 0).ravel()
-        labels_seed = labels[index_seed]
-        return index_seed.astype(np.int32), index_remain.astype(np.int32), labels_seed.astype(np.int32)
+            index_seed = np.argwhere(seeds >= 0).ravel()
+            index_remain = np.argwhere(seeds < 0).ravel()
+            labels = seeds[index_seed]
+        return index_seed.astype(np.int32), index_remain.astype(np.int32), labels.astype(np.int32)
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict] = None) \
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict] = None,
+            seeds_row: Union[np.ndarray, dict] = None, seeds_col: Union[np.ndarray, dict] = None) \
             -> 'Propagation':
         """Node classification by label propagation.
 
         Parameters
         ----------
-        adjacency :
-            Adjacency matrix of the graph.
+        input_matrix :
+            Adjacency matrix or biadjacency matrix of the graph.
         seeds :
             Seed nodes. Can be a dict {node: label} or an array where "-1" means no label.
-
+        seeds_row, seeds_col :
+            Seeds of rows and columns (for bipartite graphs).
         Returns
         -------
         self: :class:`Propagation`
         """
-        adjacency = check_format(adjacency)
+        adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, seeds=seeds, seeds_row=seeds_row,
+                                                               seeds_col=seeds_col, which='labels')
         n = adjacency.shape[0]
-        index_seed, index_remain, labels_seed = self._instanciate_vars(adjacency, seeds)
+        index_seed, index_remain, labels_seed = self._instantiate_vars(seeds)
 
         if self.node_order == 'random':
             np.random.shuffle(index_remain)
@@ -131,7 +138,7 @@ class Propagation(BaseClassifier):
         while t < self.n_iter and not np.array_equal(labels_remain, labels[index_remain]):
             t += 1
             labels_remain = labels[index_remain].copy()
-            labels = vote_update(indptr, indices, data, labels, index_remain)
+            labels = np.asarray(vote_update(indptr, indices, data, labels, index_remain))
 
         membership = membership_matrix(labels)
         membership = normalize(adjacency.dot(membership))
@@ -139,73 +146,7 @@ class Propagation(BaseClassifier):
         self.labels_ = labels
         self.membership_ = membership
 
-        return self
-
-
-class BiPropagation(Propagation, BaseBiClassifier):
-    """Node classification by label propagation in bipartite graphs.
-
-    * Bigraphs
-
-    Parameters
-    ----------
-    n_iter :
-        Maximum number of iteration (-1 for infinity).
-
-    Attributes
-    ----------
-    labels_ : np.ndarray
-        Label of each row.
-    labels_row_ : np.ndarray
-        Label of each row (copy of **labels_**).
-    labels_col_ : np.ndarray
-        Label of each column.
-    membership_ : sparse.csr_matrix
-        Membership matrix of rows.
-    membership_row_ : sparse.csr_matrix
-        Membership matrix of rows (copy of **membership_**).
-    membership_col_ : sparse.csr_matrix
-        Membership matrix of columns.
-
-    Example
-    -------
-    >>> from sknetwork.classification import BiPropagation
-    >>> from sknetwork.data import movie_actor
-    >>> bipropagation = BiPropagation()
-    >>> graph = movie_actor(metadata=True)
-    >>> biadjacency = graph.biadjacency
-    >>> seeds_row = {0: 0, 1: 2, 2: 1}
-    >>> len(bipropagation.fit_transform(biadjacency, seeds_row))
-    15
-    >>> len(bipropagation.labels_col_)
-    16
-    """
-    def __init__(self, n_iter: int = -1):
-        super(BiPropagation, self).__init__(n_iter)
-
-    def fit(self, biadjacency: Union[sparse.csr_matrix, np.ndarray], seeds_row: Union[np.ndarray, dict],
-            seeds_col: Optional[Union[np.ndarray, dict]] = None) -> 'BiPropagation':
-        """Node classification by k-nearest neighbors in the embedding space.
-
-        Parameters
-        ----------
-        biadjacency :
-            Biadjacency matrix of the graph.
-        seeds_row :
-            Seed rows. Can be a dict {node: label} or an array where "-1" means no label.
-        seeds_col :
-            Seed columns (optional). Same format.
-
-        Returns
-        -------
-        self: :class:`BiPropagation`
-        """
-        n_row, n_col = biadjacency.shape
-        biadjacency = check_format(biadjacency)
-        adjacency = bipartite2undirected(biadjacency)
-        seeds = stack_seeds(n_row, n_col, seeds_row, seeds_col).astype(int)
-
-        Propagation.fit(self, adjacency, seeds)
-        self._split_vars(n_row)
+        if self.bipartite:
+            self._split_vars(input_matrix.shape)
 
         return self

@@ -4,11 +4,10 @@
 
 import tempfile
 import unittest
-from urllib.error import URLError
 import warnings
 
-from sknetwork.data.toy_graphs import *
 from sknetwork.data.load import *
+from sknetwork.data.toy_graphs import *
 from sknetwork.utils import Bunch
 
 
@@ -27,5 +26,5 @@ class TestDataAPI(unittest.TestCase):
             graph = load_netset('stub', tmp_data_dir)
             self.assertEqual(type(graph), Bunch)
         except URLError:  # pragma: no cover
-            warnings.warn('Could not reach NetSets. Corresponding test has not been performed.', RuntimeWarning)
+            warnings.warn('Could not reach NetSet. Corresponding test has not been performed.', RuntimeWarning)
             return

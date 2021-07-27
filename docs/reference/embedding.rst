@@ -12,8 +12,6 @@ Spectral
 
 .. autoclass:: sknetwork.embedding.Spectral
 
-.. autoclass:: sknetwork.embedding.BiSpectral
-
 SVD
 ---
 
@@ -23,6 +21,31 @@ GSVD
 ----
 
 .. autoclass:: sknetwork.embedding.GSVD
+
+PCA
+---
+
+.. autoclass:: sknetwork.embedding.PCA
+
+Random Projection
+-----------------
+
+.. autoclass:: sknetwork.embedding.RandomProjection
+
+Louvain
+-------
+
+.. autoclass:: sknetwork.embedding.LouvainEmbedding
+
+Hierarchical Louvain
+--------------------
+
+.. autoclass:: sknetwork.embedding.LouvainNE
+
+Force Atlas
+-----------
+
+.. autoclass:: sknetwork.embedding.ForceAtlas
 
 Spring
 ------

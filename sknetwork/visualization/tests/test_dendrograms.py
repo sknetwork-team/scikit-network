@@ -22,13 +22,16 @@ class TestVisualization(unittest.TestCase):
         self.assertEqual(image[1:4], 'svg')
         n = adjacency.shape[0]
         image = svg_dendrogram(dendrogram, names=np.arange(n), width=200, height=200, margin=10, margin_text=5, scale=3,
-                               n_clusters=3, color='green', font_size=14, reorder=True, rotate=True)
+                               n_clusters=3, color='green', colors=['red', 'blue'], font_size=14, reorder=True,
+                               rotate=True)
         self.assertEqual(image[1:4], 'svg')
         image = svg_dendrogram(dendrogram, names=np.arange(n), width=200, height=200, margin=10, margin_text=5, scale=3,
-                               n_clusters=3, color='green', font_size=14, reorder=False, rotate=True)
+                               n_clusters=3, color='green', colors={0: 'red', 1: 'blue'}, font_size=14, reorder=False,
+                               rotate=True)
         self.assertEqual(image[1:4], 'svg')
         svg_dendrogram_top(dendrogram, names=np.arange(n), width=200, height=200, margin=10, margin_text=5, scale=3,
-                           n_clusters=3, color='green', font_size=14, reorder=False, rotate_names=True, line_width=0.1)
+                           n_clusters=3, color='green', colors=np.array(['red', 'black', 'blue']), font_size=14,
+                           reorder=False, rotate_names=True, line_width=0.1)
 
     def test_directed(self):
         graph = painters(True)

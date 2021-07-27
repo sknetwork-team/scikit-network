@@ -3,10 +3,8 @@
 """tests for ranking API"""
 import unittest
 
-import numpy as np
-
-from sknetwork.ranking import *
 from sknetwork.data.test_graphs import test_bigraph, test_graph, test_digraph
+from sknetwork.ranking import *
 
 
 class TestPageRank(unittest.TestCase):
@@ -24,7 +22,7 @@ class TestPageRank(unittest.TestCase):
         biadjacency = test_bigraph()
         n_row, n_col = biadjacency.shape
 
-        methods = [BiPageRank(), BiDiffusion(), HITS(), BiKatz(), BiDirichlet()]
+        methods = [PageRank(), Diffusion(), HITS(), Katz(), Dirichlet()]
         for method in methods:
             method.fit(biadjacency)
             scores_row = method.scores_row_

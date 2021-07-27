@@ -5,6 +5,8 @@
 import unittest
 from os import remove
 
+import numpy as np
+
 from sknetwork.data import parse
 
 
@@ -181,3 +183,32 @@ class TestParser(unittest.TestCase):
         self.assertTrue((biadjacency.indptr == [0, 1, 2, 3]).all())
         self.assertTrue((biadjacency.data == [1, 1, 1]).all())
         remove(self.stub_data_10)
+
+    def test_local_edge_list(self):
+        edge_list_1 = [('Alice', 'Bob'), ('Carol', 'Alice')]
+        graph = parse.convert_edge_list(edge_list_1)
+        adjacency = graph.adjacency
+        names = graph.names
+        self.assertTrue((names == ['Alice', 'Bob', 'Carol']).all())
+        self.assertTupleEqual(adjacency.shape, (3, 3))
+        self.assertTrue((adjacency.indptr == [0, 2, 3, 4]).all())
+        self.assertTrue((adjacency.indices == [1, 2, 0, 0]).all())
+        self.assertTrue((adjacency.data == [1, 1, 1, 1]).all())
+
+        edge_list_2 = [('Alice', 'Bob', 4), ('Carol', 'Alice', 6)]
+        graph = parse.convert_edge_list(edge_list_2)
+        adjacency = graph.adjacency
+        names = graph.names
+        self.assertTrue((names == ['Alice', 'Bob', 'Carol']).all())
+        self.assertTupleEqual(adjacency.shape, (3, 3))
+        self.assertTrue((adjacency.indptr == [0, 2, 3, 4]).all())
+        self.assertTrue((adjacency.indices == [1, 2, 0, 0]).all())
+        self.assertTrue((adjacency.data == [4, 6, 4, 6]).all())
+
+    def test_bad_format_edge_list(self):
+        edge_list_1 = [('Alice', 'Bob', 3, 5), ('Carol', 'Alice', 6, 8)]
+        self.assertRaises(ValueError, parse.convert_edge_list, edge_list_1)
+        edge_list_2 = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
+        self.assertRaises(ValueError, parse.convert_edge_list, edge_list_2)
+        edge_list_3 = 'ab cd'
+        self.assertRaises(TypeError, parse.convert_edge_list, edge_list_3)

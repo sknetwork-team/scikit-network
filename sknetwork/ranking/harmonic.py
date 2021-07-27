@@ -20,9 +20,6 @@ class Harmonic(BaseRanking):
 
     For a directed graph, the harmonic centrality is computed in terms of outgoing paths.
 
-    * Graphs
-    * Digraphs
-
     Parameters
     ----------
     n_jobs:
@@ -32,7 +29,7 @@ class Harmonic(BaseRanking):
     Attributes
     ----------
     scores_ : np.ndarray
-        Harmonic centrality of each node.
+        Score of each node.
 
     Example
     -------

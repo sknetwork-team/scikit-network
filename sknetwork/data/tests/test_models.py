@@ -3,7 +3,6 @@
 """authors:
 Thomas Bonald <bonald@enst.fr>
 Quentin Lutz <qlutz@enst.fr>"""
-
 import unittest
 
 from sknetwork.data.models import *
@@ -20,6 +19,11 @@ class TestModels(unittest.TestCase):
             self.assertEqual(graph.adjacency.shape, (n, n))
             if hasattr(graph, 'position'):
                 self.assertEqual(graph.position.shape, (n, 2))
+
+        adjacency = star(n)
+        self.assertEqual(adjacency.shape, (n+1, n+1))
+        graph = star(n, metadata=True)
+        self.assertTrue(hasattr(graph, 'position'))
 
         adjacency = erdos_renyi(n)
         self.assertEqual(adjacency.shape, (n, n))
@@ -42,6 +46,3 @@ class TestModels(unittest.TestCase):
         labels = graph.labels
         self.assertEqual(adjacency.shape, (15, 15))
         self.assertEqual(len(labels), 15)
-
-        with self.assertRaises(ValueError):
-            block_model(np.array([4, 5, 6]), 0.05, 0.2)

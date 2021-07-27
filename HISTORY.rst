@@ -2,6 +2,71 @@
 History
 =======
 
+
+0.23.1 (2021-04-24)
+-------------------
+
+* Updated NumPy and SciPy requirements
+
+0.23.0 (2021-04-23)
+-------------------
+
+* New push-based implementation of PageRank by Wenzhuo Zhao (#475)
+* Fixed cut_balanced in hierarchy
+* Dropped Python 3.6, wheels for Python 3.9 (switched to manylinux2014)
+
+0.22.0 (2021-02-09)
+-------------------
+
+* Added hierarchical Louvain embedding by Quentin Lutz (#468)
+* Doc fixes and updates
+* Requirements update
+
+0.21.0 (2021-01-29)
+-------------------
+
+* Added random projection embedding by Thomas Bonald (#461)
+* Added PCA-based embedding by Thomas Bonald (#461)
+* Added 64-bit support for Louvain by Flávio Juvenal (#450)
+* Added verbosity options for dataset loaders
+* Fixed Louvain embedding
+* Various doc and tutorial updates
+
+0.20.0 (2020-10-20)
+-------------------
+
+* Added betweenness algorithm by Tiphaine Viard (#444)
+
+0.19.3 (2020-09-17)
+-------------------
+
+* Added Louvain-based embedding
+* Fix documentation with new dataset website URLs
+
+0.19.2 (2020-09-14)
+-------------------
+
+* Fix documentation with new dataset website URLs.
+
+0.19.1 (2020-09-09)
+-------------------
+
+* Fix visualization features
+* Fix documentation
+
+0.19.0 (2020-09-02)
+-------------------
+
+* Added link prediction module
+* Added pie-node visualization of memberships
+* Added Weisfeiler-Lehman graph coloring by Pierre Pebereau and Alexis Barreaux (#394)
+* Added Force Atlas 2 graph layout by Victor Manach and Rémi Jaylet (#396)
+* Added triangle listing algorithm for directed and undirected graph by Julien Simonnet and Yohann Robert (#376)
+* Added k-core decomposition algorithm by Julien Simonnet and Yohann Robert (#377)
+* Added k-clique listing algorithm by Julien Simonnet and Yohann Robert (#377)
+* Added color map option in visualization module
+* Updated NetSet URL
+
 0.18.0 (2020-06-08)
 -------------------
 

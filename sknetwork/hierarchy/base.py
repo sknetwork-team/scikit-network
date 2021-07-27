@@ -13,10 +13,21 @@ from sknetwork.utils.base import Algorithm
 
 
 class BaseHierarchy(Algorithm, ABC):
-    """Base class for hierarchical clustering algorithms."""
+    """Base class for hierarchical clustering algorithms.
+    Attributes
+    ----------
+    dendrogram_ :
+        Dendrogram of the graph.
+    dendrogram_row_ :
+        Dendrogram for the rows, for bipartite graphs.
+    dendrogram_col_ :
+        Dendrogram for the columns, for bipartite graphs.
+    dendrogram_full_ :
+        Dendrogram for both rows and columns, indexed in this order, for bipartite graphs.
+    """
 
     def __init__(self):
-        self.dendrogram_ = None
+        self._init_vars()
 
     def fit_transform(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to data and return the dendrogram. Same parameters as the ``fit`` method.
@@ -29,22 +40,18 @@ class BaseHierarchy(Algorithm, ABC):
         self.fit(*args, **kwargs)
         return self.dendrogram_
 
-
-class BaseBiHierarchy(BaseHierarchy, ABC):
-    """Base class for hierarchical clustering algorithms."""
-
-    def __init__(self):
-        super(BaseBiHierarchy, self).__init__()
+    def _init_vars(self):
+        """Init variables."""
+        self.dendrogram_ = None
         self.dendrogram_row_ = None
         self.dendrogram_col_ = None
         self.dendrogram_full_ = None
 
     def _split_vars(self, shape):
+        """Split variables."""
         dendrogram_row, dendrogram_col = split_dendrogram(self.dendrogram_, shape)
-
         self.dendrogram_full_ = self.dendrogram_
         self.dendrogram_ = dendrogram_row
         self.dendrogram_row_ = dendrogram_row
         self.dendrogram_col_ = dendrogram_col
-
         return self
