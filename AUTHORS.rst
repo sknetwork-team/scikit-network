@@ -11,7 +11,6 @@ Development Lead
 
 * Thomas Bonald <thomas.bonald@telecom-paris.fr>
 * Marc Jeanmougin <marc.jeanmougin@telecom-paris.fr>
-* Nathan de Lara <nathan.de-lara@polytechnique.org>
 * Quentin Lutz <quentin.lutz@telecom-paris.fr>
 * Tiphaine Viard <tiphaine.viard@telecom-paris.fr>
 
@@ -19,6 +18,7 @@ Contributors
 ------------
 
 * Bertrand Charpentier
+* Nathan de Lara
 * Maximilien Danisch
 * François Durand
 * Alexandre Hollocou

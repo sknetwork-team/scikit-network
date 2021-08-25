@@ -22,7 +22,8 @@ class TestLoader(unittest.TestCase):
         try:
             graph = load_netset('stub', tmp_data_dir)
         except:  # pragma: no cover
-            warnings.warn('Could not reach Telecom Graphs. Corresponding test has not been performed.', RuntimeWarning)
+            warnings.warn('Could not reach the NetSet collection. Corresponding test has not been performed.',
+                          RuntimeWarning)
             return
         n = 2
         self.assertEqual(graph.adjacency.shape, (n, n))
@@ -37,7 +38,8 @@ class TestLoader(unittest.TestCase):
                 load_netset('junk', tmp_data_dir)
 
         except:  # pragma: no cover
-            warnings.warn('Could not reach Telecom Graphs. Corresponding test has not been performed.', RuntimeWarning)
+            warnings.warn('Could not reach the NetSet collection. Corresponding test has not been performed.',
+                          RuntimeWarning)
             return
         load_netset()
 

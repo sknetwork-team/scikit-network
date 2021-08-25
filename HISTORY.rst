@@ -2,6 +2,8 @@
 History
 =======
 
+* Allow parsers to return weighted graphs, by Thomas Bonald ()
+
 0.24.0 (2021-07-27)
 -------------------
 
