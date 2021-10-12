@@ -75,6 +75,7 @@ cdef class MinHeap:
             while (pos != 0) and (scores[self.val[p]] > scores[self.val[pos]]):
                 self.swap(pos, p)
                 pos = p
+                p = parent(pos)
 
     cdef int pop_min(self, int[:] scores):
         """Remove and return the minimum element (or root) from the heap."""
@@ -85,6 +86,7 @@ cdef class MinHeap:
         # Store the minimum value, and remove it from heap
         cdef int root = self.val[0]
         self.val[0] = self.val[self.size-1]
+        self.pos[self.val[0]] = 0
         self.size -= 1
         self.min_heapify(0, scores)
 
