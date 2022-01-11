@@ -63,9 +63,6 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     else:
         p_in = np.array(p_in)
 
-    # each edge is considered twice
-    p_in = p_in / 2
-
     matrix = []
     for i, a in enumerate(sizes):
         row = []
