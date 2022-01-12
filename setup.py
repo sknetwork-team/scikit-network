@@ -11,7 +11,7 @@ from distutils.command.build_ext import build_ext
 import os
 from glob import glob
 
-dist.Distribution().fetch_build_eggs(['Cython', 'numpy==1.20.0'])
+dist.Distribution().fetch_build_eggs(['Cython', 'numpy==1.22.0'])
 
 import numpy
 
@@ -21,7 +21,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['numpy>=1.20.2', 'scipy>=1.6.2']
+requirements = ['numpy>=1.22.0', 'scipy>=1.7.3']
 
 setup_requirements = ['pytest-runner']
 
