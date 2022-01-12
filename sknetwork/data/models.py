@@ -19,7 +19,7 @@ from sknetwork.utils.parse import edgelist2adjacency
 
 
 def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_out: float = .05,
-                seed: Optional[int] = None, metadata: bool = False) \
+                seed: Optional[int] = None, directed: bool = False, self_loops: bool = False, metadata: bool = False) \
                 -> Union[sparse.csr_matrix, Bunch]:
     """Stochastic block model.
 
@@ -33,6 +33,10 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
         Probability of connection across blocks.
     seed :
         Seed of the random generator (optional).
+    directed :
+        If ``True``, return a directed graph.
+    self_loops :
+         If ``True``, allow self-loops.
     metadata :
         If ``True``, return a `Bunch` object with metadata.
 
@@ -67,17 +71,16 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     for i, a in enumerate(sizes):
         row = []
         for j, b in enumerate(sizes):
-            if j < i:
-                row.append(None)
-            elif j > i:
-                row.append(sparse.random(a, b, p_out, dtype=bool, random_state=random_state))
-            else:
+            if j == i:
                 row.append(sparse.random(a, a, p_in[i], dtype=bool, random_state=random_state))
+            else:
+                row.append(sparse.random(a, b, p_out, dtype=bool, random_state=random_state))
         matrix.append(row)
-    adjacency = sparse.bmat(matrix)
-    adjacency.setdiag(0)
-    adjacency = directed2undirected(adjacency.tocsr(), weighted=False)
-
+    adjacency = sparse.bmat(matrix).tocsr()
+    if not self_loops:
+        adjacency.setdiag(0)
+    if not directed:
+        adjacency = directed2undirected(sparse.triu(adjacency), weighted=False)
     if metadata:
         graph = Bunch()
         graph.adjacency = adjacency
@@ -117,7 +120,7 @@ def erdos_renyi(n: int = 20, p: float = .3, seed: Optional[int] = None) -> spars
     Erdős, P., Rényi, A. (1959). `On Random Graphs. <https://www.renyi.hu/~p_erdos/1959-11.pdf>`_
     Publicationes Mathematicae.
     """
-    return block_model(np.array([n]), p, 0., seed, metadata=False)
+    return block_model([n], p, 0., seed, metadata=False)
 
 
 def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
