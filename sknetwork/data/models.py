@@ -58,7 +58,7 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     random_state = check_random_state(seed)
     sizes = np.array(sizes)
 
-    if isinstance(p_in, (np.floating, float)):
+    if isinstance(p_in, (np.floating, float, int)):
         p_in = p_in * np.ones_like(sizes)
     else:
         p_in = np.array(p_in)
