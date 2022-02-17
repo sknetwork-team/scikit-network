@@ -10,30 +10,32 @@ on:
       - "v*"
 
 jobs:
-  build_wheels:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-20.04, windows-2019, macos-10.15]
+    build_wheels:
+        name: Build wheels on ${{ matrix.os }}
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os: [ ubuntu-20.04, windows-2019, macos-latest ]
 
-    steps:
-      - uses: actions/checkout@v2
+        steps:
+            -   uses: actions/checkout@v2
 
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.0.1
-        env:
-          CIBW_PLATFORM: auto
-          CIBW_ARCHS: auto64
-          CIBW_BUILD_VERBOSITY: 3
-          CIBW_BEFORE_BUILD: "pip install -r requirements_dev.txt --user && pip install ."
-          CIBW_ENVIRONMENT_MACOS: CC=/usr/local/opt/llvm/bin/clang++
-          CIBW_BEFORE_BUILD_MACOS: "brew install llvm libomp && pip install -r requirements_dev.txt --user && pip install ."
-          CIBW_BUILD: cp37-* cp38-* cp39-*
+            -   name: Build wheels
+                uses: pypa/cibuildwheel@v2.3.1
+                env:
+                    CIBW_PLATFORM: auto
+                    CIBW_ARCHS: auto64
+                    CIBW_SKIP: cp*-musllinux*
+                    CIBW_ARCHS_MACOS: x86_64 arm64
+                    CIBW_BUILD_VERBOSITY: 3
+                    CIBW_BEFORE_BUILD: "pip install -r requirements_dev.txt --user && pip install ."
+                    CIBW_ENVIRONMENT_MACOS: CC=/usr/local/opt/llvm/bin/clang++
+                    CIBW_BEFORE_BUILD_MACOS: "brew install llvm libomp && pip install -r requirements_dev.txt --user && pip install ."
+                    CIBW_BUILD: cp37-* cp38-* cp39-* cp310-*
 
-      - uses: actions/upload-artifact@v2
-        with:
-          path: ./wheelhouse/*.whl
+            -   uses: actions/upload-artifact@v2
+                with:
+                    path: ./wheelhouse/*.whl
 
   build_sdist:
       name: Build source distribution
