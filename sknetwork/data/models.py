@@ -19,7 +19,7 @@ from sknetwork.utils.parse import edgelist2adjacency
 
 
 def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_out: float = .05,
-                seed: Optional[int] = None, directed: bool = False, self_loops: bool = False, metadata: bool = False) \
+                directed: bool = False, self_loops: bool = False, metadata: bool = False, seed: Optional[int] = None) \
                 -> Union[sparse.csr_matrix, Bunch]:
     """Stochastic block model.
 
@@ -31,15 +31,14 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
         Probability of connection within blocks.
     p_out :
         Probability of connection across blocks.
-    seed :
-        Seed of the random generator (optional).
     directed :
         If ``True``, return a directed graph.
     self_loops :
          If ``True``, allow self-loops.
     metadata :
-        If ``True``, return a `Bunch` object with metadata.
-
+        If ``True``, return a `Bunch` object with labels.
+    seed :
+        Seed of the random generator (optional).
     Returns
     -------
     adjacency or graph : Union[sparse.csr_matrix, Bunch]
@@ -80,7 +79,7 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     if not self_loops:
         adjacency.setdiag(0)
     if not directed:
-        adjacency = directed2undirected(sparse.triu(adjacency), weighted=False)
+        adjacency = directed2undirected(sparse.csr_matrix(sparse.triu(adjacency)), weighted=False)
     if metadata:
         graph = Bunch()
         graph.adjacency = adjacency
@@ -91,7 +90,8 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
         return adjacency
 
 
-def erdos_renyi(n: int = 20, p: float = .3, seed: Optional[int] = None) -> sparse.csr_matrix:
+def erdos_renyi(n: int = 20, p: float = .3, directed: bool = False, self_loops: bool = False,
+                seed: Optional[int] = None) -> sparse.csr_matrix:
     """Erdos-Renyi graph.
 
     Parameters
@@ -100,6 +100,10 @@ def erdos_renyi(n: int = 20, p: float = .3, seed: Optional[int] = None) -> spars
          Number of nodes.
     p :
         Probability of connection between nodes.
+    directed :
+        If ``True``, return a directed graph.
+    self_loops :
+         If ``True``, allow self-loops.
     seed :
         Seed of the random generator (optional).
 
