@@ -4,14 +4,12 @@
 """The setup script."""
 
 
-from setuptools import find_packages, dist
+from setuptools import find_packages
 import distutils.util
 from distutils.core import setup, Extension
 from distutils.command.build_ext import build_ext
 import os
 from glob import glob
-
-dist.Distribution().fetch_build_eggs(['Cython', 'numpy==1.22.0'])
 
 import numpy
 
@@ -21,7 +19,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['numpy>=1.22.0', 'scipy>=1.7.3']
+requirements = ['numpy>=1.21.5', 'scipy>=1.6.3']
 
 setup_requirements = ['pytest-runner']
 
@@ -41,16 +39,17 @@ EXTRA_LINK_ARGS = ['-fopenmp']
 
 # Check whether we're on OSX >= 10.10
 name = distutils.util.get_platform()
-if name.startswith("macosx-10"):
+if name.startswith("macosx"):
     EXTRA_COMPILE_ARGS = ['-lomp']
     EXTRA_LINK_ARGS = ['-lomp']
-    minor_version = int(name.split("-")[1].split(".")[1])
-    if minor_version >= 7:
+    version = name.split("-")[1].split(".")
+    if int(version[0]) > 10 or (int(version[0]) == 10 and int(version[1]) >= 7):
         COMPILE_OPTIONS["other"].append("-stdlib=libc++")
         LINK_OPTIONS["other"].append("-lc++")
         # g++ (used by unix compiler on mac) links to libstdc++ as a default lib.
         # See: https://stackoverflow.com/questions/1653047/avoid-linking-to-libstdc
         LINK_OPTIONS["other"].append("-nodefaultlibs")
+
 # Windows does not (yet) support OpenMP
 if name.startswith("win"):
     EXTRA_COMPILE_ARGS = ['/d2FH4-']
