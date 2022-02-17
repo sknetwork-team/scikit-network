@@ -1,9 +1,9 @@
 # standard Python package manager
-pip==21.3.1
+pip>=21.3.1
 
 # base dependencies
-numpy==1.22.0
-scipy==1.7.3
+numpy>=1.21.5
+scipy>=1.6.3
 
 # tool to automatically change version number in the package upon release
 bumpversion==0.6.0
@@ -12,13 +12,13 @@ bumpversion==0.6.0
 wheel==0.37.1
 
 # standard package to produce coverage from test runs
-coverage==6.2
+coverage>=6.2
 
 # visualization of reports from coverage
 codecov==2.1.12
 
 # used to upload wheels and sources to PyPI
-twine==3.7.1
+twine>=3.7.1
 
 # main doc tool
 Sphinx==4.3.2
