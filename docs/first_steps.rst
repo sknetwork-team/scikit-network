@@ -59,7 +59,7 @@ Here is an example to cluster the `Karate club graph`_ with the `Louvain algorit
     from sknetwork.clustering import Louvain
 
     adjacency = karate_club()
-    algo = Louvain
+    algo = Louvain()
     algo.fit(adjacency)
 
 .. _Karate club graph: https://en.wikipedia.org/wiki/Zachary%27s_karate_club

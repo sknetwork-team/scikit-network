@@ -33,7 +33,7 @@ class TestCuts(unittest.TestCase):
 
     def test_options(self):
         labels = cut_straight(self.dendrogram, threshold=0.5)
-        self.assertEqual(len(set(labels)), 4)
+        self.assertEqual(len(set(labels)), 7)
         labels = cut_straight(self.dendrogram, n_clusters=3, threshold=0.5)
         self.assertEqual(len(set(labels)), 3)
         labels = cut_straight(self.dendrogram, sort_clusters=False)
