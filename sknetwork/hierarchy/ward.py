@@ -11,7 +11,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.embedding import BaseEmbedding, GSVD
+from sknetwork.embedding import BaseEmbedding, Spectral
 from sknetwork.hierarchy.base import BaseHierarchy
 from sknetwork.utils.check import check_format
 from sknetwork.utils.format import get_embedding
@@ -24,7 +24,7 @@ class Ward(BaseHierarchy):
     Parameters
     ----------
     embedding_method :
-        Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
+        Embedding method (default = Spectral embedding in dimension 10).
     co_cluster :
         If ``True``, co-cluster rows and columns, considered as different nodes (default = ``False``).
 
@@ -57,7 +57,7 @@ class Ward(BaseHierarchy):
     * Murtagh, F., & Contreras, P. (2012). Algorithms for hierarchical clustering: an overview.
       Wiley Interdisciplinary Reviews: Data Mining and Knowledge Discovery.
     """
-    def __init__(self, embedding_method: BaseEmbedding = GSVD(10), co_cluster: bool = False):
+    def __init__(self, embedding_method: BaseEmbedding = Spectral(10), co_cluster: bool = False):
         super(Ward, self).__init__()
         self.embedding_method = embedding_method
         self.co_cluster = co_cluster
