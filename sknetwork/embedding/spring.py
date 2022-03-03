@@ -20,9 +20,6 @@ from sknetwork.utils.format import directed2undirected
 class Spring(BaseEmbedding):
     """Spring layout for displaying small graphs.
 
-    * Graphs
-    * Digraphs
-
     Parameters
     ----------
     n_components : int

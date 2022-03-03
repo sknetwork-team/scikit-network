@@ -102,14 +102,15 @@ class LouvainEmbedding(BaseEmbedding):
 
         self.labels_ = None
 
-    def fit(self, input_matrix: sparse.csr_matrix):
+    def fit(self, input_matrix: sparse.csr_matrix, force_bipartite: bool = False):
         """Embedding of graphs from the clustering obtained with Louvain.
 
         Parameters
         ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
-
+        force_bipartite : bool (default = ``False``)
+            If ``True``, force the input matrix to be considered as a biadjacency matrix.
         Returns
         -------
         self: :class:`BiLouvainEmbedding`
@@ -118,7 +119,7 @@ class LouvainEmbedding(BaseEmbedding):
                           tol_optimization=self.tol_optimization, tol_aggregation=self.tol_aggregation,
                           n_aggregations=self.n_aggregations, shuffle_nodes=self.shuffle_nodes, sort_clusters=False,
                           return_membership=True, return_aggregate=True, random_state=self.random_state)
-        louvain.fit(input_matrix)
+        louvain.fit(input_matrix, force_bipartite=force_bipartite)
 
         # isolated nodes
         if is_square(input_matrix):

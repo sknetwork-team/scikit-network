@@ -15,3 +15,5 @@ class TestLouvainNE(unittest.TestCase):
             self.assertTupleEqual(louvain.fit_transform(adjacency).shape, (10, 2))
         louvain.fit(test_bigraph())
         self.assertTupleEqual(louvain.embedding_.shape, (6, 2))
+        louvain.fit(test_graph(), force_bipartite=True)
+        self.assertTupleEqual(louvain.embedding_.shape, (10, 2))
