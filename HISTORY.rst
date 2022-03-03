@@ -9,6 +9,7 @@ History
 * Update Block models, by Thomas Bonald (#507)
 * Fix Tree sampling divergence, by Thomas Bonald (#505)
 * Allow parsers to return weighted graphs, by Thomas Bonald
+* Add Apple Silicon and Python 3.10 wheels, by Quentin Lutz (#503)
 
 0.24.0 (2021-07-27)
 -------------------
