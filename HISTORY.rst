@@ -2,7 +2,13 @@
 History
 =======
 
-* Allow parsers to return weighted graphs, by Thomas Bonald ()
+0.25.0 (2022-03-XX)
+-------------------
+
+* Update Spectral embedding, by Thomas Bonald
+* Update Block models, by Thomas Bonald (#507)
+* Fix Tree sampling divergence, by Thomas Bonald (#505)
+* Allow parsers to return weighted graphs, by Thomas Bonald
 
 0.24.0 (2021-07-27)
 -------------------
