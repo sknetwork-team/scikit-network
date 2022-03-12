@@ -48,13 +48,15 @@ def is_connected(adjacency: sparse.csr_matrix, connection: str = 'weak') -> bool
     return len(set(get_connected_components(adjacency, connection))) == 1
 
 
-def get_largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], return_labels: bool = False):
+def get_largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarray], connection: str = "weak", return_labels: bool = False):
     """Extract the largest connected component of a graph. Bipartite graphs are treated as undirected.
 
     Parameters
     ----------
     adjacency :
         Adjacency or biadjacency matrix of the graph.
+    connection :
+        Must be ``'weak'`` (default) or ``'strong'``. The type of connection to use for directed graphs.
     return_labels : bool
         Whether to return the indices of the new nodes in the original graph.
 
@@ -75,7 +77,7 @@ def get_largest_connected_component(adjacency: Union[sparse.csr_matrix, np.ndarr
         bipartite: bool = False
         full_adjacency = adjacency
 
-    labels = get_connected_components(full_adjacency)
+    labels = get_connected_components(full_adjacency, connection = connection)
     unique_labels, counts = np.unique(labels, return_counts=True)
     component_label = unique_labels[np.argmax(counts)]
     component_indices = np.where(labels == component_label)[0]
