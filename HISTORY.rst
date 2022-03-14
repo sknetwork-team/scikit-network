@@ -2,7 +2,7 @@
 History
 =======
 
-0.25.0 (2022-03-XX)
+0.25.0 (2022-03-14)
 -------------------
 
 * Add use cases as notebooks, by Thomas Bonald
