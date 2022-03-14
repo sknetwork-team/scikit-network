@@ -11,6 +11,8 @@ from distutils.command.build_ext import build_ext
 import os
 from glob import glob
 
+import numpy
+
 with open('README.rst') as readme_file:
     readme = readme_file.read()
 
@@ -69,13 +71,6 @@ class BuildExtSubclass(build_ext):
         self.build_options()
         build_ext.build_extensions(self)
 
-    def finalize_options(self):
-        build_ext.finalize_options(self)
-        # Prevent numpy from thinking it is still in its setup process:
-        __builtins__.__NUMPY_SETUP__ = False
-        import numpy
-        self.include_dirs.append(numpy.get_include())
-
 
 # Cython generation/C++ compilation
 pyx_paths = glob("./sknetwork/**/*.pyx")
@@ -104,11 +99,11 @@ if HAVE_CYTHON:
             # Remove C file to force Cython recompile.
             os.remove(c_path)
 
-        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path],
+        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()],
                                            extra_compile_args=EXTRA_COMPILE_ARGS,
                                            extra_link_args=EXTRA_LINK_ARGS), annotate=True)
 else:
-    ext_modules = [Extension(modules[index], [c_paths[index]])
+    ext_modules = [Extension(modules[index], [c_paths[index]], include_dirs=[numpy.get_include()])
                    for index in range(len(modules))]
 
 
@@ -149,6 +144,7 @@ setup(
     version='0.24.0',
     zip_safe=False,
     ext_modules=ext_modules,
+    include_dirs=[numpy.get_include()],
     cmdclass={"build_ext": BuildExtSubclass}
 )
 
