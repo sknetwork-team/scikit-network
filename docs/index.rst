@@ -46,6 +46,7 @@ Welcome to scikit-network's documentation!
    :caption: Use cases
 
    use_cases/text-mining
+   use_cases/web-graphs
 
 .. toctree::
    :maxdepth: 1
