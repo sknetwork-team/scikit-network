@@ -12,6 +12,12 @@ from sknetwork.embedding import LouvainEmbedding
 class TestLouvainEmbedding(unittest.TestCase):
 
     def test_predict(self):
+        louvain = LouvainEmbedding()
+        louvain.fit(test_graph())
+        self.assertEqual(louvain.embedding_.shape[0], 10)
+        louvain.fit(test_graph(), force_bipartite=True)
+        self.assertEqual(louvain.embedding_.shape[0], 10)
+
         for method in ['remove', 'merge', 'keep']:
             louvain = LouvainEmbedding(isolated_nodes=method)
             louvain.fit(test_graph())
@@ -23,3 +29,5 @@ class TestLouvainEmbedding(unittest.TestCase):
             bilouvain.fit(test_bigraph())
             embedding_vector = bilouvain.predict(np.array([1, 0, 0, 0, 1, 1, 0, 1]))
             self.assertEqual(embedding_vector.shape[0], 1)
+
+

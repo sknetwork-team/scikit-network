@@ -28,8 +28,8 @@ where
     * :math:`d_i` is the weight of node :math:`i`,
     * :math:`d^+_i, d^-_i` are the out-weight, in-weight of node :math:`i` (for directed graphs),
     * :math:`w = 1^TA1` is the total weight of the graph,
-    * :math:`\\delta` is the Kronecker symbol,
-    * :math:`\\gamma \\ge 0` is the resolution parameter.
+    * :math:`\delta` is the Kronecker symbol,
+    * :math:`\gamma \ge 0` is the resolution parameter.
 
 The adjacency matrix :math:`A` is made symmetric if asymmetric.
 

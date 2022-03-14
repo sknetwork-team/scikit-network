@@ -80,7 +80,7 @@ def check_square(input_matrix: Union[sparse.csr_matrix, np.ndarray]):
     if is_square(input_matrix):
         return
     else:
-        raise ValueError('The adjacency is expected to be square.')
+        raise ValueError('The adjacency matrix is expected to be square.')
 
 
 def is_symmetric(input_matrix: sparse.csr_matrix) -> bool:

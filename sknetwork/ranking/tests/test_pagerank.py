@@ -42,6 +42,11 @@ class TestPageRank(unittest.TestCase):
         scores2 = pagerank.fit_transform(self.adjacency, seeds_dict)
         self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0.)
 
+    def test_input(self):
+        pagerank = PageRank()
+        scores = pagerank.fit_transform(self.adjacency, force_bipartite=True)
+        self.assertEqual(len(scores), len(pagerank.scores_col_))
+
     def test_damping(self):
         pagerank = PageRank(damping_factor=0.99)
         scores = pagerank.fit_transform(self.adjacency)

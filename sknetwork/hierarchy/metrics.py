@@ -15,26 +15,64 @@ from sknetwork.utils.format import directed2undirected
 
 def _instantiate_vars(adjacency: sparse.csr_matrix, weights: str = 'uniform'):
     """Initialize standard variables for metrics."""
-    n = adjacency.shape[0]
     weights_row = get_probs(weights, adjacency)
     weights_col = get_probs(weights, adjacency.T)
     sym_adjacency = directed2undirected(adjacency)
-
     aggregate_graph = AggregateGraph(weights_row, weights_col, sym_adjacency.data.astype(float),
                                      sym_adjacency.indices, sym_adjacency.indptr)
+    return aggregate_graph, weights_row, weights_col
 
-    height = np.zeros(n - 1)
-    cluster_weight = np.zeros(n - 1)
-    edge_sampling = np.zeros(n - 1)
 
-    return aggregate_graph, height, cluster_weight, edge_sampling, weights_row, weights_col
+def get_sampling_distributions(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights: str = 'uniform'):
+    """Get sampling distributions over each internal node of the tree.
+    Parameters
+    ----------
+    adjacency :
+        Adjacency matrix of the graph.
+    dendrogram :
+        Dendrogram.
+    weights :
+        Weights of nodes.
+        ``'degree'`` or ``'uniform'`` (default).
+    Returns
+    -------
+    edge_sampling: np.ndarray
+        Edge sampling distribution.
+    node_sampling: np.ndarray
+        Node sampling distribution.
+    cluster_weights: np.ndarray
+        Cluster weights.
+    """
+    n = adjacency.shape[0]
+    aggregate_graph, weights_row, weights_col = _instantiate_vars(adjacency, weights)
+    cluster_weight = np.zeros(n-1)
+    edge_sampling = np.zeros(n-1)
+    node_sampling = np.zeros(n-1)
+
+    for t in range(n - 1):
+        i = int(dendrogram[t][0])
+        j = int(dendrogram[t][1])
+        if j in aggregate_graph.neighbors[i]:
+            edge_sampling[t] += 2 * aggregate_graph.neighbors[i][j]
+        node_sampling[t] += aggregate_graph.cluster_out_weights[i] * aggregate_graph.cluster_in_weights[j] + \
+            aggregate_graph.cluster_out_weights[j] * aggregate_graph.cluster_in_weights[i]
+        cluster_weight[t] = aggregate_graph.cluster_out_weights[i] + aggregate_graph.cluster_out_weights[j] + \
+            aggregate_graph.cluster_in_weights[i] + aggregate_graph.cluster_in_weights[j]
+        for node in {i, j}:
+            if node < n:
+                # self-loop
+                node_sampling[t] += aggregate_graph.cluster_out_weights[node] * aggregate_graph.cluster_in_weights[node]
+                if node in aggregate_graph.neighbors[node]:
+                    edge_sampling[t] += aggregate_graph.neighbors[node][node]
+        aggregate_graph.merge(i, j)
+    return edge_sampling, node_sampling, cluster_weight / 2
 
 
 def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights: str = 'uniform',
                   normalized: bool = False) -> float:
     """Dasgupta's cost of a hierarchy.
 
-    Expected size (weights = ``'uniform'``) or expected weight (weights = ``'degree'``) of the cluster induced by
+    Expected size (weights = ``'uniform'``) or expected volume (weights = ``'degree'``) of the cluster induced by
     random edge sampling (closest ancestor of the two nodes in the hierarchy).
 
     Parameters
@@ -76,25 +114,8 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights:
     n = adjacency.shape[0]
     check_min_size(n, 2)
 
-    aggregate_graph, height, edge_sampling, cluster_weight, _, _ = _instantiate_vars(adjacency, weights)
-
-    for t in range(n - 1):
-        i = int(dendrogram[t][0])
-        j = int(dendrogram[t][1])
-        if i >= n and height[i - n] == dendrogram[t][2]:
-            edge_sampling[t] = edge_sampling[i - n]
-            edge_sampling[i - n] = 0
-        elif j >= n and height[j - n] == dendrogram[t][2]:
-            edge_sampling[t] = edge_sampling[j - n]
-            edge_sampling[j - n] = 0
-        height[t] = dendrogram[t][2]
-        if j in aggregate_graph.neighbors[i]:
-            edge_sampling[t] += aggregate_graph.neighbors[i][j]
-        cluster_weight[t] = aggregate_graph.cluster_out_weights[i] + aggregate_graph.cluster_out_weights[j] \
-            + aggregate_graph.cluster_in_weights[i] + aggregate_graph.cluster_in_weights[j]
-        aggregate_graph.merge(i, j)
-
-    cost: float = edge_sampling.dot(cluster_weight) / 2
+    edge_sampling, _, cluster_weight = get_sampling_distributions(adjacency, dendrogram, weights)
+    cost = edge_sampling.dot(cluster_weight)
 
     if not normalized:
         if weights == 'degree':
@@ -174,7 +195,7 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     >>> dendrogram = paris.fit_transform(adjacency)
     >>> score = tree_sampling_divergence(adjacency, dendrogram)
     >>> np.round(score, 2)
-    0.52
+    0.05
 
     References
     ----------
@@ -192,32 +213,13 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     check_min_size(n, 2)
 
     adjacency.data /= adjacency.data.sum()
-
-    aggregate_graph, height, cluster_weight, edge_sampling, weights_row, weights_col = _instantiate_vars(adjacency,
-                                                                                                         weights)
-    node_sampling = np.zeros(n - 1)
-
-    for t in range(n - 1):
-        i = int(dendrogram[t][0])
-        j = int(dendrogram[t][1])
-        if i >= n and height[i - n] == dendrogram[t][2]:
-            edge_sampling[t] = edge_sampling[i - n]
-            edge_sampling[i - n] = 0
-            node_sampling[t] = node_sampling[i - n]
-        elif j >= n and height[j - n] == dendrogram[t][2]:
-            edge_sampling[t] = edge_sampling[j - n]
-            edge_sampling[j - n] = 0
-            node_sampling[t] = node_sampling[j - n]
-        if j in aggregate_graph.neighbors[i]:
-            edge_sampling[t] += aggregate_graph.neighbors[i][j]
-        node_sampling[t] += aggregate_graph.cluster_out_weights[i] * aggregate_graph.cluster_in_weights[j] + \
-            aggregate_graph.cluster_out_weights[j] * aggregate_graph.cluster_in_weights[i]
-        height[t] = dendrogram[t][2]
-        aggregate_graph.merge(i, j)
+    edge_sampling, node_sampling, _ = get_sampling_distributions(adjacency, dendrogram, weights)
 
     index = np.where(edge_sampling)[0]
     score = edge_sampling[index].dot(np.log(edge_sampling[index] / node_sampling[index]))
     if normalized:
+        weights_row = get_probs(weights, adjacency)
+        weights_col = get_probs(weights, adjacency.T)
         inv_out_weights = sparse.diags(weights_row, shape=(n, n), format='csr')
         inv_out_weights.data = 1 / inv_out_weights.data
         inv_in_weights = sparse.diags(weights_col, shape=(n, n), format='csr')
@@ -227,5 +229,6 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
         inv_in_weights.data = np.ones(len(inv_in_weights.data))
         edge_sampling = inv_out_weights.dot(adjacency.dot(inv_in_weights))
         mutual_information = edge_sampling.data.dot(np.log(sampling_ratio.data))
-        score /= mutual_information
+        if mutual_information > 0:
+            score /= mutual_information
     return score

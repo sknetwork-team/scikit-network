@@ -11,32 +11,32 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.linalg import LanczosEig, Laplacian, Normalizer
+from sknetwork.linalg import LanczosEig, Laplacian, Normalizer, normalize
 from sknetwork.utils.format import get_adjacency
 from sknetwork.utils.check import check_adjacency_vector, check_nonnegative, check_n_components
 
 
 class Spectral(BaseEmbedding):
     """Spectral embedding of graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`
-    or the normalized Laplacian matrix :math:`L = I - D^{-1/2}AD^{-1/2}` (default), where :math:`D` is the
+    or the transition matrix of the random walk :math:`P = D^{-1}A` (default), where :math:`D` is the
     diagonal matrix of degrees.
 
-    Eigenvectors are considered in increasing order of eigenvalues, skipping the first.
+    Eigenvectors are considered in increasing order (for the Laplacian matrix :math:`L`) or decreasing order
+    (for the transition matrix of the random walk :math:`P`) of eigenvalues, skipping the first.
 
     Parameters
     ----------
     n_components : int (default = ``2``)
         Dimension of the embedding space.
-    normalized_laplacian : bool (default = ``True``)
-        If ``True`` (default), use the normalized Laplacian matrix :math:`L = I - D^{-1/2}AD^{-1/2}`.
-        This is equivalent to the spectral decomposition of the transition matrix of the random walk,
-        :math:`P = D^{-1}A`.
-        If ``False``, use the regular Laplacian matrix :math:`L = D - A`.
+    decomposition : str (``laplacian`` or ``rw``, default = ``rw``)
+        Matrix used for the spectral decomposition.
     regularization : float (default = ``-1``)
-        Regularization factor :math:`\\alpha` so that the matrix is :math:`A + \\alpha \\frac{11^T}{n}`.
-        If negative, regularization is applied only if the graph is disconnected (and then equal to the absolute value
-        of the parameter).
-
+        Regularization factor :math:`\\alpha` so that the adjacency matrix is :math:`A + \\alpha \\frac{11^T}{n}`.
+        If negative, regularization is applied only if the graph is disconnected; the regularization factor
+        :math:`\\alpha` is then set to the absolute value of the parameter.
+    normalized : bool (default = ``True``)
+        If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
+        each vector lies on the unit sphere.
     Attributes
     ----------
     embedding_ : array, shape = (n, n_components)
@@ -65,13 +65,14 @@ class Spectral(BaseEmbedding):
     Belkin, M. & Niyogi, P. (2003). Laplacian Eigenmaps for Dimensionality Reduction and Data Representation,
     Neural computation.
     """
-    def __init__(self, n_components: int = 2, normalized_laplacian: bool = True, regularization: float = -1,
-                 force_bipartite: bool = False):
+    def __init__(self, n_components: int = 2, decomposition: str = 'rw', regularization: float = -1,
+                 normalized: bool = True):
         super(Spectral, self).__init__()
 
         self.n_components = n_components
-        self.normalized_laplacian = normalized_laplacian
+        self.decomposition = decomposition
         self.regularization = regularization
+        self.normalized = normalized
         self.bipartite = None
         self.regularized = None
         self.eigenvalues_ = None
@@ -107,7 +108,8 @@ class Spectral(BaseEmbedding):
         self.regularized = regularization > 0
 
         # laplacian
-        laplacian = Laplacian(adjacency, regularization, self.normalized_laplacian)
+        normalized_laplacian = self.decomposition == 'rw'
+        laplacian = Laplacian(adjacency, regularization, normalized_laplacian)
 
         # spectral decomposition
         n_components = check_n_components(self.n_components, n - 2) + 1
@@ -118,11 +120,14 @@ class Spectral(BaseEmbedding):
         eigenvalues = solver.eigenvalues_[index]
         eigenvectors = solver.eigenvectors_[:, index]
 
+        if normalized_laplacian:
+            eigenvectors = laplacian.norm_diag.dot(eigenvectors)
+            eigenvalues = 1 - eigenvalues
+
         # embedding
-        if self.normalized_laplacian:
-            embedding = laplacian.norm_diag.dot(eigenvectors)
-        else:
-            embedding = eigenvectors.copy()
+        embedding = eigenvectors.copy()
+        if self.normalized:
+            embedding = normalize(embedding, p=2)
 
         # output
         self.embedding_ = embedding
@@ -174,9 +179,7 @@ class Spectral(BaseEmbedding):
             shape = (adjacency_vectors.shape[0], self.embedding_row_.shape[0])
             adjacency_vectors = sparse.csr_matrix(adjacency_vectors)
             adjacency_vectors = sparse.hstack([sparse.csr_matrix(shape), adjacency_vectors], format='csr')
-            embedding = np.vstack([self.embedding_row_, self.embedding_col_])
-        else:
-            embedding = self.embedding_
+        eigenvectors = self.eigenvectors_
         eigenvalues = self.eigenvalues_
 
         # regularization
@@ -187,15 +190,20 @@ class Spectral(BaseEmbedding):
         normalizer = Normalizer(adjacency_vectors, regularization)
 
         # prediction
-        embedding_vectors = normalizer.dot(embedding)
-        if self.normalized_laplacian:
-            norm_vec = 1 - eigenvalues
-            norm_vec[norm_vec > 0] = 1 / norm_vec[norm_vec > 0]
-            embedding_vectors *= norm_vec
+        embedding_vectors = normalizer.dot(eigenvectors)
+        normalized_laplacian = self.decomposition == 'rw'
+        if normalized_laplacian:
+            norm_vect = eigenvalues.copy()
+            norm_vect[norm_vect == 0] = 1
+            embedding_vectors /= norm_vect
         else:
             norm_matrix = sparse.csr_matrix(1 - np.outer(normalizer.norm_diag.data, eigenvalues))
             norm_matrix.data = 1 / norm_matrix.data
             embedding_vectors *= norm_matrix.toarray()
+
+        # normalization
+        if self.normalized:
+            embedding_vectors = normalize(embedding_vectors, p=2)
 
         # shape
         if len(embedding_vectors) == 1:

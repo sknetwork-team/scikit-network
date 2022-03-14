@@ -10,7 +10,8 @@ from scipy import sparse
 from sknetwork.utils.format import directed2undirected
 
 
-def edgelist2adjacency(edge_list: list, undirected: bool = False) -> sparse.csr_matrix:
+def edgelist2adjacency(edge_list: list, undirected: bool = False, weighted: bool = True) \
+        -> sparse.csr_matrix:
     """Build an adjacency matrix from a list of edges.
 
     Parameters
@@ -18,7 +19,10 @@ def edgelist2adjacency(edge_list: list, undirected: bool = False) -> sparse.csr_
     edge_list : list
         List of edges as pairs (i, j) or triplets (i, j, w) for weighted edges.
     undirected : bool
-        If ``True``, return a symmetric adjacency.
+        If ``True``, return a symmetric adjacency matrix.
+    weighted : bool
+        If ``True``, return a weighted adjacency matrix.
+        If weights are not specified, the weight of each edge is equal to its count in the list.
 
     Returns
     -------
@@ -44,21 +48,27 @@ def edgelist2adjacency(edge_list: list, undirected: bool = False) -> sparse.csr_
     if edges.shape[1] > 2:
         data = edges[:, 2]
     else:
-        data = np.ones_like(row, dtype=bool)
+        data = np.ones_like(row, dtype=int)
+        if np.max(data) == 1:
+            weighted = False
     adjacency = sparse.csr_matrix((data, (row, col)), shape=(n, n))
+    if not weighted:
+        adjacency = adjacency.astype(bool)
     if undirected:
         adjacency = directed2undirected(adjacency)
     return adjacency
 
 
-def edgelist2biadjacency(edge_list: list) -> sparse.csr_matrix:
+def edgelist2biadjacency(edge_list: list, weighted: bool = True) -> sparse.csr_matrix:
     """Build a biadjacency matrix from a list of edges.
 
     Parameters
     ----------
-    edgelist : list
+    edge_list : list
         List of edges as pairs (i, j) or triplets (i, j, w) for weighted edges.
-
+    weighted : bool
+        If ``True``, return a weighted biadjacency matrix.
+        If weights are not specified, the weight of each edge is equal to its count in the list.
     Returns
     -------
     biadjacency : sparse.csr_matrix
@@ -80,6 +90,10 @@ def edgelist2biadjacency(edge_list: list) -> sparse.csr_matrix:
     if edges.shape[1] > 2:
         data = edges[:, 2]
     else:
-        data = np.ones_like(row, dtype=bool)
+        data = np.ones_like(row, dtype=int)
+        if np.max(data) == 1:
+            weighted = False
     biadjacency = sparse.csr_matrix((data, (row, col)), shape=(n_row, n_col))
+    if not weighted:
+        biadjacency = biadjacency.astype(bool)
     return biadjacency

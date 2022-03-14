@@ -19,9 +19,6 @@ from sknetwork.utils.format import directed2undirected
 class ForceAtlas(BaseEmbedding):
     """Force Atlas layout for displaying graphs.
 
-    * Graphs
-    * Digraphs
-
     Parameters
     ----------
     n_components : int

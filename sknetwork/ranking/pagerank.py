@@ -76,7 +76,7 @@ class PageRank(BaseRanking, VerboseMixin):
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator],
             seeds: Optional[Union[dict, np.ndarray]] = None, seeds_row: Optional[Union[dict, np.ndarray]] = None,
-            seeds_col: Optional[Union[dict, np.ndarray]] = None) -> 'PageRank':
+            seeds_col: Optional[Union[dict, np.ndarray]] = None, force_bipartite: bool = False) -> 'PageRank':
         """Fit algorithm to data.
 
         Parameters
@@ -91,12 +91,14 @@ class PageRank(BaseRanking, VerboseMixin):
             Parameter to be used for Personalized PageRank on bipartite graphs.
             Restart distribution as vectors or dicts on rows, columns (node: weight).
             If both seeds_row and seeds_col are ``None`` (default), the uniform distribution on rows is used.
-
+        force_bipartite :
+            If ``True``, consider the input matrix as the biadjacency matrix of a bipartite graph.
         Returns
         -------
         self: :class:`PageRank`
         """
-        adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, seeds=seeds, seeds_row=seeds_row,
+        adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, force_bipartite=force_bipartite,
+                                                               seeds=seeds, seeds_row=seeds_row,
                                                                seeds_col=seeds_col, default_value=0, which='probs')
         self.scores_ = get_pagerank(adjacency, seeds, damping_factor=self.damping_factor, n_iter=self.n_iter,
                                     solver=self.solver, tol=self.tol)

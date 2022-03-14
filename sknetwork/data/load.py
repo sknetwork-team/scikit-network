@@ -203,10 +203,10 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
         file = matrix[0]
         directed, bipartite, weighted = load_header(data_path / file)
         if bipartite:
-            graph = load_edge_list(data_path / file, directed=directed, bipartite=bipartite, weighted=weighted)
+            graph = load_edge_list(data_path / file, directed=directed, bipartite=bipartite, weighted_input=weighted)
             data.biadjacency = graph.biadjacency
         else:
-            graph = load_edge_list(data_path / file, directed=directed, bipartite=bipartite, weighted=weighted)
+            graph = load_edge_list(data_path / file, directed=directed, bipartite=bipartite, weighted_input=weighted)
             data.adjacency = graph.adjacency
 
     metadata = [file for file in files if 'meta.' in file]

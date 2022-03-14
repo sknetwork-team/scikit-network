@@ -64,7 +64,7 @@ cdef class AggregateGraph:
     def __init__(self, double[:] out_weights, double[:] in_weights, double[:] data, int[:] indices,
                  int[:] indptr):
         cdef int n = indptr.shape[0] - 1
-        cdef float total_weight = np.sum(data) / 2
+        cdef float total_weight = np.sum(data)
         cdef int i
         cdef int j
 
@@ -72,12 +72,9 @@ cdef class AggregateGraph:
         self.neighbors = {}
         for i in range(n):
             # normalize so that the sum of edge weights is equal to 1
-            # remove self-loops
-            tmp = {}
+            self.neighbors[i] = {}
             for j in range(indptr[i], indptr[i + 1]):
-                if indices[j] != i:
-                    tmp[indices[j]] = data[j] / total_weight
-            self.neighbors[i] = tmp
+                self.neighbors[i][indices[j]] = data[j] / total_weight
 
         cluster_sizes = {}
         cluster_out_weights = {}
@@ -129,20 +126,19 @@ cdef class AggregateGraph:
         """
         cdef int new_node = self.next_cluster
         self.neighbors[new_node] = {}
+        self.neighbors[new_node][new_node] = 0
         cdef set common_neighbors = set(self.neighbors[node1].keys()) & set(self.neighbors[node2].keys()) - {node1, node2}
         for node in common_neighbors:
-            self.neighbors[new_node][node] = self.neighbors[node1][node] + self.neighbors[node2][node]
+            self.neighbors[new_node][node] = self.neighbors[node1].pop(node) + self.neighbors[node2].pop(node)
             self.neighbors[node][new_node] = self.neighbors[node].pop(node1) + self.neighbors[node].pop(node2)
-        cdef set node1_neighbors = set(self.neighbors[node1].keys()) - set(self.neighbors[node2].keys()) - {node2}
-        for node in node1_neighbors:
-            self.neighbors[new_node][node] = self.neighbors[node1][node]
-            self.neighbors[node][new_node] = self.neighbors[node].pop(node1)
-        cdef set node2_neighbors = set(self.neighbors[node2].keys()) - set(self.neighbors[node1].keys()) - {node1}
-        for node in node2_neighbors:
-            self.neighbors[new_node][node] = self.neighbors[node2][node]
-            self.neighbors[node][new_node] = self.neighbors[node].pop(node2)
-        del self.neighbors[node1]
-        del self.neighbors[node2]
+        for node in {node1, node2}:
+            for neighbor in set(self.neighbors[node].keys()) - {node1, node2}:
+                self.neighbors[new_node][neighbor] = self.neighbors[node].pop(neighbor)
+                self.neighbors[neighbor][new_node] = self.neighbors[neighbor].pop(node)
+            for other_node in {node1, node2}:
+                if other_node in self.neighbors[node]:
+                    self.neighbors[new_node][new_node] += self.neighbors[node][other_node]
+            del self.neighbors[node]
         self.cluster_sizes[new_node] = self.cluster_sizes.pop(node1) + self.cluster_sizes.pop(node2)
         self.cluster_out_weights[new_node] = self.cluster_out_weights.pop(node1) + self.cluster_out_weights.pop(node2)
         self.cluster_in_weights[new_node] = self.cluster_in_weights.pop(node1) + self.cluster_in_weights.pop(node2)
@@ -273,9 +269,9 @@ class Paris(BaseHierarchy):
             while chain.size():
                 node = chain[chain.size() - 1]
                 chain.pop_back()
-                if aggregate_graph.neighbors[node]:
+                if set(aggregate_graph.neighbors[node].keys()) - {node}:
                     max_sim = -float("inf")
-                    for neighbor in aggregate_graph.neighbors[node]:
+                    for neighbor in set(aggregate_graph.neighbors[node].keys()) - {node}:
                         sim = aggregate_graph.similarity(node, neighbor)
                         if sim > max_sim:
                             nearest_neighbor = neighbor

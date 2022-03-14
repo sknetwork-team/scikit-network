@@ -205,6 +205,32 @@ class TestParser(unittest.TestCase):
         self.assertTrue((adjacency.indices == [1, 2, 0, 0]).all())
         self.assertTrue((adjacency.data == [4, 6, 4, 6]).all())
 
+        edge_list_3 = [('Alice', 'Bob'), ('Carol', 'Alice'), ('Alice', 'Bob')]
+        graph = parse.convert_edge_list(edge_list_3, directed=True)
+        adjacency = graph.adjacency
+        names = graph.names
+        self.assertTrue((names == ['Alice', 'Bob', 'Carol']).all())
+        self.assertTupleEqual(adjacency.shape, (3, 3))
+        self.assertTrue((adjacency.data == [2, 1]).all())
+
+        graph = parse.convert_edge_list(edge_list_3, directed=True, weighted=False)
+        adjacency = graph.adjacency
+        self.assertTrue((adjacency.data == [1, 1]).all())
+
+        edge_list_4 = {'Alice': ['Bob', 'Carol'], 'Bob': ['Carol']}
+        graph = parse.convert_edge_list(edge_list_4, directed=True)
+        adjacency = graph.adjacency
+        names = graph.names
+        self.assertTrue((names == ['Alice', 'Bob', 'Carol']).all())
+        self.assertTupleEqual(adjacency.shape, (3, 3))
+        self.assertTrue((adjacency.data == [1, 1, 1]).all())
+
+        edge_list_5 = [[0, 1, 2], [2, 3]]
+        graph = parse.convert_edge_list(edge_list_5, directed=True, named=False)
+        adjacency = graph.adjacency
+        self.assertTupleEqual(adjacency.shape, (4, 4))
+        self.assertTrue((adjacency.data == [1, 1, 1, 1, 1]).all())
+
     def test_bad_format_edge_list(self):
         edge_list_1 = [('Alice', 'Bob', 3, 5), ('Carol', 'Alice', 6, 8)]
         self.assertRaises(ValueError, parse.convert_edge_list, edge_list_1)

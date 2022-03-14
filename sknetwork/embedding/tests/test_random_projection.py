@@ -14,6 +14,8 @@ class TestEmbeddings(unittest.TestCase):
             adjacency = test_graph()
             embedding = algo.fit_transform(adjacency)
             self.assertEqual(embedding.shape[1], 2)
+            embedding = algo.fit_transform(adjacency, force_bipartite=True)
+            self.assertEqual(embedding.shape[1], 2)
             adjacency = test_digraph()
             embedding = algo.fit_transform(adjacency)
             self.assertEqual(embedding.shape[1], 2)

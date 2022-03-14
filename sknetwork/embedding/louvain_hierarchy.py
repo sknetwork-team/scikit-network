@@ -115,20 +115,21 @@ class LouvainNE(BaseEmbedding):
                 adjacency_cluster = adjacency[mask, :].dot(combiner)
                 self._recursive_louvain(adjacency_cluster, depth + 1, nodes_cluster)
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]):
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], force_bipartite: bool = False):
         """Embedding of graphs from a clustering obtained with Louvain.
 
         Parameters
         ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
-
+        force_bipartite :
+            If ``True``, force the input matrix to be considered as a biadjacency matrix even if square.
         Returns
         -------
         self: :class:`LouvainNE`
         """
         # input
-        adjacency, self.bipartite = get_adjacency(input_matrix)
+        adjacency, self.bipartite = get_adjacency(input_matrix, force_bipartite=force_bipartite)
         n = adjacency.shape[0]
 
         # embedding

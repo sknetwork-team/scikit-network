@@ -20,7 +20,7 @@ def get_seeds(shape: tuple, seeds: Union[np.ndarray, dict], default_value: float
             seeds = seeds.astype(float)
     elif isinstance(seeds, dict):
         keys, values = np.array(list(seeds.keys())), np.array(list(seeds.values()))
-        if min(values) < 0:
+        if np.min(values) < 0:
             warnings.warn(Warning("Negative values will not be taken into account."))
         seeds = default_value * np.ones(n)
         seeds[keys] = values

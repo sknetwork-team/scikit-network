@@ -1,51 +1,51 @@
 # standard Python package manager
-pip==21.2.1
+pip>=21.3.1
 
 # base dependencies
-numpy==1.21.1
-scipy==1.7.0
+numpy>=1.21.5
+scipy>=1.6.3
 
 # tool to automatically change version number in the package upon release
 bumpversion==0.6.0
 
 # build wheels for the package
-wheel==0.36.2
+wheel==0.37.1
 
 # standard package to produce coverage from test runs
-coverage==5.5
+coverage>=6.2
 
 # visualization of reports from coverage
-codecov==2.1.11
+codecov==2.1.12
 
 # used to upload wheels and sources to PyPI
-twine==3.4.2
+twine>=3.7.1
 
 # main doc tool
-Sphinx==4.0.2
+Sphinx==4.3.2
 
 # base theme for the documentation website
-sphinx-rtd-theme==0.5.2
+sphinx-rtd-theme==1.0.0
 
 # pinned in order to fix this issue: https://readthedocs.org/projects/scikit-network/builds/11876754/
-Pygments==2.9.0
+Pygments==2.11.2
 
 # used to produce doc from Jupyter notebooks (aka. tutorials)
-nbsphinx==0.8.6
+nbsphinx==0.8.8
 
 # used to run Jupyter notebooks (necessary for nbsphinx)
-ipython==7.31.1
-jupyter_client==6.1.12
-ipykernel==6.0.3
-pandas==1.3.1
+ipython==7.31.0
+jupyter_client==7.1.0
+ipykernel==6.6.1
+pandas==1.3.5
 
 # tests on Linux images (upon release)
 nose==1.3.7
 
 # main test packages
 pytest-runner==5.3.1
-pytest==6.2.4
-pytest-cov==2.12.1
+pytest==6.2.5
+pytest-cov==3.0.0
 
 # C++ code generator for performance speed-up
-cython==0.29.24
+cython==0.29.26
 

@@ -13,8 +13,8 @@ from scipy import sparse
 from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.embedding.svd import GSVD
-from sknetwork.utils.check import check_n_clusters, check_format, is_square
+from sknetwork.embedding.spectral import Spectral
+from sknetwork.utils.check import check_n_clusters, check_format
 from sknetwork.utils.format import get_embedding
 from sknetwork.utils.kmeans import KMeansDense
 
@@ -25,9 +25,9 @@ class KMeans(BaseClustering):
     Parameters
     ----------
     n_clusters :
-        Number of desired clusters.
+        Number of desired clusters (default = 2).
     embedding_method :
-        Embedding method (default = GSVD in dimension 10, projected on the unit sphere).
+        Embedding method (default = Spectral embedding in dimension 10).
     co_cluster :
         If ``True``, co-cluster rows and columns, considered as different nodes (default = ``False``).
     sort_clusters :
@@ -63,7 +63,7 @@ class KMeans(BaseClustering):
     >>> len(set(labels))
     3
     """
-    def __init__(self, n_clusters: int = 8, embedding_method: BaseEmbedding = GSVD(10), co_cluster: bool = False,
+    def __init__(self, n_clusters: int = 2, embedding_method: BaseEmbedding = Spectral(10), co_cluster: bool = False,
                  sort_clusters: bool = True, return_membership: bool = True, return_aggregate: bool = True):
         super(KMeans, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
                                      return_aggregate=return_aggregate)

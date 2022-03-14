@@ -81,20 +81,22 @@ class RandomProjection(BaseEmbedding):
         self.bipartite = None
         self.regularized = None
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'RandomProjection':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], force_bipartite: bool = False) \
+            -> 'RandomProjection':
         """Compute the graph embedding.
 
         Parameters
         ----------
         input_matrix :
               Adjacency matrix or biadjacency matrix of the graph.
-
+        force_bipartite : bool (default = ``False``)
+            If ``True``, force the input matrix to be considered as a biadjacency matrix.
         Returns
         -------
         self: :class:`RandomProjection`
         """
         # input
-        adjacency, self.bipartite = get_adjacency(input_matrix)
+        adjacency, self.bipartite = get_adjacency(input_matrix, force_bipartite=force_bipartite)
         n = adjacency.shape[0]
 
         # regularization
