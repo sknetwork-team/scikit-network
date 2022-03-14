@@ -159,7 +159,7 @@ def convert_edge_list(edge_list: Union[np.ndarray, List[Tuple], List[List]], dir
         else:
             raise ValueError('Too many dimensions.')
     else:
-        raise TypeError('The edge list must be given as a NumPy arrays or a list of tuples or a dict of lists ' \
+        raise TypeError('The edge list must be given as a NumPy arrays or a list of tuples or a dict of lists '
                         'or a list of list.')
     return from_edge_list(row=row, col=col, data=data, directed=directed, bipartite=bipartite, weighted=weighted,
                           reindex=reindex, named=named)
@@ -237,7 +237,7 @@ def from_edge_list(row: np.ndarray, col: np.ndarray, data: np.ndarray, directed:
                 col = new_nodes[n_edges:]
         adjacency = sparse.csr_matrix((data, (row, col)), shape=(n_nodes, n_nodes))
         if not directed:
-            adjacency = directed2undirected(adjacency, weighted=weighted)
+            adjacency = directed2undirected(adjacency)
         graph.adjacency = adjacency
         if named or reindexed:
             graph.names = names

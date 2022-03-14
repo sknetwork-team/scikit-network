@@ -53,7 +53,10 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
     check_csr_or_slr(adjacency)
     if type(adjacency) == sparse.csr_matrix:
         if weighted:
-            new_adjacency = adjacency.astype(float)
+            data_type = int
+            if len(adjacency.data) and type(adjacency.data[0].item()) == float:
+                data_type = float
+            new_adjacency = adjacency.astype(data_type)
             new_adjacency += adjacency.T
         else:
             new_adjacency = (adjacency + adjacency.T).astype(bool)
