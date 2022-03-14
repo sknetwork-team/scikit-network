@@ -7,11 +7,9 @@
 from setuptools import find_packages
 import distutils.util
 from distutils.core import setup, Extension
-from distutils.command.build_ext import build_ext
+from distutils.command.build import build
 import os
 from glob import glob
-
-import numpy
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -56,7 +54,7 @@ if name.startswith("win"):
     EXTRA_LINK_ARGS = []
 
 
-class BuildExtSubclass(build_ext):
+class BuildSubclass(build):
     def build_options(self):
         for e in self.extensions:
             e.extra_compile_args += COMPILE_OPTIONS.get(
@@ -67,9 +65,14 @@ class BuildExtSubclass(build_ext):
                 self.compiler.compiler_type, LINK_OPTIONS["other"]
             )
 
-    def build_extensions(self):
-        self.build_options()
-        build_ext.build_extensions(self)
+    def finalize_options(self):
+        super().finalize_options()
+        # Prevent numpy from thinking it is still in its setup process:
+        __builtins__.__NUMPY_SETUP__ = False
+        import numpy
+        self.include_dirs.append(numpy.get_include())
+        extension = next(m for m in self.distribution.ext_modules)
+        extension.include_dirs.append(numpy.get_include())
 
 
 # Cython generation/C++ compilation
@@ -99,11 +102,11 @@ if HAVE_CYTHON:
             # Remove C file to force Cython recompile.
             os.remove(c_path)
 
-        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()],
+        ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path],
                                            extra_compile_args=EXTRA_COMPILE_ARGS,
                                            extra_link_args=EXTRA_LINK_ARGS), annotate=True)
 else:
-    ext_modules = [Extension(modules[index], [c_paths[index]], include_dirs=[numpy.get_include()])
+    ext_modules = [Extension(modules[index], [c_paths[index]])
                    for index in range(len(modules))]
 
 
@@ -144,7 +147,6 @@ setup(
     version='0.24.0',
     zip_safe=False,
     ext_modules=ext_modules,
-    include_dirs=[numpy.get_include()],
-    cmdclass={"build_ext": BuildExtSubclass}
+    cmdclass={"build": BuildSubclass}
 )
 
