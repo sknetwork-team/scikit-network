@@ -61,6 +61,7 @@ Here is an example to cluster the `Karate club graph`_ with the `Louvain algorit
     adjacency = karate_club()
     algo = Louvain()
     algo.fit(adjacency)
+    labels = algo.labels_
 
 .. _Karate club graph: https://en.wikipedia.org/wiki/Zachary%27s_karate_club
 .. _Louvain algorithm: https://en.wikipedia.org/wiki/Louvain_method

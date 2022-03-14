@@ -43,6 +43,12 @@ Welcome to scikit-network's documentation!
 
 .. toctree::
    :maxdepth: 1
+   :caption: Use cases
+
+   use_cases/text-mining
+
+.. toctree::
+   :maxdepth: 1
    :caption: About
 
    authors

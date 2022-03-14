@@ -5,9 +5,11 @@ History
 0.25.0 (2022-03-XX)
 -------------------
 
+* Add use cases as notebooks, by Thomas Bonald
+* Add list/dict of neighbors for building graphs, by Thomas Bonald
 * Update Spectral embedding, by Thomas Bonald
 * Update Block models, by Thomas Bonald (#507)
-* Fix Tree sampling divergence, by Thomas Bonald (#505)
+* Fix Tree sampling divergence, by Thomas Bonald (#505) (
 * Allow parsers to return weighted graphs, by Thomas Bonald
 * Add Apple Silicon and Python 3.10 wheels, by Quentin Lutz (#503)
 
