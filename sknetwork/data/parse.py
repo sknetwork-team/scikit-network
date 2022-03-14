@@ -112,8 +112,8 @@ def convert_edge_list(edge_list: Union[np.ndarray, List[Tuple], List[List]], dir
     Parameters
     ----------
     edge_list : Union[np.ndarray, List[Tuple], List[List]]
-        The edge list to convert, given as a NumPy array of size (n, 2) or (n, 3) or a list of either lists or tuples of
-        length 2 or 3.
+        The edge list to convert, given as a NumPy array of size (n, 2) or (n, 3) or a list of tuples of
+        length 2 or 3 or a dict of list (neighbors of each node) or a list of list.
     directed : bool
         If ``True``, considers the graph as directed.
     bipartite : bool
@@ -133,8 +133,21 @@ def convert_edge_list(edge_list: Union[np.ndarray, List[Tuple], List[List]], dir
     """
     if isinstance(edge_list, list):
         if edge_list:
-            if isinstance(edge_list[0], tuple) or isinstance(edge_list[0], list):
+            if isinstance(edge_list[0], list):
+                new_edge_list = []
+                for i, neighbors in enumerate(edge_list):
+                    for j in neighbors:
+                        new_edge_list.append((i, j))
+                edge_list = np.array(new_edge_list)
+            elif isinstance(edge_list[0], tuple):
                 edge_list = np.array(edge_list)
+    elif isinstance(edge_list, dict):
+        if edge_list:
+            new_edge_list = []
+            for i, neighbors in edge_list.items():
+                for j in neighbors:
+                    new_edge_list.append((i, j))
+            edge_list = np.array(new_edge_list)
     if isinstance(edge_list, np.ndarray):
         if edge_list.ndim == 2:
             if edge_list.shape[1] == 2:
@@ -142,11 +155,12 @@ def convert_edge_list(edge_list: Union[np.ndarray, List[Tuple], List[List]], dir
             elif edge_list.shape[1] == 3:
                 row, col, data = edge_list[:, 0], edge_list[:, 1], edge_list[:, 2].astype(float)
             else:
-                raise ValueError('Edges must be given as couples or triplets.')
+                raise ValueError('Edges must be given as pairs or triplets.')
         else:
             raise ValueError('Too many dimensions.')
     else:
-        raise TypeError('Edge lists must be given as NumPy arrays or lists of lists or lists of tuples.')
+        raise TypeError('The edge list must be given as a NumPy arrays or a list of tuples or a dict of lists ' \
+                        'or a list of list.')
     return from_edge_list(row=row, col=col, data=data, directed=directed, bipartite=bipartite, weighted=weighted,
                           reindex=reindex, named=named)
 
