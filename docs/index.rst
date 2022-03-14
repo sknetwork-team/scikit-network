@@ -48,6 +48,7 @@ Welcome to scikit-network's documentation!
    use_cases/text-mining
    use_cases/web-graphs
    use_cases/votes
+   use_cases/sport
 
 .. toctree::
    :maxdepth: 1
