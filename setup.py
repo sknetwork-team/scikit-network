@@ -7,7 +7,7 @@
 from setuptools import find_packages
 import distutils.util
 from distutils.core import setup, Extension
-from distutils.command.build import build
+from distutils.command.build_ext import build_ext
 import os
 from glob import glob
 
@@ -19,7 +19,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = ['numpy>=1.21.5', 'scipy>=1.6.3']
 
-setup_requirements = ['pytest-runner']
+setup_requirements = ['pytest-runner', 'numpy>=1.21.5']
 
 test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
@@ -54,7 +54,7 @@ if name.startswith("win"):
     EXTRA_LINK_ARGS = []
 
 
-class BuildSubclass(build):
+class BuildExtSubclass(build_ext):
     def build_options(self):
         for e in self.extensions:
             e.extra_compile_args += COMPILE_OPTIONS.get(
@@ -65,14 +65,16 @@ class BuildSubclass(build):
                 self.compiler.compiler_type, LINK_OPTIONS["other"]
             )
 
+    def build_extensions(self):
+        self.build_options()
+        build_ext.build_extensions(self)
+
     def finalize_options(self):
-        super().finalize_options()
+        build_ext.finalize_options(self)
         # Prevent numpy from thinking it is still in its setup process:
         __builtins__.__NUMPY_SETUP__ = False
         import numpy
         self.include_dirs.append(numpy.get_include())
-        extension = next(m for m in self.distribution.ext_modules)
-        extension.include_dirs.append(numpy.get_include())
 
 
 # Cython generation/C++ compilation
@@ -147,6 +149,6 @@ setup(
     version='0.24.0',
     zip_safe=False,
     ext_modules=ext_modules,
-    cmdclass={"build": BuildSubclass}
+    cmdclass={"build_ext": BuildExtSubclass}
 )
 
