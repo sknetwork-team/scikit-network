@@ -71,6 +71,13 @@ class BuildExtSubclass(build_ext):
         self.build_options()
         build_ext.build_extensions(self)
 
+    def finalize_options(self):
+        build_ext.finalize_options(self)
+        # Prevent numpy from thinking it is still in its setup process:
+        __builtins__.__NUMPY_SETUP__ = False
+        import numpy
+        self.include_dirs.append(numpy.get_include())
+
 
 # Cython generation/C++ compilation
 pyx_paths = glob("./sknetwork/**/*.pyx")

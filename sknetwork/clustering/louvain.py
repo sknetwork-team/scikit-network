@@ -23,12 +23,14 @@ from sknetwork.utils.verbose import VerboseMixin
 class Louvain(BaseClustering, VerboseMixin):
     """Louvain algorithm for clustering graphs by maximization of modularity.
 
+    For bipartite graphs, the algorithm maximizes Barber's modularity by default.
+
     Parameters
     ----------
     resolution :
         Resolution parameter.
     modularity : str
-        Which objective function to maximize. Can be ``'dugue'``, ``'newman'`` or ``'potts'``.
+        Which objective function to maximize. Can be ``'dugue'``, ``'newman'`` or ``'potts'`` (default = ``'dugue'``).
     tol_optimization :
         Minimum increase in the objective function to enter a new optimization pass.
     tol_aggregation :
@@ -81,17 +83,17 @@ class Louvain(BaseClustering, VerboseMixin):
     * Blondel, V. D., Guillaume, J. L., Lambiotte, R., & Lefebvre, E. (2008).
       `Fast unfolding of communities in large networks.
       <https://arxiv.org/abs/0803.0476>`_
-      Journal of statistical mechanics: theory and experiment, 2008
+      Journal of statistical mechanics: theory and experiment, 2008.
 
     * Dugué, N., & Perez, A. (2015).
       `Directed Louvain: maximizing modularity in directed networks
       <https://hal.archives-ouvertes.fr/hal-01231784/document>`_
       (Doctoral dissertation, Université d'Orléans).
 
-    * Traag, V. A., Van Dooren, P., & Nesterov, Y. (2011).
-      `Narrow scope for resolution-limit-free community detection.
-      <https://arxiv.org/pdf/1104.3083.pdf>`_
-      Physical Review E, 84(1), 016114.
+    * Barber, M. J. (2007).
+      `Modularity and community detection in bipartite networks
+      <https://arxiv.org/pdf/0707.1616>`_
+      Physical Review E, 76(6).
     """
     def __init__(self, resolution: float = 1, modularity: str = 'dugue', tol_optimization: float = 1e-3,
                  tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
@@ -167,7 +169,7 @@ class Louvain(BaseClustering, VerboseMixin):
         return adjacency_norm, probs_out, probs_in
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], force_bipartite: bool = False) -> 'Louvain':
-        """Fit algorithm to the data.
+        """Fit algorithm to data.
 
         Parameters
         ----------
