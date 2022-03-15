@@ -350,7 +350,9 @@ def svg_text(pos, text, margin_text, font_size=12, position: str = 'right'):
         pos[0] += margin_text
         anchor = 'start'
     x, y = pos.astype(int)
-    text = str(text).replace('&', ' ')
+    text = str(text)
+    for c in ['&', '<', '>']:
+        text = text.replace(c, ' ')
     return """<text text-anchor="{}" x="{}" y="{}" font-size="{}">{}</text>""".format(anchor, x, y, font_size, text)
 
 
@@ -512,7 +514,7 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
 
         if directed:
             for edge_color in set(edge_colors):
-                svg += """<defs><marker id="arrow-{}" markerWidth="10" markerHeight="10" refX="9" refY="3" 
+                svg += """<defs><marker id="arrow-{}" markerWidth="10" markerHeight="10" refX="9" refY="3"
                 orient="auto" >\n""".format(edge_color)
                 svg += """<path d="M0,0 L0,6 L9,3 z" fill="{}"/></marker></defs>\n""".format(edge_color)
 

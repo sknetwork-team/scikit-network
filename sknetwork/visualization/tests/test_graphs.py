@@ -121,3 +121,9 @@ class TestVisualization(unittest.TestCase):
         membership_col = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0]])
         image = svg_bigraph(biadjacency, membership_row=membership_row, membership_col=membership_col)
         self.assertEqual(image[1:4], 'svg')
+
+    def test_labels(self):
+        adjacency = bow_tie()
+        names = ["aa", "bb", "<>", "a&b", ""]
+        image = svg_graph(adjacency, names=names)
+        self.assertEqual(image[1:4], 'svg')
