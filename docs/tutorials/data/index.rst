@@ -5,7 +5,7 @@ Data
 
 .. toctree::
 
-    my_first_graph
+    load_own_data
     toy_graphs
     knn
     models
