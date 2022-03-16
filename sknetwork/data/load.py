@@ -18,7 +18,7 @@ from urllib.request import urlretrieve
 import numpy as np
 from scipy import sparse
 
-from sknetwork.data.parse import load_edge_list, load_labels, load_header, load_metadata
+from sknetwork.data.parse import from_csv, load_labels, load_header, load_metadata
 from sknetwork.utils import Bunch
 from sknetwork.utils.check import is_square
 from sknetwork.utils.verbose import Log
@@ -203,10 +203,10 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
         file = matrix[0]
         directed, bipartite, weighted = load_header(data_path / file)
         if bipartite:
-            graph = load_edge_list(data_path / file, directed=directed, bipartite=bipartite, weighted_input=weighted)
+            graph = from_csv(data_path / file, directed=directed, bipartite=bipartite, weighted_input=weighted)
             data.biadjacency = graph.biadjacency
         else:
-            graph = load_edge_list(data_path / file, directed=directed, bipartite=bipartite, weighted_input=weighted)
+            graph = from_csv(data_path / file, directed=directed, bipartite=bipartite, weighted_input=weighted)
             data.adjacency = graph.adjacency
 
     metadata = [file for file in files if 'meta.' in file]

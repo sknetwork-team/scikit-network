@@ -4,7 +4,9 @@
 Created on Dec 5, 2018
 @author: Quentin Lutz <qlutz@enst.fr>
 Nathan de Lara <ndelara@enst.fr>
+Thomas Bonald <bonald@enst.fr>
 """
+
 import warnings
 from csv import reader
 from typing import Optional, Dict, List, Tuple, Union
@@ -17,16 +19,16 @@ from sknetwork.utils import Bunch
 from sknetwork.utils.format import directed2undirected
 
 
-def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = True,
-                   weighted_input: Optional[bool] = None, comment: str = '%#',
-                   delimiter: str = None, reindex: bool = True, fast_format: bool = True) -> Bunch:
-    """Parse Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets in the form of
-    edge lists.
+def from_csv(file_path: str, directed: bool = False, bipartite: bool = False, weighted: bool = True,
+             weighted_input: Optional[bool] = None, comment: str = '%#',
+             delimiter: str = None, reindex: bool = True, fast_format: bool = True) -> Bunch:
+    """Load a graph from a CSV or TSV file listing edges.
+    Other formats (like space-separated values) are accepted.
 
     Parameters
     ----------
-    file : str
-        The path to the dataset in TSV format
+    file_path : str
+        Path to the CSV file.
     directed : bool
         If ``True``, considers the graph as directed.
     bipartite : bool
@@ -53,7 +55,7 @@ def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, w
     -------
     graph: :class:`Bunch`
     """
-    header_len, guess_delimiter, guess_weighted, guess_named, guess_string_present, guess_type = scan_header(file,
+    header_len, guess_delimiter, guess_weighted, guess_named, guess_string_present, guess_type = scan_header(file_path,
                                                                                                              comment)
 
     if weighted_input is None:
@@ -61,7 +63,7 @@ def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, w
     named = guess_named
     if delimiter is None:
         delimiter = guess_delimiter
-    with open(file, 'r', encoding='utf-8') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         for i in range(header_len):
             f.readline()
         if fast_format and not guess_string_present:
@@ -95,13 +97,13 @@ def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, w
                         data.append(float(line[2]))
             row, col, data = np.array(row), np.array(col), np.array(data)
 
-    return from_edge_list(row=row, col=col, data=data, directed=directed, bipartite=bipartite, weighted=weighted,
-                          reindex=reindex)
+    return from_coo_format(row=row, col=col, data=data, directed=directed, bipartite=bipartite, weighted=weighted,
+                           reindex=reindex)
 
 
-def convert_edge_list(edge_list: Union[np.ndarray, List[Tuple], Dict[str, List], List[List]], directed: bool = False,
-                      bipartite: bool = False, weighted: bool = True, reindex: bool = True) -> Bunch:
-    """Turn an edge list into a :class:`Bunch`.
+def from_edge_list(edge_list: Union[np.ndarray, List[Tuple], Dict[str, List], List[List]], directed: bool = False,
+                   bipartite: bool = False, weighted: bool = True, reindex: bool = True) -> Bunch:
+    """Load a graph from an edge list.
 
     Parameters
     ----------
@@ -151,13 +153,13 @@ def convert_edge_list(edge_list: Union[np.ndarray, List[Tuple], Dict[str, List],
     else:
         raise TypeError('The edge list must be given as a NumPy arrays or a list of tuples or a dict of lists '
                         'or a list of list.')
-    return from_edge_list(row=row, col=col, data=data, directed=directed, bipartite=bipartite, weighted=weighted,
-                          reindex=reindex)
+    return from_coo_format(row=row, col=col, data=data, directed=directed, bipartite=bipartite, weighted=weighted,
+                           reindex=reindex)
 
 
-def from_edge_list(row: np.ndarray, col: np.ndarray, data: np.ndarray, directed: bool = False, bipartite: bool = False,
-                   weighted: bool = True, reindex: bool = True) -> Bunch:
-    """Turn an edge list given as a triplet of NumPy arrays into a :class:`Bunch`.
+def from_coo_format(row: np.ndarray, col: np.ndarray, data: np.ndarray, directed: bool = False, bipartite: bool = False,
+                    weighted: bool = True, reindex: bool = True) -> Bunch:
+    """Load a graph from the coordinate format (row, col, data).
 
     Parameters
     ----------
@@ -222,14 +224,13 @@ def from_edge_list(row: np.ndarray, col: np.ndarray, data: np.ndarray, directed:
     return graph
 
 
-def load_adjacency_list(file: str, bipartite: bool = False, comment: str = '%#',
-                        delimiter: str = None) -> Bunch:
-    """Parse Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets in the form of
-    adjacency lists.
+def from_csv_adjacency(file_path: str, bipartite: bool = False, comment: str = '%#',
+                       delimiter: str = None) -> Bunch:
+    """Load a graph form a CSV file listing neighbors (adjacency lists).
 
     Parameters
     ----------
-    file : str
+    file_path : str
         The path to the dataset in TSV format
     bipartite : bool
         If ``True``, returns a biadjacency matrix of shape (n1, n2).
@@ -242,11 +243,11 @@ def load_adjacency_list(file: str, bipartite: bool = False, comment: str = '%#',
     -------
     graph: :class:`Bunch`
     """
-    header_len, guess_delimiter, _, _, _, _ = scan_header(file, comment)
+    header_len, guess_delimiter, _, _, _, _ = scan_header(file_path, comment)
     if delimiter is None:
         delimiter = guess_delimiter
     indptr, indices = [0], []
-    with open(file, 'r', encoding='utf-8') as f:
+    with open(file_path, 'r', encoding='utf-8') as f:
         for i in range(header_len):
             f.readline()
         for row in f:
@@ -352,15 +353,15 @@ def load_metadata(file: str, delimiter: str = ': ') -> Bunch:
     return metadata
 
 
-def load_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 512) -> Bunch:
-    """Parse GraphML datasets.
+def from_graphml(file_path: str, weight_key: str = 'weight', max_string_size: int = 512) -> Bunch:
+    """Load graph from GraphML file.
 
     Hyperedges and nested graphs are not supported.
 
     Parameters
     ----------
-    file: str
-        The path to the dataset
+    file_path: str
+        Path to the GraphML file.
     weight_key: str
         The key to be used as a value for edge weights
     max_string_size: int
@@ -373,7 +374,7 @@ def load_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 5
     """
     # see http://graphml.graphdrawing.org/primer/graphml-primer.html
     # and http://graphml.graphdrawing.org/specification/dtd.html#top
-    tree = ElementTree.parse(file)
+    tree = ElementTree.parse(file_path)
     n_nodes = 0
     n_edges = 0
     symmetrize = None
@@ -529,7 +530,7 @@ def load_graphml(file: str, weight_key: str = 'weight', max_string_size: int = 5
             data.pop('names')
         return data
     else:
-        raise ValueError(f'No graph defined in {file}.')
+        raise ValueError(f'No graph defined in {file_path}.')
 
 
 def java_type_to_python_type(value: str) -> type:

@@ -6,8 +6,8 @@ Data
 .. toctree::
 
     load_data
+    load_collection
+    models
     toy_graphs
     knn
-    models
-    load_collection
     save
