@@ -101,15 +101,15 @@ def from_csv(file_path: str, directed: bool = False, bipartite: bool = False, we
                            reindex=reindex)
 
 
-def from_edge_list(edge_list: Union[np.ndarray, List[Tuple], Dict[str, List], List[List]], directed: bool = False,
+def from_edge_list(edge_list: Union[np.ndarray, List[Tuple]], directed: bool = False,
                    bipartite: bool = False, weighted: bool = True, reindex: bool = True) -> Bunch:
     """Load a graph from an edge list.
 
     Parameters
     ----------
-    edge_list : Union[np.ndarray, List[Tuple], Dict[str, List], List[List]]
+    edge_list : Union[np.ndarray, List[Tuple]]
         The edge list to convert, given as a NumPy array of size (n, 2) or (n, 3) or a list of tuples of
-        length 2 or 3 or a dict of list (neighbors of each node) or a list of list.
+        length 2 or 3.
     directed : bool
         If ``True``, considers the graph as directed.
     bipartite : bool
@@ -125,21 +125,8 @@ def from_edge_list(edge_list: Union[np.ndarray, List[Tuple], Dict[str, List], Li
     """
     if isinstance(edge_list, list):
         if edge_list:
-            if isinstance(edge_list[0], list):
-                new_edge_list = []
-                for i, neighbors in enumerate(edge_list):
-                    for j in neighbors:
-                        new_edge_list.append((i, j))
-                edge_list = np.array(new_edge_list)
-            elif isinstance(edge_list[0], tuple):
+            if isinstance(edge_list[0], tuple):
                 edge_list = np.array(edge_list)
-    elif isinstance(edge_list, dict):
-        if edge_list:
-            new_edge_list = []
-            for i, neighbors in edge_list.items():
-                for j in neighbors:
-                    new_edge_list.append((i, j))
-            edge_list = np.array(new_edge_list)
     if isinstance(edge_list, np.ndarray):
         if edge_list.ndim == 2:
             if edge_list.shape[1] == 2:
@@ -147,14 +134,49 @@ def from_edge_list(edge_list: Union[np.ndarray, List[Tuple], Dict[str, List], Li
             elif edge_list.shape[1] == 3:
                 row, col, data = edge_list[:, 0], edge_list[:, 1], edge_list[:, 2].astype(float)
             else:
-                raise ValueError('Edges must be given as pairs or triplets.')
+                raise ValueError('Edges must be given as pairs or triples.')
         else:
             raise ValueError('Too many dimensions.')
     else:
-        raise TypeError('The edge list must be given as a NumPy arrays or a list of tuples or a dict of lists '
-                        'or a list of list.')
+        raise TypeError('The edge list must be given as a NumPy array or a list of tuples.')
     return from_coo_format(row=row, col=col, data=data, directed=directed, bipartite=bipartite, weighted=weighted,
                            reindex=reindex)
+
+
+def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], directed: bool = False,
+                        bipartite: bool = False, weighted: bool = True, reindex: bool = True) -> Bunch:
+    """Load a graph from an adjacency list.
+
+    Parameters
+    ----------
+    adjacency_list : Union[List[List], Dict[str, List]]
+        Adjacency list (neighbors of each node) or dictionary (node: neighbors).
+    directed : bool
+        If ``True``, considers the graph as directed.
+    bipartite : bool
+        If ``True``, returns a biadjacency matrix.
+    weighted : bool
+        If ``True``, returns a weighted graph
+    reindex : bool
+        If ``True``, reindex nodes and returns the original node indices as names.
+        Reindexing is enforced if nodes are not integers.
+    Returns
+    -------
+    graph: :class:`Bunch`
+    """
+    edge_list = []
+    if isinstance(adjacency_list, list):
+        for i, neighbors in enumerate(adjacency_list):
+            for j in neighbors:
+                edge_list.append((i, j))
+    elif isinstance(adjacency_list, dict):
+        for i, neighbors in adjacency_list.items():
+            for j in neighbors:
+                edge_list.append((i, j))
+    else:
+        raise TypeError('The edge list must be given as a list of lists or a dict of lists.')
+    return from_edge_list(edge_list=edge_list, directed=directed, bipartite=bipartite, weighted=weighted,
+                          reindex=reindex)
 
 
 def from_coo_format(row: np.ndarray, col: np.ndarray, data: np.ndarray, directed: bool = False, bipartite: bool = False,

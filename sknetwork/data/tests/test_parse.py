@@ -149,7 +149,7 @@ class TestParser(unittest.TestCase):
         self.assertRaises(ValueError, parse.from_graphml, self.stub_data_7)
         remove(self.stub_data_7)
 
-    def test_adjacency_list(self):
+    def test_csv_adjacency(self):
         self.stub_data_8 = 'stub_8.txt'
         with open(self.stub_data_8, "w") as text_file:
             text_file.write('%stub\n2\n3\n0\n1\n5\n4')
@@ -161,7 +161,7 @@ class TestParser(unittest.TestCase):
         self.assertTrue((adjacency.data == [1, 1, 1, 1, 1, 1]).all())
         remove(self.stub_data_8)
 
-    def test_bipartite_edge_list(self):
+    def test_csv_bipartite(self):
         self.stub_data_9 = 'stub_9.txt'
         with open(self.stub_data_9, "w") as text_file:
             text_file.write('%stub\n1 3\n4 5\n0 3')
@@ -172,7 +172,7 @@ class TestParser(unittest.TestCase):
         self.assertTrue((biadjacency.data == [1, 1, 1]).all())
         remove(self.stub_data_9)
 
-    def test_bipartite_adjacency_list(self):
+    def test_csv_adjacency_bipartite(self):
         self.stub_data_10 = 'stub_10.txt'
         with open(self.stub_data_10, "w") as text_file:
             text_file.write('%stub\n3\n3\n0')
@@ -184,7 +184,7 @@ class TestParser(unittest.TestCase):
         self.assertTrue((biadjacency.data == [1, 1, 1]).all())
         remove(self.stub_data_10)
 
-    def test_local_edge_list(self):
+    def test_edge_list(self):
         edge_list_1 = [('Alice', 'Bob'), ('Carol', 'Alice')]
         graph = parse.from_edge_list(edge_list_1)
         adjacency = graph.adjacency
@@ -217,8 +217,9 @@ class TestParser(unittest.TestCase):
         adjacency = graph.adjacency
         self.assertTrue((adjacency.data == [1, 1]).all())
 
+    def test_adjacency_list(self):
         edge_list_4 = {'Alice': ['Bob', 'Carol'], 'Bob': ['Carol']}
-        graph = parse.from_edge_list(edge_list_4, directed=True)
+        graph = parse.from_adjacency_list(edge_list_4, directed=True)
         adjacency = graph.adjacency
         names = graph.names
         self.assertTrue((names == ['Alice', 'Bob', 'Carol']).all())
@@ -226,7 +227,7 @@ class TestParser(unittest.TestCase):
         self.assertTrue((adjacency.data == [1, 1, 1]).all())
 
         edge_list_5 = [[0, 1, 2], [2, 3]]
-        graph = parse.from_edge_list(edge_list_5, directed=True)
+        graph = parse.from_adjacency_list(edge_list_5, directed=True)
         adjacency = graph.adjacency
         self.assertTupleEqual(adjacency.shape, (4, 4))
         self.assertTrue((adjacency.data == [1, 1, 1, 1, 1]).all())
