@@ -113,11 +113,9 @@ def are_isomorphic(adjacency1: sparse.csr_matrix,
     Example
     -------
     >>> from sknetwork.topology import are_isomorphic
-    >>> from sknetwork.data import house
-    >>> adjacency_1 = house()
-    >>> adjacency_2 = house()
-    >>> are_isomorphic(adjacency_1, adjacency_2)
-    True
+    >>> from sknetwork.data import house, bow_tie
+    >>> are_isomorphic(house(), bow_tie())
+    False
 
     References
     ----------
