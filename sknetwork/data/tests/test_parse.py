@@ -226,7 +226,7 @@ class TestParser(unittest.TestCase):
         self.assertTrue((adjacency.data == [1, 1, 1]).all())
 
         edge_list_5 = [[0, 1, 2], [2, 3]]
-        graph = parse.convert_edge_list(edge_list_5, directed=True, named=False)
+        graph = parse.convert_edge_list(edge_list_5, directed=True)
         adjacency = graph.adjacency
         self.assertTupleEqual(adjacency.shape, (4, 4))
         self.assertTrue((adjacency.data == [1, 1, 1, 1, 1]).all())

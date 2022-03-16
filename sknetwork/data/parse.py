@@ -18,7 +18,7 @@ from sknetwork.utils.format import directed2undirected
 
 
 def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, weighted: bool = True,
-                   weighted_input: Optional[bool] = None, named: Optional[bool] = None, comment: str = '%#',
+                   weighted_input: Optional[bool] = None, comment: str = '%#',
                    delimiter: str = None, reindex: bool = True, fast_format: bool = True) -> Bunch:
     """Parse Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets in the form of
     edge lists.
@@ -35,16 +35,13 @@ def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, w
         If ``True``, returns a weighted graph (e.g., counts the number of occurrences of each edge).
     weighted_input: Optional[bool]
         Retrieves the weights in the third field of the file. None makes a guess based on the first lines.
-    named : Optional[bool]
-        Retrieves the names given to the nodes and renumbers them. Returns an additional array. None makes a guess
-        based on the first lines.
     comment : str
         Set of characters denoting lines to ignore.
     delimiter : str
         delimiter used in the file. None makes a guess
     reindex : bool
-        If True and the graph nodes have numeric values, the size of the returned adjacency will be determined by the
-        maximum of those values. Does not work for bipartite graphs.
+        If ``True``, reindex nodes and returns the original node indices as names.
+        Reindexing is enforced if nodes are not integers.
     fast_format : bool
         If True, assumes that the file is well-formatted:
 
@@ -61,11 +58,9 @@ def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, w
 
     if weighted_input is None:
         weighted_input = guess_weighted
-    if named is None:
-        named = guess_named
+    named = guess_named
     if delimiter is None:
         delimiter = guess_delimiter
-
     with open(file, 'r', encoding='utf-8') as f:
         for i in range(header_len):
             f.readline()
@@ -101,12 +96,11 @@ def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, w
             row, col, data = np.array(row), np.array(col), np.array(data)
 
     return from_edge_list(row=row, col=col, data=data, directed=directed, bipartite=bipartite, weighted=weighted,
-                          reindex=reindex, named=named)
+                          reindex=reindex)
 
 
 def convert_edge_list(edge_list: Union[np.ndarray, List[Tuple], Dict[str, List], List[List]], directed: bool = False,
-                      bipartite: bool = False, weighted: bool = True, reindex: bool = True,
-                      named: Optional[bool] = None) -> Bunch:
+                      bipartite: bool = False, weighted: bool = True, reindex: bool = True) -> Bunch:
     """Turn an edge list into a :class:`Bunch`.
 
     Parameters
@@ -117,16 +111,12 @@ def convert_edge_list(edge_list: Union[np.ndarray, List[Tuple], Dict[str, List],
     directed : bool
         If ``True``, considers the graph as directed.
     bipartite : bool
-        If ``True``, returns a biadjacency matrix of shape (n1, n2).
+        If ``True``, returns a biadjacency matrix.
     weighted : bool
         If ``True``, returns a weighted graph
     reindex : bool
-        If True and the graph nodes have numeric values, the size of the returned adjacency will be determined by the
-        maximum of those values. Does not work for bipartite graphs.
-    named : Optional[bool]
-        Retrieves the names given to the nodes and renumbers them. Returns an additional array. None makes a guess
-        based on the first lines.
-
+        If ``True``, reindex nodes and returns the original node indices as names.
+        Reindexing is enforced if nodes are not integers.
     Returns
     -------
     graph: :class:`Bunch`
@@ -162,11 +152,11 @@ def convert_edge_list(edge_list: Union[np.ndarray, List[Tuple], Dict[str, List],
         raise TypeError('The edge list must be given as a NumPy arrays or a list of tuples or a dict of lists '
                         'or a list of list.')
     return from_edge_list(row=row, col=col, data=data, directed=directed, bipartite=bipartite, weighted=weighted,
-                          reindex=reindex, named=named)
+                          reindex=reindex)
 
 
 def from_edge_list(row: np.ndarray, col: np.ndarray, data: np.ndarray, directed: bool = False, bipartite: bool = False,
-                   weighted: bool = True, reindex: bool = True, named: Optional[bool] = None) -> Bunch:
+                   weighted: bool = True, reindex: bool = True) -> Bunch:
     """Turn an edge list given as a triplet of NumPy arrays into a :class:`Bunch`.
 
     Parameters
@@ -180,23 +170,16 @@ def from_edge_list(row: np.ndarray, col: np.ndarray, data: np.ndarray, directed:
     directed : bool
         If ``True``, considers the graph as directed.
     bipartite : bool
-        If ``True``, returns a biadjacency matrix of shape (n1, n2).
+        If ``True``, returns a biadjacency matrix.
     weighted : bool
         If ``True``, returns a weighted graph.
     reindex : bool
-        If True and the graph nodes have numeric values, the size of the returned adjacency will be determined by the
-        maximum of those values. Does not work for bipartite graphs.
-    named : Optional[bool]
-        Retrieves the names given to the nodes and renumbers them. Returns an additional array. None makes a guess
-        based on the first lines.
-
+        If ``True``, reindex nodes and returns the original node indices as names.
+        Reindexing is enforced if nodes are not integers.
     Returns
     -------
     graph: :class:`Bunch`
     """
-    reindexed = False
-    if named is None:
-        named = (row.dtype != int) or (col.dtype != int)
     n_edges = len(row)
     if weighted:
         if (not len(data)) or (data.dtype == bool):
@@ -205,48 +188,42 @@ def from_edge_list(row: np.ndarray, col: np.ndarray, data: np.ndarray, directed:
         data = np.ones(n_edges, dtype=bool)
     graph = Bunch()
     if bipartite:
-        names_row, row = np.unique(row, return_inverse=True)
-        names_col, col = np.unique(col, return_inverse=True)
-        if not reindex:
-            n_row = names_row.max() + 1
-            n_col = names_col.max() + 1
-        else:
+        reindex_row = reindex or (row.dtype != int)
+        reindex_col = reindex or (col.dtype != int)
+        if reindex_row:
+            names_row, row = np.unique(row, return_inverse=True)
+            graph.names_row = names_row
+            graph.names = names_row
             n_row = len(names_row)
+        else:
+            n_row = max(row) + 1
+        if reindex_col:
+            names_col, col = np.unique(col, return_inverse=True)
+            graph.names_col = names_col
             n_col = len(names_col)
+        else:
+            n_col = max(col) + 1
         biadjacency = sparse.csr_matrix((data, (row, col)), shape=(n_row, n_col))
         graph.biadjacency = biadjacency
-        if named or reindex:
-            graph.names = names_row
-            graph.names_row = names_row
-            graph.names_col = names_col
     else:
-        nodes = np.concatenate((row, col), axis=None)
-        names, new_nodes = np.unique(nodes, return_inverse=True)
-        if not reindex:
-            n_nodes = names.max() + 1
+        nodes = np.concatenate((row, col))
+        if reindex or (nodes.dtype != int):
+            names, nodes = np.unique(nodes, return_inverse=True)
+            graph.names = names
+            n = len(names)
+            row = nodes[:n_edges]
+            col = nodes[n_edges:]
         else:
-            n_nodes = len(names)
-        if named:
-            row = new_nodes[:n_edges]
-            col = new_nodes[n_edges:]
-        else:
-            should_reindex = not (names[0] == 0 and names[-1] == n_nodes - 1)
-            if should_reindex and reindex:
-                reindexed = True
-                row = new_nodes[:n_edges]
-                col = new_nodes[n_edges:]
-        adjacency = sparse.csr_matrix((data, (row, col)), shape=(n_nodes, n_nodes))
+            n = max(nodes) + 1
+        adjacency = sparse.csr_matrix((data, (row, col)), shape=(n, n))
         if not directed:
             adjacency = directed2undirected(adjacency)
         graph.adjacency = adjacency
-        if named or reindexed:
-            graph.names = names
-
     return graph
 
 
 def load_adjacency_list(file: str, bipartite: bool = False, comment: str = '%#',
-                        delimiter: str = None, ) -> Bunch:
+                        delimiter: str = None) -> Bunch:
     """Parse Tabulation-Separated, Comma-Separated or Space-Separated (or other) Values datasets in the form of
     adjacency lists.
 
