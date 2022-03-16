@@ -37,10 +37,10 @@ def edgelist2adjacency(edge_list: list, undirected: bool = False, weighted: bool
     >>> adjacency = edgelist2adjacency(edge_list, undirected=True)
     >>> adjacency.shape, adjacency.nnz
     ((3, 3), 6)
-    >>> weighted_edge_list = [(0, 1, 0.2), (1, 2, 4), (2, 0, 1.3)]
+    >>> weighted_edge_list = [(0, 1, 2), (1, 2, 4), (2, 0, 3)]
     >>> adjacency = edgelist2adjacency(weighted_edge_list)
-    >>> adjacency.dtype
-    dtype('float64')
+    >>> max(adjacency.data)
+    4
     """
     edges = np.array(edge_list)
     row, col = edges[:, 0].astype(np.int32), edges[:, 1].astype(np.int32)
@@ -79,10 +79,10 @@ def edgelist2biadjacency(edge_list: list, weighted: bool = True) -> sparse.csr_m
     >>> biadjacency = edgelist2biadjacency(edge_list)
     >>> biadjacency.shape, biadjacency.nnz
     ((3, 2), 4)
-    >>> weighted_edge_list = [(0, 0, 0.5), (1, 0, 1), (1, 1, 1), (2, 1, 2)]
+    >>> weighted_edge_list = [(0, 0, 3), (1, 0, 1), (1, 1, 1), (2, 1, 2)]
     >>> biadjacency = edgelist2biadjacency(weighted_edge_list)
-    >>> biadjacency.dtype
-    dtype('float64')
+    >>> max(biadjacency.data)
+    3
     """
     edges = np.array(edge_list)
     row, col = edges[:, 0].astype(np.int32), edges[:, 1].astype(np.int32)

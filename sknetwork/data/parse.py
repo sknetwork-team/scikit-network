@@ -7,7 +7,7 @@ Nathan de Lara <ndelara@enst.fr>
 """
 import warnings
 from csv import reader
-from typing import Optional, List, Tuple, Union
+from typing import Optional, Dict, List, Tuple, Union
 from xml.etree import ElementTree
 
 import numpy as np
@@ -104,14 +104,14 @@ def load_edge_list(file: str, directed: bool = False, bipartite: bool = False, w
                           reindex=reindex, named=named)
 
 
-def convert_edge_list(edge_list: Union[np.ndarray, List[Tuple], List[List]], directed: bool = False,
+def convert_edge_list(edge_list: Union[np.ndarray, List[Tuple], Dict[str, List], List[List]], directed: bool = False,
                       bipartite: bool = False, weighted: bool = True, reindex: bool = True,
                       named: Optional[bool] = None) -> Bunch:
     """Turn an edge list into a :class:`Bunch`.
 
     Parameters
     ----------
-    edge_list : Union[np.ndarray, List[Tuple], List[List]]
+    edge_list : Union[np.ndarray, List[Tuple], Dict[str, List], List[List]]
         The edge list to convert, given as a NumPy array of size (n, 2) or (n, 3) or a list of tuples of
         length 2 or 3 or a dict of list (neighbors of each node) or a list of list.
     directed : bool
