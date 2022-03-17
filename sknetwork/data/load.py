@@ -194,7 +194,7 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
         logger.print('Loading from local bundle...')
         return load_from_numpy_bundle(dataset + '_bundle', data_path)
 
-    data = Bunch()
+    graph = Bunch()
 
     files = [file for file in listdir(data_path) if dataset in file]
     logger.print('Parsing files...')
@@ -203,36 +203,36 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
         file = matrix[0]
         directed, bipartite, weighted = load_header(data_path / file)
         if bipartite:
-            graph = from_csv(data_path / file, directed=directed, bipartite=bipartite, weighted_input=weighted)
-            data.biadjacency = graph.biadjacency
+            data = from_csv(data_path / file, directed=directed, bipartite=bipartite, weighted=weighted)
+            graph.biadjacency = data.biadjacency
         else:
-            graph = from_csv(data_path / file, directed=directed, bipartite=bipartite, weighted_input=weighted)
-            data.adjacency = graph.adjacency
+            data = from_csv(data_path / file, directed=directed, bipartite=bipartite, weighted=weighted)
+            graph.adjacency = data.adjacency
 
     metadata = [file for file in files if 'meta.' in file]
     if metadata:
         file = metadata[0]
-        data.meta = load_metadata(data_path / file)
+        graph.meta = load_metadata(data_path / file)
 
     attributes = [file for file in files if 'ent.' + dataset in file]
     if attributes:
         for file in attributes:
             attribute_name = file.split('.')[-1]
-            data[attribute_name] = load_labels(data_path / file)
+            graph[attribute_name] = load_labels(data_path / file)
 
     if hasattr(data, 'meta'):
-        if hasattr(data.meta, 'name'):
+        if hasattr(graph.meta, 'name'):
             pass
         else:
-            data.meta.name = dataset
+            graph.meta.name = dataset
     else:
-        data.meta = Bunch()
-        data.meta.name = dataset
+        graph.meta = Bunch()
+        graph.meta.name = dataset
 
     if auto_numpy_bundle:
-        save_to_numpy_bundle(data, dataset + '_bundle', data_path)
+        save_to_numpy_bundle(graph, dataset + '_bundle', data_path)
 
-    return data
+    return graph
 
 
 def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[Union[str, Path]] = None):

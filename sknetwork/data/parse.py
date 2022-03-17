@@ -7,9 +7,8 @@ Nathan de Lara <ndelara@enst.fr>
 Thomas Bonald <bonald@enst.fr>
 """
 
-import warnings
 from csv import reader
-from typing import Optional, Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union
 from xml.etree import ElementTree
 
 import numpy as np
@@ -19,90 +18,9 @@ from sknetwork.utils import Bunch
 from sknetwork.utils.format import directed2undirected
 
 
-def from_csv(file_path: str, directed: bool = False, bipartite: bool = False, weighted: bool = True,
-             weighted_input: Optional[bool] = None, comment: str = '%#',
-             delimiter: str = None, reindex: bool = True, fast_format: bool = True) -> Bunch:
-    """Load a graph from a CSV or TSV file listing edges.
-    Other formats (like space-separated values) are accepted.
-
-    Parameters
-    ----------
-    file_path : str
-        Path to the CSV file.
-    directed : bool
-        If ``True``, considers the graph as directed.
-    bipartite : bool
-        If ``True``, returns a biadjacency matrix of shape (n1, n2).
-    weighted : bool
-        If ``True``, returns a weighted graph (e.g., counts the number of occurrences of each edge).
-    weighted_input: Optional[bool]
-        Retrieves the weights in the third field of the file. None makes a guess based on the first lines.
-    comment : str
-        Set of characters denoting lines to ignore.
-    delimiter : str
-        delimiter used in the file. None makes a guess
-    reindex : bool
-        If ``True``, reindex nodes and returns the original node indices as names.
-        Reindexing is enforced if nodes are not integers.
-    fast_format : bool
-        If True, assumes that the file is well-formatted:
-
-        * no comments except for the header
-        * only 2 or 3 columns
-        * only int or float values
-
-    Returns
-    -------
-    graph: :class:`Bunch`
-    """
-    header_len, guess_delimiter, guess_weighted, guess_named, guess_string_present, guess_type = scan_header(file_path,
-                                                                                                             comment)
-
-    if weighted_input is None:
-        weighted_input = guess_weighted
-    named = guess_named
-    if delimiter is None:
-        delimiter = guess_delimiter
-    with open(file_path, 'r', encoding='utf-8') as f:
-        for i in range(header_len):
-            f.readline()
-        if fast_format and not guess_string_present:
-            # fromfile raises a DeprecationWarning on fail. This should be changed to ValueError in the future.
-            warnings.filterwarnings("error")
-            try:
-                parsed = np.fromfile(f, sep=guess_delimiter, dtype=guess_type)
-            except (DeprecationWarning, ValueError):
-                raise ValueError('File not suitable for fast parsing. Set fast_format to False.')
-            warnings.filterwarnings("default")
-            n_entries = len(parsed)
-            if weighted_input:
-                parsed.resize((n_entries//3, 3))
-                row, col, data = parsed[:, 0], parsed[:, 1], parsed[:, 2]
-            else:
-                parsed.resize((n_entries//2, 2))
-                row, col = parsed[:, 0], parsed[:, 1]
-                data = np.ones(row.shape[0], dtype=bool)
-        else:
-            row, col, data = [], [], []
-            csv_reader = reader(f, delimiter=delimiter)
-            for line in csv_reader:
-                if line[0] not in comment:
-                    if named:
-                        row.append(line[0])
-                        col.append(line[1])
-                    else:
-                        row.append(int(line[0]))
-                        col.append(int(line[1]))
-                    if weighted_input:
-                        data.append(float(line[2]))
-            row, col, data = np.array(row), np.array(col), np.array(data)
-
-    return from_coo_format(row=row, col=col, data=data, directed=directed, bipartite=bipartite, weighted=weighted,
-                           reindex=reindex)
-
-
 def from_edge_list(edge_list: Union[np.ndarray, List[Tuple]], directed: bool = False,
-                   bipartite: bool = False, weighted: bool = True, reindex: bool = True) -> Bunch:
+                   bipartite: bool = False, weighted: bool = True, reindex: bool = True,
+                   sum_duplicates: bool = True) -> Bunch:
     """Load a graph from an edge list.
 
     Parameters
@@ -115,36 +33,42 @@ def from_edge_list(edge_list: Union[np.ndarray, List[Tuple]], directed: bool = F
     bipartite : bool
         If ``True``, returns a biadjacency matrix.
     weighted : bool
-        If ``True``, returns a weighted graph
+        If ``True``, returns a weighted graph.
     reindex : bool
         If ``True``, reindex nodes and returns the original node indices as names.
         Reindexing is enforced if nodes are not integers.
+    sum_duplicates : bool
+        If ``True`` (default), sums weights of duplicate edges.
+        Otherwise, the weight of each edge is that of the first occurrence of this edge.
     Returns
     -------
     graph: :class:`Bunch`
     """
+    edge_array = np.array([])
+    weights = None
     if isinstance(edge_list, list):
-        if edge_list:
-            if isinstance(edge_list[0], tuple):
-                edge_list = np.array(edge_list)
-    if isinstance(edge_list, np.ndarray):
-        if edge_list.ndim == 2:
-            if edge_list.shape[1] == 2:
-                row, col, data = edge_list[:, 0], edge_list[:, 1], np.array([])
-            elif edge_list.shape[1] == 3:
-                row, col, data = edge_list[:, 0], edge_list[:, 1], edge_list[:, 2].astype(float)
-            else:
-                raise ValueError('Edges must be given as pairs or triples.')
-        else:
-            raise ValueError('Too many dimensions.')
+        try:
+            edge_array = np.array([[edge[0], edge[1]] for edge in edge_list])
+            if len(edge_list) and len(edge_list[0]) == 3:
+                weights = np.array([edge[2] for edge in edge_list])
+        except:
+            ValueError('Edges must be given as tuples of fixed size (2 or 3).')
+    elif isinstance(edge_list, np.ndarray):
+        if edge_list.ndim != 2 or edge_list.shape[1] not in [2, 3]:
+            raise ValueError('The edge list must be given as an array of shape (n_edges, 2) or '
+                             '(n_edges, 3).')
+        edge_array = edge_list[:, :2]
+        if edge_list.shape[1] == 3:
+            weights = edge_list[:, 2]
     else:
         raise TypeError('The edge list must be given as a NumPy array or a list of tuples.')
-    return from_coo_format(row=row, col=col, data=data, directed=directed, bipartite=bipartite, weighted=weighted,
-                           reindex=reindex)
+    return from_edge_array(edge_array=edge_array, weights=weights, directed=directed, bipartite=bipartite,
+                           weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates)
 
 
 def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], directed: bool = False,
-                        bipartite: bool = False, weighted: bool = True, reindex: bool = True) -> Bunch:
+                        bipartite: bool = False, weighted: bool = True, reindex: bool = True,
+                        sum_duplicates: bool = True) -> Bunch:
     """Load a graph from an adjacency list.
 
     Parameters
@@ -156,10 +80,13 @@ def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], dire
     bipartite : bool
         If ``True``, returns a biadjacency matrix.
     weighted : bool
-        If ``True``, returns a weighted graph
+        If ``True``, returns a weighted graph.
     reindex : bool
         If ``True``, reindex nodes and returns the original node indices as names.
         Reindexing is enforced if nodes are not integers.
+    sum_duplicates : bool
+        If ``True`` (default), sums weights of duplicate edges.
+        Otherwise, the weight of each edge is that of the first occurrence of this edge.
     Returns
     -------
     graph: :class:`Bunch`
@@ -176,21 +103,19 @@ def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], dire
     else:
         raise TypeError('The edge list must be given as a list of lists or a dict of lists.')
     return from_edge_list(edge_list=edge_list, directed=directed, bipartite=bipartite, weighted=weighted,
-                          reindex=reindex)
+                          reindex=reindex, sum_duplicates=sum_duplicates)
 
 
-def from_coo_format(row: np.ndarray, col: np.ndarray, data: np.ndarray, directed: bool = False, bipartite: bool = False,
-                    weighted: bool = True, reindex: bool = True) -> Bunch:
+def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed: bool = False, bipartite: bool = False,
+                    weighted: bool = True, reindex: bool = True, sum_duplicates: bool = True) -> Bunch:
     """Load a graph from the coordinate format (row, col, data).
 
     Parameters
     ----------
-    row : np.ndarray
-        The array of sources in the graph.
-    col : np.ndarray
-        The array of targets in the graph.
-    data : np.ndarray
-        The array of weights in the graph. Pass an empty array for unweighted graphs.
+    edge_array : np.ndarray
+        Array of edges.
+    weights : np.ndarray
+        Array of weights.
     directed : bool
         If ``True``, considers the graph as directed.
     bipartite : bool
@@ -200,134 +125,200 @@ def from_coo_format(row: np.ndarray, col: np.ndarray, data: np.ndarray, directed
     reindex : bool
         If ``True``, reindex nodes and returns the original node indices as names.
         Reindexing is enforced if nodes are not integers.
+    sum_duplicates : bool
+        If ``True`` (default), sums weights of duplicate edges.
+        Otherwise, the weight of each edge is that of the first occurrence of this edge.
     Returns
     -------
     graph: :class:`Bunch`
     """
-    n_edges = len(row)
-    if weighted:
-        if (not len(data)) or (data.dtype == bool):
-            data = np.ones(n_edges, dtype=int)
-    else:
-        data = np.ones(n_edges, dtype=bool)
+    try:
+        edge_array = edge_array.astype(float)
+    except:
+        pass
+    if edge_array.dtype == float and all(edge_array.ravel() == edge_array.ravel().astype(int)):
+        edge_array = edge_array.astype(int)
+    if weights is None:
+        weights = np.ones(len(edge_array))
+    if weights.dtype not in [bool, int, float]:
+        try:
+            weights = weights.astype(float)
+        except:
+            raise ValueError('Weights must be numeric.')
+    if all(weights == weights.astype(int)):
+        weights = weights.astype(int)
+    if not weighted:
+        weights = weights.astype(bool)
+
+    if not sum_duplicates:
+        _, index = np.unique(edge_array, axis=0, return_index=True)
+        edge_array = edge_array[index]
+        weights = weights[index]
     graph = Bunch()
     if bipartite:
-        reindex_row = reindex or (row.dtype != int)
-        reindex_col = reindex or (col.dtype != int)
-        if reindex_row:
+        row = edge_array[:, 0]
+        col = edge_array[:, 1]
+        if row.dtype != int or (reindex and len(set(row)) < max(row) + 1):
             names_row, row = np.unique(row, return_inverse=True)
             graph.names_row = names_row
             graph.names = names_row
             n_row = len(names_row)
         else:
             n_row = max(row) + 1
-        if reindex_col:
+        if col.dtype != int or (reindex and len(set(col)) < max(col) + 1):
             names_col, col = np.unique(col, return_inverse=True)
             graph.names_col = names_col
             n_col = len(names_col)
         else:
             n_col = max(col) + 1
-        biadjacency = sparse.csr_matrix((data, (row, col)), shape=(n_row, n_col))
+        biadjacency = sparse.csr_matrix((weights, (row, col)), shape=(n_row, n_col))
         graph.biadjacency = biadjacency
     else:
-        nodes = np.concatenate((row, col))
-        if reindex or (nodes.dtype != int):
+        nodes = edge_array.ravel()
+        if nodes.dtype != int or (reindex and len(set(nodes)) < max(nodes) + 1):
             names, nodes = np.unique(nodes, return_inverse=True)
             graph.names = names
             n = len(names)
-            row = nodes[:n_edges]
-            col = nodes[n_edges:]
+            edge_array = nodes.reshape(-1, 2)
         else:
             n = max(nodes) + 1
-        adjacency = sparse.csr_matrix((data, (row, col)), shape=(n, n))
+        row = edge_array[:, 0]
+        col = edge_array[:, 1]
+        adjacency = sparse.csr_matrix((weights, (row, col)), shape=(n, n))
         if not directed:
             adjacency = directed2undirected(adjacency)
         graph.adjacency = adjacency
     return graph
 
 
-def from_csv_adjacency(file_path: str, bipartite: bool = False, comment: str = '%#',
-                       delimiter: str = None) -> Bunch:
-    """Load a graph form a CSV file listing neighbors (adjacency lists).
+def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: tuple = ('#', '%'),
+             data_structure: str = None, directed: bool = False, bipartite: bool = False, weighted: bool = True,
+             reindex: bool = True, sum_duplicates: bool = True) -> Bunch:
+    """Load a graph from a CSV or TSV file.
+    The delimiter can be specified (e.g., ' ' for space-separated values).
 
     Parameters
     ----------
     file_path : str
-        The path to the dataset in TSV format
+        Path to the CSV file.
+    delimiter : str
+        Delimiter used in the file. Guessed if not specified.
+    sep : str
+        Alias for delimiter.
+    comments : str
+        Characters for comment lines.
+    data_structure : str
+        If 'edge_list', considers each row of the file as an edge (tuple of size 2 or 3).
+        If 'adjacency_list', considers each row of the file as an adjacency list (list of neighbors).
+        If 'adjacency_dict', considers each row of the file as an adjacency dictionary with key
+        given by the first column (node: list of neighbors).
+        If ``None`` (default), data_structure is guessed from the first rows of the file.
+    directed : bool
+        If ``True``, considers the graph as directed.
     bipartite : bool
         If ``True``, returns a biadjacency matrix of shape (n1, n2).
-    comment : str
-        Set of characters denoting lines to ignore.
-    delimiter : str
-        delimiter used in the file. None makes a guess
-
+    weighted : bool
+        If ``True``, returns a weighted graph (e.g., counts the number of occurrences of each edge).
+    reindex : bool
+        If ``True``, reindex nodes and returns the original node indices as names.
+        Reindexing is enforced if nodes are not integers.
+    sum_duplicates : bool
+        If ``True`` (default), sums weights of duplicate edges.
+        Otherwise, the weight of each edge is that of the first occurrence of this edge.
     Returns
     -------
     graph: :class:`Bunch`
     """
-    header_len, guess_delimiter, _, _, _, _ = scan_header(file_path, comment)
+    header_length, delimiter_guess, comment_guess, data_structure_guess = scan_header(file_path, delimiters=delimiter,
+                                                                                      comments=comments)
     if delimiter is None:
-        delimiter = guess_delimiter
-    indptr, indices = [0], []
-    with open(file_path, 'r', encoding='utf-8') as f:
-        for i in range(header_len):
-            f.readline()
-        for row in f:
-            neighbors = [int(el) for el in row.split(delimiter)]
-            indices += neighbors
-            indptr.append(indptr[-1] + len(neighbors))
-    indices = np.array(indices)
-    n_rows = len(indptr) - 1
-    min_index = np.min(indices)
-    n_cols = np.max(indices) + 1 - min_index
-    indices -= min_index
-    graph = Bunch()
-    if not bipartite:
-        max_dim = max(n_rows, n_cols)
-        new_indptr = np.full(max_dim + 1, indptr[-1])
-        new_indptr[:len(indptr)] = indptr
-        graph.adjacency = sparse.csr_matrix((np.ones_like(indices, dtype=int), indices, new_indptr),
-                                            shape=(max_dim, max_dim))
-        if max(graph.adjacency.data) == 1:
-            graph.adjacency = graph.adjacency.astype(bool)
-    else:
-        indptr = np.array(indptr)
-        graph.biadjacency = sparse.csr_matrix((np.ones_like(indices, dtype=int), indices, indptr),
-                                              shape=(n_rows, n_cols))
-        if max(graph.biadjacency.data) == 1:
-            graph.biadjacency = graph.biadjacency.astype(bool)
-    return graph
-
-
-def scan_header(file: str, comment: str):
-    """Infer some properties of the graph in a TSV file from the first few lines."""
-    header_len = -1
-    possible_delimiters = ['\t', ',', ' ']
-    del_count = np.zeros(3, dtype=int)
-    lines = []
-    row = comment
-    with open(file, 'r', encoding='utf-8') as f:
-        while row[0] in comment:
-            row = f.readline()
-            header_len += 1
-        for line in range(3):
-            for i, poss_del in enumerate(possible_delimiters):
-                if poss_del in row:
-                    del_count[i] += 1
-            lines.append(row.rstrip())
-            row = f.readline()
-        lines = [line for line in lines if line != '']
-        guess_delimiter = possible_delimiters[int(np.argmax(del_count))]
-        guess_weighted = bool(min([line.count(guess_delimiter) for line in lines]) - 1)
-        guess_named = not all([all([el.strip().isdigit() for el in line.split(guess_delimiter)][0:2])
-                               for line in lines])
-        guess_string_present = not all([all([isnumber(el.strip()) for el in line.split(guess_delimiter)][0:2])
-                                        for line in lines])
-        if not guess_named:
-            guess_type = np.int32
+        if sep is not None:
+            delimiter = sep
         else:
-            guess_type = np.float32
-    return header_len, guess_delimiter, guess_weighted, guess_named, guess_string_present, guess_type
+            delimiter = delimiter_guess
+    if data_structure is None:
+        data_structure = data_structure_guess
+    if data_structure == 'edge_list':
+        try:
+            array = np.genfromtxt(file_path, delimiter=delimiter, comments=comment_guess)
+            edge_array = array[:, :2].astype(int)
+            if array.shape[1] == 3:
+                weights = array[:, 2]
+                if np.isnan(weights).any():
+                    raise TypeError('Weights must be numeric')
+            else:
+                weights = None
+            return from_edge_array(edge_array=edge_array, weights=weights, directed=directed, bipartite=bipartite,
+                                   weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates)
+        except:
+            pass
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for i in range(header_length):
+            f.readline()
+        csv_reader = reader(f, delimiter=delimiter)
+        if data_structure == 'edge_list':
+            edge_list = [tuple(row) for row in csv_reader]
+            return from_edge_list(edge_list=edge_list, directed=directed, bipartite=bipartite,
+                                  weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates)
+        elif data_structure == 'adjacency_list':
+            adjacency_list = [row for row in csv_reader]
+            return from_adjacency_list(adjacency_list=adjacency_list, directed=directed, bipartite=bipartite,
+                                       weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates)
+        elif data_structure == 'adjacency_dict':
+            adjacency_list = {row[0]: row[1:] for row in csv_reader}
+            return from_adjacency_list(adjacency_list=adjacency_list, directed=directed, bipartite=bipartite,
+                                       weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates)
+
+
+def scan_header(file_path: str, delimiters: str = None, comments: str = '#%', n_scan: int = 100):
+    """Infer some properties of the graph from the first lines of a CSV file .
+    Parameters
+    ----------
+    file_path : str
+        Path to the CSV file.
+    delimiters : str
+        Possible delimiters.
+    comments : str
+        Possible comment characters.
+    n_scan : int
+        Number of rows scanned for inference.
+
+    Returns
+    -------
+    header_length : int
+        Length of the header (comments and blank lines)
+    delimiter_guess : str
+        Guessed delimiter.
+    comment_guess : str
+        Guessed comment character.
+    data_structure_guess : str
+        Either 'edge_list' or 'adjacency_list'.
+    """
+    header_length = 0
+    if delimiters is None:
+        delimiters = '\t, ;'
+    comment_guess = comments[0]
+    count = np.zeros(len(delimiters), dtype=int)
+    rows = []
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for row in f.readlines():
+            if row.startswith(tuple(comments)) or row == '':
+                if len(row):
+                    comment_guess = row[0]
+                header_length += 1
+            else:
+                rows.append(row.rstrip())
+                for i, delimiter in enumerate(delimiters):
+                    count[i] += row.count(delimiter)
+                if len(rows) == n_scan:
+                    break
+    delimiter_guess = delimiters[np.argmax(count)]
+    length = {len(row.split(delimiter_guess)) for row in rows}
+    if length == {2} or length == {3}:
+        data_structure_guess = 'edge_list'
+    else:
+        data_structure_guess = 'adjacency_list'
+    return header_length, delimiter_guess, comment_guess, data_structure_guess
 
 
 def load_labels(file: str) -> np.ndarray:

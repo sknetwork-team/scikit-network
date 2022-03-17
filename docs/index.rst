@@ -45,8 +45,8 @@ Welcome to scikit-network's documentation!
    :maxdepth: 1
    :caption: Use cases
 
-   use_cases/text-mining
-   use_cases/web-graphs
+   use_cases/text
+   use_cases/wikipedia
    use_cases/votes
    use_cases/sport
 

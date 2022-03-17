@@ -5,12 +5,12 @@ Data
 
 Tools for loading and saving graphs.
 
-Edge list
-*********
+Edge or adjacency list
+**********************
 
 .. autofunction:: sknetwork.data.from_edge_list
 
-.. autofunction:: sknetwork.data.from_coo_format
+.. autofunction:: sknetwork.data.from_adjacency_list
 
 Files
 *****
@@ -18,8 +18,6 @@ Files
 Check the tutorial for importing graphs from dataframes (see Tutorials / Data).
 
 .. autofunction:: sknetwork.data.from_csv
-
-.. autofunction:: sknetwork.data.from_csv_adjacency
 
 .. autofunction:: sknetwork.data.from_graphml
 
