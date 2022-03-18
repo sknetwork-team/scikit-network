@@ -47,16 +47,18 @@ Install scikit-network:
 
     $ pip install scikit-network
 
-Import scikit-network in a Python project::
+Import scikit-network::
 
-    import sknetwork as skn
+    import sknetwork
 
-See examples in the tutorials; the notebooks are available here_.
+See examples in the :ref:`tutorials<tutorials>`; the notebooks are available here_.
+
+You can also have a look at some :ref:`use cases<use_cases>`.
 
 Citing
 ------
 
-If you want to cite *scikit-network*, please refer to the publication in
+If you want to cite :mod:`scikit-network`, please refer to the publication in
 the `Journal of Machine Learning Research <https://jmlr.org>`_:
 
 .. code::

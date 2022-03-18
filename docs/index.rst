@@ -29,6 +29,7 @@ Welcome to scikit-network's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Tutorials
+   :name: tutorials
 
    tutorials/data/index
    tutorials/topology/index
@@ -44,6 +45,7 @@ Welcome to scikit-network's documentation!
 .. toctree::
    :maxdepth: 1
    :caption: Use cases
+   :name: use_cases
 
    use_cases/text
    use_cases/wikipedia

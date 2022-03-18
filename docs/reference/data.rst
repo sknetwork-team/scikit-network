@@ -18,7 +18,7 @@ Adjacency list
 Files
 *****
 
-Check the tutorial for importing graphs from dataframes (see Tutorials / Data).
+Check the :ref:`tutorial<DataTag>` for importing graphs from dataframes.
 
 .. autofunction:: sknetwork.data.from_csv
 
