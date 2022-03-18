@@ -12,10 +12,10 @@ from typing import Union, Optional, Iterable
 import numpy as np
 from scipy import sparse
 
+from sknetwork.data.parse import from_edge_list
 from sknetwork.utils import Bunch
 from sknetwork.utils.check import check_random_state
 from sknetwork.utils.format import directed2undirected
-from sknetwork.utils.parse import edgelist2adjacency
 
 
 def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_out: float = .05,
@@ -308,7 +308,7 @@ def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr
     edges += [((i1, i2), (i1, i2 + 1)) for i1 in range(n1) for i2 in range(n2 - 1)]
     node_id = {u: i for i, u in enumerate(nodes)}
     edges = list(map(lambda edge: (node_id[edge[0]], node_id[edge[1]]), edges))
-    adjacency = edgelist2adjacency(edges, undirected=True)
+    adjacency = from_edge_list(edges, reindex=False, matrix_only=True)
     if metadata:
         graph = Bunch()
         graph.adjacency = adjacency
@@ -341,7 +341,7 @@ def star(n_branches: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix
     (4, 4)
     """
     edges = [(0, i+1) for i in range(n_branches)]
-    adjacency = edgelist2adjacency(edges, undirected=True)
+    adjacency = from_edge_list(edges, reindex=False, matrix_only=True)
     if metadata:
         graph = Bunch()
         graph.adjacency = adjacency
@@ -352,7 +352,7 @@ def star(n_branches: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix
         return adjacency
 
 
-def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True, seed: Optional[int] = None) \
+def albert_barabasi(n: int = 100, degree: int = 3, directed: bool = False, seed: Optional[int] = None) \
         -> sparse.csr_matrix:
     """Albert-Barabasi model.
 
@@ -362,8 +362,8 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True, seed
         Number of nodes.
     degree : int
         Degree of incoming nodes (less than **n**).
-    undirected : bool
-        If ``True``, return an undirected graph.
+    directed : bool
+        If ``True``, return a directed graph.
     seed :
         Seed of the random generator (optional).
 
@@ -394,7 +394,7 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True, seed
         degrees[neighbors] += 1
         degrees[i] = degree
         edges += [(i, j) for j in neighbors]
-    return edgelist2adjacency(edges, undirected)
+    return from_edge_list(edges, directed=directed, reindex=False, matrix_only=True)
 
 
 def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, seed: Optional[int] = None,

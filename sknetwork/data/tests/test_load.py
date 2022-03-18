@@ -8,7 +8,6 @@ import warnings
 
 import numpy as np
 
-# has to specify the exact file to avoid nosetests error on full tests
 from sknetwork.data.load import load_netset, load_konect, clear_data_home, save, load
 from sknetwork.data.toy_graphs import house, star_wars
 from sknetwork.utils.timeout import TimeOut

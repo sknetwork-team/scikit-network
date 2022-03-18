@@ -202,12 +202,7 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
     if matrix:
         file = matrix[0]
         directed, bipartite, weighted = load_header(data_path / file)
-        if bipartite:
-            data = from_csv(data_path / file, directed=directed, bipartite=bipartite, weighted=weighted)
-            graph.biadjacency = data.biadjacency
-        else:
-            data = from_csv(data_path / file, directed=directed, bipartite=bipartite, weighted=weighted)
-            graph.adjacency = data.adjacency
+        graph = from_csv(data_path / file, directed=directed, bipartite=bipartite, weighted=weighted)
 
     metadata = [file for file in files if 'meta.' in file]
     if metadata:
@@ -220,7 +215,7 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
             attribute_name = file.split('.')[-1]
             graph[attribute_name] = load_labels(data_path / file)
 
-    if hasattr(data, 'meta'):
+    if hasattr(graph, 'meta'):
         if hasattr(graph.meta, 'name'):
             pass
         else:

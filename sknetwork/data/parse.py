@@ -20,7 +20,7 @@ from sknetwork.utils.format import directed2undirected
 
 def from_edge_list(edge_list: Union[np.ndarray, List[Tuple]], directed: bool = False,
                    bipartite: bool = False, weighted: bool = True, reindex: bool = True,
-                   sum_duplicates: bool = True) -> Bunch:
+                   sum_duplicates: bool = True, matrix_only: bool = None) -> Union[Bunch, sparse.csr_matrix]:
     """Load a graph from an edge list.
 
     Parameters
@@ -40,9 +40,27 @@ def from_edge_list(edge_list: Union[np.ndarray, List[Tuple]], directed: bool = F
     sum_duplicates : bool
         If ``True`` (default), sums weights of duplicate edges.
         Otherwise, the weight of each edge is that of the first occurrence of this edge.
+    matrix_only : bool
+        If ``True``, returns only the adjacency or biadjacency matrix.
+        Otherwise, returns a ``Bunch`` object with graph attributes (e.g., node names).
+        If not specified (default), selects the most appropriate format.
     Returns
     -------
-    graph: :class:`Bunch`
+    graph : :class:`Bunch` (including node names) or sparse matrix
+
+    Examples
+    --------
+    >>> edges = [(0, 1), (1, 2), (2, 0)]
+    >>> adjacency = from_edge_list(edges)
+    >>> adjacency.shape
+    (3, 3)
+    >>> edges = [('Alice', 'Bob'), ('Bob', 'Carol'), ('Carol', 'Alice')]
+    >>> graph = from_edge_list(edges)
+    >>> adjacency = graph.adjacency
+    >>> adjacency.shape
+    (3, 3)
+    >>> print(graph.names)
+    ['Alice' 'Bob' 'Carol']
     """
     edge_array = np.array([])
     weights = None
@@ -63,12 +81,12 @@ def from_edge_list(edge_list: Union[np.ndarray, List[Tuple]], directed: bool = F
     else:
         raise TypeError('The edge list must be given as a NumPy array or a list of tuples.')
     return from_edge_array(edge_array=edge_array, weights=weights, directed=directed, bipartite=bipartite,
-                           weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates)
+                           weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates, matrix_only=matrix_only)
 
 
 def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], directed: bool = False,
                         bipartite: bool = False, weighted: bool = True, reindex: bool = True,
-                        sum_duplicates: bool = True) -> Bunch:
+                        sum_duplicates: bool = True, matrix_only: bool = None) -> Union[Bunch, sparse.csr_matrix]:
     """Load a graph from an adjacency list.
 
     Parameters
@@ -87,9 +105,20 @@ def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], dire
     sum_duplicates : bool
         If ``True`` (default), sums weights of duplicate edges.
         Otherwise, the weight of each edge is that of the first occurrence of this edge.
+    matrix_only : bool
+        If ``True``, returns only the adjacency or biadjacency matrix.
+        Otherwise, returns a ``Bunch`` object with graph attributes (e.g., node names).
+        If not specified (default), selects the most appropriate format.
     Returns
     -------
-    graph: :class:`Bunch`
+    graph : :class:`Bunch` or sparse matrix
+
+    Example
+    -------
+    >>> edges = [(0, 1), (1, 2), (2, 0)]
+    >>> adjacency = from_edge_list(edges)
+    >>> adjacency.shape
+    (3, 3)
     """
     edge_list = []
     if isinstance(adjacency_list, list):
@@ -103,12 +132,13 @@ def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], dire
     else:
         raise TypeError('The edge list must be given as a list of lists or a dict of lists.')
     return from_edge_list(edge_list=edge_list, directed=directed, bipartite=bipartite, weighted=weighted,
-                          reindex=reindex, sum_duplicates=sum_duplicates)
+                          reindex=reindex, sum_duplicates=sum_duplicates, matrix_only=matrix_only)
 
 
 def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed: bool = False, bipartite: bool = False,
-                    weighted: bool = True, reindex: bool = True, sum_duplicates: bool = True) -> Bunch:
-    """Load a graph from the coordinate format (row, col, data).
+                    weighted: bool = True, reindex: bool = True, sum_duplicates: bool = True,
+                    matrix_only: bool = None) -> Union[Bunch, sparse.csr_matrix]:
+    """Load a graph from an edge array of shape (n_edges, 2) and weights (optional).
 
     Parameters
     ----------
@@ -128,9 +158,14 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
     sum_duplicates : bool
         If ``True`` (default), sums weights of duplicate edges.
         Otherwise, the weight of each edge is that of the first occurrence of this edge.
+    matrix_only : bool
+        If ``True``, returns only the adjacency or biadjacency matrix.
+        Otherwise, returns a ``Bunch`` object with graph attributes (e.g., node names).
+        If not specified (default), selects the most appropriate format.
+
     Returns
     -------
-    graph: :class:`Bunch`
+    graph : :class:`Bunch` or sparse matrix
     """
     try:
         edge_array = edge_array.astype(float)
@@ -171,8 +206,8 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
             n_col = len(names_col)
         else:
             n_col = max(col) + 1
-        biadjacency = sparse.csr_matrix((weights, (row, col)), shape=(n_row, n_col))
-        graph.biadjacency = biadjacency
+        matrix = sparse.csr_matrix((weights, (row, col)), shape=(n_row, n_col))
+        graph.biadjacency = matrix
     else:
         nodes = edge_array.ravel()
         if nodes.dtype != int or (reindex and len(set(nodes)) < max(nodes) + 1):
@@ -184,16 +219,20 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
             n = max(nodes) + 1
         row = edge_array[:, 0]
         col = edge_array[:, 1]
-        adjacency = sparse.csr_matrix((weights, (row, col)), shape=(n, n))
+        matrix = sparse.csr_matrix((weights, (row, col)), shape=(n, n))
         if not directed:
-            adjacency = directed2undirected(adjacency)
-        graph.adjacency = adjacency
-    return graph
+            matrix = directed2undirected(matrix)
+        graph.adjacency = matrix
+    if matrix_only or (matrix_only is None and len(graph) == 1):
+        return matrix
+    else:
+        return graph
 
 
 def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: tuple = ('#', '%'),
              data_structure: str = None, directed: bool = False, bipartite: bool = False, weighted: bool = True,
-             reindex: bool = True, sum_duplicates: bool = True) -> Bunch:
+             reindex: bool = True, sum_duplicates: bool = True, matrix_only: bool = None) \
+        -> Union[Bunch, sparse.csr_matrix]:
     """Load a graph from a CSV or TSV file.
     The delimiter can be specified (e.g., ' ' for space-separated values).
 
@@ -225,9 +264,14 @@ def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: t
     sum_duplicates : bool
         If ``True`` (default), sums weights of duplicate edges.
         Otherwise, the weight of each edge is that of the first occurrence of this edge.
+    matrix_only : bool
+        If ``True``, returns only the adjacency or biadjacency matrix.
+        Otherwise, returns a ``Bunch`` object with graph attributes (e.g., node names).
+        If not specified (default), selects the most appropriate format.
+
     Returns
     -------
-    graph: :class:`Bunch`
+    graph: :class:`Bunch` or sparse matrix
     """
     header_length, delimiter_guess, comment_guess, data_structure_guess = scan_header(file_path, delimiters=delimiter,
                                                                                       comments=comments)
@@ -249,7 +293,8 @@ def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: t
             else:
                 weights = None
             return from_edge_array(edge_array=edge_array, weights=weights, directed=directed, bipartite=bipartite,
-                                   weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates)
+                                   weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates,
+                                   matrix_only=matrix_only)
         except:
             pass
     with open(file_path, 'r', encoding='utf-8') as f:
@@ -259,15 +304,18 @@ def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: t
         if data_structure == 'edge_list':
             edge_list = [tuple(row) for row in csv_reader]
             return from_edge_list(edge_list=edge_list, directed=directed, bipartite=bipartite,
-                                  weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates)
+                                  weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates,
+                                  matrix_only=matrix_only)
         elif data_structure == 'adjacency_list':
             adjacency_list = [row for row in csv_reader]
             return from_adjacency_list(adjacency_list=adjacency_list, directed=directed, bipartite=bipartite,
-                                       weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates)
+                                       weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates,
+                                       matrix_only=matrix_only)
         elif data_structure == 'adjacency_dict':
             adjacency_list = {row[0]: row[1:] for row in csv_reader}
             return from_adjacency_list(adjacency_list=adjacency_list, directed=directed, bipartite=bipartite,
-                                       weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates)
+                                       weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates,
+                                       matrix_only=matrix_only)
 
 
 def scan_header(file_path: str, delimiters: str = None, comments: str = '#%', n_scan: int = 100):
@@ -296,9 +344,9 @@ def scan_header(file_path: str, delimiters: str = None, comments: str = '#%', n_
     """
     header_length = 0
     if delimiters is None:
-        delimiters = '\t, ;'
+        delimiters = '\t,; '
     comment_guess = comments[0]
-    count = np.zeros(len(delimiters), dtype=int)
+    count = {delimiter: [] for delimiter in delimiters}
     rows = []
     with open(file_path, 'r', encoding='utf-8') as f:
         for row in f.readlines():
@@ -308,11 +356,17 @@ def scan_header(file_path: str, delimiters: str = None, comments: str = '#%', n_
                 header_length += 1
             else:
                 rows.append(row.rstrip())
-                for i, delimiter in enumerate(delimiters):
-                    count[i] += row.count(delimiter)
+                for delimiter in delimiters:
+                    count[delimiter].append(row.count(delimiter))
                 if len(rows) == n_scan:
                     break
-    delimiter_guess = delimiters[np.argmax(count)]
+    means = [np.mean(count[delimiter]) for delimiter in delimiters]
+    stds = [np.std(count[delimiter]) for delimiter in delimiters]
+    index = np.argwhere((np.array(means) > 0) * (np.array(stds) == 0)).ravel()
+    if len(index) == 1:
+        delimiter_guess = delimiters[int(index)]
+    else:
+        delimiter_guess = delimiters[np.argmax(means)]
     length = {len(row.split(delimiter_guess)) for row in rows}
     if length == {2} or length == {3}:
         data_structure_guess = 'edge_list'

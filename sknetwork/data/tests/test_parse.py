@@ -16,8 +16,7 @@ class TestParser(unittest.TestCase):
         self.stub_data_1 = 'stub_1.txt'
         with open(self.stub_data_1, "w") as text_file:
             text_file.write('%stub\n1 3\n4 5\n0 2')
-        graph = parse.from_csv(self.stub_data_1)
-        adjacency = graph.adjacency
+        adjacency = parse.from_csv(self.stub_data_1)
         self.assertTrue((adjacency.indices == [2, 3, 0, 1, 5, 4]).all())
         self.assertTrue((adjacency.indptr == [0, 1, 2, 3, 4, 5, 6]).all())
         self.assertTrue((adjacency.data == [1, 1, 1, 1, 1, 1]).all())
@@ -43,8 +42,6 @@ class TestParser(unittest.TestCase):
         graph = parse.from_csv(self.stub_data_4)
         adjacency = graph.adjacency
         names = graph.names
-        self.assertTrue((adjacency.indices == [1, 0, 3, 2, 5, 4]).all())
-        self.assertTrue((adjacency.indptr == [0, 1, 2, 3, 4, 5, 6]).all())
         self.assertTrue((adjacency.data == [1, 1, 1, 1, 1, 1]).all())
         self.assertTrue((names == [0, 12, 14, 31, 42, 50]).all())
         remove(self.stub_data_4)
@@ -146,18 +143,20 @@ class TestParser(unittest.TestCase):
         self.stub_data_8 = 'stub_8.txt'
         with open(self.stub_data_8, "w") as text_file:
             text_file.write('%stub\n2\n3\n0\n1\n5\n4')
-        graph = parse.from_csv(self.stub_data_8)
-        adjacency = graph.adjacency
+        adjacency = parse.from_csv(self.stub_data_8)
         self.assertTupleEqual(adjacency.shape, (6, 6))
         self.assertTrue((adjacency.indices == [2, 3, 0, 1, 5, 4]).all())
         self.assertTrue((adjacency.indptr == [0, 1, 2, 3, 4, 5, 6]).all())
         self.assertTrue((adjacency.data == [2, 2, 2, 2, 2, 2]).all())
+        graph = parse.from_csv(self.stub_data_8, matrix_only=False)
+        adjacency = graph.adjacency
+        self.assertTupleEqual(adjacency.shape, (6, 6))
         remove(self.stub_data_8)
+        # without comment line
         self.stub_data_8 = 'stub_8.txt'
         with open(self.stub_data_8, "w") as text_file:
             text_file.write('2\n3\n0\n1\n5\n4')
-        graph = parse.from_csv(self.stub_data_8)
-        adjacency = graph.adjacency
+        adjacency = parse.from_csv(self.stub_data_8)
         self.assertTupleEqual(adjacency.shape, (6, 6))
         remove(self.stub_data_8)
 
@@ -211,6 +210,9 @@ class TestParser(unittest.TestCase):
         self.assertTupleEqual(adjacency.shape, (3, 3))
         self.assertTrue((adjacency.data == [2, 1]).all())
 
+        adjacency = parse.from_edge_list(edge_list_3, directed=True, matrix_only=True)
+        self.assertTupleEqual(adjacency.shape, (3, 3))
+
         graph = parse.from_edge_list(edge_list_3, directed=True, weighted=False)
         adjacency = graph.adjacency
         self.assertTrue((adjacency.data == [1, 1]).all())
@@ -225,8 +227,7 @@ class TestParser(unittest.TestCase):
         self.assertTrue((adjacency.data == [1, 1, 1]).all())
 
         edge_list_5 = [[0, 1, 2], [2, 3]]
-        graph = parse.from_adjacency_list(edge_list_5, directed=True)
-        adjacency = graph.adjacency
+        adjacency = parse.from_adjacency_list(edge_list_5, directed=True)
         self.assertTupleEqual(adjacency.shape, (4, 4))
         self.assertTrue((adjacency.data == [1, 1, 1, 1, 1]).all())
 

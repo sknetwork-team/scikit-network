@@ -5,10 +5,13 @@ Data
 
 Tools for loading and saving graphs.
 
-Edge or adjacency list
-**********************
+Edge list
+*********
 
 .. autofunction:: sknetwork.data.from_edge_list
+
+Adjacency list
+**************
 
 .. autofunction:: sknetwork.data.from_adjacency_list
 

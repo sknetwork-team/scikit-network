@@ -6,7 +6,8 @@ import unittest
 
 from scipy.special import comb
 
-from sknetwork.data import karate_club, edgelist2adjacency
+from sknetwork.data import karate_club
+from sknetwork.data.parse import from_edge_list
 from sknetwork.data.test_graphs import *
 from sknetwork.topology import Triangles
 
@@ -27,9 +28,9 @@ class TestTriangleListing(unittest.TestCase):
         nb = Triangles().fit_transform(adjacency)
         self.assertEqual(nb, comb(n, 3, exact=True))
 
-    def test_clustering_coeff(self):
-        edgelist = [(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)]
-        adjacency = edgelist2adjacency(edgelist, undirected=True)
+    def test_clustering_coefficient(self):
+        edges = [(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)]
+        adjacency = from_edge_list(edges, directed=False, matrix_only=True)
 
         triangles = Triangles().fit(adjacency)
         self.assertEqual(0.75, triangles.clustering_coef_)
