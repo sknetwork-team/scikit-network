@@ -7,7 +7,6 @@ Created on Mar, 2020
 from typing import Optional
 
 import numpy as np
-from scipy import sparse
 
 from sknetwork.classification.base_rank import RankClassifier
 from sknetwork.ranking.diffusion import Diffusion, Dirichlet
