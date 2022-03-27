@@ -12,6 +12,7 @@ from scipy.sparse.linalg import LinearOperator
 
 from sknetwork.linalg.polynome import Polynome
 from sknetwork.ranking.base import BaseRanking
+from sknetwork.utils.check import check_format
 from sknetwork.utils.format import get_adjacency
 
 
@@ -68,6 +69,7 @@ class Katz(BaseRanking):
         -------
         self: :class:`Katz`
         """
+        input_matrix = check_format(input_matrix)
         adjacency, self.bipartite = get_adjacency(input_matrix)
         n = adjacency.shape[0]
         coefs = self.damping_factor ** np.arange(self.path_length + 1)

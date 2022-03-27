@@ -21,7 +21,7 @@ from scipy import sparse
 
 from sknetwork.hierarchy.base import BaseHierarchy
 from sknetwork.hierarchy.postprocess import reorder_dendrogram
-from sknetwork.utils.format import get_adjacency, directed2undirected
+from sknetwork.utils.format import check_format, get_adjacency, directed2undirected
 from sknetwork.utils.check import get_probs, is_symmetric
 
 
@@ -228,6 +228,7 @@ class Paris(BaseHierarchy):
         self._init_vars()
 
         # input
+        input_matrix = check_format(input_matrix)
         adjacency, self.bipartite = get_adjacency(input_matrix)
 
         weights = self.weights

@@ -13,7 +13,7 @@ from scipy import sparse
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import LanczosEig, Laplacian, Normalizer, normalize
 from sknetwork.utils.format import get_adjacency
-from sknetwork.utils.check import check_adjacency_vector, check_nonnegative, check_n_components
+from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, check_n_components
 
 
 class Spectral(BaseEmbedding):
@@ -100,6 +100,7 @@ class Spectral(BaseEmbedding):
         self: :class:`Spectral`
         """
         # input
+        input_matrix = check_format(input_matrix)
         adjacency, self.bipartite = get_adjacency(input_matrix, allow_directed=False, force_bipartite=force_bipartite)
         n = adjacency.shape[0]
 

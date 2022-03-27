@@ -154,7 +154,6 @@ def get_adjacency(input_matrix: Union[sparse.csr_matrix, np.ndarray], allow_dire
         If ``True`` return :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}`.
         Otherwise (default), return :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`.
     """
-    input_matrix = check_format(input_matrix)
     bipartite = False
     if force_bipartite or not is_square(input_matrix) or not (allow_directed or is_symmetric(input_matrix)):
         bipartite = True
@@ -201,6 +200,7 @@ def get_adjacency_seeds(input_matrix: Union[sparse.csr_matrix, np.ndarray], allo
         If ``'probs'``, return a probability distribution.
         If ``'labels'``, return distinct integer values if all are equal.
     """
+    input_matrix = check_format(input_matrix)
     if seeds_row is not None or seeds_col is not None:
         force_bipartite = True
     adjacency, bipartite = get_adjacency(input_matrix, allow_directed=allow_directed,
@@ -234,7 +234,6 @@ def get_embedding(input_matrix: Union[sparse.csr_matrix, np.ndarray], method: Ba
         If ``True``, co-embedding of rows and columns.
         Otherwise, do it only if the input matrix is not square or not symmetric with ``allow_directed=False``.
     """
-
     bipartite = (not is_square(input_matrix)) or co_embedding
     if co_embedding:
         try:

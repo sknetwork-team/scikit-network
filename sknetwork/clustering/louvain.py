@@ -15,7 +15,7 @@ from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.louvain_core import fit_core
 from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.utils.check import check_random_state, get_probs
-from sknetwork.utils.format import get_adjacency, directed2undirected
+from sknetwork.utils.format import check_format, get_adjacency, directed2undirected
 from sknetwork.utils.membership import membership_matrix
 from sknetwork.utils.verbose import VerboseMixin
 
@@ -183,7 +183,7 @@ class Louvain(BaseClustering, VerboseMixin):
         self: :class:`Louvain`
         """
         self._init_vars()
-
+        input_matrix = check_format(input_matrix)
         if self.modularity == 'dugue':
             adjacency, self.bipartite = get_adjacency(input_matrix, force_directed=True,
                                                       force_bipartite=force_bipartite)
