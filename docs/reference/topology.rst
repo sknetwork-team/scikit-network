@@ -34,12 +34,10 @@ Cliques
 
 .. autoclass:: sknetwork.topology.Cliques
 
-Coloring
---------
+
+Isomorphism
+-----------
 
 .. autoclass:: sknetwork.topology.WeisfeilerLehman
-
-Similarity
-----------
 
 .. autofunction:: sknetwork.topology.are_isomorphic
