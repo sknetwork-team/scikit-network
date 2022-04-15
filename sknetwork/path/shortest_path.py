@@ -76,11 +76,18 @@ def distance(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterable
     local_function = partial(sparse.csgraph.shortest_path,
                              adjacency, method, directed, return_predecessors, unweighted, False)
     if n_jobs == 1 or n == 1:
-        res = sparse.csgraph.shortest_path(adjacency, method, directed, return_predecessors,
-                                           unweighted, False, sources)
+        try:
+            res = sparse.csgraph.shortest_path(adjacency, method, directed, return_predecessors,
+                                               unweighted, False, sources)
+        except NegativeCycleError as e:
+            print("The shortest path computation could not be completed because a negative cycle is present.")
     else:
-        with Pool(n_jobs) as pool:
-            res = np.array(pool.map(local_function, sources))
+        try:
+            with Pool(n_jobs) as pool:
+                res = np.array(pool.map(local_function, sources))
+        except NegativeCycleError as e:
+            print("The shortest path computation could not be completed because a negative cycle is present.")
+            pool.terminate()
     if return_predecessors:
         if n == 1:
             return res[0].ravel(), res[1].astype(int).ravel()
