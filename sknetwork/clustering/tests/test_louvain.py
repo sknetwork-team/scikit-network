@@ -53,7 +53,7 @@ class TestLouvainClustering(unittest.TestCase):
         # shuffling
         louvain = Louvain(resolution=2, shuffle_nodes=True, random_state=42)
         labels = louvain.fit_transform(adjacency)
-        self.assertEqual(len(set(labels)), 9)
+        self.assertEqual(len(set(labels)), 7)
 
         # aggregate graph
         louvain = Louvain(return_aggregate=True)
@@ -83,7 +83,7 @@ class TestLouvainClustering(unittest.TestCase):
         # shuffling
         louvain = Louvain(resolution=2, shuffle_nodes=True, random_state=42)
         labels = louvain.fit_transform(adjacency)
-        self.assertEqual(len(set(labels)), 9)
+        self.assertEqual(len(set(labels)), 7)
 
         # aggregate graph
         louvain = Louvain(return_aggregate=True)
