@@ -10,9 +10,9 @@ Most algorithms are adapted from SciPy_.
 Shortest path
 -------------
 
-.. autofunction:: sknetwork.path.distance
+.. autofunction:: sknetwork.path.get_distances
 
-.. autofunction:: sknetwork.path.shortest_path
+.. autofunction:: sknetwork.path.get_shortest_path
 
 Summary of the different methods and their worst-case complexity for :math:`n` nodes and :math:`m` edges (for the
 all-pairs problem):

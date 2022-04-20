@@ -91,12 +91,9 @@ def get_distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Ite
             return res
 
 
-def shortest_path(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], targets: Union[int, Iterable],
-                  method: str = 'D', unweighted: bool = False, n_jobs: Optional[int] = None):
+def get_shortest_path(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], targets: Union[int, Iterable],
+                      method: str = 'D', unweighted: bool = False, n_jobs: Optional[int] = None):
     """Compute the shortest paths in the graph.
-
-    * Graphs
-    * Digraphs
 
     Parameters
     ----------
@@ -129,13 +126,13 @@ def shortest_path(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], t
     --------
     >>> from sknetwork.data import linear_digraph
     >>> adjacency = linear_digraph(3)
-    >>> shortest_path(adjacency, 0, 2)
+    >>> get_shortest_path(adjacency, 0, 2)
     [0, 1, 2]
-    >>> shortest_path(adjacency, 2, 0)
+    >>> get_shortest_path(adjacency, 2, 0)
     []
-    >>> shortest_path(adjacency, 0, [1, 2])
+    >>> get_shortest_path(adjacency, 0, [1, 2])
     [[0, 1], [0, 1, 2]]
-    >>> shortest_path(adjacency, [0, 1], 2)
+    >>> get_shortest_path(adjacency, [0, 1], 2)
     [[0, 1, 2], [1, 2]]
     """
     if np.issubdtype(type(sources), np.integer):

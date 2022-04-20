@@ -5,7 +5,7 @@ import unittest
 
 from sknetwork.data import karate_club, cyclic_digraph
 # has to specify the exact file to avoid nosetests error on full tests
-from sknetwork.path.shortest_path import get_distances, shortest_path
+from sknetwork.path.shortest_path import get_distances, get_shortest_path
 
 
 class TestShortestPath(unittest.TestCase):
@@ -23,7 +23,7 @@ class TestShortestPath(unittest.TestCase):
 
     def test_shortest_paths(self):
         with self.assertRaises(ValueError):
-            shortest_path(cyclic_digraph(3), [0, 1], [0, 1])
+            get_shortest_path(cyclic_digraph(3), [0, 1], [0, 1])
 
     def test_error_on_parallel_FW(self):
         adjacency = karate_club()
