@@ -4,7 +4,7 @@
 import unittest
 
 from sknetwork.data import house
-from sknetwork.path import diameter
+from sknetwork.path import get_diameter
 
 
 class TestMetrics(unittest.TestCase):
@@ -12,4 +12,4 @@ class TestMetrics(unittest.TestCase):
     def test_diameter(self):
         adjacency = house()
         with self.assertRaises(ValueError):
-            diameter(adjacency, 2.5)
+            get_diameter(adjacency, 2.5)

@@ -39,7 +39,7 @@ Search
 Metrics
 -------
 
-.. autofunction:: sknetwork.path.diameter
+.. autofunction:: sknetwork.path.get_diameter
 
 
 

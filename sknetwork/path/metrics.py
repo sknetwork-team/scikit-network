@@ -12,8 +12,8 @@ from scipy import sparse
 from sknetwork.path.shortest_path import get_distances
 
 
-def diameter(adjacency: Union[sparse.csr_matrix, np.ndarray], n_sources: Optional[Union[int, float]] = None,
-             n_jobs: Optional[int] = None) -> int:
+def get_diameter(adjacency: Union[sparse.csr_matrix, np.ndarray], n_sources: Optional[Union[int, float]] = None,
+                 n_jobs: Optional[int] = None) -> int:
     """Lower bound on the diameter of a graph which is the length of the longest shortest path between two nodes.
 
     Parameters
@@ -38,13 +38,13 @@ def diameter(adjacency: Union[sparse.csr_matrix, np.ndarray], n_sources: Optiona
     --------
     >>> from sknetwork.data import house
     >>> adjacency = house()
-    >>> d_exact = diameter(adjacency)
+    >>> d_exact = get_diameter(adjacency)
     >>> d_exact
     2
-    >>> d_approx = diameter(adjacency, 2)
+    >>> d_approx = get_diameter(adjacency, 2)
     >>> d_approx <= d_exact
     True
-    >>> d_approx = diameter(adjacency, 0.5)
+    >>> d_approx = get_diameter(adjacency, 0.5)
     >>> d_approx <= d_exact
     True
 
@@ -63,5 +63,5 @@ def diameter(adjacency: Union[sparse.csr_matrix, np.ndarray], n_sources: Optiona
         else:
             raise ValueError("n_sources must be either None, an integer smaller than the number of nodes or a float"
                              "smaller than 1.")
-    dists = get_distances(adjacency, sources, method='D', return_predecessors=False, n_jobs=n_jobs).astype(int)
-    return dists.max()
+    distances = get_distances(adjacency, sources, method='D', return_predecessors=False, n_jobs=n_jobs).astype(int)
+    return distances.max()
