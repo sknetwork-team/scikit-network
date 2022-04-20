@@ -9,7 +9,7 @@ from typing import Union, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork.path.shortest_path import distance
+from sknetwork.path.shortest_path import get_distances
 
 
 def diameter(adjacency: Union[sparse.csr_matrix, np.ndarray], n_sources: Optional[Union[int, float]] = None,
@@ -63,5 +63,5 @@ def diameter(adjacency: Union[sparse.csr_matrix, np.ndarray], n_sources: Optiona
         else:
             raise ValueError("n_sources must be either None, an integer smaller than the number of nodes or a float"
                              "smaller than 1.")
-    dists = distance(adjacency, sources, method='D', return_predecessors=False, n_jobs=n_jobs).astype(int)
+    dists = get_distances(adjacency, sources, method='D', return_predecessors=False, n_jobs=n_jobs).astype(int)
     return dists.max()
