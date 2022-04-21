@@ -14,8 +14,8 @@ from scipy import sparse
 from sknetwork.utils.check import check_n_jobs, is_symmetric
 
 
-def distance(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterable]] = None, method: str = 'D',
-             return_predecessors: bool = False, unweighted: bool = False, n_jobs: Optional[int] = None):
+def get_distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterable]] = None, method: str = 'D',
+                  return_predecessors: bool = False, unweighted: bool = False, n_jobs: Optional[int] = None):
     """Compute distances between nodes.
 
     * Graphs
@@ -59,9 +59,9 @@ def distance(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterable
     --------
     >>> from sknetwork.data import cyclic_digraph
     >>> adjacency = cyclic_digraph(3)
-    >>> distance(adjacency, sources=0)
+    >>> get_distances(adjacency, sources=0)
     array([0., 1., 2.])
-    >>> distance(adjacency, sources=0, return_predecessors=True)
+    >>> get_distances(adjacency, sources=0, return_predecessors=True)
     (array([0., 1., 2.]), array([-9999,     0,     1]))
     """
     n_jobs = check_n_jobs(n_jobs)
@@ -79,13 +79,13 @@ def distance(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterable
         try:
             res = sparse.csgraph.shortest_path(adjacency, method, directed, return_predecessors,
                                                unweighted, False, sources)
-        except NegativeCycleError as e:
+        except sparse.csgraph.NegativeCycleError as e:
             print("The shortest path computation could not be completed because a negative cycle is present.")
     else:
         try:
             with Pool(n_jobs) as pool:
                 res = np.array(pool.map(local_function, sources))
-        except NegativeCycleError as e:
+        except sparse.csgraph.NegativeCycleError as e:
             print("The shortest path computation could not be completed because a negative cycle is present.")
             pool.terminate()
     if return_predecessors:
@@ -100,8 +100,8 @@ def distance(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterable
             return res
 
 
-def shortest_path(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], targets: Union[int, Iterable],
-                  method: str = 'D', unweighted: bool = False, n_jobs: Optional[int] = None):
+def get_shortest_path(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], targets: Union[int, Iterable],
+                      method: str = 'D', unweighted: bool = False, n_jobs: Optional[int] = None):
     """Compute the shortest paths in the graph.
 
     * Graphs
@@ -138,13 +138,13 @@ def shortest_path(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], t
     --------
     >>> from sknetwork.data import linear_digraph
     >>> adjacency = linear_digraph(3)
-    >>> shortest_path(adjacency, 0, 2)
+    >>> get_shortest_path(adjacency, 0, 2)
     [0, 1, 2]
-    >>> shortest_path(adjacency, 2, 0)
+    >>> get_shortest_path(adjacency, 2, 0)
     []
-    >>> shortest_path(adjacency, 0, [1, 2])
+    >>> get_shortest_path(adjacency, 0, [1, 2])
     [[0, 1], [0, 1, 2]]
-    >>> shortest_path(adjacency, [0, 1], 2)
+    >>> get_shortest_path(adjacency, [0, 1], 2)
     [[0, 1, 2], [1, 2]]
     """
     if np.issubdtype(type(sources), np.integer):
@@ -164,9 +164,9 @@ def shortest_path(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], t
             'This request is ambiguous. Either use one source and multiple targets or multiple sources and one target.')
 
     if source2target:
-        dists, preds = distance(adjacency, source, method, True, unweighted, n_jobs)
+        dists, preds = get_distances(adjacency, source, method, True, unweighted, n_jobs)
     else:
-        dists, preds = distance(adjacency.T, source, method, True, unweighted, n_jobs)
+        dists, preds = get_distances(adjacency.T, source, method, True, unweighted, n_jobs)
 
     paths = []
     for target in targets:

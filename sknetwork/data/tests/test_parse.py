@@ -115,7 +115,7 @@ class TestParser(unittest.TestCase):
         graph = parse.from_graphml(self.stub_data_6)
         adjacency = graph.adjacency
         colors = graph.node_attribute.color
-        distances = graph.edge_attribute.distance
+        distances = graph.edge_attribute.get_distances
         self.assertTrue((adjacency.indices == [1, 2, 0, 2, 0]).all())
         self.assertTrue((adjacency.indptr == [0, 2, 4, 5]).all())
         self.assertTrue((adjacency.data == [1, 1, 1, 1, 1]).all())
@@ -123,7 +123,7 @@ class TestParser(unittest.TestCase):
         self.assertTrue((distances == [7.2, 7.2, 1.5, 1.5, 1.5]).all())
         self.assertEqual(graph.meta.description, 'Some file')
         self.assertEqual(graph.meta.attributes.node.color, 'Color')
-        self.assertEqual(graph.meta.attributes.edge.distance, 'Distance')
+        self.assertEqual(graph.meta.attributes.edge.get_distances, 'Distance')
         remove(self.stub_data_6)
 
     def test_no_graphml(self):
