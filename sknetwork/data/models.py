@@ -124,7 +124,7 @@ def erdos_renyi(n: int = 20, p: float = .3, directed: bool = False, self_loops: 
     Erdős, P., Rényi, A. (1959). `On Random Graphs. <https://www.renyi.hu/~p_erdos/1959-11.pdf>`_
     Publicationes Mathematicae.
     """
-    return block_model([n], p, 0., seed, metadata=False)
+    return block_model([n], p, 0., directed=directed, self_loops=self_loops, metadata=False, seed=seed)
 
 
 def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:

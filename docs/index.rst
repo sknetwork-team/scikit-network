@@ -20,6 +20,7 @@ Welcome to scikit-network's documentation!
    reference/hierarchy
    reference/ranking
    reference/classification
+   reference/regression
    reference/embedding
    reference/linkpred
    reference/linalg
@@ -38,6 +39,7 @@ Welcome to scikit-network's documentation!
    tutorials/hierarchy/index
    tutorials/ranking/index
    tutorials/classification/index
+   tutorials/regression/index
    tutorials/embedding/index
    tutorials/linkpred/index
    tutorials/visualization/index

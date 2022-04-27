@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tests for ranking API"""
+"""tests for regression API"""
 import unittest
 
 from sknetwork.data.test_graphs import test_bigraph, test_graph, test_digraph
-from sknetwork.ranking import *
+from sknetwork.regression import *
 
 
-class TestPageRank(unittest.TestCase):
+class TestAPI(unittest.TestCase):
 
     def test_basic(self):
-        methods = [PageRank(), Closeness(), HITS(), Harmonic(), Katz()]
+        methods = [Diffusion(), Dirichlet()]
         for adjacency in [test_graph(), test_digraph()]:
             n = adjacency.shape[0]
             for method in methods:
@@ -22,11 +22,11 @@ class TestPageRank(unittest.TestCase):
         biadjacency = test_bigraph()
         n_row, n_col = biadjacency.shape
 
-        methods = [PageRank(), HITS(), Katz()]
+        methods = [Diffusion(), Dirichlet()]
         for method in methods:
             method.fit(biadjacency)
-            scores_row = method.scores_row_
-            scores_col = method.scores_col_
+            values_row = method.values_row_
+            values_col = method.values_col_
 
-            self.assertEqual(scores_row.shape, (n_row,))
-            self.assertEqual(scores_col.shape, (n_col,))
+            self.assertEqual(values_row.shape, (n_row,))
+            self.assertEqual(values_col.shape, (n_col,))

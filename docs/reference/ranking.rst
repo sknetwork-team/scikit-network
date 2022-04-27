@@ -11,14 +11,6 @@ PageRank
 --------
 .. autoclass:: sknetwork.ranking.PageRank
 
-Diffusion
----------
-.. autoclass:: sknetwork.ranking.Diffusion
-
-Dirichlet
----------
-.. autoclass:: sknetwork.ranking.Dirichlet
-
 Katz
 ----
 .. autoclass:: sknetwork.ranking.Katz
