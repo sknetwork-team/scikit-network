@@ -22,3 +22,6 @@ class TestMetrics(unittest.TestCase):
     def test_radius_1(self):
         adjacency = house()
         self.assertEqual(get_radius(adjacency), 2)
+    def test_radius_2(self):
+        adjacency = house()
+        self.assertEqual(get_radius(adjacency,[0,1]), 2)
