@@ -18,6 +18,7 @@ def get_diameter(adjacency: Union[sparse.csr_matrix, np.ndarray],
     """Lower bound on the diameter of a graph which is the length of the longest
     shortest path between two nodes.
 
+
     Parameters
     ----------
     adjacency :

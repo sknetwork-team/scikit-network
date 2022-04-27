@@ -192,6 +192,11 @@ class Louvain(BaseClustering, VerboseMixin):
 
         n = adjacency.shape[0]
 
+        index = np.arange(n)
+        if self.shuffle_nodes:
+            self.random_state.permutation(index)
+            adjacency = adjacency[index][:, index]
+
         if self.modularity == 'potts':
             probs_out = get_probs('uniform', adjacency)
             probs_in = probs_out.copy()
@@ -203,11 +208,6 @@ class Louvain(BaseClustering, VerboseMixin):
             probs_in = get_probs('degree', adjacency.T)
         else:
             raise ValueError('Unknown modularity function.')
-
-        nodes = np.arange(n)
-        if self.shuffle_nodes:
-            nodes = self.random_state.permutation(nodes)
-            adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
         adjacency_cluster = adjacency / adjacency.data.sum()
 
@@ -242,8 +242,8 @@ class Louvain(BaseClustering, VerboseMixin):
         else:
             labels = membership.indices
         if self.shuffle_nodes:
-            reverse = np.empty(nodes.size, nodes.dtype)
-            reverse[nodes] = np.arange(nodes.size)
+            reverse = np.empty(index.size, index.dtype)
+            reverse[index] = np.arange(index.size)
             labels = labels[reverse]
 
         self.labels_ = labels

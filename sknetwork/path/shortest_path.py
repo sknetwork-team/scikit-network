@@ -21,6 +21,7 @@ def get_distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Ite
     * Graphs
     * Digraphs
 
+
     Based on SciPy (scipy.sparse.csgraph.shortest_path)
 
     Parameters
@@ -46,14 +47,14 @@ def get_distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Ite
     Returns
     -------
     dist_matrix : np.ndarray
-        The matrix of distances between graph nodes. ``dist_matrix[i,j]`` gives the shortest
-        distance from point ``i`` to point ``j`` along the graph.
-        If no path exists between nodes ``i`` and ``j``, then ``dist_matrix[i, j] = np.inf``.
+        Matrix of distances between nodes. ``dist_matrix[i,j]`` gives the shortest
+        distance from the ``i``-th source to node ``j`` in the graph (infinite if no path exists
+        from the ``i``-th source to node ``j``).
     predecessors : np.ndarray, optional
         Returned only if ``return_predecessors == True``. The matrix of predecessors, which can be used to reconstruct
-        the shortest paths. Row i of the predecessor matrix contains information on the shortest paths from point ``i``:
-        each entry ``predecessors[i, j]`` gives the index of the previous node in the path from point ``i`` to point
-        ``j``. If no path exists between nodes ``i`` and ``j``, then ``predecessors[i, j] = -9999``.
+        the shortest paths. Row i of the predecessor matrix contains information on the shortest paths from the
+        ``i``-th source: each entry ``predecessors[i, j]`` gives the index of the previous node in the path from
+        the ``i``-th source to node (-1 if no path exists from the ``i``-th source to node ``j``).
 
     Examples
     --------
@@ -63,6 +64,7 @@ def get_distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Ite
     array([0., 1., 2.])
     >>> get_distances(adjacency, sources=0, return_predecessors=True)
     (array([0., 1., 2.]), array([-9999,     0,     1]))
+
     """
     n_jobs = check_n_jobs(n_jobs)
     if method == 'FW' and n_jobs != 1:
@@ -89,6 +91,7 @@ def get_distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Ite
             print("The shortest path computation could not be completed because a negative cycle is present.")
             pool.terminate()
     if return_predecessors:
+        res[1][res[1] < 0] = -1
         if n == 1:
             return res[0].ravel(), res[1].astype(int).ravel()
         else:
@@ -103,9 +106,6 @@ def get_distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Ite
 def get_shortest_path(adjacency: sparse.csr_matrix, sources: Union[int, Iterable], targets: Union[int, Iterable],
                       method: str = 'D', unweighted: bool = False, n_jobs: Optional[int] = None):
     """Compute the shortest paths in the graph.
-
-    * Graphs
-    * Digraphs
 
     Parameters
     ----------

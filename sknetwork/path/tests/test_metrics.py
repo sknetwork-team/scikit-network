@@ -7,6 +7,7 @@ from sknetwork.data import house
 from sknetwork.path import get_diameter, get_eccentricity, get_radius
 
 
+
 class TestMetrics(unittest.TestCase):
 
     def test_diameter_1(self):
@@ -25,3 +26,4 @@ class TestMetrics(unittest.TestCase):
     def test_radius_2(self):
         adjacency = house()
         self.assertEqual(get_radius(adjacency,[0,1]), 2)
+
