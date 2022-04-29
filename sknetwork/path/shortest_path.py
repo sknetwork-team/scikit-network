@@ -52,9 +52,9 @@ def get_distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Ite
         from the ``i``-th source to node ``j``).
     predecessors : np.ndarray, optional
         Returned only if ``return_predecessors == True``. The matrix of predecessors, which can be used to reconstruct
-        the shortest paths. Row i of the predecessor matrix contains information on the shortest paths from the
+        the shortest paths. Row ``i`` of the predecessor matrix contains information on the shortest paths from the
         ``i``-th source: each entry ``predecessors[i, j]`` gives the index of the previous node in the path from
-        the ``i``-th source to node (-1 if no path exists from the ``i``-th source to node ``j``).
+        the ``i``-th source to node ``j`` (-1 if no path exists from the ``i``-th source to node ``j``).
 
     Examples
     --------
@@ -63,7 +63,7 @@ def get_distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Ite
     >>> get_distances(adjacency, sources=0)
     array([0., 1., 2.])
     >>> get_distances(adjacency, sources=0, return_predecessors=True)
-    (array([0., 1., 2.]), array([-9999,     0,     1]))
+    (array([0., 1., 2.]), array([-1,  0,  1]))
 
     """
     n_jobs = check_n_jobs(n_jobs)

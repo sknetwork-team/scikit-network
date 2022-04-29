@@ -2,6 +2,11 @@
 History
 =======
 
+Upcoming release
+----------------
+
+* Add radius and eccentricity metrics, by Henry Carscadden (#522)
+
 0.25.0 (2022-03-15)
 -------------------
 

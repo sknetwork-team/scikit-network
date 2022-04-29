@@ -69,7 +69,7 @@ def get_diameter(adjacency: Union[sparse.csr_matrix, np.ndarray],
             sources = np.random.choice(n, n_sources, replace=False)
         else:
             raise ValueError("n_sources must be either None, an integer smaller"
-                            "than the number of nodes or a float"
+                             "than the number of nodes or a float"
                              "smaller than 1.")
     dists = get_distances(adjacency, sources, method='D', return_predecessors=False,
                           unweighted=unweighted, n_jobs=n_jobs).astype(int)
@@ -102,8 +102,6 @@ def get_radius(adjacency: Union[sparse.csr_matrix, np.ndarray],
     Returns
     -------
     radius : int
-
-
 
     Notes
     -----
@@ -146,8 +144,6 @@ def get_eccentricity(adjacency: Union[sparse.csr_matrix, np.ndarray], node: int,
     Returns
     -------
     eccentricity : int
-
-
     """
 
     dists = get_distances(adjacency, node, method='D', return_predecessors=False,
