@@ -59,14 +59,13 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     Journal of Machine Learning Research.
     """
     random_state = check_random_state(seed)
-    sizes = np.array(sizes)
 
     if isinstance(p_in, (np.floating, float, int)):
         p_in = p_in * np.ones_like(sizes)
     else:
         p_in = np.array(p_in)
 
-    matrix = []
+    blocks = []
     for i, a in enumerate(sizes):
         row = []
         for j, b in enumerate(sizes):
@@ -74,11 +73,14 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
                 row.append(sparse.random(a, a, p_in[i], dtype=bool, random_state=random_state))
             else:
                 row.append(sparse.random(a, b, p_out, dtype=bool, random_state=random_state))
-        matrix.append(row)
-    adjacency = sparse.bmat(matrix).tocsr()
+        blocks.append(row)
+    adjacency = sparse.bmat(blocks)
     if not self_loops:
+        adjacency = sparse.lil_matrix(adjacency)
         adjacency.setdiag(0)
-    if not directed:
+    if directed:
+        adjacency = sparse.csr_matrix(adjacency)
+    else:
         adjacency = directed2undirected(sparse.csr_matrix(sparse.triu(adjacency)), weighted=False)
     if metadata:
         graph = Bunch()
