@@ -9,7 +9,7 @@ from typing import Union, Optional
 import numpy as np
 from scipy import sparse
 
-from sknetwork.path.shortest_path import get_distances, get_shortest_path
+from sknetwork.path.shortest_path import get_distances
 
 
 def get_diameter(adjacency: Union[sparse.csr_matrix, np.ndarray],
@@ -110,9 +110,6 @@ def get_radius(adjacency: Union[sparse.csr_matrix, np.ndarray],
     """
 
     # Get the nodes.
-    n = adjacency.shape[0]
-    nodes = np.arange(n)
-
     dists = get_distances(adjacency, sources=n_sources, method='D',
                           return_predecessors=False,
                           unweighted=unweighted, n_jobs=n_jobs).astype(int)
