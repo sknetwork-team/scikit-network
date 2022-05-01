@@ -5,10 +5,11 @@
 import tempfile
 import unittest
 import warnings
+from pathlib import Path
 
 import numpy as np
 
-from sknetwork.data.load import load_netset, load_konect, clear_data_home, save, load
+from sknetwork.data.load import load_netset, load_netset_from_folder, load_konect, clear_data_home, save, load
 from sknetwork.data.toy_graphs import house, star_wars
 from sknetwork.utils.timeout import TimeOut
 
@@ -19,28 +20,21 @@ class TestLoader(unittest.TestCase):
         tmp_data_dir = tempfile.gettempdir() + '/stub'
         clear_data_home(tmp_data_dir)
         try:
-            graph = load_netset('stub', tmp_data_dir)
+            dataset = load_netset('stub', tmp_data_dir)
         except:  # pragma: no cover
             warnings.warn('Could not reach the NetSet collection. Corresponding test has not been performed.',
                           RuntimeWarning)
             return
         n = 2
-        self.assertEqual(graph.adjacency.shape, (n, n))
-        self.assertEqual(len(graph.names), n)
+        self.assertEqual(dataset.adjacency.shape, (n, n))
+        self.assertEqual(len(dataset.names), n)
         clear_data_home(tmp_data_dir)
 
-    def test_invalid_netset(self):
-        tmp_data_dir = tempfile.gettempdir() + '/stub'
-        clear_data_home(tmp_data_dir)
-        try:
-            with self.assertRaises(ValueError):
-                load_netset('junk', tmp_data_dir)
-
-        except:  # pragma: no cover
-            warnings.warn('Could not reach the NetSet collection. Corresponding test has not been performed.',
-                          RuntimeWarning)
-            return
-        load_netset()
+    def test_netset_from_folder(self):
+        path = Path('sknetwork')
+        path = path / 'data' / 'tests' / 'sample_netset'
+        dataset = load_netset_from_folder(path)
+        self.assertEqual(len(dataset.names), 10)
 
     def test_konect(self):
         tmp_data_dir = tempfile.gettempdir() + '/moreno_crime'
@@ -100,5 +94,3 @@ class TestLoader(unittest.TestCase):
         loaded_data = load(tmp_data_dir + '/star_wars')
         self.assertTrue(np.allclose(data.biadjacency.data, loaded_data.biadjacency.data))
         self.assertEqual(data.names_col[0], loaded_data.names_col[0])
-
-
