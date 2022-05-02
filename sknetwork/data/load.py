@@ -114,7 +114,7 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
             if file_extension == 'npz':
                 dataset[file_name] = sparse.load_npz(data_path / file)
             elif file_extension == 'npy':
-                dataset[file_name] = np.load(data_path / file)
+                dataset[file_name] = np.load(data_path / file, allow_pickle=True)
             elif file_extension == 'p':
                 with open(data_path / file, 'rb') as f:
                     dataset[file_name] = pickle.load(f)
