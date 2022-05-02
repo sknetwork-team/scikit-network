@@ -38,20 +38,22 @@ def hot_and_cold_seeds(labels_seeds):
     return seeds_all
 
 
-def process_scores(scores: np.ndarray) -> np.ndarray:
+def process_scores(scores: np.ndarray, centering: bool) -> np.ndarray:
     """Post-processing of the score matrix.
 
     Parameters
     ----------
     scores : np.ndarray
         Matrix of scores, shape number of nodes x number of labels.
-
+    centering : bool
+        Whether to center temperatures with respect to the mean.
     Returns
     -------
     scores: np.ndarray
     """
-    scores -= np.mean(scores, axis=0)
-    scores = np.exp(scores)
+    if centering:
+        scores -= np.mean(scores, axis=0)
+    scores = np.exp(5 * scores)
     return scores
 
 
@@ -64,6 +66,8 @@ class DiffusionClassifier(RankClassifier):
         Number of steps of the diffusion in discrete time (must be positive).
     damping_factor : float (optional)
         Damping factor (default value = 1).
+    centering : bool
+        Whether to center the temperatures with respect to the mean after diffusion (default = True).
     n_jobs : int
         If positive, number of parallel jobs allowed (-1 means maximum number).
         If ``None``, no parallel computations are made.
@@ -106,10 +110,11 @@ class DiffusionClassifier(RankClassifier):
       <http://pages.cs.wisc.edu/~jerryzhu/machineteaching/pub/thesis.pdf>`
       (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
     """
-    def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, n_jobs: Optional[int] = None):
+    def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, centering: bool = True,
+                 n_jobs: Optional[int] = None):
         algorithm = Diffusion(n_iter, damping_factor)
         super(DiffusionClassifier, self).__init__(algorithm, n_jobs)
-        self._process_scores = process_scores
+        self._process_scores = lambda x: process_scores(x, centering)
 
 
 class DirichletClassifier(RankClassifier):
@@ -122,6 +127,8 @@ class DirichletClassifier(RankClassifier):
         Otherwise, the solution is computed through BiConjugate Stabilized Gradient descent.
     damping_factor : float (optional)
         Damping factor (default value = 1).
+    centering : bool
+        Whether to center the temperatures with respect to the mean after diffusion (default = True).
     n_jobs : int
         If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
         If ``None``, no parallel computations are made.
@@ -161,9 +168,9 @@ class DirichletClassifier(RankClassifier):
     <http://pages.cs.wisc.edu/~jerryzhu/machineteaching/pub/thesis.pdf>`_
     (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
     """
-    def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, n_jobs: Optional[int] = None,
-                 verbose: bool = False):
+    def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, centering: bool = True,
+                 n_jobs: Optional[int] = None, verbose: bool = False):
         algorithm = Dirichlet(n_iter, damping_factor, verbose)
         super(DirichletClassifier, self).__init__(algorithm, n_jobs, verbose)
         self._process_seeds = hot_and_cold_seeds
-        self._process_scores = process_scores
+        self._process_scores = lambda x: process_scores(x, centering)
