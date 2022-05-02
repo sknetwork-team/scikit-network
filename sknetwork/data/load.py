@@ -208,7 +208,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
         file = metadata[0]
         dataset.meta = load_metadata(data_path / file)
 
-    attributes = [file for file in files if 'ent.' + dataset in file]
+    attributes = [file for file in files if 'ent.' + name in file]
     if attributes:
         for file in attributes:
             attribute_name = file.split('.')[-1]
