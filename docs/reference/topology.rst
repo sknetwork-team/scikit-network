@@ -10,6 +10,8 @@ Connectivity
 
 .. autofunction:: sknetwork.topology.get_connected_components
 
+.. autofunction:: sknetwork.topology.is_connected
+
 .. autofunction:: sknetwork.topology.get_largest_connected_component
 
 Structure

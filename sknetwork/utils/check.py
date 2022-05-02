@@ -19,7 +19,7 @@ def has_nonnegative_entries(input_matrix: Union[sparse.csr_matrix, np.ndarray]) 
         return np.all(input_matrix >= 0)
 
 
-def is_connected(adjacency: sparse.csr_matrix) -> bool:
+def is_weakly_connected(adjacency: sparse.csr_matrix) -> bool:
     """Check whether a graph is weakly connected.
     Parameters
     ----------
@@ -31,8 +31,8 @@ def is_connected(adjacency: sparse.csr_matrix) -> bool:
 
 
 def check_connected(adjacency: sparse.csr_matrix):
-    """Check is a graph is connected and return an error otherwise."""
-    if is_connected(adjacency):
+    """Check is a graph is weakly connected and return an error otherwise."""
+    if is_weakly_connected(adjacency):
         return
     else:
         raise ValueError('The graph is expected to be connected.')
