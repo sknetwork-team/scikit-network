@@ -81,13 +81,13 @@ def get_distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Ite
         try:
             res = sparse.csgraph.shortest_path(adjacency, method, directed, return_predecessors,
                                                unweighted, False, sources)
-        except sparse.csgraph.NegativeCycleError as e:
+        except sparse.csgraph.NegativeCycleError:
             raise ValueError("The shortest path computation could not be completed because a negative cycle is present.")
     else:
         try:
             with Pool(n_jobs) as pool:
                 res = np.array(pool.map(local_function, sources))
-        except sparse.csgraph.NegativeCycleError as e:
+        except sparse.csgraph.NegativeCycleError:
             pool.terminate()
             raise ValueError("The shortest path computation could not be completed because a negative cycle is present.")
     if return_predecessors:

@@ -4,9 +4,7 @@
 import unittest
 
 from sknetwork.data import karate_club, cyclic_digraph
-# has to specify the exact file to avoid nosetests error on full tests
 from sknetwork.path.shortest_path import get_distances, get_shortest_path
-from sknetwork.data import house
 import numpy as np
 from scipy.sparse import csr_matrix
 
@@ -33,16 +31,15 @@ class TestShortestPath(unittest.TestCase):
         self.assertRaises(ValueError, get_distances, adjacency, n_jobs=2, method='FW')
 
     def test_error_neg_cycle_parallel(self):
-        adj = np.ones((10, 10), dtype=np.int)
-        adj[:][:] = -10
-
+        adj = np.ones((5, 5), dtype=int)
+        adj[:][:] = -1
         adj = csr_matrix(adj)
         with self.assertRaises(ValueError):
-            get_distances(adj, method='FW')
+            get_distances(adj, method='BF')
+
     def test_error_neg_cycle(self):
-        adj = np.ones((10, 10), dtype=np.int)
-        adj[:][:] = -10
-
+        adj = np.ones((5, 5), dtype=int)
+        adj[:][:] = -1
         adj = csr_matrix(adj)
         with self.assertRaises(ValueError):
-            get_distances(adj, method='FW', n_jobs=1)
+            get_distances(adj, method='BF', n_jobs=1)
