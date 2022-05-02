@@ -16,7 +16,11 @@ from sknetwork.utils.check import check_n_jobs, is_symmetric
 
 def get_distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Iterable]] = None, method: str = 'D',
                   return_predecessors: bool = False, unweighted: bool = False, n_jobs: Optional[int] = None):
-    """Compute distances from some nodes (the sources).
+    """Compute distances between nodes.
+
+    * Graphs
+    * Digraphs
+
 
     Based on SciPy (scipy.sparse.csgraph.shortest_path)
 
@@ -48,9 +52,9 @@ def get_distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Ite
         from the ``i``-th source to node ``j``).
     predecessors : np.ndarray, optional
         Returned only if ``return_predecessors == True``. The matrix of predecessors, which can be used to reconstruct
-        the shortest paths. Row i of the predecessor matrix contains information on the shortest paths from the
+        the shortest paths. Row ``i`` of the predecessor matrix contains information on the shortest paths from the
         ``i``-th source: each entry ``predecessors[i, j]`` gives the index of the previous node in the path from
-        the ``i``-th source to node (-1 if no path exists from the ``i``-th source to node ``j``).
+        the ``i``-th source to node ``j`` (-1 if no path exists from the ``i``-th source to node ``j``).
 
     Examples
     --------
@@ -60,6 +64,7 @@ def get_distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Ite
     array([0., 1., 2.])
     >>> get_distances(adjacency, sources=0, return_predecessors=True)
     (array([0., 1., 2.]), array([-1,  0,  1]))
+
     """
     n_jobs = check_n_jobs(n_jobs)
     if method == 'FW' and n_jobs != 1:
@@ -73,11 +78,18 @@ def get_distances(adjacency: sparse.csr_matrix, sources: Optional[Union[int, Ite
     local_function = partial(sparse.csgraph.shortest_path,
                              adjacency, method, directed, return_predecessors, unweighted, False)
     if n_jobs == 1 or n == 1:
-        res = sparse.csgraph.shortest_path(adjacency, method, directed, return_predecessors,
-                                           unweighted, False, sources)
+        try:
+            res = sparse.csgraph.shortest_path(adjacency, method, directed, return_predecessors,
+                                               unweighted, False, sources)
+        except sparse.csgraph.NegativeCycleError:
+            raise ValueError("The shortest path computation could not be completed because a negative cycle is present.")
     else:
-        with Pool(n_jobs) as pool:
-            res = np.array(pool.map(local_function, sources))
+        try:
+            with Pool(n_jobs) as pool:
+                res = np.array(pool.map(local_function, sources))
+        except sparse.csgraph.NegativeCycleError:
+            pool.terminate()
+            raise ValueError("The shortest path computation could not be completed because a negative cycle is present.")
     if return_predecessors:
         res[1][res[1] < 0] = -1
         if n == 1:

@@ -40,6 +40,9 @@ Metrics
 -------
 
 .. autofunction:: sknetwork.path.get_diameter
+.. autofunction:: sknetwork.path.get_radius
+.. autofunction:: sknetwork.path.get_eccentricity
+
 
 
 
