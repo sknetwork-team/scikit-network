@@ -27,8 +27,7 @@ NETSET_URL = 'https://netset.telecom-paris.fr'
 
 
 def get_data_home(data_home: Optional[Union[str, Path]] = None) -> Path:
-    """
-    Return a path to a storage folder depending on the dedicated environment variable and user input.
+    """Return a path to a storage folder depending on the dedicated environment variable and user input.
 
     Parameters
     ----------
@@ -45,8 +44,7 @@ def get_data_home(data_home: Optional[Union[str, Path]] = None) -> Path:
 
 
 def clear_data_home(data_home: Optional[Union[str, Path]] = None):
-    """
-    Clear storage folder depending on the dedicated environment variable and user input.
+    """Clear storage folder depending on the dedicated environment variable and user input.
 
     Parameters
     ----------
@@ -57,54 +55,55 @@ def clear_data_home(data_home: Optional[Union[str, Path]] = None):
     shutil.rmtree(data_home)
 
 
-def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Path]] = None,
+def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]] = None,
                 verbose: bool = True) -> Bunch:
     """Load a dataset from the `NetSet database
     <https://netset.telecom-paris.fr/>`_.
 
     Parameters
     ----------
-    dataset : str
-        The name of the dataset (all low-case). Examples include 'openflights', 'cinema' and 'wikivitals'.
+    name : str
+        Name of the dataset (all low-case). Examples include 'openflights', 'cinema' and 'wikivitals'.
     data_home : str or :class:`pathlib.Path`
-        The folder to be used for dataset storage.
+        Folder to be used for dataset storage.
     verbose : bool
         Enable verbosity.
 
     Returns
     -------
-    graph : :class:`Bunch`
+    dataset : :class:`Bunch`
+        Returned dataset.
     """
-    graph = Bunch()
+    dataset = Bunch()
     npz_folder = NETSET_URL + '/datasets_npz/'
     logger = Log(verbose)
 
-    if dataset is None:
+    if name is None:
         print("Please specify the dataset (e.g., 'openflights' or 'wikivitals').\n" +
               f"Complete list available here: <{npz_folder}>.")
-        return graph
+        return dataset
     else:
-        dataset = dataset.lower()
+        name = name.lower()
     data_home = get_data_home(data_home)
-    data_path = data_home / dataset
+    data_path = data_home / name
     if not data_path.exists():
         makedirs(data_path, exist_ok=True)
         try:
-            logger.print('Downloading', dataset, 'from NetSet...')
-            urlretrieve(npz_folder + dataset + '_npz.tar.gz',
-                        data_home / (dataset + '_npz.tar.gz'))
+            logger.print('Downloading', name, 'from NetSet...')
+            urlretrieve(npz_folder + name + '_npz.tar.gz',
+                        data_home / (name + '_npz.tar.gz'))
         except HTTPError:
             rmdir(data_path)
-            raise ValueError('Invalid dataset: ' + dataset + '.'
+            raise ValueError('Invalid dataset: ' + name + '.'
                              + "\nAvailable datasets include 'openflights' and 'wikivitals'."
                              + f"\nSee <{NETSET_URL}>")
         except ConnectionResetError:  # pragma: no cover
             rmdir(data_path)
             raise RuntimeError("Could not reach Netset.")
-        with tarfile.open(data_home / (dataset + '_npz.tar.gz'), 'r:gz') as tar_ref:
+        with tarfile.open(data_home / (name + '_npz.tar.gz'), 'r:gz') as tar_ref:
             logger.print('Unpacking archive...')
             tar_ref.extractall(data_home)
-        remove(data_home / (dataset + '_npz.tar.gz'))
+        remove(data_home / (name + '_npz.tar.gz'))
 
     files = [file for file in listdir(data_path)]
     logger.print('Parsing files...')
@@ -113,39 +112,39 @@ def load_netset(dataset: Optional[str] = None, data_home: Optional[Union[str, Pa
         if len(file_components) == 2:
             file_name, file_extension = tuple(file_components)
             if file_extension == 'npz':
-                graph[file_name] = sparse.load_npz(data_path / file)
+                dataset[file_name] = sparse.load_npz(data_path / file)
             elif file_extension == 'npy':
-                graph[file_name] = np.load(data_path / file)
+                dataset[file_name] = np.load(data_path / file)
             elif file_extension == 'p':
                 with open(data_path / file, 'rb') as f:
-                    graph[file_name] = pickle.load(f)
+                    dataset[file_name] = pickle.load(f)
 
     logger.print('Done.')
-    return graph
+    return dataset
 
 
-def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto_numpy_bundle: bool = True,
+def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_numpy_bundle: bool = True,
                 verbose: bool = True) -> Bunch:
     """Load a dataset from the `Konect database
     <http://konect.cc/networks/>`_.
 
     Parameters
     ----------
-    dataset : str
-        The internal name of the dataset as specified on the Konect website (e.g. for the Zachary Karate club dataset,
+    name : str
+        Name of the dataset as specified on the Konect website (e.g. for the Zachary Karate club dataset,
         the corresponding name is ``'ucidata-zachary'``).
     data_home : str or :class:`pathlib.Path`
-        The folder to be used for dataset storage
+        Folder to be used for dataset storage.
     auto_numpy_bundle : bool
-        Denotes if the dataset should be stored in its default format (False) or using Numpy files for faster
+        Whether the dataset should be stored in its default format (False) or using Numpy files for faster
         subsequent access to the dataset (True).
     verbose : bool
         Enable verbosity.
 
     Returns
     -------
-    graph : :class:`Bunch`
-        An object with the following attributes:
+    dataset : :class:`Bunch`
+        Object with the following attributes:
 
              * `adjacency` or `biadjacency`: the adjacency/biadjacency matrix for the dataset
              * `meta`: a dictionary containing the metadata as specified by Konect
@@ -164,70 +163,70 @@ def load_konect(dataset: str, data_home: Optional[Union[str, Path]] = None, auto
     In Proceedings of the 22nd International Conference on World Wide Web (pp. 1343-1350).
     """
     logger = Log(verbose)
-    if dataset == '':
+    if name == '':
         raise ValueError("Please specify the dataset. "
                          + "\nExamples include 'actor-movie' and 'ego-facebook'."
                          + "\n See 'http://konect.cc/networks/' for the full list.")
     data_home = get_data_home(data_home)
-    data_path = data_home / dataset
+    data_path = data_home / name
     if not data_path.exists():
-        logger.print('Downloading', dataset, 'from Konect...')
+        logger.print('Downloading', name, 'from Konect...')
         makedirs(data_path, exist_ok=True)
         try:
-            urlretrieve('http://konect.cc/files/download.tsv.' + dataset + '.tar.bz2',
-                        data_home / (dataset + '.tar.bz2'))
-            with tarfile.open(data_home / (dataset + '.tar.bz2'), 'r:bz2') as tar_ref:
+            urlretrieve('http://konect.cc/files/download.tsv.' + name + '.tar.bz2',
+                        data_home / (name + '.tar.bz2'))
+            with tarfile.open(data_home / (name + '.tar.bz2'), 'r:bz2') as tar_ref:
                 logger.print('Unpacking archive...')
                 tar_ref.extractall(data_home)
         except (HTTPError, tarfile.ReadError):
             rmdir(data_path)
-            raise ValueError('Invalid dataset ' + dataset + '.'
+            raise ValueError('Invalid dataset ' + name + '.'
                              + "\nExamples include 'actor-movie' and 'ego-facebook'."
                              + "\n See 'http://konect.cc/networks/' for the full list.")
         except (URLError, ConnectionResetError):  # pragma: no cover
             rmdir(data_path)
             raise RuntimeError("Could not reach Konect.")
         finally:
-            if exists(data_home / (dataset + '.tar.bz2')):
-                remove(data_home / (dataset + '.tar.bz2'))
-    elif exists(data_path / (dataset + '_bundle')):
+            if exists(data_home / (name + '.tar.bz2')):
+                remove(data_home / (name + '.tar.bz2'))
+    elif exists(data_path / (name + '_bundle')):
         logger.print('Loading from local bundle...')
-        return load_from_numpy_bundle(dataset + '_bundle', data_path)
+        return load_from_numpy_bundle(name + '_bundle', data_path)
 
-    graph = Bunch()
+    dataset = Bunch()
 
-    files = [file for file in listdir(data_path) if dataset in file]
+    files = [file for file in listdir(data_path) if name in file]
     logger.print('Parsing files...')
     matrix = [file for file in files if 'out.' in file]
     if matrix:
         file = matrix[0]
         directed, bipartite, weighted = load_header(data_path / file)
-        graph = from_csv(data_path / file, directed=directed, bipartite=bipartite, weighted=weighted)
+        dataset = from_csv(data_path / file, directed=directed, bipartite=bipartite, weighted=weighted)
 
     metadata = [file for file in files if 'meta.' in file]
     if metadata:
         file = metadata[0]
-        graph.meta = load_metadata(data_path / file)
+        dataset.meta = load_metadata(data_path / file)
 
     attributes = [file for file in files if 'ent.' + dataset in file]
     if attributes:
         for file in attributes:
             attribute_name = file.split('.')[-1]
-            graph[attribute_name] = load_labels(data_path / file)
+            dataset[attribute_name] = load_labels(data_path / file)
 
-    if hasattr(graph, 'meta'):
-        if hasattr(graph.meta, 'name'):
+    if hasattr(dataset, 'meta'):
+        if hasattr(dataset.meta, 'name'):
             pass
         else:
-            graph.meta.name = dataset
+            dataset.meta.name = name
     else:
-        graph.meta = Bunch()
-        graph.meta.name = dataset
+        dataset.meta = Bunch()
+        dataset.meta.name = name
 
     if auto_numpy_bundle:
-        save_to_numpy_bundle(graph, dataset + '_bundle', data_path)
+        save_to_numpy_bundle(dataset, name + '_bundle', data_path)
 
-    return graph
+    return dataset
 
 
 def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[Union[str, Path]] = None):
@@ -236,11 +235,11 @@ def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[Unio
     Parameters
     ----------
     data: Bunch
-        The data to save
+        Data to save.
     bundle_name: str
-        The name to be used for the bundle folder
+        Name to be used for the bundle folder.
     data_home: str or :class:`pathlib.Path`
-        The folder to be used for dataset storage
+        Folder to be used for dataset storage.
     """
     data_home = get_data_home(data_home)
     data_path = data_home / bundle_name
@@ -263,14 +262,14 @@ def load_from_numpy_bundle(bundle_name: str, data_home: Optional[Union[str, Path
     Parameters
     ----------
     bundle_name: str
-        The name used for the bundle folder
+        Name of the bundle folder.
     data_home: str or :class:`pathlib.Path`
-        The folder used for dataset storage
+        Folder used for dataset storage.
 
     Returns
     -------
     data: Bunch
-        The original data
+        Data.
     """
     data_home = get_data_home(data_home)
     data_path = data_home / bundle_name
@@ -299,18 +298,18 @@ def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Bunch]):
     Parameters
     ----------
     folder : str or :class:`pathlib.Path`
-        The name to be used for the bundle folder
+        Name of the bundle folder.
     data : Union[sparse.csr_matrix, Bunch]
-        The data to save
+        Data to save.
 
     Example
     -------
     >>> from sknetwork.data import save
-    >>> graph = Bunch()
-    >>> graph.adjacency = sparse.csr_matrix(np.random.random((10, 10)) < 0.2)
-    >>> graph.names = np.array(list('abcdefghij'))
-    >>> save('random_data', graph)
-    >>> 'random_data' in listdir('.')
+    >>> my_dataset = Bunch()
+    >>> my_dataset.adjacency = sparse.csr_matrix(np.random.random((3, 3)) < 0.5)
+    >>> my_dataset.names = np.array(['a', 'b', 'c'])
+    >>> save('my_dataset', my_dataset)
+    >>> 'my_dataset' in listdir('.')
     True
     """
     folder = Path(folder)
@@ -336,21 +335,21 @@ def load(folder: Union[str, Path]):
     Parameters
     ----------
     folder: str
-        The name used for the bundle folder
+        Name of the bundle folder.
 
     Returns
     -------
     data: Bunch
-        The original data
+        Data.
 
     Example
     -------
     >>> from sknetwork.data import save
-    >>> graph = Bunch()
-    >>> graph.adjacency = sparse.csr_matrix(np.random.random((10, 10)) < 0.2)
-    >>> graph.names = np.array(list('abcdefghij'))
-    >>> save('random_data', graph)
-    >>> loaded_graph = load('random_data')
+    >>> my_dataset = Bunch()
+    >>> my_dataset.adjacency = sparse.csr_matrix(np.random.random((3, 3)) < 0.5)
+    >>> my_dataset.names = np.array(['a', 'b', 'c'])
+    >>> save('my_dataset', my_dataset)
+    >>> loaded_graph = load('my_dataset')
     >>> loaded_graph.names[0]
     'a'
     """
