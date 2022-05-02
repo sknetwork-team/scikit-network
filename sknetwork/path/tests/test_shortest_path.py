@@ -35,7 +35,7 @@ class TestShortestPath(unittest.TestCase):
         adj[:][:] = -1
         adj = csr_matrix(adj)
         with self.assertRaises(ValueError):
-            get_distances(adj, method='BF')
+            get_distances(adj, method='BF', n_jobs=2)
 
     def test_error_neg_cycle(self):
         adj = np.ones((5, 5), dtype=int)
