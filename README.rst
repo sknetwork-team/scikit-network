@@ -51,9 +51,9 @@ Import scikit-network::
 
     import sknetwork
 
-See examples in the :ref:`tutorials<tutorials>`; the notebooks are available here_.
+See examples in the tutorials_; the notebooks are available here_.
 
-You can also have a look at some :ref:`use cases<use_cases>`.
+You can also have a look at some use-cases_.
 
 Citing
 ------
@@ -74,4 +74,6 @@ the `Journal of Machine Learning Research <https://jmlr.org>`_:
       url     = {http://jmlr.org/papers/v21/20-412.html}
     }
 
+.. _tutorials: https://scikit-network.readthedocs.io/en/latest/index.html#tutorials
+.. _use-cases: https://scikit-network.readthedocs.io/en/latest/index.html#use-cases
 .. _here: https://github.com/sknetwork-team/scikit-network/tree/master/docs/tutorials
