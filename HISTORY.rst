@@ -2,10 +2,15 @@
 History
 =======
 
-Upcoming release
-----------------
+0.26.0 (2022-05-03)
+-------------------
 
+* Add module on regression, by Thomas Bonald
+* Add connected components for bipartite graphs, by Thomas Bonald
+* Update functions for loading graphs, by Thomas Bonald
+* Fix shuffling nodes in Louvain (issue #521), by Thomas Bonald
 * Add radius and eccentricity metrics, by Henry Carscadden (#522)
+* Add new use case (recommendation), by Thomas Bonald
 
 0.25.0 (2022-03-15)
 -------------------
