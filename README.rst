@@ -59,7 +59,7 @@ You can also have a look at some `use cases <https://scikit-network.readthedocs.
 Citing
 ------
 
-If you want to cite :mod:`scikit-network`, please refer to the publication in
+If you want to cite scikit-network, please refer to the publication in
 the `Journal of Machine Learning Research <https://jmlr.org>`_:
 
 .. code::
