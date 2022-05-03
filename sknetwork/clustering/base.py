@@ -74,8 +74,7 @@ class BaseClustering(Algorithm, ABC):
     def _secondary_outputs(self, input_matrix: sparse.csr_matrix):
         """Compute different variables from labels_."""
         if self.return_membership or self.return_aggregate:
-            if np.issubdtype(input_matrix.data.dtype, np.bool_):
-                input_matrix = input_matrix.astype(float)
+            input_matrix = input_matrix.astype(float)
             if not self.bipartite:
                 membership = membership_matrix(self.labels_)
                 if self.return_membership:

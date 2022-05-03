@@ -12,9 +12,9 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding import BaseEmbedding, Spectral
+from sknetwork.clustering.kmeans import get_embedding
 from sknetwork.hierarchy.base import BaseHierarchy
 from sknetwork.utils.check import check_format
-from sknetwork.utils.format import get_embedding
 from sknetwork.utils.ward import WardDense
 
 

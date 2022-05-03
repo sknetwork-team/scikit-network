@@ -15,7 +15,7 @@ from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.louvain_core import fit_core
 from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.utils.check import check_random_state, get_probs
-from sknetwork.utils.format import get_adjacency, directed2undirected
+from sknetwork.utils.format import check_format, get_adjacency, directed2undirected
 from sknetwork.utils.membership import membership_matrix
 from sknetwork.utils.verbose import VerboseMixin
 
@@ -183,7 +183,7 @@ class Louvain(BaseClustering, VerboseMixin):
         self: :class:`Louvain`
         """
         self._init_vars()
-
+        input_matrix = check_format(input_matrix)
         if self.modularity == 'dugue':
             adjacency, self.bipartite = get_adjacency(input_matrix, force_directed=True,
                                                       force_bipartite=force_bipartite)
@@ -191,6 +191,11 @@ class Louvain(BaseClustering, VerboseMixin):
             adjacency, self.bipartite = get_adjacency(input_matrix, force_bipartite=force_bipartite)
 
         n = adjacency.shape[0]
+
+        index = np.arange(n)
+        if self.shuffle_nodes:
+            self.random_state.permutation(index)
+            adjacency = adjacency[index][:, index]
 
         if self.modularity == 'potts':
             probs_out = get_probs('uniform', adjacency)
@@ -203,11 +208,6 @@ class Louvain(BaseClustering, VerboseMixin):
             probs_in = get_probs('degree', adjacency.T)
         else:
             raise ValueError('Unknown modularity function.')
-
-        nodes = np.arange(n)
-        if self.shuffle_nodes:
-            nodes = self.random_state.permutation(nodes)
-            adjacency = adjacency[nodes, :].tocsc()[:, nodes].tocsr()
 
         adjacency_cluster = adjacency / adjacency.data.sum()
 
@@ -242,8 +242,8 @@ class Louvain(BaseClustering, VerboseMixin):
         else:
             labels = membership.indices
         if self.shuffle_nodes:
-            reverse = np.empty(nodes.size, nodes.dtype)
-            reverse[nodes] = np.arange(nodes.size)
+            reverse = np.empty(index.size, index.dtype)
+            reverse[index] = np.arange(index.size)
             labels = labels[reverse]
 
         self.labels_ = labels

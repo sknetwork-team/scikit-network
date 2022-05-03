@@ -129,8 +129,7 @@ class JaccardIndex(FirstOrder):
 
     References
     ----------
-    Jaccard, P. (1901) étude comparative de la distribution florale dans une portion des Alpes et du Jura.
-    Bulletin de la Société Vaudoise des Sciences Naturelles, 37, 547-579.
+    Levandowsky, M., & Winter, D. (1971). Distance between sets. Nature, 234(5323), 34-35.
     """
     def __init__(self):
         super(JaccardIndex, self).__init__()

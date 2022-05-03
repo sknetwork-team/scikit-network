@@ -9,7 +9,7 @@ from typing import Optional, Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.utils.check import check_random_state
+from sknetwork.utils.check import check_format, check_random_state
 from sknetwork.utils.format import get_adjacency
 from sknetwork.clustering.louvain import Louvain
 from sknetwork.embedding.base import BaseEmbedding
@@ -129,6 +129,7 @@ class LouvainNE(BaseEmbedding):
         self: :class:`LouvainNE`
         """
         # input
+        input_matrix = check_format(input_matrix)
         adjacency, self.bipartite = get_adjacency(input_matrix, force_bipartite=force_bipartite)
         n = adjacency.shape[0]
 

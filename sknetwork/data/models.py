@@ -12,10 +12,10 @@ from typing import Union, Optional, Iterable
 import numpy as np
 from scipy import sparse
 
+from sknetwork.data.parse import from_edge_list
 from sknetwork.utils import Bunch
 from sknetwork.utils.check import check_random_state
 from sknetwork.utils.format import directed2undirected
-from sknetwork.utils.parse import edgelist2adjacency
 
 
 def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_out: float = .05,
@@ -59,14 +59,13 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     Journal of Machine Learning Research.
     """
     random_state = check_random_state(seed)
-    sizes = np.array(sizes)
 
     if isinstance(p_in, (np.floating, float, int)):
         p_in = p_in * np.ones_like(sizes)
     else:
         p_in = np.array(p_in)
 
-    matrix = []
+    blocks = []
     for i, a in enumerate(sizes):
         row = []
         for j, b in enumerate(sizes):
@@ -74,11 +73,14 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
                 row.append(sparse.random(a, a, p_in[i], dtype=bool, random_state=random_state))
             else:
                 row.append(sparse.random(a, b, p_out, dtype=bool, random_state=random_state))
-        matrix.append(row)
-    adjacency = sparse.bmat(matrix).tocsr()
+        blocks.append(row)
+    adjacency = sparse.bmat(blocks)
     if not self_loops:
+        adjacency = sparse.lil_matrix(adjacency)
         adjacency.setdiag(0)
-    if not directed:
+    if directed:
+        adjacency = sparse.csr_matrix(adjacency)
+    else:
         adjacency = directed2undirected(sparse.csr_matrix(sparse.triu(adjacency)), weighted=False)
     if metadata:
         graph = Bunch()
@@ -124,7 +126,7 @@ def erdos_renyi(n: int = 20, p: float = .3, directed: bool = False, self_loops: 
     Erdős, P., Rényi, A. (1959). `On Random Graphs. <https://www.renyi.hu/~p_erdos/1959-11.pdf>`_
     Publicationes Mathematicae.
     """
-    return block_model([n], p, 0., seed, metadata=False)
+    return block_model([n], p, 0., directed=directed, self_loops=self_loops, metadata=False, seed=seed)
 
 
 def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
@@ -308,7 +310,7 @@ def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr
     edges += [((i1, i2), (i1, i2 + 1)) for i1 in range(n1) for i2 in range(n2 - 1)]
     node_id = {u: i for i, u in enumerate(nodes)}
     edges = list(map(lambda edge: (node_id[edge[0]], node_id[edge[1]]), edges))
-    adjacency = edgelist2adjacency(edges, undirected=True)
+    adjacency = from_edge_list(edges, reindex=False, matrix_only=True)
     if metadata:
         graph = Bunch()
         graph.adjacency = adjacency
@@ -341,7 +343,7 @@ def star(n_branches: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix
     (4, 4)
     """
     edges = [(0, i+1) for i in range(n_branches)]
-    adjacency = edgelist2adjacency(edges, undirected=True)
+    adjacency = from_edge_list(edges, reindex=False, matrix_only=True)
     if metadata:
         graph = Bunch()
         graph.adjacency = adjacency
@@ -352,7 +354,7 @@ def star(n_branches: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix
         return adjacency
 
 
-def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True, seed: Optional[int] = None) \
+def albert_barabasi(n: int = 100, degree: int = 3, directed: bool = False, seed: Optional[int] = None) \
         -> sparse.csr_matrix:
     """Albert-Barabasi model.
 
@@ -362,8 +364,8 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True, seed
         Number of nodes.
     degree : int
         Degree of incoming nodes (less than **n**).
-    undirected : bool
-        If ``True``, return an undirected graph.
+    directed : bool
+        If ``True``, return a directed graph.
     seed :
         Seed of the random generator (optional).
 
@@ -394,7 +396,7 @@ def albert_barabasi(n: int = 100, degree: int = 3, undirected: bool = True, seed
         degrees[neighbors] += 1
         degrees[i] = degree
         edges += [(i, j) for j in neighbors]
-    return edgelist2adjacency(edges, undirected)
+    return from_edge_list(edges, directed=directed, reindex=False, matrix_only=True)
 
 
 def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, seed: Optional[int] = None,

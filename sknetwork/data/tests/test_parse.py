@@ -16,8 +16,7 @@ class TestParser(unittest.TestCase):
         self.stub_data_1 = 'stub_1.txt'
         with open(self.stub_data_1, "w") as text_file:
             text_file.write('%stub\n1 3\n4 5\n0 2')
-        graph = parse.load_edge_list(self.stub_data_1)
-        adjacency = graph.adjacency
+        adjacency = parse.from_csv(self.stub_data_1)
         self.assertTrue((adjacency.indices == [2, 3, 0, 1, 5, 4]).all())
         self.assertTrue((adjacency.indptr == [0, 1, 2, 3, 4, 5, 6]).all())
         self.assertTrue((adjacency.data == [1, 1, 1, 1, 1, 1]).all())
@@ -27,7 +26,7 @@ class TestParser(unittest.TestCase):
         self.stub_data_2 = 'stub_2.txt'
         with open(self.stub_data_2, "w") as text_file:
             text_file.write('%stub\nf, e, 5\na, d, 6\nc, b, 1')
-        graph = parse.load_edge_list(self.stub_data_2)
+        graph = parse.from_csv(self.stub_data_2)
         adjacency = graph.adjacency
         names = graph.names
         self.assertTrue((adjacency.indices == [4, 3, 5, 1, 0, 2]).all())
@@ -40,27 +39,18 @@ class TestParser(unittest.TestCase):
         self.stub_data_4 = 'stub_4.txt'
         with open(self.stub_data_4, "w") as text_file:
             text_file.write('%stub\n14 31\n42 50\n0 12')
-        graph = parse.load_edge_list(self.stub_data_4)
+        graph = parse.from_csv(self.stub_data_4)
         adjacency = graph.adjacency
         names = graph.names
-        self.assertTrue((adjacency.indices == [1, 0, 3, 2, 5, 4]).all())
-        self.assertTrue((adjacency.indptr == [0, 1, 2, 3, 4, 5, 6]).all())
         self.assertTrue((adjacency.data == [1, 1, 1, 1, 1, 1]).all())
         self.assertTrue((names == [0, 12, 14, 31, 42, 50]).all())
         remove(self.stub_data_4)
 
-    def test_wrong_format_fast(self):
+    def test_wrong_format(self):
         self.stub_data_3 = 'stub_3.txt'
         with open(self.stub_data_3, "w") as text_file:
             text_file.write('%stub\n1 3 a\n4 5 b\n0 2 e')
-        self.assertRaises(ValueError, parse.load_edge_list, self.stub_data_3)
-        remove(self.stub_data_3)
-
-    def test_wrong_format_slow(self):
-        self.stub_data_3 = 'stub_3.txt'
-        with open(self.stub_data_3, "w") as text_file:
-            text_file.write('%stub\n1 3 a\n4 5 b\n0 2 e')
-        self.assertRaises(ValueError, parse.load_edge_list, self.stub_data_3, fast_format=False)
+        self.assertRaises(ValueError, parse.from_csv, self.stub_data_3)
         remove(self.stub_data_3)
 
     def test_graphml_basic(self):
@@ -78,7 +68,7 @@ class TestParser(unittest.TestCase):
                                     <edge source="node1" target="node2">
                                       <data key="d0">1</data>
                                     </edge></graph></graphml>""")
-        graph = parse.load_graphml(self.stub_data_5)
+        graph = parse.from_graphml(self.stub_data_5)
         adjacency = graph.adjacency
         names = graph.names
         self.assertTrue((adjacency.indices == [1]).all())
@@ -122,7 +112,7 @@ class TestParser(unittest.TestCase):
                                     <edge source="n0" target="n2" directed='false'>
                                       <data key="d0">1</data>
                                     </edge></graph></graphml>""")
-        graph = parse.load_graphml(self.stub_data_6)
+        graph = parse.from_graphml(self.stub_data_6)
         adjacency = graph.adjacency
         colors = graph.node_attribute.color
         distances = graph.edge_attribute.distance
@@ -146,47 +136,54 @@ class TestParser(unittest.TestCase):
                                     http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
                                     <key id="d0" for="edge" attr.name="weight" attr.type="int"/>
                                     </graphml>""")
-        self.assertRaises(ValueError, parse.load_graphml, self.stub_data_7)
+        self.assertRaises(ValueError, parse.from_graphml, self.stub_data_7)
         remove(self.stub_data_7)
 
-    def test_adjacency_list(self):
+    def test_csv_adjacency(self):
         self.stub_data_8 = 'stub_8.txt'
         with open(self.stub_data_8, "w") as text_file:
             text_file.write('%stub\n2\n3\n0\n1\n5\n4')
-        graph = parse.load_adjacency_list(self.stub_data_8)
-        adjacency = graph.adjacency
+        adjacency = parse.from_csv(self.stub_data_8)
         self.assertTupleEqual(adjacency.shape, (6, 6))
         self.assertTrue((adjacency.indices == [2, 3, 0, 1, 5, 4]).all())
         self.assertTrue((adjacency.indptr == [0, 1, 2, 3, 4, 5, 6]).all())
-        self.assertTrue((adjacency.data == [1, 1, 1, 1, 1, 1]).all())
+        self.assertTrue((adjacency.data == [2, 2, 2, 2, 2, 2]).all())
+        graph = parse.from_csv(self.stub_data_8, matrix_only=False)
+        adjacency = graph.adjacency
+        self.assertTupleEqual(adjacency.shape, (6, 6))
+        remove(self.stub_data_8)
+        # without comment line
+        self.stub_data_8 = 'stub_8.txt'
+        with open(self.stub_data_8, "w") as text_file:
+            text_file.write('2\n3\n0\n1\n5\n4')
+        adjacency = parse.from_csv(self.stub_data_8)
+        self.assertTupleEqual(adjacency.shape, (6, 6))
         remove(self.stub_data_8)
 
-    def test_bipartite_edge_list(self):
+    def test_csv_bipartite(self):
         self.stub_data_9 = 'stub_9.txt'
         with open(self.stub_data_9, "w") as text_file:
-            text_file.write('%stub\n1 3\n4 5\n0 3')
-        graph = parse.load_edge_list(self.stub_data_9, bipartite=True)
+            text_file.write('#stub\n1 3\n4 5\n0 3')
+        graph = parse.from_csv(self.stub_data_9, bipartite=True)
         biadjacency = graph.biadjacency
         self.assertTrue((biadjacency.indices == [0, 0, 1]).all())
         self.assertTrue((biadjacency.indptr == [0, 1, 2, 3]).all())
         self.assertTrue((biadjacency.data == [1, 1, 1]).all())
         remove(self.stub_data_9)
 
-    def test_bipartite_adjacency_list(self):
+    def test_csv_adjacency_bipartite(self):
         self.stub_data_10 = 'stub_10.txt'
         with open(self.stub_data_10, "w") as text_file:
             text_file.write('%stub\n3\n3\n0')
-        graph = parse.load_adjacency_list(self.stub_data_10, bipartite=True)
+        graph = parse.from_csv(self.stub_data_10, bipartite=True)
         biadjacency = graph.biadjacency
-        self.assertTupleEqual(biadjacency.shape, (3, 4))
-        self.assertTrue((biadjacency.indices == [3, 3, 0]).all())
-        self.assertTrue((biadjacency.indptr == [0, 1, 2, 3]).all())
+        self.assertTupleEqual(biadjacency.shape, (3, 2))
         self.assertTrue((biadjacency.data == [1, 1, 1]).all())
         remove(self.stub_data_10)
 
-    def test_local_edge_list(self):
+    def test_edge_list(self):
         edge_list_1 = [('Alice', 'Bob'), ('Carol', 'Alice')]
-        graph = parse.convert_edge_list(edge_list_1)
+        graph = parse.from_edge_list(edge_list_1)
         adjacency = graph.adjacency
         names = graph.names
         self.assertTrue((names == ['Alice', 'Bob', 'Carol']).all())
@@ -196,7 +193,7 @@ class TestParser(unittest.TestCase):
         self.assertTrue((adjacency.data == [1, 1, 1, 1]).all())
 
         edge_list_2 = [('Alice', 'Bob', 4), ('Carol', 'Alice', 6)]
-        graph = parse.convert_edge_list(edge_list_2)
+        graph = parse.from_edge_list(edge_list_2)
         adjacency = graph.adjacency
         names = graph.names
         self.assertTrue((names == ['Alice', 'Bob', 'Carol']).all())
@@ -206,19 +203,23 @@ class TestParser(unittest.TestCase):
         self.assertTrue((adjacency.data == [4, 6, 4, 6]).all())
 
         edge_list_3 = [('Alice', 'Bob'), ('Carol', 'Alice'), ('Alice', 'Bob')]
-        graph = parse.convert_edge_list(edge_list_3, directed=True)
+        graph = parse.from_edge_list(edge_list_3, directed=True)
         adjacency = graph.adjacency
         names = graph.names
         self.assertTrue((names == ['Alice', 'Bob', 'Carol']).all())
         self.assertTupleEqual(adjacency.shape, (3, 3))
         self.assertTrue((adjacency.data == [2, 1]).all())
 
-        graph = parse.convert_edge_list(edge_list_3, directed=True, weighted=False)
+        adjacency = parse.from_edge_list(edge_list_3, directed=True, matrix_only=True)
+        self.assertTupleEqual(adjacency.shape, (3, 3))
+
+        graph = parse.from_edge_list(edge_list_3, directed=True, weighted=False)
         adjacency = graph.adjacency
         self.assertTrue((adjacency.data == [1, 1]).all())
 
+    def test_adjacency_list(self):
         edge_list_4 = {'Alice': ['Bob', 'Carol'], 'Bob': ['Carol']}
-        graph = parse.convert_edge_list(edge_list_4, directed=True)
+        graph = parse.from_adjacency_list(edge_list_4, directed=True)
         adjacency = graph.adjacency
         names = graph.names
         self.assertTrue((names == ['Alice', 'Bob', 'Carol']).all())
@@ -226,15 +227,12 @@ class TestParser(unittest.TestCase):
         self.assertTrue((adjacency.data == [1, 1, 1]).all())
 
         edge_list_5 = [[0, 1, 2], [2, 3]]
-        graph = parse.convert_edge_list(edge_list_5, directed=True, named=False)
-        adjacency = graph.adjacency
+        adjacency = parse.from_adjacency_list(edge_list_5, directed=True)
         self.assertTupleEqual(adjacency.shape, (4, 4))
         self.assertTrue((adjacency.data == [1, 1, 1, 1, 1]).all())
 
     def test_bad_format_edge_list(self):
-        edge_list_1 = [('Alice', 'Bob', 3, 5), ('Carol', 'Alice', 6, 8)]
-        self.assertRaises(ValueError, parse.convert_edge_list, edge_list_1)
         edge_list_2 = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
-        self.assertRaises(ValueError, parse.convert_edge_list, edge_list_2)
+        self.assertRaises(ValueError, parse.from_edge_list, edge_list_2)
         edge_list_3 = 'ab cd'
-        self.assertRaises(TypeError, parse.convert_edge_list, edge_list_3)
+        self.assertRaises(TypeError, parse.from_edge_list, edge_list_3)

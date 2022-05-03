@@ -11,7 +11,7 @@ from scipy import sparse
 
 from sknetwork.classification.propagation import Propagation
 from sknetwork.clustering.base import BaseClustering
-from sknetwork.utils.format import get_adjacency
+from sknetwork.utils.format import check_format, get_adjacency
 
 
 class PropagationClustering(BaseClustering, Propagation):
@@ -92,6 +92,7 @@ class PropagationClustering(BaseClustering, Propagation):
         self._init_vars()
 
         # input
+        input_matrix = check_format(input_matrix)
         adjacency, bipartite = get_adjacency(input_matrix)
 
         # propagation

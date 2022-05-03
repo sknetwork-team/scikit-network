@@ -14,7 +14,7 @@ from sknetwork.clustering.louvain import Louvain
 from sknetwork.hierarchy.base import BaseHierarchy
 from sknetwork.hierarchy.postprocess import get_dendrogram, reorder_dendrogram
 from sknetwork.utils.check import check_format
-from sknetwork.utils.format import bipartite2undirected, get_adjacency
+from sknetwork.utils.format import get_adjacency
 
 
 class LouvainHierarchy(BaseHierarchy):
@@ -139,6 +139,7 @@ class LouvainHierarchy(BaseHierarchy):
         self: :class:`LouvainHierarchy`
         """
         self._init_vars()
+        input_matrix = check_format(input_matrix)
         adjacency, self.bipartite = get_adjacency(input_matrix)
         tree = self._recursive_louvain(adjacency, self.depth)
         dendrogram, _ = get_dendrogram(tree)

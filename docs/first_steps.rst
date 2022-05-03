@@ -2,9 +2,10 @@
 
 :mod:`scikit-network` is an open-source python package for the analysis of large graphs.
 
+Each graph is represented by a sparse ``scipy CSR matrix``.
 
-Installation
-------------
+Install
+-------
 
 To install :mod:`scikit-network`, run this command in your terminal:
 
@@ -36,18 +37,17 @@ Import :mod:`scikit-network` in Python:
 
     import sknetwork as skn
 
-Data structure
---------------
+Load
+----
 
-Each graph is represented by its :term:`adjacency` matrix, either as a dense ``numpy array``
-or a sparse ``scipy CSR matrix``.
-A bipartite graph can be represented by its :term:`biadjacency` matrix (rectangular matrix), in the same format.
+A graph is represented by its :term:`adjacency` matrix (square matrix).
+When the graph is bipartite, it can be represented by its :term:`biadjacency` matrix (rectangular matrix).
 
-Check our tutorials in the :ref:`Data<DataTag>` section for various ways of loading a graph
-(from a list of edges, a dataframe or a TSV file, for instance).
+Check our :ref:`tutorial<DataTag>` for various ways of loading a graph
+(from a list of edges, a dataframe or a CSV file, for instance).
 
-Algorithms
-----------
+Fit
+---
 
 Each algorithm is represented as an object with a ``fit`` method.
 

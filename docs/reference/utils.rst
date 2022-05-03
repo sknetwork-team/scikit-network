@@ -5,13 +5,6 @@ Utils
 
 Various tools for graph analysis.
 
-Build graphs
-------------
-
-.. autofunction:: sknetwork.utils.edgelist2adjacency
-
-.. autofunction:: sknetwork.utils.edgelist2biadjacency
-
 
 Convert graphs
 --------------

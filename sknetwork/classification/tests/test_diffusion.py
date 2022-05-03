@@ -20,6 +20,11 @@ class TestDiffusionClassifier(unittest.TestCase):
             algo.fit(biadjacency, seeds_row=seeds_row, seeds_col=seeds_col)
             self.assertTrue(len(algo.labels_row_) == n_row)
             self.assertTrue(len(algo.labels_col_) == n_col)
+        algos = [DiffusionClassifier(centering=False), DirichletClassifier(centering=False)]
+        for algo in algos:
+            algo.fit(biadjacency, seeds_row=seeds_row, seeds_col=seeds_col)
+            self.assertTrue(len(algo.labels_row_) == n_row)
+            self.assertTrue(len(algo.labels_col_) == n_col)
 
     def test_parallel(self):
         adjacency = test_graph()

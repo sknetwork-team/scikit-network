@@ -10,9 +10,7 @@ Development Lead
 ----------------
 
 * Thomas Bonald <thomas.bonald@telecom-paris.fr>
-* Marc Jeanmougin <marc.jeanmougin@telecom-paris.fr>
 * Quentin Lutz <quentin.lutz@telecom-paris.fr>
-* Tiphaine Viard <tiphaine.viard@telecom-paris.fr>
 
 Contributors
 ------------
@@ -30,5 +28,8 @@ Contributors
 * Victor Manach
 * Pierre Pébereau
 * Armand Boschin
+* Tiphaine Viard
+* Marc Jeanmougin
 * Flávio Juvenal
 * Wenzhuo Zhao
+* Henry Carscadden

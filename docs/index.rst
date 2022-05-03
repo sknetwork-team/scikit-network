@@ -20,6 +20,7 @@ Welcome to scikit-network's documentation!
    reference/hierarchy
    reference/ranking
    reference/classification
+   reference/regression
    reference/embedding
    reference/linkpred
    reference/linalg
@@ -29,6 +30,7 @@ Welcome to scikit-network's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Tutorials
+   :name: tutorials
 
    tutorials/data/index
    tutorials/topology/index
@@ -37,6 +39,7 @@ Welcome to scikit-network's documentation!
    tutorials/hierarchy/index
    tutorials/ranking/index
    tutorials/classification/index
+   tutorials/regression/index
    tutorials/embedding/index
    tutorials/linkpred/index
    tutorials/visualization/index
@@ -44,9 +47,11 @@ Welcome to scikit-network's documentation!
 .. toctree::
    :maxdepth: 1
    :caption: Use cases
+   :name: use_cases
 
-   use_cases/text-mining
-   use_cases/web-graphs
+   use_cases/text
+   use_cases/wikipedia
+   use_cases/recommendation
    use_cases/votes
    use_cases/sport
 

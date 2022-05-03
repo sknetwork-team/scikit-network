@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on July 17 2019
+Created on July 2019
 @author: Nathan de Lara <ndelara@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
@@ -12,10 +12,9 @@ from scipy import sparse
 from scipy.sparse.linalg import bicgstab, LinearOperator
 
 from sknetwork.linalg.normalization import normalize
-from sknetwork.ranking.base import BaseRanking
-from sknetwork.utils.check import check_format, check_is_proba
-from sknetwork.utils.format import bipartite2undirected, get_adjacency_seeds
-from sknetwork.utils.seeds import stack_seeds
+from sknetwork.regression.base import BaseRegressor
+from sknetwork.utils.check import check_is_proba
+from sknetwork.utils.format import get_adjacency_seeds
 from sknetwork.utils.verbose import VerboseMixin
 
 
@@ -90,8 +89,8 @@ class DeltaDirichletOperator(DirichletOperator):
         return self.a.dot(x) + self.b * x.sum() - x
 
 
-class Diffusion(BaseRanking):
-    """Ranking by diffusion along the edges (heat equation).
+class Diffusion(BaseRegressor):
+    """Regression by diffusion along the edges (heat equation).
 
     Parameters
     ----------
@@ -102,20 +101,20 @@ class Diffusion(BaseRanking):
 
     Attributes
     ----------
-    scores_ : np.ndarray
-        Score of each node (= temperature).
-    scores_row_: np.ndarray
-        Scores of rows, for bipartite graphs.
-    scores_col_: np.ndarray
-        Scores of columns, for bipartite graphs.
+    values_ : np.ndarray
+        Value of each node (= temperature).
+    values_row_: np.ndarray
+        Values of rows, for bipartite graphs.
+    values_col_: np.ndarray
+        Values of columns, for bipartite graphs.
     Example
     -------
     >>> from sknetwork.data import house
     >>> diffusion = Diffusion(n_iter=2)
     >>> adjacency = house()
     >>> seeds = {0: 1, 2: 0}
-    >>> scores = diffusion.fit_transform(adjacency, seeds)
-    >>> np.round(scores, 2)
+    >>> values = diffusion.fit_transform(adjacency, seeds)
+    >>> np.round(values, 2)
     array([0.58, 0.56, 0.38, 0.58, 0.42])
 
     References
@@ -159,20 +158,20 @@ class Diffusion(BaseRanking):
         """
         adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, allow_directed=True, seeds=seeds,
                                                                seeds_row=seeds_row, seeds_col=seeds_col)
-        scores, _ = init_temperatures(seeds, init)
+        values, _ = init_temperatures(seeds, init)
         diffusion = DirichletOperator(adjacency, self.damping_factor)
         for i in range(self.n_iter):
-            scores = diffusion.dot(scores)
+            values = diffusion.dot(values)
 
-        self.scores_ = scores
+        self.values_ = values
         if self.bipartite:
             self._split_vars(input_matrix.shape)
 
         return self
 
 
-class Dirichlet(BaseRanking, VerboseMixin):
-    """Ranking by the Dirichlet problem (heat diffusion with boundary constraints).
+class Dirichlet(BaseRegressor, VerboseMixin):
+    """Regression by the Dirichlet problem (heat diffusion with boundary constraints).
 
     Parameters
     ----------
@@ -186,18 +185,21 @@ class Dirichlet(BaseRanking, VerboseMixin):
 
     Attributes
     ----------
-    scores_ : np.ndarray
-        Score of each node (= temperature).
-
+    values_ : np.ndarray
+        Value of each node (= temperature).
+    values_row_: np.ndarray
+        Values of rows, for bipartite graphs.
+    values_col_: np.ndarray
+        Values of columns, for bipartite graphs.
     Example
     -------
-    >>> from sknetwork.ranking import Dirichlet
+    >>> from sknetwork.regression import Dirichlet
     >>> from sknetwork.data import house
     >>> dirichlet = Dirichlet()
     >>> adjacency = house()
     >>> seeds = {0: 1, 2: 0}
-    >>> scores = dirichlet.fit_transform(adjacency, seeds)
-    >>> np.round(scores, 2)
+    >>> values = dirichlet.fit_transform(adjacency, seeds)
+    >>> np.round(values, 2)
     array([1.  , 0.54, 0.  , 0.31, 0.62])
 
     References
@@ -238,21 +240,21 @@ class Dirichlet(BaseRanking, VerboseMixin):
         """
         adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, seeds=seeds, seeds_row=seeds_row,
                                                                seeds_col=seeds_col)
-        scores, border = init_temperatures(seeds, init)
+        values, border = init_temperatures(seeds, init)
         if self.n_iter > 0:
             diffusion = DirichletOperator(adjacency, self.damping_factor, border)
             for i in range(self.n_iter):
-                scores = diffusion.dot(scores)
-                scores[border] = seeds[border]
+                values = diffusion.dot(values)
+                values[border] = seeds[border]
         else:
             a = DeltaDirichletOperator(adjacency, self.damping_factor, border)
             b = -seeds
             b[~border] = 0
-            scores, info = bicgstab(a, b, atol=0., x0=scores)
+            values, info = bicgstab(a, b, atol=0., x0=values)
             self._scipy_solver_info(info)
 
-        tmin, tmax = seeds[border].min(), seeds[border].max()
-        self.scores_ = np.clip(scores, tmin, tmax)
+        temp_min, temp_max = seeds[border].min(), seeds[border].max()
+        self.values_ = np.clip(values, temp_min, temp_max)
         if self.bipartite:
             self._split_vars(input_matrix.shape)
 
