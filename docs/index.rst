@@ -51,6 +51,7 @@ Welcome to scikit-network's documentation!
 
    use_cases/text
    use_cases/wikipedia
+   use_cases/recommendation
    use_cases/votes
    use_cases/sport
 
