@@ -51,14 +51,15 @@ Import scikit-network::
 
     import sknetwork
 
-See examples in the :ref:`tutorials<tutorials>`; the notebooks are available here_.
+See our `tutorials <https://scikit-network.readthedocs.io/en/latest/tutorials/data/index.html>`_;
+the notebooks are available `here <https://github.com/sknetwork-team/scikit-network/tree/master/docs/tutorials>`_.
 
-You can also have a look at some :ref:`use cases<use_cases>`.
+You can also have a look at some `use cases <https://scikit-network.readthedocs.io/en/latest/use_cases/text.html>`_.
 
 Citing
 ------
 
-If you want to cite :mod:`scikit-network`, please refer to the publication in
+If you want to cite scikit-network, please refer to the publication in
 the `Journal of Machine Learning Research <https://jmlr.org>`_:
 
 .. code::
@@ -73,5 +74,3 @@ the `Journal of Machine Learning Research <https://jmlr.org>`_:
       pages   = {1-6},
       url     = {http://jmlr.org/papers/v21/20-412.html}
     }
-
-.. _here: https://github.com/sknetwork-team/scikit-network/tree/master/docs/tutorials
