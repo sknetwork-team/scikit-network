@@ -120,12 +120,14 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
     return node_weights_vec
 
 
-def check_format(input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
-    """Check whether the matrix is a NumPy array or a Scipy CSR matrix and return
+def check_format(input_matrix: Union[sparse.csr_matrix, sparse.csc_matrix, sparse.coo_matrix, sparse.lil_matrix,
+                                     np.ndarray]) -> sparse.csr_matrix:
+    """Check whether the matrix is a NumPy array or a Scipy sparse matrix and return
     the corresponding Scipy CSR matrix.
     """
-    if type(input_matrix) not in {sparse.csr_matrix, np.ndarray}:
-        raise TypeError('The input matrix must be in Scipy CSR format or Numpy ndarray format.')
+    formats = {sparse.csr_matrix, sparse.csc_matrix, sparse.coo_matrix, sparse.lil_matrix, np.ndarray}
+    if type(input_matrix) not in formats:
+        raise TypeError('The input matrix must be in Scipy sparse format or Numpy ndarray format.')
     input_matrix = sparse.csr_matrix(input_matrix)
     if input_matrix.nnz == 0:
         raise ValueError('The input matrix is empty.')

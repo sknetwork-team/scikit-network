@@ -16,10 +16,6 @@ class TestChecks(unittest.TestCase):
         self.adjacency = cyclic_digraph(3)
         self.dense_mat = np.identity(3)
 
-    def test_check_format(self):
-        with self.assertRaises(TypeError):
-            check_format(self.adjacency.tocsc())
-
     def test_check_csr_slr(self):
         with self.assertRaises(TypeError):
             check_csr_or_slr(np.ones(3))
