@@ -26,6 +26,7 @@ Welcome to scikit-network's documentation!
    reference/linalg
    reference/utils
    reference/visualization
+   reference/gnn
 
 .. toctree::
    :maxdepth: 2
