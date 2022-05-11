@@ -18,3 +18,4 @@ import sknetwork.ranking
 import sknetwork.data
 import sknetwork.utils
 import sknetwork.visualization
+import sknetwork.gnn
