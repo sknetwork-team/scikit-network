@@ -8,17 +8,19 @@ Created on April 2022
 import numpy as np
 from scipy import sparse
 
-from typing import Tuple, Union
+from typing import Optional, Tuple, Union
 
-from sknetwork.utils.check import check_format, check_is_proba
+from sknetwork.gnn.utils import check_existing_masks
 from sknetwork.gnn.base_gnn import BaseGNNClassifier
 from sknetwork.gnn.layers import GCNConv
 from sknetwork.gnn.activation import ACTIVATIONS
 from sknetwork.gnn.loss import *
 from sknetwork.classification.metrics import accuracy_score
+from sknetwork.utils.check import check_format, check_is_proba
+from sknetwork.utils.verbose import VerboseMixin
 
 
-class GNNClassifier(BaseGNNClassifier):
+class GNNClassifier(BaseGNNClassifier, VerboseMixin):
     """ Graph Convolutional Network node classifier.
 
     Parameters
@@ -29,11 +31,13 @@ class GNNClassifier(BaseGNNClassifier):
         Size hidden layer.
     num_classes: int
         Number of classes.
-    opt: str (default='SGD')
+    opt: str (default='Adam')
         Optimizer name:
         - 'SGD', stochastic gradient descent.
         - 'Adam', refers to a stochastic gradient-based optimizer proposed by Kingma, Diederik, and Jimmy Ba.
         - 'none', gradient descent.
+    verbose :
+        Verbose mode.
 
     Attributes
     ----------
@@ -55,24 +59,18 @@ class GNNClassifier(BaseGNNClassifier):
     >>> features = adjacency.copy()
     >>> gnn = GNNClassifier(features.shape[1], 4, 1, opt='none')
     >>> y_pred = gnn.fit_transform(adjacency, features, labels, max_iter=30, loss='CrossEntropyLoss')
-    In epoch   0, loss: 0.579, training acc: 0.667, test acc: 0.464
-    In epoch   3, loss: 0.544, training acc: 0.833, test acc: 0.464
-    In epoch   6, loss: 0.518, training acc: 0.833, test acc: 0.536
-    In epoch   9, loss: 0.493, training acc: 0.833, test acc: 0.821
-    In epoch  12, loss: 0.471, training acc: 0.833, test acc: 0.893
-    In epoch  15, loss: 0.448, training acc: 0.833, test acc: 0.893
-    In epoch  18, loss: 0.426, training acc: 0.833, test acc: 0.964
-    In epoch  21, loss: 0.404, training acc: 1.000, test acc: 0.964
-    In epoch  24, loss: 0.383, training acc: 1.000, test acc: 0.964
-    In epoch  27, loss: 0.361, training acc: 1.000, test acc: 0.964
+    >>> gnn.history_['train_accuracy'][-1], gnn.history_['test_accuracy'][-1]
+    (1.0, 0.928)
 
     >>> new_n = np.random.randint(2, size=adjacency.shape[0])
     >>> gnn.predict(new_n)
     array([1])
     """
 
-    def __init__(self, in_channels: int, h_channels: int, num_classes: int, opt: str = 'SGD', **kwargs):
+    def __init__(self, in_channels: int, h_channels: int, num_classes: int, opt: str = 'Adam', verbose: bool = False,
+                 **kwargs):
         super(GNNClassifier, self).__init__(opt, **kwargs)
+        VerboseMixin.__init__(self, verbose)
         self.conv1 = GCNConv(in_channels, h_channels)
         if num_classes > 1:
             self.conv2 = GCNConv(h_channels, num_classes, activation='softmax')
@@ -128,9 +126,9 @@ class GNNClassifier(BaseGNNClassifier):
         return logits, y_pred
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], feat: Union[sparse.csr_matrix, np.ndarray],
-            y_true: np.ndarray,
-            max_iter: int = 30, loss: str = 'CrossEntropyLoss', test_size: float = 0.2, random_state: int = None,
-            shuffle: bool = True):
+            y_true: np.ndarray, max_iter: int = 30, loss: str = 'CrossEntropyLoss',
+            train_mask: Optional[np.ndarray] = None, test_mask: Optional[np.ndarray] = None,
+            test_size: Optional[float] = None, random_state: Optional[int] = None, shuffle: Optional[bool] = True):
         """ Fits model to data and store trained parameters.
 
         Parameters
@@ -145,15 +143,19 @@ class GNNClassifier(BaseGNNClassifier):
             Maximum number of iterations for the solver. Corresponds to the number of epochs.
         loss: str (default="CrossEntropyLoss")
             Loss function name.
-        test_size: float (default=0.2)
-            Should be between 0 and 1 and represents the proportion of the nodes to include in test set.
+        train_mask, test_mask: np.ndarray, np.ndarray
+            Boolean array indicating wether nodes are in training or test sets.
+        test_size: float
+            Should be between 0 and 1 and represents the proportion of the nodes to include in test set. Only used if
+            `train_mask` and `test_mask` are not provided.
         random_state : int
-            Pass an int for reproducible results across multiple runs.
+            Pass an int for reproducible results across multiple runs. Used if `test_size` is not None.
         shuffle : bool (default=True)
-            If True, shuffles samples before split.
+            If True, shuffles samples before split. Used if `test_size` is not None.
         """
 
-        train_mask, test_mask = self._generate_masks(adjacency.shape[0], test_size, random_state, shuffle)
+        if not check_existing_masks(train_mask, test_mask, test_size):
+            train_mask, test_mask = self._generate_masks(adjacency.shape[0], test_size, random_state, shuffle)
 
         check_format(adjacency)
         check_format(feat)
@@ -187,10 +189,10 @@ class GNNClassifier(BaseGNNClassifier):
             self.history_['test_accuracy'].append(test_acc)
 
             if max_iter > 10 and epoch % int(max_iter / 10) == 0:
-                print(
+                self.log.print(
                     f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, test acc: {test_acc:.3f}')
             elif max_iter <= 10:
-                print(
+                self.log.print(
                     f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, test acc: {test_acc:.3f}')
 
         self.labels_ = y_pred
