@@ -28,25 +28,10 @@ def relu(input: np.ndarray) -> np.ndarray:
     return np.maximum(input, 0)
 
 
-def tanh(input: np.ndarray) -> np.ndarray:
-    """Applies hyperbolic tan function.
-
-    Parameters
-    ----------
-    input : np.ndarray (shape (n_samples, n_features))
-        input array.
-
-    Returns
-    -------
-    np.ndarray (shape (n_samples, n_features))
-        output array.
-    """
-
-    return np.tanh(input)
-
-
 def sigmoid(input: np.ndarray) -> np.ndarray:
-    """Compute logistic function.
+    """Compute logistic function:
+
+    :math:`\text{sigmoid}(x) = \dfrac{1}{(1+e^{-x})}`
 
     Note: We use `expit` function from `scipy.special`.
 
@@ -84,7 +69,6 @@ def softmax(input: np.ndarray) -> np.ndarray:
 
 
 ACTIVATIONS = {
-    'tanh': tanh,
     'relu': relu,
     'sigmoid': sigmoid,
     'softmax': softmax
