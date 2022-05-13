@@ -38,6 +38,7 @@ def cross_entropy_loss(y_true: np.ndarray, logits: np.ndarray, eps: float = 1e-1
     else:
         nb_classes = logits.shape[1]
         y_true_ohe = np.eye(nb_classes)[y_true]
+        logits /= logits.sum(axis=1)[:, np.newaxis]
         logprobs = np.sum(y_true_ohe * np.log(logits))
 
     return -logprobs / n
