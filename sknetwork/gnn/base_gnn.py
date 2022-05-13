@@ -20,7 +20,7 @@ class BaseGNNClassifier(Algorithm):
 
     Parameters
     ----------
-    opt: str (default='SGD')
+    opt: str (default='Adam')
         Optimizer name:
         - 'SGD', stochastic gradient descent.
         - 'Adam', refers to a stochastic gradient-based optimizer proposed by Kingma, Diederik, and Jimmy Ba.
@@ -42,7 +42,7 @@ class BaseGNNClassifier(Algorithm):
         Training history per epoch: {'embedding', 'loss', 'train_accuracy', 'test_accuracy'}.
     """
 
-    def __init__(self, opt: str = 'SGD', **kwargs):
+    def __init__(self, opt: str = 'Adam', **kwargs):
         self.opt = optimizer_factory(self, opt, **kwargs)
         self.layers = []
         self.train_mask = None
