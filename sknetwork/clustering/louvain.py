@@ -194,7 +194,7 @@ class Louvain(BaseClustering, VerboseMixin):
 
         index = np.arange(n)
         if self.shuffle_nodes:
-            self.random_state.permutation(index)
+            index = self.random_state.permutation(index)
             adjacency = adjacency[index][:, index]
 
         if self.modularity == 'potts':
@@ -227,7 +227,7 @@ class Louvain(BaseClustering, VerboseMixin):
                 membership_cluster = get_membership(labels_cluster)
                 membership = membership.dot(membership_cluster)
                 adjacency_cluster, probs_out, probs_in = self._aggregate(adjacency_cluster, probs_out, probs_in,
-                                                                        membership_cluster)
+                                                                         membership_cluster)
 
                 n = adjacency_cluster.shape[0]
                 if n == 1:
