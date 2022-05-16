@@ -13,11 +13,15 @@ Development Lead
 * Simon Delarue <simon.delarue@telecom-paris.fr>
 * Quentin Lutz <quentin.lutz@telecom-paris.fr>
 
+Former lead
+-----------
+
+* Nathan de Lara <nathan.de-lara@polytechnique.org>
+
 Contributors
 ------------
 
 * Bertrand Charpentier
-* Nathan de Lara
 * Maximilien Danisch
 * François Durand
 * Alexandre Hollocou
