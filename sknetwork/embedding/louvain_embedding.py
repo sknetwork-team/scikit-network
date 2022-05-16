@@ -14,7 +14,7 @@ from sknetwork.clustering.louvain import Louvain
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_random_state, check_adjacency_vector, check_nonnegative, is_square
-from sknetwork.utils.membership import membership_matrix
+from sknetwork.utils.membership import get_membership
 
 
 def reindex_labels(labels: np.ndarray, labels_secondary: Optional[np.ndarray] = None, which: str = 'remove'):
@@ -133,12 +133,12 @@ class LouvainEmbedding(BaseEmbedding):
 
         # embedding
         probs = normalize(input_matrix)
-        embedding_ = probs.dot(membership_matrix(self.labels_))
+        embedding_ = probs.dot(get_membership(self.labels_))
         self.embedding_ = embedding_.toarray()
 
         if labels_row is not None:
             probs = normalize(input_matrix.T)
-            embedding_col = probs.dot(membership_matrix(labels_row))
+            embedding_col = probs.dot(get_membership(labels_row))
             self.embedding_row_ = self.embedding_
             self.embedding_col_ = embedding_col.toarray()
 
@@ -166,6 +166,6 @@ class LouvainEmbedding(BaseEmbedding):
 
         adjacency_vectors = check_adjacency_vector(adjacency_vectors, n)
         check_nonnegative(adjacency_vectors)
-        membership = membership_matrix(self.labels_)
+        membership = get_membership(self.labels_)
 
         return normalize(adjacency_vectors).dot(membership)

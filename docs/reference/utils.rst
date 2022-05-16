@@ -25,7 +25,7 @@ Get neighbors
 Clustering
 ----------
 
-.. autofunction:: sknetwork.utils.membership_matrix
+.. autofunction:: sknetwork.utils.get_membership
 
 .. autoclass:: sknetwork.utils.KMeansDense
 

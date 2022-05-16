@@ -13,7 +13,7 @@ from sknetwork.classification.base import BaseClassifier
 from sknetwork.classification.vote import vote_update
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.format import get_adjacency_seeds
-from sknetwork.utils.membership import membership_matrix
+from sknetwork.utils.membership import get_membership
 
 
 class Propagation(BaseClassifier):
@@ -140,7 +140,7 @@ class Propagation(BaseClassifier):
             labels_remain = labels[index_remain].copy()
             labels = np.asarray(vote_update(indptr, indices, data, labels, index_remain))
 
-        membership = membership_matrix(labels)
+        membership = get_membership(labels)
         membership = normalize(adjacency.dot(membership))
 
         self.labels_ = labels

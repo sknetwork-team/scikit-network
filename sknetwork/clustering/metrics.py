@@ -13,7 +13,7 @@ from scipy import sparse
 from sknetwork.linalg.normalization import diag_pinv
 from sknetwork.utils.check import check_format, get_probs, check_square
 from sknetwork.utils.format import bipartite2directed
-from sknetwork.utils.membership import membership_matrix
+from sknetwork.utils.membership import get_membership
 
 
 def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray,
@@ -79,7 +79,7 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
 
     probs_row = get_probs(weights, adjacency)
     probs_col = get_probs(weights_in, adjacency.T)
-    membership = membership_matrix(labels)
+    membership = get_membership(labels)
 
     fit: float = membership.multiply(adjacency.dot(membership)).data.sum() / adjacency.data.sum()
     div: float = membership.T.dot(probs_col).dot(membership.T.dot(probs_row))
@@ -222,7 +222,7 @@ def comodularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.nda
     if len(labels) != n_row:
         raise ValueError('The number of labels must match the number of rows.')
 
-    membership = membership_matrix(labels)
+    membership = get_membership(labels)
     fit: float = ((normalized_adjacency.dot(membership)).data ** 2).sum() / total_weight
     div: float = np.linalg.norm(membership.T.dot(probs)) ** 2
     mod: float = fit - resolution * div

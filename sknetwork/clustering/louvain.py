@@ -16,7 +16,7 @@ from sknetwork.clustering.louvain_core import fit_core
 from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.utils.check import check_random_state, get_probs
 from sknetwork.utils.format import check_format, get_adjacency, directed2undirected
-from sknetwork.utils.membership import membership_matrix
+from sknetwork.utils.membership import get_membership
 from sknetwork.utils.verbose import VerboseMixin
 
 
@@ -224,7 +224,7 @@ class Louvain(BaseClustering, VerboseMixin):
             if pass_increase <= self.tol_aggregation:
                 increase = False
             else:
-                membership_cluster = membership_matrix(labels_cluster)
+                membership_cluster = get_membership(labels_cluster)
                 membership = membership.dot(membership_cluster)
                 adjacency_cluster, probs_out, probs_in = self._aggregate(adjacency_cluster, probs_out, probs_in,
                                                                         membership_cluster)
