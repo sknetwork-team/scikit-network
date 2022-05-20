@@ -17,10 +17,9 @@ from sknetwork.gnn.activation import ACTIVATIONS
 from sknetwork.gnn.loss import *
 from sknetwork.classification.metrics import accuracy_score
 from sknetwork.utils.check import check_format, check_is_proba
-from sknetwork.utils.verbose import VerboseMixin
 
 
-class GNNClassifier(BaseGNNClassifier, VerboseMixin):
+class GNNClassifier(BaseGNNClassifier):
     """ Graph Convolutional Network node classifier.
 
     Parameters
@@ -58,19 +57,14 @@ class GNNClassifier(BaseGNNClassifier, VerboseMixin):
     >>> labels = graph.labels
     >>> features = adjacency.copy()
     >>> gnn = GNNClassifier(features.shape[1], 4, 1, opt='none')
-    >>> y_pred = gnn.fit_transform(adjacency, features, labels, max_iter=30, loss='CrossEntropyLoss')
-    >>> gnn.history_['train_accuracy'][-1], gnn.history_['test_accuracy'][-1]
-    (1.0, 0.928)
-
+    >>> y_pred = gnn.fit_transform(adjacency, features, labels, max_iter=30, loss='CrossEntropyLoss', test_size=0.2)
+    >>> # Predictions
     >>> new_n = np.random.randint(2, size=adjacency.shape[0])
-    >>> gnn.predict(new_n)
-    array([1])
+    >>> pred_n = gnn.predict(new_n)
     """
 
-    def __init__(self, in_channels: int, h_channels: int, num_classes: int, opt: str = 'Adam', verbose: bool = False,
-                 **kwargs):
+    def __init__(self, in_channels: int, h_channels: int, num_classes: int, opt: str = 'Adam', **kwargs):
         super(GNNClassifier, self).__init__(opt, **kwargs)
-        VerboseMixin.__init__(self, verbose)
         self.conv1 = GCNConv(in_channels, h_channels)
         if num_classes > 1:
             self.conv2 = GCNConv(h_channels, num_classes, activation='softmax')

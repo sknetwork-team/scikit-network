@@ -13,9 +13,10 @@ from sknetwork.gnn.activation import *
 from sknetwork.gnn.loss import *
 from sknetwork.gnn.optimizer import *
 from sknetwork.utils.base import Algorithm
+from sknetwork.utils.verbose import VerboseMixin
 
 
-class BaseGNNClassifier(Algorithm):
+class BaseGNNClassifier(Algorithm, VerboseMixin):
     """Base class for GNN classifiers.
 
     Parameters
@@ -42,7 +43,8 @@ class BaseGNNClassifier(Algorithm):
         Training history per epoch: {'embedding', 'loss', 'train_accuracy', 'test_accuracy'}.
     """
 
-    def __init__(self, opt: str = 'Adam', **kwargs):
+    def __init__(self, opt: str = 'Adam', verbose: bool = False, **kwargs):
+        VerboseMixin.__init__(self, verbose)
         self.opt = optimizer_factory(self, opt, **kwargs)
         self.layers = []
         self.train_mask = None

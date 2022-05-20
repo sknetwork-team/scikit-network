@@ -95,6 +95,10 @@ class TestGNNClassifier(unittest.TestCase):
         self.assertTrue(len(y_pred) == self.adjacency.shape[0])
         self.assertTrue(embedding.shape == (self.adjacency.shape[0], 2))
 
+    def test_gnn_classifier_verbose(self):
+        gnn = GNNClassifier(self.features.shape[1], 4, 2, verbose=True)
+        self.assertTrue(isinstance(gnn, GNNClassifier))
+
     def test_gnn_classifier_predict(self):
         gnn = GNNClassifier(self.features.shape[1], 4, 2)
         _ = gnn.fit_transform(self.adjacency, self.features, self.labels, test_size=0.2, random_state=42)
