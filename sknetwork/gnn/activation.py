@@ -109,24 +109,8 @@ def sigmoid_prime(input: np.ndarray) -> np.ndarray:
     return sigmoid(input) * (1 - sigmoid(input))
 
 
-def softmax_prime(input: np.ndarray) -> np.ndarray:
-    """Derivative of softmax function.
-
-    Parameters
-    ----------
-    input : np.ndarray
-        input array.
-
-    Returns
-    -------
-    np.ndarray
-        output array.
-    """
-    pass
-
-
 DERIVATIVES = {
     'sigmoid': sigmoid_prime,
-    'softmax': softmax_prime,
+    'softmax': None,
     'relu': relu_prime
 }
