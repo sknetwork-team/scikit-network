@@ -4,7 +4,6 @@ from __future__ import annotations
 Created on Thu Apr 21 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
-
 import numpy as np
 
 from typing import TYPE_CHECKING

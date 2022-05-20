@@ -35,7 +35,8 @@ class GCNConv():
     use_bias: bool (default=True)
         If True, add a bias vector.
     norm: str (default='both')
-        Compute symmetric normalizaztion coefficients.
+        Normalization kind for adjacency matrix.
+        - 'both', computes symmetric normalization
     self_loops: bool (default=True)
         If True, add self-loops to each node in the graph.
     activation: {'relu', 'tanh', 'sigmoid'}, default='sigmoid'
