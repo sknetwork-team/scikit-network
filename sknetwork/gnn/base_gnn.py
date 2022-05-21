@@ -146,10 +146,10 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
             dW = A_prev.T.dot(dZ.T)  # SpM on left hand side
             db = np.sum(dZ, axis=1, keepdims=True) / n
             if l > 1:
-                dA_prev = self.layers[l - 2].W.dot(dZ)
+                dA_prev = self.layers[l - 1].W.dot(dZ)
 
-            self.dW[self.nb_layers - 1 - l] = dW
-            self.db[self.nb_layers - 1 - l] = db.T
+            self.dW[l - 1] = dW
+            self.db[l - 1] = db.T
 
     def __repr__(self) -> str:
         """ String representation of object
