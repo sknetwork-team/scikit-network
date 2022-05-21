@@ -35,25 +35,6 @@ class GD:
             l.bias = l.bias - self.lr * self.gnn.db[idx]
 
 
-class SGD:
-    """Stochastic Gradient Descent with momentum.
-
-    Parameters
-    ----------
-        gnn: BaseGNNClassifier
-            Model containing parameters to update.
-        lr: float (default=0.01)
-            Learning rate for weights update.
-    """
-
-    def __init__(self, gnn: BaseGNNClassifier, lr: float = 0.01):
-        self.gnn = gnn
-        self.lr = lr
-
-    def step(self):
-        pass
-
-
 class ADAM:
     """Adam optimizer.
 
@@ -112,14 +93,14 @@ class ADAM:
             l.bias = l.bias - (self.lr * m_db_corr) / (np.sqrt(v_db_corr) + self.epsilon)
 
 
-def optimizer_factory(gnn: BaseGNNClassifier, opt: str = 'SGD', **kwargs) -> object:
+def optimizer_factory(gnn: BaseGNNClassifier, opt: str = 'Adam', **kwargs) -> object:
     """Instantiate optimizer according to parameters.
 
     Parameters
     ----------
     gnn : BaseGNNClassifier
         Model on which optimizer applies `step` method.
-    opt : str ({'none', 'SGD', 'Adam'}, default='SGD')
+    opt : str ({'none', 'Adam'}, default='Adam')
         Optimizer name.
     lr : float (default=0.01)
         Learning rate for weights update.
@@ -128,11 +109,9 @@ def optimizer_factory(gnn: BaseGNNClassifier, opt: str = 'SGD', **kwargs) -> obj
     -------
     Optimizer class.
     """
-    if opt == 'SGD':
-        return SGD(gnn, **kwargs)
-    elif opt == 'Adam':
+    if opt == 'Adam':
         return ADAM(gnn, **kwargs)
     elif opt == 'none':
         return GD(gnn, **kwargs)
     else:
-        raise ValueError("Optimizer must be either \"SGD\",\"SGDM\" or \"ADAM\" or \"none\".")
+        raise ValueError("Optimizer must be either \"ADAM\" or \"none\".")
