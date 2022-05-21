@@ -19,7 +19,7 @@ class TestLoss(unittest.TestCase):
     def test_get_loss_function_prime(self):
         self.assertTrue(isinstance(get_prime_loss_function('CrossEntropyLoss'), type(cross_entropy_prime)))
         with self.assertRaises(ValueError):
-            get_loss_function('toto')
+            get_prime_loss_function('toto')
 
     def test_ce_loss(self):
         # Results compared to sklearn.metrics.log_loss for ndim = 1
