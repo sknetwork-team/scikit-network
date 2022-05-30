@@ -4,7 +4,9 @@
 
 import unittest
 
-from sknetwork.gnn.utils import *
+import numpy as np
+
+from sknetwork.gnn.utils import check_boolean, check_existing_masks, check_norm, has_boolean_entries
 
 
 class TestUtils(unittest.TestCase):

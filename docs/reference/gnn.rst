@@ -1,28 +1,24 @@
 .. _gnn:
 
-GNN
-***
+Graph Neural Networks
+*********************
 
 Graph Neural Networks algorithms.
 
 The attribute ``labels_``  assigns a label to each node of the graph.
 
-GNNClassifier
--------------
+Classifier
+----------
 
 .. autoclass:: sknetwork.gnn.GNNClassifier
 
-GCNConv
--------
+Convolution layer
+-----------------
 
 .. autoclass:: sknetwork.gnn.GCNConv
 
-Adam
-----
+Optimizers
+----------
 
 .. autoclass:: sknetwork.gnn.ADAM
-
-GD
---
-
 .. autoclass:: sknetwork.gnn.GD

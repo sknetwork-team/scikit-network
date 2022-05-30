@@ -4,8 +4,6 @@
 
 import unittest
 
-import numpy as np
-
 from sknetwork.gnn.activation import *
 
 

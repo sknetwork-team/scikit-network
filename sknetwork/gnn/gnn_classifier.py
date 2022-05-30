@@ -4,18 +4,17 @@
 Created on April 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
+from typing import Optional, Tuple, Union
 
 import numpy as np
 from scipy import sparse
 
-from typing import Optional, Tuple, Union
-
-from sknetwork.gnn.utils import check_existing_masks
-from sknetwork.gnn.base_gnn import BaseGNNClassifier
-from sknetwork.gnn.layers import GCNConv
-from sknetwork.gnn.activation import ACTIVATIONS
-from sknetwork.gnn.loss import *
 from sknetwork.classification.metrics import accuracy_score
+from sknetwork.gnn.activation import ACTIVATIONS
+from sknetwork.gnn.base import BaseGNNClassifier
+from sknetwork.gnn.layers import GCNConv
+from sknetwork.gnn.loss import get_loss_function
+from sknetwork.gnn.utils import check_existing_masks
 from sknetwork.utils.check import check_format, check_is_proba
 
 
@@ -33,7 +32,7 @@ class GNNClassifier(BaseGNNClassifier):
     opt: str (default='Adam')
         Optimizer name:
         - 'SGD', stochastic gradient descent.
-        - 'Adam', refers to a stochastic gradient-based optimizer proposed by Kingma, Diederik, and Jimmy Ba.
+        - 'Adam', stochastic gradient-based optimizer.
         - 'none', gradient descent.
     verbose :
         Verbose mode.
@@ -51,7 +50,7 @@ class GNNClassifier(BaseGNNClassifier):
     -------
     >>> from sknetwork.gnn.gnn_classifier import GNNClassifier
     >>> from sknetwork.data import karate_club
-    >>> import numpy as np
+    >>> from numpy.random import randint
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
     >>> labels = graph.labels
@@ -59,7 +58,7 @@ class GNNClassifier(BaseGNNClassifier):
     >>> gnn = GNNClassifier(features.shape[1], 4, 1, opt='none')
     >>> y_pred = gnn.fit_transform(adjacency, features, labels, max_iter=30, loss='CrossEntropyLoss', test_size=0.2)
     >>> # Predictions
-    >>> new_n = np.random.randint(2, size=adjacency.shape[0])
+    >>> new_n = randint(2, size=adjacency.shape[0])
     >>> pred_n = gnn.predict(new_n)
     """
 
@@ -74,7 +73,7 @@ class GNNClassifier(BaseGNNClassifier):
     def forward(self, adjacency: sparse.csr_matrix, feat: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """ Performs a forward pass on the graph and returns embedding of nodes.
 
-            Note that the non-linearity is integrated in the `GCNConv` layer and hence is not applied
+            Note that the non-linearity is integrated in the :class:`GCNConv` layer and hence is not applied
             after each layer in the forward method.
 
         Parameters
@@ -147,7 +146,7 @@ class GNNClassifier(BaseGNNClassifier):
         shuffle : bool (default=True)
             If True, shuffles samples before split. Used if `test_size` is not None.
         """
-
+        y_pred = None
         if not check_existing_masks(train_mask, test_mask, test_size):
             train_mask, test_mask = self._generate_masks(adjacency.shape[0], test_size, random_state, shuffle)
 
@@ -184,10 +183,12 @@ class GNNClassifier(BaseGNNClassifier):
 
             if max_iter > 10 and epoch % int(max_iter / 10) == 0:
                 self.log.print(
-                    f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, test acc: {test_acc:.3f}')
+                    f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, '
+                    f'test acc: {test_acc:.3f}')
             elif max_iter <= 10:
                 self.log.print(
-                    f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, test acc: {test_acc:.3f}')
+                    f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, '
+                    f'test acc: {test_acc:.3f}')
 
         self.labels_ = y_pred
 
@@ -234,8 +235,8 @@ class GNNClassifier(BaseGNNClassifier):
         ----------
         nodes : np.ndarray
             Data matrix for which we want to get predictions. Each row in `nodes` corresponds to the feature vector
-            of a node. `nodes` as shape :math:`(x \times n_feat)`, with :math:`x` the number of nodes and
-            :math:`n_feat` the number of features used in model training (i.e `in_channels`).
+            of a node. `nodes` as shape :math:`(x \\times n_{feat})` , with :math:`x` the number of nodes and
+            :math:`n_{feat}` the number of features used in model training (i.e `in_channels`).
 
         Returns
         -------

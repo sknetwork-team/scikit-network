@@ -6,66 +6,41 @@ Created on Thu Apr 21 2022
 """
 
 import numpy as np
-import scipy
+from scipy import special
 
 
 def relu(input: np.ndarray) -> np.ndarray:
-    """Applies Rectified Linear Unit function:
+    """Apply the Rectified Linear Unit function pointwise:
 
     :math:`\text{ReLU}(x) = (x)^+ = max(0, x)`
-
-    Parameters
-    ----------
-    input : np.ndarray (shape (n_samples, n_features))
-        input array.
-
-    Returns
-    -------
-    np.ndarray (shape (n_samples, n_features))
-        output array.
     """
 
     return np.maximum(input, 0)
 
 
 def sigmoid(input: np.ndarray) -> np.ndarray:
-    """Compute logistic function:
+    """Apply the logistic function pointwise:
 
     :math:`\text{sigmoid}(x) = \dfrac{1}{(1+e^{-x})}`
 
-    Note: We use `expit` function from `scipy.special`.
-
-    Parameters
-    ----------
-    input : np.ndarray (shape (n_samples, n_features))
-        input array.
-
-    Returns
-    -------
-    np.ndarray (shape (n_samples, n_features))
-        output array.
+    Note: We use the `expit` function from `scipy.special`.
     """
 
-    return scipy.special.expit(input)
+    return special.expit(input)
 
 
 def softmax(input: np.ndarray) -> np.ndarray:
-    """Compute softmax function.
+    """Apply the softmax function on each row.
 
     Note: We use `softmax` function from `scipy.special`.
-
-    Parameters
-    ----------
-    input : np.ndarray
-        input array.
 
     Returns
     -------
     np.ndarray
-        output array with same shape as `input`. Rows will sum to 1.
+        Output array with same shape as `input`. Rows will sum to 1.
     """
 
-    return scipy.special.softmax(input, axis=1)
+    return special.softmax(input, axis=1)
 
 
 ACTIVATIONS = {
@@ -76,36 +51,12 @@ ACTIVATIONS = {
 
 
 def relu_prime(input: np.ndarray) -> np.ndarray:
-    """Derivative of Rectified Linear Unit function.
-
-    Parameters
-    ----------
-    input : np.ndarray
-        input array.
-
-    Returns
-    -------
-    np.ndarray
-        output array.
-    """
-
+    """Derivative of the Rectified Linear Unit function."""
     return 1 * (input > 0)
 
 
 def sigmoid_prime(input: np.ndarray) -> np.ndarray:
-    """Derivative of sigmoid function.
-
-    Parameters
-    ----------
-    input : np.ndarray
-        input array.
-
-    Returns
-    -------
-    np.ndarray
-        output array.
-    """
-
+    """Derivative of the sigmoid (a.k.a. logistic) function."""
     return sigmoid(input) * (1 - sigmoid(input))
 
 

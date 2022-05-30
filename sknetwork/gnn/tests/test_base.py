@@ -3,12 +3,11 @@
 """tests for base gnn"""
 
 import unittest
-from abc import ABC
 
 import numpy as np
 from sknetwork.data.test_graphs import test_graph
 from sknetwork.gnn.gnn_classifier import GNNClassifier
-from sknetwork.gnn.base_gnn import BaseGNNClassifier
+from sknetwork.gnn.base import BaseGNNClassifier
 from sknetwork.gnn.layers import GCNConv
 
 

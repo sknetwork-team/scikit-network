@@ -4,33 +4,29 @@
 Created on Thu Apr 21 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
+from typing import Union
 
 import numpy as np
 from scipy import sparse
 
-from typing import Union
-
-from sknetwork.linalg import diag_pinv
-from sknetwork.gnn.activation import *
-from sknetwork.gnn.loss import *
+from sknetwork.gnn.activation import ACTIVATIONS
 from sknetwork.gnn.utils import check_norm
+from sknetwork.linalg import diag_pinv
 
 
-class GCNConv():
-    """ The graph convolutional operator from the `"Semi-supervised
-    Classification with Graph Convolutional Networks"
-    <https://arxiv.org/abs/1609.02907>`_ paper.
+class GCNConv:
+    """Graph convolutional operator.
 
     :math:`H^{\prime}=\sigma(\hat{D}^{-1/2}\hat{A}\hat{D}^{-1/2}HW + b)`,
 
     where :math:`\hat{A} = A + I` denotes the adjacency matrix with inserted self-loops and
-    :math:`\hat{D}_{ii}` its diagonal degree matrix. :math:`W` and :math:`b` are trainable parameters.
+    :math:`\hat{D}` its diagonal degree matrix. :math:`W` and :math:`b` are trainable parameters.
 
     Parameters
     ----------
-    in_channel: int
+    in_channels: int
         Size of each input sample.
-    out_channel: int
+    out_channels: int
         Size of each output sample.
     use_bias: bool (default=True)
         If True, add a bias vector.
@@ -48,7 +44,7 @@ class GCNConv():
 
     Attributes
     ----------
-    W, b: np.ndarray, np.ndarray
+    W, bias: np.ndarray, np.ndarray
         Trainable weight matrix and bias vector.
     Z: np.ndarray
         :math:`Z=AHW + b` with :math:`A` the adjacency matrix of the graph, :math:`H` the feature matrix of the graph,
@@ -56,11 +52,12 @@ class GCNConv():
     emb: np.ndarray
         Embedding of the nodes after convolution layer.
 
-    Returns
-    -------
-    np.ndarray
-        Nodes embedding.
-
+    References
+    ----------
+    Kipf, T., & Welling, M. (2017).
+    `Semi-supervised Classification with Graph Convolutional Networks.
+    <https://arxiv.org/pdf/1609.02907.pdf>`_
+    5th International Conference on Learning Representations.
     """
 
     def __init__(self, in_channels: int, out_channels: int, use_bias: bool = True, norm: str = 'both',

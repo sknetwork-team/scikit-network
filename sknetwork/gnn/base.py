@@ -4,14 +4,14 @@
 Created on April 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
-
-import numpy as np
 from collections import defaultdict
 
+import numpy as np
+
+from sknetwork.gnn.activation import DERIVATIVES
 from sknetwork.gnn.layers import GCNConv
-from sknetwork.gnn.activation import *
-from sknetwork.gnn.loss import *
-from sknetwork.gnn.optimizer import *
+from sknetwork.gnn.loss import get_prime_loss_function
+from sknetwork.gnn.optimizer import optimizer_factory
 from sknetwork.utils.base import Algorithm
 from sknetwork.utils.verbose import VerboseMixin
 
@@ -30,7 +30,7 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
     Attributes
     ----------
     dW, db: np.ndarray, np.ndarray
-        Derivative of trainable weight matrix and bias vector.
+        Derivatives of trainable weight matrix and bias vector.
     layers: list
         List of layers object (e.g `GCNConv`).
     nb_layers: int
@@ -65,7 +65,7 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
         Returns
         -------
         labels : np.ndarray
-            Labels.
+            Labels of the nodes.
         """
         self.fit(*args, **kwargs)
         return self.labels_
@@ -75,7 +75,7 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
 
         Returns
         -------
-        list of layer objects.
+        List of layer objects.
         """
         available_types = [GCNConv]
 
@@ -97,14 +97,14 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
         return [l.activation for l in layers]
 
     def backward(self, feat: np.ndarray, y_true: np.ndarray, loss: str):
-        """ Compute backpropagation.
+        """Compute backpropagation.
 
         Parameters
         ----------
         feat : np.ndarray
             Input feature of shape (n, d) with n the number of nodes in the graph and d the size of the embedding.
         y_true : np.ndarray
-            Label vectors of lenght n, with n the number of nodes in `adjacency`
+            Label vectors of lenght n, with n the number of nodes in `adjacency`.
         loss : str
             Loss function name.
         """
@@ -152,12 +152,12 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
             self.db[l - 1] = db.T
 
     def __repr__(self) -> str:
-        """ String representation of object
+        """String representation of the GNN layer by layer.
 
         Returns
         -------
         str
-            String representation of object
+            String representation of object.
         """
 
         lines = ''

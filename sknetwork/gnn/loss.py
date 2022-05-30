@@ -5,6 +5,8 @@ Created on Thu Apr 22 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
 
+from typing import Callable
+
 import numpy as np
 
 
@@ -27,6 +29,13 @@ def cross_entropy_loss(y_true: np.ndarray, logits: np.ndarray, eps: float = 1e-1
     Returns
     -------
     loss: float
+
+    References
+    ----------
+    Bishop, C. M. (2006).
+    `Pattern recognition and machine learning.
+    <https://www.academia.edu/download/30428242/bg0137.pdf>`_
+    (Vol. 4, No. 4, p. 738). New York: Springer.
     """
     n = len(y_true)
 
@@ -67,7 +76,7 @@ def cross_entropy_prime(y_true: np.ndarray, logits: np.ndarray, eps: float = 1e-
     return prime_loss
 
 
-def get_loss_function(loss_name: str) -> object:
+def get_loss_function(loss_name: str) -> Callable[..., float]:
     """Returns loss function according to `loss_name`.
 
     Parameters
@@ -77,7 +86,7 @@ def get_loss_function(loss_name: str) -> object:
 
     Returns
     -------
-    object
+    Callable[..., float]
         Loss function
 
     Raises
@@ -91,7 +100,7 @@ def get_loss_function(loss_name: str) -> object:
         raise ValueError("Loss must be either \"CrossEntropyLoss\"")
 
 
-def get_prime_loss_function(loss_name: str) -> object:
+def get_prime_loss_function(loss_name: str) -> Callable[..., float]:
     """Returns loss function derivative according to `loss_name`.
 
     Parameters
@@ -101,7 +110,7 @@ def get_prime_loss_function(loss_name: str) -> object:
 
     Returns
     -------
-    object
+    Callable[..., float]
         Loss function derivative.
 
     Raises

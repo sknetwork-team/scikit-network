@@ -4,9 +4,9 @@
 Created on Thu Apr 21 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
+from typing import Optional
 
 import numpy as np
-from typing import Optional
 
 from sknetwork.utils.check import check_is_proba
 
@@ -30,12 +30,12 @@ def check_existing_masks(train_mask: Optional[np.ndarray] = None, test_mask: Opt
     Parameters
     ----------
     train_mask, test_mask: np.ndarray, np.ndarray
-        Boolean array indicating wether nodes are in training or test sets.
+        Boolean array indicating whether nodes are in training or test sets.
     test_size: float
         If `train_mask` and `test_mask` are `None`, includes this proportion of the nodes in test set.
 
-    Output
-    ------
+    Returns
+    -------
         True if train/test masks are provided.
     """
 
@@ -52,7 +52,7 @@ def check_existing_masks(train_mask: Optional[np.ndarray] = None, test_mask: Opt
 
 
 def has_boolean_entries(input_matrix: np.ndarray) -> bool:
-    """True if the array has boolean entries."""
+    """Check if the array has boolean entries."""
     if type(input_matrix) != np.ndarray:
         raise TypeError('Entry must be a dense NumPy array.')
     else:
