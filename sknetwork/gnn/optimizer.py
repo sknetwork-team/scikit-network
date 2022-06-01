@@ -17,10 +17,10 @@ class GD:
 
     Parameters
     ----------
-        gnn: BaseGNNClassifier
-            Model containing parameters to update.
-        lr: float (default=0.01)
-            Learning rate for weights update.
+    gnn: BaseGNNClassifier
+        Model containing parameters to update.
+    lr: float (default=0.01)
+        Learning rate for weights update.
     """
 
     def __init__(self, gnn: BaseGNNClassifier, lr: float = 0.01):
@@ -97,15 +97,15 @@ class ADAM:
             l.bias = l.bias - (self.lr * m_db_corr) / (np.sqrt(v_db_corr) + self.epsilon)
 
 
-def optimizer_factory(gnn: BaseGNNClassifier, opt: str = 'Adam', **kwargs) -> object:
+def get_optimizer(gnn: BaseGNNClassifier, opt: str = 'Adam', **kwargs) -> object:
     """Instantiate optimizer according to parameters.
 
     Parameters
     ----------
     gnn : BaseGNNClassifier
         Model on which optimizers apply the `step` method.
-    opt : str ({'none', 'Adam'}, default='Adam')
-        Optimizer name.
+    opt : str
+        Which optimizer to use. Can be ``'Adam'`` or ``'None'``.
     lr : float (default=0.01)
         Learning rate for weights update.
 
@@ -113,9 +113,10 @@ def optimizer_factory(gnn: BaseGNNClassifier, opt: str = 'Adam', **kwargs) -> ob
     -------
     Optimizer object
     """
-    if opt == 'Adam':
+    opt = opt.lower()
+    if opt == 'adam':
         return ADAM(gnn, **kwargs)
     elif opt == 'none':
         return GD(gnn, **kwargs)
     else:
-        raise ValueError("Optimizer must be either \"ADAM\" or \"none\".")
+        raise ValueError("Optimizer must be either \"Adam\" or \"None\".")

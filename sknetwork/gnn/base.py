@@ -8,10 +8,10 @@ from collections import defaultdict
 
 import numpy as np
 
-from sknetwork.gnn.activation import DERIVATIVES
+from sknetwork.gnn.activation import get_prime_activation_function
 from sknetwork.gnn.layers import GCNConv
 from sknetwork.gnn.loss import get_prime_loss_function
-from sknetwork.gnn.optimizer import optimizer_factory
+from sknetwork.gnn.optimizer import get_optimizer
 from sknetwork.utils.base import Algorithm
 from sknetwork.utils.verbose import VerboseMixin
 
@@ -21,11 +21,10 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
 
     Parameters
     ----------
-    opt: str (default='Adam')
+    opt: str (default = ``'Adam'``)
         Optimizer name:
-        - 'SGD', stochastic gradient descent.
-        - 'Adam', refers to a stochastic gradient-based optimizer proposed by Kingma, Diederik, and Jimmy Ba.
-        - 'none', gradient descent.
+        - ``'Adam'``, refers to a stochastic gradient-based optimizer proposed by Kingma, Diederik, and Jimmy Ba.
+        - ``'None'``, gradient descent.
 
     Attributes
     ----------
@@ -45,7 +44,7 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
 
     def __init__(self, opt: str = 'Adam', verbose: bool = False, **kwargs):
         VerboseMixin.__init__(self, verbose)
-        self.opt = optimizer_factory(self, opt, **kwargs)
+        self.opt = get_optimizer(self, opt, **kwargs)
         self.layers = []
         self.train_mask = None
         self.test_mask = None
@@ -115,7 +114,7 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
         self.layers = self._get_layers()
         self.nb_layers = len(self.layers)
         activations = self._get_activations(self.layers)
-        activation_primes = [DERIVATIVES[act] for act in activations]
+        activation_primes = [get_prime_activation_function(act) for act in activations]
 
         # Initialize parameters derivatives
         self.dW = [0] * self.nb_layers

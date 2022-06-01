@@ -9,6 +9,20 @@ from sknetwork.gnn.activation import *
 
 class TestActivation(unittest.TestCase):
 
+    def test_get_activation_function(self):
+        self.assertTrue(isinstance(get_activation_function('Relu'), type(relu)))
+        self.assertTrue(isinstance(get_activation_function('Sigmoid'), type(sigmoid)))
+        self.assertTrue(isinstance(get_activation_function('Softmax'), type(softmax)))
+        with self.assertRaises(ValueError):
+            get_activation_function('toto')
+
+    def test_get_prime_activation_function(self):
+        self.assertTrue(isinstance(get_prime_activation_function('Relu'), type(relu)))
+        self.assertTrue(isinstance(get_prime_activation_function('Sigmoid'), type(sigmoid)))
+        self.assertTrue(get_prime_activation_function('Softmax') is None)
+        with self.assertRaises(ValueError):
+            get_prime_activation_function('toto')
+
     def test_activation_relu(self):
         a = np.linspace(-2, 2, 5)
         self.assertTrue((relu(a) == [0., 0., 0., 1., 2.]).all())

@@ -5,6 +5,8 @@ Created on Thu Apr 21 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
 
+from typing import Callable
+
 import numpy as np
 from scipy import special
 
@@ -43,11 +45,33 @@ def softmax(input: np.ndarray) -> np.ndarray:
     return special.softmax(input, axis=1)
 
 
-ACTIVATIONS = {
-    'relu': relu,
-    'sigmoid': sigmoid,
-    'softmax': softmax
-}
+def get_activation_function(activation_name: str) -> Callable[..., float]:
+    """Returns activation function according to `activation_name`.
+
+    Parameters
+    ----------
+    activation_name : str
+        Which activation function to use. Can be ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
+
+    Returns
+    -------
+    Callable[..., float]
+        Activation function
+
+    Raises
+    ------
+    ValueError
+        Error raised if activation function does not exist.
+    """
+    activation_name = activation_name.lower()
+    if activation_name == 'relu':
+        return relu
+    elif activation_name == 'sigmoid':
+        return sigmoid
+    elif activation_name == 'softmax':
+        return softmax
+    else:
+        raise ValueError("Activation must be either \"Relu\", \"Sigmoid\" or \"Softmax\"")
 
 
 def relu_prime(input: np.ndarray) -> np.ndarray:
@@ -60,8 +84,30 @@ def sigmoid_prime(input: np.ndarray) -> np.ndarray:
     return sigmoid(input) * (1 - sigmoid(input))
 
 
-DERIVATIVES = {
-    'sigmoid': sigmoid_prime,
-    'softmax': None,
-    'relu': relu_prime
-}
+def get_prime_activation_function(activation_name: str) -> Callable[..., float]:
+    """Returns activation function derivative according to `activation_name`.
+
+    Parameters
+    ----------
+    activation_name : str
+        Which activation function derivative to use. Can be ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
+
+    Returns
+    -------
+    Callable[..., float]
+        Activation function
+
+    Raises
+    ------
+    ValueError
+        Error raised if activation function does not exist.
+    """
+    activation_name = activation_name.lower()
+    if activation_name == 'relu':
+        return relu_prime
+    elif activation_name == 'sigmoid':
+        return sigmoid_prime
+    elif activation_name == 'softmax':
+        return None
+    else:
+        raise ValueError("Activation must be either \"Relu\", \"Sigmoid\" or \"Softmax\"")

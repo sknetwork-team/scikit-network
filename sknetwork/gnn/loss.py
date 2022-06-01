@@ -22,7 +22,7 @@ def cross_entropy_loss(y_true: np.ndarray, logits: np.ndarray, eps: float = 1e-1
     y_true : np.ndarray
         Ground truth labels.
     logits : np.ndarray
-        Predicted probabilites.
+        Predicted probabilities.
     eps: float (default=1e-15)
         Binary cross entropy is undefined for p=0 or p=1, thus predicated probabilities are clipped wrt to `eps`.
 
@@ -61,7 +61,7 @@ def cross_entropy_prime(y_true: np.ndarray, logits: np.ndarray, eps: float = 1e-
     y_true : np.ndarray
         Ground truth labels.
     logits : np.ndarray
-        Predicted probabilites.
+        Predicted probabilities.
     eps: float (default=1e-15)
         Binary cross entropy is undefined for p=0 or p=1, thus predicated probabilities are clipped wrt to `eps`.
     """
@@ -76,13 +76,13 @@ def cross_entropy_prime(y_true: np.ndarray, logits: np.ndarray, eps: float = 1e-
     return prime_loss
 
 
-def get_loss_function(loss_name: str) -> Callable[..., float]:
+def get_loss_function(loss_name: str = 'CrossEntropyLoss') -> Callable[..., float]:
     """Returns loss function according to `loss_name`.
 
     Parameters
     ----------
     loss_name : str
-        Loss function name
+        Which loss function to use. Can be ``'CrossEntropyLoss'``.
 
     Returns
     -------
@@ -92,21 +92,22 @@ def get_loss_function(loss_name: str) -> Callable[..., float]:
     Raises
     ------
     ValueError
-        Error raised if loss does not exists.
+        Error raised if loss does not exist.
     """
-    if loss_name == 'CrossEntropyLoss':
+    loss_name = loss_name.lower()
+    if loss_name == 'crossentropyloss':
         return cross_entropy_loss
     else:
         raise ValueError("Loss must be either \"CrossEntropyLoss\"")
 
 
-def get_prime_loss_function(loss_name: str) -> Callable[..., float]:
+def get_prime_loss_function(loss_name: str = 'CrossEntropyLoss') -> Callable[..., float]:
     """Returns loss function derivative according to `loss_name`.
 
     Parameters
     ----------
     loss_name : str
-        Loss function name.
+        Which loss function derivative to use. Can be ``'CrossEntropyLoss'``.
 
     Returns
     -------
@@ -116,9 +117,10 @@ def get_prime_loss_function(loss_name: str) -> Callable[..., float]:
     Raises
     ------
     ValueError
-        Error raised if loss does not exists.
+        Error raised if loss does not exist.
     """
-    if loss_name == 'CrossEntropyLoss':
+    loss_name = loss_name.lower()
+    if loss_name == 'crossentropyloss':
         return cross_entropy_prime
     else:
         raise ValueError("Loss must be either \"CrossEntropyLoss\"")

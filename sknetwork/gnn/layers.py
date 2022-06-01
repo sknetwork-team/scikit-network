@@ -9,7 +9,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.gnn.activation import ACTIVATIONS
+from sknetwork.gnn.activation import get_activation_function
 from sknetwork.gnn.utils import check_norm
 from sknetwork.linalg import diag_pinv
 
@@ -35,12 +35,11 @@ class GCNConv:
         - 'both', computes symmetric normalization
     self_loops: bool (default=True)
         If True, add self-loops to each node in the graph.
-    activation: {'relu', 'tanh', 'sigmoid'}, default='sigmoid'
+    activation: {'Relu', 'Softmax', 'Sigmoid'}, default='Sigmoid'
         Activation function name:
 
-        - 'logistic', the logistic sigmoid function, returns f(x) = 1 / (1 + exp(-x)).
-        - 'tanh', the hyperbolic tan function, returns f(x) = tanh(x).
-        - 'relu', the rectified linear unit function, returns f(x) = max(0, x)
+        - 'Relu', the rectified linear unit function, returns f(x) = max(0, x)
+        - 'Sigmoid', the logistic sigmoid function, returns f(x) = 1 / (1 + exp(-x)).
 
     Attributes
     ----------
@@ -61,14 +60,14 @@ class GCNConv:
     """
 
     def __init__(self, in_channels: int, out_channels: int, use_bias: bool = True, norm: str = 'both',
-                 self_loops: bool = True, activation: str = 'sigmoid'):
+                 self_loops: bool = True, activation: str = 'Sigmoid'):
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.use_bias = use_bias
         check_norm(norm)
         self.norm = norm
         self.self_loops = self_loops
-        self.activation = activation
+        self.activation = activation.lower()
 
         # Weight matrix with He-et-al initialization
         self.W = np.random.randn(in_channels, out_channels) * np.sqrt(2 / out_channels)
@@ -102,7 +101,7 @@ class GCNConv:
             d_inv = diag_pinv(np.sqrt(weights))
             adjacency = d_inv.dot(adjacency).dot(d_inv)
 
-        activation_function = ACTIVATIONS[self.activation]
+        activation_function = get_activation_function(self.activation)
         msg = adjacency.dot(feat)
 
         Z = msg.dot(self.W)

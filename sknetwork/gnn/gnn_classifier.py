@@ -10,7 +10,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.classification.metrics import accuracy_score
-from sknetwork.gnn.activation import ACTIVATIONS
+from sknetwork.gnn.activation import get_activation_function
 from sknetwork.gnn.base import BaseGNNClassifier
 from sknetwork.gnn.layers import GCNConv
 from sknetwork.gnn.loss import get_loss_function
@@ -66,7 +66,7 @@ class GNNClassifier(BaseGNNClassifier):
         super(GNNClassifier, self).__init__(opt, **kwargs)
         self.conv1 = GCNConv(in_channels, h_channels)
         if num_classes > 1:
-            self.conv2 = GCNConv(h_channels, num_classes, activation='softmax')
+            self.conv2 = GCNConv(h_channels, num_classes, activation='Softmax')
         else:
             self.conv2 = GCNConv(h_channels, num_classes)
 
@@ -252,7 +252,7 @@ class GNNClassifier(BaseGNNClassifier):
         h = nodes
 
         for l in layers:
-            activation_function = ACTIVATIONS[l.activation]
+            activation_function = get_activation_function(l.activation)
             h = h.dot(l.W)
             if l.use_bias:
                 h += l.bias

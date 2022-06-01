@@ -8,7 +8,7 @@ import numpy as np
 
 from sknetwork.data.test_graphs import test_graph
 from sknetwork.gnn.gnn_classifier import GNNClassifier
-from sknetwork.gnn.optimizer import optimizer_factory
+from sknetwork.gnn.optimizer import get_optimizer
 
 
 class TestOptimizer(unittest.TestCase):
@@ -21,7 +21,7 @@ class TestOptimizer(unittest.TestCase):
     def test_optimizer_factory(self):
         gnn = GNNClassifier(self.features.shape[1], 4, 2)
         with self.assertRaises(ValueError):
-            optimizer_factory(gnn, 'toto')
+            get_optimizer(gnn, 'toto')
 
     def test_optimizer_adam(self):
         gnn = GNNClassifier(self.features.shape[1], 4, 2, opt='Adam')
