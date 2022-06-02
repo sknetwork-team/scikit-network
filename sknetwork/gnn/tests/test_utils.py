@@ -6,7 +6,7 @@ import unittest
 
 import numpy as np
 
-from sknetwork.gnn.utils import check_boolean, check_existing_masks, check_norm, has_boolean_entries
+from sknetwork.gnn.utils import check_existing_masks, check_norm
 
 
 class TestUtils(unittest.TestCase):
@@ -14,16 +14,6 @@ class TestUtils(unittest.TestCase):
     def test_check_norm(self):
         with self.assertRaises(ValueError):
             check_norm('toto')
-
-    def test_boolean_entries(self):
-        with self.assertRaises(TypeError):
-            has_boolean_entries([True, 0, 2])
-        self.assertFalse(has_boolean_entries(np.array([0, 1, True])))
-
-    def test_boolean(self):
-        check_boolean(np.array([True, False, True]))
-        with self.assertRaises(ValueError):
-            check_boolean(np.array([True, 0, 2]))
 
     def test_existing_masks(self):
         # Check invalid entries

@@ -28,26 +28,28 @@ class GCNConv:
         Size of each input sample.
     out_channels: int
         Size of each output sample.
-    use_bias: bool (default=True)
+    use_bias: bool (default = `True`)
         If True, add a bias vector.
-    norm: str (default='both')
+    norm: str (default = ``'Both'``)
         Normalization kind for adjacency matrix.
-        - 'both', computes symmetric normalization
-    self_loops: bool (default=True)
+        * ``'Both'``, computes symmetric normalization
+    self_loops: bool (default = `True`)
         If True, add self-loops to each node in the graph.
-    activation: {'Relu', 'Softmax', 'Sigmoid'}, default='Sigmoid'
+    activation: str (default = ``'Sigmoid'``)
         Activation function name:
 
-        - 'Relu', the rectified linear unit function, returns f(x) = max(0, x)
-        - 'Sigmoid', the logistic sigmoid function, returns f(x) = 1 / (1 + exp(-x)).
+        * ``'Relu'``, the rectified linear unit function, returns f(x) = max(0, x)
+        * ``'Sigmoid'``, the logistic sigmoid function, returns f(x) = 1 / (1 + exp(-x)).
+        * ``'Softmax'``, the softmax function, returns f(x) = exp(x) / sum(exp(x))
+
 
     Attributes
     ----------
-    W, bias: np.ndarray, np.ndarray
+    weight, bias: np.ndarray, np.ndarray
         Trainable weight matrix and bias vector.
-    Z: np.ndarray
-        :math:`Z=AHW + b` with :math:`A` the adjacency matrix of the graph, :math:`H` the feature matrix of the graph,
-        :math:`W` the trainable weight matrix and :math:`b` the bias vector (if needed).
+    update: np.ndarray
+        :math:`\text{update}=AHW + b` with :math:`A` the adjacency matrix of the graph, :math:`H` the feature matrix
+        of the graph, :math:`W` the trainable weight matrix and :math:`b` the bias vector (if needed).
     emb: np.ndarray
         Embedding of the nodes after convolution layer.
 
@@ -57,20 +59,25 @@ class GCNConv:
     `Semi-supervised Classification with Graph Convolutional Networks.
     <https://arxiv.org/pdf/1609.02907.pdf>`_
     5th International Conference on Learning Representations.
+
+    He, K. & Zhang, X. & Ren, S. & Sun, J. (2015).
+    `Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification.
+    <https://arxiv.org/pdf/1502.01852.pdf>`_
+    Proceedings of the IEEE International Conference on Computer Vision (ICCV).
     """
 
-    def __init__(self, in_channels: int, out_channels: int, use_bias: bool = True, norm: str = 'both',
+    def __init__(self, in_channels: int, out_channels: int, use_bias: bool = True, norm: str = 'Both',
                  self_loops: bool = True, activation: str = 'Sigmoid'):
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.use_bias = use_bias
         check_norm(norm)
-        self.norm = norm
+        self.norm = norm.lower()
         self.self_loops = self_loops
         self.activation = activation.lower()
 
         # Weight matrix with He-et-al initialization
-        self.W = np.random.randn(in_channels, out_channels) * np.sqrt(2 / out_channels)
+        self.weight = np.random.randn(in_channels, out_channels) * np.sqrt(2 / out_channels)
         if self.use_bias:
             self.bias = np.zeros((out_channels, 1)).T
 
@@ -83,7 +90,8 @@ class GCNConv:
         adjacency
             Adjacency matrix of the graph.
         feat : sparse.csr_matrix, np.ndarray
-            Input feature of shape (n, d) with n the number of nodes in the graph and d the size of feature space.
+            Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
+            the size of feature space.
 
         Returns
         -------
@@ -104,15 +112,15 @@ class GCNConv:
         activation_function = get_activation_function(self.activation)
         msg = adjacency.dot(feat)
 
-        Z = msg.dot(self.W)
+        update = msg.dot(self.weight)
         if self.use_bias:
-            Z += self.bias
+            update += self.bias
 
-        emb = activation_function(Z)
+        emb = activation_function(update)
 
         # Keep track of results for backprop
         self.emb = emb
-        self.Z = Z
+        self.update = update
 
         return self.emb
 
@@ -127,7 +135,7 @@ class GCNConv:
         str
             String representation of object
         """
-        attributes_dict = {k: v for k, v in self.__dict__.items() if k not in ['W', 'bias']}
+        attributes_dict = {k: v for k, v in self.__dict__.items() if k not in ['weight', 'bias', 'emb']}
         lines = ''
 
         for k, v in attributes_dict.items():

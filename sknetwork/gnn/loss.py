@@ -23,8 +23,9 @@ def cross_entropy_loss(y_true: np.ndarray, logits: np.ndarray, eps: float = 1e-1
         Ground truth labels.
     logits : np.ndarray
         Predicted probabilities.
-    eps: float (default=1e-15)
-        Binary cross entropy is undefined for p=0 or p=1, thus predicated probabilities are clipped wrt to `eps`.
+    eps: float (default = 1e-15)
+        Binary cross entropy is undefined for :math:`p=0` or :math:`p=1`, thus predicated probabilities are
+        clipped w.r.t to `eps`.
 
     Returns
     -------
@@ -63,7 +64,8 @@ def cross_entropy_prime(y_true: np.ndarray, logits: np.ndarray, eps: float = 1e-
     logits : np.ndarray
         Predicted probabilities.
     eps: float (default=1e-15)
-        Binary cross entropy is undefined for p=0 or p=1, thus predicated probabilities are clipped wrt to `eps`.
+        Binary cross entropy is undefined for :math:`p=0` or :math:`p=1`, thus predicated probabilities are
+        clipped w.r.t to `eps`.
     """
     # Clipping
     logits = np.clip(logits, eps, 1 - eps)

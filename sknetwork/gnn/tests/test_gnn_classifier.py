@@ -111,7 +111,6 @@ class TestGNNClassifier(unittest.TestCase):
         # test result shape for several new nodes
         new_n = np.random.randint(2, size=(5, self.features.shape[1]))
         pred_labels = gnn.predict(new_n)
-        print(pred_labels.shape)
         self.assertTrue(pred_labels.shape == (5,))
 
         # test invalid format for new nodes

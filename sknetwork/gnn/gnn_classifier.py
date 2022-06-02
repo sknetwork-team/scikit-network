@@ -29,11 +29,10 @@ class GNNClassifier(BaseGNNClassifier):
         Size hidden layer.
     num_classes: int
         Number of classes.
-    opt: str (default='Adam')
+    opt: str (default = ``'Adam'``)
         Optimizer name:
-        - 'SGD', stochastic gradient descent.
         - 'Adam', stochastic gradient-based optimizer.
-        - 'none', gradient descent.
+        - 'None', gradient descent.
     verbose :
         Verbose mode.
 
@@ -55,11 +54,11 @@ class GNNClassifier(BaseGNNClassifier):
     >>> adjacency = graph.adjacency
     >>> labels = graph.labels
     >>> features = adjacency.copy()
-    >>> gnn = GNNClassifier(features.shape[1], 4, 1, opt='none')
+    >>> gnn = GNNClassifier(features.shape[1], 4, 1, opt='None')
     >>> y_pred = gnn.fit_transform(adjacency, features, labels, max_iter=30, loss='CrossEntropyLoss', test_size=0.2)
     >>> # Predictions
-    >>> new_n = randint(2, size=adjacency.shape[0])
-    >>> pred_n = gnn.predict(new_n)
+    >>> node = randint(2, size=adjacency.shape[0])
+    >>> pred_n = gnn.predict(node)
     """
 
     def __init__(self, in_channels: int, h_channels: int, num_classes: int, opt: str = 'Adam', **kwargs):
@@ -81,7 +80,8 @@ class GNNClassifier(BaseGNNClassifier):
         adjacency : sparse.csr_matrix
             Adjacency matrix.
         feat : sparse.csr_matrix, np.ndarray
-            Input feature of shape (n, d) with n the number of nodes in the graph and d the size of the embedding.
+            Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
+            the size of the embedding.
 
         Returns
         -------
@@ -129,22 +129,23 @@ class GNNClassifier(BaseGNNClassifier):
         adjacency
             Adjacency matrix of the graph.
         feat : sparse.csr_matrix, np.ndarray
-            Input feature of shape (n, d) with n the number of nodes in the graph and d the size of feature space.
+            Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
+            the size of feature space.
         y_true : np.ndarray
             Label vectors of length n, with n the number of nodes in `adjacency`
-        max_iter: int (default=30)
+        max_iter: int (default = 30)
             Maximum number of iterations for the solver. Corresponds to the number of epochs.
-        loss: str (default="CrossEntropyLoss")
+        loss: str (default = ``'CrossEntropyLoss'``)
             Loss function name.
         train_mask, test_mask: np.ndarray, np.ndarray
-            Boolean array indicating wether nodes are in training or test sets.
+            Boolean array indicating whether nodes are in training or test sets.
         test_size: float
             Should be between 0 and 1 and represents the proportion of the nodes to include in test set. Only used if
             `train_mask` and `test_mask` are not provided.
         random_state : int
-            Pass an int for reproducible results across multiple runs. Used if `test_size` is not None.
-        shuffle : bool (default=True)
-            If True, shuffles samples before split. Used if `test_size` is not None.
+            Pass an int for reproducible results across multiple runs. Used if `test_size` is not `None`.
+        shuffle : bool (default = `True`)
+            If True, shuffles samples before split. Used if `test_size` is not `None`.
         """
         y_pred = None
         if not check_existing_masks(train_mask, test_mask, test_size):
@@ -199,11 +200,11 @@ class GNNClassifier(BaseGNNClassifier):
         ----------
         n : int
             Number of nodes in graph.
-        test_size : float (default=0.2)
+        test_size : float (default = 0.2)
             Should be between 0 and 1 and represents the proportion of the nodes to include in test set.
         random_state : int
             Pass an int for reproducible results across multiple runs.
-        shuffle : bool (default=True)
+        shuffle : bool (default = `True`)
             If True, shuffles samples before split.
 
         Returns
@@ -251,11 +252,11 @@ class GNNClassifier(BaseGNNClassifier):
         layers = self._get_layers()
         h = nodes
 
-        for l in layers:
-            activation_function = get_activation_function(l.activation)
-            h = h.dot(l.W)
-            if l.use_bias:
-                h += l.bias
+        for layer in layers:
+            activation_function = get_activation_function(layer.activation)
+            h = h.dot(layer.weight)
+            if layer.use_bias:
+                h += layer.bias
             h = activation_function(h)
 
         logits, y_pred = self._compute_predictions(h)

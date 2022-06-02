@@ -22,9 +22,9 @@ class TestLayer(unittest.TestCase):
         conv1 = GCNConv(self.features.shape[1], 4)
         conv2 = GCNConv(4, 2)
 
-        self.assertTrue(conv1.W.shape == (self.features.shape[1], 4))
+        self.assertTrue(conv1.weight.shape == (self.features.shape[1], 4))
         self.assertTrue(conv1.bias.shape == (1, 4))
-        self.assertTrue(conv2.W.shape == (4, 2))
+        self.assertTrue(conv2.weight.shape == (4, 2))
         self.assertTrue(conv2.bias.shape == (1, 2))
 
         h = conv1.forward(self.adjacency, self.features)
@@ -51,7 +51,7 @@ class TestLayer(unittest.TestCase):
             GCNConv(self.features.shape[1], 4, norm='toto')
 
     def test_graph_conv_activation(self):
-        activations = ['relu', 'sigmoid']
+        activations = ['Relu', 'Sigmoid']
         for a in activations:
             conv1 = GCNConv(self.features.shape[1], 4, activation=a)
             conv2 = GCNConv(4, 2)

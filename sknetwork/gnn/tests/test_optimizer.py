@@ -26,14 +26,14 @@ class TestOptimizer(unittest.TestCase):
     def test_optimizer_adam(self):
         gnn = GNNClassifier(self.features.shape[1], 4, 2, opt='Adam')
         _ = gnn.fit_transform(self.adjacency, self.features, self.labels, max_iter=1, test_size=0.2)
-        conv1_W, conv2_W = gnn.conv1.W.copy(), gnn.conv2.W.copy()
+        conv1_weight, conv2_weight = gnn.conv1.weight.copy(), gnn.conv2.weight.copy()
         conv1_b, conv2_b = gnn.conv1.bias.copy(), gnn.conv2.bias.copy()
         gnn.opt.step()
         # Test weight matrix
-        self.assertTrue(gnn.conv1.W.shape == conv1_W.shape)
-        self.assertTrue(gnn.conv2.W.shape == conv2_W.shape)
-        self.assertTrue((gnn.conv1.W != conv1_W).any())
-        self.assertTrue((gnn.conv2.W != conv2_W).any())
+        self.assertTrue(gnn.conv1.weight.shape == conv1_weight.shape)
+        self.assertTrue(gnn.conv2.weight.shape == conv2_weight.shape)
+        self.assertTrue((gnn.conv1.weight != conv1_weight).any())
+        self.assertTrue((gnn.conv2.weight != conv2_weight).any())
         # Test bias vector
         self.assertTrue(gnn.conv1.bias.shape == conv1_b.shape)
         self.assertTrue(gnn.conv2.bias.shape == conv2_b.shape)
@@ -41,16 +41,16 @@ class TestOptimizer(unittest.TestCase):
         self.assertTrue((gnn.conv2.bias != conv2_b).any())
 
     def test_optimizer_gd(self):
-        gnn = GNNClassifier(self.features.shape[1], 4, 2, opt='none')
+        gnn = GNNClassifier(self.features.shape[1], 4, 2, opt='None')
         _ = gnn.fit_transform(self.adjacency, self.features, self.labels, max_iter=1, test_size=0.2)
-        conv1_W, conv2_W = gnn.conv1.W.copy(), gnn.conv2.W.copy()
+        conv1_weight, conv2_weight = gnn.conv1.weight.copy(), gnn.conv2.weight.copy()
         conv1_b, conv2_b = gnn.conv1.bias.copy(), gnn.conv2.bias.copy()
         gnn.opt.step()
         # Test weight matrix
-        self.assertTrue(gnn.conv1.W.shape == conv1_W.shape)
-        self.assertTrue(gnn.conv2.W.shape == conv2_W.shape)
-        self.assertTrue((gnn.conv1.W != conv1_W).any())
-        self.assertTrue((gnn.conv2.W != conv2_W).any())
+        self.assertTrue(gnn.conv1.weight.shape == conv1_weight.shape)
+        self.assertTrue(gnn.conv2.weight.shape == conv2_weight.shape)
+        self.assertTrue((gnn.conv1.weight != conv1_weight).any())
+        self.assertTrue((gnn.conv2.weight != conv2_weight).any())
         # Test bias vector
         self.assertTrue(gnn.conv1.bias.shape == conv1_b.shape)
         self.assertTrue(gnn.conv2.bias.shape == conv2_b.shape)

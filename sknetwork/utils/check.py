@@ -299,3 +299,17 @@ def check_scaling(scaling: float, adjacency: sparse.csr_matrix, regularize: bool
     if scaling and (not regularize) and not is_connected(adjacency):
         raise ValueError("Positive 'scaling' is valid only if the graph is connected or with regularization."
                          "Call 'fit' either with 'scaling' = 0 or positive 'regularization'.")
+
+
+def has_boolean_entries(input_matrix: np.ndarray) -> bool:
+    """True if the array has boolean entries."""
+    if type(input_matrix) != np.ndarray:
+        raise TypeError('Entry must be a dense NumPy array.')
+    else:
+        return input_matrix.dtype == 'bool'
+
+
+def check_boolean(input_matrix: np.ndarray):
+    """Check whether the array has positive entries."""
+    if not has_boolean_entries(input_matrix):
+        raise ValueError('Only boolean values are expected.')

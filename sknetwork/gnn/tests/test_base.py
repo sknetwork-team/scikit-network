@@ -16,7 +16,7 @@ class CustomGNNClassifier(GNNClassifier):
         super(CustomGNNClassifier, self).__init__(in_channels, h_channels, num_classes, opt)
         self.conv1 = GCNConv(in_channels, h_channels)
         self.conv2 = GCNConv(h_channels, h_channels)
-        self.conv3 = GCNConv(h_channels, num_classes, activation='softmax')
+        self.conv3 = GCNConv(h_channels, num_classes, activation='Softmax')
 
     def forward(self, adjacency, feat):
         h = self.conv1(adjacency, feat)

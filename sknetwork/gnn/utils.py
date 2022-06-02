@@ -8,7 +8,7 @@ from typing import Optional
 
 import numpy as np
 
-from sknetwork.utils.check import check_is_proba
+from sknetwork.utils.check import check_is_proba, has_boolean_entries, check_boolean
 
 
 def check_norm(norm: str):
@@ -19,7 +19,7 @@ def check_norm(norm: str):
     norm: str
         Normalization kind for adjacency matrix.
     """
-    if norm not in ['both']:
+    if norm not in ['Both']:
         raise ValueError('Unknown norm parameter.')
 
 
@@ -49,17 +49,3 @@ def check_existing_masks(train_mask: Optional[np.ndarray] = None, test_mask: Opt
         check_boolean(train_mask)
         check_boolean(test_mask)
         return True
-
-
-def has_boolean_entries(input_matrix: np.ndarray) -> bool:
-    """Check if the array has boolean entries."""
-    if type(input_matrix) != np.ndarray:
-        raise TypeError('Entry must be a dense NumPy array.')
-    else:
-        return input_matrix.dtype == 'bool'
-
-
-def check_boolean(input_matrix: np.ndarray):
-    """Check whether the array has positive entries."""
-    if not has_boolean_entries(input_matrix):
-        raise ValueError('Only boolean values are expected.')

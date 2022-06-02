@@ -19,19 +19,19 @@ class GD:
     ----------
     gnn: BaseGNNClassifier
         Model containing parameters to update.
-    lr: float (default=0.01)
+    learning_rate: float (default = 0.01)
         Learning rate for weights update.
     """
 
-    def __init__(self, gnn: BaseGNNClassifier, lr: float = 0.01):
+    def __init__(self, gnn: BaseGNNClassifier, learning_rate: float = 0.01):
         self.gnn = gnn
-        self.lr = lr
+        self.learning_rate = learning_rate
 
     def step(self):
         """Update model parameters according to gradient values."""
-        for idx, l in enumerate(self.gnn.layers):
-            l.W = l.W - self.lr * self.gnn.dW[idx]
-            l.bias = l.bias - self.lr * self.gnn.db[idx]
+        for idx, layer in enumerate(self.gnn.layers):
+            layer.weight = layer.weight - self.learning_rate * self.gnn.prime_weight[idx]
+            layer.bias = layer.bias - self.learning_rate * self.gnn.prime_bias[idx]
 
 
 class ADAM:
@@ -41,11 +41,11 @@ class ADAM:
     ----------
     gnn: `BaseGNNClassifier`
         Model containing parameters to update.
-    lr: float (default=0.01)
+    learning_rate: float (default = 0.01)
         Learning rate for weights update.
     beta1, beta2: float
         Coefficients used for computing running averages of gradients.
-    epsilon: float (default=1e-8)
+    eps: float (default = 1e-8)
         Term added to the denominator to improve stability.
 
     References
@@ -56,45 +56,53 @@ class ADAM:
     3rd International Conference for Learning Representation.
     """
 
-    def __init__(self, gnn: BaseGNNClassifier, lr: float = 0.001, beta1: float = 0.9, beta2: float = 0.999,
-                 epsilon: float = 1e-8):
+    def __init__(self, gnn: BaseGNNClassifier, learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999,
+                 eps: float = 1e-8):
         self.gnn = gnn
-        self.lr = lr
+        self.learning_rate = learning_rate
         self.beta1 = beta1
         self.beta2 = beta2
-        self.epsilon = epsilon
-        self.m_dw, self.v_dw = [], []
-        self.m_db, self.v_db = [], []
+        self.eps = eps
+        self.m_prime_weight, self.v_prime_weight = [], []
+        self.m_prime_bias, self.v_prime_bias = [], []
         self.t = 0
 
     def step(self):
         """Update model parameters according to gradient values and parameters."""
         if self.t == 0:
-            self.m_dw, self.v_dw = [np.zeros(x.shape) for x in self.gnn.dW], [np.zeros(x.shape) for x in self.gnn.dW]
-            self.m_db, self.v_db = [np.zeros(x.shape) for x in self.gnn.db], [np.zeros(x.shape) for x in self.gnn.db]
+            self.m_prime_weight, self.v_prime_weight = \
+                [np.zeros(x.shape) for x in self.gnn.prime_weight], [np.zeros(x.shape) for x in self.gnn.prime_weight]
+            self.m_prime_bias, self.v_prime_bias = \
+                [np.zeros(x.shape) for x in self.gnn.prime_bias], [np.zeros(x.shape) for x in self.gnn.prime_bias]
 
-        for idx, l in enumerate(self.gnn.layers):
+        for idx, layer in enumerate(self.gnn.layers):
             self.t += 1
 
             # Moving averages
-            self.m_dw[idx] = self.beta1 * self.m_dw[idx] + (1 - self.beta1) * self.gnn.dW[idx]
-            self.m_db[idx] = self.beta1 * self.m_db[idx] + (1 - self.beta1) * self.gnn.db[idx]
+            self.m_prime_weight[idx] = \
+                self.beta1 * self.m_prime_weight[idx] + (1 - self.beta1) * self.gnn.prime_weight[idx]
+            self.m_prime_bias[idx] = \
+                self.beta1 * self.m_prime_bias[idx] + (1 - self.beta1) * self.gnn.prime_bias[idx]
 
-            self.v_dw[idx] = self.beta2 * self.v_dw[idx] + (1 - self.beta2) * (self.gnn.dW[idx] ** 2)
-            self.v_db[idx] = self.beta2 * self.v_db[idx] + (1 - self.beta2) * (self.gnn.db[idx] ** 2)
+            self.v_prime_weight[idx] = \
+                self.beta2 * self.v_prime_weight[idx] + (1 - self.beta2) * (self.gnn.prime_weight[idx] ** 2)
+            self.v_prime_bias[idx] = \
+                self.beta2 * self.v_prime_bias[idx] + (1 - self.beta2) * (self.gnn.prime_bias[idx] ** 2)
 
             # Correcting moving averages
             denom_1 = (1 - self.beta1 ** self.t)
             denom_2 = (1 - self.beta2 ** self.t)
 
-            m_dw_corr = self.m_dw[idx] / denom_1
-            m_db_corr = self.m_db[idx] / denom_1
-            v_dw_corr = self.v_dw[idx] / denom_2
-            v_db_corr = self.v_db[idx] / denom_2
+            m_prime_weight_corr = self.m_prime_weight[idx] / denom_1
+            m_prime_bias_corr = self.m_prime_bias[idx] / denom_1
+            v_prime_weight_corr = self.v_prime_weight[idx] / denom_2
+            v_prime_bias_corr = self.v_prime_bias[idx] / denom_2
 
             # Parameters update
-            l.W = l.W - (self.lr * m_dw_corr) / (np.sqrt(v_dw_corr) + self.epsilon)
-            l.bias = l.bias - (self.lr * m_db_corr) / (np.sqrt(v_db_corr) + self.epsilon)
+            layer.weight = \
+                layer.weight - (self.learning_rate * m_prime_weight_corr) / (np.sqrt(v_prime_weight_corr) + self.eps)
+            layer.bias = \
+                layer.bias - (self.learning_rate * m_prime_bias_corr) / (np.sqrt(v_prime_bias_corr) + self.eps)
 
 
 def get_optimizer(gnn: BaseGNNClassifier, opt: str = 'Adam', **kwargs) -> object:
@@ -106,8 +114,6 @@ def get_optimizer(gnn: BaseGNNClassifier, opt: str = 'Adam', **kwargs) -> object
         Model on which optimizers apply the `step` method.
     opt : str
         Which optimizer to use. Can be ``'Adam'`` or ``'None'``.
-    lr : float (default=0.01)
-        Learning rate for weights update.
 
     Returns
     -------

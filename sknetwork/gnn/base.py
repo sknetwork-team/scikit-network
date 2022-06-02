@@ -12,23 +12,22 @@ from sknetwork.gnn.activation import get_prime_activation_function
 from sknetwork.gnn.layers import GCNConv
 from sknetwork.gnn.loss import get_prime_loss_function
 from sknetwork.gnn.optimizer import get_optimizer
-from sknetwork.utils.base import Algorithm
 from sknetwork.utils.verbose import VerboseMixin
 
 
-class BaseGNNClassifier(Algorithm, VerboseMixin):
+class BaseGNNClassifier(VerboseMixin):
     """Base class for GNN classifiers.
 
     Parameters
     ----------
     opt: str (default = ``'Adam'``)
         Optimizer name:
-        - ``'Adam'``, refers to a stochastic gradient-based optimizer proposed by Kingma, Diederik, and Jimmy Ba.
-        - ``'None'``, gradient descent.
+        * ``'Adam'``, refers to a stochastic gradient-based optimizer proposed by Kingma, Diederik, and Jimmy Ba.
+        * ``'None'``, gradient descent.
 
     Attributes
     ----------
-    dW, db: np.ndarray, np.ndarray
+    prime_weight, prime_bias: np.ndarray, np.ndarray
         Derivatives of trainable weight matrix and bias vector.
     layers: list
         List of layers object (e.g `GCNConv`).
@@ -50,7 +49,7 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
         self.test_mask = None
         self.nb_layers = 0
         self.activations = []
-        self.dW, self.db = [], []
+        self.prime_weight, self.prime_bias = [], []
         self.labels_ = None
         self.history_ = defaultdict(list)
 
@@ -78,7 +77,7 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
         """
         available_types = [GCNConv]
 
-        return [l for l in list(self.__dict__.values()) if any([isinstance(l, t) for t in available_types])]
+        return [layer for layer in list(self.__dict__.values()) if any([isinstance(layer, t) for t in available_types])]
 
     @staticmethod
     def _get_activations(layers: list) -> list:
@@ -93,7 +92,7 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
         -------
         list of activation functions as strings.
         """
-        return [l.activation for l in layers]
+        return [layer.activation for layer in layers]
 
     def backward(self, feat: np.ndarray, y_true: np.ndarray, loss: str):
         """Compute backpropagation.
@@ -101,9 +100,10 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
         Parameters
         ----------
         feat : np.ndarray
-            Input feature of shape (n, d) with n the number of nodes in the graph and d the size of the embedding.
+            Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
+            the size of the embedding.
         y_true : np.ndarray
-            Label vectors of lenght n, with n the number of nodes in `adjacency`.
+            Label vectors of length :math:`n`, with :math:`n` the number of nodes in `adjacency`.
         loss : str
             Loss function name.
         """
@@ -117,41 +117,41 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
         activation_primes = [get_prime_activation_function(act) for act in activations]
 
         # Initialize parameters derivatives
-        self.dW = [0] * self.nb_layers
-        self.db = [0] * self.nb_layers
+        self.prime_weight = [0] * self.nb_layers
+        self.prime_bias = [0] * self.nb_layers
 
         # Backpropagation
-        A = self.layers[self.nb_layers - 1].emb
+        output = self.layers[self.nb_layers - 1].emb
         if self.layers[-1].activation == 'softmax':
             nb_classes = len(np.unique(y_true))
             y_true_ohe = np.eye(nb_classes)[y_true]
-            dZ = (A - y_true_ohe).T
+            prime_update = (output - y_true_ohe).T
         else:
-            dA = prime_loss_function(y_true, A.T)
-            dZ = dA * activation_primes[-1](A.T)
-        A_prev = self.layers[self.nb_layers - 2].emb
+            prime_output = prime_loss_function(y_true, output.T)
+            prime_update = prime_output * activation_primes[-1](output.T)
+        output_prev = self.layers[self.nb_layers - 2].emb
 
-        dW = dZ.dot(A_prev).T
-        db = np.sum(dZ, axis=1, keepdims=True) / n
-        dA_prev = self.layers[self.nb_layers - 1].W.dot(dZ)
+        prime_weight = prime_update.dot(output_prev).T
+        prime_bias = np.sum(prime_update, axis=1, keepdims=True) / n
+        prime_output_prev = self.layers[self.nb_layers - 1].weight.dot(prime_update)
 
-        self.dW[self.nb_layers - 1] = dW
-        self.db[self.nb_layers - 1] = db.T
+        self.prime_weight[self.nb_layers - 1] = prime_weight
+        self.prime_bias[self.nb_layers - 1] = prime_bias.T
 
-        for l in range(self.nb_layers - 1, 0, -1):
-            dZ = dA_prev * activation_primes[l - 1](A_prev.T)
-            if l == 1:
-                A_prev = feat
-            dW = A_prev.T.dot(dZ.T)  # SpM on left hand side
-            db = np.sum(dZ, axis=1, keepdims=True) / n
-            if l > 1:
-                dA_prev = self.layers[l - 1].W.dot(dZ)
+        for layer_idx in range(self.nb_layers - 1, 0, -1):
+            prime_update = prime_output_prev * activation_primes[layer_idx - 1](output_prev.T)
+            if layer_idx == 1:
+                output_prev = feat
+            prime_weight = output_prev.T.dot(prime_update.T)  # SpM on left-hand side
+            prime_bias = np.sum(prime_update, axis=1, keepdims=True) / n
+            if layer_idx > 1:
+                prime_output_prev = self.layers[layer_idx - 1].weight.dot(prime_update)
 
-            self.dW[l - 1] = dW
-            self.db[l - 1] = db.T
+            self.prime_weight[layer_idx - 1] = prime_weight
+            self.prime_bias[layer_idx - 1] = prime_bias.T
 
     def __repr__(self) -> str:
-        """String representation of the GNN layer by layer.
+        """String representation of the `GNN`, layer by layer.
 
         Returns
         -------
@@ -164,8 +164,8 @@ class BaseGNNClassifier(Algorithm, VerboseMixin):
         layers = self._get_layers()
         lines += f'{self.__class__.__name__}(\n'
 
-        for l in layers:
-            lines += f'  {l}\n'
+        for layer in layers:
+            lines += f'  {layer}\n'
         lines += ')'
 
         return lines

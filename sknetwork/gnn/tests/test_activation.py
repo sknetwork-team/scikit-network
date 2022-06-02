@@ -37,7 +37,6 @@ class TestActivation(unittest.TestCase):
 
     def test_activation_sigmoid_prime(self):
         a = np.array([-np.inf, 0, np.inf])
-        print(sigmoid_prime(a))
         self.assertTrue(np.allclose(sigmoid_prime(a), np.array([0., 0.25, 0.])))
 
     def test_activation_softmax(self):
