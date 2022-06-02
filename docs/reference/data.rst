@@ -52,6 +52,8 @@ Toy graphs
 
 .. autofunction:: sknetwork.data.movie_actor
 
+.. autofunction:: sknetwork.data.art_philo_science
+
 Models
 ******
 
