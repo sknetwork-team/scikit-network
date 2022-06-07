@@ -18,14 +18,14 @@ class TestOptimizer(unittest.TestCase):
         self.features = self.adjacency
         self.labels = np.array([0] * 5 + [1] * 5)
 
-    def test_optimizer_factory(self):
-        gnn = GNNClassifier(self.features.shape[1], 4, 2)
+    def test_get_optimizer(self):
+        gnn = GNNClassifier('GCNConv', 2, 'Softmax')
         with self.assertRaises(ValueError):
             get_optimizer(gnn, 'toto')
 
     def test_optimizer_adam(self):
-        gnn = GNNClassifier(self.features.shape[1], 4, 2, opt='Adam')
-        _ = gnn.fit_transform(self.adjacency, self.features, self.labels, max_iter=1, test_size=0.2)
+        gnn = GNNClassifier(['GCNConv', 'GCNConv'], [4, 2], ['Relu', 'Softmax'], opt='Adam')
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, max_iter=1, val_size=0.2)
         conv1_weight, conv2_weight = gnn.conv1.weight.copy(), gnn.conv2.weight.copy()
         conv1_b, conv2_b = gnn.conv1.bias.copy(), gnn.conv2.bias.copy()
         gnn.opt.step()
@@ -41,8 +41,8 @@ class TestOptimizer(unittest.TestCase):
         self.assertTrue((gnn.conv2.bias != conv2_b).any())
 
     def test_optimizer_gd(self):
-        gnn = GNNClassifier(self.features.shape[1], 4, 2, opt='None')
-        _ = gnn.fit_transform(self.adjacency, self.features, self.labels, max_iter=1, test_size=0.2)
+        gnn = GNNClassifier(['GCNConv', 'GCNConv'], [4, 2], ['Relu', 'Softmax'], opt='None')
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, max_iter=1, val_size=0.2)
         conv1_weight, conv2_weight = gnn.conv1.weight.copy(), gnn.conv2.weight.copy()
         conv1_b, conv2_b = gnn.conv1.bias.copy(), gnn.conv2.bias.copy()
         gnn.opt.step()

@@ -10,12 +10,11 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.classification.metrics import accuracy_score
-from sknetwork.gnn.activation import get_activation_function
 from sknetwork.gnn.base import BaseGNNClassifier
-from sknetwork.gnn.layers import GCNConv
+from sknetwork.gnn.layers import get_layer
 from sknetwork.gnn.loss import get_loss_function
-from sknetwork.gnn.utils import check_existing_masks
-from sknetwork.utils.check import check_format, check_is_proba
+from sknetwork.gnn.utils import check_existing_masks, check_layers_parameters
+from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, is_square
 
 
 class GNNClassifier(BaseGNNClassifier):
@@ -23,27 +22,38 @@ class GNNClassifier(BaseGNNClassifier):
 
     Parameters
     ----------
-    in_channel: int
-        Size of each input sample.
-    h_channel: int
-        Size hidden layer.
-    num_classes: int
-        Number of classes.
+    layer
+        Layer name (for multi-layers GNN, use a `list`). Layer name can be either:
+        * ``'GCNConv'``, graph convolutional layer.
+    n_hidden
+        Size of hidden layer (for multi-layers GNN, use a list).
+    activation
+        Activation function name (for multi-layers GNN, use a list). Can be either ``'Relu'``, ``'Sigmoid'`` or
+        ``'Softmax'``.
+    use_bias
+        If `True`, use bias vector (for multi-layers GNN, use a list).
+    norm
+        How to apply the adjacency matrix normalizer (for multi-layers GNN, use a list). Can be either:
+        *  ``'Both'`` (default), equivalent to symmetric normalization.
+    self_loops
+        If `True`, add self loops to each node in the graph (for multi-layers GNN, use a list).
     opt: str (default = ``'Adam'``)
         Optimizer name:
-        - 'Adam', stochastic gradient-based optimizer.
-        - 'None', gradient descent.
+        * ``'Adam'``, stochastic gradient-based optimizer.
+        * ``'None'``, gradient descent.
     verbose :
         Verbose mode.
 
     Attributes
     ----------
-    conv1, conv2: `GCNConv``
+    conv1, conv2: :class:`GCNConv``
         Graph convolutional layers.
+    embedding_ : array
+        Embedding of the nodes.
     labels_: np.ndarray
         Predicted node labels.
     history_: dict
-        Training history per epoch: {'embedding', 'loss', 'train_accuracy', 'test_accuracy'}.
+        Training history per epoch: {``'embedding'``, ``'loss'``, ``'train_accuracy'``, ``'test_accuracy'``}.
 
     Example
     -------
@@ -54,20 +64,22 @@ class GNNClassifier(BaseGNNClassifier):
     >>> adjacency = graph.adjacency
     >>> labels = graph.labels
     >>> features = adjacency.copy()
-    >>> gnn = GNNClassifier(features.shape[1], 4, 1, opt='None')
-    >>> y_pred = gnn.fit_transform(adjacency, features, labels, max_iter=30, loss='CrossEntropyLoss', test_size=0.2)
-    >>> # Predictions
-    >>> node = randint(2, size=adjacency.shape[0])
-    >>> pred_n = gnn.predict(node)
+    >>> gnn = GNNClassifier(layer='GCNConv', n_hidden=2, activation='Softmax', opt='Adam', verbose=False)
+    >>> labels_pred = gnn.fit_predict(adjacency, features, labels, max_iter=10, val_size=0.2)
+    >>> # Predictions on new nodes
+    >>> new_nodes = sparse.csr_matrix(np.random.randint(2, size=(2, adjacency.shape[1])))
+    >>> new_features = new_nodes.copy()
+    >>> new_labels_pred = gnn.predict(new_nodes, new_features)
     """
 
-    def __init__(self, in_channels: int, h_channels: int, num_classes: int, opt: str = 'Adam', **kwargs):
+    def __init__(self, layer: Union[str, list], n_hidden: Union[int, list], activation: Union[str, list] = 'Sigmoid',
+                 use_bias: Union[bool, list] = True, norm: Union[str, list] = 'Both',
+                 self_loops: Union[bool, list] = True,
+                 opt: str = 'Adam', **kwargs):
         super(GNNClassifier, self).__init__(opt, **kwargs)
-        self.conv1 = GCNConv(in_channels, h_channels)
-        if num_classes > 1:
-            self.conv2 = GCNConv(h_channels, num_classes, activation='Softmax')
-        else:
-            self.conv2 = GCNConv(h_channels, num_classes)
+        parameters = check_layers_parameters(layer, n_hidden, activation, use_bias, norm, self_loops)
+        for layer_idx, params in enumerate(zip(*parameters)):
+            setattr(self, f'conv{layer_idx + 1}', get_layer(params[0], *params[1:]))
 
     def forward(self, adjacency: sparse.csr_matrix, feat: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """ Performs a forward pass on the graph and returns embedding of nodes.
@@ -89,8 +101,10 @@ class GNNClassifier(BaseGNNClassifier):
             Nodes embedding.
         """
 
-        h = self.conv1(adjacency, feat)
-        h = self.conv2(adjacency, h)
+        layers = self._get_layers()
+        h = feat.copy()
+        for layer in layers:
+            h = layer(adjacency, h)
 
         return h
 
@@ -119,9 +133,9 @@ class GNNClassifier(BaseGNNClassifier):
         return logits, y_pred
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], feat: Union[sparse.csr_matrix, np.ndarray],
-            y_true: np.ndarray, max_iter: int = 30, loss: str = 'CrossEntropyLoss',
-            train_mask: Optional[np.ndarray] = None, test_mask: Optional[np.ndarray] = None,
-            test_size: Optional[float] = None, random_state: Optional[int] = None, shuffle: Optional[bool] = True):
+            labels: np.ndarray, max_iter: int = 30, loss: str = 'CrossEntropyLoss',
+            train_mask: Optional[np.ndarray] = None, val_size: Optional[float] = None,
+            random_state: Optional[int] = None, shuffle: Optional[bool] = True) -> 'GNNClassifier':
         """ Fits model to data and store trained parameters.
 
         Parameters
@@ -131,25 +145,28 @@ class GNNClassifier(BaseGNNClassifier):
         feat : sparse.csr_matrix, np.ndarray
             Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
             the size of feature space.
-        y_true : np.ndarray
-            Label vectors of length n, with n the number of nodes in `adjacency`
+        labels : np.ndarray
+            Label vectors of length :math:`n`, with :math:`n` the number of nodes in `adjacency`. A value of `labels`
+            equals `-1` means no label. The associated nodes are not considered in training steps.
         max_iter: int (default = 30)
             Maximum number of iterations for the solver. Corresponds to the number of epochs.
         loss: str (default = ``'CrossEntropyLoss'``)
             Loss function name.
-        train_mask, test_mask: np.ndarray, np.ndarray
-            Boolean array indicating whether nodes are in training or test sets.
-        test_size: float
-            Should be between 0 and 1 and represents the proportion of the nodes to include in test set. Only used if
-            `train_mask` and `test_mask` are not provided.
+        train_mask: np.ndarray
+            Boolean array indicating whether nodes are in training set.
+        val_size: float
+            Should be between 0 and 1 and represents the proportion of the nodes to include in validation set. Only
+            used if `train_mask` is `None`.
         random_state : int
-            Pass an int for reproducible results across multiple runs. Used if `test_size` is not `None`.
+            Pass an int for reproducible results across multiple runs. Used if `val_size` is not `None`.
         shuffle : bool (default = `True`)
-            If True, shuffles samples before split. Used if `test_size` is not `None`.
+            If `True`, shuffles samples before split. Used if `val_size` is not `None`.
         """
         y_pred = None
-        if not check_existing_masks(train_mask, test_mask, test_size):
-            train_mask, test_mask = self._generate_masks(adjacency.shape[0], test_size, random_state, shuffle)
+        exists_mask, self.train_mask, self.val_mask, self.test_mask = \
+            check_existing_masks(labels, train_mask, val_size)
+        if not exists_mask:
+            self._generate_masks(adjacency.shape[0], self.train_mask, val_size, random_state, shuffle)
 
         check_format(adjacency)
         check_format(feat)
@@ -164,14 +181,14 @@ class GNNClassifier(BaseGNNClassifier):
 
             # Loss
             loss_function = get_loss_function(loss)
-            loss_value = loss_function(y_true[train_mask], logits[train_mask])
+            loss_value = loss_function(labels[self.train_mask], logits[self.train_mask])
 
             # Accuracy
-            train_acc = accuracy_score(y_true[train_mask], y_pred[train_mask])
-            test_acc = accuracy_score(y_true[test_mask], y_pred[test_mask])
+            train_acc = accuracy_score(labels[self.train_mask], y_pred[self.train_mask])
+            val_acc = accuracy_score(labels[self.val_mask], y_pred[self.val_mask])
 
             # Backpropagation
-            self.backward(feat, y_true, loss)
+            self.backward(feat, labels, loss)
 
             # Update weights using optimizer
             self.opt.step()
@@ -180,85 +197,87 @@ class GNNClassifier(BaseGNNClassifier):
             self.history_['embedding'].append(emb)
             self.history_['loss'].append(loss_value)
             self.history_['train_accuracy'].append(train_acc)
-            self.history_['test_accuracy'].append(test_acc)
+            self.history_['val_accuracy'].append(val_acc)
 
             if max_iter > 10 and epoch % int(max_iter / 10) == 0:
                 self.log.print(
                     f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, '
-                    f'test acc: {test_acc:.3f}')
+                    f'val acc: {val_acc:.3f}')
             elif max_iter <= 10:
                 self.log.print(
                     f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, '
-                    f'test acc: {test_acc:.3f}')
+                    f'val acc: {val_acc:.3f}')
 
         self.labels_ = y_pred
+        self.embedding_ = self.history_.get('embedding')[-1]
 
-    def _generate_masks(self, n: int, test_size: float = 0.2, random_state: int = None, shuffle: bool = True) -> tuple:
-        """ Generate train and test masks.
+        return self
+
+    def _generate_masks(self, n: int, train_mask: np.ndarray, val_size: float = 0.2, random_state: int = None,
+                        shuffle: bool = True):
+        """ Create training, validation and test masks.
 
         Parameters
         ----------
+        train_mask : np.ndarray
+            Training mask. This mask will be split into training and validation masks.
         n : int
             Number of nodes in graph.
-        test_size : float (default = 0.2)
-            Should be between 0 and 1 and represents the proportion of the nodes to include in test set.
+        val_size : float (default = 0.2)
+            Should be between 0 and 1 and represents the proportion of the nodes to include in validation set.
         random_state : int
             Pass an int for reproducible results across multiple runs.
         shuffle : bool (default = `True`)
-            If True, shuffles samples before split.
-
-        Returns
-        -------
-        tuple
-            train_mask, test_maks: Arrays of booleans used as masks to filter graph data.
+            If `True`, shuffles samples before split.
         """
-
-        check_is_proba(test_size)
-
         if random_state is not None:
             np.random.seed(random_state)
 
-        mask = np.zeros(n, dtype=bool)
-        self.train_mask = mask.copy()
-        self.train_mask[:int(test_size * n)] = True
+        self.test_mask = ~train_mask
+
+        # Useful in case of -1 in labels
+        available_indexes = np.where(~self.test_mask)[0]
 
         if shuffle:
-            np.random.shuffle(self.train_mask)
+            val_indexes = np.random.choice(available_indexes, int(val_size * n))
+        else:
+            val_indexes = available_indexes[-int(val_size * n):]
 
-        self.test_mask = np.invert(self.train_mask)
+        train_mask[val_indexes] = False
+        self.val_mask = np.logical_and(~train_mask, ~self.test_mask)
+        self.train_mask = train_mask.copy()
 
-        return self.train_mask, self.test_mask
-
-    def predict(self, nodes: np.ndarray) -> np.ndarray:
+    def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray] = None,
+                feat_vectors: Union[sparse.csr_matrix, np.ndarray] = None) -> np.ndarray:
         """Predict class labels for nodes in `nodes`.
 
         Parameters
         ----------
-        nodes : np.ndarray
-            Data matrix for which we want to get predictions. Each row in `nodes` corresponds to the feature vector
-            of a node. `nodes` as shape :math:`(x \\times n_{feat})` , with :math:`x` the number of nodes and
-            :math:`n_{feat}` the number of features used in model training (i.e `in_channels`).
+        adjacency_vectors
+            Adjacency row vectors. Array of shape (n_col,) (single vector) or (n_vectors, n_col).
+        feat_vectors
+            Features row vectors. Array of shape (n_feat,) (single vector) or (n_vectors, n_feat).
 
         Returns
         -------
         np.ndarray
-            Array containing the class labels for each node in `nodes`.
+            Array containing the class labels for each node in the graph.
         """
-        check_format(nodes)
+        self._check_fitted()
 
-        if nodes.ndim < 2:
-            nodes = nodes.reshape(1, -1)
+        n = len(self.embedding_)
+        adjacency_vectors = check_adjacency_vector(adjacency_vectors, n)
+        check_nonnegative(adjacency_vectors)
 
-        layers = self._get_layers()
-        h = nodes
+        n_row, n_col = adjacency_vectors.shape
+        n_feat = feat_vectors.shape[1]
 
-        for layer in layers:
-            activation_function = get_activation_function(layer.activation)
-            h = h.dot(layer.weight)
-            if layer.use_bias:
-                h += layer.bias
-            h = activation_function(h)
+        if not is_square(adjacency_vectors):
+            max_n = max(n_row, n_col)
+            adjacency_vectors.resize(max_n, max_n)
+            feat_vectors.resize(max_n, n_feat)
 
-        logits, y_pred = self._compute_predictions(h)
+        h = self.forward(adjacency_vectors, feat_vectors)
+        _, labels = self._compute_predictions(h)
 
-        return y_pred
+        return labels[:n_row]

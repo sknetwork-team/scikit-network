@@ -8,21 +8,6 @@ import numpy as np
 from sknetwork.data.test_graphs import test_graph
 from sknetwork.gnn.gnn_classifier import GNNClassifier
 from sknetwork.gnn.base import BaseGNNClassifier
-from sknetwork.gnn.layers import GCNConv
-
-
-class CustomGNNClassifier(GNNClassifier):
-    def __init__(self, in_channels: int, h_channels: int, num_classes: int, opt: str):
-        super(CustomGNNClassifier, self).__init__(in_channels, h_channels, num_classes, opt)
-        self.conv1 = GCNConv(in_channels, h_channels)
-        self.conv2 = GCNConv(h_channels, h_channels)
-        self.conv3 = GCNConv(h_channels, num_classes, activation='Softmax')
-
-    def forward(self, adjacency, feat):
-        h = self.conv1(adjacency, feat)
-        h = self.conv2(adjacency, h)
-        h = self.conv3(adjacency, h)
-        return h
 
 
 class TestBaseGNN(unittest.TestCase):
@@ -39,20 +24,36 @@ class TestBaseGNN(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             gnn.fit(self.adjacency, self.features, self.labels, test_size=0.2)
 
-    def test_base_gnn_custom(self):
-        gnn = CustomGNNClassifier(self.features.shape[1], 4, 2, opt='Adam')
-        self.assertTrue(isinstance(gnn, CustomGNNClassifier))
-        self.assertTrue(gnn.conv3.activation == 'softmax')
-        y_pred = gnn.fit_transform(self.adjacency, self.features, self.labels, max_iter=1, test_size=0.2)
-        embedding = gnn.conv3.emb
-        self.assertTrue(len(y_pred) == self.n)
+    def test_base_gnn_fit_transform(self):
+        gnn = GNNClassifier(layer='GCNConv', n_hidden=2, activation='Relu', opt='None', verbose=False)
+        embedding = gnn.fit_transform(self.adjacency, self.features, labels=self.labels, max_iter=1, val_size=0.2)
+        self.assertTrue(len(embedding) == self.n)
         self.assertTrue(embedding.shape == (self.n, 2))
 
+    def test_base_gnn_custom(self):
+        gnn = GNNClassifier(layer=['GCNConv', 'GCNConv', 'GCNConv'], n_hidden=[20, 8, 2],
+                            activation=['Relu', 'Sigmoid', 'Softmax'], opt='Adam', verbose=False)
+        self.assertTrue(isinstance(gnn, GNNClassifier))
+        self.assertTrue(gnn.conv3.activation == 'softmax')
+        y_pred = gnn.fit_predict(self.adjacency, self.features, labels=self.labels, max_iter=1, val_size=0.2)
+        self.assertTrue(len(y_pred) == self.n)
+
+    def test_base_check_fitted(self):
+        gnn = BaseGNNClassifier()
+        with self.assertRaises(ValueError):
+            gnn._check_fitted()
+        gnn = GNNClassifier(layer='GCNConv', n_hidden=2, activation='Relu', opt='None', verbose=False)
+        gnn.fit_transform(self.adjacency, self.features, labels=self.labels, max_iter=1, val_size=0.2)
+        fit_gnn = gnn._check_fitted()
+        self.assertTrue(isinstance(fit_gnn, GNNClassifier))
+        self.assertTrue(fit_gnn.embedding_ is not None)
+
     def test_base_gnn_repr(self):
-        gnn = GNNClassifier(self.features.shape[1], 4, 2, opt='Adam')
-        layers_str = "    GCNConv(in_channels: 10, out_channels: 4, use_bias: True, norm: both, self_loops: True, " \
-                     "activation: sigmoid)\n" \
-                     "    GCNConv(in_channels: 4, out_channels: 2, use_bias: True, norm: both, self_loops: True, " \
-                     "activation: softmax)"
+        gnn = GNNClassifier(layer=['GCNConv', 'GCNConv'], n_hidden=[8, 2],
+                            activation=['Relu', 'Softmax'], opt='Adam')
+        print(gnn)
+        layers_str = "    GCNConv(out_channels: 8, activation: relu, use_bias: True, norm: both, self_loops: True)\n" \
+                     "    GCNConv(out_channels: 2, activation: softmax, use_bias: True, norm: both, " \
+                     "self_loops: True)"
         gnn_str = f"GNNClassifier(\n{layers_str}\n)"
         self.assertTrue(gnn.__repr__() == gnn_str)

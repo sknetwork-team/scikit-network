@@ -11,11 +11,11 @@ import numpy as np
 
 
 def cross_entropy_loss(y_true: np.ndarray, logits: np.ndarray, eps: float = 1e-15) -> float:
-    """Computes cross entropy loss, i.e log-loss.
+    """Computes cross entropy loss, i.e. log-loss.
 
     For a single sample with label :math:`y \in \{0, 1\}`, and a probability estimate :math:`p`, the log-loss
     is as follows;
-    :math:`L_{\log}(y, p) = -(y \log (p) + (1 - y) \log (1 - p))`
+    :math:`L_{\log}(y, p) = -(y \log (p) + (1 - y) \log (1 - p))`.
 
     Parameters
     ----------
@@ -63,7 +63,7 @@ def cross_entropy_prime(y_true: np.ndarray, logits: np.ndarray, eps: float = 1e-
         Ground truth labels.
     logits : np.ndarray
         Predicted probabilities.
-    eps: float (default=1e-15)
+    eps: float (default = 1e-15)
         Binary cross entropy is undefined for :math:`p=0` or :math:`p=1`, thus predicated probabilities are
         clipped w.r.t to `eps`.
     """
@@ -103,7 +103,7 @@ def get_loss_function(loss_name: str = 'CrossEntropyLoss') -> Callable[..., floa
         raise ValueError("Loss must be either \"CrossEntropyLoss\"")
 
 
-def get_prime_loss_function(loss_name: str = 'CrossEntropyLoss') -> Callable[..., float]:
+def get_prime_loss_function(loss_name: str = 'CrossEntropyLoss') -> Callable[..., np.ndarray]:
     """Returns loss function derivative according to `loss_name`.
 
     Parameters
@@ -113,7 +113,7 @@ def get_prime_loss_function(loss_name: str = 'CrossEntropyLoss') -> Callable[...
 
     Returns
     -------
-    Callable[..., float]
+    Callable[..., np.ndarray]
         Loss function derivative.
 
     Raises

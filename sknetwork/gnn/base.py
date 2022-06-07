@@ -51,13 +51,14 @@ class BaseGNNClassifier(VerboseMixin):
         self.activations = []
         self.prime_weight, self.prime_bias = [], []
         self.labels_ = None
+        self.embedding_ = None
         self.history_ = defaultdict(list)
 
     def fit(self, *args, **kwargs):
         """Fit Algorithm to the data."""
         raise NotImplementedError
 
-    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+    def fit_predict(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
 
         Returns
@@ -66,7 +67,88 @@ class BaseGNNClassifier(VerboseMixin):
             Labels of the nodes.
         """
         self.fit(*args, **kwargs)
-        return self.labels_
+        return self.predict(*args[:2])
+
+    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to the data and return the embedding of the nodes. Same parameters as the ``fit`` method.
+
+        Returns
+        -------
+        Embeddings : np.ndarray
+            Embeddings of the nodes.
+        """
+        self.fit(*args, **kwargs)
+        return self.embedding_
+
+    def backward(self, feat: np.ndarray, labels: np.ndarray, loss: str):
+        """Compute backpropagation.
+
+        Parameters
+        ----------
+        feat : np.ndarray
+            Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
+            the size of the embedding.
+        labels : np.ndarray
+            Label vectors of length :math:`n`, with :math:`n` the number of nodes in `adjacency`.
+        loss : str
+            Loss function name.
+        """
+        n = len(labels)
+        prime_loss_function = get_prime_loss_function(loss)
+
+        # Get information from model
+        self.layers = self._get_layers()
+        self.nb_layers = len(self.layers)
+        activations = self._get_activations(self.layers)
+        activation_primes = [get_prime_activation_function(act) for act in activations]
+
+        # Initialize parameters derivatives
+        self.prime_weight = [0] * self.nb_layers
+        self.prime_bias = [0] * self.nb_layers
+
+        # Backpropagation
+        output = self.layers[self.nb_layers - 1].emb
+        if self.layers[-1].activation == 'softmax':
+            nb_classes = len(np.unique(labels[labels != -1]))
+            y_true_ohe = np.eye(nb_classes)[labels]
+            prime_update = (output - y_true_ohe).T
+        else:
+            prime_output = prime_loss_function(labels, output.T)
+            prime_update = prime_output * activation_primes[-1](self.layers[self.nb_layers - 1].update.T)
+
+        if self.nb_layers == 1:
+            output_prev = feat
+        else:
+            output_prev = self.layers[self.nb_layers - 2].emb
+
+        prime_weight = output_prev.T.dot(prime_update.T)  # SpM on left-hand side
+        prime_bias = np.sum(prime_update, axis=1, keepdims=True) / n
+        prime_output_prev = self.layers[self.nb_layers - 1].weight.dot(prime_update)
+
+        self.prime_weight[self.nb_layers - 1] = prime_weight
+        self.prime_bias[self.nb_layers - 1] = prime_bias.T
+
+        for layer_idx in range(self.nb_layers - 1, 0, -1):
+
+            prime_update = prime_output_prev * activation_primes[layer_idx - 1](self.layers[layer_idx - 1].update.T)
+            if layer_idx == 1:
+                output_prev = feat
+            else:
+                output_prev = self.layers[layer_idx - 2].emb
+            prime_weight = output_prev.T.dot(prime_update.T)  # SpM on left-hand side
+            prime_bias = np.sum(prime_update, axis=1, keepdims=True) / n
+            if layer_idx > 1:
+                prime_output_prev = self.layers[layer_idx - 1].weight.dot(prime_update)
+
+            self.prime_weight[layer_idx - 1] = prime_weight
+            self.prime_bias[layer_idx - 1] = prime_bias.T
+
+    def _check_fitted(self):
+        if self.embedding_ is None:
+            raise ValueError("This embedding instance is not fitted yet."
+                                " Call 'fit' with appropriate arguments before using this method.")
+        else:
+            return self
 
     def _get_layers(self) -> list:
         """Get layer objects in model.
@@ -93,62 +175,6 @@ class BaseGNNClassifier(VerboseMixin):
         list of activation functions as strings.
         """
         return [layer.activation for layer in layers]
-
-    def backward(self, feat: np.ndarray, y_true: np.ndarray, loss: str):
-        """Compute backpropagation.
-
-        Parameters
-        ----------
-        feat : np.ndarray
-            Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
-            the size of the embedding.
-        y_true : np.ndarray
-            Label vectors of length :math:`n`, with :math:`n` the number of nodes in `adjacency`.
-        loss : str
-            Loss function name.
-        """
-        n = len(y_true)
-        prime_loss_function = get_prime_loss_function(loss)
-
-        # Get information from model
-        self.layers = self._get_layers()
-        self.nb_layers = len(self.layers)
-        activations = self._get_activations(self.layers)
-        activation_primes = [get_prime_activation_function(act) for act in activations]
-
-        # Initialize parameters derivatives
-        self.prime_weight = [0] * self.nb_layers
-        self.prime_bias = [0] * self.nb_layers
-
-        # Backpropagation
-        output = self.layers[self.nb_layers - 1].emb
-        if self.layers[-1].activation == 'softmax':
-            nb_classes = len(np.unique(y_true))
-            y_true_ohe = np.eye(nb_classes)[y_true]
-            prime_update = (output - y_true_ohe).T
-        else:
-            prime_output = prime_loss_function(y_true, output.T)
-            prime_update = prime_output * activation_primes[-1](output.T)
-        output_prev = self.layers[self.nb_layers - 2].emb
-
-        prime_weight = prime_update.dot(output_prev).T
-        prime_bias = np.sum(prime_update, axis=1, keepdims=True) / n
-        prime_output_prev = self.layers[self.nb_layers - 1].weight.dot(prime_update)
-
-        self.prime_weight[self.nb_layers - 1] = prime_weight
-        self.prime_bias[self.nb_layers - 1] = prime_bias.T
-
-        for layer_idx in range(self.nb_layers - 1, 0, -1):
-            prime_update = prime_output_prev * activation_primes[layer_idx - 1](output_prev.T)
-            if layer_idx == 1:
-                output_prev = feat
-            prime_weight = output_prev.T.dot(prime_update.T)  # SpM on left-hand side
-            prime_bias = np.sum(prime_update, axis=1, keepdims=True) / n
-            if layer_idx > 1:
-                prime_output_prev = self.layers[layer_idx - 1].weight.dot(prime_update)
-
-            self.prime_weight[layer_idx - 1] = prime_weight
-            self.prime_bias[layer_idx - 1] = prime_bias.T
 
     def __repr__(self) -> str:
         """String representation of the `GNN`, layer by layer.

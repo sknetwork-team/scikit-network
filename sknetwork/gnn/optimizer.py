@@ -56,7 +56,7 @@ class ADAM:
     3rd International Conference for Learning Representation.
     """
 
-    def __init__(self, gnn: BaseGNNClassifier, learning_rate: float = 0.001, beta1: float = 0.9, beta2: float = 0.999,
+    def __init__(self, gnn: BaseGNNClassifier, learning_rate: float = 0.01, beta1: float = 0.9, beta2: float = 0.999,
                  eps: float = 1e-8):
         self.gnn = gnn
         self.learning_rate = learning_rate

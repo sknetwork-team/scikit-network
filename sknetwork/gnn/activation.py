@@ -23,7 +23,7 @@ def relu(input: np.ndarray) -> np.ndarray:
 def sigmoid(input: np.ndarray) -> np.ndarray:
     """Apply the logistic function pointwise:
 
-    :math:`\text{sigmoid}(x) = \dfrac{1}{(1+e^{-x})}`
+    :math:`\text{sigmoid}(x) = \frac{1}{(1+e^{-x})}`
 
     Note: We use the `expit` function from `scipy.special`.
     """
@@ -45,17 +45,17 @@ def softmax(input: np.ndarray) -> np.ndarray:
     return special.softmax(input, axis=1)
 
 
-def get_activation_function(activation_name: str) -> Callable[..., float]:
+def get_activation_function(activation_name: str) -> Callable[..., np.ndarray]:
     """Returns activation function according to `activation_name`.
 
     Parameters
     ----------
     activation_name : str
-        Which activation function to use. Can be ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
+        Which activation function to use. Can be either ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
 
     Returns
     -------
-    Callable[..., float]
+    Callable[..., np.ndarray]
         Activation function
 
     Raises
@@ -84,7 +84,7 @@ def sigmoid_prime(input: np.ndarray) -> np.ndarray:
     return sigmoid(input) * (1 - sigmoid(input))
 
 
-def get_prime_activation_function(activation_name: str) -> Callable[..., float]:
+def get_prime_activation_function(activation_name: str) -> Callable[..., np.ndarray]:
     """Returns activation function derivative according to `activation_name`.
 
     Parameters
@@ -94,7 +94,7 @@ def get_prime_activation_function(activation_name: str) -> Callable[..., float]:
 
     Returns
     -------
-    Callable[..., float]
+    Callable[..., np.ndarray]
         Activation function
 
     Raises
