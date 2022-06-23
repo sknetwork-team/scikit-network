@@ -115,10 +115,10 @@ def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], dire
 
     Example
     -------
-    >>> edges = [(0, 1), (1, 2), (2, 0)]
-    >>> adjacency = from_edge_list(edges)
+    >>> edges = [[1, 2], [0, 2, 3], [0, 1]]
+    >>> adjacency = from_adjacency_list(edges)
     >>> adjacency.shape
-    (3, 3)
+    (4, 4)
     """
     edge_list = []
     if isinstance(adjacency_list, list):
