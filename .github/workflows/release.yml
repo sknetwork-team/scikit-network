@@ -31,7 +31,7 @@ jobs:
           CIBW_BEFORE_BUILD: "pip install -r requirements_dev.txt --user && pip install ."
           CIBW_ENVIRONMENT_MACOS: CC=/usr/local/opt/llvm/bin/clang++
           CIBW_BEFORE_BUILD_MACOS: "brew install llvm libomp && pip install -r requirements_dev.txt --user && pip install ."
-          CIBW_BUILD: cp37-* cp38-* cp39-* cp310-*
+          CIBW_BUILD: cp38-* cp39-* cp310-*
 
       - uses: actions/upload-artifact@v2
         with:
