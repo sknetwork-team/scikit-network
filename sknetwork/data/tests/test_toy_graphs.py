@@ -2,7 +2,7 @@
 # tests for toy_graphs.py
 """
 @author: Quentin Lutz <qlutz@enst.fr>
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Thomas Bonald <tbonald@enst.fr>
 """
 import unittest

@@ -3,7 +3,7 @@
 """
 Created on Apr 2020
 @author: Thomas Bonald <bonald@enst.fr>
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from typing import Union
 

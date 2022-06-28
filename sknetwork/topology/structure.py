@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on July 24, 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Thomas Bonald <tbonald@enst.fr>
 """

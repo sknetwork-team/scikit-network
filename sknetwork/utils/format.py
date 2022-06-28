@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Apr 8, 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from typing import Union, Tuple, Optional
 

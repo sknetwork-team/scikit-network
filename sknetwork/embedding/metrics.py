@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Nov 6 2018
-@author: Nathan De Lara <ndelara@enst.fr>
+@author: Nathan De Lara <nathan.delara@polytechnique.org>
 Quality metrics for adjacency embeddings
 """
 import numpy as np

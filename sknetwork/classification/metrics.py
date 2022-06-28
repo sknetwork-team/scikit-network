@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on July, 2020
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 import numpy as np
 

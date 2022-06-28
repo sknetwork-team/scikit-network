@@ -4,7 +4,7 @@
 Created on Jul 1, 2019
 @author: Thomas Bonald <bonald@enst.fr>
 @author: Quentin Lutz <qlutz@enst.fr>
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from math import pi
 from typing import Union, Optional, Iterable

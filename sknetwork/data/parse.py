@@ -3,7 +3,7 @@
 """
 Created on Dec 5, 2018
 @author: Quentin Lutz <qlutz@enst.fr>
-Nathan de Lara <ndelara@enst.fr>
+Nathan de Lara <nathan.delara@polytechnique.org>
 Thomas Bonald <bonald@enst.fr>
 """
 

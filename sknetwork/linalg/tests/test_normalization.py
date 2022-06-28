@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on April 2020
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 
 import unittest

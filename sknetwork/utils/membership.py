@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on July 10, 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Thomas Bonald <bonald@enst.fr>
 """
 from typing import Optional

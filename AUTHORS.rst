@@ -11,7 +11,7 @@ Development Lead
 
 * Thomas Bonald <thomas.bonald@telecom-paris.fr>
 * Simon Delarue <simon.delarue@telecom-paris.fr>
-* Quentin Lutz <quentin.lutz@telecom-paris.fr>
+* Quentin Lutz <quentin.lutz@telecom-paris-alumni.fr>
 
 Former lead
 -----------

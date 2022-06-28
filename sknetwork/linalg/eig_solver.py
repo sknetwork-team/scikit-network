@@ -2,7 +2,7 @@
 # coding: utf-8
 """
 Created on July 9 2019
-@author: Nathan De Lara <ndelara@enst.fr>
+@author: Nathan De Lara <nathan.delara@polytechnique.org>
 """
 from abc import ABC
 from typing import Union
