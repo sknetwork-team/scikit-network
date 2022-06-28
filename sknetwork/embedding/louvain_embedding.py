@@ -49,7 +49,7 @@ class LouvainEmbedding(BaseEmbedding):
     resolution : float
         Resolution parameter.
     modularity : str
-        Which objective function to maximize. Can be ``'dugue'``, ``'newman'`` or ``'potts'``.
+        Which objective function to maximize. Can be ``'Dugue'``, ``'Newman'`` or ``'Potts'``.
     tol_optimization :
         Minimum increase in the objective function to enter a new optimization pass.
     tol_aggregation :
@@ -87,7 +87,7 @@ class LouvainEmbedding(BaseEmbedding):
     >>> embedding.shape
     (5, 2)
     """
-    def __init__(self, resolution: float = 1, modularity: str = 'dugue', tol_optimization: float = 1e-3,
+    def __init__(self, resolution: float = 1, modularity: str = 'Dugue', tol_optimization: float = 1e-3,
                  tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
                  random_state: Optional[Union[np.random.RandomState, int]] = None, isolated_nodes: str = 'remove'):
         super(LouvainEmbedding, self).__init__()

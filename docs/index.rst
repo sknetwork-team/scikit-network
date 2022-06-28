@@ -26,6 +26,7 @@ Welcome to scikit-network's documentation!
    reference/linalg
    reference/utils
    reference/visualization
+   reference/gnn
 
 .. toctree::
    :maxdepth: 2
@@ -40,6 +41,7 @@ Welcome to scikit-network's documentation!
    tutorials/classification/index
    tutorials/regression/index
    tutorials/embedding/index
+   tutorials/gnn/index
    tutorials/linkpred/index
    tutorials/visualization/index
 

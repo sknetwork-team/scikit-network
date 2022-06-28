@@ -156,3 +156,13 @@ class TestChecks(unittest.TestCase):
         adjacency = test_graph_disconnect()
         with self.assertRaises(ValueError):
             check_scaling(-1, adjacency, regularize=False)
+
+    def test_boolean_entries(self):
+        with self.assertRaises(TypeError):
+            has_boolean_entries([True, 0, 2])
+        self.assertFalse(has_boolean_entries(np.array([0, 1, True])))
+
+    def test_boolean(self):
+        check_boolean(np.array([True, False, True]))
+        with self.assertRaises(ValueError):
+            check_boolean(np.array([True, 0, 2]))

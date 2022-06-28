@@ -30,7 +30,7 @@ class Louvain(BaseClustering, VerboseMixin):
     resolution :
         Resolution parameter.
     modularity : str
-        Which objective function to maximize. Can be ``'dugue'``, ``'newman'`` or ``'potts'`` (default = ``'dugue'``).
+        Which objective function to maximize. Can be ``'Dugue'``, ``'Newman'`` or ``'Potts'`` (default = ``'dugue'``).
     tol_optimization :
         Minimum increase in the objective function to enter a new optimization pass.
     tol_aggregation :
@@ -95,7 +95,7 @@ class Louvain(BaseClustering, VerboseMixin):
       <https://arxiv.org/pdf/0707.1616>`_
       Physical Review E, 76(6).
     """
-    def __init__(self, resolution: float = 1, modularity: str = 'dugue', tol_optimization: float = 1e-3,
+    def __init__(self, resolution: float = 1, modularity: str = 'Dugue', tol_optimization: float = 1e-3,
                  tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
                  sort_clusters: bool = True, return_membership: bool = True, return_aggregate: bool = True,
                  random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
