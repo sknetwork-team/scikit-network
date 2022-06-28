@@ -2,6 +2,12 @@
 History
 =======
 
+0.27.0 (2022-05-03)
+-------------------
+
+* Drop Python 3.7
+* Add Graph Neural Networks, by Simon Delarue
+
 0.26.0 (2022-05-03)
 -------------------
 
