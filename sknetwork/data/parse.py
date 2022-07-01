@@ -69,7 +69,9 @@ def from_edge_list(edge_list: Union[np.ndarray, List[Tuple]], directed: bool = F
             edge_array = np.array([[edge[0], edge[1]] for edge in edge_list])
             if len(edge_list) and len(edge_list[0]) == 3:
                 weights = np.array([edge[2] for edge in edge_list])
-        except:
+            else:
+                raise ValueError()
+        except ValueError:
             ValueError('Edges must be given as tuples of fixed size (2 or 3).')
     elif isinstance(edge_list, np.ndarray):
         if edge_list.ndim != 2 or edge_list.shape[1] not in [2, 3]:
@@ -169,16 +171,16 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
     """
     try:
         edge_array = edge_array.astype(float)
-    except:
+    except ValueError:
         pass
-    if edge_array.dtype == float and all(edge_array.ravel() == edge_array.ravel().astype(int)):
+    if edge_array.dtype == float and (edge_array == edge_array.astype(int)).all():
         edge_array = edge_array.astype(int)
     if weights is None:
         weights = np.ones(len(edge_array))
     if weights.dtype not in [bool, int, float]:
         try:
             weights = weights.astype(float)
-        except:
+        except ValueError:
             raise ValueError('Weights must be numeric.')
     if all(weights == weights.astype(int)):
         weights = weights.astype(int)
@@ -229,7 +231,7 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
         return graph
 
 
-def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: tuple = ('#', '%'),
+def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: str = '#%',
              data_structure: str = None, directed: bool = False, bipartite: bool = False, weighted: bool = True,
              reindex: bool = True, sum_duplicates: bool = True, matrix_only: bool = None) \
         -> Union[Bunch, sparse.csr_matrix]:
@@ -285,17 +287,17 @@ def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: t
     if data_structure == 'edge_list':
         try:
             array = np.genfromtxt(file_path, delimiter=delimiter, comments=comment_guess)
+            if np.isnan(array).any():
+                raise TypeError()
             edge_array = array[:, :2].astype(int)
             if array.shape[1] == 3:
                 weights = array[:, 2]
-                if np.isnan(weights).any():
-                    raise TypeError('Weights must be numeric')
             else:
                 weights = None
             return from_edge_array(edge_array=edge_array, weights=weights, directed=directed, bipartite=bipartite,
                                    weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates,
                                    matrix_only=matrix_only)
-        except:
+        except TypeError:
             pass
     with open(file_path, 'r', encoding='utf-8') as f:
         for i in range(header_length):
@@ -366,7 +368,7 @@ def scan_header(file_path: str, delimiters: str = None, comments: str = '#%', n_
     if len(index) == 1:
         delimiter_guess = delimiters[int(index)]
     else:
-        delimiter_guess = delimiters[np.argmax(means)]
+        delimiter_guess = delimiters[int(np.argmax(means))]
     length = {len(row.split(delimiter_guess)) for row in rows}
     if length == {2} or length == {3}:
         data_structure_guess = 'edge_list'
@@ -611,7 +613,7 @@ def java_type_to_python_type(value: str) -> type:
         return float
 
 
-def isnumber(s):
+def is_number(s):
     try:
         float(s)
         return True
