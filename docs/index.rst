@@ -22,11 +22,11 @@ Welcome to scikit-network's documentation!
    reference/classification
    reference/regression
    reference/embedding
+   reference/gnn
    reference/linkpred
    reference/linalg
    reference/utils
    reference/visualization
-   reference/gnn
 
 .. toctree::
    :maxdepth: 2

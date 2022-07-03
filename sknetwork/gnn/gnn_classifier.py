@@ -22,22 +22,22 @@ class GNNClassifier(BaseGNNClassifier):
 
     Parameters
     ----------
-    layer
+    layer:
         Layer name (for multi-layers GNN, use a `list`). Layer name can be either:
         * ``'GCNConv'``, graph convolutional layer.
-    n_hidden
+    n_hidden:
         Size of hidden layer (for multi-layers GNN, use a list).
-    activation
-        Activation function name (for multi-layers GNN, use a list). Can be either ``'Relu'``, ``'Sigmoid'`` or
+    activation:
+        Activation function (for multi-layers GNN, use a list). Can be either ``'Relu'``, ``'Sigmoid'`` or
         ``'Softmax'``.
-    use_bias
+    use_bias:
         If `True`, use bias vector (for multi-layers GNN, use a list).
-    norm
-        How to apply the adjacency matrix normalizer (for multi-layers GNN, use a list). Can be either:
+    normalization:
+        How to normalize the adjacency matrix (for multi-layers GNN, use a list). Can be either:
         *  ``'Both'`` (default), equivalent to symmetric normalization.
-    self_loops
+    self_loops:
         If `True`, add self loops to each node in the graph (for multi-layers GNN, use a list).
-    opt: str (default = ``'Adam'``)
+    optimizer: str (default = ``'Adam'``)
         Optimizer name:
         * ``'Adam'``, stochastic gradient-based optimizer.
         * ``'None'``, gradient descent.
@@ -64,20 +64,18 @@ class GNNClassifier(BaseGNNClassifier):
     >>> adjacency = graph.adjacency
     >>> labels = graph.labels
     >>> features = adjacency.copy()
-    >>> gnn = GNNClassifier(layer='GCNConv', n_hidden=2, activation='Softmax', opt='Adam', verbose=False)
-    >>> labels_pred = gnn.fit_predict(adjacency, features, labels, max_iter=10, val_size=0.2)
-    >>> # Predictions on new nodes
-    >>> new_nodes = sparse.csr_matrix(np.random.randint(2, size=(2, adjacency.shape[1])))
-    >>> new_features = new_nodes.copy()
-    >>> new_labels_pred = gnn.predict(new_nodes, new_features)
+    >>> gnn = GNNClassifier(layer='GCNConv', n_hidden=2, activation='Softmax', optimizer='Adam', verbose=False)
+    >>> _ = gnn.fit(adjacency, features, labels, max_iter=10, val_size=0.2, random_state=42)
+    >>> gnn.predict(adjacency[:3], features[:3])
+    array([0, 0, 0])
     """
 
     def __init__(self, layer: Union[str, list], n_hidden: Union[int, list], activation: Union[str, list] = 'Sigmoid',
-                 use_bias: Union[bool, list] = True, norm: Union[str, list] = 'Both',
+                 use_bias: Union[bool, list] = True, normalization: Union[str, list] = 'Both',
                  self_loops: Union[bool, list] = True,
-                 opt: str = 'Adam', **kwargs):
-        super(GNNClassifier, self).__init__(opt, **kwargs)
-        parameters = check_layers_parameters(layer, n_hidden, activation, use_bias, norm, self_loops)
+                 optimizer: str = 'Adam', **kwargs):
+        super(GNNClassifier, self).__init__(optimizer, **kwargs)
+        parameters = check_layers_parameters(layer, n_hidden, activation, use_bias, normalization, self_loops)
         for layer_idx, params in enumerate(zip(*parameters)):
             setattr(self, f'conv{layer_idx + 1}', get_layer(params[0], *params[1:]))
 
@@ -132,7 +130,7 @@ class GNNClassifier(BaseGNNClassifier):
 
         return logits, y_pred
 
-    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], feat: Union[sparse.csr_matrix, np.ndarray],
+    def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], features: Union[sparse.csr_matrix, np.ndarray],
             labels: np.ndarray, max_iter: int = 30, loss: str = 'CrossEntropyLoss',
             train_mask: Optional[np.ndarray] = None, val_size: Optional[float] = None,
             random_state: Optional[int] = None, shuffle: Optional[bool] = True) -> 'GNNClassifier':
@@ -142,7 +140,7 @@ class GNNClassifier(BaseGNNClassifier):
         ----------
         adjacency
             Adjacency matrix of the graph.
-        feat : sparse.csr_matrix, np.ndarray
+        features : sparse.csr_matrix, np.ndarray
             Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
             the size of feature space.
         labels : np.ndarray
@@ -169,12 +167,12 @@ class GNNClassifier(BaseGNNClassifier):
             self._generate_masks(adjacency.shape[0], self.train_mask, val_size, random_state, shuffle)
 
         check_format(adjacency)
-        check_format(feat)
+        check_format(features)
 
         for epoch in range(max_iter):
 
             # Forward
-            emb = self.forward(adjacency, feat)
+            emb = self.forward(adjacency, features)
 
             # Compute predictions
             logits, y_pred = self._compute_predictions(emb)
@@ -188,7 +186,7 @@ class GNNClassifier(BaseGNNClassifier):
             val_acc = accuracy_score(labels[self.val_mask], y_pred[self.val_mask])
 
             # Backpropagation
-            self.backward(feat, labels, loss)
+            self.backward(features, labels, loss)
 
             # Update weights using optimizer
             self.opt.step()
@@ -224,7 +222,7 @@ class GNNClassifier(BaseGNNClassifier):
         n : int
             Number of nodes in graph.
         val_size : float (default = 0.2)
-            Should be between 0 and 1 and represents the proportion of the nodes to include in validation set.
+            Proportion of nodes in the validation set (between 0 and 1).
         random_state : int
             Pass an int for reproducible results across multiple runs.
         shuffle : bool (default = `True`)

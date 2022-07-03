@@ -33,12 +33,12 @@ class GCNConv:
         * ``'Sigmoid'``, the logistic sigmoid function, returns f(x) = 1 / (1 + exp(-x)).
         * ``'Softmax'``, the softmax function, returns f(x) = exp(x) / sum(exp(x))
     use_bias: bool (default = `True`)
-        If `True`, add a bias vector.
+        If ``True``, add a bias vector.
     norm: str (default = ``'Both'``)
         Normalization kind for adjacency matrix.
         * ``'Both'``, computes symmetric normalization
     self_loops: bool (default = `True`)
-        If True, add self-loops to each node in the graph.
+        If ``True``, add self-loops to each node in the graph.
 
     Attributes
     ----------

@@ -46,7 +46,7 @@ class TestGNNClassifier(unittest.TestCase):
     def test_gnn_classifier_optimizer(self):
         opts = ['None', 'Adam']
         for opt in opts:
-            gnn = GNNClassifier('GCNConv', 2, 'Softmax', opt=opt)
+            gnn = GNNClassifier('GCNConv', 2, 'Softmax', optimizer=opt)
             y_pred = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2)
             embedding = gnn.embedding_
             self.assertTrue(len(y_pred) == self.n)
