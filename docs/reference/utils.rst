@@ -16,8 +16,10 @@ Convert graphs
 .. autofunction:: sknetwork.utils.directed2undirected
 
 
-Get neighbors
--------------
+Neighborhood
+------------
+
+.. autofunction:: sknetwork.utils.get_degrees
 
 .. autofunction:: sknetwork.utils.get_neighbors
 
