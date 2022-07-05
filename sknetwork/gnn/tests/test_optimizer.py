@@ -19,12 +19,12 @@ class TestOptimizer(unittest.TestCase):
         self.labels = np.array([0] * 5 + [1] * 5)
 
     def test_get_optimizer(self):
-        gnn = GNNClassifier('GCNConv', 2, 'Softmax')
+        gnn = GNNClassifier(2)
         with self.assertRaises(ValueError):
             get_optimizer(gnn, 'toto')
 
     def test_optimizer_adam(self):
-        gnn = GNNClassifier(['GCNConv', 'GCNConv'], [4, 2], ['Relu', 'Softmax'], optimizer='Adam')
+        gnn = GNNClassifier([4, 2], 'GCNConv',  ['Relu', 'Softmax'], optimizer='Adam')
         _ = gnn.fit_predict(self.adjacency, self.features, self.labels, max_iter=1, val_size=0.2)
         conv1_weight, conv2_weight = gnn.conv1.weight.copy(), gnn.conv2.weight.copy()
         conv1_b, conv2_b = gnn.conv1.bias.copy(), gnn.conv2.bias.copy()
@@ -41,7 +41,7 @@ class TestOptimizer(unittest.TestCase):
         self.assertTrue((gnn.conv2.bias != conv2_b).any())
 
     def test_optimizer_gd(self):
-        gnn = GNNClassifier(['GCNConv', 'GCNConv'], [4, 2], ['Relu', 'Softmax'], optimizer='None')
+        gnn = GNNClassifier([4, 2], ['GCNConv', 'GCNConv'], ['Relu', 'Softmax'], optimizer='None')
         _ = gnn.fit_predict(self.adjacency, self.features, self.labels, max_iter=1, val_size=0.2)
         conv1_weight, conv2_weight = gnn.conv1.weight.copy(), gnn.conv2.weight.copy()
         conv1_b, conv2_b = gnn.conv1.bias.copy(), gnn.conv2.bias.copy()

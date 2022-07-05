@@ -21,7 +21,7 @@ class TestGNNClassifier(unittest.TestCase):
         self.labels = np.array([0]*5 + [1]*5)
 
     def test_gnn_classifier_sparse_feat(self):
-        gnn = GNNClassifier('GCNConv', 2, 'Softmax')
+        gnn = GNNClassifier(2, 'GCNConv', 'Softmax')
         self.assertTrue(gnn.conv1.activation == 'softmax')
         y_pred = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2)
         embedding = gnn.embedding_
@@ -31,13 +31,13 @@ class TestGNNClassifier(unittest.TestCase):
     def test_gnn_classifier_dense_feat(self):
         # features not in nparray
         features = self.adjacency.todense()
-        gnn = GNNClassifier('GCNConv', 2, 'Softmax')
+        gnn = GNNClassifier(2)
         with self.assertRaises(TypeError):
             gnn.fit_predict(self.adjacency, features, self.labels, val_size=0.2)
 
         # features in nparray
         features = np.array(self.adjacency.todense())
-        gnn = GNNClassifier('GCNConv', 2, 'Softmax')
+        gnn = GNNClassifier(2, 'GCNConv', 'Softmax')
         y_pred = gnn.fit_predict(self.adjacency, features, self.labels, val_size=0.2)
         embedding = gnn.embedding_
         self.assertTrue(len(y_pred) == self.n)
@@ -46,27 +46,32 @@ class TestGNNClassifier(unittest.TestCase):
     def test_gnn_classifier_optimizer(self):
         opts = ['None', 'Adam']
         for opt in opts:
-            gnn = GNNClassifier('GCNConv', 2, 'Softmax', optimizer=opt)
+            gnn = GNNClassifier(2, 'GCNConv', optimizer=opt)
             y_pred = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2)
             embedding = gnn.embedding_
             self.assertTrue(len(y_pred) == self.n)
             self.assertTrue(embedding.shape == (self.n, 2))
 
+    def test_gnn_classifier_norm(self):
+        n_labels = len(set(self.labels))
+        gnn = GNNClassifier([5, n_labels], 'GCNConv', activations=['Relu', 'Softmax'],
+                            normalizations=['left', 'both'])
+        y_pred = gnn.fit_predict(self.adjacency, self.features, self.labels)
+        self.assertTrue(len(y_pred) == self.n)
+
     def test_gnn_classifier_loss(self):
-        gnn = GNNClassifier('GCNConv', 2, 'Softmax')
+        gnn = GNNClassifier(2, 'GCNConv', 'Softmax')
         with self.assertRaises(ValueError):
             gnn.fit_predict(self.adjacency, self.features, self.labels, loss='toto', val_size=0.2)
 
     def test_gnn_classifier_1label(self):
-        gnn = GNNClassifier('GCNConv', 1, 'Relu')
+        gnn = GNNClassifier(1, 'GCNConv', 'Relu')
         y_pred = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2)
         self.assertTrue(len(y_pred) == self.n)
         self.assertTrue(np.min(y_pred) >= 0 and np.max(y_pred) <= 1)
 
     def test_gnn_classifier_masks(self):
-        gnn = GNNClassifier('GCNConv', 2, 'Softmax')
-        with self.assertRaises(ValueError):
-            gnn.fit_predict(self.adjacency, self.features, self.labels)
+        gnn = GNNClassifier(2, 'GCNConv', 'Softmax')
 
         train_mask = np.random.randint(2, size=self.n).astype(bool)
         _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask)
@@ -82,32 +87,32 @@ class TestGNNClassifier(unittest.TestCase):
         self.assertTrue(sum(gnn.train_mask) + sum(gnn.val_mask) + sum(gnn.test_mask) == self.adjacency.shape[0])
 
     def test_gnn_classifier_val_size(self):
-        gnn = GNNClassifier('GCNConv', 2, 'Softmax')
+        gnn = GNNClassifier(2)
         with self.assertRaises(ValueError):
             gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=-1)
         with self.assertRaises(ValueError):
             gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=1.5)
 
     def test_gnn_classifier_shuffle(self):
-        gnn = GNNClassifier('GCNConv', 2, 'Softmax')
+        gnn = GNNClassifier(2)
         y_pred = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2, shuffle=False)
         embedding = gnn.embedding_
         self.assertTrue(len(y_pred) == self.n)
         self.assertTrue(embedding.shape == (self.n, 2))
 
     def test_gnn_classifier_random_state(self):
-        gnn = GNNClassifier('GCNConv', 2, 'Softmax')
+        gnn = GNNClassifier(2)
         y_pred = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2, random_state=42)
         embedding = gnn.embedding_
         self.assertTrue(len(y_pred) == self.adjacency.shape[0])
         self.assertTrue(embedding.shape == (self.adjacency.shape[0], 2))
 
     def test_gnn_classifier_verbose(self):
-        gnn = GNNClassifier('GCNConv', 2, 'Softmax', verbose=True)
+        gnn = GNNClassifier(2, verbose=True)
         self.assertTrue(isinstance(gnn, GNNClassifier))
 
     def test_gnn_classifier_predict(self):
-        gnn = GNNClassifier('GCNConv', 2, 'Softmax')
+        gnn = GNNClassifier(2)
         _ = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2, random_state=42)
 
         # test result shape for one new node

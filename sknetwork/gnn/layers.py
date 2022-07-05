@@ -27,28 +27,37 @@ class GCNConv:
     out_channels: int
         Size of each output sample.
     activation: str (default = ``'Relu'``)
-        Activation function name:
+        Activation function.
 
-        * ``'Relu'``, the rectified linear unit function, returns f(x) = max(0, x)
-        * ``'Sigmoid'``, the logistic sigmoid function, returns f(x) = 1 / (1 + exp(-x)).
-        * ``'Softmax'``, the softmax function, returns f(x) = exp(x) / sum(exp(x))
+        Can be either:
+
+        * ``'relu'``, the rectified linear unit function, returns f(x) = max(0, x)
+        * ``'sigmoid'``, the logistic sigmoid function, returns f(x) = 1 / (1 + exp(-x)).
+        * ``'softmax'``, the softmax function, returns f(x) = exp(x) / sum(exp(x))
     use_bias: bool (default = `True`)
         If ``True``, add a bias vector.
-    norm: str (default = ``'Both'``)
-        Normalization kind for adjacency matrix.
-        * ``'Both'``, computes symmetric normalization
+    normalization: str (default = ``'Both'``)
+        Normalization of the adjacency matrix for message passing.
+
+        Can be either:
+
+        * ``'left'``, left normalization by the vector of degrees
+        * ``'right'``, right normalization by the vector of degrees
+        * ``'both'``,  symmetric normalization by the square root of degrees
     self_loops: bool (default = `True`)
         If ``True``, add self-loops to each node in the graph.
 
     Attributes
     ----------
-    weight, bias: np.ndarray, np.ndarray
-        Trainable weight matrix and bias vector.
+    weight: np.ndarray,
+        Trainable weight matrix.
+    bias: np.ndarray
+        Bias vector.
     update: np.ndarray
         :math:`\text{update}=AHW + b` with :math:`A` the adjacency matrix of the graph, :math:`H` the feature matrix
         of the graph, :math:`W` the trainable weight matrix and :math:`b` the bias vector (if needed).
     emb: np.ndarray
-        Embedding of the nodes after convolution layer: :math:`\text{emb}=\sigma(AHW + b)`,
+        Embedding of the nodes after convolution layers: :math:`\text{emb}=\sigma(AHW + b)`,
         with :math:`\sigma` an activation function.
 
     References
@@ -64,12 +73,12 @@ class GCNConv:
     Proceedings of the IEEE International Conference on Computer Vision (ICCV).
     """
 
-    def __init__(self, out_channels: int, activation: str = 'Relu', use_bias: bool = True, norm: str = 'Both',
-                 self_loops: bool = True):
+    def __init__(self, out_channels: int, activation: str = 'Relu', use_bias: bool = True,
+                 normalization: str = 'Both', self_loops: bool = True):
         self.out_channels = out_channels
         self.activation = activation.lower()
         self.use_bias = use_bias
-        self.norm = norm.lower()
+        self.normalization = normalization.lower()
         self.self_loops = self_loops
         self.weight = None
         self.bias = None
@@ -85,14 +94,14 @@ class GCNConv:
         self.weights_initialized = True
 
     def forward(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
-                feat: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
+                features: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """Compute graph convolution.
 
         Parameters
         ----------
         adjacency
             Adjacency matrix of the graph.
-        feat : sparse.csr_matrix, np.ndarray
+        features : sparse.csr_matrix, np.ndarray
             Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
             the size of feature space.
 
@@ -102,7 +111,7 @@ class GCNConv:
             Nodes embedding.
         """
         if not self.weights_initialized:
-            self._initialize_weights(feat.shape[1])
+            self._initialize_weights(features.shape[1])
 
         n_row, n_col = adjacency.shape
 
@@ -110,12 +119,18 @@ class GCNConv:
             if not has_self_loops(adjacency):
                 adjacency = add_self_loops(adjacency)
 
-        if self.norm == 'both':
-            weights = adjacency.dot(np.ones(n_col))
+        weights = adjacency.dot(np.ones(n_col))
+        if self.normalization == 'left':
+            d_inv = diag_pinv(weights)
+            adjacency = d_inv.dot(adjacency)
+        elif self.normalization == 'right':
+            d_inv = diag_pinv(weights)
+            adjacency = adjacency.dot(d_inv)
+        elif self.normalization == 'both':
             d_inv = diag_pinv(np.sqrt(weights))
             adjacency = d_inv.dot(adjacency).dot(d_inv)
 
-        msg = adjacency.dot(feat)
+        msg = adjacency.dot(features)
         update = msg.dot(self.weight)
 
         if self.use_bias:
@@ -141,7 +156,7 @@ class GCNConv:
         str
             String representation of object
         """
-        print_attr = ['out_channels', 'activation', 'use_bias', 'norm', 'self_loops']
+        print_attr = ['out_channels', 'activations', 'use_bias', 'normalizations', 'self_loops']
         attributes_dict = {k: v for k, v in self.__dict__.items() if k in print_attr}
         lines = ''
 
@@ -152,7 +167,7 @@ class GCNConv:
 
 
 def get_layer(layer: str = 'GCNConv', *args) -> object:
-    """Instantiate layer according to parameters.
+    """Instantiate layers according to parameters.
 
     Parameters
     ----------

@@ -9,11 +9,11 @@ Various tools for graph analysis.
 Convert graphs
 --------------
 
-.. autofunction:: sknetwork.utils.bipartite2directed
+.. autofunction:: sknetwork.utils.directed2undirected
 
 .. autofunction:: sknetwork.utils.bipartite2undirected
 
-.. autofunction:: sknetwork.utils.directed2undirected
+.. autofunction:: sknetwork.utils.bipartite2directed
 
 
 Neighborhood

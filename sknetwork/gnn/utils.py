@@ -49,47 +49,48 @@ def check_existing_masks(labels: np.ndarray, train_mask: Optional[np.ndarray] = 
             return False, ~is_negative_labels, None, is_negative_labels
 
 
-def check_norm(norm: Union[str, list]):
+def check_normalizations(normalizations: Union[str, list]):
     """Check if normalization is known."""
-    available_norms = ['both']
-    if isinstance(norm, list):
-        for n in norm:
-            if n.lower() not in available_norms:
-                raise ValueError("Layer must be \"Both\".")
-    elif norm.lower() not in available_norms:
-        raise ValueError("Layer must be \"Both\".")
+    available_norms = ['left', 'right', 'both']
+    if isinstance(normalizations, list):
+        for normalization in normalizations:
+            if normalization.lower() not in available_norms:
+                raise ValueError("Normalization must be 'left', 'right' or 'both'.")
+    elif normalizations.lower() not in available_norms:
+        raise ValueError("Normalization must be 'left', 'right' or 'both'.")
 
 
-def check_layer(layer: Union[str, list]):
-    """Check if layer type is known."""
+def check_layers(layers: Union[str, list]):
+    """Check if layer types are known."""
     available_layers = ['gcnconv']
-    if isinstance(layer, list):
-        for lay in layer:
-            if lay.lower() not in available_layers:
+    if isinstance(layers, list):
+        for layer in layers:
+            if layer.lower() not in available_layers:
                 raise ValueError("Layer must be \"GCNConv\".")
     else:
-        if layer.lower() not in available_layers:
+        if layers.lower() not in available_layers:
             raise ValueError("Layer must be \"GCNConv\".")
 
 
-def check_layers_parameters(layer: Union[str, list], n_hidden: Union[int, list], activation: Union[str, list],
-                            use_bias: Union[bool, list], norm: Union[str, list], self_loops: Union[bool, list]) -> list:
-    """Check whether layer parameters are valid and return a list of layer parameters.
+def get_layers(dims: Union[int, list], layers: Union[str, list], activations: Union[str, list],
+               use_bias: Union[bool, list], normalizations: Union[str, list], self_loops: Union[bool, list]) \
+        -> list:
+    """Get the list of layer parameters.
 
     Parameters
     ----------
-    layer :
-        Layer type name. Allowed input are strings and lists.
-    n_hidden :
-        Size of hidden layer. Allowed input are integers and lists.
-    activation :
-        Name of activation function. Allowed input are strings and lists.
+    dims :
+        Dimensions of layers (in forward direction).
+    layers :
+        Layer types.
+    activations :
+        Activations function.
     use_bias :
-        `True` if a bias vector is added. Allowed input are booleans and lists.
-    norm :
-        Normalization kind for adjacency matrix. Allowed input are strings and lists.
+        ``True`` if a bias vector is added.
+    normalizations :
+        Normalizations of adjacency matrix.
     self_loops :
-        `True` if self loops are added. Allowed input are booleans and lists.
+        ``True`` if self loops are added. Allowed input are booleans and lists.
 
     Returns
     -------
@@ -97,27 +98,20 @@ def check_layers_parameters(layer: Union[str, list], n_hidden: Union[int, list],
         List of layer parameters.
     """
 
-    check_layer(layer)
-    check_norm(norm)
+    check_layers(layers)
+    check_normalizations(normalizations)
 
-    params = [layer, n_hidden, activation, use_bias, norm, self_loops]
+    if not isinstance(dims, list):
+        dims = [dims]
+    n_layers = len(dims)
+    params = [dims, layers, activations, use_bias, normalizations, self_loops]
     for idx, param in enumerate(params[1:]):
-        if isinstance(param, list) and not isinstance(params[0], list):
-            if len(param) != 1:
-                raise ValueError('Number of parameters != number of layers.')
-            else:
-                params[idx + 1] = param
-        elif isinstance(param, list) and isinstance(params[0], list):
-            if len(param) != len(params[0]):
-                raise ValueError('Number of parameters != number of layers.')
-        elif not isinstance(param, list) and isinstance(params[0], list):
-            params[idx + 1] = [param] * len(params[0])
+        if isinstance(param, list):
+            if len(param) != n_layers:
+                raise ValueError('The number of parameters must be equal to the number of layers, '
+                                 'as given by the length of ``dims``.')
         else:
-            params[idx + 1] = [param]
-    if isinstance(params[0], list):
-        params[0] = params[0]
-    else:
-        params[0] = [params[0]]
+            params[idx + 1] = [param] * n_layers
 
     return params
 

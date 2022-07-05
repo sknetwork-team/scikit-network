@@ -50,6 +50,13 @@ class TestLayer(unittest.TestCase):
         emb = conv2.forward(self.adjacency, h)
         self.assertTrue(emb.shape == (self.adjacency.shape[0], 2))
 
+    def test_graph_conv_norm(self):
+        conv1 = GCNConv(4, normalization='left')
+        conv2 = GCNConv(2, normalization='right')
+        h = conv1.forward(self.adjacency, self.features)
+        emb = conv2.forward(self.adjacency, h)
+        self.assertTrue(emb.shape == (self.adjacency.shape[0], 2))
+
     def test_graph_conv_activation(self):
         activations = ['Relu', 'Sigmoid']
         for a in activations:

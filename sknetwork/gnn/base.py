@@ -20,9 +20,9 @@ class BaseGNNClassifier(VerboseMixin):
 
     Parameters
     ----------
-    opt: str (default = ``'Adam'``)
-        Optimizer name:
-        * ``'Adam'``, refers to a stochastic gradient-based optimizer proposed by Kingma, Diederik, and Jimmy Ba.
+    optimizer: str (default = ``'Adam'``)
+
+        * ``'Adam'``, a stochastic gradient-based optimizer.
         * ``'None'``, gradient descent.
 
     Attributes
@@ -30,23 +30,24 @@ class BaseGNNClassifier(VerboseMixin):
     prime_weight, prime_bias: np.ndarray, np.ndarray
         Derivatives of trainable weight matrix and bias vector.
     layers: list
-        List of layers object (e.g `GCNConv`).
+        List of layer object (e.g `GCNConv`).
     nb_layers: int
         Number of layers in model.
     activations: list
-        List of layer activation function.
+        List of activation functions.
     labels_: np.ndarray
         Predicted node labels.
     history_: dict
         Training history per epoch: {'embedding', 'loss', 'train_accuracy', 'test_accuracy'}.
     """
 
-    def __init__(self, opt: str = 'Adam', verbose: bool = False, **kwargs):
+    def __init__(self, optimizer: str = 'Adam', verbose: bool = False, **kwargs):
         VerboseMixin.__init__(self, verbose)
-        self.opt = get_optimizer(self, opt, **kwargs)
+        self.opt = get_optimizer(self, optimizer, **kwargs)
         self.layers = []
         self.train_mask = None
         self.test_mask = None
+        self.val_mask = None
         self.nb_layers = 0
         self.activations = []
         self.prime_weight, self.prime_bias = [], []
@@ -56,6 +57,10 @@ class BaseGNNClassifier(VerboseMixin):
 
     def fit(self, *args, **kwargs):
         """Fit Algorithm to the data."""
+        raise NotImplementedError
+
+    def predict(self, *args, **kwargs):
+        """Predict labels."""
         raise NotImplementedError
 
     def fit_predict(self, *args, **kwargs) -> np.ndarray:
@@ -145,17 +150,17 @@ class BaseGNNClassifier(VerboseMixin):
 
     def _check_fitted(self):
         if self.embedding_ is None:
-            raise ValueError("This embedding instance is not fitted yet."
-                                " Call 'fit' with appropriate arguments before using this method.")
+            raise ValueError("This embedding instance is not fitted yet. "
+                             "Call 'fit' with appropriate arguments before using this method.")
         else:
             return self
 
     def _get_layers(self) -> list:
-        """Get layer objects in model.
+        """Get layers objects in model.
 
         Returns
         -------
-        List of layer objects.
+        List of layers objects.
         """
         available_types = [GCNConv]
 
@@ -163,12 +168,12 @@ class BaseGNNClassifier(VerboseMixin):
 
     @staticmethod
     def _get_activations(layers: list) -> list:
-        """Get activation functions for each layer in model.
+        """Get activation functions for each layers in model.
 
         Parameters
         ----------
         layers: list
-            list of layer objects in model.
+            list of layers objects in model.
 
         Returns
         -------
@@ -177,7 +182,7 @@ class BaseGNNClassifier(VerboseMixin):
         return [layer.activation for layer in layers]
 
     def __repr__(self) -> str:
-        """String representation of the `GNN`, layer by layer.
+        """String representation of the `GNN`, layers by layers.
 
         Returns
         -------

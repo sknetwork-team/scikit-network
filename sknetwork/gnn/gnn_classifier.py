@@ -13,32 +13,53 @@ from sknetwork.classification.metrics import accuracy_score
 from sknetwork.gnn.base import BaseGNNClassifier
 from sknetwork.gnn.layers import get_layer
 from sknetwork.gnn.loss import get_loss_function
-from sknetwork.gnn.utils import check_existing_masks, check_layers_parameters
+from sknetwork.gnn.utils import check_existing_masks, get_layers
 from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, is_square
 
 
 class GNNClassifier(BaseGNNClassifier):
-    """ Graph Convolutional Network node classifier.
+    """Graph Neural Network for node classification.
 
     Parameters
     ----------
-    layer:
-        Layer name (for multi-layers GNN, use a `list`). Layer name can be either:
-        * ``'GCNConv'``, graph convolutional layer.
-    n_hidden:
-        Size of hidden layer (for multi-layers GNN, use a list).
-    activation:
-        Activation function (for multi-layers GNN, use a list). Can be either ``'Relu'``, ``'Sigmoid'`` or
-        ``'Softmax'``.
-    use_bias:
-        If `True`, use bias vector (for multi-layers GNN, use a list).
-    normalization:
-        How to normalize the adjacency matrix (for multi-layers GNN, use a list). Can be either:
-        *  ``'Both'`` (default), equivalent to symmetric normalization.
+    dims: list or int
+        Dimensions of the layers (in forward direction, last is the output).
+
+        If an integer, use a single layer (no hidden layer).
+    layers: list or str
+        Types of layers (in forward direction).
+
+        If a string, use the same type of layer for all layers.
+
+        Can be ``'GCNConv'``, graph convolutional layers (default).
+    activations: list or str
+        Activation functions (in forward direction).
+
+        If a string, use the same activation function for all layers.
+
+        Can be either ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
+    use_bias: list or bool
+        Whether to use a bias term at each layer.
+
+        If ``True``, use a bias term at all layers.
+    normalizations: list or str
+        Normalization of the adjacency matrix for message passing.
+
+        If a string, use the same normalization for all layers.
+
+        Can be either:
+
+        * ``'left'``, left normalization by the vector of degrees
+        * ``'right'``, right normalization by the vector of degrees
+        * ``'both'``,  symmetric normalization by the square root of degrees
+
     self_loops:
-        If `True`, add self loops to each node in the graph (for multi-layers GNN, use a list).
+        Whether to add a self loop at each node of the graph for message passing.
+
+        If ``True``, add a self-loop for message passing at all layers.
     optimizer: str (default = ``'Adam'``)
-        Optimizer name:
+        Can be either:
+
         * ``'Adam'``, stochastic gradient-based optimizer.
         * ``'None'``, gradient descent.
     verbose :
@@ -46,7 +67,7 @@ class GNNClassifier(BaseGNNClassifier):
 
     Attributes
     ----------
-    conv1, conv2: :class:`GCNConv``
+    conv2, ..., conv1: :class:'GCNConv'
         Graph convolutional layers.
     embedding_ : array
         Embedding of the nodes.
@@ -64,32 +85,34 @@ class GNNClassifier(BaseGNNClassifier):
     >>> adjacency = graph.adjacency
     >>> labels = graph.labels
     >>> features = adjacency.copy()
-    >>> gnn = GNNClassifier(layer='GCNConv', n_hidden=2, activation='Softmax', optimizer='Adam', verbose=False)
-    >>> _ = gnn.fit(adjacency, features, labels, max_iter=10, val_size=0.2, random_state=42)
+    >>> gnn = GNNClassifier(dims=1)
+    >>> _ = gnn.fit(adjacency, features, labels, random_state=42)
     >>> gnn.predict(adjacency[:3], features[:3])
     array([0, 0, 0])
     """
 
-    def __init__(self, layer: Union[str, list], n_hidden: Union[int, list], activation: Union[str, list] = 'Sigmoid',
-                 use_bias: Union[bool, list] = True, normalization: Union[str, list] = 'Both',
-                 self_loops: Union[bool, list] = True,
+    def __init__(self, dims: Union[int, list], layers: Union[str, list] = 'GCNConv',
+                 activations: Union[str, list] = 'Sigmoid', use_bias: Union[bool, list] = True,
+                 normalizations: Union[str, list] = 'Both', self_loops: Union[bool, list] = True,
                  optimizer: str = 'Adam', **kwargs):
         super(GNNClassifier, self).__init__(optimizer, **kwargs)
-        parameters = check_layers_parameters(layer, n_hidden, activation, use_bias, normalization, self_loops)
+        parameters = get_layers(dims, layers, activations, use_bias, normalizations, self_loops)
         for layer_idx, params in enumerate(zip(*parameters)):
-            setattr(self, f'conv{layer_idx + 1}', get_layer(params[0], *params[1:]))
+            layer = params[1]
+            args = params[:1] + params[2:]
+            setattr(self, f'conv{layer_idx + 1}', get_layer(layer, *args))
 
-    def forward(self, adjacency: sparse.csr_matrix, feat: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
+    def forward(self, adjacency: sparse.csr_matrix, features: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """ Performs a forward pass on the graph and returns embedding of nodes.
 
-            Note that the non-linearity is integrated in the :class:`GCNConv` layer and hence is not applied
-            after each layer in the forward method.
+            Note that the non-linearity is integrated in the :class:`GCNConv` layers and hence is not applied
+            after each layers in the forward method.
 
         Parameters
         ----------
         adjacency : sparse.csr_matrix
             Adjacency matrix.
-        feat : sparse.csr_matrix, np.ndarray
+        features : sparse.csr_matrix, np.ndarray
             Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
             the size of the embedding.
 
@@ -100,7 +123,7 @@ class GNNClassifier(BaseGNNClassifier):
         """
 
         layers = self._get_layers()
-        h = feat.copy()
+        h = features.copy()
         for layer in layers:
             h = layer(adjacency, h)
 
@@ -132,13 +155,13 @@ class GNNClassifier(BaseGNNClassifier):
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], features: Union[sparse.csr_matrix, np.ndarray],
             labels: np.ndarray, max_iter: int = 30, loss: str = 'CrossEntropyLoss',
-            train_mask: Optional[np.ndarray] = None, val_size: Optional[float] = None,
+            train_mask: Optional[np.ndarray] = None, val_size: Optional[float] = 0.2,
             random_state: Optional[int] = None, shuffle: Optional[bool] = True) -> 'GNNClassifier':
         """ Fits model to data and store trained parameters.
 
         Parameters
         ----------
-        adjacency
+        adjacency : sparse.csr_matrix
             Adjacency matrix of the graph.
         features : sparse.csr_matrix, np.ndarray
             Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
@@ -153,12 +176,12 @@ class GNNClassifier(BaseGNNClassifier):
         train_mask: np.ndarray
             Boolean array indicating whether nodes are in training set.
         val_size: float
-            Should be between 0 and 1 and represents the proportion of the nodes to include in validation set. Only
-            used if `train_mask` is `None`.
+            Proportion of the nodes in the validation set (between 0 and 1, default = 0.1).
+            Only used if `train_mask` is ``None``.
         random_state : int
             Pass an int for reproducible results across multiple runs. Used if `val_size` is not `None`.
-        shuffle : bool (default = `True`)
-            If `True`, shuffles samples before split. Used if `val_size` is not `None`.
+        shuffle : bool (default = ``True``)
+            If ``True``, shuffles samples before split. Used if `val_size` is not ``None``.
         """
         y_pred = None
         exists_mask, self.train_mask, self.val_mask, self.test_mask = \
@@ -172,10 +195,10 @@ class GNNClassifier(BaseGNNClassifier):
         for epoch in range(max_iter):
 
             # Forward
-            emb = self.forward(adjacency, features)
+            embedding = self.forward(adjacency, features)
 
             # Compute predictions
-            logits, y_pred = self._compute_predictions(emb)
+            logits, y_pred = self._compute_predictions(embedding)
 
             # Loss
             loss_function = get_loss_function(loss)
@@ -192,7 +215,7 @@ class GNNClassifier(BaseGNNClassifier):
             self.opt.step()
 
             # Save results
-            self.history_['embedding'].append(emb)
+            self.history_['embedding'].append(embedding)
             self.history_['loss'].append(loss_value)
             self.history_['train_accuracy'].append(train_acc)
             self.history_['val_accuracy'].append(val_acc)
@@ -246,14 +269,14 @@ class GNNClassifier(BaseGNNClassifier):
         self.train_mask = train_mask.copy()
 
     def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray] = None,
-                feat_vectors: Union[sparse.csr_matrix, np.ndarray] = None) -> np.ndarray:
+                feature_vectors: Union[sparse.csr_matrix, np.ndarray] = None) -> np.ndarray:
         """Predict class labels for nodes in `nodes`.
 
         Parameters
         ----------
         adjacency_vectors
             Adjacency row vectors. Array of shape (n_col,) (single vector) or (n_vectors, n_col).
-        feat_vectors
+        feature_vectors
             Features row vectors. Array of shape (n_feat,) (single vector) or (n_vectors, n_feat).
 
         Returns
@@ -268,14 +291,14 @@ class GNNClassifier(BaseGNNClassifier):
         check_nonnegative(adjacency_vectors)
 
         n_row, n_col = adjacency_vectors.shape
-        n_feat = feat_vectors.shape[1]
+        n_feat = feature_vectors.shape[1]
 
         if not is_square(adjacency_vectors):
             max_n = max(n_row, n_col)
             adjacency_vectors.resize(max_n, max_n)
-            feat_vectors.resize(max_n, n_feat)
+            feature_vectors.resize(max_n, n_feat)
 
-        h = self.forward(adjacency_vectors, feat_vectors)
+        h = self.forward(adjacency_vectors, feature_vectors)
         _, labels = self._compute_predictions(h)
 
         return labels[:n_row]

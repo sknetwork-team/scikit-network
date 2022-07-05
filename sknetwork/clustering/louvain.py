@@ -43,9 +43,9 @@ class Louvain(BaseClustering, VerboseMixin):
     sort_clusters :
         If ``True``, sort labels in decreasing order of cluster size.
     return_membership :
-            If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
+        If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
     return_aggregate :
-            If ``True``, return the adjacency matrix of the graph between clusters.
+        If ``True``, return the adjacency matrix of the graph between clusters.
     random_state :
         Random number generator or random seed. If None, numpy.random is used.
     verbose :

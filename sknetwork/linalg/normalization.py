@@ -39,7 +39,7 @@ def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
     matrix :
         Input matrix.
     p :
-        Order of the norm
+        Order of the norm.
 
     Returns
     -------

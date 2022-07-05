@@ -1,9 +1,9 @@
 .. _gnn:
 
-GNNs
-****
+GNN
+***
 
-Graph Neural Networks.
+Graph Neural Network.
 
 The attribute ``labels_``  assigns a label to each node of the graph.
 
