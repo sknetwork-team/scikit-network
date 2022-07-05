@@ -20,7 +20,8 @@ class GCNConv:
     :math:`H^{\prime}=\sigma(D^{-1/2}\hat{A}D^{-1/2}HW + b)`,
 
     where :math:`\hat{A} = A + I` denotes the adjacency matrix with inserted self-loops and
-    :math:`D` its diagonal degree matrix. :math:`W` and :math:`b` are trainable parameters.
+    :math:`D` its diagonal degree matrix. :math:`W` and :math:`b` are trainable parameters and
+    :math:`\\sigma` is the activation function.
 
     Parameters
     ----------
@@ -54,11 +55,9 @@ class GCNConv:
     bias: np.ndarray
         Bias vector.
     update: np.ndarray
-        :math:`\text{update}=AHW + b` with :math:`A` the adjacency matrix of the graph, :math:`H` the feature matrix
-        of the graph, :math:`W` the trainable weight matrix and :math:`b` the bias vector (if needed).
+        Embedding of the nodes before the activation function.
     emb: np.ndarray
-        Embedding of the nodes after convolution layers: :math:`\text{emb}=\sigma(AHW + b)`,
-        with :math:`\sigma` an activation function.
+        Embedding of the nodes after convolution layer.
 
     References
     ----------
