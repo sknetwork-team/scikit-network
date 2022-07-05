@@ -79,8 +79,8 @@ class BaseGNNClassifier(VerboseMixin):
 
         Returns
         -------
-        Embeddings : np.ndarray
-            Embeddings of the nodes.
+        Embedding : np.ndarray
+            Embedding of the nodes.
         """
         self.fit(*args, **kwargs)
         return self.embedding_
