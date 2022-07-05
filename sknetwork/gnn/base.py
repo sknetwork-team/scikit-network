@@ -91,10 +91,9 @@ class BaseGNNClassifier(VerboseMixin):
         Parameters
         ----------
         features : np.ndarray
-            Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
-            the number of features.
+            Features, array of shape (n_nodes, n_features).
         labels : np.ndarray
-            Label vectors of length :math:`n`, with :math:`n` the number of nodes in `adjacency`.
+            Labels, array of shape (n_nodes,).
         loss : str
             Loss function name.
         """

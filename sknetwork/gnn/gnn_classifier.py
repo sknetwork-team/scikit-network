@@ -27,7 +27,7 @@ class GNNClassifier(BaseGNNClassifier):
 
         If an integer, use a single layer (no hidden layer).
     layers: list or str
-        Types of layers (in forward direction).
+        Layers (in forward direction).
 
         If a string, use the same type of layer for all layers.
 
@@ -113,8 +113,7 @@ class GNNClassifier(BaseGNNClassifier):
         adjacency : sparse.csr_matrix
             Adjacency matrix.
         features : sparse.csr_matrix, np.ndarray
-            Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
-            the size of the embedding.
+            Features, array of shape (n_nodes, n_features).
 
         Returns
         -------
