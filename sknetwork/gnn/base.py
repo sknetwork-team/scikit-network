@@ -85,14 +85,14 @@ class BaseGNNClassifier(VerboseMixin):
         self.fit(*args, **kwargs)
         return self.embedding_
 
-    def backward(self, feat: np.ndarray, labels: np.ndarray, loss: str):
+    def backward(self, features: np.ndarray, labels: np.ndarray, loss: str):
         """Compute backpropagation.
 
         Parameters
         ----------
-        feat : np.ndarray
+        features : np.ndarray
             Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
-            the size of the embedding.
+            the number of features.
         labels : np.ndarray
             Label vectors of length :math:`n`, with :math:`n` the number of nodes in `adjacency`.
         loss : str
@@ -122,7 +122,7 @@ class BaseGNNClassifier(VerboseMixin):
             prime_update = prime_output * activation_primes[-1](self.layers[self.nb_layers - 1].update.T)
 
         if self.nb_layers == 1:
-            output_prev = feat
+            output_prev = features
         else:
             output_prev = self.layers[self.nb_layers - 2].emb
 
@@ -137,7 +137,7 @@ class BaseGNNClassifier(VerboseMixin):
 
             prime_update = prime_output_prev * activation_primes[layer_idx - 1](self.layers[layer_idx - 1].update.T)
             if layer_idx == 1:
-                output_prev = feat
+                output_prev = features
             else:
                 output_prev = self.layers[layer_idx - 2].emb
             prime_weight = output_prev.T.dot(prime_update.T)  # SpM on left-hand side
