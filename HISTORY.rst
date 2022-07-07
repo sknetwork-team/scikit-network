@@ -2,11 +2,12 @@
 History
 =======
 
-0.27.0 (2022-05-03)
+0.27.0 (2022-07-XX)
 -------------------
 
 * Drop Python 3.7
-* Add Graph Neural Networks, by Simon Delarue
+* Update NumPy and SciPy requirements, by Thomas Bonald
+* Add Graph Neural Networks, by Simon Delarue (#533)
 
 0.26.0 (2022-05-03)
 -------------------

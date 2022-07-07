@@ -56,7 +56,7 @@ def clear_data_home(data_home: Optional[Union[str, Path]] = None):
 
 
 def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]] = None,
-                verbose: bool = True) -> Bunch:
+                verbose: bool = True) -> Optional[Bunch]:
     """Load a dataset from the `NetSet database
     <https://netset.telecom-paris.fr/>`_.
 
@@ -75,13 +75,15 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
         Returned dataset.
     """
     dataset = Bunch()
+    dataset_folder = NETSET_URL + '/datasets/'
     npz_folder = NETSET_URL + '/datasets_npz/'
+
     logger = Log(verbose)
 
     if name is None:
-        print("Please specify the dataset (e.g., 'openflights' or 'wikivitals').\n" +
-              f"Complete list available here: <{npz_folder}>.")
-        return dataset
+        print("Please specify the dataset (e.g., 'wikivitals').\n" +
+              f"Complete list available here: <{dataset_folder}>.")
+        return None
     else:
         name = name.lower()
     data_home = get_data_home(data_home)
