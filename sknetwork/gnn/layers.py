@@ -155,7 +155,7 @@ class GCNConv:
         str
             String representation of object
         """
-        print_attr = ['out_channels', 'activations', 'use_bias', 'normalizations', 'self_loops']
+        print_attr = ['out_channels', 'activation', 'use_bias', 'normalizations', 'self_loops']
         attributes_dict = {k: v for k, v in self.__dict__.items() if k in print_attr}
         lines = ''
 

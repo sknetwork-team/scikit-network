@@ -84,6 +84,11 @@ def sigmoid_prime(input: np.ndarray) -> np.ndarray:
     return sigmoid(input) * (1 - sigmoid(input))
 
 
+def softmax_prime(input: np.ndarray) -> np.ndarray:
+    """Derivative of the softmax function."""
+    return np.einsum('ij,jk->ijk', input, np.eye(input.shape[-1])) - np.einsum('ij,ik->ijk', input, input)
+
+
 def get_prime_activation_function(activation_name: str) -> Callable[..., np.ndarray]:
     """Returns activation function derivative according to `activation_name`.
 
@@ -108,6 +113,6 @@ def get_prime_activation_function(activation_name: str) -> Callable[..., np.ndar
     elif activation_name == 'sigmoid':
         return sigmoid_prime
     elif activation_name == 'softmax':
-        return None
+        return softmax_prime
     else:
         raise ValueError("Activation must be either \"Relu\", \"Sigmoid\" or \"Softmax\"")

@@ -17,9 +17,9 @@ class TestActivation(unittest.TestCase):
             get_activation_function('toto')
 
     def test_get_prime_activation_function(self):
-        self.assertTrue(isinstance(get_prime_activation_function('Relu'), type(relu)))
-        self.assertTrue(isinstance(get_prime_activation_function('Sigmoid'), type(sigmoid)))
-        self.assertTrue(get_prime_activation_function('Softmax') is None)
+        self.assertTrue(isinstance(get_prime_activation_function('Relu'), type(relu_prime)))
+        self.assertTrue(isinstance(get_prime_activation_function('Sigmoid'), type(sigmoid_prime)))
+        self.assertTrue(isinstance(get_prime_activation_function('Softmax'), type(softmax_prime)))
         with self.assertRaises(ValueError):
             get_prime_activation_function('toto')
 
@@ -45,3 +45,9 @@ class TestActivation(unittest.TestCase):
                                     np.array([[0.0021657, 0.00588697, 0.11824302, 0.87370431],
                                               [0.0021657, 0.00588697, 0.11824302, 0.87370431]])))
         self.assertAlmostEqual((softmax(a).sum(axis=1) - np.array([1, 1])).sum(), 0)
+
+    def test_activation_softmax_prime(self):
+        a = np.array([[-1, 5], [-1, 2]])
+        self.assertTrue(np.allclose(softmax_prime(a),
+                                    np.array([[[-2., 5.], [5., -20.]],
+                                              [[-2., 2.], [2., -2.]]])))

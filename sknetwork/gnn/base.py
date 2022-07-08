@@ -133,8 +133,11 @@ class BaseGNNClassifier(VerboseMixin):
         self.prime_bias[self.nb_layers - 1] = prime_bias.T
 
         for layer_idx in range(self.nb_layers - 1, 0, -1):
-
-            prime_update = prime_output_prev * activation_primes[layer_idx - 1](self.layers[layer_idx - 1].update.T)
+            if self.layers[layer_idx - 1].activation == 'softmax':
+                jacobian = activation_primes[layer_idx - 1](self.layers[layer_idx - 1].update.T)
+                prime_update = np.einsum('mnr,mrr->mr', prime_output_prev[:, None, :], jacobian)
+            else:
+                prime_update = prime_output_prev * activation_primes[layer_idx - 1](self.layers[layer_idx - 1].update.T)
             if layer_idx == 1:
                 output_prev = features
             else:

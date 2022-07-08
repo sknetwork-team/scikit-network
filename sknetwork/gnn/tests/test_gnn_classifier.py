@@ -52,6 +52,12 @@ class TestGNNClassifier(unittest.TestCase):
             self.assertTrue(len(y_pred) == self.n)
             self.assertTrue(embedding.shape == (self.n, 2))
 
+    def test_gnn_classifier_softmax(self):
+        n_labels = len(set(self.labels))
+        gnn = GNNClassifier([5, n_labels], 'GCNConv', ['Softmax', 'Softmax'])
+        y_pred = gnn.fit_predict(self.adjacency, self.features, self.labels)
+        self.assertTrue(len(y_pred) == self.n)
+
     def test_gnn_classifier_norm(self):
         n_labels = len(set(self.labels))
         gnn = GNNClassifier([5, n_labels], 'GCNConv', activations=['Relu', 'Softmax'],
