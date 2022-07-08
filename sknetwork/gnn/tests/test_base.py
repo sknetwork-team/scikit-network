@@ -51,7 +51,7 @@ class TestBaseGNN(unittest.TestCase):
     def test_base_gnn_repr(self):
         gnn = GNNClassifier(dims=[8, 2], layers=['GCNConv', 'GCNConv'],
                             activations=['Relu', 'Softmax'], optimizer='Adam')
-        layers_str = "    GCNConv(out_channels: 8, use_bias: True, self_loops: True)\n" \
-                     "    GCNConv(out_channels: 2, use_bias: True, self_loops: True)"
+        layers_str = "    GCNConv(out_channels: 8, activation: relu, use_bias: True, self_loops: True)\n" \
+                     "    GCNConv(out_channels: 2, activation: softmax, use_bias: True, self_loops: True)"
         gnn_str = f"GNNClassifier(\n{layers_str}\n)"
         self.assertTrue(gnn.__repr__() == gnn_str)
