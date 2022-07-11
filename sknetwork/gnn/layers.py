@@ -10,11 +10,12 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.gnn.activation import get_activation_function
+from sknetwork.gnn.base_layer import BaseLayer
 from sknetwork.gnn.utils import has_self_loops, add_self_loops
 from sknetwork.linalg import diag_pinv
 
 
-class GCNConv:
+class GCNConv(BaseLayer):
     """Graph convolutional operator.
 
     :math:`H^{\prime}=\sigma(D^{-1/2}\hat{A}D^{-1/2}HW + b)`,
@@ -71,26 +72,9 @@ class GCNConv:
     <https://arxiv.org/pdf/1502.01852.pdf>`_
     Proceedings of the IEEE International Conference on Computer Vision (ICCV).
     """
-
     def __init__(self, out_channels: int, activation: str = 'Relu', use_bias: bool = True,
                  normalization: str = 'Both', self_loops: bool = True):
-        self.out_channels = out_channels
-        self.activation = activation.lower()
-        self.use_bias = use_bias
-        self.normalization = normalization.lower()
-        self.self_loops = self_loops
-        self.weight = None
-        self.bias = None
-        self.emb = None
-        self.update = None
-        self.weights_initialized = False
-
-    def _initialize_weights(self, in_channels: int):
-        # Trainable parameters with He-et-al initialization
-        self.weight = np.random.randn(in_channels, self.out_channels) * np.sqrt(2 / self.out_channels)
-        if self.use_bias:
-            self.bias = np.zeros((self.out_channels, 1)).T
-        self.weights_initialized = True
+        super(GCNConv, self).__init__(out_channels, activation, use_bias, normalization, self_loops)
 
     def forward(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
                 features: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
@@ -143,42 +127,3 @@ class GCNConv:
         self.update = update
 
         return self.emb
-
-    def __call__(self, *args, **kwargs):
-        return self.forward(*args, **kwargs)
-
-    def __repr__(self) -> str:
-        """ String representation of object
-
-        Returns
-        -------
-        str
-            String representation of object
-        """
-        print_attr = ['out_channels', 'activation', 'use_bias', 'normalizations', 'self_loops']
-        attributes_dict = {k: v for k, v in self.__dict__.items() if k in print_attr}
-        lines = ''
-
-        for k, v in attributes_dict.items():
-            lines += f'{k}: {v}, '
-
-        return f'  {self.__class__.__name__}({lines[:-2]})'
-
-
-def get_layer(layer: str = 'GCNConv', *args) -> object:
-    """Instantiate layers according to parameters.
-
-    Parameters
-    ----------
-    layer : str
-        Which layer to use. Can be ``'GCNConv'``.
-
-    Returns
-    -------
-    Layer object.
-    """
-    layer = layer.lower()
-    if layer == 'gcnconv':
-        return GCNConv(*args)
-    else:
-        raise ValueError("Layer must be \"GCNConv\".")

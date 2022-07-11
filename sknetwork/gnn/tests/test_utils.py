@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 from scipy import sparse
 
-from sknetwork.gnn.utils import check_existing_masks, check_normalizations, check_layers, get_layers, \
+from sknetwork.gnn.utils import check_existing_masks, check_normalizations, check_layers, get_layers_parameters, \
     has_self_loops, add_self_loops
 
 
@@ -53,15 +53,15 @@ class TestUtils(unittest.TestCase):
 
     def test_check_layers_parameters(self):
         with self.assertRaises(ValueError):
-            get_layers([4, 2], 'GCNConv',  activations=['Relu', 'Sigmoid', 'Relu'], use_bias=True,
-                       normalizations='Both', self_loops=True)
+            get_layers_parameters([4, 2], 'GCNConv',  activations=['Relu', 'Sigmoid', 'Relu'], use_bias=True,
+                                  normalizations='Both', self_loops=True)
         # Type compatibility
-        params = get_layers([4], 'GCNConv', activations=['Relu'],
-                            use_bias=[True], normalizations=['Both'], self_loops=[True])
+        params = get_layers_parameters([4], 'GCNConv', activations=['Relu'],
+                                       use_bias=[True], normalizations=['Both'], self_loops=[True])
         self.assertTrue(len(np.ravel(params)) == 6)
         # Broadcasting parameters
-        params = get_layers([4, 2], ['GCNConv', 'GCNConv'], activations='Relu',
-                            use_bias=True, normalizations='Both', self_loops=True)
+        params = get_layers_parameters([4, 2], ['GCNConv', 'GCNConv'], activations='Relu',
+                                       use_bias=True, normalizations='Both', self_loops=True)
         self.assertTrue(len(np.ravel(params)) == 12)
 
     def test_has_self_loops(self):

@@ -72,9 +72,9 @@ def check_layers(layers: Union[str, list]):
             raise ValueError("Layer must be \"GCNConv\".")
 
 
-def get_layers(dims: Union[int, list], layers: Union[str, list], activations: Union[str, list],
-               use_bias: Union[bool, list], normalizations: Union[str, list], self_loops: Union[bool, list]) \
-        -> list:
+def get_layers_parameters(dims: Union[int, list], layers: Union[str, list], activations: Union[str, list],
+                          use_bias: Union[bool, list], normalizations: Union[str, list],
+                          self_loops: Union[bool, list]) -> list:
     """Get the list of layer parameters.
 
     Parameters
@@ -144,3 +144,4 @@ def add_self_loops(adjacency: sparse.csr_matrix) -> sparse.csr_matrix:
         adjacency += tmp
 
     return adjacency
+

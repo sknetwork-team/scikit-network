@@ -11,9 +11,8 @@ from scipy import sparse
 
 from sknetwork.classification.metrics import accuracy_score
 from sknetwork.gnn.base import BaseGNNClassifier
-from sknetwork.gnn.layers import get_layer
 from sknetwork.gnn.loss import get_loss_function
-from sknetwork.gnn.utils import check_existing_masks, get_layers
+from sknetwork.gnn.utils import check_existing_masks, get_layers_parameters
 from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, is_square
 
 
@@ -96,11 +95,11 @@ class GNNClassifier(BaseGNNClassifier):
                  normalizations: Union[str, list] = 'Both', self_loops: Union[bool, list] = True,
                  optimizer: str = 'Adam', **kwargs):
         super(GNNClassifier, self).__init__(optimizer, **kwargs)
-        parameters = get_layers(dims, layers, activations, use_bias, normalizations, self_loops)
+        parameters = get_layers_parameters(dims, layers, activations, use_bias, normalizations, self_loops)
         for layer_idx, params in enumerate(zip(*parameters)):
             layer = params[1]
             args = params[:1] + params[2:]
-            setattr(self, f'conv{layer_idx + 1}', get_layer(layer, *args))
+            setattr(self, f'conv{layer_idx + 1}', self._init_layer(layer, *args))
 
     def forward(self, adjacency: sparse.csr_matrix, features: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """ Performs a forward pass on the graph and returns embedding of nodes.

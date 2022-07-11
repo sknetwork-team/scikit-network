@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 
 from sknetwork.data.test_graphs import test_graph
-from sknetwork.gnn.layers import GCNConv, get_layer
+from sknetwork.gnn.layers import GCNConv
 
 
 class TestLayer(unittest.TestCase):
@@ -65,9 +65,3 @@ class TestLayer(unittest.TestCase):
             h = conv1.forward(self.adjacency, self.features)
             emb = conv2.forward(self.adjacency, h)
             self.assertTrue(emb.shape == (self.adjacency.shape[0], 2))
-
-    def test_graph_conv_get_layer(self):
-        with self.assertRaises(ValueError):
-            get_layer('toto')
-        gcnconv = get_layer('GCNConv', 4, 'relu')
-        self.assertTrue(isinstance(gcnconv, GCNConv))

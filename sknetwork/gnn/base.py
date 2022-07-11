@@ -55,6 +55,25 @@ class BaseGNNClassifier(VerboseMixin):
         self.embedding_ = None
         self.history_ = defaultdict(list)
 
+    @staticmethod
+    def _init_layer(layer: str = 'GCNConv', *args) -> object:
+        """Instantiate layer according to parameters.
+
+        Parameters
+        ----------
+        layer : str
+            Which layer to use. Can be ``'GCNConv'``.
+
+        Returns
+        -------
+        Layer object.
+        """
+        layer = layer.lower()
+        if layer == 'gcnconv':
+            return GCNConv(*args)
+        else:
+            raise ValueError("Layer must be \"GCNConv\".")
+
     def fit(self, *args, **kwargs):
         """Fit Algorithm to the data."""
         raise NotImplementedError

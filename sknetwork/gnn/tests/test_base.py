@@ -5,9 +5,11 @@
 import unittest
 
 import numpy as np
+
 from sknetwork.data.test_graphs import test_graph
-from sknetwork.gnn.gnn_classifier import GNNClassifier
 from sknetwork.gnn.base import BaseGNNClassifier
+from sknetwork.gnn.gnn_classifier import GNNClassifier
+from sknetwork.gnn.layers import GCNConv
 
 
 class TestBaseGNN(unittest.TestCase):
@@ -55,3 +57,10 @@ class TestBaseGNN(unittest.TestCase):
                      "    GCNConv(out_channels: 2, activation: softmax, use_bias: True, self_loops: True)"
         gnn_str = f"GNNClassifier(\n{layers_str}\n)"
         self.assertTrue(gnn.__repr__() == gnn_str)
+
+    def test_base_gnn_init_layer(self):
+        gnn = BaseGNNClassifier()
+        with self.assertRaises(ValueError):
+            gnn._init_layer('toto')
+        gcnconv = gnn._init_layer('GCNConv', 4, 'relu')
+        self.assertTrue(isinstance(gcnconv, GCNConv))
