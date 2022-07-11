@@ -24,43 +24,33 @@ class GNNClassifier(BaseGNNClassifier):
     ----------
     dims: list or int
         Dimensions of the layers (in forward direction, last is the output).
-
         If an integer, use a single layer (no hidden layer).
     layers: list or str
         Layers (in forward direction).
-
         If a string, use the same type of layer for all layers.
-
         Can be ``'GCNConv'``, graph convolutional layers (default).
     activations: list or str
         Activation functions (in forward direction).
-
         If a string, use the same activation function for all layers.
-
         Can be either ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
     use_bias: list or bool
         Whether to use a bias term at each layer.
-
         If ``True``, use a bias term at all layers.
     normalizations: list or str
         Normalization of the adjacency matrix for message passing.
-
         If a string, use the same normalization for all layers.
-
         Can be either:
 
         * ``'left'``, left normalization by the vector of degrees
         * ``'right'``, right normalization by the vector of degrees
         * ``'both'``,  symmetric normalization by the square root of degrees
-
-    self_loops:
+    self_loops: list or str
         Whether to add a self loop at each node of the graph for message passing.
-
         If ``True``, add a self-loop for message passing at all layers.
-    optimizer: str (default = ``'Adam'``)
+    optimizer: str
         Can be either:
 
-        * ``'Adam'``, stochastic gradient-based optimizer.
+        * ``'Adam'``, stochastic gradient-based optimizer (default).
         * ``'None'``, gradient descent.
     verbose :
         Verbose mode.
@@ -139,22 +129,22 @@ class GNNClassifier(BaseGNNClassifier):
 
         Returns
         -------
-        np.ndarray : logits corresponding predicted probabilities for each class.
-        np.ndarray : y_pred corresponding to predicted class.
+        np.ndarray : logits, predicted probabilities.
+        np.ndarray : labels_pred, predicted class.
         """
 
         if embedding.shape[1] == 1:
-            y_pred = np.where(embedding.ravel() < 0.5, 0, 1)
+            labels_pred = np.where(embedding.ravel() < 0.5, 0, 1)
             logits = embedding.ravel()
         else:
             logits = embedding
-            y_pred = embedding.argmax(1)
+            labels_pred = embedding.argmax(1)
 
-        return logits, y_pred
+        return logits, labels_pred
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], features: Union[sparse.csr_matrix, np.ndarray],
             labels: np.ndarray, max_iter: int = 30, loss: str = 'CrossEntropyLoss',
-            train_mask: Optional[np.ndarray] = None, val_size: Optional[float] = 0.2,
+            train_mask: Optional[np.ndarray] = None, val_size: Optional[float] = 0.1,
             random_state: Optional[int] = None, shuffle: Optional[bool] = True) -> 'GNNClassifier':
         """ Fits model to data and store trained parameters.
 
@@ -182,7 +172,7 @@ class GNNClassifier(BaseGNNClassifier):
         shuffle : bool (default = ``True``)
             If ``True``, shuffles samples before split. Used if `val_size` is not ``None``.
         """
-        y_pred = None
+        labels_pred = None
         exists_mask, self.train_mask, self.val_mask, self.test_mask = \
             check_existing_masks(labels, train_mask, val_size)
         if not exists_mask:
@@ -197,15 +187,15 @@ class GNNClassifier(BaseGNNClassifier):
             embedding = self.forward(adjacency, features)
 
             # Compute predictions
-            logits, y_pred = self._compute_predictions(embedding)
+            logits, labels_pred = self._compute_predictions(embedding)
 
             # Loss
             loss_function = get_loss_function(loss)
             loss_value = loss_function(labels[self.train_mask], logits[self.train_mask])
 
             # Accuracy
-            train_acc = accuracy_score(labels[self.train_mask], y_pred[self.train_mask])
-            val_acc = accuracy_score(labels[self.val_mask], y_pred[self.val_mask])
+            train_acc = accuracy_score(labels[self.train_mask], labels_pred[self.train_mask])
+            val_acc = accuracy_score(labels[self.val_mask], labels_pred[self.val_mask])
 
             # Backpropagation
             self.backward(features, labels, loss)
@@ -228,7 +218,7 @@ class GNNClassifier(BaseGNNClassifier):
                     f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, '
                     f'val acc: {val_acc:.3f}')
 
-        self.labels_ = y_pred
+        self.labels_ = labels_pred
         self.embedding_ = self.history_.get('embedding')[-1]
 
         return self
