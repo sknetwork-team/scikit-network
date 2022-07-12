@@ -64,3 +64,8 @@ class TestBaseGNN(unittest.TestCase):
             gnn._init_layer('toto')
         gcnconv = gnn._init_layer('GCNConv', 4, 'relu')
         self.assertTrue(isinstance(gcnconv, GCNConv))
+
+    def test_base_gnn_predict(self):
+        gnn = BaseGNNClassifier()
+        with self.assertRaises(NotImplementedError):
+            gnn.predict()
