@@ -18,7 +18,7 @@ class BaseLayer:
         Bias vector.
     update: np.ndarray
         Embedding of the nodes before the activation function.
-    emb: np.ndarray
+    embedding: np.ndarray
         Embedding of the nodes after convolution layer.
     """
     def __init__(self, out_channels: int, activation: str = 'Relu', use_bias: bool = True,
@@ -30,7 +30,7 @@ class BaseLayer:
         self.self_loops = self_loops
         self.weight = None
         self.bias = None
-        self.emb = None
+        self.embedding = None
         self.update = None
         self.weights_initialized = False
 
