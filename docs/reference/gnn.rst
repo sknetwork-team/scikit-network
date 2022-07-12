@@ -12,8 +12,8 @@ Classifier
 
 .. autoclass:: sknetwork.gnn.GNNClassifier
 
-Convolution layer
------------------
+Convolution layers
+------------------
 
 .. autoclass:: sknetwork.gnn.GCNConv
 

@@ -130,7 +130,7 @@ class BaseGNNClassifier(VerboseMixin):
         self.prime_bias = [0] * self.nb_layers
 
         # Backpropagation
-        output = self.layers[self.nb_layers - 1].emb
+        output = self.layers[self.nb_layers - 1].embedding
         if self.layers[-1].activation == 'softmax':
             nb_classes = len(np.unique(labels[labels != -1]))
             y_true_ohe = np.eye(nb_classes)[labels]
@@ -142,7 +142,7 @@ class BaseGNNClassifier(VerboseMixin):
         if self.nb_layers == 1:
             output_prev = features
         else:
-            output_prev = self.layers[self.nb_layers - 2].emb
+            output_prev = self.layers[self.nb_layers - 2].embedding
 
         prime_weight = output_prev.T.dot(prime_update.T)  # SpM on left-hand side
         prime_bias = np.sum(prime_update, axis=1, keepdims=True) / n
@@ -160,7 +160,7 @@ class BaseGNNClassifier(VerboseMixin):
             if layer_idx == 1:
                 output_prev = features
             else:
-                output_prev = self.layers[layer_idx - 2].emb
+                output_prev = self.layers[layer_idx - 2].embedding
             prime_weight = output_prev.T.dot(prime_update.T)  # SpM on left-hand side
             prime_bias = np.sum(prime_update, axis=1, keepdims=True) / n
             if layer_idx > 1:

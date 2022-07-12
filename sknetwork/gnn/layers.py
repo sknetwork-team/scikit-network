@@ -30,7 +30,6 @@ class GCNConv(BaseLayer):
         Size of each output sample.
     activation: str (default = ``'Relu'``)
         Activation function.
-
         Can be either:
 
         * ``'relu'``, the rectified linear unit function, returns f(x) = max(0, x)
@@ -40,7 +39,6 @@ class GCNConv(BaseLayer):
         If ``True``, add a bias vector.
     normalization: str (default = ``'Both'``)
         Normalization of the adjacency matrix for message passing.
-
         Can be either:
 
         * ``'left'``, left normalization by the vector of degrees
@@ -57,7 +55,7 @@ class GCNConv(BaseLayer):
         Bias vector.
     update: np.ndarray
         Embedding of the nodes before the activation function.
-    emb: np.ndarray
+    embedding: np.ndarray
         Embedding of the nodes after convolution layer.
 
     References
@@ -90,8 +88,8 @@ class GCNConv(BaseLayer):
 
         Returns
         -------
-        np.ndarray
-            Nodes embedding.
+        embedding: p.ndarray
+            Node embedding.
         """
         if not self.weights_initialized:
             self._initialize_weights(features.shape[1])
@@ -120,10 +118,10 @@ class GCNConv(BaseLayer):
             update += self.bias
 
         activation_function = get_activation_function(self.activation)
-        emb = activation_function(update)
+        embedding = activation_function(update)
 
         # Keep track of results for backprop
-        self.emb = emb
+        self.embedding = embedding
         self.update = update
 
-        return self.emb
+        return embedding
