@@ -5,6 +5,7 @@ Created on Thu Apr 21 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
 from typing import Union, Optional, Tuple
+import warnings
 
 import numpy as np
 from scipy import sparse
@@ -13,7 +14,9 @@ from sknetwork.utils.check import check_is_proba, check_boolean, check_labels, i
 
 
 def check_existing_masks(labels: np.ndarray, train_mask: Optional[np.ndarray] = None,
-                         val_size: Optional[float] = None) -> Tuple:
+                         val_mask: Optional[np.ndarray] = None, test_mask: Optional[np.ndarray] = None,
+                         train_size: Optional[float] = None, val_size: Optional[float] = None,
+                         test_size: Optional[float] = None) -> Tuple:
     """Check masks parameters and return masks boolean arrays.
 
     Parameters
@@ -21,16 +24,17 @@ def check_existing_masks(labels: np.ndarray, train_mask: Optional[np.ndarray] = 
     labels: np.ndarray
         Label vectors of length :math:`n`, with :math:`n` the number of nodes in `adjacency`. Labels set to `-1`
         will not be considered for training steps.
-    train_mask: np.ndarray
-        Boolean array indicating whether nodes are in training set.
-    val_size: float
-        If `train_mask` is `None`, includes this proportion of the nodes in validation set.
+    train_mask, val_mask, test_mask: np.ndarray
+        Boolean arrays indicating whether nodes are in training/validation/test set.
+    train_size, val_size, test_size: float
+        Proportion of the nodes in the training/validation/test set (between 0 and 1).
+        Only used if when corresponding masks are ``None``.
 
     Returns
     -------
     Tuple containing:
-    * `True` if training mask is provided
-    * training, validation and test masks w.r.t values in `labels`.
+        * ``True`` if training mask is provided
+        * training, validation and test masks w.r.t values in `labels`.
     """
     _, _ = check_labels(labels)
 
@@ -38,15 +42,46 @@ def check_existing_masks(labels: np.ndarray, train_mask: Optional[np.ndarray] = 
 
     if train_mask is not None:
         check_boolean(train_mask)
-        train_mask = np.logical_and(train_mask, ~is_negative_labels)
-        val_mask = np.logical_and(~train_mask, ~is_negative_labels)
-        return True, train_mask, val_mask, is_negative_labels
-    else:
-        if val_size is None:
-            raise ValueError('Either train_mask or val_size should be different from None.')
+        train_mask_filtered = np.logical_and(train_mask, ~is_negative_labels)
+        check_mask_similarity(train_mask, train_mask_filtered)
+        train_mask = train_mask_filtered
+        if test_mask is not None:
+            check_boolean(test_mask)
+            test_mask_filtered = np.logical_or(test_mask, is_negative_labels)
+            check_mask_similarity(test_mask, test_mask_filtered)
+            test_mask = test_mask_filtered
+            if val_mask is not None:
+                check_boolean(val_mask)
+                val_mask_filtered = np.logical_and(val_mask, ~is_negative_labels)
+                check_mask_similarity(val_mask, val_mask_filtered)
+                val_mask = val_mask_filtered
+                if any((train_mask + val_mask + test_mask) != np.ones(len(labels)).astype(bool)):
+                    raise ValueError('Masks are overlapping or not covering all labels. Please change masks.')
+            else:
+                val_mask = np.logical_and(~train_mask, ~test_mask)
         else:
+            if val_mask is not None:
+                val_mask = np.logical_and(val_mask, ~is_negative_labels)
+                test_mask = np.logical_or(np.logical_and(~train_mask, ~val_mask), is_negative_labels)
+            else:
+                val_mask = np.zeros(len(train_mask)).astype(bool)
+                test_mask = ~train_mask
+        return True, train_mask, val_mask, test_mask
+
+    else:
+        if train_size is None and val_size is None and test_size is None:
+            raise ValueError('Either masks parameters or size parameters should be different from None.')
+        else:
+            check_is_proba(test_size)
             check_is_proba(val_size)
+            check_is_proba(train_size)
             return False, ~is_negative_labels, None, is_negative_labels
+
+
+def check_mask_similarity(m1: np.ndarray, m2: np.ndarray):
+    """Print warning if two mask arrays are different."""
+    if any(m1 != m2):
+        warnings.warn('Samples with label "-1" are considered in test set.')
 
 
 def check_normalizations(normalizations: Union[str, list]):

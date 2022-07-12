@@ -8,7 +8,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.gnn.utils import check_existing_masks, check_normalizations, check_layers, get_layers_parameters, \
-    has_self_loops, add_self_loops
+    has_self_loops, add_self_loops, check_mask_similarity
 
 
 class TestUtils(unittest.TestCase):
@@ -19,31 +19,49 @@ class TestUtils(unittest.TestCase):
         with self.assertRaises(ValueError):
             check_normalizations(['toto', 'toto'])
 
+    def test_mask_similarity(self):
+        m1 = np.array([True, True, False])
+        m2 = np.array([True, False, False])
+        with self.assertWarns(Warning):
+            check_mask_similarity(m1, m2)
+
     def test_check_existing_masks(self):
         # Check invalid entries
         labels = np.array([1, 1, 0])
         with self.assertRaises(ValueError):
-            check_existing_masks(labels, None, None)
-        # Check valid test_size parameter
-        self.assertFalse(check_existing_masks(labels, None, 0.2)[0])
+            check_existing_masks(labels)
+        # Check valid size parameters
+        self.assertFalse(check_existing_masks(labels, None, None, None, 0.1, 0.2, 0.7)[0])
+
         # Check valid pre-computed masks
-        mask_exists, train_mask, val_mask, test_mask = check_existing_masks(labels, np.array([False, True, False]), 0.2)
-        self.assertTrue(mask_exists)
-        self.assertTrue(all(train_mask == np.array([False, True, False])))
-        self.assertTrue(all(val_mask == np.array([True, False, True])))
-        self.assertTrue(all(test_mask == np.array([False, False, False])))
         mask_exists, train_mask, val_mask, test_mask = check_existing_masks(labels, np.array([False, True, False]))
         self.assertTrue(mask_exists)
         self.assertTrue(all(train_mask == np.array([False, True, False])))
-        self.assertTrue(all(val_mask == np.array([True, False, True])))
-        self.assertTrue(all(test_mask == np.array([False, False, False])))
+        self.assertTrue(all(val_mask == np.array([False, False, False])))
+        self.assertTrue(all(test_mask == np.array([True, False, True])))
+
+        mask_exists, train_mask, val_mask, test_mask = check_existing_masks(labels, np.array([True, False, False]),
+                                                                            np.array([False, True, False]))
+        self.assertTrue(mask_exists)
+        self.assertTrue(all(train_mask == np.array([True, False, False])))
+        self.assertTrue(all(val_mask == np.array([False, True, False])))
+        self.assertTrue(all(test_mask == np.array([False, False, True])))
+
+        mask_exists, train_mask, val_mask, test_mask = check_existing_masks(labels, np.array([True, True, False]),
+                                                                            None, np.array([False, False, True]))
+        self.assertTrue(mask_exists)
+        self.assertTrue(all(train_mask == np.array([True, True, False])))
+        self.assertTrue(all(val_mask == np.array([False, False, False])))
+        self.assertTrue(all(test_mask == np.array([False, False, True])))
+
         # Check negative labels
         labels = np.array([1, -1, 0])
         mask_exists, train_mask, val_mask, test_mask = check_existing_masks(labels, np.array([True, True, False]))
         self.assertTrue(mask_exists)
         self.assertTrue(all(train_mask == np.array([True, False, False])))
-        self.assertTrue(all(val_mask == np.array([False, False, True])))
-        self.assertTrue(all(test_mask == np.array([False, True, False])))
+        print(val_mask)
+        self.assertTrue(all(val_mask == np.array([False, False, False])))
+        self.assertTrue(all(test_mask == np.array([False, True, True])))
 
     def test_check_layer(self):
         with self.assertRaises(ValueError):
