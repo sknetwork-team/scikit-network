@@ -84,6 +84,13 @@ def check_mask_similarity(m1: np.ndarray, m2: np.ndarray):
         warnings.warn('Samples with label "-1" are considered in test set.')
 
 
+def check_early_stopping(early_stopping: bool, val_mask: np.ndarray, patience: int):
+    """Check early stopping parameters."""
+    if early_stopping:
+        if val_mask is None or patience is None or not any(val_mask):
+            raise ValueError("'val_mask' and 'patience' must be defined to use early stopping.")
+
+
 def check_normalizations(normalizations: Union[str, list]):
     """Check if normalization is known."""
     available_norms = ['left', 'right', 'both']

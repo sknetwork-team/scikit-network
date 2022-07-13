@@ -12,7 +12,7 @@ from scipy import sparse
 from sknetwork.classification.metrics import accuracy_score
 from sknetwork.gnn.base import BaseGNNClassifier
 from sknetwork.gnn.loss import get_loss_function
-from sknetwork.gnn.utils import check_existing_masks, get_layers_parameters
+from sknetwork.gnn.utils import check_existing_masks, get_layers_parameters, check_early_stopping
 from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, is_square
 
 
@@ -51,6 +51,11 @@ class GNNClassifier(BaseGNNClassifier):
 
         * ``'Adam'``, stochastic gradient-based optimizer (default).
         * ``'None'``, gradient descent.
+    early_stopping: bool (default = ``True``)
+        Wether to use early stopping to end training when validation score is not improving anymore.
+        If ``True``, training terminates when validation score is not improving for `patience` number of epochs.
+    patience: int (default = 10)
+        Number of iterations with no improvement to wait before stopping fitting.
     verbose :
         Verbose mode.
 
@@ -83,9 +88,11 @@ class GNNClassifier(BaseGNNClassifier):
     def __init__(self, dims: Union[int, list], layers: Union[str, list] = 'GCNConv',
                  activations: Union[str, list] = 'Sigmoid', use_bias: Union[bool, list] = True,
                  normalizations: Union[str, list] = 'Both', self_loops: Union[bool, list] = True,
-                 optimizer: str = 'Adam', **kwargs):
+                 optimizer: str = 'Adam', early_stopping: bool = True, patience: int = 10, **kwargs):
         super(GNNClassifier, self).__init__(optimizer, **kwargs)
         parameters = get_layers_parameters(dims, layers, activations, use_bias, normalizations, self_loops)
+        self.early_stopping = early_stopping
+        self.patience = patience
         for layer_idx, params in enumerate(zip(*parameters)):
             layer = params[1]
             args = params[:1] + params[2:]
@@ -183,6 +190,11 @@ class GNNClassifier(BaseGNNClassifier):
         check_format(adjacency)
         check_format(features)
 
+        check_early_stopping(self.early_stopping, self.val_mask, self.patience)
+
+        best_val_acc = 0
+        trigger_times = 0
+
         for epoch in range(max_iter):
 
             # Forward
@@ -197,7 +209,7 @@ class GNNClassifier(BaseGNNClassifier):
 
             # Accuracy
             train_acc = accuracy_score(labels[self.train_mask], labels_pred[self.train_mask])
-            if self.val_mask is not None:
+            if self.val_mask is not None and any(self.val_mask):
                 val_acc = accuracy_score(labels[self.val_mask], labels_pred[self.val_mask])
 
             # Backpropagation
@@ -210,11 +222,11 @@ class GNNClassifier(BaseGNNClassifier):
             self.history_['embedding'].append(embedding)
             self.history_['loss'].append(loss_value)
             self.history_['train_accuracy'].append(train_acc)
-            if self.val_mask is not None:
+            if self.val_mask is not None and any(self.val_mask):
                 self.history_['val_accuracy'].append(val_acc)
 
             if max_iter > 10 and epoch % int(max_iter / 10) == 0:
-                if self.val_mask is not None:
+                if self.val_mask is not None and any(self.val_mask):
                     self.log.print(
                         f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, '
                         f'val acc: {val_acc:.3f}')
@@ -222,13 +234,24 @@ class GNNClassifier(BaseGNNClassifier):
                     self.log.print(
                         f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}')
             elif max_iter <= 10:
-                if self.val_mask is not None:
+                if self.val_mask is not None and any(self.val_mask):
                     self.log.print(
                         f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, '
                         f'val acc: {val_acc:.3f}')
                 else:
                     self.log.print(
                         f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}')
+
+            # Early stopping
+            if self.early_stopping:
+                if val_acc > best_val_acc:
+                    trigger_times = 0
+                    best_val_acc = val_acc
+                else:
+                    trigger_times += 1
+                    if trigger_times >= self.patience:
+                        self.log.print('Early stopping.')
+                        break
 
         self.labels_ = labels_pred
         self.embedding_ = self.history_.get('embedding')[-1]

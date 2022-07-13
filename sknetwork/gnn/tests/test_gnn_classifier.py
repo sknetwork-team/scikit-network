@@ -77,10 +77,16 @@ class TestGNNClassifier(unittest.TestCase):
         self.assertTrue(np.min(y_pred) >= 0 and np.max(y_pred) <= 1)
 
     def test_gnn_classifier_masks(self):
-        gnn = GNNClassifier(2, 'GCNConv', 'Softmax')
+        gnn = GNNClassifier(2, 'GCNConv', 'Softmax', early_stopping=False)
 
         train_mask = np.array([True, True, True, True, True, True, False, False, False, False])
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, shuffle=False)
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, shuffle=False,
+                            max_iter=5)
+        self.assertTrue(sum(gnn.train_mask) + sum(gnn.val_mask) + sum(gnn.test_mask) == self.adjacency.shape[0])
+
+        train_mask = np.array([True, True, True, True, True, True, False, False, False, False])
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, shuffle=False,
+                            max_iter=20)
         self.assertTrue(sum(gnn.train_mask) + sum(gnn.val_mask) + sum(gnn.test_mask) == self.adjacency.shape[0])
 
         val_mask = np.array([False, False, False, False, False, False, True, False, False, False])
@@ -136,6 +142,15 @@ class TestGNNClassifier(unittest.TestCase):
     def test_gnn_classifier_verbose(self):
         gnn = GNNClassifier(2, verbose=True)
         self.assertTrue(isinstance(gnn, GNNClassifier))
+
+    def test_gnn_classifier_early_stopping(self):
+        gnn = GNNClassifier(2, patience=2)
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, max_iter=100)
+        self.assertTrue(len(gnn.history_['val_accuracy']) < 100)
+
+        gnn = GNNClassifier(2, early_stopping=False)
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, max_iter=100)
+        self.assertTrue(len(gnn.history_['val_accuracy']) == 100)
 
     def test_gnn_classifier_predict(self):
         gnn = GNNClassifier(2)

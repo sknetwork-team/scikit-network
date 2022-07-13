@@ -8,7 +8,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.gnn.utils import check_existing_masks, check_normalizations, check_layers, get_layers_parameters, \
-    has_self_loops, add_self_loops, check_mask_similarity
+    has_self_loops, add_self_loops, check_mask_similarity, check_early_stopping
 
 
 class TestUtils(unittest.TestCase):
@@ -24,6 +24,14 @@ class TestUtils(unittest.TestCase):
         m2 = np.array([True, False, False])
         with self.assertWarns(Warning):
             check_mask_similarity(m1, m2)
+
+    def test_early_stopping(self):
+        with self.assertRaises(ValueError):
+            check_early_stopping(True, None, 2)
+        with self.assertRaises(ValueError):
+            check_early_stopping(True, np.array([True, False, True]), None)
+        with self.assertRaises(ValueError):
+            check_early_stopping(True, np.array([False, False, False]), 5)
 
     def test_check_existing_masks(self):
         # Check invalid entries
