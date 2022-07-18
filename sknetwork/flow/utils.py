@@ -56,7 +56,6 @@ def flow_is_feasible(adjacency: sparse.csr_matrix, flow: sparse.csr_matrix, src:
         if row != src and row != sink:
             if flow[row, :].sum() != flow[:, row].sum():
                 return False
-    print('here')
     for i in range(rows.size):
         row, col = rows[i], cols[i]
         if adjacency[row, col] < flow[row, col]:
@@ -88,12 +87,16 @@ def get_residual_graph(adjacency: sparse.csr_matrix, flow: sparse.csr_matrix, sr
     residual: sparse.csr_matrix
         The adjacency matrix of the residual graph.
     """
-    residual = adjacency.copy()
     rows, cols = adjacency.nonzero()
+    row_ind = np.zeros(shape=(adjacency.nnz * 2), dtype=np.int)
+    col_ind = np.zeros(shape=(adjacency.nnz * 2), dtype=np.int)
+    data = np.zeros(shape=(adjacency.nnz * 2), dtype=np.int)
     for i in range(rows.size):
-            row, col = rows[i], cols[i]
-            if row == src or col == sink:
-                residual[row, col] = residual[row, col] - flow[row, col]
-            else:
-                residual[row, col] += flow[col, row] - flow[row, col]
+        row, col = rows[i], cols[i]
+        curr_ind = i * 2
+        row_ind[curr_ind], col_ind[curr_ind] = row, col
+        row_ind[curr_ind + 1], col_ind[curr_ind + 1] = col, row
+        data[curr_ind] = adjacency[row, col] - flow[row, col]
+        data[curr_ind + 1] = flow[row, col]
+    residual = sparse.csr_matrix((data, (row_ind, col_ind)), shape=adjacency.shape)
     return residual

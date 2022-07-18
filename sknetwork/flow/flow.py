@@ -7,9 +7,16 @@ Created on July 7, 2022.
 from scipy import sparse
 import networkx as nx
 import numpy as np
+from sknetwork.flow.utils import get_residual_graph
 from sknetwork.flow.flow_core import push
 
 
+def residual_to_flow(adjacency: sparse.csr_matrix, residual: sparse.csr_matrix, preflow: sparse.csr_matrix):
+    rows, cols = adjacency.nonzero()
+    for i in range(rows.size):
+        row, col = rows[i], cols[i]
+        preflow[row, col] = residual[col, row]
+    return preflow
 
 def push_relabel(adjacency: sparse.csr_matrix, src: int, sink: int):
     """ This algorithm finds a maximum flow following the classic push-relabel
@@ -48,40 +55,20 @@ def push_relabel(adjacency: sparse.csr_matrix, src: int, sink: int):
         preflow[src, dest_node] = edge_capacity
         if edge_capacity > 0:
                 excess_flow[dest_node] = edge_capacity
+    # Initialize the residual graph.
+    residual = get_residual_graph(adjacency, preflow, src, sink)
     non_zero_indices = excess_flow.nonzero()[0]
     # While there are nodes with excess, push or relabel.
     while non_zero_indices.size > 0:
     # while nodes have excess
         # Get nodes i from active nodes (excess > 0)
         for curr_node in non_zero_indices:
-            pushed = push(adjacency, preflow, curr_node, src, sink, heights,
+            pushed = push(residual, curr_node, src, sink, heights,
             excess_flow)
                 # Relabel step
             if not pushed:
                 heights[curr_node] = heights[curr_node] + 1
-
         non_zero_indices = excess_flow.nonzero()[0]
 
 
-    return preflow
-
-
-# 
-# adj = sparse.csr_matrix([[0, 2, 3, 0, 0, 0, 0], [2, 0, 0, 3, 0, 0, 0],
-# [3, 0, 0, 2, 0, 0, 0], [0, 3, 0, 0, 1, 3, 0], [0, 0, 0, 1, 0, 0, 2],
-# [0, 0, 0, 3, 0, 0, 2], [0, 0, 0, 0, 0, 0, 0]])
-# print(push_relabel(adj, 0, 6)[:,6].sum())
-#
-#
-# G = nx.DiGraph()
-# G.add_edges_from([(0, 1), (0, 2), (1, 3), (2, 3), (3, 4), (3, 5), (4, 6), (5, 6)])
-# G[0][1]['capacity'] = 2
-# G[0][2]['capacity'] = 3
-# G[1][3]['capacity'] = 3
-# G[2][3]['capacity'] = 2
-# G[3][4]['capacity'] = 1
-# G[3][5]['capacity'] = 3
-# G[4][6]['capacity'] = 2
-# G[5][6]['capacity'] = 2
-#
-# print(nx.maximum_flow(G, 0, 6))
+    return residual_to_flow(adjacency, residual, preflow)

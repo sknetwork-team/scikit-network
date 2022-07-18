@@ -12,25 +12,25 @@ from scipy import sparse
 @cython.boundscheck(False)
 @cython.wraparound(False)
 
-def push(adjacency: sparse.csr_matrix, preflow: sparse.csr_matrix,
-          int curr_node, int src, int sink, int [:] heights,
-          int [:] excess_flow):
+def push(residual: sparse.csr_matrix, int curr_node, int src, int sink,
+          int [:] heights, int [:] excess_flow):
           """
           This function completes the push phase of the push relabel algorithm.
           """
-          cdef int residual
+          cdef int residual_amt
           cdef long dest_node
           cdef int push_amt
 
-          for dest_node in adjacency.indices[adjacency.indptr[curr_node]:adjacency.indptr[curr_node + 1]]:
+          for dest_node in residual.indices[residual.indptr[curr_node]:residual.indptr[curr_node + 1]]:
               # Push step
               if heights[curr_node] > heights[dest_node]:
                   # Find the residual edge.
-                  residual = adjacency[curr_node, dest_node] - preflow[curr_node, dest_node]
+                  residual_amt = residual[curr_node, dest_node]
                   # Find the amount to push.
-                  push_amt = min(residual, excess_flow[curr_node])
+                  push_amt = min(residual_amt, excess_flow[curr_node])
                   # perform push
-                  preflow[curr_node, dest_node] += push_amt
+                  residual[curr_node, dest_node] -= push_amt
+                  residual[dest_node, curr_node] += push_amt
                   # Update excesses
                   excess_flow[curr_node] -= push_amt
                   if dest_node != sink and dest_node != src:
