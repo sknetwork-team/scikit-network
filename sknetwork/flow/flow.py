@@ -5,7 +5,6 @@ Created on July 7, 2022.
 @author: Henry L. Carscadden <hcarscad@gmail.com>
 """
 from scipy import sparse
-import networkx as nx
 import numpy as np
 from sknetwork.flow.utils import get_residual_graph
 from sknetwork.flow.flow_core import push
