@@ -1,32 +1,36 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on March 2020
+Created on Nov 2, 2018
+@author: Nathan de Lara <ndelara@enst.fr>
 @author: Quentin Lutz <qlutz@enst.fr>
-@author: Thomas Bonald <tbonald@enst.fr>
+@author: Thomas Bonald <bonald@enst.fr>
 """
-from typing import Optional, Union
+from typing import Union, Optional
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.clustering.louvain import Louvain
+from sknetwork.hierarchy.louvain_core import fit_core
 from sknetwork.hierarchy.base import BaseHierarchy
 from sknetwork.hierarchy.postprocess import get_dendrogram, reorder_dendrogram
-from sknetwork.utils.check import check_format
-from sknetwork.utils.format import get_adjacency
+from sknetwork.utils.check import check_random_state, get_probs
+from sknetwork.utils.format import check_format, get_adjacency, directed2undirected
+from sknetwork.utils.membership import membership_matrix
+from sknetwork.utils.verbose import VerboseMixin
 
 
-class LouvainHierarchy(BaseHierarchy):
-    """Hierarchical clustering by successive instances of Louvain (top-down).
+class LouvainHierarchy(BaseHierarchy, VerboseMixin):
+    """Louvain algorithm for clustering graphs by maximization of modularity.
+
+    For bipartite graphs, the algorithm maximizes Barber's modularity by default.
 
     Parameters
     ----------
-    depth :
-        Depth of the tree.
-        A negative value is interpreted as no limit (return a tree of maximum depth).
     resolution :
         Resolution parameter.
+    modularity : str
+        Which objective function to maximize. Can be ``'dugue'``, ``'newman'`` or ``'potts'`` (default = ``'dugue'``).
     tol_optimization :
         Minimum increase in the objective function to enter a new optimization pass.
     tol_aggregation :
@@ -37,7 +41,7 @@ class LouvainHierarchy(BaseHierarchy):
     shuffle_nodes :
         Enables node shuffling before optimization.
     random_state :
-        Random number generator or random seed. If ``None``, numpy.random is used.
+        Random number generator or random seed. If None, numpy.random is used.
     verbose :
         Verbose mode.
 
@@ -54,98 +58,182 @@ class LouvainHierarchy(BaseHierarchy):
 
     Example
     -------
-    >>> from sknetwork.hierarchy import LouvainHierarchy
-    >>> from sknetwork.data import house
-    >>> louvain = LouvainHierarchy()
-    >>> adjacency = house()
-    >>> louvain.fit_transform(adjacency)
-    array([[3., 2., 0., 2.],
-           [4., 1., 0., 2.],
-           [6., 0., 0., 3.],
-           [5., 7., 1., 5.]])
+    >>> from sknetwork.clustering import Louvain
+    >>> from sknetwork.data import karate_club
+    >>> louvain = Louvain()
+    >>> adjacency = karate_club()
+    >>> labels = louvain.fit_transform(adjacency)
+    >>> len(set(labels))
+    4
 
-    Notes
-    -----
-    Each row of the dendrogram = merge nodes, distance, size of cluster.
+    References
+    ----------
+    * Blondel, V. D., Guillaume, J. L., Lambiotte, R., & Lefebvre, E. (2008).
+      `Fast unfolding of communities in large networks.
+      <https://arxiv.org/abs/0803.0476>`_
+      Journal of statistical mechanics: theory and experiment, 2008.
 
-    See Also
-    --------
-    scipy.cluster.hierarchy.dendrogram
+    * Dugué, N., & Perez, A. (2015).
+      `Directed Louvain: maximizing modularity in directed networks
+      <https://hal.archives-ouvertes.fr/hal-01231784/document>`_
+      (Doctoral dissertation, Université d'Orléans).
+
+    * Barber, M. J. (2007).
+      `Modularity and community detection in bipartite networks
+      <https://arxiv.org/pdf/0707.1616>`_
+      Physical Review E, 76(6).
     """
-
-    def __init__(self, depth: int = 3, resolution: float = 1, tol_optimization: float = 1e-3,
+    def __init__(self, resolution: float = 1, modularity: str = 'dugue', tol_optimization: float = 1e-3,
                  tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
                  random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
         super(LouvainHierarchy, self).__init__()
+        VerboseMixin.__init__(self, verbose)
 
-        self.depth = depth
-        self._clustering_method = Louvain(resolution=resolution, tol_optimization=tol_optimization,
-                                          tol_aggregation=tol_aggregation, n_aggregations=n_aggregations,
-                                          shuffle_nodes=shuffle_nodes, random_state=random_state, verbose=verbose)
+        self.resolution = resolution
+        self.modularity = modularity.lower()
+        self.tol = tol_optimization
+        self.tol_aggregation = tol_aggregation
+        self.n_aggregations = n_aggregations
+        self.shuffle_nodes = shuffle_nodes
+        self.random_state = check_random_state(random_state)
         self.bipartite = None
 
-    def _recursive_louvain(self, adjacency: Union[sparse.csr_matrix, np.ndarray], depth: int,
-                           nodes: Optional[np.ndarray] = None):
-        """Recursive function for fit.
+    def _optimize(self, adjacency_norm, probs_ou, probs_in):
+        """One local optimization pass of the Louvain algorithm
 
         Parameters
         ----------
-        adjacency :
-            Adjacency matrix of the graph.
-        depth :
-            Depth of the recursion.
-        nodes :
-            The indices of the current nodes in the original graph.
+        adjacency_norm :
+            the norm of the adjacency
+        probs_ou :
+            the array of degrees of the adjacency
+        probs_in :
+            the array of degrees of the transpose of the adjacency
 
         Returns
         -------
-        result: list of list of nodes by cluster
+        labels :
+            the communities of each node after optimization
+        pass_increase :
+            the increase in modularity gained after optimization
         """
-        n = adjacency.shape[0]
-        if nodes is None:
-            nodes = np.arange(n)
+        node_probs_in = probs_in.astype(np.float32)
+        node_probs_ou = probs_ou.astype(np.float32)
 
-        if adjacency.nnz and depth:
-            labels = self._clustering_method.fit_transform(adjacency)
-        else:
-            labels = np.zeros(n)
+        adjacency = 0.5 * directed2undirected(adjacency_norm)
 
-        clusters = np.unique(labels)
+        self_loops = adjacency.diagonal().astype(np.float32)
 
-        result = []
-        if len(clusters) == 1:
-            if len(nodes) > 1:
-                return [[node] for node in nodes]
-            else:
-                return [nodes[0]]
-        else:
-            for cluster in clusters:
-                mask = (labels == cluster)
-                nodes_cluster = nodes[mask]
-                adjacency_cluster = adjacency[mask, :][:, mask]
-                result.append(self._recursive_louvain(adjacency_cluster, depth - 1, nodes_cluster))
-            return result
+        indptr: np.ndarray = adjacency.indptr
+        indices: np.ndarray = adjacency.indices
+        data: np.ndarray = adjacency.data.astype(np.float32)
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'LouvainHierarchy':
+        return fit_core(self.resolution, self.tol, node_probs_ou, node_probs_in, self_loops, data, indices, indptr)
+
+    @staticmethod
+    def _aggregate(adjacency_norm, probs_out, probs_in, membership: Union[sparse.csr_matrix, np.ndarray]):
+        """Aggregate nodes belonging to the same cluster.
+
+        Parameters
+        ----------
+        adjacency_norm :
+            the norm of the adjacency
+        probs_out :
+            the array of degrees of the adjacency
+        probs_in :
+            the array of degrees of the transpose of the adjacency
+        membership :
+            membership matrix (rows).
+
+        Returns
+        -------
+        Aggregate graph.
+        """
+        adjacency_norm = (membership.T.dot(adjacency_norm.dot(membership))).tocsr()
+        probs_in = np.array(membership.T.dot(probs_in).T)
+        probs_out = np.array(membership.T.dot(probs_out).T)
+        return adjacency_norm, probs_out, probs_in
+
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], force_bipartite: bool = False) -> 'Louvain':
         """Fit algorithm to data.
 
         Parameters
         ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
+        force_bipartite :
+            If ``True``, force the input matrix to be considered as a biadjacency matrix even if square.
 
         Returns
         -------
-        self: :class:`LouvainHierarchy`
+        self: :class:`Louvain`
         """
         self._init_vars()
         input_matrix = check_format(input_matrix)
-        adjacency, self.bipartite = get_adjacency(input_matrix)
-        tree = self._recursive_louvain(adjacency, self.depth)
+        if self.modularity == 'dugue':
+            adjacency, self.bipartite = get_adjacency(input_matrix, force_directed=True,
+                                                      force_bipartite=force_bipartite)
+        else:
+            adjacency, self.bipartite = get_adjacency(input_matrix, force_bipartite=force_bipartite)
+
+        n = adjacency.shape[0]
+
+        index = np.arange(n)
+        if self.shuffle_nodes:
+            self.random_state.permutation(index)
+            adjacency = adjacency[index][:, index]
+
+        if self.modularity == 'potts':
+            probs_out = get_probs('uniform', adjacency)
+            probs_in = probs_out.copy()
+        elif self.modularity == 'newman':
+            probs_out = get_probs('degree', adjacency)
+            probs_in = probs_out.copy()
+        elif self.modularity == 'dugue':
+            probs_out = get_probs('degree', adjacency)
+            probs_in = get_probs('degree', adjacency.T)
+        else:
+            raise ValueError('Unknown modularity function.')
+
+        adjacency_cluster = adjacency / adjacency.data.sum()
+
+        increase = True
+        count_aggregations = 0
+        self.log.print("Starting with", n, "nodes.")
+        tree = [[i] for i in index]
+        while increase:
+            count_aggregations += 1
+
+            labels_cluster, pass_increase = self._optimize(adjacency_cluster, probs_out, probs_in)
+            _, labels_cluster = np.unique(labels_cluster, return_inverse=True)
+
+            if pass_increase <= self.tol_aggregation:
+                increase = False
+            else:
+                membership_cluster = membership_matrix(labels_cluster)
+                adjacency_cluster, probs_out, probs_in = self._aggregate(adjacency_cluster, probs_out, probs_in,
+                                                                        membership_cluster)
+                tree = [
+                    [node for i,node in enumerate(tree) if labels_cluster[i]==c] for c in set(labels_cluster)
+                ]
+                tree = [
+                    node[0] if len(node)==1 and isinstance(node[0], list) else node for node in tree 
+                ]
+                n = adjacency_cluster.shape[0]
+                if n == 1:
+                    break
+            self.log.print("Aggregation", count_aggregations, "completed with", n, "clusters and ",
+                           pass_increase, "increment.")
+            if count_aggregations == self.n_aggregations:
+                break
+
+        self.tree = tree
         dendrogram, _ = get_dendrogram(tree)
         dendrogram = np.array(dendrogram)
         dendrogram[:, 2] -= min(dendrogram[:, 2])
         self.dendrogram_ = reorder_dendrogram(dendrogram)
+
         if self.bipartite:
             self._split_vars(input_matrix.shape)
+
         return self

@@ -4,9 +4,9 @@
 """The setup script."""
 
 
-from setuptools import find_packages
+from setuptools import find_packages, setup
 import distutils.util
-from distutils.core import setup, Extension
+from distutils.core import Extension
 from distutils.command.build_ext import build_ext
 import os
 from glob import glob

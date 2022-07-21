@@ -9,7 +9,7 @@ from sknetwork.embedding import LouvainNE
 
 class TestLouvainNE(unittest.TestCase):
 
-    def test_louvain_hierarchy(self):
+    def test_louvain_iteration(self):
         louvain = LouvainNE()
         for adjacency in [test_graph(), test_graph_disconnect(), test_digraph()]:
             self.assertTupleEqual(louvain.fit_transform(adjacency).shape, (10, 2))

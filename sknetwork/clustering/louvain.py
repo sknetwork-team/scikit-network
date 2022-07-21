@@ -215,6 +215,7 @@ class Louvain(BaseClustering, VerboseMixin):
         increase = True
         count_aggregations = 0
         self.log.print("Starting with", n, "nodes.")
+        tree = [[i] for i in index]
         while increase:
             count_aggregations += 1
 
@@ -228,7 +229,12 @@ class Louvain(BaseClustering, VerboseMixin):
                 membership = membership.dot(membership_cluster)
                 adjacency_cluster, probs_out, probs_in = self._aggregate(adjacency_cluster, probs_out, probs_in,
                                                                         membership_cluster)
-
+                tree = [
+                    [node for i,node in enumerate(tree) if labels_cluster[i]==c] for c in set(labels_cluster)
+                ]
+                tree = [
+                    node[0] if len(node)==1 and isinstance(node[0], list) else node for node in tree 
+                ]
                 n = adjacency_cluster.shape[0]
                 if n == 1:
                     break
@@ -250,5 +256,7 @@ class Louvain(BaseClustering, VerboseMixin):
         if self.bipartite:
             self._split_vars(input_matrix.shape)
         self._secondary_outputs(input_matrix)
+
+        self.tree = tree
 
         return self
