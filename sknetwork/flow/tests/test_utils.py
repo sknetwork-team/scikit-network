@@ -46,6 +46,22 @@ class TestUtils(unittest.TestCase):
                 [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 0, 1],
                 [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]])
         self.assertTrue(flow_is_feasible(adjacency, flow, 0, 6))
+    def test_flow_is_feasible_4(self):
+        adjacency = csr_matrix([[0, 2, 3, 0, 0, 0, 0], [0, 0, 0, 3, 0, 0, 0],
+                [0, 0, 0, 2, 0, 0, 0], [0, 0, 0, 0, 1, 3, 0], [0, 0, 0, 0, 0, 0, 2],
+                [0, 0, 0, 0, 0, 0, 2], [0, 0, 0, 0, 0, 0, 0]])
+        flow = csr_matrix([[0, 1, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0, 0]])
+        self.assertRaises(ValueError, flow_is_feasible, adjacency, flow, 0, 6)
+    def test_flow_is_feasible_3(self):
+        adjacency = csr_matrix([[0, 2, 3, 0, 0, 0, 0], [0, 0, 0, 3, 0, 0, 0],
+                [0, 0, 0, 2, 0, 0, 0], [0, 0, 0, 0, 1, 3, 0], [0, 0, 0, 0, 0, 0, 2],
+                [0, 0, 0, 0, 0, 0, 2], [0, 0, 0, 0, 0, 0, 0]])
+        flow = csr_matrix([[0, 10, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 0, 1],
+                [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]])
+        self.assertFalse(flow_is_feasible(adjacency, flow, 0, 6))
     def test_find_excess(self):
         flow = csr_matrix([[0, 1, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 0, 1],
