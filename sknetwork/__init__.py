@@ -11,6 +11,7 @@ import sknetwork.path
 import sknetwork.classification
 import sknetwork.clustering
 import sknetwork.embedding
+import sknetwork.flow
 import sknetwork.hierarchy
 import sknetwork.linalg
 import sknetwork.linkpred

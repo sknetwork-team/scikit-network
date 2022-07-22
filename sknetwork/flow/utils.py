@@ -7,6 +7,7 @@ Created on July 4, 2022.
 from scipy import sparse
 import numpy as np
 
+
 def find_excess(flow: sparse.csr_matrix, node: int):
     """
     This function computes the excess flow for a node in a preflow.
@@ -14,7 +15,7 @@ def find_excess(flow: sparse.csr_matrix, node: int):
     ----------
     flow: sparse.csr_matrix
         The matrix showing the flows in the proposed solution.
-    source : int
+    node : int
         Node to compute the excess on.
 
     Returns
@@ -24,11 +25,9 @@ def find_excess(flow: sparse.csr_matrix, node: int):
     """
     return flow[:, node].sum() - flow[node, :].sum()
 
+
 def flow_is_feasible(adjacency: sparse.csr_matrix, flow: sparse.csr_matrix, src: int, sink: int):
-    """ This utility is used to check if a provided flow satifisies the capacity and flow conservation constraints.
-
-    * Digraphs
-
+    """ This utility is used to check if a provided flow satisfies the capacity and flow conservation constraints.
 
     Parameters
     ----------
@@ -36,7 +35,7 @@ def flow_is_feasible(adjacency: sparse.csr_matrix, flow: sparse.csr_matrix, src:
         The adjacency matrix of the graph with weights containing the edge capacities.
     flow: sparse.csr_matrix
         The matrix showing the flows in the proposed solution.
-    source : int
+    src : int
         The node with the flow source.
     sink : int
         The node with that receives the flow.
@@ -45,11 +44,10 @@ def flow_is_feasible(adjacency: sparse.csr_matrix, flow: sparse.csr_matrix, src:
     Returns
     -------
     feasible: bool
-        This states whether or not the follow is feasible. i.e., both the capacity and flow constraints are satisfied.
+        Whether the follow is feasible, i.e., both the capacity and flow constraints are satisfied.
     """
     if adjacency.shape != flow.shape:
         raise ValueError("The flow has the incorrect shape.")
-
 
     rows, cols = adjacency.nonzero()
     for row in rows:
@@ -63,12 +61,8 @@ def flow_is_feasible(adjacency: sparse.csr_matrix, flow: sparse.csr_matrix, src:
     return True
 
 
-
-def get_residual_graph(adjacency: sparse.csr_matrix, flow: sparse.csr_matrix, src: int, sink: int):
+def get_residual_graph(adjacency: sparse.csr_matrix, flow: sparse.csr_matrix):
     """ This utility is used for maximum flow algorithms to find the residual graph given a flow.
-
-    * Digraphs
-
 
     Parameters
     ----------
@@ -76,11 +70,6 @@ def get_residual_graph(adjacency: sparse.csr_matrix, flow: sparse.csr_matrix, sr
         The adjacency matrix of the graph with weights containing the edge capacities.
     flow: sparse.csr_matrix
         The matrix showing the flows in the proposed solution.
-    source : int
-        The node with the flow source.
-    sink : int
-        The node with that receives the flow.
-
 
     Returns
     -------

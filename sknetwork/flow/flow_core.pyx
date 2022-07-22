@@ -9,9 +9,9 @@ Created on July 7, 2022.
 """
 cimport cython
 from scipy import sparse
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
-
 def push(residual: sparse.csr_matrix, int curr_node, int src, int sink,
           int [:] heights, int [:] excess_flow):
           """
