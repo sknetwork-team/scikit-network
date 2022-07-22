@@ -20,7 +20,7 @@ def find_excess(flow: sparse.csr_matrix, node: int):
 
     Returns
     -------
-    excess: int
+    excess: float
         The amount of excess flow.
     """
     return flow[:, node].sum() - flow[node, :].sum()

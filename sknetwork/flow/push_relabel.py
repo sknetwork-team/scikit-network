@@ -8,7 +8,7 @@ from scipy import sparse
 import numpy as np
 
 from sknetwork.flow.utils import get_residual_graph
-from sknetwork.flow.flow_core import push
+from sknetwork.flow.push_relabel_core import push
 
 
 def residual_to_flow(adjacency: sparse.csr_matrix, residual: sparse.csr_matrix, preflow: sparse.csr_matrix):
@@ -19,7 +19,7 @@ def residual_to_flow(adjacency: sparse.csr_matrix, residual: sparse.csr_matrix, 
     return preflow
 
 
-def push_relabel(adjacency: sparse.csr_matrix, src: int, sink: int):
+def get_max_flow(adjacency: sparse.csr_matrix, src: int, sink: int):
     """ This algorithm finds a maximum flow following the classic push-relabel algorithm.
 
     Parameters
