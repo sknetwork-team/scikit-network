@@ -348,7 +348,9 @@ def star(n_branches: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix
         graph = Bunch()
         graph.adjacency = adjacency
         angles = 2 * np.pi * np.arange(n_branches) / n_branches
-        graph.position = np.vstack([np.cos(angles), np.sin(angles)]).T
+        x = [0] + list(np.cos(angles))
+        y = [0] + list(np.sin(angles))
+        graph.position = np.vstack([x, y]).T
         return graph
     else:
         return adjacency
