@@ -10,17 +10,19 @@ import unittest
 
 from sknetwork.data.test_graphs import *
 from sknetwork.embedding import Spectral
-from sknetwork.hierarchy import LouvainIteration, Paris
+from sknetwork.hierarchy import LouvainHierarchy, LouvainIteration, Paris
 
 
 class TestLouvainIteration(unittest.TestCase):
 
     def test(self):
-        louvain = LouvainIteration()
-        louvain_options = LouvainIteration(resolution=2, depth=1)
+        louvain_iteration = LouvainIteration()
+        louvain_iteration_options = LouvainIteration(resolution=2, depth=1)
+        louvain_hierarchy = LouvainHierarchy()
+        louvain_hierarchy_options = LouvainHierarchy(resolution=2, depth=1)
         paris = Paris()
         paris_options = Paris(weights='uniform', reorder=False)
-        for algo in [louvain, louvain_options, paris, paris_options]:
+        for algo in [louvain_iteration, louvain_iteration_options, louvain_hierarchy, louvain_hierarchy_options, paris, paris_options]:
             for input_matrix in [test_graph(), test_digraph(), test_bigraph()]:
                 dendrogram = algo.fit_transform(input_matrix)
                 self.assertEqual(dendrogram.shape, (input_matrix.shape[0] - 1, 4))
