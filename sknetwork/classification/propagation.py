@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-Created on April, 2020
+Created on April 2020
 @author: Thomas Bonald <tbonald@enst.fr>
 """
+
 from typing import Union
 
 import numpy as np
@@ -93,8 +94,7 @@ class Propagation(BaseClassifier):
         return index_seed.astype(np.int32), index_remain.astype(np.int32), labels.astype(np.int32)
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict] = None,
-            seeds_row: Union[np.ndarray, dict] = None, seeds_col: Union[np.ndarray, dict] = None) \
-            -> 'Propagation':
+            seeds_row: Union[np.ndarray, dict] = None, seeds_col: Union[np.ndarray, dict] = None) -> 'Propagation':
         """Node classification by label propagation.
 
         Parameters
