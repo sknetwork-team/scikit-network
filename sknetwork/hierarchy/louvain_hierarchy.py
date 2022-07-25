@@ -6,6 +6,8 @@ Created on Nov 2, 2018
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
+from collections import defaultdict
+from turtle import update
 from typing import Union, Optional
 
 import numpy as np
@@ -154,6 +156,17 @@ class LouvainHierarchy(BaseHierarchy, VerboseMixin):
         probs_out = np.array(membership.T.dot(probs_out).T)
         return adjacency_norm, probs_out, probs_in
 
+    @staticmethod
+    def _update_tree(tree, labels_cluster, cluster_sizes):
+        new_tree = defaultdict(list)
+        for node,label in zip(tree, labels_cluster):
+            if cluster_sizes[label] == 1:
+                new_tree[label] = node
+            else:
+                new_tree[label].append(node)
+        new_tree = [new_tree[i] for i in range(len(cluster_sizes))]
+        return new_tree
+
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], force_bipartite: bool = False) -> 'Louvain':
         """Fit algorithm to data.
 
@@ -205,7 +218,7 @@ class LouvainHierarchy(BaseHierarchy, VerboseMixin):
             count_aggregations += 1
 
             labels_cluster, pass_increase = self._optimize(adjacency_cluster, probs_out, probs_in)
-            _, labels_cluster = np.unique(labels_cluster, return_inverse=True)
+            _, labels_cluster, cluster_sizes = np.unique(labels_cluster, return_inverse=True, return_counts=True)
 
             if pass_increase <= self.tol_aggregation:
                 increase = False
@@ -213,12 +226,8 @@ class LouvainHierarchy(BaseHierarchy, VerboseMixin):
                 membership_cluster = membership_matrix(labels_cluster)
                 adjacency_cluster, probs_out, probs_in = self._aggregate(adjacency_cluster, probs_out, probs_in,
                                                                         membership_cluster)
-                tree = [
-                    [node for i,node in enumerate(tree) if labels_cluster[i]==c] for c in set(labels_cluster)
-                ]
-                tree = [
-                    node[0] if len(node)==1 and isinstance(node[0], list) else node for node in tree 
-                ]
+                tree = self._update_tree(tree, labels_cluster, cluster_sizes)
+
                 n = adjacency_cluster.shape[0]
                 if n == 1:
                     break
@@ -228,7 +237,7 @@ class LouvainHierarchy(BaseHierarchy, VerboseMixin):
                 break
 
         self.tree = tree
-        dendrogram, _ = get_dendrogram(tree)
+        dendrogram, _ = get_dendrogram(tree, copy_tree=True)
         dendrogram = np.array(dendrogram)
         dendrogram[:, 2] -= min(dendrogram[:, 2])
         self.dendrogram_ = reorder_dendrogram(dendrogram)
