@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Nov 2, 2018
+Created in November 2018
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
@@ -95,7 +95,7 @@ class Louvain(BaseClustering, VerboseMixin):
       <https://arxiv.org/pdf/0707.1616>`_
       Physical Review E, 76(6).
     """
-    def __init__(self, resolution: float = 1, modularity: str = 'Dugue', tol_optimization: float = 1e-3,
+    def __init__(self, resolution: float = 1, modularity: str = 'dugue', tol_optimization: float = 1e-3,
                  tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
                  sort_clusters: bool = True, return_membership: bool = True, return_aggregate: bool = True,
                  random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
@@ -103,6 +103,7 @@ class Louvain(BaseClustering, VerboseMixin):
                                       return_aggregate=return_aggregate)
         VerboseMixin.__init__(self, verbose)
 
+        self.labels_ = None
         self.resolution = resolution
         self.modularity = modularity.lower()
         self.tol = tol_optimization

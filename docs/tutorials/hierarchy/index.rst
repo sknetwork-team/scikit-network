@@ -6,4 +6,4 @@ Hierarchy
 
    paris
    ward
-   louvain_hierarchy
+   louvain_iteration

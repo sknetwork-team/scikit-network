@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from sknetwork.clustering import get_modularity, get_bimodularity, get_comodularity, normalized_std, Louvain
+from sknetwork.clustering import get_modularity, get_bimodularity, get_comodularity, get_normalized_std, Louvain
 from sknetwork.data import star_wars, karate_club
 from sknetwork.data.test_graphs import test_graph
 
@@ -49,10 +49,10 @@ class TestClusteringMetrics(unittest.TestCase):
 
     def test_nsd(self):
         balanced = np.arange(5)
-        self.assertEqual(1, normalized_std(balanced))
+        self.assertEqual(1, get_normalized_std(balanced))
         unbalanced = np.zeros(5)
         unbalanced[0] = 1
-        self.assertGreaterEqual(normalized_std(unbalanced), 0)
+        self.assertGreaterEqual(get_normalized_std(unbalanced), 0)
 
         with self.assertRaises(ValueError):
-            normalized_std(np.zeros(5))
+            get_normalized_std(np.zeros(5))

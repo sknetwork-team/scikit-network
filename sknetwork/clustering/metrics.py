@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on July 2018
+Created in July 2018
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Thomas Bonald <bonald@enst.fr>
 """
@@ -233,7 +233,7 @@ def get_comodularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np
         return mod
 
 
-def normalized_std(labels: np.ndarray) -> float:
+def get_normalized_std(labels: np.ndarray) -> float:
     """Normalized standard deviation of cluster sizes.
 
     A score of 1 means perfectly balanced clustering.
@@ -249,9 +249,9 @@ def normalized_std(labels: np.ndarray) -> float:
 
     Example
     -------
-    >>> from sknetwork.clustering import normalized_std
+    >>> from sknetwork.clustering import get_normalized_std
     >>> labels = np.array([0, 0, 1, 1])
-    >>> normalized_std(labels)
+    >>> get_normalized_std(labels)
     1.0
     """
     n = labels.shape[0]

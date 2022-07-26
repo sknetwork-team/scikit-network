@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on March 2020
+Created in March 2020
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Thomas Bonald <tbonald@enst.fr>
 """
@@ -17,7 +17,7 @@ from sknetwork.utils.check import check_format
 from sknetwork.utils.format import get_adjacency
 
 
-class LouvainHierarchy(BaseHierarchy):
+class LouvainIteration(BaseHierarchy):
     """Hierarchical clustering by successive instances of Louvain (top-down).
 
     Parameters
@@ -54,9 +54,9 @@ class LouvainHierarchy(BaseHierarchy):
 
     Example
     -------
-    >>> from sknetwork.hierarchy import LouvainHierarchy
+    >>> from sknetwork.hierarchy import LouvainIteration
     >>> from sknetwork.data import house
-    >>> louvain = LouvainHierarchy()
+    >>> louvain = LouvainIteration()
     >>> adjacency = house()
     >>> louvain.fit_predict(adjacency)
     array([[3., 2., 0., 2.],
@@ -76,8 +76,9 @@ class LouvainHierarchy(BaseHierarchy):
     def __init__(self, depth: int = 3, resolution: float = 1, tol_optimization: float = 1e-3,
                  tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
                  random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
-        super(LouvainHierarchy, self).__init__()
+        super(LouvainIteration, self).__init__()
 
+        self.dendrogram_ = None
         self.depth = depth
         self._clustering_method = Louvain(resolution=resolution, tol_optimization=tol_optimization,
                                           tol_aggregation=tol_aggregation, n_aggregations=n_aggregations,
@@ -126,7 +127,7 @@ class LouvainHierarchy(BaseHierarchy):
                 result.append(self._recursive_louvain(adjacency_cluster, depth - 1, nodes_cluster))
             return result
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'LouvainHierarchy':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'LouvainIteration':
         """Fit algorithm to data.
 
         Parameters
@@ -136,7 +137,7 @@ class LouvainHierarchy(BaseHierarchy):
 
         Returns
         -------
-        self: :class:`LouvainHierarchy`
+        self: :class:`LouvainIteration`
         """
         self._init_vars()
         input_matrix = check_format(input_matrix)

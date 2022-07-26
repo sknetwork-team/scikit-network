@@ -10,14 +10,14 @@ import unittest
 
 from sknetwork.data.test_graphs import *
 from sknetwork.embedding import Spectral
-from sknetwork.hierarchy import LouvainHierarchy, Paris
+from sknetwork.hierarchy import LouvainIteration, Paris
 
 
 class TestLouvainHierarchy(unittest.TestCase):
 
     def test(self):
-        louvain = LouvainHierarchy()
-        louvain_options = LouvainHierarchy(resolution=2, depth=1)
+        louvain = LouvainIteration()
+        louvain_options = LouvainIteration(resolution=2, depth=1)
         paris = Paris()
         paris_options = Paris(weights='uniform', reorder=False)
         for algo in [louvain, louvain_options, paris, paris_options]:
