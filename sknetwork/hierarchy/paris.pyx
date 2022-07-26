@@ -207,6 +207,7 @@ class Paris(BaseHierarchy):
     """
     def __init__(self, weights: str = 'degree', reorder: bool = True):
         super(Paris, self).__init__()
+        self.dendrogram_ = None
         self.weights = weights
         self.reorder = reorder
         self.bipartite = None

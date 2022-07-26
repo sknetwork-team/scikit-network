@@ -85,6 +85,8 @@ class DeltaDirichletOperator(DirichletOperator):
 class Diffusion(BaseRegressor):
     """Regression by diffusion along the edges (heat equation).
 
+    All values are updated, including those of seeds. See ``Dirichlet`` for heat diffusion with boundary constraints.
+
     Parameters
     ----------
     n_iter : int
