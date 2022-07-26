@@ -15,13 +15,13 @@ class TestBetweenness(unittest.TestCase):
     def test_basic(self):
         adjacency = test_graph()
         betweenness = Betweenness()
-        scores = betweenness.fit_transform(adjacency)
+        scores = betweenness.fit_predict(adjacency)
         self.assertEqual(len(scores), adjacency.shape[0])
 
     def test_bowtie(self):
         adjacency = bow_tie()
         betweenness = Betweenness()
-        scores = betweenness.fit_transform(adjacency)
+        scores = betweenness.fit_predict(adjacency)
         self.assertEqual(np.sum(scores > 0), 1)
 
     def test_disconnected(self):

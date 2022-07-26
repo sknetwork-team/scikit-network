@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Nov, 2019
+Created on November 2019
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from abc import ABC
@@ -26,8 +26,20 @@ class BaseRanking(Algorithm, ABC):
     def __init__(self):
         self.scores_ = None
 
-    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+    def fit_predict(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to data and return the scores. Same parameters as the ``fit`` method.
+
+        Returns
+        -------
+        scores : np.ndarray
+            Scores.
+        """
+        self.fit(*args, **kwargs)
+        return self.scores_
+
+    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to data and return the scores. Alias for ``fit_predict``.
+        Same parameters as the ``fit`` method.
 
         Returns
         -------

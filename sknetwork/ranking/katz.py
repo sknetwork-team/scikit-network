@@ -42,7 +42,7 @@ class Katz(BaseRanking):
     >>> from sknetwork.data.toy_graphs import house
     >>> adjacency = house()
     >>> katz = Katz()
-    >>> scores = katz.fit_transform(adjacency)
+    >>> scores = katz.fit_predict(adjacency)
     >>> np.round(scores, 2)
     array([6.5 , 8.25, 5.62, 5.62, 8.25])
 

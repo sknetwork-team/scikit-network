@@ -39,7 +39,7 @@ class HITS(BaseRanking):
     >>> from sknetwork.data import star_wars
     >>> hits = HITS()
     >>> biadjacency = star_wars()
-    >>> scores = hits.fit_transform(biadjacency)
+    >>> scores = hits.fit_predict(biadjacency)
     >>> np.round(scores, 2)
     array([0.5 , 0.23, 0.69, 0.46])
 
