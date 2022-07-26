@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Apr 2020
+Created in April 2020
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 
