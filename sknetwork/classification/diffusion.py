@@ -10,7 +10,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.classification.base import BaseClassifier
-from sknetwork.linalg import normalize
+from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.format import get_adjacency_seeds
 from sknetwork.utils.membership import get_membership
 

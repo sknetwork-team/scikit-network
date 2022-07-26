@@ -3,19 +3,16 @@
 """
 Created in July 2019
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
-@author: Thomas Bonald <bonald@enst.fr>
+@author: Thomas Bonald <thomas.bonald@telecom-paris.fr>
 """
 from typing import Union, Optional, Tuple
 
 import numpy as np
 from scipy import sparse
-from scipy.sparse.linalg import bicgstab, LinearOperator
 
 from sknetwork.linalg.normalization import normalize
 from sknetwork.regression.base import BaseRegressor
-from sknetwork.utils.check import check_is_proba
 from sknetwork.utils.format import get_adjacency_seeds
-from sknetwork.utils.verbose import VerboseMixin
 
 
 def init_temperatures(seeds: np.ndarray, init: Optional[float]) -> Tuple[np.ndarray, np.ndarray]:
@@ -30,58 +27,6 @@ def init_temperatures(seeds: np.ndarray, init: Optional[float]) -> Tuple[np.ndar
     return temperatures, border
 
 
-class DirichletOperator(LinearOperator):
-    """Diffusion in discrete time as a LinearOperator.
-
-    Parameters
-    ----------
-    adjacency : sparse.csr_matrix
-        Adjacency matrix of the graph.
-    damping_factor : float
-        Damping factor.
-    border : np.ndarray (bool)
-        Border nodes. If ``None``, then the diffusion is free.
-
-    Attributes
-    ----------
-    a : sparse.csr_matrix
-        Diffusion matrix.
-    b : np.ndarray
-        Regularization (uniform).
-    """
-    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float, border: np.ndarray = None):
-        super(DirichletOperator, self).__init__(shape=adjacency.shape, dtype=float)
-        n = adjacency.shape[0]
-        out_nodes = adjacency.dot(np.ones(n)).astype(bool)
-        if border is None:
-            border = np.zeros(n, dtype=bool)
-        interior: sparse.csr_matrix = sparse.diags(~border, shape=(n, n), format='csr', dtype=float)
-        self.a = damping_factor * interior.dot(normalize(adjacency))
-        self.b = interior.dot(np.ones(n) - damping_factor * out_nodes) / n
-
-    def _matvec(self, x: np.ndarray):
-        return self.a.dot(x) + self.b * x.sum()
-
-
-class DeltaDirichletOperator(DirichletOperator):
-    """Diffusion in discrete time as a LinearOperator (delta of temperature).
-
-    Parameters
-    ----------
-    adjacency : sparse.csr_matrix
-        Adjacency matrix of the graph.
-    damping_factor : float
-        Damping factor.
-    border : np.ndarray (bool)
-        Border nodes. If ``None``, then the diffusion is free.
-    """
-    def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float, border: np.ndarray = None):
-        super(DeltaDirichletOperator, self).__init__(adjacency, damping_factor, border)
-
-    def _matvec(self, x: np.ndarray):
-        return self.a.dot(x) + self.b * x.sum() - x
-
-
 class Diffusion(BaseRegressor):
     """Regression by diffusion along the edges (heat equation).
 
@@ -90,9 +35,7 @@ class Diffusion(BaseRegressor):
     Parameters
     ----------
     n_iter : int
-        Number of steps of the diffusion in discrete time (must be positive).
-    damping_factor : float (optional)
-        Damping factor (default value = 1).
+        Number of iterations of the diffusion (must be positive).
 
     Attributes
     ----------
@@ -116,23 +59,19 @@ class Diffusion(BaseRegressor):
     ----------
     Chung, F. (2007). The heat kernel as the pagerank of a graph. Proceedings of the National Academy of Sciences.
     """
-    def __init__(self, n_iter: int = 3, damping_factor: Optional[float] = None):
+    def __init__(self, n_iter: int = 3):
         super(Diffusion, self).__init__()
 
         if n_iter <= 0:
             raise ValueError('The number of iterations must be positive.')
         else:
             self.n_iter = n_iter
-        if damping_factor is None:
-            damping_factor = 1.
-        check_is_proba(damping_factor, 'Damping factor')
-        self.damping_factor = damping_factor
         self.bipartite = None
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
             seeds: Optional[Union[dict, np.ndarray]] = None, seeds_row: Optional[Union[dict, np.ndarray]] = None,
-            seeds_col: Optional[Union[dict, np.ndarray]] = None, init: Optional[float] = None) \
-            -> 'Diffusion':
+            seeds_col: Optional[Union[dict, np.ndarray]] = None, init: Optional[float] = None,
+            force_bipartite: bool = False) -> 'Diffusion':
         """Compute the diffusion (temperatures at equilibrium).
 
         Parameters
@@ -146,15 +85,17 @@ class Diffusion(BaseRegressor):
         init :
             Temperature of non-seed nodes in initial state.
             If ``None``, use the average temperature of seed nodes (default).
+        force_bipartite :
+            If ``True``, consider the input matrix as a biadjacency matrix (default = ``False``).
 
         Returns
         -------
         self: :class:`Diffusion`
         """
-        adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, allow_directed=True, seeds=seeds,
-                                                               seeds_row=seeds_row, seeds_col=seeds_col)
+        adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, force_bipartite=force_bipartite,
+                                                               seeds=seeds, seeds_row=seeds_row, seeds_col=seeds_col)
         values, _ = init_temperatures(seeds, init)
-        diffusion = DirichletOperator(adjacency, self.damping_factor)
+        diffusion = normalize(adjacency)
         for i in range(self.n_iter):
             values = diffusion.dot(values)
 
@@ -165,18 +106,13 @@ class Diffusion(BaseRegressor):
         return self
 
 
-class Dirichlet(BaseRegressor, VerboseMixin):
+class Dirichlet(BaseRegressor):
     """Regression by the Dirichlet problem (heat diffusion with boundary constraints).
 
     Parameters
     ----------
     n_iter : int
-        If positive, number of steps of the diffusion in discrete time.
-        Otherwise, solve the Dirichlet problem by the bi-conjugate gradient stabilized method.
-    damping_factor : float (optional)
-        Damping factor (default value = 1).
-    verbose : bool
-        Verbose mode.
+        Number of iterations of the diffusion (must be positive).
 
     Attributes
     ----------
@@ -201,20 +137,19 @@ class Dirichlet(BaseRegressor, VerboseMixin):
     ----------
     Chung, F. (2007). The heat kernel as the pagerank of a graph. Proceedings of the National Academy of Sciences.
     """
-    def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, verbose: bool = False):
+    def __init__(self, n_iter: int = 10):
         super(Dirichlet, self).__init__()
-        VerboseMixin.__init__(self, verbose)
 
-        self.n_iter = n_iter
-        if damping_factor is None:
-            damping_factor = 1.
-        check_is_proba(damping_factor, 'Damping factor')
-        self.damping_factor = damping_factor
+        if n_iter <= 0:
+            raise ValueError('The number of iterations must be positive.')
+        else:
+            self.n_iter = n_iter
         self.bipartite = None
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
             seeds: Optional[Union[dict, np.ndarray]] = None, seeds_row: Optional[Union[dict, np.ndarray]] = None,
-            seeds_col: Optional[Union[dict, np.ndarray]] = None, init: Optional[float] = None) -> 'Dirichlet':
+            seeds_col: Optional[Union[dict, np.ndarray]] = None, init: Optional[float] = None,
+            force_bipartite: bool = False) -> 'Dirichlet':
         """Compute the solution to the Dirichlet problem (temperatures at equilibrium).
 
         Parameters
@@ -228,28 +163,23 @@ class Dirichlet(BaseRegressor, VerboseMixin):
         init :
             Temperature of non-seed nodes in initial state.
             If ``None``, use the average temperature of seed nodes (default).
+        force_bipartite :
+            If ``True``, consider the input matrix as a biadjacency matrix (default = ``False``).
 
         Returns
         -------
         self: :class:`Dirichlet`
         """
-        adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, seeds=seeds, seeds_row=seeds_row,
-                                                               seeds_col=seeds_col)
-        values, border = init_temperatures(seeds, init)
-        if self.n_iter > 0:
-            diffusion = DirichletOperator(adjacency, self.damping_factor, border)
-            for i in range(self.n_iter):
-                values = diffusion.dot(values)
-                values[border] = seeds[border]
-        else:
-            a = DeltaDirichletOperator(adjacency, self.damping_factor, border)
-            b = -seeds
-            b[~border] = 0
-            values, info = bicgstab(a, b, atol=0., x0=values)
-            self._scipy_solver_info(info)
+        adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, force_bipartite=force_bipartite,
+                                                               seeds=seeds, seeds_row=seeds_row, seeds_col=seeds_col)
+        temperatures, border = init_temperatures(seeds, init)
+        values = temperatures.copy()
+        diffusion = normalize(adjacency)
+        for i in range(self.n_iter):
+            values = diffusion.dot(values)
+            values[border] = temperatures[border]
 
-        temp_min, temp_max = seeds[border].min(), seeds[border].max()
-        self.values_ = np.clip(values, temp_min, temp_max)
+        self.values_ = values
         if self.bipartite:
             self._split_vars(input_matrix.shape)
 

@@ -31,9 +31,9 @@ class TestDiffusion(unittest.TestCase):
 
         biadjacency = test_bigraph()
         for algo in [Diffusion(), Dirichlet()]:
-            values = algo.fit_transform(biadjacency, seeds_row={0: 1})
+            values = algo.fit_predict(biadjacency, seeds_row={0: 1})
             self.assertTrue(np.all(values <= 1) and np.all(values >= 0))
-            values = algo.fit_transform(biadjacency, seeds_row={0: 0.1}, seeds_col={1: 2}, init=0.3)
+            values = algo.fit_predict(biadjacency, seeds_row={0: 0.1}, seeds_col={1: 2}, init=0.3)
             self.assertTrue(np.all(values <= 2) and np.all(values >= 0.1))
 
     def test_initial_state(self):
@@ -42,24 +42,7 @@ class TestDiffusion(unittest.TestCase):
                 values = algo.fit_transform(adjacency, {0: 0, 1: 1, 2: 0.5}, 0.3)
                 self.assertTrue(np.all(values <= 1) and np.all(values >= 0))
 
-    def test_damping_factor(self):
-        for adjacency in [test_graph(), test_digraph()]:
-            for algo in [Diffusion(damping_factor=0.5), Dirichlet(damping_factor=0.5)]:
-                values = algo.fit_transform(adjacency, {0: 0, 1: 1, 2: 0.5})
-                self.assertTrue(np.all(values <= 1) and np.all(values >= 0))
-
     def test_n_iter(self):
-        algo1 = Dirichlet(n_iter=0)
-        algo2 = Dirichlet(n_iter=10)
-        adjacency = test_digraph()
-        values1 = algo1.fit_transform(adjacency, {0: 1})
-        values2 = algo2.fit_transform(adjacency, {0: 1})
-        self.assertAlmostEqual(np.linalg.norm(values1 - values2), 0)
-        algo1 = Dirichlet(n_iter=0, damping_factor=0.5)
-        algo2 = Dirichlet(n_iter=10, damping_factor=0.5)
-        adjacency = test_digraph()
-        values1 = algo1.fit_transform(adjacency, {0: 1})
-        values2 = algo2.fit_transform(adjacency, {0: 1})
-        self.assertAlmostEqual(np.linalg.norm(values1 - values2), 0)
-
+        with self.assertRaises(ValueError):
+            Dirichlet(n_iter=0)
 
