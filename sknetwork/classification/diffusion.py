@@ -90,13 +90,13 @@ class DiffusionClassifier(BaseClassifier):
         adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, force_bipartite=force_bipartite,
                                                                seeds=seeds, seeds_row=seeds_row, seeds_col=seeds_col)
         seeds = seeds.astype(int)
-        border = seeds >= 0
-        temperatures_init = get_membership(seeds).toarray()
-        temperatures = temperatures_init.copy()
+        temperatures = get_membership(seeds).toarray()
+        temperatures_seeds = temperatures[seeds >= 0]
+        temperatures[seeds < 0] = 1 / temperatures.shape[1]
         diffusion = normalize(adjacency)
         for i in range(self.n_iter):
             temperatures = diffusion.dot(temperatures)
-            temperatures[border] = temperatures_init[border]
+            temperatures[seeds >= 0] = temperatures_seeds
 
         self.membership_ = sparse.csr_matrix(temperatures)
         self.labels_ = temperatures.argmax(axis=1)
