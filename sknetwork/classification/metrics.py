@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on July, 2020
+Created on July 2020
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 import numpy as np

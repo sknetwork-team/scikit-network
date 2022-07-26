@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mar, 2020
+Created on March 2020
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from functools import partial

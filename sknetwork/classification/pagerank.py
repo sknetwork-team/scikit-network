@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mar, 2020
+Created on March 2020
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from typing import Optional
@@ -50,7 +50,7 @@ class PageRankClassifier(RankClassifier):
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = pagerank.fit_transform(adjacency, seeds)
+    >>> labels_pred = pagerank.fit_predict(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.97
 

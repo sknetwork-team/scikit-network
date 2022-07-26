@@ -17,8 +17,8 @@ class TestDiffusionClassifier(unittest.TestCase):
             algo1 = KNN(n_neighbors=1, n_jobs=None, embedding_method=LouvainEmbedding())
             algo2 = KNN(n_neighbors=1, n_jobs=-1, embedding_method=LouvainEmbedding())
 
-            labels1 = algo1.fit_transform(adjacency, seeds)
-            labels2 = algo2.fit_transform(adjacency, seeds)
+            labels1 = algo1.fit_predict(adjacency, seeds)
+            labels2 = algo2.fit_predict(adjacency, seeds)
 
             self.assertTrue(np.allclose(labels1, labels2))
 

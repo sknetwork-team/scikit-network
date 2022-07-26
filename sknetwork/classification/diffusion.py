@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mar, 2020
+Created on March 2020
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from typing import Optional
@@ -95,7 +95,7 @@ class DiffusionClassifier(RankClassifier):
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = diffusion.fit_transform(adjacency, seeds)
+    >>> labels_pred = diffusion.fit_predict(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.94
 
@@ -106,8 +106,7 @@ class DiffusionClassifier(RankClassifier):
       <https://arxiv.org/pdf/2008.11944.pdf>`
       arXiv preprint arXiv:2008.11944.
 
-    * Zhu, X., Lafferty, J., & Rosenfeld, R. (2005). `Semi-supervised learning with graphs
-      <http://pages.cs.wisc.edu/~jerryzhu/machineteaching/pub/thesis.pdf>`
+    * Zhu, X., Lafferty, J., & Rosenfeld, R. (2005). `Semi-supervised learning with graphs`
       (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
     """
     def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, centering: bool = True,
@@ -158,14 +157,13 @@ class DirichletClassifier(RankClassifier):
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = dirichlet.fit_transform(adjacency, seeds)
+    >>> labels_pred = dirichlet.fit_predict(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.97
 
     References
     ----------
-    Zhu, X., Lafferty, J., & Rosenfeld, R. (2005). `Semi-supervised learning with graphs
-    <http://pages.cs.wisc.edu/~jerryzhu/machineteaching/pub/thesis.pdf>`_
+    Zhu, X., Lafferty, J., & Rosenfeld, R. (2005). `Semi-supervised learning with graphs`
     (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
     """
     def __init__(self, n_iter: int = 10, damping_factor: Optional[float] = None, centering: bool = True,
