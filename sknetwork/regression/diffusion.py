@@ -74,13 +74,6 @@ class DeltaDirichletOperator(DirichletOperator):
         Damping factor.
     border : np.ndarray (bool)
         Border nodes. If ``None``, then the diffusion is free.
-
-    Attributes
-    ----------
-    a : sparse.csr_matrix
-        Diffusion matrix.
-    b : np.ndarray
-        Regularization (uniform).
     """
     def __init__(self, adjacency: sparse.csr_matrix, damping_factor: float, border: np.ndarray = None):
         super(DeltaDirichletOperator, self).__init__(adjacency, damping_factor, border)
@@ -113,7 +106,7 @@ class Diffusion(BaseRegressor):
     >>> diffusion = Diffusion(n_iter=2)
     >>> adjacency = house()
     >>> seeds = {0: 1, 2: 0}
-    >>> values = diffusion.fit_transform(adjacency, seeds)
+    >>> values = diffusion.fit_predict(adjacency, seeds)
     >>> np.round(values, 2)
     array([0.58, 0.56, 0.38, 0.58, 0.42])
 
@@ -198,7 +191,7 @@ class Dirichlet(BaseRegressor, VerboseMixin):
     >>> dirichlet = Dirichlet()
     >>> adjacency = house()
     >>> seeds = {0: 1, 2: 0}
-    >>> values = dirichlet.fit_transform(adjacency, seeds)
+    >>> values = dirichlet.fit_predict(adjacency, seeds)
     >>> np.round(values, 2)
     array([1.  , 0.54, 0.  , 0.31, 0.62])
 
