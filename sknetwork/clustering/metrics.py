@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu July 10 2018
+Created on July 2018
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Thomas Bonald <bonald@enst.fr>
 """
@@ -16,9 +16,9 @@ from sknetwork.utils.format import bipartite2directed
 from sknetwork.utils.membership import get_membership
 
 
-def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray,
-               weights: Union[str, np.ndarray] = 'degree', weights_in: Union[str, np.ndarray] = 'degree',
-               resolution: float = 1, return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
+def get_modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray,
+                   weights: Union[str, np.ndarray] = 'degree', weights_in: Union[str, np.ndarray] = 'degree',
+                   resolution: float = 1, return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
     """Modularity of a clustering.
 
     The modularity of a clustering is
@@ -64,11 +64,11 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
 
     Example
     -------
-    >>> from sknetwork.clustering import modularity
+    >>> from sknetwork.clustering import get_modularity
     >>> from sknetwork.data import house
     >>> adjacency = house()
     >>> labels = np.array([0, 0, 1, 1, 0])
-    >>> np.round(modularity(adjacency, labels), 2)
+    >>> np.round(get_modularity(adjacency, labels), 2)
     0.11
     """
     adjacency = check_format(adjacency).astype(float)
@@ -90,9 +90,9 @@ def modularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarr
         return mod
 
 
-def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray, labels_col: np.ndarray,
-                 weights: Union[str, np.ndarray] = 'degree', weights_col: Union[str, np.ndarray] = 'degree',
-                 resolution: float = 1, return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
+def get_bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray, labels_col: np.ndarray,
+                     weights: Union[str, np.ndarray] = 'degree', weights_col: Union[str, np.ndarray] = 'degree',
+                     resolution: float = 1, return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
     """Bimodularity of the clustering (for bipartite graphs).
 
     The bimodularity of a clustering is
@@ -135,12 +135,12 @@ def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.n
 
     Example
     -------
-    >>> from sknetwork.clustering import bimodularity
+    >>> from sknetwork.clustering import get_bimodularity
     >>> from sknetwork.data import star_wars
     >>> biadjacency = star_wars()
     >>> labels = np.array([1, 1, 0, 0])
     >>> labels_col = np.array([1, 0, 0])
-    >>> np.round(bimodularity(biadjacency, labels, labels_col), 2)
+    >>> np.round(get_bimodularity(biadjacency, labels, labels_col), 2)
     0.22
     """
     biadjacency = check_format(biadjacency).astype(float)
@@ -160,11 +160,11 @@ def bimodularity(biadjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.n
 
     labels_ = np.hstack((labels, labels_col))
 
-    return modularity(adjacency, labels_, weights_, weights_col_, resolution, return_all)
+    return get_modularity(adjacency, labels_, weights_, weights_col_, resolution, return_all)
 
 
-def comodularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray, resolution: float = 1,
-                 return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
+def get_comodularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.ndarray, resolution: float = 1,
+                     return_all: bool = False) -> Union[float, Tuple[float, float, float]]:
     """Modularity of a clustering in the normalized co-neighborhood graph.
 
     Quality metric of a clustering given by:
@@ -198,11 +198,11 @@ def comodularity(adjacency: Union[sparse.csr_matrix, np.ndarray], labels: np.nda
 
     Example
     -------
-    >>> from sknetwork.clustering import comodularity
+    >>> from sknetwork.clustering import get_comodularity
     >>> from sknetwork.data import house
     >>> adjacency = house()
     >>> labels = np.array([0, 0, 1, 1, 0])
-    >>> np.round(comodularity(adjacency, labels), 2)
+    >>> np.round(get_comodularity(adjacency, labels), 2)
     0.06
 
     Notes
