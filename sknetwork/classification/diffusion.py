@@ -26,6 +26,9 @@ class DiffusionClassifier(BaseClassifier):
         Number of iterations of the diffusion (discrete time).
     centering : bool
         If ``True``, center the temperature of each label to its mean before classification (default).
+    threshold : float
+        Minimum difference of temperatures between the 2 top labels to classify a node (default = 0).
+        If the difference of temperatures is less than this threshold, return -1 for this node (no label).
 
     Attributes
     ----------
@@ -59,7 +62,7 @@ class DiffusionClassifier(BaseClassifier):
     Zhu, X., Lafferty, J., & Rosenfeld, R. (2005). `Semi-supervised learning with graphs`
     (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
     """
-    def __init__(self, n_iter: int = 10, centering: bool = True):
+    def __init__(self, n_iter: int = 10, centering: bool = True, threshold: float = 0):
         super(DiffusionClassifier, self).__init__()
 
         if n_iter <= 0:
@@ -67,6 +70,7 @@ class DiffusionClassifier(BaseClassifier):
         else:
             self.n_iter = n_iter
         self.centering = centering
+        self.threshold = threshold
         self.bipartite = None
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
@@ -97,7 +101,8 @@ class DiffusionClassifier(BaseClassifier):
             raise ValueError('At least one node must be given a label in ``seeds``.')
         temperatures = get_membership(seeds).toarray()
         temperatures_seeds = temperatures[seeds >= 0]
-        temperatures[seeds < 0] = 1 / temperatures.shape[1]
+        n_labels = temperatures.shape[1]
+        temperatures[seeds < 0] = 1 / n_labels
         diffusion = normalize(adjacency)
         for i in range(self.n_iter):
             temperatures = diffusion.dot(temperatures)
@@ -107,7 +112,18 @@ class DiffusionClassifier(BaseClassifier):
 
         if self.centering:
             temperatures -= temperatures.mean(axis=0)
-        self.labels_ = temperatures.argmax(axis=1)
+
+        labels = temperatures.argmax(axis=1)
+
+        if self.threshold > 0:
+            if n_labels > 2:
+                top_temperatures = np.partition(-temperatures, 2, axis=1)[:, :2]
+            else:
+                top_temperatures = temperatures
+            differences = top_temperatures[:, 1] - top_temperatures[:, 0]
+            labels[differences <= self.threshold] = -1
+
+        self.labels_ = labels
 
         if self.bipartite:
             self._split_vars(input_matrix.shape)
