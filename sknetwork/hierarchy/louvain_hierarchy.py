@@ -100,7 +100,7 @@ class LouvainIteration(BaseHierarchy):
 
         Returns
         -------
-        result: list of list of nodes by cluster
+        tree: recursive list of list of nodes.
         """
         n = adjacency.shape[0]
         if nodes is None:
@@ -113,7 +113,7 @@ class LouvainIteration(BaseHierarchy):
 
         clusters = np.unique(labels)
 
-        result = []
+        tree = []
         if len(clusters) == 1:
             if len(nodes) > 1:
                 return [[node] for node in nodes]
@@ -124,8 +124,8 @@ class LouvainIteration(BaseHierarchy):
                 mask = (labels == cluster)
                 nodes_cluster = nodes[mask]
                 adjacency_cluster = adjacency[mask, :][:, mask]
-                result.append(self._recursive_louvain(adjacency_cluster, depth - 1, nodes_cluster))
-            return result
+                tree.append(self._recursive_louvain(adjacency_cluster, depth - 1, nodes_cluster))
+            return tree
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'LouvainIteration':
         """Fit algorithm to data.
@@ -143,6 +143,118 @@ class LouvainIteration(BaseHierarchy):
         input_matrix = check_format(input_matrix)
         adjacency, self.bipartite = get_adjacency(input_matrix)
         tree = self._recursive_louvain(adjacency, self.depth)
+        dendrogram, _ = get_dendrogram(tree)
+        dendrogram = np.array(dendrogram)
+        dendrogram[:, 2] -= min(dendrogram[:, 2])
+        self.dendrogram_ = reorder_dendrogram(dendrogram)
+        if self.bipartite:
+            self._split_vars(input_matrix.shape)
+        return self
+
+
+class LouvainHierarchy(BaseHierarchy):
+    """Hierarchical clustering by Louvain (bottom-up).
+
+    Parameters
+    ----------
+    resolution :
+        Resolution parameter.
+    tol_optimization :
+        Minimum increase in the objective function to enter a new optimization pass.
+    tol_aggregation :
+        Minimum increase in the objective function to enter a new aggregation pass.
+    shuffle_nodes :
+        Enables node shuffling before optimization.
+    random_state :
+        Random number generator or random seed. If ``None``, numpy.random is used.
+    verbose :
+        Verbose mode.
+
+    Attributes
+    ----------
+    dendrogram_ :
+        Dendrogram of the graph.
+    dendrogram_row_ :
+        Dendrogram for the rows, for bipartite graphs.
+    dendrogram_col_ :
+        Dendrogram for the columns, for bipartite graphs.
+    dendrogram_full_ :
+        Dendrogram for both rows and columns, indexed in this order, for bipartite graphs.
+
+    Example
+    -------
+    >>> from sknetwork.hierarchy import LouvainHierarchy
+    >>> from sknetwork.data import house
+    >>> louvain = LouvainHierarchy()
+    >>> adjacency = house()
+    >>> louvain.fit_predict(adjacency)
+    array([[3., 2., 0., 2.],
+           [4., 1., 0., 2.],
+           [6., 0., 0., 3.],
+           [5., 7., 1., 5.]])
+
+    Notes
+    -----
+    Each row of the dendrogram = merge nodes, distance, size of cluster.
+
+    See Also
+    --------
+    scipy.cluster.hierarchy.dendrogram
+    """
+
+    def __init__(self, resolution: float = 1, tol_optimization: float = 1e-3,
+                 tol_aggregation: float = 1e-3, shuffle_nodes: bool = False,
+                 random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
+        super(LouvainHierarchy, self).__init__()
+
+        self.dendrogram_ = None
+        self._clustering_method = Louvain(resolution=resolution, tol_optimization=tol_optimization,
+                                          tol_aggregation=tol_aggregation, n_aggregations=1,
+                                          shuffle_nodes=shuffle_nodes, random_state=random_state, verbose=verbose)
+        self.bipartite = None
+
+    def _get_hierarchy(self, adjacency: Union[sparse.csr_matrix, np.ndarray]):
+        """Get the hierarchy from Louvain.
+
+        Parameters
+        ----------
+        adjacency :
+            Adjacency matrix of the graph.
+
+        Returns
+        -------
+        tree: recursive list of list of nodes
+        """
+        tree = [[node] for node in range(adjacency.shape[0])]
+        labels = self._clustering_method.fit_transform(adjacency)
+        labels_unique = np.unique(labels)
+        while 1:
+            tree = [[tree[node] for node in np.flatnonzero(labels == label)] for label in labels_unique]
+            tree = [cluster[0] if len(cluster) == 1 else cluster for cluster in tree]
+            aggregate = self._clustering_method.aggregate_
+            labels = self._clustering_method.fit_transform(aggregate)
+            if len(labels_unique) == len(np.unique(labels)):
+                break
+            else:
+                labels_unique = np.unique(labels)
+        return tree
+
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'LouvainHierarchy':
+        """Fit algorithm to data.
+
+        Parameters
+        ----------
+        input_matrix :
+            Adjacency matrix or biadjacency matrix of the graph.
+
+        Returns
+        -------
+        self: :class:`LouvainIteration`
+        """
+        self._init_vars()
+        input_matrix = check_format(input_matrix)
+        adjacency, self.bipartite = get_adjacency(input_matrix)
+        tree = self._get_hierarchy(adjacency)
         dendrogram, _ = get_dendrogram(tree)
         dendrogram = np.array(dendrogram)
         dendrogram[:, 2] -= min(dendrogram[:, 2])

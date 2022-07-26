@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on March 2020
+Created in March 2020
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Thomas Bonald <tbonald@enst.fr>
 """
@@ -9,20 +9,21 @@ Created on March 2020
 import unittest
 
 from sknetwork.data.test_graphs import *
-from sknetwork.embedding import Spectral
-from sknetwork.hierarchy import LouvainIteration, Paris
+from sknetwork.hierarchy import LouvainIteration, LouvainHierarchy, Paris
 
 
 class TestLouvainHierarchy(unittest.TestCase):
 
     def test(self):
-        louvain = LouvainIteration()
-        louvain_options = LouvainIteration(resolution=2, depth=1)
+        louvain_iteration = LouvainIteration()
+        louvain_iteration_ = LouvainIteration(resolution=2, depth=1)
+        louvain_hierarchy = LouvainHierarchy()
+        louvain_hierarchy_ = LouvainHierarchy(tol_aggregation=0.1)
         paris = Paris()
-        paris_options = Paris(weights='uniform', reorder=False)
-        for algo in [louvain, louvain_options, paris, paris_options]:
+        paris_ = Paris(weights='uniform', reorder=False)
+        for algo in [louvain_iteration, louvain_iteration_, louvain_hierarchy, louvain_hierarchy_, paris, paris_]:
             for input_matrix in [test_graph(), test_digraph(), test_bigraph()]:
-                dendrogram = algo.fit_transform(input_matrix)
+                dendrogram = algo.fit_predict(input_matrix)
                 self.assertEqual(dendrogram.shape, (input_matrix.shape[0] - 1, 4))
                 if algo.bipartite:
                     self.assertEqual(algo.dendrogram_full_.shape, (sum(input_matrix.shape) - 1, 4))

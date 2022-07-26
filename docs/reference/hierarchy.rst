@@ -18,6 +18,8 @@ Paris
 
 Louvain
 -------
+.. autoclass:: sknetwork.hierarchy.LouvainHierarchy
+
 .. autoclass:: sknetwork.hierarchy.LouvainIteration
 
 Ward
