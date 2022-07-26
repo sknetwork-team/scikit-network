@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on April 2019
+Created in April 2019
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 import warnings

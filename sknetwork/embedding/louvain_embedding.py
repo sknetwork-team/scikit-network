@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-Created on Sep 2020
+Created in September 2020
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
@@ -101,6 +101,9 @@ class LouvainEmbedding(BaseEmbedding):
         self.isolated_nodes = isolated_nodes
 
         self.labels_ = None
+        self.embedding_ = None
+        self.embedding_row_ = None
+        self.embedding_col_ = None
 
     def fit(self, input_matrix: sparse.csr_matrix, force_bipartite: bool = False):
         """Embedding of graphs from the clustering obtained with Louvain.

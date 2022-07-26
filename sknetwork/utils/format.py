@@ -18,8 +18,6 @@ def check_csr_or_slr(adjacency):
     """Check if input is csr or SparseLR and raise an error otherwise."""
     if type(adjacency) not in [sparse.csr_matrix, SparseLR]:
         raise TypeError('Input must be a scipy CSR matrix or a SparseLR object.')
-    else:
-        return
 
 
 def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
@@ -153,6 +151,7 @@ def get_adjacency(input_matrix: Union[sparse.csr_matrix, np.ndarray], allow_dire
         If ``True`` return :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}`.
         Otherwise (default), return :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`.
     """
+    input_matrix = check_format(input_matrix)
     bipartite = False
     if force_bipartite or not is_square(input_matrix) or not (allow_directed or is_symmetric(input_matrix)):
         bipartite = True
