@@ -6,8 +6,11 @@ History
 -------------------
 
 * Drop Python 3.7
-* Update NumPy and SciPy requirements, by Thomas Bonald
+* Update NumPy and SciPy requirements
 * Add Graph Neural Networks, by Simon Delarue (#533)
+* Add fit_predict / fit_transform, by Thomas Bonald
+* Add Louvain hierarchical clustering (bottom-up), by Thomas Bonald
+* Improve classification by diffusion, by Thomas Bonald
 
 0.26.0 (2022-05-03)
 -------------------
