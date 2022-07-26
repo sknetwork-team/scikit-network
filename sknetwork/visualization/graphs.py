@@ -466,6 +466,7 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
             adjacency = sparse.csr_matrix((n, n)).astype(int)
     else:
         n = adjacency.shape[0]
+    adjacency.eliminate_zeros()
 
     # node order
     if node_order is None:
