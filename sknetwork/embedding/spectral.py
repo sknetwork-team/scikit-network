@@ -69,6 +69,7 @@ class Spectral(BaseEmbedding):
                  normalized: bool = True):
         super(Spectral, self).__init__()
 
+        self.embedding_ = None
         self.n_components = n_components
         self.decomposition = decomposition
         self.regularization = regularization
