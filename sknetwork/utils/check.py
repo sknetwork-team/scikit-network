@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Apr 4, 2019
+Created on April 2019
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 import warnings
@@ -12,7 +12,7 @@ from scipy import sparse
 
 
 def has_nonnegative_entries(input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """True if the array has non negative entries."""
+    """True if the array has non-negative entries."""
     if type(input_matrix) == sparse.csr_matrix:
         return np.all(input_matrix.data >= 0)
     else:
@@ -39,7 +39,7 @@ def check_connected(adjacency: sparse.csr_matrix):
 
 
 def check_nonnegative(input_matrix: Union[sparse.csr_matrix, np.ndarray]):
-    """Check whether the array has non negative entries."""
+    """Check whether the array has non-negative entries."""
     if not has_nonnegative_entries(input_matrix):
         raise ValueError('Only nonnegative values are expected.')
 
@@ -59,7 +59,7 @@ def check_positive(input_matrix: Union[sparse.csr_matrix, np.ndarray]):
 
 
 def is_proba_array(input_matrix: np.ndarray) -> bool:
-    """True if each line of the array has non negative entries which sum to 1."""
+    """True if each line of the array has non-negative entries which sum to 1."""
     if len(input_matrix.shape) == 1:
         return has_nonnegative_entries(input_matrix) and np.isclose(input_matrix.sum(), 1)
     elif len(input_matrix.shape) == 2:
@@ -199,7 +199,7 @@ def get_probs(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_mat
 
 
 def check_random_state(random_state: Optional[Union[np.random.RandomState, int]]):
-    """Check whether the argument is a seed or a NumPy random state. If None, numpy.random is used by default."""
+    """Check whether the argument is a seed or a NumPy random state. If None, 'numpy.random' is used by default."""
     if random_state is None:
         return np.random.RandomState()
     elif type(random_state) == int:
@@ -286,8 +286,7 @@ def check_min_nnz(nnz, n_min):
 def check_n_components(n_components, n_min) -> int:
     """Check the number of components"""
     if n_components > n_min:
-        warnings.warn(Warning("The dimension of the embedding cannot exceed {}."
-                              "Changed accordingly.".format(n_min)))
+        warnings.warn(Warning("The dimension of the embedding cannot exceed {}. Changed accordingly.".format(n_min)))
         return n_min
     else:
         return n_components
@@ -298,7 +297,7 @@ def check_scaling(scaling: float, adjacency: sparse.csr_matrix, regularize: bool
     if scaling < 0:
         raise ValueError("The 'scaling' parameter must be non-negative.")
 
-    if scaling and (not regularize) and not is_connected(adjacency):
+    if scaling and (not regularize) and not is_weakly_connected(adjacency):
         raise ValueError("Positive 'scaling' is valid only if the graph is connected or with regularization."
                          "Call 'fit' either with 'scaling' = 0 or positive 'regularization'.")
 
