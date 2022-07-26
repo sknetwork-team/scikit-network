@@ -18,7 +18,7 @@ class TestClassificationAPI(unittest.TestCase):
             seeds_array[:2] = np.arange(2)
             seeds_dict = {0: 0, 1: 1}
 
-            classifiers = [PageRankClassifier(), DiffusionClassifier(), DirichletClassifier(),
+            classifiers = [PageRankClassifier(), DiffusionClassifier(),
                            KNN(embedding_method=LouvainEmbedding(), n_neighbors=1), Propagation()]
 
             with self.assertRaises(ValueError):

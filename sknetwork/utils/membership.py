@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on July 10, 2019
+Created in July 2019
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Thomas Bonald <bonald@enst.fr>
 """
@@ -12,7 +12,7 @@ from scipy import sparse
 
 
 def get_membership(labels: np.ndarray, dtype=bool, n_labels: Optional[int] = None) -> sparse.csr_matrix:
-    """Build a n x k matrix of the label assignments, with k the number of labels.
+    """Build an n x k matrix of the label assignments, with k the number of labels.
     Negative labels are ignored.
 
     Parameters

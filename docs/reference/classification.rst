@@ -15,10 +15,6 @@ Diffusion
 ---------
 .. autoclass:: sknetwork.classification.DiffusionClassifier
 
-Dirichlet
----------
-.. autoclass:: sknetwork.classification.DirichletClassifier
-
 Propagation
 -----------
 .. autoclass:: sknetwork.classification.Propagation

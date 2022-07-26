@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Dec 3, 2019
+Created in December 2019
 @author: Quentin Lutz <qlutz@enst.fr>
 """
 
