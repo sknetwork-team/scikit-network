@@ -58,7 +58,7 @@ class LouvainHierarchy(BaseHierarchy):
     >>> from sknetwork.data import house
     >>> louvain = LouvainHierarchy()
     >>> adjacency = house()
-    >>> louvain.fit_transform(adjacency)
+    >>> louvain.fit_predict(adjacency)
     array([[3., 2., 0., 2.],
            [4., 1., 0., 2.],
            [6., 0., 0., 3.],

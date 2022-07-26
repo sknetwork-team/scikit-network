@@ -21,7 +21,7 @@ class TestMetrics(unittest.TestCase):
 
     def test_undirected(self):
         adjacency = cyclic_graph(3)
-        dendrogram = self.paris.fit_transform(adjacency)
+        dendrogram = self.paris.fit_predict(adjacency)
         self.assertAlmostEqual(dasgupta_cost(adjacency, dendrogram), 2.666, 2)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.111, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.0632, 3)

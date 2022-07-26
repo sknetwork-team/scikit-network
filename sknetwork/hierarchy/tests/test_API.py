@@ -15,7 +15,7 @@ class TestHierarchyAPI(unittest.TestCase):
         n = adjacency.shape[0]
 
         for algo in [Paris(), Ward(GSVD(3)), LouvainHierarchy()]:
-            dendrogram = algo.fit_transform(adjacency)
+            dendrogram = algo.fit_predict(adjacency)
             self.assertTupleEqual(dendrogram.shape, (n - 1, 4))
 
     def test_disconnected(self):
