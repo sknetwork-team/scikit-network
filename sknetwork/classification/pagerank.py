@@ -22,7 +22,7 @@ class PageRankClassifier(RankClassifier):
     solver : :obj:`str`
         Which solver to use: 'piteration', 'diteration', 'bicgstab', 'lanczos'.
     n_iter : int
-        Number of iterations for some of the solvers such as ``'piteration'`` or ``'diteration'``.
+        Number of iterations for some solvers such as ``'piteration'`` or ``'diteration'``.
     tol : float
         Tolerance for the convergence of some solvers such as ``'bicgstab'`` or ``'lanczos'``.
 
