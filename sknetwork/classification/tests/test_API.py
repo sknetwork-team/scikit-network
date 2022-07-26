@@ -33,10 +33,3 @@ class TestClassificationAPI(unittest.TestCase):
                 membership = algo.fit_transform(adjacency, seeds_array)
                 self.assertTupleEqual(membership.shape, (n, 2))
                 self.assertEqual(scores.shape, (n,))
-
-            seeds1 = {0: 0, 1: 1}
-            seeds2 = {0: 0, 1: 2}
-            for clf in classifiers:
-                labels1 = (clf.fit_predict(adjacency, seeds1) == 1)
-                labels2 = (clf.fit_predict(adjacency, seeds2) == 2)
-                self.assertTrue((labels1 == labels2).all())

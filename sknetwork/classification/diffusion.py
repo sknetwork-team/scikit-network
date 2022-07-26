@@ -24,6 +24,8 @@ class DiffusionClassifier(BaseClassifier):
     ----------
     n_iter : int
         Number of iterations of the diffusion (discrete time).
+    centering : bool
+        If ``True``, center the temperature of each label to its mean before classification (default).
 
     Attributes
     ----------
@@ -57,13 +59,14 @@ class DiffusionClassifier(BaseClassifier):
     Zhu, X., Lafferty, J., & Rosenfeld, R. (2005). `Semi-supervised learning with graphs`
     (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
     """
-    def __init__(self, n_iter: int = 10):
+    def __init__(self, n_iter: int = 10, centering: bool = True):
         super(DiffusionClassifier, self).__init__()
 
         if n_iter <= 0:
             raise ValueError('The number of iterations must be positive.')
         else:
             self.n_iter = n_iter
+        self.centering = centering
         self.bipartite = None
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
@@ -90,6 +93,8 @@ class DiffusionClassifier(BaseClassifier):
         adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, force_bipartite=force_bipartite,
                                                                seeds=seeds, seeds_row=seeds_row, seeds_col=seeds_col)
         seeds = seeds.astype(int)
+        if (seeds < 0).all():
+            raise ValueError('At least one node must be given a label in ``seeds``.')
         temperatures = get_membership(seeds).toarray()
         temperatures_seeds = temperatures[seeds >= 0]
         temperatures[seeds < 0] = 1 / temperatures.shape[1]
@@ -99,6 +104,9 @@ class DiffusionClassifier(BaseClassifier):
             temperatures[seeds >= 0] = temperatures_seeds
 
         self.membership_ = sparse.csr_matrix(temperatures)
+
+        if self.centering:
+            temperatures -= temperatures.mean(axis=0)
         self.labels_ = temperatures.argmax(axis=1)
 
         if self.bipartite:

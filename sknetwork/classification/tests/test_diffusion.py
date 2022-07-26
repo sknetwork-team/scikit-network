@@ -10,6 +10,19 @@ from sknetwork.data.test_graphs import *
 
 class TestDiffusionClassifier(unittest.TestCase):
 
+    def test_graph(self):
+        adjacency = test_graph()
+        seeds = {0: 0, 1: 1}
+        algo = DiffusionClassifier()
+        algo.fit(adjacency, seeds=seeds)
+        self.assertTrue(len(algo.labels_) == adjacency.shape[0])
+        adjacency = test_digraph()
+        algo = DiffusionClassifier(centering=False)
+        algo.fit(adjacency, seeds=seeds)
+        self.assertTrue(len(algo.labels_) == adjacency.shape[0])
+        with self.assertRaises(ValueError):
+            DiffusionClassifier(n_iter=0)
+
     def test_bipartite(self):
         biadjacency = test_bigraph()
         n_row, n_col = biadjacency.shape
