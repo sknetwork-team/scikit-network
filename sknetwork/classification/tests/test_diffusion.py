@@ -22,7 +22,7 @@ class TestDiffusionClassifier(unittest.TestCase):
         self.assertTrue(len(algo.labels_) == adjacency.shape[0])
         with self.assertRaises(ValueError):
             DiffusionClassifier(n_iter=0)
-        algo = DiffusionClassifier(threshold=1)
+        algo = DiffusionClassifier(centering=False, threshold=1)
         algo.fit(adjacency, seeds=seeds)
         self.assertTrue(max(algo.labels_) == -1)
 

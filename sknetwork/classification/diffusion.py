@@ -28,7 +28,7 @@ class DiffusionClassifier(BaseClassifier):
         If ``True``, center the temperature of each label to its mean before classification (default).
     threshold : float
         Minimum difference of temperatures between the 2 top labels to classify a node (default = 0).
-        If the difference of temperatures is less than this threshold, return -1 for this node (no label).
+        If the difference of temperatures does not exceed this threshold, return -1 for this node (no label).
 
     Attributes
     ----------
@@ -115,12 +115,12 @@ class DiffusionClassifier(BaseClassifier):
 
         labels = temperatures.argmax(axis=1)
 
-        if self.threshold > 0:
+        if self.threshold >= 0:
             if n_labels > 2:
                 top_temperatures = np.partition(-temperatures, 2, axis=1)[:, :2]
             else:
                 top_temperatures = temperatures
-            differences = top_temperatures[:, 1] - top_temperatures[:, 0]
+            differences = np.abs(top_temperatures[:, 0] - top_temperatures[:, 1])
             labels[differences <= self.threshold] = -1
 
         self.labels_ = labels
