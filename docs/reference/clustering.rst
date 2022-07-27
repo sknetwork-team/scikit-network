@@ -64,7 +64,3 @@ Metrics
 -------
 .. autofunction:: sknetwork.clustering.get_modularity
 
-.. autofunction:: sknetwork.clustering.get_bimodularity
-
-.. autofunction:: sknetwork.clustering.get_comodularity
-

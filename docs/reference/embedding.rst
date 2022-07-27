@@ -54,5 +54,5 @@ Spring
 
 Metrics
 -------
-.. autofunction:: sknetwork.embedding.cosine_modularity
+.. autofunction:: sknetwork.embedding.get_cosine_similarity
 

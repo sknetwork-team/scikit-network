@@ -5,7 +5,7 @@ import unittest
 
 import numpy as np
 
-from sknetwork.clustering import get_modularity, get_bimodularity, get_comodularity, get_normalized_std, Louvain
+from sknetwork.clustering import get_modularity, Louvain
 from sknetwork.data import star_wars, karate_club
 from sknetwork.data.test_graphs import test_graph
 
@@ -22,7 +22,7 @@ class TestClusteringMetrics(unittest.TestCase):
         self.unique_cluster = np.zeros(n, dtype=int)
 
     def test_api(self):
-        for metric in [get_modularity, get_comodularity]:
+        for metric in [get_modularity]:
             _, fit, div = metric(self.adjacency, self.labels, return_all=True)
             mod = metric(self.adjacency, self.labels, return_all=False)
             self.assertAlmostEqual(fit - div, mod)
@@ -34,25 +34,17 @@ class TestClusteringMetrics(unittest.TestCase):
     def test_modularity(self):
         adjacency = karate_club()
         labels = Louvain().fit_transform(adjacency)
-        self.assertAlmostEqual(0.42, get_modularity(adjacency, labels), places=2)
+        self.assertAlmostEqual(get_modularity(adjacency, labels), 0.69, 2)
 
     def test_bimodularity(self):
         biadjacency = star_wars()
         labels_row = np.array([0, 0, 1, 1])
         labels_col = np.array([0, 1, 0])
-        self.assertEqual(get_bimodularity(biadjacency, labels_row, labels_col), 0.1875)
+        self.assertAlmostEqual(get_modularity(biadjacency, labels_row, labels_col), 0.49, 2)
 
         with self.assertRaises(ValueError):
-            get_bimodularity(biadjacency, labels_row[:2], labels_col)
+            get_modularity(biadjacency, labels_row)
         with self.assertRaises(ValueError):
-            get_bimodularity(biadjacency, labels_row, labels_col[:2])
-
-    def test_nsd(self):
-        balanced = np.arange(5)
-        self.assertEqual(1, get_normalized_std(balanced))
-        unbalanced = np.zeros(5)
-        unbalanced[0] = 1
-        self.assertGreaterEqual(get_normalized_std(unbalanced), 0)
-
+            get_modularity(biadjacency, labels_row[:2], labels_col)
         with self.assertRaises(ValueError):
-            get_normalized_std(np.zeros(5))
+            get_modularity(biadjacency, labels_row, labels_col[:2])
