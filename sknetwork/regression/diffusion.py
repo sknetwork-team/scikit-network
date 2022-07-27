@@ -28,9 +28,10 @@ def init_temperatures(seeds: np.ndarray, init: Optional[float]) -> Tuple[np.ndar
 
 
 class Diffusion(BaseRegressor):
-    """Regression by diffusion along the edges (heat equation).
+    """Regression by diffusion along the edges, given the temperatures of some seed nodes (heat equation).
 
-    All values are updated, including those of seeds. See ``Dirichlet`` for heat diffusion with boundary constraints.
+    All values are updated, including those of seed nodes (free diffusion).
+    See ``Dirichlet`` for diffusion with boundary constraints.
 
     Parameters
     ----------
@@ -107,7 +108,10 @@ class Diffusion(BaseRegressor):
 
 
 class Dirichlet(BaseRegressor):
-    """Regression by the Dirichlet problem (heat diffusion with boundary constraints).
+    """Regression by the Dirichlet problem, given the temperature of some seed nodes
+     (heat diffusion with boundary constraints).
+
+     Only values of non-seed nodes are updated. The temperatures of seed nodes are fixed.
 
     Parameters
     ----------

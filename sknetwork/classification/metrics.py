@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on July 2020
+Created in July 2020
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 import numpy as np
 
 
 def accuracy_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """Accuracy: number of correctly labeled samples over total number of elements.
-     In the case of binary classification, this is
-
-    :math:`P = \\dfrac{TP + TN}{TP + TN + FP + FN}`.
+    """Return the proportion of correctly labeled samples.
 
     Parameters
     ----------

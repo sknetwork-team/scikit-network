@@ -68,8 +68,3 @@ Metrics
 
 .. autofunction:: sknetwork.clustering.get_comodularity
 
-Post-processing
----------------
-
-.. autofunction:: sknetwork.clustering.postprocess.reindex_labels
-
