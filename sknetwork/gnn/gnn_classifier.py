@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on April 2022
+Created in April 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
 from typing import Optional, Tuple, Union
@@ -47,8 +47,6 @@ class GNNClassifier(BaseGNNClassifier):
         Whether to add a self loop at each node of the graph for message passing.
         If ``True``, add a self-loop for message passing at all layers.
     optimizer: str
-        Can be either:
-
         * ``'Adam'``, stochastic gradient-based optimizer (default).
         * ``'None'``, gradient descent.
     early_stopping: bool (default = ``True``)
@@ -152,7 +150,7 @@ class GNNClassifier(BaseGNNClassifier):
             labels: np.ndarray, max_iter: int = 30, loss: str = 'CrossEntropyLoss',
             train_mask: Optional[np.ndarray] = None, val_mask: Optional[np.ndarray] = None,
             test_mask: Optional[np.ndarray] = None, train_size: Optional[float] = 0.8,
-            val_size: Optional[float] = 0.1, test_size: Optional[float] = 0.2, random_state: Optional[int] = None,
+            test_size: Optional[float] = 0.2, val_size: Optional[float] = 0.1, random_state: Optional[int] = None,
             shuffle: Optional[bool] = True) -> 'GNNClassifier':
         """ Fits model to data and store trained parameters.
 
@@ -166,15 +164,18 @@ class GNNClassifier(BaseGNNClassifier):
         labels : np.ndarray
             Label vectors of length :math:`n`, with :math:`n` the number of nodes in `adjacency`. A value of `labels`
             equals `-1` means no label. The associated nodes are not considered in training steps.
-        max_iter: int (default = 30)
+        max_iter : int (default = 30)
             Maximum number of iterations for the solver. Corresponds to the number of epochs.
-        loss: str (default = ``'CrossEntropyLoss'``)
+        loss : str (default = ``'CrossEntropyLoss'``)
             Loss function name.
         train_mask, val_mask, test_mask : np.ndarray
             Boolean array indicating whether nodes are in training/validation/test set.
-        train_size, val_size, test_size: float
-            Proportion of the nodes in the training/validation/test set (between 0 and 1).
-            Only used if when corresponding masks are ``None``.
+        train_size, test_size : float
+            Proportion of the nodes in the training/test set (between 0 and 1).
+            Only used if the corresponding masks are ``None``.
+        val_size : float
+            Proportion of the training set used for validation (between 0 and 1).
+            Only used if the corresponding mask is ``None``.
         random_state : int
             Pass an int for reproducible results across multiple runs. Used if either `train_size` or `test_size`
             is not `None`.
@@ -211,6 +212,8 @@ class GNNClassifier(BaseGNNClassifier):
             train_acc = accuracy_score(labels[self.train_mask], labels_pred[self.train_mask])
             if self.val_mask is not None and any(self.val_mask):
                 val_acc = accuracy_score(labels[self.val_mask], labels_pred[self.val_mask])
+            else:
+                val_acc = None
 
             # Backpropagation
             self.backward(features, labels, loss)
@@ -222,7 +225,7 @@ class GNNClassifier(BaseGNNClassifier):
             self.history_['embedding'].append(embedding)
             self.history_['loss'].append(loss_value)
             self.history_['train_accuracy'].append(train_acc)
-            if self.val_mask is not None and any(self.val_mask):
+            if val_acc is not None:
                 self.history_['val_accuracy'].append(val_acc)
 
             if max_iter > 10 and epoch % int(max_iter / 10) == 0:
@@ -258,17 +261,17 @@ class GNNClassifier(BaseGNNClassifier):
 
         return self
 
-    def _generate_masks(self, train_size: float = 0.7, val_size: float = 0.1,
-                        test_size: float = 0.2, random_state: int = None, shuffle: bool = True):
+    def _generate_masks(self, train_size: Optional[float] = None, val_size: Optional[float] = None,
+                        test_size: Optional[float] = None, random_state: int = None, shuffle: bool = True):
         """ Create training, validation and test masks.
 
         Parameters
         ----------
-        train_size : float (default = 0.7)
+        train_size : float
             Proportion of nodes in the training set (between 0 and 1).
-        val_size : float (default = 0.1)
+        val_size : float
             Proportion of nodes in the validation set (between 0 and 1).
-        test_size : float (default = 0.2)
+        test_size : float
             Proportion of nodes in the test set (between 0 and 1).
         random_state : int
             Pass an int for reproducible results across multiple runs.
@@ -283,6 +286,9 @@ class GNNClassifier(BaseGNNClassifier):
 
         if random_state is not None:
             np.random.seed(random_state)
+
+        if train_size is None:
+            train_size = 1 - test_size
 
         n = len(self.train_mask)
         indices = list(range(n))

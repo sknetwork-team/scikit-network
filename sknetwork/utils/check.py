@@ -141,7 +141,7 @@ def check_is_proba(entry: Union[float, int], name: str = None):
     if type(entry) not in [float, int]:
         raise TypeError('{} must be floats (or ints if 0 or 1).'.format(name))
     if entry < 0 or entry > 1:
-        raise ValueError('{} must have value between 0 and 1.'.format(name))
+        raise ValueError('{} must be between 0 and 1.'.format(name))
 
 
 def check_damping_factor(damping_factor: float):

@@ -69,13 +69,12 @@ def check_existing_masks(labels: np.ndarray, train_mask: Optional[np.ndarray] = 
         return True, train_mask, val_mask, test_mask
 
     else:
-        if train_size is None and val_size is None and test_size is None:
+        if train_size is None and test_size is None:
             raise ValueError('Either masks parameters or size parameters should be different from None.')
-        else:
-            check_is_proba(test_size)
-            check_is_proba(val_size)
-            check_is_proba(train_size)
-            return False, ~is_negative_labels, None, is_negative_labels
+        for size in [train_size, test_size, val_size]:
+            if size is not None:
+                check_is_proba(size)
+        return False, ~is_negative_labels, None, is_negative_labels
 
 
 def check_mask_similarity(m1: np.ndarray, m2: np.ndarray):
@@ -186,4 +185,3 @@ def add_self_loops(adjacency: sparse.csr_matrix) -> sparse.csr_matrix:
         adjacency += tmp
 
     return adjacency
-
