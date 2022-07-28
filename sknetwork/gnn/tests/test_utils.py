@@ -26,12 +26,10 @@ class TestUtils(unittest.TestCase):
             check_mask_similarity(m1, m2)
 
     def test_early_stopping(self):
-        with self.assertRaises(ValueError):
-            check_early_stopping(True, None, 2)
-        with self.assertRaises(ValueError):
-            check_early_stopping(True, np.array([True, False, True]), None)
-        with self.assertRaises(ValueError):
-            check_early_stopping(True, np.array([False, False, False]), 5)
+        self.assertTrue(check_early_stopping(True, np.array([True, False]), 2))
+        self.assertFalse(check_early_stopping(True, None, 2))
+        self.assertFalse(check_early_stopping(True, np.array([True, False, True]), None))
+        self.assertFalse(check_early_stopping(True, np.array([False, False, False]), 5))
 
     def test_check_existing_masks(self):
         # Check invalid entries

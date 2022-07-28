@@ -35,7 +35,7 @@ class TestGNNClassifier(unittest.TestCase):
         with self.assertRaises(TypeError):
             gnn.fit_predict(self.adjacency, features, self.labels, val_size=0.2)
 
-        # features in nparray
+        # features in numpy array
         features = np.array(self.adjacency.todense())
         gnn = GNNClassifier(2, 'GCNConv', 'Softmax')
         y_pred = gnn.fit_predict(self.adjacency, features, self.labels, val_size=0.2)
@@ -80,29 +80,22 @@ class TestGNNClassifier(unittest.TestCase):
         gnn = GNNClassifier(2, 'GCNConv', 'Softmax', early_stopping=False)
 
         train_mask = np.array([True, True, True, True, True, True, False, False, False, False])
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, shuffle=False,
-                            max_iter=5)
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, max_iter=5)
         self.assertTrue(sum(gnn.train_mask) + sum(gnn.val_mask) + sum(gnn.test_mask) == self.adjacency.shape[0])
 
         train_mask = np.array([True, True, True, True, True, True, False, False, False, False])
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, shuffle=False,
-                            max_iter=20)
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, resample=True,
+                            max_iter=10)
         self.assertTrue(sum(gnn.train_mask) + sum(gnn.val_mask) + sum(gnn.test_mask) == self.adjacency.shape[0])
 
         val_mask = np.array([False, False, False, False, False, False, True, False, False, False])
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, val_mask=val_mask,
-                            shuffle=False)
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, val_mask=val_mask)
         self.assertTrue(sum(gnn.train_mask) + sum(gnn.val_mask) + sum(gnn.test_mask) == self.adjacency.shape[0])
 
         test_mask = np.array([False, False, False, False, False, False, False, True, True, True])
         _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, val_mask=val_mask,
-                            test_mask=test_mask, shuffle=False)
-        self.assertTrue(sum(gnn.train_mask) + sum(gnn.val_mask) + sum(gnn.test_mask) == self.adjacency.shape[0])
-
-        val_mask = np.zeros(10).astype(bool)
-        with self.assertRaises(ValueError):
-            gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, val_mask=val_mask,
                             test_mask=test_mask)
+        self.assertTrue(sum(gnn.train_mask) + sum(gnn.val_mask) + sum(gnn.test_mask) == self.adjacency.shape[0])
 
     def test_gnn_classifier_val_size(self):
         gnn = GNNClassifier(2)
@@ -113,7 +106,7 @@ class TestGNNClassifier(unittest.TestCase):
         with self.assertRaises(ValueError):
             gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=1.5)
 
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_size=0.6, shuffle=False)
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_size=0.6)
         self.assertTrue(sum(gnn.train_mask) + sum(gnn.val_mask) + sum(gnn.test_mask) == self.adjacency.shape[0])
 
         _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_size=0.7, val_size=0.1, test_size=0.2)
@@ -121,13 +114,13 @@ class TestGNNClassifier(unittest.TestCase):
 
         labels = self.labels.copy()
         labels[:2] = -1  # missing labels
-        _ = gnn.fit_predict(self.adjacency, self.features, labels, train_size=0.8, val_size=0.1, shuffle=False)
+        _ = gnn.fit_predict(self.adjacency, self.features, labels, train_size=0.8, val_size=0.1)
         self.assertTrue(sum(gnn.test_mask) != 0)
         self.assertTrue(sum(gnn.train_mask) + sum(gnn.val_mask) + sum(gnn.test_mask) == self.adjacency.shape[0])
 
     def test_gnn_classifier_shuffle(self):
         gnn = GNNClassifier(2)
-        y_pred = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2, shuffle=False)
+        y_pred = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2)
         embedding = gnn.embedding_
         self.assertTrue(len(y_pred) == self.n)
         self.assertTrue(embedding.shape == (self.n, 2))
