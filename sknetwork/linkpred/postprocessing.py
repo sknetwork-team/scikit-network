@@ -25,7 +25,7 @@ def is_edge(adjacency: sparse.csr_matrix, query: Union[int, Iterable, Tuple]) ->
 
     Returns
     -------
-    y_true : Union[bool, np.ndarray]
+    labels_true : Union[bool, np.ndarray]
         For each element in the query, returns ``True`` if the edge exists in the adjacency and ``False`` otherwise.
 
     Examples
