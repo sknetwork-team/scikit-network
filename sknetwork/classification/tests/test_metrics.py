@@ -20,6 +20,18 @@ class TestMetrics(unittest.TestCase):
             get_accuracy_score(self.labels_true, self.labels_pred2)
 
     def test_confusion(self):
-        self.assertEqual(get_confusion_matrix(self.labels_true, self.labels_pred1).data.sum(), 4)
+        confusion = get_confusion_matrix(self.labels_true, self.labels_pred1)
+        self.assertEqual(confusion.data.sum(), 4)
+        self.assertEqual(confusion.diagonal().sum(), 3)
         with self.assertRaises(ValueError):
             get_accuracy_score(self.labels_true, self.labels_pred2)
+
+    def test_f1_scores(self):
+        f1_scores = get_f1_scores(self.labels_true, self.labels_pred1)
+        self.assertAlmostEqual(min(f1_scores), 0.67, 2)
+        f1_scores, precisions, recalls = get_f1_scores(self.labels_true, self.labels_pred1, True)
+        self.assertAlmostEqual(min(f1_scores), 0.67, 2)
+        self.assertAlmostEqual(min(precisions), 0.5, 2)
+        self.assertAlmostEqual(min(recalls), 0.5, 2)
+        with self.assertRaises(ValueError):
+            get_f1_scores(self.labels_true, self.labels_pred2)
