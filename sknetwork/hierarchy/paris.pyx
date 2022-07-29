@@ -182,7 +182,7 @@ class Paris(BaseHierarchy):
     >>> from sknetwork.data import house
     >>> paris = Paris()
     >>> adjacency = house()
-    >>> dendrogram = paris.fit_transform(adjacency)
+    >>> dendrogram = paris.fit_predict(adjacency)
     >>> np.round(dendrogram, 2)
     array([[3.        , 2.        , 0.17      , 2.        ],
            [1.        , 0.        , 0.25      , 2.        ],
@@ -207,6 +207,7 @@ class Paris(BaseHierarchy):
     """
     def __init__(self, weights: str = 'degree', reorder: bool = True):
         super(Paris, self).__init__()
+        self.dendrogram_ = None
         self.weights = weights
         self.reorder = reorder
         self.bipartite = None

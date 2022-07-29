@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-Created on Thu Sep 13 2018
-@author: Nathan de Lara <ndelara@enst.fr>
+Created on September 2018
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Thomas Bonald <bonald@enst.fr>
 """
 from typing import Union
@@ -69,6 +69,7 @@ class Spectral(BaseEmbedding):
                  normalized: bool = True):
         super(Spectral, self).__init__()
 
+        self.embedding_ = None
         self.n_components = n_components
         self.decomposition = decomposition
         self.regularization = regularization

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Nov 2, 2018
-@author: Nathan de Lara <ndelara@enst.fr>
+Created in November 2018
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
@@ -16,7 +16,7 @@ from sknetwork.clustering.louvain_core import fit_core
 from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.utils.check import check_random_state, get_probs
 from sknetwork.utils.format import check_format, get_adjacency, directed2undirected
-from sknetwork.utils.membership import membership_matrix
+from sknetwork.utils.membership import get_membership
 from sknetwork.utils.verbose import VerboseMixin
 
 
@@ -30,7 +30,7 @@ class Louvain(BaseClustering, VerboseMixin):
     resolution :
         Resolution parameter.
     modularity : str
-        Which objective function to maximize. Can be ``'dugue'``, ``'newman'`` or ``'potts'`` (default = ``'dugue'``).
+        Which objective function to maximize. Can be ``'Dugue'``, ``'Newman'`` or ``'Potts'`` (default = ``'dugue'``).
     tol_optimization :
         Minimum increase in the objective function to enter a new optimization pass.
     tol_aggregation :
@@ -43,9 +43,9 @@ class Louvain(BaseClustering, VerboseMixin):
     sort_clusters :
         If ``True``, sort labels in decreasing order of cluster size.
     return_membership :
-            If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
+        If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
     return_aggregate :
-            If ``True``, return the adjacency matrix of the graph between clusters.
+        If ``True``, return the adjacency matrix of the graph between clusters.
     random_state :
         Random number generator or random seed. If None, numpy.random is used.
     verbose :
@@ -103,6 +103,7 @@ class Louvain(BaseClustering, VerboseMixin):
                                       return_aggregate=return_aggregate)
         VerboseMixin.__init__(self, verbose)
 
+        self.labels_ = None
         self.resolution = resolution
         self.modularity = modularity.lower()
         self.tol = tol_optimization
@@ -194,7 +195,7 @@ class Louvain(BaseClustering, VerboseMixin):
 
         index = np.arange(n)
         if self.shuffle_nodes:
-            self.random_state.permutation(index)
+            index = self.random_state.permutation(index)
             adjacency = adjacency[index][:, index]
 
         if self.modularity == 'potts':
@@ -224,10 +225,10 @@ class Louvain(BaseClustering, VerboseMixin):
             if pass_increase <= self.tol_aggregation:
                 increase = False
             else:
-                membership_cluster = membership_matrix(labels_cluster)
+                membership_cluster = get_membership(labels_cluster)
                 membership = membership.dot(membership_cluster)
                 adjacency_cluster, probs_out, probs_in = self._aggregate(adjacency_cluster, probs_out, probs_in,
-                                                                        membership_cluster)
+                                                                         membership_cluster)
 
                 n = adjacency_cluster.shape[0]
                 if n == 1:

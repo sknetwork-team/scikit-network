@@ -4,7 +4,7 @@
 # distutils: define_macros=CYTHON_TRACE_NOGIL=1
 """
 Created on Apr 2020
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 cimport cython
 from cython.parallel import prange

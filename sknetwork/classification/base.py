@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Nov, 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+Created on November 2019
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from abc import ABC
 
@@ -34,7 +34,7 @@ class BaseClassifier(Algorithm, ABC):
         self.membership_row_ = None
         self.membership_col_ = None
 
-    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+    def fit_predict(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
 
         Returns
@@ -44,6 +44,17 @@ class BaseClassifier(Algorithm, ABC):
         """
         self.fit(*args, **kwargs)
         return self.labels_
+
+    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to the data and return the membership matrix. Same parameters as the ``fit`` method.
+
+        Returns
+        -------
+        labels : np.ndarray
+            Labels.
+        """
+        self.fit(*args, **kwargs)
+        return self.membership_
 
     def score(self, label: int):
         """Classification scores for a given label.

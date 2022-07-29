@@ -2,7 +2,7 @@
 # tests for toy_graphs.py
 """
 @author: Quentin Lutz <qlutz@enst.fr>
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Thomas Bonald <tbonald@enst.fr>
 """
 import unittest
@@ -37,9 +37,16 @@ class TestToys(unittest.TestCase):
         adjacency = painters()
         self.assertEqual(adjacency.shape, (14, 14))
 
+        adjacency = art_philo_science()
+        self.assertEqual(adjacency.shape, (30, 30))
+
         graph = painters(True)
         self.assertEqual(graph.adjacency.shape, (14, 14))
         self.assertEqual(len(graph.names), 14)
+
+        graph = art_philo_science(True)
+        self.assertEqual(graph.adjacency.shape, (30, 30))
+        self.assertEqual(len(graph.names), 30)
 
     def test_bipartite(self):
         graph = star_wars(True)
@@ -54,3 +61,8 @@ class TestToys(unittest.TestCase):
 
         graph = hourglass(True)
         self.assertEqual(graph.biadjacency.shape, (2, 2))
+
+        graph = art_philo_science(True)
+        self.assertEqual(graph.biadjacency.shape, (30, 11))
+        self.assertEqual(len(graph.names), 30)
+        self.assertEqual(len(graph.names_col), 11)

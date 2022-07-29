@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on May, 2020
-@author: Nathan de Lara <ndelara@enst.fr>
+Created in May 2020
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from abc import ABC
 from typing import Union, Iterable
@@ -136,7 +136,8 @@ class JaccardIndex(FirstOrder):
 
     def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
-        return np.asarray(jaccard_node_core(self.indptr_, self.indices_, np.int32(source), np.array(targets, dtype=np.int32)))
+        return np.asarray(jaccard_node_core(self.indptr_, self.indices_, np.int32(source),
+                                            np.array(targets, dtype=np.int32)))
 
     def _predict_edges(self, edges: np.ndarray):
         """Prediction for multiple edges."""
@@ -186,7 +187,8 @@ class SaltonIndex(FirstOrder):
 
     def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
-        return np.asarray(salton_node_core(self.indptr_, self.indices_, np.int32(source), np.array(targets, dtype=np.int32)))
+        return np.asarray(salton_node_core(self.indptr_, self.indices_, np.int32(source),
+                                           np.array(targets, dtype=np.int32)))
 
     def _predict_edges(self, edges: np.ndarray):
         """Prediction for multiple edges."""
@@ -194,7 +196,7 @@ class SaltonIndex(FirstOrder):
 
 
 class SorensenIndex(FirstOrder):
-    """Link prediction by Salton Index:
+    """Link prediction by Sorensen Index:
 
     :math:`s(i, j) = \\dfrac{2|\\Gamma_i \\cap \\Gamma_j|}{|\\Gamma_i|+|\\Gamma_j|}`.
 
@@ -241,7 +243,8 @@ class SorensenIndex(FirstOrder):
 
     def _predict_base(self, source: int, targets: Iterable):
         """Prediction for a single node."""
-        return np.asarray(sorensen_node_core(self.indptr_, self.indices_, np.int32(source), np.array(targets, dtype=np.int32)))
+        return np.asarray(sorensen_node_core(self.indptr_, self.indices_, np.int32(source),
+                                             np.array(targets, dtype=np.int32)))
 
     def _predict_edges(self, edges: np.ndarray):
         """Prediction for multiple edges."""

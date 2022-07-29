@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on October 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+Created in October 2019
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 
 import unittest
@@ -45,4 +45,3 @@ class TestKMeans(unittest.TestCase):
             self.assertEqual(algo_options.membership_row_.shape, (n_row, 4))
             self.assertEqual(algo_options.membership_col_.shape, (n_col, 4))
             self.assertEqual(algo_options.aggregate_.shape, (4, 4))
-

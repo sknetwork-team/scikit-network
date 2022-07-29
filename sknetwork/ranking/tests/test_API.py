@@ -14,9 +14,11 @@ class TestPageRank(unittest.TestCase):
         for adjacency in [test_graph(), test_digraph()]:
             n = adjacency.shape[0]
             for method in methods:
-                score = method.fit_transform(adjacency)
+                score = method.fit_predict(adjacency)
                 self.assertEqual(score.shape, (n, ))
-                self.assertTrue(score.min() >= 0)
+                self.assertTrue(min(score) >= 0)
+                score = method.fit_transform(adjacency)
+                self.assertEqual(score.shape, (n,))
 
     def test_bipartite(self):
         biadjacency = test_bigraph()

@@ -26,8 +26,20 @@ class BaseRegressor(Algorithm, ABC):
     def __init__(self):
         self.values_ = None
 
-    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+    def fit_predict(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to data and return the scores. Same parameters as the ``fit`` method.
+
+        Returns
+        -------
+        values : np.ndarray
+            Values.
+        """
+        self.fit(*args, **kwargs)
+        return self.values_
+
+    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to data and return the scores. Alias for ``fit_transform``.
+        Same parameters as the ``fit`` method.
 
         Returns
         -------

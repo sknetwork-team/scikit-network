@@ -62,16 +62,5 @@ K-Means
 
 Metrics
 -------
-.. autofunction:: sknetwork.clustering.modularity
-
-.. autofunction:: sknetwork.clustering.bimodularity
-
-.. autofunction:: sknetwork.clustering.comodularity
-
-.. autofunction:: sknetwork.clustering.normalized_std
-
-Post-processing
----------------
-
-.. autofunction:: sknetwork.clustering.postprocess.reindex_labels
+.. autofunction:: sknetwork.clustering.get_modularity
 

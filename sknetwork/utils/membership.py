@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on July 10, 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+Created in July 2019
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Thomas Bonald <bonald@enst.fr>
 """
 from typing import Optional
@@ -11,8 +11,8 @@ import numpy as np
 from scipy import sparse
 
 
-def membership_matrix(labels: np.ndarray, dtype=bool, n_labels: Optional[int] = None) -> sparse.csr_matrix:
-    """Build a n x k matrix of the label assignments, with k the number of labels.
+def get_membership(labels: np.ndarray, dtype=bool, n_labels: Optional[int] = None) -> sparse.csr_matrix:
+    """Build an n x k matrix of the label assignments, with k the number of labels.
     Negative labels are ignored.
 
     Parameters

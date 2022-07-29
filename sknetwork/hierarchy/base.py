@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Nov, 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+Created on November 2019
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from abc import ABC
 
@@ -29,8 +29,20 @@ class BaseHierarchy(Algorithm, ABC):
     def __init__(self):
         self._init_vars()
 
-    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+    def fit_predict(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to data and return the dendrogram. Same parameters as the ``fit`` method.
+
+        Returns
+        -------
+        dendrogram : np.ndarray
+            Dendrogram.
+        """
+        self.fit(*args, **kwargs)
+        return self.dendrogram_
+
+    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to data and return the dendrogram. Alias for ``fit_predict``.
+        Same parameters as the ``fit`` method.
 
         Returns
         -------

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-Created on Apr 2020
+Created in April 2020
 @author: Thomas Bonald <bonald@enst.fr>
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from typing import Union
 
@@ -173,8 +173,8 @@ class CoNeighbor(LinearOperator):
     >>> from sknetwork.data import star_wars
     >>> biadjacency = star_wars(metadata=False)
     >>> d_out = biadjacency.dot(np.ones(3))
-    >>> coneigh = CoNeighbor(biadjacency)
-    >>> np.allclose(d_out, coneigh.dot(np.ones(4)))
+    >>> coneighbor = CoNeighbor(biadjacency)
+    >>> np.allclose(d_out, coneighbor.dot(np.ones(4)))
     True
     """
     def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], normalized: bool = True):

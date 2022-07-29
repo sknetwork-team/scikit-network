@@ -42,7 +42,7 @@ class Closeness(BaseRanking):
     >>> from sknetwork.data import cyclic_digraph
     >>> closeness = Closeness()
     >>> adjacency = cyclic_digraph(3)
-    >>> scores = closeness.fit_transform(adjacency)
+    >>> scores = closeness.fit_predict(adjacency)
     >>> np.round(scores, 2)
     array([0.67, 0.67, 0.67])
 

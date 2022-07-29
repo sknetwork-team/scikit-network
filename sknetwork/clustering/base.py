@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Nov, 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from abc import ABC
 
@@ -11,7 +11,7 @@ from scipy import sparse
 
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.base import Algorithm
-from sknetwork.utils.membership import membership_matrix
+from sknetwork.utils.membership import get_membership
 
 
 class BaseClustering(Algorithm, ABC):
@@ -76,7 +76,7 @@ class BaseClustering(Algorithm, ABC):
         if self.return_membership or self.return_aggregate:
             input_matrix = input_matrix.astype(float)
             if not self.bipartite:
-                membership = membership_matrix(self.labels_)
+                membership = get_membership(self.labels_)
                 if self.return_membership:
                     self.membership_ = normalize(input_matrix.dot(membership))
                 if self.return_aggregate:
@@ -84,12 +84,12 @@ class BaseClustering(Algorithm, ABC):
             else:
                 if self.labels_col_ is None:
                     n_labels = max(self.labels_) + 1
-                    membership_row = membership_matrix(self.labels_, n_labels=n_labels)
+                    membership_row = get_membership(self.labels_, n_labels=n_labels)
                     membership_col = normalize(input_matrix.T.dot(membership_row))
                 else:
                     n_labels = max(max(self.labels_row_), max(self.labels_col_)) + 1
-                    membership_row = membership_matrix(self.labels_row_, n_labels=n_labels)
-                    membership_col = membership_matrix(self.labels_col_, n_labels=n_labels)
+                    membership_row = get_membership(self.labels_row_, n_labels=n_labels)
+                    membership_col = get_membership(self.labels_col_, n_labels=n_labels)
                 if self.return_membership:
                     self.membership_row_ = normalize(input_matrix.dot(membership_col))
                     self.membership_col_ = normalize(input_matrix.T.dot(membership_row))

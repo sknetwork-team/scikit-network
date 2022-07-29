@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mar, 2020
-@author: Nathan de Lara <ndelara@enst.fr>
+Created on March 2020
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from functools import partial
 from multiprocessing import Pool

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Nov 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+Created in November 2019
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from typing import Union
 
@@ -39,7 +39,7 @@ def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
     matrix :
         Input matrix.
     p :
-        Order of the norm
+        Order of the norm.
 
     Returns
     -------

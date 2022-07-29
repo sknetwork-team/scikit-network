@@ -2,8 +2,8 @@
 pip>=21.3.1
 
 # base dependencies
-numpy>=1.21.5
-scipy>=1.6.3
+numpy>=1.22.0
+scipy>=1.7.3
 
 # tool to automatically change version number in the package upon release
 bumpversion==0.6.0
@@ -48,4 +48,7 @@ pytest-cov==3.0.0
 
 # C++ code generator for performance speed-up
 cython==0.29.26
+
+# Matplotlib for GNN notebooks
+matplotlib==3.5.2
 

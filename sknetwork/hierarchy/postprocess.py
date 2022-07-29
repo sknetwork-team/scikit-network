@@ -16,7 +16,7 @@ import numpy as np
 from sknetwork.utils.check import check_n_clusters, check_dendrogram
 
 
-def reorder_dendrogram(dendrogram: np.ndarray):
+def reorder_dendrogram(dendrogram: np.ndarray) -> np.ndarray:
     """Reorder the dendrogram in non-decreasing order of height."""
     n = dendrogram.shape[0] + 1
     order = np.zeros((2, n - 1), float)

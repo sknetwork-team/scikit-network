@@ -20,6 +20,8 @@ Louvain
 -------
 .. autoclass:: sknetwork.hierarchy.LouvainHierarchy
 
+.. autoclass:: sknetwork.hierarchy.LouvainIteration
+
 Ward
 ----
 .. autoclass:: sknetwork.hierarchy.Ward

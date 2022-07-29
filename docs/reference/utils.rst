@@ -9,15 +9,17 @@ Various tools for graph analysis.
 Convert graphs
 --------------
 
-.. autofunction:: sknetwork.utils.bipartite2directed
+.. autofunction:: sknetwork.utils.directed2undirected
 
 .. autofunction:: sknetwork.utils.bipartite2undirected
 
-.. autofunction:: sknetwork.utils.directed2undirected
+.. autofunction:: sknetwork.utils.bipartite2directed
 
 
-Get neighbors
--------------
+Neighborhood
+------------
+
+.. autofunction:: sknetwork.utils.get_degrees
 
 .. autofunction:: sknetwork.utils.get_neighbors
 
@@ -25,7 +27,7 @@ Get neighbors
 Clustering
 ----------
 
-.. autofunction:: sknetwork.utils.membership_matrix
+.. autofunction:: sknetwork.utils.get_membership
 
 .. autoclass:: sknetwork.utils.KMeansDense
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on May 31 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+Created on May 2019
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Thomas Bonald <bonald@enst.fr>
 """
 from typing import Union, Optional
@@ -56,7 +56,7 @@ class PageRank(BaseRanking, VerboseMixin):
     >>> pagerank = PageRank()
     >>> adjacency = house()
     >>> seeds = {0: 1}
-    >>> scores = pagerank.fit_transform(adjacency, seeds)
+    >>> scores = pagerank.fit_predict(adjacency, seeds)
     >>> np.round(scores, 2)
     array([0.29, 0.24, 0.12, 0.12, 0.24])
 

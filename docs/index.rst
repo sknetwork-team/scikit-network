@@ -22,6 +22,7 @@ Welcome to scikit-network's documentation!
    reference/classification
    reference/regression
    reference/embedding
+   reference/gnn
    reference/linkpred
    reference/linalg
    reference/utils
@@ -40,6 +41,7 @@ Welcome to scikit-network's documentation!
    tutorials/classification/index
    tutorials/regression/index
    tutorials/embedding/index
+   tutorials/gnn/index
    tutorials/linkpred/index
    tutorials/visualization/index
 

@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 """
 Created on Nov, 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from abc import ABC
+from typing import Union
 
 import numpy as np
 from scipy import sparse
@@ -39,6 +40,24 @@ class BaseEmbedding(Algorithm, ABC):
         """
         self.fit(*args, **kwargs)
         return self.embedding_
+
+    def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
+        """Predict the embedding of new nodes.
+
+        Each new node is defined by its adjacency row vector.
+
+        Parameters
+        ----------
+        adjacency_vectors :
+            Adjacency vectors of nodes.
+            Array of shape (n_col,) (single vector) or (n_vectors, n_col)
+
+        Returns
+        -------
+        embedding_vectors : np.ndarray
+            Embedding of the nodes.
+        """
+        raise NotImplementedError
 
     def _check_fitted(self):
         if self.embedding_ is None:

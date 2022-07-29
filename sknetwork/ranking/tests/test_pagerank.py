@@ -27,10 +27,10 @@ class TestPageRank(unittest.TestCase):
     def test_solvers(self):
         for solver in ['piteration', 'lanczos', 'bicgstab', 'RH']:
             pagerank = PageRank(solver=solver)
-            scores = pagerank.fit_transform(self.adjacency)
+            scores = pagerank.fit_predict(self.adjacency)
             self.assertAlmostEqual(0, np.linalg.norm(scores - self.truth))
         with self.assertRaises(ValueError):
-            PageRank(solver='toto').fit_transform(self.adjacency)
+            PageRank(solver='toto').fit_predict(self.adjacency)
 
     def test_seeding(self):
         pagerank = PageRank()
@@ -44,7 +44,7 @@ class TestPageRank(unittest.TestCase):
 
     def test_input(self):
         pagerank = PageRank()
-        scores = pagerank.fit_transform(self.adjacency, force_bipartite=True)
+        scores = pagerank.fit_predict(self.adjacency, force_bipartite=True)
         self.assertEqual(len(scores), len(pagerank.scores_col_))
 
     def test_damping(self):

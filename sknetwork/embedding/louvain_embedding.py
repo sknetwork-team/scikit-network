@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-Created on Sep 2020
+Created in September 2020
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
@@ -14,7 +14,7 @@ from sknetwork.clustering.louvain import Louvain
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_random_state, check_adjacency_vector, check_nonnegative, is_square
-from sknetwork.utils.membership import membership_matrix
+from sknetwork.utils.membership import get_membership
 
 
 def reindex_labels(labels: np.ndarray, labels_secondary: Optional[np.ndarray] = None, which: str = 'remove'):
@@ -49,7 +49,7 @@ class LouvainEmbedding(BaseEmbedding):
     resolution : float
         Resolution parameter.
     modularity : str
-        Which objective function to maximize. Can be ``'dugue'``, ``'newman'`` or ``'potts'``.
+        Which objective function to maximize. Can be ``'Dugue'``, ``'Newman'`` or ``'Potts'``.
     tol_optimization :
         Minimum increase in the objective function to enter a new optimization pass.
     tol_aggregation :
@@ -87,7 +87,7 @@ class LouvainEmbedding(BaseEmbedding):
     >>> embedding.shape
     (5, 2)
     """
-    def __init__(self, resolution: float = 1, modularity: str = 'dugue', tol_optimization: float = 1e-3,
+    def __init__(self, resolution: float = 1, modularity: str = 'Dugue', tol_optimization: float = 1e-3,
                  tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
                  random_state: Optional[Union[np.random.RandomState, int]] = None, isolated_nodes: str = 'remove'):
         super(LouvainEmbedding, self).__init__()
@@ -101,6 +101,9 @@ class LouvainEmbedding(BaseEmbedding):
         self.isolated_nodes = isolated_nodes
 
         self.labels_ = None
+        self.embedding_ = None
+        self.embedding_row_ = None
+        self.embedding_col_ = None
 
     def fit(self, input_matrix: sparse.csr_matrix, force_bipartite: bool = False):
         """Embedding of graphs from the clustering obtained with Louvain.
@@ -133,12 +136,12 @@ class LouvainEmbedding(BaseEmbedding):
 
         # embedding
         probs = normalize(input_matrix)
-        embedding_ = probs.dot(membership_matrix(self.labels_))
+        embedding_ = probs.dot(get_membership(self.labels_))
         self.embedding_ = embedding_.toarray()
 
         if labels_row is not None:
             probs = normalize(input_matrix.T)
-            embedding_col = probs.dot(membership_matrix(labels_row))
+            embedding_col = probs.dot(get_membership(labels_row))
             self.embedding_row_ = self.embedding_
             self.embedding_col_ = embedding_col.toarray()
 
@@ -166,6 +169,6 @@ class LouvainEmbedding(BaseEmbedding):
 
         adjacency_vectors = check_adjacency_vector(adjacency_vectors, n)
         check_nonnegative(adjacency_vectors)
-        membership = membership_matrix(self.labels_)
+        membership = get_membership(self.labels_)
 
         return normalize(adjacency_vectors).dot(membership)

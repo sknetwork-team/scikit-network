@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mar, 2020
-@author: Nathan de Lara <ndelara@enst.fr>
+Created on March 2020
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from typing import Optional
 
@@ -22,7 +22,7 @@ class PageRankClassifier(RankClassifier):
     solver : :obj:`str`
         Which solver to use: 'piteration', 'diteration', 'bicgstab', 'lanczos'.
     n_iter : int
-        Number of iterations for some of the solvers such as ``'piteration'`` or ``'diteration'``.
+        Number of iterations for some solvers such as ``'piteration'`` or ``'diteration'``.
     tol : float
         Tolerance for the convergence of some solvers such as ``'bicgstab'`` or ``'lanczos'``.
 
@@ -50,7 +50,7 @@ class PageRankClassifier(RankClassifier):
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = pagerank.fit_transform(adjacency, seeds)
+    >>> labels_pred = pagerank.fit_predict(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.97
 

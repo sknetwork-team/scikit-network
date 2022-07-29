@@ -2,6 +2,20 @@
 History
 =======
 
+0.27.0 (2022-07-29)
+-------------------
+
+* Drop Python 3.7
+* Update NumPy and SciPy requirements
+* Add graph neural networks, by Simon Delarue (#533)
+* Add fit_predict / fit_transform where appropriate, by Thomas Bonald
+* Add Louvain hierarchical clustering (bottom-up), by Thomas Bonald
+* Improve classification by diffusion (vectorial), by Thomas Bonald
+* Add F1 scores for classification, by Thomas Bonald
+* Add cosine similarity metric for embeddings, by Thomas Bonald
+* Add acyclic test for undirected graphs, by Thomas Bonald
+* Update algorithms to accept all sparse matrix formats of scipy, by Thomas Bonald
+
 0.26.0 (2022-05-03)
 -------------------
 

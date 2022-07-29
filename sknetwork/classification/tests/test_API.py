@@ -18,24 +18,18 @@ class TestClassificationAPI(unittest.TestCase):
             seeds_array[:2] = np.arange(2)
             seeds_dict = {0: 0, 1: 1}
 
-            classifiers = [PageRankClassifier(), DiffusionClassifier(), DirichletClassifier(),
+            classifiers = [PageRankClassifier(), DiffusionClassifier(),
                            KNN(embedding_method=LouvainEmbedding(), n_neighbors=1), Propagation()]
 
             with self.assertRaises(ValueError):
                 classifiers[0].score(0)
 
             for algo in classifiers:
-                labels1 = algo.fit_transform(adjacency, seeds_array)
-                labels2 = algo.fit_transform(adjacency, seeds_dict)
+                labels1 = algo.fit_predict(adjacency, seeds_array)
+                labels2 = algo.fit_predict(adjacency, seeds_dict)
                 scores = algo.score(0)
                 self.assertTrue((labels1 == labels2).all())
                 self.assertEqual(labels2.shape, (n,))
-                self.assertTupleEqual(algo.membership_.shape, (n, 2))
+                membership = algo.fit_transform(adjacency, seeds_array)
+                self.assertTupleEqual(membership.shape, (n, 2))
                 self.assertEqual(scores.shape, (n,))
-
-            seeds1 = {0: 0, 1: 1}
-            seeds2 = {0: 0, 1: 2}
-            for clf in classifiers:
-                labels1 = (clf.fit_transform(adjacency, seeds1) == 1)
-                labels2 = (clf.fit_transform(adjacency, seeds2) == 2)
-                self.assertTrue((labels1 == labels2).all())

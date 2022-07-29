@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Apr 4, 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+Created in April 2019
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 import warnings
 from typing import Union, Optional
@@ -12,7 +12,7 @@ from scipy import sparse
 
 
 def has_nonnegative_entries(input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> bool:
-    """True if the array has non negative entries."""
+    """True if the array has non-negative entries."""
     if type(input_matrix) == sparse.csr_matrix:
         return np.all(input_matrix.data >= 0)
     else:
@@ -39,7 +39,7 @@ def check_connected(adjacency: sparse.csr_matrix):
 
 
 def check_nonnegative(input_matrix: Union[sparse.csr_matrix, np.ndarray]):
-    """Check whether the array has non negative entries."""
+    """Check whether the array has non-negative entries."""
     if not has_nonnegative_entries(input_matrix):
         raise ValueError('Only nonnegative values are expected.')
 
@@ -59,7 +59,7 @@ def check_positive(input_matrix: Union[sparse.csr_matrix, np.ndarray]):
 
 
 def is_proba_array(input_matrix: np.ndarray) -> bool:
-    """True if each line of the array has non negative entries which sum to 1."""
+    """True if each line of the array has non-negative entries which sum to 1."""
     if len(input_matrix.shape) == 1:
         return has_nonnegative_entries(input_matrix) and np.isclose(input_matrix.sum(), 1)
     elif len(input_matrix.shape) == 2:
@@ -120,12 +120,14 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
     return node_weights_vec
 
 
-def check_format(input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> sparse.csr_matrix:
-    """Check whether the matrix is a NumPy array or a Scipy CSR matrix and return
+def check_format(input_matrix: Union[sparse.csr_matrix, sparse.csc_matrix, sparse.coo_matrix, sparse.lil_matrix,
+                                     np.ndarray]) -> sparse.csr_matrix:
+    """Check whether the matrix is a NumPy array or a Scipy sparse matrix and return
     the corresponding Scipy CSR matrix.
     """
-    if type(input_matrix) not in {sparse.csr_matrix, np.ndarray}:
-        raise TypeError('The input matrix must be in Scipy CSR format or Numpy ndarray format.')
+    formats = {sparse.csr_matrix, sparse.csc_matrix, sparse.coo_matrix, sparse.lil_matrix, np.ndarray}
+    if type(input_matrix) not in formats:
+        raise TypeError('The input matrix must be in Scipy sparse format or Numpy ndarray format.')
     input_matrix = sparse.csr_matrix(input_matrix)
     if input_matrix.nnz == 0:
         raise ValueError('The input matrix is empty.')
@@ -139,7 +141,7 @@ def check_is_proba(entry: Union[float, int], name: str = None):
     if type(entry) not in [float, int]:
         raise TypeError('{} must be floats (or ints if 0 or 1).'.format(name))
     if entry < 0 or entry > 1:
-        raise ValueError('{} must have value between 0 and 1.'.format(name))
+        raise ValueError('{} must be between 0 and 1.'.format(name))
 
 
 def check_damping_factor(damping_factor: float):
@@ -197,7 +199,7 @@ def get_probs(weights: Union['str', np.ndarray], adjacency: Union[sparse.csr_mat
 
 
 def check_random_state(random_state: Optional[Union[np.random.RandomState, int]]):
-    """Check whether the argument is a seed or a NumPy random state. If None, numpy.random is used by default."""
+    """Check whether the argument is a seed or a NumPy random state. If None, 'numpy.random' is used by default."""
     if random_state is None:
         return np.random.RandomState()
     elif type(random_state) == int:
@@ -284,8 +286,7 @@ def check_min_nnz(nnz, n_min):
 def check_n_components(n_components, n_min) -> int:
     """Check the number of components"""
     if n_components > n_min:
-        warnings.warn(Warning("The dimension of the embedding cannot exceed {}."
-                              "Changed accordingly.".format(n_min)))
+        warnings.warn(Warning("The dimension of the embedding cannot exceed {}. Changed accordingly.".format(n_min)))
         return n_min
     else:
         return n_components
@@ -296,6 +297,28 @@ def check_scaling(scaling: float, adjacency: sparse.csr_matrix, regularize: bool
     if scaling < 0:
         raise ValueError("The 'scaling' parameter must be non-negative.")
 
-    if scaling and (not regularize) and not is_connected(adjacency):
+    if scaling and (not regularize) and not is_weakly_connected(adjacency):
         raise ValueError("Positive 'scaling' is valid only if the graph is connected or with regularization."
                          "Call 'fit' either with 'scaling' = 0 or positive 'regularization'.")
+
+
+def has_boolean_entries(input_matrix: np.ndarray) -> bool:
+    """True if the array has boolean entries."""
+    if type(input_matrix) != np.ndarray:
+        raise TypeError('Entry must be a dense NumPy array.')
+    else:
+        return input_matrix.dtype == 'bool'
+
+
+def check_boolean(input_matrix: np.ndarray):
+    """Check whether the array has positive entries."""
+    if not has_boolean_entries(input_matrix):
+        raise ValueError('Only boolean values are expected.')
+
+
+def check_vector_format(vector_1: np.ndarray, vector_2: np.ndarray):
+    """Check whether the inputs are vectors of same length."""
+    if len(vector_1.shape) > 1 or len(vector_2.shape) > 1:
+        raise ValueError('The arrays must be 1-dimensional.')
+    if vector_1.shape[0] != vector_2.shape[0]:
+        raise ValueError('The arrays do not have the same length.')

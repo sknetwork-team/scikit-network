@@ -16,10 +16,6 @@ class TestChecks(unittest.TestCase):
         self.adjacency = cyclic_digraph(3)
         self.dense_mat = np.identity(3)
 
-    def test_check_format(self):
-        with self.assertRaises(TypeError):
-            check_format(self.adjacency.tocsc())
-
     def test_check_csr_slr(self):
         with self.assertRaises(TypeError):
             check_csr_or_slr(np.ones(3))
@@ -160,3 +156,20 @@ class TestChecks(unittest.TestCase):
         adjacency = test_graph_disconnect()
         with self.assertRaises(ValueError):
             check_scaling(-1, adjacency, regularize=False)
+
+    def test_boolean_entries(self):
+        with self.assertRaises(TypeError):
+            has_boolean_entries([True, 0, 2])
+        self.assertFalse(has_boolean_entries(np.array([0, 1, True])))
+
+    def test_boolean(self):
+        check_boolean(np.array([True, False, True]))
+        with self.assertRaises(ValueError):
+            check_boolean(np.array([True, 0, 2]))
+
+    def test_check_vector_format(self):
+        check_vector_format(np.arange(4), np.ones(4))
+        with self.assertRaises(ValueError):
+            check_vector_format(np.arange(4), np.ones((4, 3)))
+        with self.assertRaises(ValueError):
+            check_vector_format(np.arange(4), np.ones(5))

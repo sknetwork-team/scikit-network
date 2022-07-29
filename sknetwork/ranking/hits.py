@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Oct 07 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 
 from typing import Union
@@ -39,7 +39,7 @@ class HITS(BaseRanking):
     >>> from sknetwork.data import star_wars
     >>> hits = HITS()
     >>> biadjacency = star_wars()
-    >>> scores = hits.fit_transform(biadjacency)
+    >>> scores = hits.fit_predict(biadjacency)
     >>> np.round(scores, 2)
     array([0.5 , 0.23, 0.69, 0.46])
 

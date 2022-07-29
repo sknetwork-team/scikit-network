@@ -15,10 +15,6 @@ Diffusion
 ---------
 .. autoclass:: sknetwork.classification.DiffusionClassifier
 
-Dirichlet
----------
-.. autoclass:: sknetwork.classification.DirichletClassifier
-
 Propagation
 -----------
 .. autoclass:: sknetwork.classification.Propagation
@@ -29,4 +25,13 @@ Nearest neighbors
 
 Metrics
 -------
-.. autofunction:: sknetwork.classification.accuracy_score
+.. autofunction:: sknetwork.classification.get_accuracy_score
+
+.. autofunction:: sknetwork.classification.get_f1_score
+
+.. autofunction:: sknetwork.classification.get_f1_scores
+
+.. autofunction:: sknetwork.classification.get_average_f1_score
+
+.. autofunction:: sknetwork.classification.get_confusion_matrix
+

@@ -3,7 +3,7 @@
 """
 Created on Nov 29, 2018
 @author: Quentin Lutz <qlutz@enst.fr>
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Thomas Bonald <tbonald@enst.fr>
 """
 from typing import Union
@@ -451,3 +451,169 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         return graph
     else:
         return biadjacency
+
+
+def art_philo_science(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+    """Wikipedia links between 30 articles (10 artists, 10 philosophers, 10 scientists).
+
+    * Directed graph
+    * 30 nodes, 240 edges
+    * Names of articles
+
+    Metadata includes the occurence of 11 words in the abstract of these articles.
+
+    Parameters
+    ----------
+    metadata :
+        If ``True``, return a `Bunch` object with metadata.
+
+    Returns
+    -------
+    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+        Adjacency matrix or graph with metadata (names, positions, labels, names_labels,
+        biadjacency, names_col).
+
+    Example
+    -------
+    >>> from sknetwork.data import art_philo_science
+    >>> adjacency = art_philo_science()
+    >>> adjacency.shape
+    (30, 30)
+    """
+    row = np.array(
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+         1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4,
+         5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6,
+         6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8,
+         8, 8, 8, 8, 8, 9, 9, 10, 10, 10, 10, 11, 11, 11, 12, 12, 12,
+         12, 12, 13, 13, 13, 14, 14, 14, 14, 14, 15, 15, 15, 16, 16, 16, 17,
+         17, 17, 17, 18, 19, 19, 19, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+         20, 20, 20, 20, 20, 20, 20, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21,
+         21, 21, 21, 21, 21, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 23, 23,
+         23, 23, 23, 23, 23, 23, 23, 23, 23, 24, 24, 24, 24, 24, 24, 24, 24,
+         24, 24, 24, 24, 24, 24, 24, 24, 25, 25, 25, 25, 25, 25, 25, 25, 25,
+         25, 25, 25, 25, 25, 25, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26,
+         26, 26, 26, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27,
+         28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 29, 29, 29,
+         29, 29])
+    col = np.array(
+        [1, 5, 6, 7, 20, 21, 23, 24, 25, 26, 27, 28, 0, 5, 7, 9, 12,
+         16, 20, 21, 24, 25, 26, 27, 28, 3, 20, 0, 2, 26, 7, 20, 21, 29,
+         0, 1, 6, 8, 9, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 0, 1,
+         5, 7, 8, 24, 26, 27, 0, 1, 6, 20, 21, 24, 25, 26, 27, 28, 0,
+         5, 6, 7, 9, 27, 1, 25, 0, 18, 19, 20, 12, 16, 17, 11, 12, 14,
+         16, 17, 14, 15, 25, 11, 12, 16, 17, 19, 13, 14, 19, 12, 14, 16, 11,
+         12, 14, 16, 10, 14, 17, 18, 0, 1, 2, 3, 4, 5, 7, 18, 21, 22,
+         23, 24, 25, 26, 27, 28, 29, 0, 1, 4, 5, 7, 18, 20, 22, 23, 24,
+         25, 26, 27, 28, 29, 5, 20, 21, 23, 24, 25, 26, 27, 28, 29, 5, 20,
+         21, 22, 23, 24, 25, 26, 27, 28, 29, 0, 1, 2, 5, 6, 7, 10, 20,
+         21, 22, 23, 25, 26, 27, 28, 29, 0, 1, 5, 7, 9, 13, 20, 21, 22,
+         23, 24, 26, 27, 28, 29, 0, 1, 5, 6, 7, 20, 21, 22, 23, 24, 25,
+         27, 28, 29, 0, 1, 3, 5, 6, 7, 20, 21, 22, 23, 24, 25, 26, 28,
+         0, 1, 5, 7, 9, 20, 21, 22, 23, 24, 25, 26, 27, 29, 4, 18, 20,
+         21, 22])
+    adjacency = sparse.csr_matrix((np.ones(len(row), dtype=bool), (row, col)), shape=(30, 30))
+
+    if metadata:
+        names = np.array(
+            ['Isaac Newton',
+             'Albert Einstein',
+             'Carl Linnaeus',
+             'Charles Darwin',
+             'Ptolemy',
+             'Gottfried Wilhelm Leibniz',
+             'Carl Friedrich Gauss',
+             'Galileo Galilei',
+             'Leonhard Euler',
+             'John von Neumann',
+             'Leonardo da Vinci',
+             'Richard Wagner',
+             'Ludwig van Beethoven',
+             'Bob Dylan',
+             'Igor Stravinsky',
+             'The Beatles',
+             'Wolfgang Amadeus Mozart',
+             'Richard Strauss',
+             'Raphael',
+             'Pablo Picasso',
+             'Aristotle',
+             'Plato',
+             'Augustine of Hippo',
+             'Thomas Aquinas',
+             'Immanuel Kant',
+             'Bertrand Russell',
+             'David Hume',
+             'René Descartes',
+             'John Stuart Mill',
+             'Socrates'])
+        labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+                           1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2])
+        names_labels = np.array(['science', 'arts', 'philosophy'])
+        position = np.array(
+            [[0.25, 0.57],
+             [0.28, 0.37],
+             [-0.08, 0.82],
+             [0.08, 0.87],
+             [-0.08, 0.49],
+             [0.31, 0.58],
+             [0.41, 0.66],
+             [0.31, 0.51],
+             [0.53, 0.65],
+             [0.48, 0.42],
+             [-0.02, 0.29],
+             [0.25, -0.44],
+             [0.23, -0.22],
+             [0.02, 0.03],
+             [0.07, -0.26],
+             [-0.16, -0.23],
+             [0.28, -0.15],
+             [0.12, -0.38],
+             [-0.14, 0.29],
+             [-0.09, -0.1],
+             [0.09, 0.57],
+             [0.12, 0.5],
+             [0.16, 0.7],
+             [0.12, 0.66],
+             [0.17, 0.57],
+             [0.2, 0.44],
+             [0.22, 0.64],
+             [0.28, 0.65],
+             [0.23, 0.51],
+             [-0., 0.57]])
+        row = np.array(
+            [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3,
+             3, 3, 3, 4, 4, 5, 5, 5, 5, 5, 6, 7, 7, 7, 7, 8, 8,
+             8, 8, 8, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 12, 12, 12,
+             13, 13, 14, 15, 15, 16, 16, 17, 17, 18, 19, 19, 19, 19, 20, 20, 20,
+             20, 20, 20, 21, 21, 21, 21, 22, 22, 23, 23, 23, 23, 23, 24, 24, 24,
+             25, 25, 25, 26, 26, 27, 27, 27, 27, 28, 28, 28, 29, 29, 29, 29])
+        col = np.array(
+            [1, 2, 4, 5, 10, 2, 3, 4, 5, 8, 1, 4, 8, 10, 1, 2, 4,
+             5, 8, 10, 2, 9, 2, 5, 7, 8, 9, 5, 1, 4, 5, 8, 1, 2,
+             3, 5, 8, 2, 4, 5, 0, 4, 5, 6, 8, 5, 8, 9, 1, 4, 6,
+             4, 10, 9, 4, 9, 4, 6, 4, 8, 9, 0, 2, 8, 9, 1, 2, 3,
+             7, 8, 9, 2, 3, 4, 5, 2, 5, 1, 2, 3, 4, 8, 2, 4, 8,
+             2, 7, 9, 2, 4, 3, 4, 8, 9, 2, 9, 10, 5, 6, 8, 10])
+        data = np.array(
+            [2, 2, 3, 1, 1, 15, 1, 2, 2, 2, 1, 1, 3, 1, 1, 7, 2,
+             1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 1, 1, 1, 1, 2, 3, 3,
+             1, 1, 1, 6, 1, 1, 1, 3, 1, 1, 1, 1, 1, 2, 1, 1, 2,
+             4, 1, 2, 2, 1, 3, 3, 1, 1, 1, 2, 1, 1, 3, 2, 1, 1,
+             4, 1, 2, 1, 1, 1, 1, 1, 1, 3, 1, 2, 2, 2, 3, 1, 2,
+             2, 5, 1, 1, 1, 3, 1, 5, 5, 3, 1, 1, 1, 1, 1, 2])
+        biadjacency = sparse.csr_matrix((data, (row, col)), shape=(30, 11))
+        words = np.array(
+            ['contribution', 'theory', 'invention', 'time', 'modern',
+             'century', 'study', 'logic', 'school', 'author', 'compose'])
+        graph = Bunch()
+        graph.adjacency = adjacency
+        graph.names = names
+        graph.position = position
+        graph.labels = labels
+        graph.names_labels = names_labels
+        graph.biadjacency = biadjacency
+        graph.names_col = words
+        graph.name = 'art-philo-science'
+        return graph
+    else:
+        return adjacency

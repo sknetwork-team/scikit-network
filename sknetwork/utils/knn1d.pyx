@@ -4,7 +4,7 @@
 # distutils: define_macros=CYTHON_TRACE_NOGIL=1
 """ One dimensional nearest neighbor search.
 Created on Mar, 2020
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 import numpy as np
 cimport numpy as np

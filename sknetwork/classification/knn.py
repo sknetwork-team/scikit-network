@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Nov, 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+Created on November 2019
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Thomas Bonald <tbonald@enst.fr>
 """
 from typing import Optional, Union
@@ -67,7 +67,7 @@ class KNN(BaseClassifier):
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = knn.fit_transform(adjacency, seeds)
+    >>> labels_pred = knn.fit_predict(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.97
     """
@@ -87,7 +87,8 @@ class KNN(BaseClassifier):
             self.n_jobs = -1
         self.bipartite = None
 
-    def _instantiate_vars(self, seeds: Union[np.ndarray, dict]):
+    @staticmethod
+    def _instantiate_vars(seeds: Union[np.ndarray, dict]):
         labels = seeds.astype(int)
         index_seed = np.argwhere(labels >= 0).ravel()
         index_remain = np.argwhere(labels < 0).ravel()
@@ -100,7 +101,7 @@ class KNN(BaseClassifier):
         embedding_remain = embedding[index_remain]
         n_neighbors = check_n_neighbors(self.n_neighbors, n_seeds)
         tree = cKDTree(embedding_seed, self.leaf_size)
-        distances, neighbors = tree.query(embedding_remain, n_neighbors, self.tol_nn, self.p, n_jobs=self.n_jobs)
+        distances, neighbors = tree.query(embedding_remain, n_neighbors, self.tol_nn, self.p, workers=self.n_jobs)
 
         if n_neighbors == 1:
             distances = distances[:, np.newaxis]

@@ -14,7 +14,7 @@ class TestPageRankClassifier(unittest.TestCase):
         adjacency = test_graph()
         seeds = {0: 0, 1: 1}
 
-        ref = PageRankClassifier(solver='piteration').fit_transform(adjacency, seeds)
+        ref = PageRankClassifier(solver='piteration').fit_predict(adjacency, seeds)
         for solver in ['lanczos', 'bicgstab']:
-            labels = PageRankClassifier(solver=solver).fit_transform(adjacency, seeds)
+            labels = PageRankClassifier(solver=solver).fit_predict(adjacency, seeds)
             self.assertTrue((ref == labels).all())

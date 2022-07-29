@@ -6,7 +6,7 @@
 Created on Jun 3, 2020
 @author: Julien Simonnet <julien.simonnet@etu.upmc.fr>
 @author: Yohann Robert <yohann.robert@etu.upmc.fr>
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from libcpp.vector cimport vector
 from scipy import sparse

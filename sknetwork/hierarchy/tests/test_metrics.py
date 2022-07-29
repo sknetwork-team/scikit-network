@@ -9,7 +9,7 @@ import unittest
 
 from sknetwork.data.test_graphs import *
 from sknetwork.data import cyclic_graph
-from sknetwork.hierarchy import Paris, LouvainHierarchy, dasgupta_cost, dasgupta_score, tree_sampling_divergence
+from sknetwork.hierarchy import Paris, LouvainIteration, dasgupta_cost, dasgupta_score, tree_sampling_divergence
 
 
 # noinspection PyMissingOrEmptyDocstring
@@ -17,11 +17,11 @@ class TestMetrics(unittest.TestCase):
 
     def setUp(self):
         self.paris = Paris()
-        self.louvain_hierarchy = LouvainHierarchy()
+        self.louvain_hierarchy = LouvainIteration()
 
     def test_undirected(self):
         adjacency = cyclic_graph(3)
-        dendrogram = self.paris.fit_transform(adjacency)
+        dendrogram = self.paris.fit_predict(adjacency)
         self.assertAlmostEqual(dasgupta_cost(adjacency, dendrogram), 2.666, 2)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.111, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.0632, 3)

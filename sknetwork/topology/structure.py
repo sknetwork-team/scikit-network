@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on July 24, 2019
-@author: Nathan de Lara <ndelara@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Thomas Bonald <tbonald@enst.fr>
 """
@@ -33,6 +33,13 @@ def get_connected_components(input_matrix: sparse.csr_matrix, connection: str = 
     labels :
         Connected component of each node.
         For bipartite graphs, rows and columns are concatenated (rows first).
+
+    Example
+    -------
+    >>> from sknetwork.topology import get_connected_components
+    >>> from sknetwork.data import house
+    >>> get_connected_components(house())
+    array([0, 0, 0, 0, 0], dtype=int32)
     """
     input_matrix = check_format(input_matrix)
     if len(input_matrix.data) == 0:
@@ -53,6 +60,13 @@ def is_connected(input_matrix: sparse.csr_matrix, connection: str = 'weak', forc
         Must be ``'weak'`` (default) or ``'strong'``. The type of connection to use for directed graphs.
     force_bipartite : bool
         If ``True``, consider the input matrix as the biadjacency matrix of a bipartite graph.
+
+    Example
+    -------
+    >>> from sknetwork.topology import is_connected
+    >>> from sknetwork.data import house
+    >>> is_connected(house())
+    True
     """
     return len(set(get_connected_components(input_matrix, connection, force_bipartite))) == 1
 
@@ -80,6 +94,13 @@ def get_largest_connected_component(input_matrix: sparse.csr_matrix, connection:
     index : array
         Indices of the nodes in the original graph.
         For bipartite graphs, rows and columns are concatenated (rows first).
+
+    Example
+    -------
+    >>> from sknetwork.topology import get_largest_connected_component
+    >>> from sknetwork.data import house
+    >>> get_largest_connected_component(house()).shape
+    (5, 5)
     """
     input_matrix = check_format(input_matrix)
     adjacency, bipartite = get_adjacency(input_matrix, force_bipartite=force_bipartite)
@@ -125,6 +146,15 @@ def is_bipartite(adjacency: sparse.csr_matrix, return_biadjacency: bool = False)
         Index of rows in the original graph (optional).
     cols : np.ndarray
         Index of columns in the original graph (optional).
+
+    Example
+    -------
+    >>> from sknetwork.topology import is_bipartite
+    >>> from sknetwork.data import cyclic_graph
+    >>> is_bipartite(cyclic_graph(4))
+    True
+    >>> is_bipartite(cyclic_graph(3))
+    False
     """
     if not is_symmetric(adjacency):
         raise ValueError('The graph must be undirected.')
@@ -161,23 +191,44 @@ def is_bipartite(adjacency: sparse.csr_matrix, return_biadjacency: bool = False)
         return True
 
 
-def is_acyclic(adjacency: sparse.csr_matrix) -> bool:
+def is_acyclic(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) -> bool:
     """Check whether a graph has no cycle.
 
     Parameters
     ----------
     adjacency:
         Adjacency matrix of the graph.
-
+    directed:
+        Whether to consider the graph as directed (inferred if not specified).
     Returns
     -------
     is_acyclic : bool
-        A boolean with value True if the graph has no cycle and False otherwise
+        A boolean with value True if the graph has no cycle and False otherwise.
+
+    Example
+    -------
+    >>> from sknetwork.topology import is_acyclic
+    >>> from sknetwork.data import star, grid
+    >>> is_acyclic(star())
+    True
+    >>> is_acyclic(grid())
+    False
     """
-    n_nodes = adjacency.shape[0]
-    n_cc = sparse.csgraph.connected_components(adjacency, (not is_symmetric(adjacency)), 'strong', False)
-    if n_cc == n_nodes:
-        # check for self-loops (= cycles)
-        return (adjacency.diagonal() == 0).all()
-    else:
+    if directed is False:
+        # the graph must be undirected
+        if not is_symmetric(adjacency):
+            raise ValueError("The adjacency matrix is not symmetric. The parameter 'directed' must be True.")
+    elif directed is None:
+        # if not specified, infer from the graph
+        directed = not is_symmetric(adjacency)
+    has_loops = (adjacency.diagonal() > 0).any()
+    if has_loops:
         return False
+    else:
+        n_cc = sparse.csgraph.connected_components(adjacency, directed, connection='strong', return_labels=False)
+        n_nodes = adjacency.shape[0]
+        if directed:
+            return n_cc == n_nodes
+        else:
+            n_edges = adjacency.nnz // 2
+            return n_cc == n_nodes - n_edges

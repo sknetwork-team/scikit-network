@@ -30,11 +30,11 @@ class PropagationClustering(BaseClustering, Propagation):
         If ``True``, the vote of each neighbor is proportional to the edge weight.
         Otherwise, all votes have weight 1.
     sort_clusters :
-            If ``True``, sort labels in decreasing order of cluster size.
+        If ``True``, sort labels in decreasing order of cluster size.
     return_membership :
-            If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
+        If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
     return_aggregate :
-            If ``True``, return the aggregate adjacency matrix or biadjacency matrix between clusters.
+        If ``True``, return the aggregate adjacency matrix or biadjacency matrix between clusters.
 
     Attributes
     ----------

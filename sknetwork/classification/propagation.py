@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-Created on April, 2020
+Created on April 2020
 @author: Thomas Bonald <tbonald@enst.fr>
 """
+
 from typing import Union
 
 import numpy as np
@@ -13,7 +14,7 @@ from sknetwork.classification.base import BaseClassifier
 from sknetwork.classification.vote import vote_update
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.format import get_adjacency_seeds
-from sknetwork.utils.membership import membership_matrix
+from sknetwork.utils.membership import get_membership
 
 
 class Propagation(BaseClassifier):
@@ -56,7 +57,7 @@ class Propagation(BaseClassifier):
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
     >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = propagation.fit_transform(adjacency, seeds)
+    >>> labels_pred = propagation.fit_predict(adjacency, seeds)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.94
 
@@ -93,8 +94,7 @@ class Propagation(BaseClassifier):
         return index_seed.astype(np.int32), index_remain.astype(np.int32), labels.astype(np.int32)
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict] = None,
-            seeds_row: Union[np.ndarray, dict] = None, seeds_col: Union[np.ndarray, dict] = None) \
-            -> 'Propagation':
+            seeds_row: Union[np.ndarray, dict] = None, seeds_col: Union[np.ndarray, dict] = None) -> 'Propagation':
         """Node classification by label propagation.
 
         Parameters
@@ -140,7 +140,7 @@ class Propagation(BaseClassifier):
             labels_remain = labels[index_remain].copy()
             labels = np.asarray(vote_update(indptr, indices, data, labels, index_remain))
 
-        membership = membership_matrix(labels)
+        membership = get_membership(labels)
         membership = normalize(adjacency.dot(membership))
 
         self.labels_ = labels
