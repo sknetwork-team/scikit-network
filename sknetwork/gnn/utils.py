@@ -133,6 +133,22 @@ def check_layers(layers: Union[str, list]):
             raise ValueError("Layer must be \"GCNConv\".")
 
 
+def check_output(n_channels: int, labels: np.ndarray):
+    """Check the output of the GNN.
+
+    Parameters
+    ----------
+    n_channels : int
+        Number of output channels
+    labels : np.ndarray
+        Vector of labels
+    """
+    n_labels = len(set(labels[labels >= 0]))
+    if n_labels > 2 and n_labels > n_channels:
+        raise ValueError("The dimension of the output is too small for the number of labels. "
+                         "Please check the `dims` parameter of your GNN or the `labels` parameter.")
+
+
 def get_layers_parameters(dims: Union[int, list], layers: Union[str, list], activations: Union[str, list],
                           use_bias: Union[bool, list], normalizations: Union[str, list],
                           self_loops: Union[bool, list]) -> list:

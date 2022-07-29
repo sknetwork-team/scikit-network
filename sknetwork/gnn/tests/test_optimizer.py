@@ -25,7 +25,7 @@ class TestOptimizer(unittest.TestCase):
 
     def test_optimizer_adam(self):
         gnn = GNNClassifier([4, 2], 'GCNConv',  ['Relu', 'Softmax'], optimizer='Adam')
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, max_iter=1, val_size=0.2)
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, n_epochs=1, val_size=0.2)
         conv1_weight, conv2_weight = gnn.conv1.weight.copy(), gnn.conv2.weight.copy()
         conv1_b, conv2_b = gnn.conv1.bias.copy(), gnn.conv2.bias.copy()
         gnn.opt.step()
@@ -42,7 +42,7 @@ class TestOptimizer(unittest.TestCase):
 
     def test_optimizer_gd(self):
         gnn = GNNClassifier([4, 2], ['GCNConv', 'GCNConv'], ['Relu', 'Softmax'], optimizer='None')
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, max_iter=1, val_size=0.2)
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, n_epochs=1, val_size=0.2)
         conv1_weight, conv2_weight = gnn.conv1.weight.copy(), gnn.conv2.weight.copy()
         conv1_b, conv2_b = gnn.conv1.bias.copy(), gnn.conv2.bias.copy()
         gnn.opt.step()

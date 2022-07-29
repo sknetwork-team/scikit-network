@@ -12,7 +12,8 @@ from scipy import sparse
 from sknetwork.classification.metrics import accuracy_score
 from sknetwork.gnn.base import BaseGNNClassifier
 from sknetwork.gnn.loss import get_loss_function
-from sknetwork.gnn.utils import filter_mask, check_existing_masks, get_layers_parameters, check_early_stopping
+from sknetwork.gnn.utils import filter_mask, check_existing_masks, check_output, get_layers_parameters, \
+    check_early_stopping
 from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, is_square
 
 
@@ -91,11 +92,11 @@ class GNNClassifier(BaseGNNClassifier):
         parameters = get_layers_parameters(dims, layers, activations, use_bias, normalizations, self_loops)
         self.early_stopping = early_stopping
         self.patience = patience
-        self.fitted = False
         for layer_idx, params in enumerate(zip(*parameters)):
             layer = params[1]
             args = params[:1] + params[2:]
             setattr(self, f'conv{layer_idx + 1}', self._init_layer(layer, *args))
+        self.layers = self._get_layers()
 
     def forward(self, adjacency: sparse.csr_matrix, features: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """ Performs a forward pass on the graph and returns embedding of nodes.
@@ -116,9 +117,8 @@ class GNNClassifier(BaseGNNClassifier):
             Nodes embedding.
         """
 
-        layers = self._get_layers()
         h = features.copy()
-        for layer in layers:
+        for layer in self.layers:
             h = layer(adjacency, h)
 
         return h
@@ -148,7 +148,7 @@ class GNNClassifier(BaseGNNClassifier):
         return logits, labels_pred
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], features: Union[sparse.csr_matrix, np.ndarray],
-            labels: np.ndarray, max_iter: int = 100, loss: str = 'CrossEntropyLoss',
+            labels: np.ndarray, loss: str = 'CrossEntropyLoss', n_epochs: int = 100,
             train_mask: Optional[np.ndarray] = None, val_mask: Optional[np.ndarray] = None,
             test_mask: Optional[np.ndarray] = None, train_size: Optional[float] = 0.8,
             val_size: Optional[float] = 0.1, test_size: Optional[float] = 0.1, resample: bool = False,
@@ -165,10 +165,10 @@ class GNNClassifier(BaseGNNClassifier):
         labels : np.ndarray
             Label vectors of length :math:`n`, with :math:`n` the number of nodes in `adjacency`. A value of `labels`
             equals `-1` means no label. The associated nodes are not considered in training steps.
-        max_iter : int (default = 30)
-            Maximum number of iterations for the solver. Corresponds to the number of epochs.
         loss : str (default = ``'CrossEntropyLoss'``)
             Loss function name.
+        n_epochs : int (default = 100)
+            Number of epochs (iterations over the whole graph).
         train_mask, val_mask, test_mask : np.ndarray
             Boolean array indicating whether nodes are in training/validation/test set.
         train_size, test_size : float
@@ -185,7 +185,7 @@ class GNNClassifier(BaseGNNClassifier):
         """
         labels_pred = None
 
-        if resample or not self.fitted:
+        if resample or self.embedding_ is None:
             exists_mask, self.train_mask, self.val_mask, self.test_mask = \
                 check_existing_masks(labels, train_mask, val_mask, test_mask, train_size, val_size, test_size)
             if not exists_mask:
@@ -194,12 +194,14 @@ class GNNClassifier(BaseGNNClassifier):
         check_format(adjacency)
         check_format(features)
 
+        check_output(self.layers[-1].out_channels, labels)
+
         early_stopping = check_early_stopping(self.early_stopping, self.val_mask, self.patience)
 
         best_val_acc = 0
         trigger_times = 0
 
-        for t in range(max_iter):
+        for epoch in range(n_epochs):
 
             # Forward
             embedding = self.forward(adjacency, features)
@@ -231,8 +233,7 @@ class GNNClassifier(BaseGNNClassifier):
             if val_acc is not None:
                 self.history_['val_accuracy'].append(val_acc)
 
-            epoch = t + 1
-            if max_iter > 10 and t % int(max_iter / 10) == 0:
+            if n_epochs > 10 and epoch % int(n_epochs / 10) == 0:
                 if val_acc is not None:
                     self.log.print(
                         f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, '
@@ -240,7 +241,7 @@ class GNNClassifier(BaseGNNClassifier):
                 else:
                     self.log.print(
                         f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}')
-            elif max_iter <= 10:
+            elif n_epochs <= 10:
                 if val_acc is not None:
                     self.log.print(
                         f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, '
@@ -262,8 +263,6 @@ class GNNClassifier(BaseGNNClassifier):
 
         self.labels_ = labels_pred
         self.embedding_ = self.history_.get('embedding')[-1]
-
-        self.fitted = True
 
         return self
 

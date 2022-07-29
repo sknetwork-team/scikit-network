@@ -130,10 +130,10 @@ class BaseGNNClassifier(VerboseMixin):
         self.prime_bias = [0] * self.nb_layers
 
         # Backpropagation
-        output = self.layers[self.nb_layers - 1].embedding
+        output = self.layers[-1].embedding
         if self.layers[-1].activation == 'softmax':
-            nb_classes = len(np.unique(labels[labels != -1]))
-            y_true_ohe = np.eye(nb_classes)[labels]
+            n_channels = self.layers[-1].out_channels
+            y_true_ohe = np.eye(n_channels)[labels]
             prime_update = (output - y_true_ohe).T
         else:
             prime_output = prime_loss_function(labels, output.T)
@@ -213,10 +213,9 @@ class BaseGNNClassifier(VerboseMixin):
 
         lines = ''
 
-        layers = self._get_layers()
         lines += f'{self.__class__.__name__}(\n'
 
-        for layer in layers:
+        for layer in self.layers:
             lines += f'  {layer}\n'
         lines += ')'
 

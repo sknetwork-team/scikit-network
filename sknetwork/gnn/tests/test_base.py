@@ -28,7 +28,7 @@ class TestBaseGNN(unittest.TestCase):
 
     def test_base_gnn_fit_transform(self):
         gnn = GNNClassifier(dims=2, layers='GCNConv', activations='Relu', optimizer='None', verbose=False)
-        embedding = gnn.fit_transform(self.adjacency, self.features, labels=self.labels, max_iter=1, val_size=0.2)
+        embedding = gnn.fit_transform(self.adjacency, self.features, labels=self.labels, n_epochs=1, val_size=0.2)
         self.assertTrue(len(embedding) == self.n)
         self.assertTrue(embedding.shape == (self.n, 2))
 
@@ -37,7 +37,7 @@ class TestBaseGNN(unittest.TestCase):
                             activations=['Relu', 'Sigmoid', 'Softmax'], optimizer='Adam', verbose=False)
         self.assertTrue(isinstance(gnn, GNNClassifier))
         self.assertTrue(gnn.conv3.activation == 'softmax')
-        y_pred = gnn.fit_predict(self.adjacency, self.features, labels=self.labels, max_iter=1, val_size=0.2)
+        y_pred = gnn.fit_predict(self.adjacency, self.features, labels=self.labels, n_epochs=1, val_size=0.2)
         self.assertTrue(len(y_pred) == self.n)
 
     def test_base_check_fitted(self):
@@ -45,7 +45,7 @@ class TestBaseGNN(unittest.TestCase):
         with self.assertRaises(ValueError):
             gnn._check_fitted()
         gnn = GNNClassifier(dims=2, layers='GCNConv', activations='Relu', optimizer='None', verbose=False)
-        gnn.fit_transform(self.adjacency, self.features, labels=self.labels, max_iter=1, val_size=0.2)
+        gnn.fit_transform(self.adjacency, self.features, labels=self.labels, n_epochs=1, val_size=0.2)
         fit_gnn = gnn._check_fitted()
         self.assertTrue(isinstance(fit_gnn, GNNClassifier))
         self.assertTrue(fit_gnn.embedding_ is not None)

@@ -80,12 +80,12 @@ class TestGNNClassifier(unittest.TestCase):
         gnn = GNNClassifier(2, 'GCNConv', 'Softmax', early_stopping=False)
 
         train_mask = np.array([True, True, True, True, True, True, False, False, False, False])
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, max_iter=5)
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, n_epochs=5)
         self.assertTrue(sum(gnn.train_mask) + sum(gnn.val_mask) + sum(gnn.test_mask) == self.adjacency.shape[0])
 
         train_mask = np.array([True, True, True, True, True, True, False, False, False, False])
         _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, resample=True,
-                            max_iter=10)
+                            n_epochs=10)
         self.assertTrue(sum(gnn.train_mask) + sum(gnn.val_mask) + sum(gnn.test_mask) == self.adjacency.shape[0])
 
         val_mask = np.array([False, False, False, False, False, False, True, False, False, False])
@@ -118,12 +118,11 @@ class TestGNNClassifier(unittest.TestCase):
         self.assertTrue(sum(gnn.test_mask) != 0)
         self.assertTrue(sum(gnn.train_mask) + sum(gnn.val_mask) + sum(gnn.test_mask) == self.adjacency.shape[0])
 
-    def test_gnn_classifier_shuffle(self):
+    def test_gnn_classifier_dim_output(self):
         gnn = GNNClassifier(2)
-        y_pred = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2)
-        embedding = gnn.embedding_
-        self.assertTrue(len(y_pred) == self.n)
-        self.assertTrue(embedding.shape == (self.n, 2))
+        labels = np.arange(len(self.labels))
+        with self.assertRaises(ValueError):
+            gnn.fit(self.adjacency, self.features, labels)
 
     def test_gnn_classifier_random_state(self):
         gnn = GNNClassifier(2)
@@ -138,11 +137,11 @@ class TestGNNClassifier(unittest.TestCase):
 
     def test_gnn_classifier_early_stopping(self):
         gnn = GNNClassifier(2, patience=2)
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, max_iter=100)
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, n_epochs=100)
         self.assertTrue(len(gnn.history_['val_accuracy']) < 100)
 
         gnn = GNNClassifier(2, early_stopping=False)
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, max_iter=100)
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, n_epochs=100)
         self.assertTrue(len(gnn.history_['val_accuracy']) == 100)
 
     def test_gnn_classifier_predict(self):
