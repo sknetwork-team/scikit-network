@@ -26,6 +26,12 @@ class TestMetrics(unittest.TestCase):
         with self.assertRaises(ValueError):
             get_accuracy_score(self.labels_true, self.labels_pred2)
 
+    def test_f1_score(self):
+        f1_score = get_f1_score(np.array([0, 0, 1]), np.array([0, 1, 1]))
+        self.assertAlmostEqual(f1_score, 0.67, 2)
+        with self.assertRaises(ValueError):
+            get_f1_score(self.labels_true, self.labels_pred1)
+
     def test_f1_scores(self):
         f1_scores = get_f1_scores(self.labels_true, self.labels_pred1)
         self.assertAlmostEqual(min(f1_scores), 0.67, 2)
@@ -35,3 +41,13 @@ class TestMetrics(unittest.TestCase):
         self.assertAlmostEqual(min(recalls), 0.5, 2)
         with self.assertRaises(ValueError):
             get_f1_scores(self.labels_true, self.labels_pred2)
+
+    def test_average_f1_score(self):
+        f1_score = get_average_f1_score(self.labels_true, self.labels_pred1)
+        self.assertAlmostEqual(f1_score, 0.78, 2)
+        f1_score = get_average_f1_score(self.labels_true, self.labels_pred1, average='micro')
+        self.assertEqual(f1_score, 0.75)
+        f1_score = get_average_f1_score(self.labels_true, self.labels_pred1, average='weighted')
+        self.assertEqual(f1_score, 0.80)
+        with self.assertRaises(ValueError):
+            get_average_f1_score(self.labels_true, self.labels_pred2, 'toto')

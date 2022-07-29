@@ -82,9 +82,47 @@ def get_confusion_matrix(labels_true: np.ndarray, labels_pred: np.ndarray) -> sp
         raise ValueError('No sample with both true non-negative label and predicted non-negative label.')
 
 
+def get_f1_score(labels_true: np.ndarray, labels_pred: np.ndarray, return_precision_recall: bool = False) \
+        -> Union[float, Tuple[float, float, float]]:
+    """Return the f1 score of binary classification.
+    Negative labels ignored.
+
+    Parameters
+    ----------
+    labels_true : np.ndarray
+        True labels.
+    labels_pred : np.ndarray
+        Predicted labels
+    return_precision_recall : bool
+        If ``True``, also return precision and recall.
+
+    Returns
+    -------
+    score, [precision, recall] : np.ndarray
+        F1 score (between 0 and 1). Optionally, also return precision and recall.
+    Examples
+    --------
+    >>> import numpy as np
+    >>> labels_true = np.array([0, 0, 1, 1])
+    >>> labels_pred = np.array([0, 0, 0, 1])
+    >>> np.round(get_f1_score(labels_true, labels_pred), 2)
+    0.67
+    """
+    values = set(labels_true[labels_true >= 0]) | set(labels_pred[labels_pred >= 0])
+    if values != {0, 1}:
+        raise ValueError('Labels must be binary. '
+                         'Check get_f1_scores and get_average_f1_score for multi-label classification.')
+    if return_precision_recall:
+        f1_scores, precisions, recalls = get_f1_scores(labels_true, labels_pred, True)
+        return f1_scores[1], precisions[1], recalls[1]
+    else:
+        f1_scores = get_f1_scores(labels_true, labels_pred, False)
+        return f1_scores[1]
+
+
 def get_f1_scores(labels_true: np.ndarray, labels_pred: np.ndarray, return_precision_recall: bool = False) \
         -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray, np.ndarray]]:
-    """Return the f1 scores of classification, per label.
+    """Return the f1 scores of multi-label classification (one per label).
     Negative labels ignored.
 
     Parameters
@@ -99,7 +137,7 @@ def get_f1_scores(labels_true: np.ndarray, labels_pred: np.ndarray, return_preci
     Returns
     -------
     scores, [precisions, recalls] : np.ndarray
-        F1 scores (between 0 and 1). Optionally, F1 scores, precisions, recalls.
+        F1 scores (between 0 and 1). Optionally, also return F1 precisions and recalls.
     Examples
     --------
     >>> import numpy as np
@@ -126,3 +164,42 @@ def get_f1_scores(labels_true: np.ndarray, labels_pred: np.ndarray, return_preci
         return f1_scores, precisions, recalls
     else:
         return f1_scores
+
+
+def get_average_f1_score(labels_true: np.ndarray, labels_pred: np.ndarray, average: str = 'macro') -> float:
+    """Return the average f1 score of multi-label classification.
+    Negative labels ignored.
+
+    Parameters
+    ----------
+    labels_true : np.ndarray
+        True labels.
+    labels_pred : np.ndarray
+        Predicted labels
+    average : str
+        Averaging method. Can be either ``'macro'`` (default), ``'micro'`` or ``'weighted'``.
+
+    Returns
+    -------
+    score : float
+        Average F1 score (between 0 and 1).
+    Examples
+    --------
+    >>> import numpy as np
+    >>> labels_true = np.array([0, 0, 1, 1])
+    >>> labels_pred = np.array([0, 0, 0, 1])
+    >>> np.round(get_average_f1_score(labels_true, labels_pred), 2)
+    0.73
+    """
+    if average == 'micro':
+        # micro averaging = accuracy
+        return get_accuracy_score(labels_true, labels_pred)
+    else:
+        f1_scores = get_f1_scores(labels_true, labels_pred)
+        if average == 'macro':
+            return np.mean(f1_scores)
+        elif average == 'weighted':
+            labels_unique, counts = np.unique(labels_true[labels_true >= 0], return_counts=True)
+            return np.sum(f1_scores[labels_unique] * counts) / np.sum(counts)
+        else:
+            raise ValueError('Check the ``average`` parameter.')
