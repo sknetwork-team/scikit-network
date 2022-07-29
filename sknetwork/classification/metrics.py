@@ -111,7 +111,7 @@ def get_f1_score(labels_true: np.ndarray, labels_pred: np.ndarray, return_precis
     values = set(labels_true[labels_true >= 0]) | set(labels_pred[labels_pred >= 0])
     if values != {0, 1}:
         raise ValueError('Labels must be binary. '
-                         'Check get_f1_scores and get_average_f1_score for multi-label classification.')
+                         'Check get_f1_scores or get_average_f1_score for multi-label classification.')
     if return_precision_recall:
         f1_scores, precisions, recalls = get_f1_scores(labels_true, labels_pred, True)
         return f1_scores[1], precisions[1], recalls[1]
