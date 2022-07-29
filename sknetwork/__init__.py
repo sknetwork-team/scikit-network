@@ -3,7 +3,7 @@
 """Top-level package for scikit-network"""
 
 __author__ = """scikit-network team"""
-__email__ = "bonald@enst.fr"
+__email__ = "thomas.bonald@telecom-paris.fr"
 __version__ = '0.27.0'
 
 import sknetwork.topology

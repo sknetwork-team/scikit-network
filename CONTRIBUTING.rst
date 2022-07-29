@@ -48,7 +48,8 @@ articles, and such.
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/sknetwork-team/sknetwork/issues.
+The best way to send feedback is to file an issue at https://github.com/sknetwork-team/sknetwork/issues
+or launch a discussion at https://github.com/sknetwork-team/scikit-network/discussions
 
 If you are proposing a feature:
 
@@ -75,7 +76,7 @@ Ready to contribute? Here's how to set up `sknetwork` for local development.
 
 4. Create a branch for local development::
 
-    $ git checkout -b name-of-your-bugfix-or-feature
+    $ git checkout -b name-of-your-feature
 
    Now you can make your changes locally.
 
@@ -92,9 +93,9 @@ Ready to contribute? Here's how to set up `sknetwork` for local development.
 
     $ git add .
     $ git commit -m "Your detailed description of your changes."
-    $ git push origin name-of-your-bugfix-or-feature
+    $ git push origin name-of-your-feature
 
-7. Submit a pull request through the GitHub website.
+7. Submit a pull request through GitHub.
 
 Pull Request Guidelines
 -----------------------
@@ -105,9 +106,7 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 3.6, 3.7 and 3.8. Check
-   https://travis-ci.org/sharpenb/sknetwork/pull_requests
-   and make sure that the tests pass for all supported Python versions.
+3. The pull request should work for Python >= 3.8.
 
 A more complete guide for writing code for the package can be found under
 "Contributing guide" in the Wiki_.
@@ -122,16 +121,3 @@ $ py.test tests.test_sknetwork
 Do not hesitate to check the Wiki_.
 
 .. _Wiki: https://github.com/sknetwork-team/scikit-network/wiki
-
-Deploying
----------
-
-A reminder for the maintainers on how to deploy.
-Make sure all your changes are committed (including an entry in HISTORY.rst).
-Then run::
-
-    $ bumpversion patch # possible: major / minor / patch
-    $ git push
-    $ git push --tags
-
-Travis will then deploy to PyPI if tests pass.
