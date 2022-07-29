@@ -9,7 +9,7 @@ from typing import Optional, Tuple, Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.classification.metrics import accuracy_score
+from sknetwork.classification.metrics import get_accuracy_score
 from sknetwork.gnn.base import BaseGNNClassifier
 from sknetwork.gnn.loss import get_loss_function
 from sknetwork.gnn.utils import filter_mask, check_existing_masks, check_output, get_layers_parameters, \
@@ -214,9 +214,9 @@ class GNNClassifier(BaseGNNClassifier):
             loss_value = loss_function(labels[self.train_mask], logits[self.train_mask])
 
             # Accuracy
-            train_acc = accuracy_score(labels[self.train_mask], labels_pred[self.train_mask])
+            train_acc = get_accuracy_score(labels[self.train_mask], labels_pred[self.train_mask])
             if self.val_mask is not None and any(self.val_mask):
-                val_acc = accuracy_score(labels[self.val_mask], labels_pred[self.val_mask])
+                val_acc = get_accuracy_score(labels[self.val_mask], labels_pred[self.val_mask])
             else:
                 val_acc = None
 

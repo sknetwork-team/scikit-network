@@ -3,11 +3,12 @@
 """
 Created in July 2020
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
+@author: Thomas Bonald <thomas.bonald@telecom-paris.fr>
 """
 import numpy as np
 
 
-def accuracy_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+def get_accuracy_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """Return the proportion of correctly labeled samples.
 
     Parameters
@@ -27,7 +28,7 @@ def accuracy_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     >>> import numpy as np
     >>> y_true = np.array([0, 0, 1, 1])
     >>> y_pred = np.array([0, 0, 0, 1])
-    >>> accuracy_score(y_true, y_pred)
+    >>> get_accuracy_score(y_true, y_pred)
     0.75
     """
     return (y_true == y_pred).mean()
