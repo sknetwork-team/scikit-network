@@ -314,3 +314,11 @@ def check_boolean(input_matrix: np.ndarray):
     """Check whether the array has positive entries."""
     if not has_boolean_entries(input_matrix):
         raise ValueError('Only boolean values are expected.')
+
+
+def check_vector_format(vector_1: np.ndarray, vector_2: np.ndarray):
+    """Check whether the inputs are vectors of same length."""
+    if len(vector_1.shape) > 1 or len(vector_2.shape) > 1:
+        raise ValueError('The arrays must be 1-dimensional.')
+    if vector_1.shape[0] != vector_2.shape[0]:
+        raise ValueError('The arrays do not have the same length.')

@@ -166,3 +166,10 @@ class TestChecks(unittest.TestCase):
         check_boolean(np.array([True, False, True]))
         with self.assertRaises(ValueError):
             check_boolean(np.array([True, 0, 2]))
+
+    def test_check_vector_format(self):
+        check_vector_format(np.arange(4), np.ones(4))
+        with self.assertRaises(ValueError):
+            check_vector_format(np.arange(4), np.ones((4, 3)))
+        with self.assertRaises(ValueError):
+            check_vector_format(np.arange(4), np.ones(5))

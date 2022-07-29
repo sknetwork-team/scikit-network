@@ -7,9 +7,12 @@ Created in July 2020
 """
 import numpy as np
 
+from sknetwork.utils.check import check_vector_format
+
 
 def get_accuracy_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """Return the proportion of correctly labeled samples.
+    Negative values ignored.
 
     Parameters
     ----------
@@ -31,4 +34,9 @@ def get_accuracy_score(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     >>> get_accuracy_score(y_true, y_pred)
     0.75
     """
-    return (y_true == y_pred).mean()
+    check_vector_format(y_true, y_pred)
+    mask = (y_true >= 0) & (y_pred >= 0)
+    if np.sum(mask):
+        return np.mean(y_true[mask] == y_pred[mask])
+    else:
+        raise ValueError('Negative ')
