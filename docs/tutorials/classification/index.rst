@@ -8,3 +8,4 @@ Classification
     diffusion
     propagation
     knn
+    metrics
