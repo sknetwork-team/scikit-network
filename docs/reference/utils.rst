@@ -27,11 +27,16 @@ Neighborhood
 Clustering
 ----------
 
-.. autofunction:: sknetwork.utils.get_membership
-
 .. autoclass:: sknetwork.utils.KMeansDense
 
 .. autoclass:: sknetwork.utils.WardDense
+
+Membership matrix
+-----------------
+
+.. autofunction:: sknetwork.utils.get_membership
+
+.. autofunction:: sknetwork.utils.from_membership
 
 
 Nearest-neighbors
