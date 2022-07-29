@@ -32,7 +32,7 @@ class GNNClassifier(BaseGNNClassifier):
     activations: list or str
         Activation functions (in forward direction).
         If a string, use the same activation function for all layers.
-        Can be either ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
+        Can be either ``'Identity'``, ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
     use_bias: list or bool
         Whether to use a bias term at each layer.
         If ``True``, use a bias term at all layers.
