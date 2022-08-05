@@ -48,7 +48,3 @@ pytest-cov==3.0.0
 
 # C++ code generator for performance speed-up
 cython==0.29.26
-
-# Matplotlib for GNN notebooks
-matplotlib==3.5.2
-
