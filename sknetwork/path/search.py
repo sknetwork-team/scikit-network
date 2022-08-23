@@ -12,9 +12,6 @@ from sknetwork.utils.check import is_symmetric
 def breadth_first_search(adjacency: sparse.csr_matrix, source: int, return_predecessors: bool = True):
     """Breadth-first ordering starting with specified node.
 
-    * Graphs
-    * Digraphs
-
     Based on SciPy (scipy.sparse.csgraph.breadth_first_order)
 
     Parameters
@@ -42,10 +39,7 @@ def breadth_first_search(adjacency: sparse.csr_matrix, source: int, return_prede
 
 def depth_first_search(adjacency: sparse.csr_matrix, source: int, return_predecessors: bool = True):
     """Depth-first ordering starting with specified node.
-
-    * Graphs
-    * Digraphs
-
+x
     Based on SciPy (scipy.sparse.csgraph.depth_first_order)
 
     Parameters
