@@ -99,10 +99,10 @@ class GNNClassifier(BaseGNNClassifier):
         self.layers = self._get_layers()
 
     def forward(self, adjacency: sparse.csr_matrix, features: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
-        """ Performs a forward pass on the graph and returns embedding of nodes.
+        """Perform a forward pass on the graph and return embedding of nodes.
 
             Note that the non-linearity is integrated in the :class:`GCNConv` layers and hence is not applied
-            after each layers in the forward method.
+            after each layer in the forward method.
 
         Parameters
         ----------

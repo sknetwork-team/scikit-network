@@ -16,11 +16,13 @@ from sknetwork.linalg import diag_pinv
 
 
 class GCNConv(BaseLayer):
-    """Graph convolutional operator.
+    """Graph convolutional layer.
 
-    :math:`H^{\prime}=\sigma(D^{-1/2}\hat{A}D^{-1/2}HW + b)`,
+    Apply the following function to the embedding :math:`H`:
 
-    where :math:`\hat{A} = A + I` denotes the adjacency matrix with inserted self-loops and
+    :math:`H \\gets \\sigma(D^{-1/2}\\hat{A}D^{-1/2}HW + b)`,
+
+    where :math:`\\hat{A} = A + I` denotes the adjacency matrix with inserted self-loops and
     :math:`D` its diagonal degree matrix. :math:`W` and :math:`b` are trainable parameters and
     :math:`\\sigma` is the activation function.
 
@@ -29,12 +31,8 @@ class GCNConv(BaseLayer):
     out_channels: int
         Size of each output sample.
     activation: str (default = ``'Relu'``)
-        Activation function.
-        Can be either:
-
-        * ``'relu'``, the rectified linear unit function, returns f(x) = max(0, x)
-        * ``'sigmoid'``, the logistic sigmoid function, returns f(x) = 1 / (1 + exp(-x)).
-        * ``'softmax'``, the softmax function, returns f(x) = exp(x) / sum(exp(x))
+        Activation function (in forward direction).
+        Can be either ``'Identity'``, ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
     use_bias: bool (default = `True`)
         If ``True``, add a bias vector.
     normalization: str (default = ``'Both'``)
