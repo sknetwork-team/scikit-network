@@ -39,7 +39,7 @@ def breadth_first_search(adjacency: sparse.csr_matrix, source: int, return_prede
 
 def depth_first_search(adjacency: sparse.csr_matrix, source: int, return_predecessors: bool = True):
     """Depth-first ordering starting with specified node.
-x
+
     Based on SciPy (scipy.sparse.csgraph.depth_first_order)
 
     Parameters

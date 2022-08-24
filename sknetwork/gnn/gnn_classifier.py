@@ -28,7 +28,7 @@ class GNNClassifier(BaseGNNClassifier):
     layers: list or str
         Layers (in forward direction).
         If a string, use the same type of layer for all layers.
-        Can be ``'GCNConv'``, graph convolutional layers (default).
+        Can be ``'GCNConv'``, graph convolutional layer (default).
     activations: list or str
         Activation functions (in forward direction).
         If a string, use the same activation function for all layers.
@@ -39,11 +39,8 @@ class GNNClassifier(BaseGNNClassifier):
     normalizations: list or str
         Normalization of the adjacency matrix for message passing.
         If a string, use the same normalization for all layers.
-        Can be either:
-
-        * ``'left'``, left normalization by the vector of degrees
-        * ``'right'``, right normalization by the vector of degrees
-        * ``'both'``,  symmetric normalization by the square root of degrees
+        Can be either `'left'`` (left normalization by the degrees), ``'right'`` (right normalization by the degrees),
+        ``'both'`` (symmetric normalization by the square root of degrees, default) or ``None`` (no normalization).
     self_loops: list or str
         Whether to add a self loop at each node of the graph for message passing.
         If ``True``, add a self-loop for message passing at all layers.

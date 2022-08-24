@@ -20,11 +20,10 @@ class GCNConv(BaseLayer):
 
     Apply the following function to the embedding :math:`H`:
 
-    :math:`H \\gets \\sigma(D^{-1/2}\\hat{A}D^{-1/2}HW + b)`,
+    :math:`\\sigma(\\bar AHW + b)`,
 
-    where :math:`\\hat{A} = A + I` denotes the adjacency matrix with inserted self-loops and
-    :math:`D` its diagonal degree matrix. :math:`W` and :math:`b` are trainable parameters and
-    :math:`\\sigma` is the activation function.
+    where :math:`\\bar A` is the normalized adjacency matrix (possibly with inserted self-loops).
+    :math:`W` and :math:`b` are trainable parameters and :math:`\\sigma` is the activation function.
 
     Parameters
     ----------
@@ -37,13 +36,10 @@ class GCNConv(BaseLayer):
         If ``True``, add a bias vector.
     normalization: str (default = ``'Both'``)
         Normalization of the adjacency matrix for message passing.
-        Can be either:
-
-        * ``'left'``, left normalization by the vector of degrees
-        * ``'right'``, right normalization by the vector of degrees
-        * ``'both'``,  symmetric normalization by the square root of degrees
+        Can be either `'left'`` (left normalization by the degrees), ``'right'`` (right normalization by the degrees),
+        ``'both'`` (symmetric normalization by the square root of degrees, default) or ``None`` (no normalization).
     self_loops: bool (default = `True`)
-        If ``True``, add self-loops to each node in the graph.
+        If ``True``, add a self-loop of unit weight to each node in the graph.
 
     Attributes
     ----------
@@ -62,11 +58,6 @@ class GCNConv(BaseLayer):
     `Semi-supervised Classification with Graph Convolutional Networks.
     <https://arxiv.org/pdf/1609.02907.pdf>`_
     5th International Conference on Learning Representations.
-
-    He, K. & Zhang, X. & Ren, S. & Sun, J. (2015).
-    `Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification.
-    <https://arxiv.org/pdf/1502.01852.pdf>`_
-    Proceedings of the IEEE International Conference on Computer Vision (ICCV).
     """
     def __init__(self, out_channels: int, activation: str = 'Relu', use_bias: bool = True,
                  normalization: str = 'Both', self_loops: bool = True):
@@ -86,7 +77,7 @@ class GCNConv(BaseLayer):
 
         Returns
         -------
-        embedding: p.ndarray
+        embedding: np.ndarray
             Node embedding.
         """
         if not self.weights_initialized:
