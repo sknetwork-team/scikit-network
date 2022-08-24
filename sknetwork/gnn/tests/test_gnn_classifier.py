@@ -148,22 +148,26 @@ class TestGNNClassifier(unittest.TestCase):
         gnn = GNNClassifier(2)
         _ = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2, random_state=42)
 
-        pred_labels = gnn.predict()
-        self.assertTrue(all(pred_labels == gnn.labels_))
+        labels_pred = gnn.predict()
+        self.assertTrue(all(labels_pred == gnn.labels_))
 
         # test result shape for one new node
         new_n = sparse.csr_matrix(np.random.randint(2, size=self.features.shape[1]))
         new_feat = new_n.copy()
-        pred_label = gnn.predict(new_n, new_feat)
-        self.assertTrue(len(pred_label) == 1)
+        labels_pred = gnn.predict(new_n, new_feat)
+        self.assertTrue(len(labels_pred) == 1)
 
         # test result shape for several new nodes
         new_n = sparse.csr_matrix(np.random.randint(2, size=(5, self.features.shape[1])))
         new_feat = new_n.copy()
-        pred_labels = gnn.predict(new_n, new_feat)
-        self.assertTrue(pred_labels.shape == (5,))
+        labels_pred = gnn.predict(new_n, new_feat)
+        self.assertTrue(labels_pred.shape == (5,))
 
         # test invalid format for new nodes
         new_n = [1] * self.features.shape[1]
         with self.assertRaises(TypeError):
             gnn.predict(new_n)
+
+        # test reinit weights
+        labels_pred = gnn.fit_predict(self.adjacency, self.features, self.labels, reinit=True)
+        self.assertTrue(all(labels_pred == gnn.labels_))

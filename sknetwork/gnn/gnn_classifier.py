@@ -23,8 +23,8 @@ class GNNClassifier(BaseGNNClassifier):
     Parameters
     ----------
     dims: list or int
-        Dimensions of the layers (in forward direction, last is the output).
-        If an integer, use a single layer (no hidden layer).
+        Dimensions of the outputs of each layer (in forward direction).
+        If an integer, dimension of the output layer (no hidden layer).
     layers: list or str
         Layers (in forward direction).
         If a string, use the same type of layer for all layers.
@@ -149,8 +149,8 @@ class GNNClassifier(BaseGNNClassifier):
             train_mask: Optional[np.ndarray] = None, val_mask: Optional[np.ndarray] = None,
             test_mask: Optional[np.ndarray] = None, train_size: Optional[float] = 0.8,
             val_size: Optional[float] = 0.1, test_size: Optional[float] = 0.1, resample: bool = False,
-            random_state: Optional[int] = None) -> 'GNNClassifier':
-        """ Fits model to data and store trained parameters.
+            reinit: bool = False, random_state: Optional[int] = None) -> 'GNNClassifier':
+        """ Fit model to data and store trained parameters.
 
         Parameters
         ----------
@@ -175,12 +175,17 @@ class GNNClassifier(BaseGNNClassifier):
             Proportion of the training set used for validation (between 0 and 1).
             Only used if the corresponding mask is ``None``.
         resample : bool (default = ``False``)
-            Resample the train/test/validation sets before fitting.
+            If ``True``, resample the train/test/validation sets before fitting.
             Otherwise, the train/test/validation sets remain the same after the first fit.
+        reinit: bool  (default = ``False``)
+            If ``True``, reinit the trainable parameters of the GNN (weights and biases).
         random_state : int
             Pass an int for reproducible results across multiple runs.
         """
         labels_pred = None
+
+        if reinit:
+            self.layers = self._get_layers()
 
         if resample or self.embedding_ is None:
             exists_mask, self.train_mask, self.val_mask, self.test_mask = \
