@@ -52,7 +52,7 @@ class GNNClassifier(BaseGNNClassifier):
         If ``True``, training terminates when validation score is not improving for `patience` number of epochs.
     patience: int (default = 10)
         Number of iterations with no improvement to wait before stopping fitting.
-    verbose :
+    verbose : bool
         Verbose mode.
 
     Attributes
