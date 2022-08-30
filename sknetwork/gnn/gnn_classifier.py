@@ -48,7 +48,7 @@ class GNNClassifier(BaseGNNClassifier):
         * ``'Adam'``, stochastic gradient-based optimizer (default).
         * ``'None'``, gradient descent.
     early_stopping: bool (default = ``True``)
-        Wether to use early stopping to end training when validation score is not improving anymore.
+        Whether to use early stopping to end training.
         If ``True``, training terminates when validation score is not improving for `patience` number of epochs.
     patience: int (default = 10)
         Number of iterations with no improvement to wait before stopping fitting.
