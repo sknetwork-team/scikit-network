@@ -78,3 +78,38 @@ def get_degrees(input_matrix: sparse.csr_matrix, transpose: bool = False) -> np.
         matrix = input_matrix
     degrees = matrix.indptr[1:] - matrix.indptr[:-1]
     return degrees
+
+
+def get_weights(input_matrix: sparse.csr_matrix, transpose: bool = False) -> np.ndarray:
+    """Get the vector of weights of the nodes of a graph. If the graph is not weighted, return the vector of degrees.
+
+    If the graph is directed, returns the out-weights (total weight of outgoing links). Set ``transpose=True``
+    to get the in-weights (total weight of incoming links).
+
+    For a biadjacency matrix, returns the weights of rows. Set ``transpose=True``
+    to get the weights of columns.
+
+    Parameters
+    ----------
+    input_matrix : sparse.csr_matrix
+        Adjacency or biadjacency matrix.
+    transpose :
+        If ``True``, transpose the input matrix.
+    Returns
+    -------
+    weights : np.ndarray
+        Array of weights.
+
+    Example
+    -------
+    >>> from sknetwork.data import house
+    >>> adjacency = house()
+    >>> get_weights(adjacency)
+    array([2., 3., 2., 2., 3.])
+    """
+    if transpose:
+        matrix = sparse.csr_matrix(input_matrix.T)
+    else:
+        matrix = input_matrix
+    weights = matrix.dot(np.ones(matrix.shape[1]))
+    return weights

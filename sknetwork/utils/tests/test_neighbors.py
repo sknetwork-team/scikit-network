@@ -10,7 +10,7 @@ import numpy as np
 from numpy.linalg import norm
 
 from sknetwork.data import karate_club, painters
-from sknetwork.utils import get_neighbors, get_degrees
+from sknetwork.utils import get_neighbors, get_degrees, get_weights
 
 
 class TestNeighbors(unittest.TestCase):
@@ -27,11 +27,15 @@ class TestNeighbors(unittest.TestCase):
         adjacency = painters()
         neighbors = get_neighbors(adjacency, 0)
         out_degrees = get_degrees(adjacency)
+        out_weights = get_weights(adjacency)
         neighbors_true = np.array([3, 10])
         self.assertEqual(norm(neighbors - neighbors_true), 0)
         self.assertEqual(out_degrees[0], 2)
+        self.assertEqual(out_weights[0], 2)
         neighbors = get_neighbors(adjacency, 0, transpose=True)
         in_degrees = get_degrees(adjacency, transpose=True)
+        in_weights = get_weights(adjacency, transpose=True)
         neighbors_true = np.array([3,  6,  8, 10, 11])
         self.assertEqual(norm(neighbors - neighbors_true), 0)
         self.assertEqual(in_degrees[0], 5)
+        self.assertEqual(in_weights[0], 5)

@@ -21,6 +21,8 @@ Neighborhood
 
 .. autofunction:: sknetwork.utils.get_degrees
 
+.. autofunction:: sknetwork.utils.get_weights
+
 .. autofunction:: sknetwork.utils.get_neighbors
 
 
