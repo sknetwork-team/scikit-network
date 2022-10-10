@@ -63,12 +63,12 @@ class GNNClassifier(BaseGNNClassifier):
     ----------
     conv2, ..., conv1: :class:'GCNConv'
         Graph convolutional layers.
-    embedding_ : array
-        Embedding of the nodes.
+    output_ : array
+        Output of the GNN.
     labels_: np.ndarray
         Predicted node labels.
     history_: dict
-        Training history per epoch: {``'embedding'``, ``'loss'``, ``'train_accuracy'``, ``'val_accuracy'``}.
+        Training history per epoch: {``'output'``, ``'loss'``, ``'train_accuracy'``, ``'val_accuracy'``}.
 
     Example
     -------
@@ -102,10 +102,7 @@ class GNNClassifier(BaseGNNClassifier):
         self.history_ = defaultdict(list)
 
     def forward(self, adjacency: sparse.csr_matrix, features: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
-        """Perform a forward pass on the graph and return embedding of nodes.
-
-            Note that the non-linearity is integrated in the :class:`GCNConv` layers and hence is not applied
-            after each layer in the forward method.
+        """Perform a forward pass on the graph and return the output.
 
         Parameters
         ----------
@@ -116,8 +113,8 @@ class GNNClassifier(BaseGNNClassifier):
 
         Returns
         -------
-        np.ndarray
-            Nodes embedding.
+        output : np.ndarray
+            Output of the GNN.
         """
 
         h = features.copy()
@@ -127,28 +124,29 @@ class GNNClassifier(BaseGNNClassifier):
         return h
 
     @staticmethod
-    def _compute_predictions(embedding: np.ndarray) -> Tuple:
-        """Compute model predictions.
+    def _compute_predictions(output: np.ndarray) -> Tuple:
+        """Compute predictions from the output of the GNN.
 
         Parameters
         ----------
-        embedding : np.ndarray
-            Embedding of nodes.
+        output : np.ndarray
+            Output of the GNN.
 
         Returns
         -------
-        np.ndarray : logits, predicted probabilities.
-        np.ndarray : labels_pred, predicted class.
+        labels : np.ndarray
+            Predicted labels.
+        probs : np.ndarray
+            Predicted probabilities.
         """
-
-        if embedding.shape[1] == 1:
-            labels_pred = np.where(embedding.ravel() < 0.5, 0, 1)
-            logits = embedding.ravel()
+        if output.shape[1] == 1:
+            labels = np.where(output.ravel() < 0.5, 0, 1)
+            probs = output.ravel()
         else:
-            logits = embedding
-            labels_pred = embedding.argmax(1)
+            labels = output.argmax(axis=1)
+            probs = output
 
-        return logits, labels_pred
+        return labels, probs
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], features: Union[sparse.csr_matrix, np.ndarray],
             labels: np.ndarray, loss: str = 'CrossEntropyLoss', n_epochs: int = 100,
@@ -193,7 +191,7 @@ class GNNClassifier(BaseGNNClassifier):
         if reinit:
             self.layers = self._get_layers()
 
-        if resample or self.embedding_ is None:
+        if resample or self.output_ is None:
             exists_mask, self.train_mask, self.val_mask, self.test_mask = \
                 check_existing_masks(labels, train_mask, val_mask, test_mask, train_size, val_size, test_size)
             if not exists_mask:
@@ -212,14 +210,14 @@ class GNNClassifier(BaseGNNClassifier):
         for epoch in range(n_epochs):
 
             # Forward
-            embedding = self.forward(adjacency, features)
+            output = self.forward(adjacency, features)
 
             # Compute predictions
-            logits, labels_pred = self._compute_predictions(embedding)
+            labels_pred, probs = self._compute_predictions(output)
 
             # Loss
             loss_function = get_loss_function(loss)
-            loss_value = loss_function(labels[self.train_mask], logits[self.train_mask])
+            loss_value = loss_function(labels[self.train_mask], probs[self.train_mask])
 
             # Accuracy
             train_acc = get_accuracy_score(labels[self.train_mask], labels_pred[self.train_mask])
@@ -235,7 +233,7 @@ class GNNClassifier(BaseGNNClassifier):
             self.optimizer.step(self)
 
             # Save results
-            self.history_['embedding'].append(embedding)
+            self.history_['output'].append(output)
             self.history_['loss'].append(loss_value)
             self.history_['train_accuracy'].append(train_acc)
             if val_acc is not None:
@@ -269,8 +267,9 @@ class GNNClassifier(BaseGNNClassifier):
                         self.log.print('Early stopping.')
                         break
 
+        self.embedding_ = self.layers[-1].embedding
+        self.output_ = self.layers[-1].output
         self.labels_ = labels_pred
-        self.embedding_ = self.history_.get('embedding')[-1]
 
         return self
 
@@ -303,24 +302,23 @@ class GNNClassifier(BaseGNNClassifier):
 
     def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray] = None,
                 feature_vectors: Union[sparse.csr_matrix, np.ndarray] = None) -> np.ndarray:
-        """Predict labels for new nodes. If `predict()` is called without parameters, labels are returned
-        for all nodes.
+        """Predict labels for new nodes. If called without parameters, labels are returned for all nodes.
 
         Parameters
         ----------
-        adjacency_vectors
+        adjacency_vectors : np.ndarray
             Adjacency row vectors. Array of shape (n_col,) (single vector) or (n_vectors, n_col).
-        feature_vectors
+        feature_vectors : np.ndarray
             Features row vectors. Array of shape (n_feat,) (single vector) or (n_vectors, n_feat).
 
         Returns
         -------
-        np.ndarray
-            Array containing the labels of each node in the graph.
+        labels : np.ndarray
+            Label of each node of the graph.
         """
         self._check_fitted()
 
-        n = len(self.embedding_)
+        n = len(self.output_)
 
         if adjacency_vectors is None and feature_vectors is None:
             return self.labels_
@@ -337,6 +335,6 @@ class GNNClassifier(BaseGNNClassifier):
                 feature_vectors.resize(max_n, n_feat)
 
             h = self.forward(adjacency_vectors, feature_vectors)
-            _, labels = self._compute_predictions(h)
+            labels, _ = self._compute_predictions(h)
 
             return labels[:n_row]

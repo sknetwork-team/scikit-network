@@ -16,13 +16,13 @@ class BaseLayer:
         Trainable weight matrix.
     bias: np.ndarray
         Bias vector.
-    update: np.ndarray
-        Embedding of the nodes before the activation function.
     embedding: np.ndarray
-        Embedding of the nodes after convolution layer.
+        Embedding of the nodes (before activation).
+    output: np.ndarray
+        Output of the layer (after activation).
     """
-    def __init__(self, out_channels: int, activation: str = 'Relu', use_bias: bool = True,
-                 normalization: str = 'Both', self_loops: bool = True):
+    def __init__(self, out_channels: int, activation: str = 'relu', use_bias: bool = True,
+                 normalization: str = 'both', self_loops: bool = True):
         self.out_channels = out_channels
         self.activation = activation.lower()
         self.use_bias = use_bias
@@ -31,7 +31,7 @@ class BaseLayer:
         self.weight = None
         self.bias = None
         self.embedding = None
-        self.update = None
+        self.output = None
         self.weights_initialized = False
 
     def _initialize_weights(self, in_channels: int):
@@ -39,9 +39,10 @@ class BaseLayer:
 
         Parameters
         ----------
-            in_channels:
+        in_channels: int
+            Number of input channels.
         """
-        # Trainable parameters with He-et-al initialization
+        # Trainable parameters with He initialization
         self.weight = np.random.randn(in_channels, self.out_channels) * np.sqrt(2 / self.out_channels)
         if self.use_bias:
             self.bias = np.zeros((self.out_channels, 1)).T

@@ -20,5 +20,6 @@ Convolution layers
 Optimizers
 ----------
 
+.. autoclass:: sknetwork.gnn.BaseOptimizer
 .. autoclass:: sknetwork.gnn.ADAM
 .. autoclass:: sknetwork.gnn.GD

@@ -18,7 +18,7 @@ class BaseOptimizer:
     Parameters
     ----------
     learning_rate: float (default = 0.01)
-        Learning rate for weights update.
+        Learning rate for updating weights.
     """
 
     def __init__(self, learning_rate):
@@ -40,7 +40,7 @@ class GD(BaseOptimizer):
     Parameters
     ----------
     learning_rate: float (default = 0.01)
-        Learning rate for weights update.
+        Learning rate for updating weights.
     """
 
     def __init__(self, learning_rate: float = 0.01):
@@ -65,7 +65,7 @@ class ADAM(BaseOptimizer):
     Parameters
     ----------
     learning_rate: float (default = 0.01)
-        Learning rate for weights update.
+        Learning rate for updating weights.
     beta1, beta2: float
         Coefficients used for computing running averages of gradients.
     eps: float (default = 1e-8)

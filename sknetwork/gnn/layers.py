@@ -18,12 +18,12 @@ from sknetwork.linalg import diag_pinv
 class GCNConv(BaseLayer):
     """Graph convolutional layer.
 
-    Apply the following function to the embedding :math:`H`:
+    Apply the following function to the embedding :math:`X`:
 
-    :math:`\\sigma(\\bar AHW + b)`,
+    :math:`\\sigma(\\bar AXW + b)`,
 
-    where :math:`\\bar A` is the normalized adjacency matrix (possibly with inserted self-loops).
-    :math:`W` and :math:`b` are trainable parameters and :math:`\\sigma` is the activation function.
+    where :math:`\\bar A` is the normalized adjacency matrix (possibly with inserted self-loops),
+    :math:`W`, :math:`b` are trainable parameters and :math:`\\sigma` is the activation function.
 
     Parameters
     ----------
@@ -39,7 +39,7 @@ class GCNConv(BaseLayer):
         Can be either `'left'`` (left normalization by the degrees), ``'right'`` (right normalization by the degrees),
         ``'both'`` (symmetric normalization by the square root of degrees, default) or ``None`` (no normalization).
     self_loops: bool (default = `True`)
-        If ``True``, add a self-loop of unit weight to each node in the graph.
+        If ``True``, add a self-loop of unit weight to each node of the graph.
 
     Attributes
     ----------
@@ -47,10 +47,10 @@ class GCNConv(BaseLayer):
         Trainable weight matrix.
     bias: np.ndarray
         Bias vector.
-    update: np.ndarray
-        Embedding of the nodes before the activation function.
     embedding: np.ndarray
-        Embedding of the nodes after convolution layer.
+        Embedding of the nodes (before activation).
+    output: np.ndarray
+        Output of the layer (after activation).
 
     References
     ----------
@@ -77,8 +77,8 @@ class GCNConv(BaseLayer):
 
         Returns
         -------
-        embedding: np.ndarray
-            Node embedding.
+        output: np.ndarray
+            Output of the layer.
         """
         if not self.weights_initialized:
             self._initialize_weights(features.shape[1])
@@ -100,17 +100,17 @@ class GCNConv(BaseLayer):
             d_inv = diag_pinv(np.sqrt(weights))
             adjacency = d_inv.dot(adjacency).dot(d_inv)
 
-        msg = adjacency.dot(features)
-        update = msg.dot(self.weight)
+        message = adjacency.dot(features)
+        embedding = message.dot(self.weight)
 
         if self.use_bias:
-            update += self.bias
+            embedding += self.bias
 
         activation_function = get_activation_function(self.activation)
-        embedding = activation_function(update)
+        output = activation_function(embedding)
 
         # Keep track of results for backprop
         self.embedding = embedding
-        self.update = update
+        self.output = output
 
-        return embedding
+        return output

@@ -10,70 +10,69 @@ from typing import Callable
 import numpy as np
 
 
-def cross_entropy_loss(y_true: np.ndarray, logits: np.ndarray, eps: float = 1e-15) -> float:
-    """Computes cross entropy loss, i.e. log-loss.
+def cross_entropy_loss(y_true: np.ndarray, probs: np.ndarray, eps: float = 1e-15) -> float:
+    """Computes cross entropy loss.
 
-    For a single sample with label :math:`y \in \{0, 1\}`, and a probability estimate :math:`p`, the log-loss
-    is as follows;
-    :math:`L_{\log}(y, p) = -(y \log (p) + (1 - y) \log (1 - p))`.
+    For a single sample with binary label :math:`y` and probability estimate :math:`p`, the cross-entropy loss
+    is :math:`-(y \\log (p) + (1 - y) \\log (1 - p))`.
 
     Parameters
     ----------
     y_true : np.ndarray
         Ground truth labels.
-    logits : np.ndarray
+    probs : np.ndarray
         Predicted probabilities.
     eps: float (default = 1e-15)
-        Binary cross entropy is undefined for :math:`p=0` or :math:`p=1`, thus predicated probabilities are
-        clipped w.r.t to `eps`.
+        Clipping parameter so that probabilities are in :math:`(\\eps, 1 - \\eps)`.
 
     Returns
     -------
     loss: float
+        Loss value.
 
     References
     ----------
     Bishop, C. M. (2006).
     `Pattern recognition and machine learning.
     <https://www.academia.edu/download/30428242/bg0137.pdf>`_
-    (Vol. 4, No. 4, p. 738). New York: Springer.
     """
     n = len(y_true)
 
     # Clipping
-    logits = np.clip(logits, eps, 1 - eps)
+    probs = np.clip(probs, eps, 1 - eps)
 
-    if logits.ndim == 1:
-        logprobs = y_true.dot(np.log(logits.T)) + (1 - y_true).dot(np.log((1 - logits)).T)
+    if probs.ndim == 1:
+        loglikelihood = y_true.dot(np.log(probs.T)) + (1 - y_true).dot(np.log((1 - probs)).T)
     else:
-        nb_classes = logits.shape[1]
+        nb_classes = probs.shape[1]
         y_true_ohe = np.eye(nb_classes)[y_true]
-        logits /= logits.sum(axis=1)[:, np.newaxis]
-        logprobs = np.sum(y_true_ohe * np.log(logits))
+        probs /= probs.sum(axis=1)[:, np.newaxis]
+        loglikelihood = np.sum(y_true_ohe * np.log(probs))
 
-    return -logprobs / n
+    loss = -loglikelihood / n
+
+    return loss
 
 
-def cross_entropy_prime(y_true: np.ndarray, logits: np.ndarray, eps: float = 1e-15) -> np.ndarray:
+def cross_entropy_prime(y_true: np.ndarray, probs: np.ndarray, eps: float = 1e-15) -> np.ndarray:
     """ Derivative of log loss function.
 
     Parameters
     ----------
     y_true : np.ndarray
         Ground truth labels.
-    logits : np.ndarray
+    probs : np.ndarray
         Predicted probabilities.
     eps: float (default = 1e-15)
-        Binary cross entropy is undefined for :math:`p=0` or :math:`p=1`, thus predicated probabilities are
-        clipped w.r.t to `eps`.
+        Clipping parameter so that probabilities are in :math:`(\\eps, 1 - \\eps)`.
     """
     # Clipping
-    logits = np.clip(logits, eps, 1 - eps)
+    probs = np.clip(probs, eps, 1 - eps)
 
-    if logits.shape[0] == 1:
-        prime_loss = -(y_true / logits) + (1 - y_true) / (1 - logits)
+    if probs.shape[0] == 1:
+        prime_loss = -(y_true / probs) + (1 - y_true) / (1 - probs)
     else:
-        prime_loss = logits - y_true
+        prime_loss = probs - y_true
 
     return prime_loss
 
