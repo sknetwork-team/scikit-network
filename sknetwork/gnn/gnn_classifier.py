@@ -5,6 +5,7 @@ Created in April 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
 from typing import Optional, Tuple, Union
+from collections import defaultdict
 
 import numpy as np
 from scipy import sparse
@@ -12,6 +13,7 @@ from scipy import sparse
 from sknetwork.classification.metrics import get_accuracy_score
 from sknetwork.gnn.base import BaseGNNClassifier
 from sknetwork.gnn.loss import get_loss_function
+from sknetwork.gnn.optimizer import BaseOptimizer
 from sknetwork.gnn.utils import filter_mask, check_existing_masks, check_output, get_layers_parameters, \
     check_early_stopping
 from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, is_square
@@ -44,9 +46,11 @@ class GNNClassifier(BaseGNNClassifier):
     self_loops: list or str
         Whether to add a self loop at each node of the graph for message passing.
         If ``True``, add a self-loop for message passing at all layers.
-    optimizer: str
+    optimizer: str or optimizer
         * ``'Adam'``, stochastic gradient-based optimizer (default).
-        * ``'None'``, gradient descent.
+        * ``'GD'``, gradient descent.
+    learning_rate: float
+        Learning rate.
     early_stopping: bool (default = ``True``)
         Whether to use early stopping to end training.
         If ``True``, training terminates when validation score is not improving for `patience` number of epochs.
@@ -84,8 +88,9 @@ class GNNClassifier(BaseGNNClassifier):
     def __init__(self, dims: Union[int, list], layers: Union[str, list] = 'GCNConv',
                  activations: Union[str, list] = 'Sigmoid', use_bias: Union[bool, list] = True,
                  normalizations: Union[str, list] = 'Both', self_loops: Union[bool, list] = True,
-                 optimizer: str = 'Adam', early_stopping: bool = True, patience: int = 10, **kwargs):
-        super(GNNClassifier, self).__init__(optimizer, **kwargs)
+                 optimizer: Union[BaseOptimizer, str] = 'Adam', learning_rate: float = 0.01,
+                 early_stopping: bool = True, patience: int = 10, verbose: bool = False):
+        super(GNNClassifier, self).__init__(optimizer, learning_rate, verbose)
         parameters = get_layers_parameters(dims, layers, activations, use_bias, normalizations, self_loops)
         self.early_stopping = early_stopping
         self.patience = patience
@@ -94,6 +99,7 @@ class GNNClassifier(BaseGNNClassifier):
             args = params[:1] + params[2:]
             setattr(self, f'conv{layer_idx + 1}', self._init_layer(layer, *args))
         self.layers = self._get_layers()
+        self.history_ = defaultdict(list)
 
     def forward(self, adjacency: sparse.csr_matrix, features: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
         """Perform a forward pass on the graph and return embedding of nodes.
@@ -226,7 +232,7 @@ class GNNClassifier(BaseGNNClassifier):
             self.backward(features, labels, loss)
 
             # Update weights using optimizer
-            self.opt.step()
+            self.optimizer.step(self)
 
             # Save results
             self.history_['embedding'].append(embedding)

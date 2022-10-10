@@ -4,7 +4,7 @@ from __future__ import annotations
 Created on Thu Apr 21 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
-from typing import TYPE_CHECKING
+from typing import Union, TYPE_CHECKING
 
 import numpy as np
 
@@ -12,35 +12,58 @@ if TYPE_CHECKING:
     from sknetwork.gnn import BaseGNNClassifier
 
 
-class GD:
-    """Gradient Descent optimizer.
+class BaseOptimizer:
+    """Base class for optimizers.
 
     Parameters
     ----------
-    gnn: BaseGNNClassifier
-        Model containing parameters to update.
     learning_rate: float (default = 0.01)
         Learning rate for weights update.
     """
 
-    def __init__(self, gnn: BaseGNNClassifier, learning_rate: float = 0.01):
-        self.gnn = gnn
+    def __init__(self, learning_rate):
         self.learning_rate = learning_rate
 
-    def step(self):
-        """Update model parameters according to gradient values."""
-        for idx, layer in enumerate(self.gnn.layers):
-            layer.weight = layer.weight - self.learning_rate * self.gnn.prime_weight[idx]
-            layer.bias = layer.bias - self.learning_rate * self.gnn.prime_bias[idx]
+    def step(self, gnn: BaseGNNClassifier):
+        """Update model parameters according to gradient values.
+
+        Parameters
+        ----------
+        gnn: BaseGNNClassifier
+            Model containing parameters to update.
+        """
 
 
-class ADAM:
+class GD(BaseOptimizer):
+    """Gradient Descent optimizer.
+
+    Parameters
+    ----------
+    learning_rate: float (default = 0.01)
+        Learning rate for weights update.
+    """
+
+    def __init__(self, learning_rate: float = 0.01):
+        super(GD, self).__init__(learning_rate)
+
+    def step(self, gnn: BaseGNNClassifier):
+        """Update model parameters according to gradient values.
+
+        Parameters
+        ----------
+        gnn: BaseGNNClassifier
+            Model containing parameters to update.
+        """
+        for idx, layer in enumerate(gnn.layers):
+            layer.weight = layer.weight - self.learning_rate * gnn.prime_weight[idx]
+            layer.bias = layer.bias - self.learning_rate * gnn.prime_bias[idx]
+
+
+class ADAM(BaseOptimizer):
     """Adam optimizer.
 
     Parameters
     ----------
-    gnn: `BaseGNNClassifier`
-        Model containing parameters to update.
     learning_rate: float (default = 0.01)
         Learning rate for weights update.
     beta1, beta2: float
@@ -56,10 +79,9 @@ class ADAM:
     3rd International Conference for Learning Representation.
     """
 
-    def __init__(self, gnn: BaseGNNClassifier, learning_rate: float = 0.01, beta1: float = 0.9, beta2: float = 0.999,
+    def __init__(self, learning_rate: float = 0.01, beta1: float = 0.9, beta2: float = 0.999,
                  eps: float = 1e-8):
-        self.gnn = gnn
-        self.learning_rate = learning_rate
+        super(ADAM, self).__init__(learning_rate)
         self.beta1 = beta1
         self.beta2 = beta2
         self.eps = eps
@@ -67,27 +89,33 @@ class ADAM:
         self.m_prime_bias, self.v_prime_bias = [], []
         self.t = 0
 
-    def step(self):
-        """Update model parameters according to gradient values and parameters."""
+    def step(self, gnn: BaseGNNClassifier):
+        """Update model parameters according to gradient values and parameters.
+
+        Parameters
+        ----------
+        gnn: `BaseGNNClassifier`
+            Model containing parameters to update.
+        """
         if self.t == 0:
             self.m_prime_weight, self.v_prime_weight = \
-                [np.zeros(x.shape) for x in self.gnn.prime_weight], [np.zeros(x.shape) for x in self.gnn.prime_weight]
+                [np.zeros(x.shape) for x in gnn.prime_weight], [np.zeros(x.shape) for x in gnn.prime_weight]
             self.m_prime_bias, self.v_prime_bias = \
-                [np.zeros(x.shape) for x in self.gnn.prime_bias], [np.zeros(x.shape) for x in self.gnn.prime_bias]
+                [np.zeros(x.shape) for x in gnn.prime_bias], [np.zeros(x.shape) for x in gnn.prime_bias]
 
-        for idx, layer in enumerate(self.gnn.layers):
+        for idx, layer in enumerate(gnn.layers):
             self.t += 1
 
             # Moving averages
             self.m_prime_weight[idx] = \
-                self.beta1 * self.m_prime_weight[idx] + (1 - self.beta1) * self.gnn.prime_weight[idx]
+                self.beta1 * self.m_prime_weight[idx] + (1 - self.beta1) * gnn.prime_weight[idx]
             self.m_prime_bias[idx] = \
-                self.beta1 * self.m_prime_bias[idx] + (1 - self.beta1) * self.gnn.prime_bias[idx]
+                self.beta1 * self.m_prime_bias[idx] + (1 - self.beta1) * gnn.prime_bias[idx]
 
             self.v_prime_weight[idx] = \
-                self.beta2 * self.v_prime_weight[idx] + (1 - self.beta2) * (self.gnn.prime_weight[idx] ** 2)
+                self.beta2 * self.v_prime_weight[idx] + (1 - self.beta2) * (gnn.prime_weight[idx] ** 2)
             self.v_prime_bias[idx] = \
-                self.beta2 * self.v_prime_bias[idx] + (1 - self.beta2) * (self.gnn.prime_bias[idx] ** 2)
+                self.beta2 * self.v_prime_bias[idx] + (1 - self.beta2) * (gnn.prime_bias[idx] ** 2)
 
             # Correcting moving averages
             denom_1 = (1 - self.beta1 ** self.t)
@@ -105,24 +133,29 @@ class ADAM:
                 layer.bias - (self.learning_rate * m_prime_bias_corr) / (np.sqrt(v_prime_bias_corr) + self.eps)
 
 
-def get_optimizer(gnn: BaseGNNClassifier, opt: str = 'Adam', **kwargs) -> object:
+def get_optimizer(optimizer: Union[BaseOptimizer, str] = 'Adam', learning_rate: float = 0.01) -> BaseOptimizer:
     """Instantiate optimizer according to parameters.
 
     Parameters
     ----------
-    gnn : BaseGNNClassifier
-        Model on which optimizers apply the `step` method.
-    opt : str
-        Which optimizer to use. Can be ``'Adam'`` or ``'None'``.
+    optimizer : str or optimizer
+        Which optimizer to use. Can be ``'Adam'`` or ``'GD'`` or custom optimizer.
+    learning_rate: float
+        Learning rate.
 
     Returns
     -------
     Optimizer object
     """
-    opt = opt.lower()
-    if opt == 'adam':
-        return ADAM(gnn, **kwargs)
-    elif opt == 'none':
-        return GD(gnn, **kwargs)
+    if issubclass(type(optimizer), BaseOptimizer):
+        return optimizer
+    elif type(optimizer) == str:
+        optimizer = optimizer.lower()
+        if optimizer == 'adam':
+            return ADAM(learning_rate=learning_rate)
+        elif optimizer == 'gd':
+            return GD(learning_rate=learning_rate)
+        else:
+            raise ValueError("Optimizer must be either \"Adam\" or \"GD\" (Gradient Descent).")
     else:
-        raise ValueError("Optimizer must be either \"Adam\" or \"None\".")
+        raise TypeError("Optimizer must be either an \"BaseOptimizer\" object or a string.")

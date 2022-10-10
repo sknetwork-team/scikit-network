@@ -4,6 +4,7 @@
 Created on April 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
+from typing import Union
 from collections import defaultdict
 
 import numpy as np
@@ -11,7 +12,7 @@ import numpy as np
 from sknetwork.gnn.activation import get_prime_activation_function
 from sknetwork.gnn.layers import GCNConv
 from sknetwork.gnn.loss import get_prime_loss_function
-from sknetwork.gnn.optimizer import get_optimizer
+from sknetwork.gnn.optimizer import BaseOptimizer, get_optimizer
 from sknetwork.utils.verbose import VerboseMixin
 
 
@@ -20,10 +21,14 @@ class BaseGNNClassifier(VerboseMixin):
 
     Parameters
     ----------
-    optimizer: str (default = ``'Adam'``)
+    optimizer: str or custom optimizer (default = ``'Adam'``)
 
         * ``'Adam'``, a stochastic gradient-based optimizer.
-        * ``'None'``, gradient descent.
+        * ``'GD'``, gradient descent.
+    learning_rate: float
+        Learning rate.
+    verbose: bool
+        Verbose mode
 
     Attributes
     ----------
@@ -41,9 +46,10 @@ class BaseGNNClassifier(VerboseMixin):
         Training history per epoch: {'embedding', 'loss', 'train_accuracy', 'test_accuracy'}.
     """
 
-    def __init__(self, optimizer: str = 'Adam', verbose: bool = False, **kwargs):
+    def __init__(self, optimizer: Union[BaseOptimizer, str] = 'Adam', learning_rate: float = 0.01,
+                 verbose: bool = False):
         VerboseMixin.__init__(self, verbose)
-        self.opt = get_optimizer(self, optimizer, **kwargs)
+        self.optimizer = get_optimizer(optimizer, learning_rate)
         self.layers = []
         self.train_mask = None
         self.test_mask = None

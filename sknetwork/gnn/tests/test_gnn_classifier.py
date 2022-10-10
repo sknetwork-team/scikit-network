@@ -44,9 +44,9 @@ class TestGNNClassifier(unittest.TestCase):
         self.assertTrue(embedding.shape == (self.n, 2))
 
     def test_gnn_classifier_optimizer(self):
-        opts = ['None', 'Adam']
-        for opt in opts:
-            gnn = GNNClassifier(2, 'GCNConv', optimizer=opt)
+        optimizers = ['GD', 'Adam']
+        for optimizer in optimizers:
+            gnn = GNNClassifier(2, 'GCNConv', optimizer=optimizer)
             y_pred = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2)
             embedding = gnn.embedding_
             self.assertTrue(len(y_pred) == self.n)

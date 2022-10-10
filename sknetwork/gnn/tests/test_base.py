@@ -10,6 +10,7 @@ from sknetwork.data.test_graphs import test_graph
 from sknetwork.gnn.base import BaseGNNClassifier
 from sknetwork.gnn.gnn_classifier import GNNClassifier
 from sknetwork.gnn.layers import GCNConv
+from sknetwork.gnn.optimizer import ADAM
 
 
 class TestBaseGNN(unittest.TestCase):
@@ -27,7 +28,13 @@ class TestBaseGNN(unittest.TestCase):
             gnn.fit(self.adjacency, self.features, self.labels, test_size=0.2)
 
     def test_base_gnn_fit_transform(self):
-        gnn = GNNClassifier(dims=2, layers='GCNConv', activations='Relu', optimizer='None', verbose=False)
+        gnn = GNNClassifier(dims=2, layers='GCNConv', activations='Relu', optimizer='GD', verbose=False)
+        embedding = gnn.fit_transform(self.adjacency, self.features, labels=self.labels, n_epochs=1, val_size=0.2)
+        self.assertTrue(len(embedding) == self.n)
+        self.assertTrue(embedding.shape == (self.n, 2))
+
+    def test_base_gnn_custom_optimizer(self):
+        gnn = GNNClassifier(dims=2, layers='GCNConv', activations='Relu', optimizer=ADAM(beta1=0.5), verbose=False)
         embedding = gnn.fit_transform(self.adjacency, self.features, labels=self.labels, n_epochs=1, val_size=0.2)
         self.assertTrue(len(embedding) == self.n)
         self.assertTrue(embedding.shape == (self.n, 2))
@@ -44,7 +51,7 @@ class TestBaseGNN(unittest.TestCase):
         gnn = BaseGNNClassifier()
         with self.assertRaises(ValueError):
             gnn._check_fitted()
-        gnn = GNNClassifier(dims=2, layers='GCNConv', activations='Relu', optimizer='None', verbose=False)
+        gnn = GNNClassifier(dims=2, layers='GCNConv', activations='Relu', optimizer='GD', verbose=False)
         gnn.fit_transform(self.adjacency, self.features, labels=self.labels, n_epochs=1, val_size=0.2)
         fit_gnn = gnn._check_fitted()
         self.assertTrue(isinstance(fit_gnn, GNNClassifier))
