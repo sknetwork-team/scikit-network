@@ -4,57 +4,63 @@
 Created in April 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 from collections import defaultdict
 
 import numpy as np
 from scipy import sparse
 
 from sknetwork.classification.metrics import get_accuracy_score
-from sknetwork.gnn.base import BaseGNNClassifier
-from sknetwork.gnn.loss import get_loss_function
+from sknetwork.gnn.base import BaseGNN
+from sknetwork.gnn.loss import BaseLoss
+from sknetwork.gnn.layer import get_layer
 from sknetwork.gnn.optimizer import BaseOptimizer
-from sknetwork.gnn.utils import filter_mask, check_existing_masks, check_output, get_layers_parameters, \
-    check_early_stopping
+from sknetwork.gnn.utils import filter_mask, check_existing_masks, check_output, check_early_stopping, check_loss, \
+    get_layers
 from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, is_square
 
 
-class GNNClassifier(BaseGNNClassifier):
+class GNNClassifier(BaseGNN):
     """Graph Neural Network for node classification.
 
     Parameters
     ----------
-    dims: list or int
-        Dimensions of the outputs of each layer (in forward direction).
+    dims : list or int
+        Dimensions of the output of each layer (in forward direction).
         If an integer, dimension of the output layer (no hidden layer).
-    layers: list or str
-        Layers (in forward direction).
+        Optional if ``layers`` is specified.
+    layer_types : list or str
+        Layer types (in forward direction).
         If a string, use the same type of layer for all layers.
-        Can be ``'GCNConv'``, graph convolutional layer (default).
-    activations: list or str
+        Can be ``'Conv'``, graph convolutional layer (default).
+    activations : list or str
         Activation functions (in forward direction).
         If a string, use the same activation function for all layers.
-        Can be either ``'Identity'``, ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
-    use_bias: list or bool
+        Can be either ``'Identity'``, ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'`` (default = ``'Relu'``).
+    use_bias : list or bool
         Whether to use a bias term at each layer.
         If ``True``, use a bias term at all layers.
-    normalizations: list or str
+    normalizations : list or str
         Normalization of the adjacency matrix for message passing.
         If a string, use the same normalization for all layers.
         Can be either `'left'`` (left normalization by the degrees), ``'right'`` (right normalization by the degrees),
         ``'both'`` (symmetric normalization by the square root of degrees, default) or ``None`` (no normalization).
-    self_loops: list or str
+    self_loops : list or str
         Whether to add a self loop at each node of the graph for message passing.
-        If ``True``, add a self-loop for message passing at all layers.
-    optimizer: str or optimizer
+        If ``True``, add self-loops at all layers.
+    loss : str (default = ``'CrossEntropy'``) or BaseLoss
+        Loss function name or custom loss.
+    layers : list or None
+        Custom layers. If used, previous parameters are ignored.
+    optimizer : str or optimizer
         * ``'Adam'``, stochastic gradient-based optimizer (default).
         * ``'GD'``, gradient descent.
-    learning_rate: float
+    learning_rate : float
         Learning rate.
-    early_stopping: bool (default = ``True``)
+    early_stopping : bool (default = ``True``)
         Whether to use early stopping to end training.
         If ``True``, training terminates when validation score is not improving for `patience` number of epochs.
-    patience: int (default = 10)
+    patience : int (default = 10)
         Number of iterations with no improvement to wait before stopping fitting.
     verbose : bool
         Verbose mode.
@@ -85,20 +91,21 @@ class GNNClassifier(BaseGNNClassifier):
     0.88
     """
 
-    def __init__(self, dims: Union[int, list], layers: Union[str, list] = 'GCNConv',
-                 activations: Union[str, list] = 'Sigmoid', use_bias: Union[bool, list] = True,
-                 normalizations: Union[str, list] = 'Both', self_loops: Union[bool, list] = True,
+    def __init__(self, dims: Optional[Union[int, list]] = None, layer_types: Union[str, list] = 'Conv',
+                 activations: Union[str, list] = 'ReLu', use_bias: Union[bool, list] = True,
+                 normalizations: Union[str, list] = 'both', self_loops: Union[bool, list] = True,
+                 loss: Union[BaseLoss, str] = 'CrossEntropy', layers: Optional[list] = None,
                  optimizer: Union[BaseOptimizer, str] = 'Adam', learning_rate: float = 0.01,
                  early_stopping: bool = True, patience: int = 10, verbose: bool = False):
-        super(GNNClassifier, self).__init__(optimizer, learning_rate, verbose)
-        parameters = get_layers_parameters(dims, layers, activations, use_bias, normalizations, self_loops)
+        super(GNNClassifier, self).__init__(loss, optimizer, learning_rate, verbose)
+        if layers is not None:
+            layers = [get_layer(layer) for layer in layers]
+        else:
+            layers = get_layers(dims, layer_types, activations, use_bias, normalizations, self_loops, loss)
+        self.loss = check_loss(layers[-1])
+        self.layers = layers
         self.early_stopping = early_stopping
         self.patience = patience
-        for layer_idx, params in enumerate(zip(*parameters)):
-            layer = params[1]
-            args = params[:1] + params[2:]
-            setattr(self, f'conv{layer_idx + 1}', self._init_layer(layer, *args))
-        self.layers = self._get_layers()
         self.history_ = defaultdict(list)
 
     def forward(self, adjacency: sparse.csr_matrix, features: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
@@ -116,15 +123,13 @@ class GNNClassifier(BaseGNNClassifier):
         output : np.ndarray
             Output of the GNN.
         """
-
         h = features.copy()
         for layer in self.layers:
             h = layer(adjacency, h)
-
         return h
 
     @staticmethod
-    def _compute_predictions(output: np.ndarray) -> Tuple:
+    def _compute_predictions(output: np.ndarray) -> np.ndarray:
         """Compute predictions from the output of the GNN.
 
         Parameters
@@ -136,21 +141,16 @@ class GNNClassifier(BaseGNNClassifier):
         -------
         labels : np.ndarray
             Predicted labels.
-        probs : np.ndarray
-            Predicted probabilities.
         """
         if output.shape[1] == 1:
-            labels = np.where(output.ravel() < 0.5, 0, 1)
-            probs = output.ravel()
+            labels = (output.ravel() > 0.5).astype(int)
         else:
             labels = output.argmax(axis=1)
-            probs = output
-
-        return labels, probs
+        return labels
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], features: Union[sparse.csr_matrix, np.ndarray],
-            labels: np.ndarray, loss: str = 'CrossEntropyLoss', n_epochs: int = 100,
-            train_mask: Optional[np.ndarray] = None, val_mask: Optional[np.ndarray] = None,
+            labels: np.ndarray, n_epochs: int = 100, train_mask: Optional[np.ndarray] = None,
+            val_mask: Optional[np.ndarray] = None,
             test_mask: Optional[np.ndarray] = None, train_size: Optional[float] = 0.8,
             val_size: Optional[float] = 0.1, test_size: Optional[float] = 0.1, resample: bool = False,
             reinit: bool = False, random_state: Optional[int] = None) -> 'GNNClassifier':
@@ -166,8 +166,6 @@ class GNNClassifier(BaseGNNClassifier):
         labels : np.ndarray
             Label vectors of length :math:`n`, with :math:`n` the number of nodes in `adjacency`. A value of `labels`
             equals `-1` means no label. The associated nodes are not considered in training steps.
-        loss : str (default = ``'CrossEntropyLoss'``)
-            Loss function name.
         n_epochs : int (default = 100)
             Number of epochs (iterations over the whole graph).
         train_mask, val_mask, test_mask : np.ndarray
@@ -189,7 +187,7 @@ class GNNClassifier(BaseGNNClassifier):
         labels_pred = None
 
         if reinit:
-            self.layers = self._get_layers()
+            self.layers = [get_layer(layer) for layer in self.layers]
 
         if resample or self.output_ is None:
             exists_mask, self.train_mask, self.val_mask, self.test_mask = \
@@ -213,11 +211,10 @@ class GNNClassifier(BaseGNNClassifier):
             output = self.forward(adjacency, features)
 
             # Compute predictions
-            labels_pred, probs = self._compute_predictions(output)
+            labels_pred = self._compute_predictions(output)
 
             # Loss
-            loss_function = get_loss_function(loss)
-            loss_value = loss_function(labels[self.train_mask], probs[self.train_mask])
+            loss_value = self.loss.loss(output[self.train_mask], labels[self.train_mask])
 
             # Accuracy
             train_acc = get_accuracy_score(labels[self.train_mask], labels_pred[self.train_mask])
@@ -227,7 +224,7 @@ class GNNClassifier(BaseGNNClassifier):
                 val_acc = None
 
             # Backpropagation
-            self.backward(features, labels, loss)
+            self.backward(features, labels)
 
             # Update weights using optimizer
             self.optimizer.step(self)
@@ -242,19 +239,19 @@ class GNNClassifier(BaseGNNClassifier):
             if n_epochs > 10 and epoch % int(n_epochs / 10) == 0:
                 if val_acc is not None:
                     self.log.print(
-                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, '
-                        f'val acc: {val_acc:.3f}')
+                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_acc:.3f}, '
+                        f'val accuracy: {val_acc:.3f}')
                 else:
                     self.log.print(
-                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}')
+                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_acc:.3f}')
             elif n_epochs <= 10:
                 if val_acc is not None:
                     self.log.print(
-                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}, '
-                        f'val acc: {val_acc:.3f}')
+                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_acc:.3f}, '
+                        f'val accuracy: {val_acc:.3f}')
                 else:
                     self.log.print(
-                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, training acc: {train_acc:.3f}')
+                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_acc:.3f}')
 
             # Early stopping
             if early_stopping:
@@ -335,6 +332,6 @@ class GNNClassifier(BaseGNNClassifier):
                 feature_vectors.resize(max_n, n_feat)
 
             h = self.forward(adjacency_vectors, feature_vectors)
-            labels, _ = self._compute_predictions(h)
+            labels = self._compute_predictions(h)
 
             return labels[:n_row]

@@ -1,85 +1,61 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on April 2022
+Created on July 2022
 @author: Simon Delarue <sdelarue@enst.fr>
+@author: Thomas Bonald <bonald@enst.fr>
 """
 from typing import Union
-from collections import defaultdict
 
 import numpy as np
+from collections import defaultdict
 
-from sknetwork.gnn.activation import get_prime_activation_function
-from sknetwork.gnn.layers import GCNConv
-from sknetwork.gnn.loss import get_prime_loss_function
+from sknetwork.gnn.loss import BaseLoss, get_loss
 from sknetwork.gnn.optimizer import BaseOptimizer, get_optimizer
 from sknetwork.utils.verbose import VerboseMixin
 
 
-class BaseGNNClassifier(VerboseMixin):
-    """Base class for GNN classifiers.
+class BaseGNN(VerboseMixin):
+    """Base class for GNNs.
 
     Parameters
     ----------
-    optimizer: str or custom optimizer (default = ``'Adam'``)
+    loss : str or custom loss (default = ``'Cross entropy'``)
+        Loss function.
+    optimizer : str or custom optimizer (default = ``'Adam'``)
+        Optimizer used for training.
 
         * ``'Adam'``, a stochastic gradient-based optimizer.
         * ``'GD'``, gradient descent.
-    learning_rate: float
+    learning_rate : float
         Learning rate.
-    verbose: bool
+    verbose : bool
         Verbose mode
 
     Attributes
     ----------
-    prime_weight, prime_bias: np.ndarray, np.ndarray
-        Derivatives of trainable weight matrix and bias vector.
     layers: list
-        List of layer object (e.g `GCNConv`).
-    nb_layers: int
-        Number of layers in model.
-    activations: list
-        List of activation functions.
+        List of layers.
     labels_: np.ndarray
-        Predicted node labels.
+        Predicted labels.
     history_: dict
         Training history per epoch: {'embedding', 'loss', 'train_accuracy', 'test_accuracy'}.
     """
-
-    def __init__(self, optimizer: Union[BaseOptimizer, str] = 'Adam', learning_rate: float = 0.01,
-                 verbose: bool = False):
+    def __init__(self, loss: Union[BaseLoss, str] = 'CrossEntropy', optimizer: Union[BaseOptimizer, str] = 'Adam',
+                 learning_rate: float = 0.01, verbose: bool = False):
         VerboseMixin.__init__(self, verbose)
         self.optimizer = get_optimizer(optimizer, learning_rate)
+        self.loss = get_loss(loss)
         self.layers = []
+        self.derivative_weight = []
+        self.derivative_bias = []
         self.train_mask = None
         self.test_mask = None
         self.val_mask = None
-        self.nb_layers = 0
-        self.activations = []
-        self.prime_weight, self.prime_bias = [], []
         self.embedding_ = None
         self.output_ = None
         self.labels_ = None
         self.history_ = defaultdict(list)
-
-    @staticmethod
-    def _init_layer(layer: str = 'GCNConv', *args) -> object:
-        """Instantiate layer according to parameters.
-
-        Parameters
-        ----------
-        layer : str
-            Which layer to use. Can be ``'GCNConv'``.
-
-        Returns
-        -------
-        Layer object.
-        """
-        layer = layer.lower()
-        if layer == 'gcnconv':
-            return GCNConv(*args)
-        else:
-            raise ValueError("Layer must be \"GCNConv\".")
 
     def fit(self, *args, **kwargs):
         """Fit Algorithm to the data."""
@@ -111,7 +87,7 @@ class BaseGNNClassifier(VerboseMixin):
         self.fit(*args, **kwargs)
         return self.embedding_
 
-    def backward(self, features: np.ndarray, labels: np.ndarray, loss: str):
+    def backward(self, features: np.ndarray, labels: np.ndarray):
         """Compute backpropagation.
 
         Parameters
@@ -120,62 +96,39 @@ class BaseGNNClassifier(VerboseMixin):
             Features, array of shape (n_nodes, n_features).
         labels : np.ndarray
             Labels, array of shape (n_nodes,).
-        loss : str
-            Loss function.
         """
-        n = len(labels)
-        prime_loss_function = get_prime_loss_function(loss)
+        derivative_weight = []
+        derivative_bias = []
 
-        # Get information from model
-        self.layers = self._get_layers()
-        self.nb_layers = len(self.layers)
-        activations = self._get_activations(self.layers)
-        activation_primes = [get_prime_activation_function(activation) for activation in activations]
+        # discard missing labels
+        mask = labels >= 0
+        labels = labels[mask]
 
-        # Initialize parameters derivatives
-        self.prime_weight = [0] * self.nb_layers
-        self.prime_bias = [0] * self.nb_layers
+        # backpropagation
+        n_layers = len(self.layers)
+        layers_reverse: list = list(reversed(self.layers))
+        signal = layers_reverse[0].embedding
+        signal = signal[mask]
+        gradient = layers_reverse[0].activation.loss_gradient(signal, labels)
 
-        # Backpropagation
-        output = self.layers[-1].output
-        if self.layers[-1].activation == 'softmax':
-            n_channels = self.layers[-1].out_channels
-            y_true_ohe = np.eye(n_channels)[labels]
-            prime_update = (output - y_true_ohe).T
-        else:
-            prime_output = prime_loss_function(labels, output.T)
-            prime_update = prime_output * activation_primes[-1](self.layers[-1].embedding.T)
-
-        if self.nb_layers == 1:
-            output_prev = features
-        else:
-            output_prev = self.layers[-2].output
-
-        prime_weight = output_prev.T.dot(prime_update.T)
-        prime_bias = np.sum(prime_update, axis=1, keepdims=True) / n
-        prime_output_prev = self.layers[-1].weight.dot(prime_update)
-
-        self.prime_weight[-1] = prime_weight
-        self.prime_bias[-1] = prime_bias.T
-
-        for layer_idx in range(self.nb_layers - 1, 0, -1):
-            if self.layers[layer_idx - 1].activation == 'softmax':
-                jacobian = activation_primes[layer_idx - 1](self.layers[layer_idx - 1].embedding.T)
-                prime_update = np.einsum('mnr,mrr->mr', prime_output_prev[:, None, :], jacobian)
+        for i in range(n_layers):
+            if i < n_layers - 1:
+                signal = layers_reverse[i + 1].output
             else:
-                prime_update = prime_output_prev * \
-                               activation_primes[layer_idx - 1](self.layers[layer_idx - 1].embedding.T)
-            if layer_idx == 1:
-                output_prev = features
-            else:
-                output_prev = self.layers[layer_idx - 2].output
-            prime_weight = output_prev.T.dot(prime_update.T)
-            prime_bias = np.sum(prime_update, axis=1, keepdims=True) / n
-            if layer_idx > 1:
-                prime_output_prev = self.layers[layer_idx - 1].weight.dot(prime_update)
+                signal = features
+            signal = signal[mask]
 
-            self.prime_weight[layer_idx - 1] = prime_weight
-            self.prime_bias[layer_idx - 1] = prime_bias.T
+            derivative_weight.append(signal.T.dot(gradient))
+            derivative_bias.append(np.mean(gradient, axis=0, keepdims=True))
+
+            if i < n_layers - 1:
+                signal = layers_reverse[i + 1].embedding
+                signal = signal[mask]
+                direction = layers_reverse[i].weight.dot(gradient.T).T
+                gradient = layers_reverse[i + 1].activation.gradient(signal, direction)
+
+        self.derivative_weight = list(reversed(derivative_weight))
+        self.derivative_bias = list(reversed(derivative_bias))
 
     def _check_fitted(self):
         if self.output_ is None:
@@ -183,32 +136,6 @@ class BaseGNNClassifier(VerboseMixin):
                              "Call 'fit' with appropriate arguments before using this method.")
         else:
             return self
-
-    def _get_layers(self) -> list:
-        """Get layers objects in model.
-
-        Returns
-        -------
-        List of layers objects.
-        """
-        available_types = [GCNConv]
-
-        return [layer for layer in list(self.__dict__.values()) if any([isinstance(layer, t) for t in available_types])]
-
-    @staticmethod
-    def _get_activations(layers: list) -> list:
-        """Get activation functions for each layers in model.
-
-        Parameters
-        ----------
-        layers: list
-            list of layers objects in model.
-
-        Returns
-        -------
-        list of activation functions as strings.
-        """
-        return [layer.activation for layer in layers]
 
     def __repr__(self) -> str:
         """String representation of the `GNN`, layers by layers.
@@ -218,13 +145,8 @@ class BaseGNNClassifier(VerboseMixin):
         str
             String representation of object.
         """
-
-        lines = ''
-
-        lines += f'{self.__class__.__name__}(\n'
-
+        string = f'{self.__class__.__name__}(\n'
         for layer in self.layers:
-            lines += f'  {layer}\n'
-        lines += ')'
-
-        return lines
+            string += f'  {layer}\n'
+        string += ')'
+        return string

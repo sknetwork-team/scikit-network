@@ -4,18 +4,19 @@
 Created on Thu Apr 21 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 from scipy import sparse
 
-from sknetwork.gnn.activation import get_activation_function
+from sknetwork.gnn.activation import BaseActivation
+from sknetwork.gnn.loss import BaseLoss
 from sknetwork.gnn.base_layer import BaseLayer
-from sknetwork.gnn.utils import has_self_loops, add_self_loops
+from sknetwork.utils.check import has_self_loops, add_self_loops
 from sknetwork.linalg import diag_pinv
 
 
-class GCNConv(BaseLayer):
+class Convolution(BaseLayer):
     """Graph convolutional layer.
 
     Apply the following function to the embedding :math:`X`:
@@ -28,13 +29,13 @@ class GCNConv(BaseLayer):
     Parameters
     ----------
     out_channels: int
-        Size of each output sample.
-    activation: str (default = ``'Relu'``)
-        Activation function (in forward direction).
-        Can be either ``'Identity'``, ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
+        Dimension of the output.
+    activation: str (default = ``'Relu'``) or custom activation.
+        Activation function.
+        If a string, can be either ``'Identity'``, ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
     use_bias: bool (default = `True`)
         If ``True``, add a bias vector.
-    normalization: str (default = ``'Both'``)
+    normalization: str (default = ``'both'``)
         Normalization of the adjacency matrix for message passing.
         Can be either `'left'`` (left normalization by the degrees), ``'right'`` (right normalization by the degrees),
         ``'both'`` (symmetric normalization by the square root of degrees, default) or ``None`` (no normalization).
@@ -59,9 +60,10 @@ class GCNConv(BaseLayer):
     <https://arxiv.org/pdf/1609.02907.pdf>`_
     5th International Conference on Learning Representations.
     """
-    def __init__(self, out_channels: int, activation: str = 'Relu', use_bias: bool = True,
-                 normalization: str = 'Both', self_loops: bool = True):
-        super(GCNConv, self).__init__(out_channels, activation, use_bias, normalization, self_loops)
+    def __init__(self, out_channels: int, activation: Optional[Union[BaseActivation, str]] = 'Relu',
+                 use_bias: bool = True, normalization: str = 'both', self_loops: bool = True,
+                 loss: Optional[Union[BaseLoss, str]] = None):
+        super(Convolution, self).__init__(out_channels, activation, use_bias, normalization, self_loops, loss)
 
     def forward(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
                 features: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
@@ -106,11 +108,33 @@ class GCNConv(BaseLayer):
         if self.use_bias:
             embedding += self.bias
 
-        activation_function = get_activation_function(self.activation)
-        output = activation_function(embedding)
+        output = self.activation.output(embedding)
 
-        # Keep track of results for backprop
         self.embedding = embedding
         self.output = output
 
         return output
+
+
+def get_layer(layer: Union[BaseLayer, str] = 'conv', *args) -> BaseLayer:
+    """Get layer.
+
+    Parameters
+    ----------
+    layer : str or custom layer
+        If a string, must be ``'Conv'``.
+
+    Returns
+    -------
+    Layer object.
+    """
+    if issubclass(type(layer), BaseLayer):
+        return layer
+    elif type(layer) == str:
+        layer = layer.lower()
+        if layer in ['conv', 'gcnconv', 'graphconv']:
+            return Convolution(*args)
+        else:
+            raise ValueError("Layer name must be \"Conv\".")
+    else:
+        raise TypeError("Layer must be a string or a \"BaseLayer\" object.")

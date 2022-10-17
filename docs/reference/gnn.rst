@@ -15,7 +15,22 @@ The attribute ``labels_``  assigns a label to each node of the graph.
 Convolution layers
 ------------------
 
-.. autoclass:: sknetwork.gnn.GCNConv
+.. autoclass:: sknetwork.gnn.Convolution
+
+Activation functions
+--------------------
+
+.. autoclass:: sknetwork.gnn.BaseActivation
+.. autoclass:: sknetwork.gnn.ReLu
+.. autoclass:: sknetwork.gnn.Sigmoid
+.. autoclass:: sknetwork.gnn.Softmax
+
+Loss functions
+--------------
+
+.. autoclass:: sknetwork.gnn.BaseLoss
+.. autoclass:: sknetwork.gnn.CrossEntropy
+.. autoclass:: sknetwork.gnn.BinaryCrossEntropy
 
 Optimizers
 ----------

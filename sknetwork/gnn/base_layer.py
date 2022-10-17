@@ -4,27 +4,52 @@
 Created on July 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
+from typing import Optional, Union
+
 import numpy as np
+
+from sknetwork.gnn.activation import BaseActivation, get_activation
+from sknetwork.gnn.loss import BaseLoss, get_loss
 
 
 class BaseLayer:
     """Base class for GNN layers.
 
+    Parameters
+    ----------
+    out_channels: int
+        Dimension of the output.
+    activation: str (default = ``'Relu'``) or custom activation.
+        Activation function.
+        If a string, can be either ``'Identity'``, ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
+    use_bias: bool (default = `True`)
+        If ``True``, add a bias vector.
+    normalization: str (default = ``'both'``)
+        Normalization of the adjacency matrix for message passing.
+        Can be either `'left'`` (left normalization by the degrees), ``'right'`` (right normalization by the degrees),
+        ``'both'`` (symmetric normalization by the square root of degrees, default) or ``None`` (no normalization).
+    self_loops: bool (default = `True`)
+        If ``True``, add a self-loop of unit weight to each node of the graph.
+
     Attributes
     ----------
-    weight: np.ndarray,
+    weight : np.ndarray,
         Trainable weight matrix.
-    bias: np.ndarray
+    bias : np.ndarray
         Bias vector.
-    embedding: np.ndarray
+    embedding : np.ndarray
         Embedding of the nodes (before activation).
-    output: np.ndarray
+    output : np.ndarray
         Output of the layer (after activation).
     """
-    def __init__(self, out_channels: int, activation: str = 'relu', use_bias: bool = True,
-                 normalization: str = 'both', self_loops: bool = True):
+    def __init__(self, out_channels: int, activation: Optional[Union[BaseActivation, str]] = 'Relu',
+                 use_bias: bool = True, normalization: str = 'both', self_loops: bool = True,
+                 loss: Optional[Union[BaseLoss, str]] = None):
         self.out_channels = out_channels
-        self.activation = activation.lower()
+        if loss is None:
+            self.activation = get_activation(activation)
+        else:
+            self.activation = get_loss(loss)
         self.use_bias = use_bias
         self.normalization = normalization.lower()
         self.self_loops = self_loops
@@ -63,11 +88,14 @@ class BaseLayer:
         str
             String representation of object
         """
-        print_attr = ['out_channels', 'activation', 'use_bias', 'normalizations', 'self_loops']
+        print_attr = ['out_channels', 'activation', 'use_bias', 'normalization', 'self_loops']
         attributes_dict = {k: v for k, v in self.__dict__.items() if k in print_attr}
-        lines = ''
+        string = ''
 
         for k, v in attributes_dict.items():
-            lines += f'{k}: {v}, '
+            if k == 'activation':
+                string += f'{k}: {v.name}, '
+            else:
+                string += f'{k}: {v}, '
 
-        return f'  {self.__class__.__name__}({lines[:-2]})'
+        return f'  {self.__class__.__name__}({string[:-2]})'

@@ -8,9 +8,12 @@ from typing import Union, Optional, Tuple
 import warnings
 
 import numpy as np
-from scipy import sparse
 
-from sknetwork.utils.check import check_is_proba, check_boolean, check_labels, is_square
+from sknetwork.gnn.base_activation import BaseActivation, BaseLoss
+from sknetwork.gnn.base_layer import BaseLayer
+from sknetwork.gnn.layer import get_layer
+from sknetwork.gnn.loss import BinaryCrossEntropy, CrossEntropy
+from sknetwork.utils.check import check_is_proba, check_boolean, check_labels
 
 
 def filter_mask(mask: np.ndarray, proportion: Optional[float]):
@@ -121,18 +124,6 @@ def check_normalizations(normalizations: Union[str, list]):
         raise ValueError("Normalization must be 'left', 'right' or 'both'.")
 
 
-def check_layers(layers: Union[str, list]):
-    """Check if layer types are known."""
-    available_layers = ['gcnconv']
-    if isinstance(layers, list):
-        for layer in layers:
-            if layer.lower() not in available_layers:
-                raise ValueError("Layer must be \"GCNConv\".")
-    else:
-        if layers.lower() not in available_layers:
-            raise ValueError("Layer must be \"GCNConv\".")
-
-
 def check_output(n_channels: int, labels: np.ndarray):
     """Check the output of the GNN.
 
@@ -149,75 +140,69 @@ def check_output(n_channels: int, labels: np.ndarray):
                          "Please check the `dims` parameter of your GNN or the `labels` parameter.")
 
 
-def get_layers_parameters(dims: Union[int, list], layers: Union[str, list], activations: Union[str, list],
-                          use_bias: Union[bool, list], normalizations: Union[str, list],
-                          self_loops: Union[bool, list]) -> list:
-    """Get the list of layer parameters.
+def check_param(param, length):
+    """Check the length of a parameter if a list.
+    """
+    if not isinstance(param, list):
+        param = length * [param]
+    elif len(param) != length:
+        raise ValueError('The number of parameters must be equal to the number of layers.')
+    return param
+
+
+def check_loss(layer: BaseLayer):
+    """Check the length of a parameter if a list.
+    """
+    if not issubclass(type(layer.activation), BaseLoss):
+        raise ValueError('No loss specified for the last layer.')
+    if isinstance(layer.activation, CrossEntropy) and layer.out_channels == 1:
+        layer.activation = BinaryCrossEntropy()
+    return layer.activation
+
+
+def get_layers(dims: Union[int, list], layer_types: Union[str, BaseLayer, list],
+               activations: Union[str, BaseActivation, list], use_bias: Union[bool, list],
+               normalizations: Union[str, list], self_loops: Union[bool, list], loss: Union[str, BaseLoss]) -> list:
+    """Get the list of layers.
 
     Parameters
     ----------
     dims :
         Dimensions of layers (in forward direction).
-    layers :
+    layer_types :
         Layer types.
     activations :
-        Activations function.
+        Activation functions.
     use_bias :
         ``True`` if a bias vector is added.
     normalizations :
         Normalizations of adjacency matrix.
     self_loops :
         ``True`` if self loops are added. Allowed input are booleans and lists.
-
+    loss :
+        Loss function.
     Returns
     -------
     list
-        List of layer parameters.
+        List of layers.
     """
-
-    check_layers(layers)
     check_normalizations(normalizations)
 
     if not isinstance(dims, list):
         dims = [dims]
     n_layers = len(dims)
-    params = [dims, layers, activations, use_bias, normalizations, self_loops]
-    for idx, param in enumerate(params[1:]):
-        if isinstance(param, list):
-            if len(param) != n_layers:
-                raise ValueError('The number of parameters must be equal to the number of layers, '
-                                 'as given by the length of ``dims``.')
-        else:
-            params[idx + 1] = [param] * n_layers
 
-    return params
+    layer_types = check_param(layer_types, n_layers)
+    activations = check_param(activations, n_layers)
+    use_bias = check_param(use_bias, n_layers)
+    normalizations = check_param(normalizations, n_layers)
+    self_loops = check_param(self_loops, n_layers)
 
+    layers = []
+    for i in range(n_layers):
+        params = [layer_types[i], dims[i], activations[i], use_bias[i], normalizations[i], self_loops[i]]
+        if i == n_layers - 1:
+            params.append(loss)
+        layers.append(get_layer(*params))
 
-def has_self_loops(input_matrix: sparse.csr_matrix) -> bool:
-    """True if the matrix contains self loops."""
-    return all(input_matrix.diagonal().astype(bool))
-
-
-def add_self_loops(adjacency: sparse.csr_matrix) -> sparse.csr_matrix:
-    """Add self loops to adjacency matrix.
-
-    Parameters
-    ----------
-    adjacency : sparse.csr_matrix
-        Adjacency matrix of the graph.
-
-    Returns
-    -------
-    sparse.csr_matrix
-        Adjacency matrix of the graph with self loops.
-    """
-    n_row, n_col = adjacency.shape
-
-    if is_square(adjacency):
-        adjacency = sparse.diags(np.ones(n_col), format='csr') + adjacency
-    else:
-        tmp = sparse.eye(n_row)
-        tmp.resize(n_row, n_col)
-        adjacency += tmp
-
-    return adjacency
+    return layers
