@@ -12,6 +12,7 @@ from scipy import sparse
 from sknetwork.gnn.activation import BaseActivation
 from sknetwork.gnn.loss import BaseLoss
 from sknetwork.gnn.base_layer import BaseLayer
+from sknetwork.gnn.neigh_sampler import UniformNeighborSampler
 from sknetwork.utils.check import has_self_loops, add_self_loops
 from sknetwork.linalg import diag_pinv
 
@@ -41,6 +42,8 @@ class Convolution(BaseLayer):
         ``'both'`` (symmetric normalization by the square root of degrees, default) or ``None`` (no normalization).
     self_loops: bool (default = `True`)
         If ``True``, add a self-loop of unit weight to each node of the graph.
+    sample_size: int (default = 25)
+        Size of neighborhood sampled for each node. Used only for ``'SAGEConv'`` layer.
 
     Attributes
     ----------
@@ -60,10 +63,11 @@ class Convolution(BaseLayer):
     <https://arxiv.org/pdf/1609.02907.pdf>`_
     5th International Conference on Learning Representations.
     """
-    def __init__(self, out_channels: int, activation: Optional[Union[BaseActivation, str]] = 'Relu',
-                 use_bias: bool = True, normalization: str = 'both', self_loops: bool = True,
+    def __init__(self, layer_type: str, out_channels: int, activation: Optional[Union[BaseActivation, str]] = 'Relu',
+                 use_bias: bool = True, normalization: str = 'both', self_loops: bool = True, sample_size: int = None,
                  loss: Optional[Union[BaseLoss, str]] = None):
-        super(Convolution, self).__init__(out_channels, activation, use_bias, normalization, self_loops, loss)
+        super(Convolution, self).__init__(layer_type, out_channels, activation, use_bias, normalization, self_loops,
+                                          sample_size, loss)
 
     def forward(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
                 features: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
@@ -87,7 +91,12 @@ class Convolution(BaseLayer):
 
         n_row, n_col = adjacency.shape
 
-        if self.self_loops:
+        # Neighbor sampling
+        if self.layer_type == 'sageconv':
+            sampler = UniformNeighborSampler(sample_size=self.sample_size)
+            adjacency = sampler(adjacency)
+
+        if self.self_loops and self.layer_type == 'conv':
             if not has_self_loops(adjacency):
                 adjacency = add_self_loops(adjacency)
 
@@ -101,6 +110,10 @@ class Convolution(BaseLayer):
         elif self.normalization == 'both':
             d_inv = diag_pinv(np.sqrt(weights))
             adjacency = d_inv.dot(adjacency).dot(d_inv)
+
+        if self.self_loops and self.layer_type == 'sageconv':
+            if not has_self_loops(adjacency):
+                adjacency = add_self_loops(adjacency)
 
         message = adjacency.dot(features)
         embedding = message.dot(self.weight)
@@ -133,8 +146,13 @@ def get_layer(layer: Union[BaseLayer, str] = 'conv', *args) -> BaseLayer:
     elif type(layer) == str:
         layer = layer.lower()
         if layer in ['conv', 'gcnconv', 'graphconv']:
-            return Convolution(*args)
+            return Convolution(layer, *args)
+        elif layer in ['sage', 'sageconv']:
+            params = [arg for arg in args]
+            params[3] = 'left'
+            params[4] = True
+            return Convolution(layer, *params)
         else:
-            raise ValueError("Layer name must be \"Conv\".")
+            raise ValueError("Layer name must be \"Conv\" or \"SAGEConv\".")
     else:
         raise TypeError("Layer must be a string or a \"BaseLayer\" object.")

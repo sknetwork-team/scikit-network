@@ -40,7 +40,13 @@ class TestBaseGNN(unittest.TestCase):
         self.assertTrue(embedding.shape == (self.n, 2))
 
     def test_gnn_custom_layers(self):
-        gnn = GNNClassifier(layers=[Convolution(2, loss='CrossEntropy')], optimizer=ADAM(beta1=0.5), verbose=False)
+        gnn = GNNClassifier(layers=[Convolution('Conv', 2, loss='CrossEntropy')], optimizer=ADAM(beta1=0.5), verbose=False)
+        embedding = gnn.fit_transform(self.adjacency, self.features, labels=self.labels, n_epochs=1, val_size=0.2)
+        self.assertTrue(len(embedding) == self.n)
+        self.assertTrue(embedding.shape == (self.n, 2))
+
+        gnn = GNNClassifier(layers=[Convolution('SAGEConv', 2, sample_size=5, loss='CrossEntropy')], optimizer=ADAM(beta1=0.5),
+                            verbose=False)
         embedding = gnn.fit_transform(self.adjacency, self.features, labels=self.labels, n_epochs=1, val_size=0.2)
         self.assertTrue(len(embedding) == self.n)
         self.assertTrue(embedding.shape == (self.n, 2))

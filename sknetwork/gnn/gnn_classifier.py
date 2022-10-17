@@ -48,6 +48,8 @@ class GNNClassifier(BaseGNN):
     self_loops : list or str
         Whether to add a self loop at each node of the graph for message passing.
         If ``True``, add self-loops at all layers.
+    sample_size : list or int
+        Size of neighborhood sampled for each node. Used only for ``'SAGEConv'`` layer.
     loss : str (default = ``'CrossEntropy'``) or BaseLoss
         Loss function name or custom loss.
     layers : list or None
@@ -94,14 +96,15 @@ class GNNClassifier(BaseGNN):
     def __init__(self, dims: Optional[Union[int, list]] = None, layer_types: Union[str, list] = 'Conv',
                  activations: Union[str, list] = 'ReLu', use_bias: Union[bool, list] = True,
                  normalizations: Union[str, list] = 'both', self_loops: Union[bool, list] = True,
-                 loss: Union[BaseLoss, str] = 'CrossEntropy', layers: Optional[list] = None,
-                 optimizer: Union[BaseOptimizer, str] = 'Adam', learning_rate: float = 0.01,
-                 early_stopping: bool = True, patience: int = 10, verbose: bool = False):
+                 sample_sizes: Union[int, list] = 25, loss: Union[BaseLoss, str] = 'CrossEntropy',
+                 layers: Optional[list] = None, optimizer: Union[BaseOptimizer, str] = 'Adam',
+                 learning_rate: float = 0.01, early_stopping: bool = True, patience: int = 10, verbose: bool = False):
         super(GNNClassifier, self).__init__(loss, optimizer, learning_rate, verbose)
         if layers is not None:
             layers = [get_layer(layer) for layer in layers]
         else:
-            layers = get_layers(dims, layer_types, activations, use_bias, normalizations, self_loops, loss)
+            layers = get_layers(dims, layer_types, activations, use_bias, normalizations, self_loops, sample_sizes,
+                                loss)
         self.loss = check_loss(layers[-1])
         self.layers = layers
         self.early_stopping = early_stopping

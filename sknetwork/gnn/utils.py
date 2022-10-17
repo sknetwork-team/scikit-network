@@ -162,7 +162,8 @@ def check_loss(layer: BaseLayer):
 
 def get_layers(dims: Union[int, list], layer_types: Union[str, BaseLayer, list],
                activations: Union[str, BaseActivation, list], use_bias: Union[bool, list],
-               normalizations: Union[str, list], self_loops: Union[bool, list], loss: Union[str, BaseLoss]) -> list:
+               normalizations: Union[str, list], self_loops: Union[bool, list], sample_size: Union[int, list],
+               loss: Union[str, BaseLoss]) -> list:
     """Get the list of layers.
 
     Parameters
@@ -181,6 +182,9 @@ def get_layers(dims: Union[int, list], layer_types: Union[str, BaseLayer, list],
         ``True`` if self loops are added. Allowed input are booleans and lists.
     loss :
         Loss function.
+    sample_size
+        Size of neighborhood sampled for each node.
+
     Returns
     -------
     list
@@ -197,10 +201,12 @@ def get_layers(dims: Union[int, list], layer_types: Union[str, BaseLayer, list],
     use_bias = check_param(use_bias, n_layers)
     normalizations = check_param(normalizations, n_layers)
     self_loops = check_param(self_loops, n_layers)
+    sample_size = check_param(sample_size, n_layers)
 
     layers = []
     for i in range(n_layers):
-        params = [layer_types[i], dims[i], activations[i], use_bias[i], normalizations[i], self_loops[i]]
+        params = [layer_types[i], dims[i], activations[i], use_bias[i], normalizations[i], self_loops[i],
+                  sample_size[i]]
         if i == n_layers - 1:
             params.append(loss)
         layers.append(get_layer(*params))

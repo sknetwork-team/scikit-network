@@ -42,9 +42,10 @@ class BaseLayer:
     output : np.ndarray
         Output of the layer (after activation).
     """
-    def __init__(self, out_channels: int, activation: Optional[Union[BaseActivation, str]] = 'Relu',
-                 use_bias: bool = True, normalization: str = 'both', self_loops: bool = True,
+    def __init__(self, layer_type: str, out_channels: int, activation: Optional[Union[BaseActivation, str]] = 'Relu',
+                 use_bias: bool = True, normalization: str = 'both', self_loops: bool = True, sample_size: int = 25,
                  loss: Optional[Union[BaseLoss, str]] = None):
+        self.layer_type = layer_type
         self.out_channels = out_channels
         if loss is None:
             self.activation = get_activation(activation)
@@ -53,6 +54,7 @@ class BaseLayer:
         self.use_bias = use_bias
         self.normalization = normalization.lower()
         self.self_loops = self_loops
+        self.sample_size = sample_size
         self.weight = None
         self.bias = None
         self.embedding = None
@@ -89,6 +91,8 @@ class BaseLayer:
             String representation of object
         """
         print_attr = ['out_channels', 'activation', 'use_bias', 'normalization', 'self_loops']
+        if 'sage' in self.layer_type:
+            print_attr.append('sample_size')
         attributes_dict = {k: v for k, v in self.__dict__.items() if k in print_attr}
         string = ''
 

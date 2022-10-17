@@ -134,10 +134,17 @@ class TestGNNClassifier(unittest.TestCase):
         self.assertTrue(len(gnn.history_['val_accuracy']) < 100)
 
         gnn = GNNClassifier(2, early_stopping=False)
-        val_mask = np.zeros_like(self.labels, dtype=bool)
-        val_mask[:2] = 1
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, val_mask=val_mask, n_epochs=100, history=True)
+        train_mask = np.array([True, True, True, True, True, True, False, False, False, False])
+        val_mask = np.array([False, False, False, False, False, False, True, True, False, False])
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, train_mask=train_mask, val_mask=val_mask,
+                            n_epochs=100, history=True)
         self.assertTrue(len(gnn.history_['val_accuracy']) == 100)
+
+    def test_gnn_classifier_sageconv(self):
+        gnn = GNNClassifier([4, 2], ['SAGEConv', 'SAGEConv'], sample_sizes=[5, 3])
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, n_epochs=100)
+        self.assertTrue(gnn.layers[0].sample_size == 5 and gnn.layers[0].normalization == 'left')
+        self.assertTrue(gnn.layers[1].sample_size == 3 and gnn.layers[1].normalization == 'left')
 
     def test_gnn_classifier_predict(self):
         gnn = GNNClassifier(2)
