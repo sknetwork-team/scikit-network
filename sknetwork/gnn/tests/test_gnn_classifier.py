@@ -130,13 +130,13 @@ class TestGNNClassifier(unittest.TestCase):
 
     def test_gnn_classifier_early_stopping(self):
         gnn = GNNClassifier(2, patience=2)
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, n_epochs=100)
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, n_epochs=100, history=True)
         self.assertTrue(len(gnn.history_['val_accuracy']) < 100)
 
         gnn = GNNClassifier(2, early_stopping=False)
         val_mask = np.zeros_like(self.labels, dtype=bool)
         val_mask[:2] = 1
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, val_mask=val_mask, n_epochs=100)
+        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, val_mask=val_mask, n_epochs=100, history=True)
         self.assertTrue(len(gnn.history_['val_accuracy']) == 100)
 
     def test_gnn_classifier_predict(self):

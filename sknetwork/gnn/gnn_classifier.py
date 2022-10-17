@@ -74,7 +74,7 @@ class GNNClassifier(BaseGNN):
     labels_: np.ndarray
         Predicted node labels.
     history_: dict
-        Training history per epoch: {``'output'``, ``'loss'``, ``'train_accuracy'``, ``'val_accuracy'``}.
+        Training history per epoch: {``'embedding'``, ``'loss'``, ``'train_accuracy'``, ``'val_accuracy'``}.
 
     Example
     -------
@@ -153,7 +153,7 @@ class GNNClassifier(BaseGNN):
             val_mask: Optional[np.ndarray] = None,
             test_mask: Optional[np.ndarray] = None, train_size: Optional[float] = 0.8,
             val_size: Optional[float] = 0.1, test_size: Optional[float] = 0.1, resample: bool = False,
-            reinit: bool = False, random_state: Optional[int] = None) -> 'GNNClassifier':
+            reinit: bool = False, random_state: Optional[int] = None, history: bool = False) -> 'GNNClassifier':
         """ Fit model to data and store trained parameters.
 
         Parameters
@@ -183,6 +183,8 @@ class GNNClassifier(BaseGNN):
             If ``True``, reinit the trainable parameters of the GNN (weights and biases).
         random_state : int
             Pass an int for reproducible results across multiple runs.
+        history : bool (default = ``False``)
+            If ``True``, save training history.
         """
         labels_pred = None
 
@@ -230,11 +232,12 @@ class GNNClassifier(BaseGNN):
             self.optimizer.step(self)
 
             # Save results
-            self.history_['output'].append(output)
-            self.history_['loss'].append(loss_value)
-            self.history_['train_accuracy'].append(train_acc)
-            if val_acc is not None:
-                self.history_['val_accuracy'].append(val_acc)
+            if history:
+                self.history_['embedding'].append(self.layers[-1].embedding)
+                self.history_['loss'].append(loss_value)
+                self.history_['train_accuracy'].append(train_acc)
+                if val_acc is not None:
+                    self.history_['val_accuracy'].append(val_acc)
 
             if n_epochs > 10 and epoch % int(n_epochs / 10) == 0:
                 if val_acc is not None:
