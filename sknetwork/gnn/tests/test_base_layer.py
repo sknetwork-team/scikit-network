@@ -31,6 +31,7 @@ class TestBaseLayer(unittest.TestCase):
         self.assertTrue(self.base_layer.weights_initialized)
 
     def test_base_layer_repr(self):
-        self.assertTrue(self.base_layer.__repr__().startswith("  BaseLayer(out_channels: 10, activation: ReLu"))
+        self.assertTrue(self.base_layer.__repr__().startswith("  BaseLayer(layer_type: Conv, out_channels: 10"))
         sagelayer = BaseLayer(layer_type='sageconv', out_channels=len(self.labels))
         self.assertTrue('sample_size' in sagelayer.__repr__())
+        self.assertTrue('sageconv' in sagelayer.__repr__())

@@ -17,6 +17,8 @@ class BaseLayer:
 
     Parameters
     ----------
+    layer_type : str
+        Layer type. Can be either ``'Conv'`` or ``'SAGEConv'``.
     out_channels: int
         Dimension of the output.
     activation: str (default = ``'Relu'``) or custom activation.
@@ -30,6 +32,8 @@ class BaseLayer:
         ``'both'`` (symmetric normalization by the square root of degrees, default) or ``None`` (no normalization).
     self_loops: bool (default = `True`)
         If ``True``, add a self-loop of unit weight to each node of the graph.
+    sample_size: int (default = 25)
+        Size of neighborhood sampled for each node. Used only for ``'SAGEConv'`` layer.
 
     Attributes
     ----------
@@ -90,7 +94,7 @@ class BaseLayer:
         str
             String representation of object
         """
-        print_attr = ['out_channels', 'activation', 'use_bias', 'normalization', 'self_loops']
+        print_attr = ['out_channels', 'layer_type', 'activation', 'use_bias', 'normalization', 'self_loops']
         if 'sage' in self.layer_type:
             print_attr.append('sample_size')
         attributes_dict = {k: v for k, v in self.__dict__.items() if k in print_attr}

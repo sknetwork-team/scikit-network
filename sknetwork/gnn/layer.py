@@ -29,6 +29,8 @@ class Convolution(BaseLayer):
 
     Parameters
     ----------
+    layer_type : str
+        Layer type. Can be either ``'Conv'``, convolutional operator as in [1] or ``'SAGEConv'``, as in [2].
     out_channels: int
         Dimension of the output.
     activation: str (default = ``'Relu'``) or custom activation.
@@ -58,10 +60,15 @@ class Convolution(BaseLayer):
 
     References
     ----------
-    Kipf, T., & Welling, M. (2017).
+    [1] Kipf, T., & Welling, M. (2017).
     `Semi-supervised Classification with Graph Convolutional Networks.
     <https://arxiv.org/pdf/1609.02907.pdf>`_
     5th International Conference on Learning Representations.
+
+    [2] Hamilton, W. Ying, R., & Leskovec, J. (2017)
+    `Inductive Representation Learning on Large Graphs.
+    <https://arxiv.org/pdf/1706.02216.pdf>`_
+    NIPS
     """
     def __init__(self, layer_type: str, out_channels: int, activation: Optional[Union[BaseActivation, str]] = 'Relu',
                  use_bias: bool = True, normalization: str = 'both', self_loops: bool = True, sample_size: int = None,
@@ -135,7 +142,7 @@ def get_layer(layer: Union[BaseLayer, str] = 'conv', *args) -> BaseLayer:
     Parameters
     ----------
     layer : str or custom layer
-        If a string, must be ``'Conv'``.
+        If a string, must be either ``'Conv'`` or ``'SAGEConv'``.
 
     Returns
     -------

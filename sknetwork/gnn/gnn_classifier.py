@@ -48,8 +48,8 @@ class GNNClassifier(BaseGNN):
     self_loops : list or str
         Whether to add a self loop at each node of the graph for message passing.
         If ``True``, add self-loops at all layers.
-    sample_size : list or int
-        Size of neighborhood sampled for each node. Used only for ``'SAGEConv'`` layer.
+    sample_sizes : list or int
+        Size of neighborhood sampled for each node. Used only for ``'SAGEConv'`` layer type.
     loss : str (default = ``'CrossEntropy'``) or BaseLoss
         Loss function name or custom loss.
     layers : list or None
