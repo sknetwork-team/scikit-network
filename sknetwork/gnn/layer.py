@@ -153,12 +153,11 @@ def get_layer(layer: Union[BaseLayer, str] = 'conv', **kwargs) -> BaseLayer:
     elif type(layer) == str:
         layer = layer.lower()
         if layer in ['conv', 'gcnconv', 'graphconv']:
-            return Convolution(layer, **kwargs)
+            return Convolution('conv', **kwargs)
         elif layer in ['sage', 'sageconv']:
             kwargs['normalization'] = 'left'
             kwargs['self_loops'] = True
-
-            return Convolution(layer, **kwargs)
+            return Convolution('sage', **kwargs)
         else:
             raise ValueError("Layer name must be \"Conv\" or \"SAGEConv\".")
     else:
