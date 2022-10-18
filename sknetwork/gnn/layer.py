@@ -118,7 +118,7 @@ class Convolution(BaseLayer):
             d_inv = diag_pinv(np.sqrt(weights))
             adjacency = d_inv.dot(adjacency).dot(d_inv)
 
-        if self.self_loops and self.layer_type == 'sageconv':
+        if self.self_loops:
             if not has_self_loops(adjacency):
                 adjacency = add_self_loops(adjacency)
 
