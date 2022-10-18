@@ -136,7 +136,7 @@ class Convolution(BaseLayer):
         return output
 
 
-def get_layer(layer: Union[BaseLayer, str] = 'conv', *args) -> BaseLayer:
+def get_layer(layer: Union[BaseLayer, str] = 'conv', **kwargs) -> BaseLayer:
     """Get layer.
 
     Parameters
@@ -153,12 +153,12 @@ def get_layer(layer: Union[BaseLayer, str] = 'conv', *args) -> BaseLayer:
     elif type(layer) == str:
         layer = layer.lower()
         if layer in ['conv', 'gcnconv', 'graphconv']:
-            return Convolution(layer, *args)
+            return Convolution(layer, **kwargs)
         elif layer in ['sage', 'sageconv']:
-            params = [arg for arg in args]
-            params[3] = 'left'
-            params[4] = True
-            return Convolution(layer, *params)
+            kwargs['normalization'] = 'left'
+            kwargs['self_loops'] = True
+
+            return Convolution(layer, **kwargs)
         else:
             raise ValueError("Layer name must be \"Conv\" or \"SAGEConv\".")
     else:
