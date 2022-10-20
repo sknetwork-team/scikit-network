@@ -5,7 +5,7 @@
 import unittest
 
 from sknetwork.data.test_graphs import test_graph
-from sknetwork.gnn.neigh_sampler import *
+from sknetwork.gnn.neighbor_sampler import *
 from sknetwork.utils import get_degrees
 
 

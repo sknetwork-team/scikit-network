@@ -12,7 +12,7 @@ from scipy import sparse
 from sknetwork.gnn.activation import BaseActivation
 from sknetwork.gnn.loss import BaseLoss
 from sknetwork.gnn.base_layer import BaseLayer
-from sknetwork.gnn.neigh_sampler import UniformNeighborSampler
+from sknetwork.gnn.neighbor_sampler import UniformNeighborSampler
 from sknetwork.utils.check import has_self_loops, add_self_loops
 from sknetwork.linalg import diag_pinv
 
@@ -99,7 +99,7 @@ class Convolution(BaseLayer):
         n_row, n_col = adjacency.shape
 
         # Neighbor sampling
-        if self.layer_type == 'sageconv':
+        if self.layer_type == 'sage' and self.sample_size is not None:
             sampler = UniformNeighborSampler(sample_size=self.sample_size)
             adjacency = sampler(adjacency)
 
@@ -142,7 +142,7 @@ def get_layer(layer: Union[BaseLayer, str] = 'conv', **kwargs) -> BaseLayer:
     Parameters
     ----------
     layer : str or custom layer
-        If a string, must be either ``'Conv'`` or ``'SAGEConv'``.
+        If a string, must be either ``'Conv'`` (Convolution) or ``'Sage'`` (GraphSAGE).
 
     Returns
     -------
@@ -154,7 +154,7 @@ def get_layer(layer: Union[BaseLayer, str] = 'conv', **kwargs) -> BaseLayer:
         layer = layer.lower()
         if layer in ['conv', 'gcnconv', 'graphconv']:
             return Convolution('conv', **kwargs)
-        elif layer in ['sage', 'sageconv']:
+        elif layer in ['sage', 'sageconv', 'graphsage']:
             kwargs['normalization'] = 'left'
             kwargs['self_loops'] = True
             return Convolution('sage', **kwargs)

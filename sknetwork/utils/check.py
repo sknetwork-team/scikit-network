@@ -325,7 +325,7 @@ def check_vector_format(vector_1: np.ndarray, vector_2: np.ndarray):
 
 
 def has_self_loops(input_matrix: sparse.csr_matrix) -> bool:
-    """True if the matrix contains self loops."""
+    """True if each node has a self loop."""
     return all(input_matrix.diagonal().astype(bool))
 
 
