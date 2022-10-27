@@ -90,7 +90,7 @@ class GNNClassifier(BaseGNN):
     >>> gnn = GNNClassifier(dims=1, early_stopping=False)
     >>> labels_pred = gnn.fit_predict(adjacency, features, labels, random_state=42)
     >>> np.round(np.mean(labels_pred == labels), 2)
-    0.88
+    0.94
     """
 
     def __init__(self, dims: Optional[Union[int, list]] = None, layer_types: Union[str, list] = 'Conv',
