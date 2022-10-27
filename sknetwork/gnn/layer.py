@@ -13,7 +13,7 @@ from sknetwork.gnn.activation import BaseActivation
 from sknetwork.gnn.loss import BaseLoss
 from sknetwork.gnn.base_layer import BaseLayer
 from sknetwork.gnn.neighbor_sampler import UniformNeighborSampler
-from sknetwork.utils.check import has_self_loops, add_self_loops
+from sknetwork.utils.check import add_self_loops
 from sknetwork.linalg import diag_pinv
 
 
@@ -24,13 +24,13 @@ class Convolution(BaseLayer):
 
     :math:`\\sigma(\\bar AXW + b)`,
 
-    where :math:`\\bar A` is the normalized adjacency matrix (possibly with inserted self-loops),
+    where :math:`\\bar A` is the normalized adjacency matrix (possibly with inserted self-embeddings),
     :math:`W`, :math:`b` are trainable parameters and :math:`\\sigma` is the activation function.
 
     Parameters
     ----------
     layer_type : str
-        Layer type. Can be either ``'Conv'``, convolutional operator as in [1] or ``'SAGEConv'``, as in [2].
+        Layer type. Can be either ``'Conv'``, convolutional operator as in [1] or ``'Sage'``, as in [2].
     out_channels: int
         Dimension of the output.
     activation: str (default = ``'Relu'``) or custom activation.
@@ -42,10 +42,10 @@ class Convolution(BaseLayer):
         Normalization of the adjacency matrix for message passing.
         Can be either `'left'`` (left normalization by the degrees), ``'right'`` (right normalization by the degrees),
         ``'both'`` (symmetric normalization by the square root of degrees, default) or ``None`` (no normalization).
-    self_loops: bool (default = `True`)
-        If ``True``, add a self-loop of unit weight to each node of the graph.
+    self_embeddings: bool (default = `True`)
+        If ``True``, consider self-embedding in addition to neighbors embedding for each node of the graph.
     sample_size: int (default = 25)
-        Size of neighborhood sampled for each node. Used only for ``'SAGEConv'`` layer.
+        Size of neighborhood sampled for each node. Used only for ``'Sage'`` layer.
 
     Attributes
     ----------
@@ -71,10 +71,10 @@ class Convolution(BaseLayer):
     NIPS
     """
     def __init__(self, layer_type: str, out_channels: int, activation: Optional[Union[BaseActivation, str]] = 'Relu',
-                 use_bias: bool = True, normalization: str = 'both', self_loops: bool = True, sample_size: int = None,
-                 loss: Optional[Union[BaseLoss, str]] = None):
-        super(Convolution, self).__init__(layer_type, out_channels, activation, use_bias, normalization, self_loops,
-                                          sample_size, loss)
+                 use_bias: bool = True, normalization: str = 'both', self_embeddings: bool = True,
+                 sample_size: int = None, loss: Optional[Union[BaseLoss, str]] = None):
+        super(Convolution, self).__init__(layer_type, out_channels, activation, use_bias, normalization,
+                                          self_embeddings, sample_size, loss)
 
     def forward(self, adjacency: Union[sparse.csr_matrix, np.ndarray],
                 features: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
@@ -103,10 +103,6 @@ class Convolution(BaseLayer):
             sampler = UniformNeighborSampler(sample_size=self.sample_size)
             adjacency = sampler(adjacency)
 
-        if self.self_loops and self.layer_type == 'conv':
-            if not has_self_loops(adjacency):
-                adjacency = add_self_loops(adjacency)
-
         weights = adjacency.dot(np.ones(n_col))
         if self.normalization == 'left':
             d_inv = diag_pinv(weights)
@@ -118,9 +114,8 @@ class Convolution(BaseLayer):
             d_inv = diag_pinv(np.sqrt(weights))
             adjacency = d_inv.dot(adjacency).dot(d_inv)
 
-        if self.self_loops:
-            if not has_self_loops(adjacency):
-                adjacency = add_self_loops(adjacency)
+        if self.self_embeddings:
+            adjacency = add_self_loops(adjacency)
 
         message = adjacency.dot(features)
         embedding = message.dot(self.weight)
@@ -156,7 +151,7 @@ def get_layer(layer: Union[BaseLayer, str] = 'conv', **kwargs) -> BaseLayer:
             return Convolution('conv', **kwargs)
         elif layer in ['sage', 'sageconv', 'graphsage']:
             kwargs['normalization'] = 'left'
-            kwargs['self_loops'] = True
+            kwargs['self_embeddings'] = True
             return Convolution('sage', **kwargs)
         else:
             raise ValueError("Layer name must be \"Conv\" or \"SAGEConv\".")

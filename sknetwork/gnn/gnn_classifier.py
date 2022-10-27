@@ -32,7 +32,7 @@ class GNNClassifier(BaseGNN):
     layer_types : list or str
         Layer types (in forward direction).
         If a string, use the same type of layer for all layers.
-        Can be ``'Conv'``, graph convolutional layer (default).
+        Can be ``'Conv'``, graph convolutional layer (default) or ``'Sage'`` (GraphSage).
     activations : list or str
         Activation functions (in forward direction).
         If a string, use the same activation function for all layers.
@@ -45,11 +45,11 @@ class GNNClassifier(BaseGNN):
         If a string, use the same normalization for all layers.
         Can be either `'left'`` (left normalization by the degrees), ``'right'`` (right normalization by the degrees),
         ``'both'`` (symmetric normalization by the square root of degrees, default) or ``None`` (no normalization).
-    self_loops : list or str
-        Whether to add a self loop at each node of the graph for message passing.
-        If ``True``, add self-loops at all layers.
+    self_embeddings : list or str
+        Whether to add a self embeddings to each node of the graph for message passing.
+        If ``True``, add self-embeddings at all layers.
     sample_sizes : list or int
-        Size of neighborhood sampled for each node. Used only for ``'SAGEConv'`` layer type.
+        Size of neighborhood sampled for each node. Used only for ``'Sage'`` layer type.
     loss : str (default = ``'CrossEntropy'``) or BaseLoss
         Loss function name or custom loss.
     layers : list or None
@@ -95,7 +95,7 @@ class GNNClassifier(BaseGNN):
 
     def __init__(self, dims: Optional[Union[int, list]] = None, layer_types: Union[str, list] = 'Conv',
                  activations: Union[str, list] = 'ReLu', use_bias: Union[bool, list] = True,
-                 normalizations: Union[str, list] = 'both', self_loops: Union[bool, list] = True,
+                 normalizations: Union[str, list] = 'both', self_embeddings: Union[bool, list] = True,
                  sample_sizes: Union[int, list] = 25, loss: Union[BaseLoss, str] = 'CrossEntropy',
                  layers: Optional[list] = None, optimizer: Union[BaseOptimizer, str] = 'Adam',
                  learning_rate: float = 0.01, early_stopping: bool = True, patience: int = 10, verbose: bool = False):
@@ -103,7 +103,7 @@ class GNNClassifier(BaseGNN):
         if layers is not None:
             layers = [get_layer(layer) for layer in layers]
         else:
-            layers = get_layers(dims, layer_types, activations, use_bias, normalizations, self_loops, sample_sizes,
+            layers = get_layers(dims, layer_types, activations, use_bias, normalizations, self_embeddings, sample_sizes,
                                 loss)
         self.loss = check_loss(layers[-1])
         self.layers = layers
@@ -192,7 +192,8 @@ class GNNClassifier(BaseGNN):
         labels_pred = None
 
         if reinit:
-            self.layers = [get_layer(layer) for layer in self.layers]
+            for layer in self.layers:
+                layer.weights_initialized = False
 
         if resample or self.output_ is None:
             exists_mask, self.train_mask, self.val_mask, self.test_mask = \

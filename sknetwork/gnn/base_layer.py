@@ -18,7 +18,7 @@ class BaseLayer:
     Parameters
     ----------
     layer_type : str
-        Layer type. Can be either ``'Conv'`` or ``'SAGEConv'``.
+        Layer type. Can be either ``'Conv'`` (Convolution) or ``'Sage'`` (GraphSAGE).
     out_channels: int
         Dimension of the output.
     activation: str (default = ``'Relu'``) or custom activation.
@@ -30,8 +30,8 @@ class BaseLayer:
         Normalization of the adjacency matrix for message passing.
         Can be either `'left'`` (left normalization by the degrees), ``'right'`` (right normalization by the degrees),
         ``'both'`` (symmetric normalization by the square root of degrees, default) or ``None`` (no normalization).
-    self_loops: bool (default = `True`)
-        If ``True``, add a self-loop of unit weight to each node of the graph.
+    self_embeddings: bool (default = `True`)
+        If ``True``, consider self-embedding in addition to neighbors embedding for each node of the graph.
     sample_size: int (default = 25)
         Size of neighborhood sampled for each node. Used only for ``'SAGEConv'`` layer.
 
@@ -47,8 +47,8 @@ class BaseLayer:
         Output of the layer (after activation).
     """
     def __init__(self, layer_type: str, out_channels: int, activation: Optional[Union[BaseActivation, str]] = 'Relu',
-                 use_bias: bool = True, normalization: str = 'both', self_loops: bool = True, sample_size: int = 25,
-                 loss: Optional[Union[BaseLoss, str]] = None):
+                 use_bias: bool = True, normalization: str = 'both', self_embeddings: bool = True,
+                 sample_size: int = 25, loss: Optional[Union[BaseLoss, str]] = None):
         self.layer_type = layer_type
         self.out_channels = out_channels
         if loss is None:
@@ -57,7 +57,7 @@ class BaseLayer:
             self.activation = get_loss(loss)
         self.use_bias = use_bias
         self.normalization = normalization.lower()
-        self.self_loops = self_loops
+        self.self_embeddings = self_embeddings
         self.sample_size = sample_size
         self.weight = None
         self.bias = None
@@ -94,7 +94,7 @@ class BaseLayer:
         str
             String representation of object
         """
-        print_attr = ['out_channels', 'layer_type', 'activation', 'use_bias', 'normalization', 'self_loops']
+        print_attr = ['out_channels', 'layer_type', 'activation', 'use_bias', 'normalization', 'self_embeddings']
         if 'sage' in self.layer_type:
             print_attr.append('sample_size')
         attributes_dict = {k: v for k, v in self.__dict__.items() if k in print_attr}

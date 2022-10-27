@@ -163,7 +163,7 @@ def check_loss(layer: BaseLayer):
 
 def get_layers(dims: Union[int, list], layer_types: Union[str, BaseLayer, list],
                activations: Union[str, BaseActivation, list], use_bias: Union[bool, list],
-               normalizations: Union[str, list], self_loops: Union[bool, list], sample_sizes: Union[int, list],
+               normalizations: Union[str, list], self_embeddings: Union[bool, list], sample_sizes: Union[int, list],
                loss: Union[str, BaseLoss]) -> list:
     """Get the list of layers.
 
@@ -179,8 +179,8 @@ def get_layers(dims: Union[int, list], layer_types: Union[str, BaseLayer, list],
         ``True`` if a bias vector is added.
     normalizations :
         Normalizations of adjacency matrix.
-    self_loops :
-        ``True`` if self loops are added. Allowed input are booleans and lists.
+    self_embeddings :
+        ``True`` if self embeddings are added. Allowed input are booleans and lists.
     sample_sizes
         Size of neighborhood sampled for each node.
     loss :
@@ -201,13 +201,14 @@ def get_layers(dims: Union[int, list], layer_types: Union[str, BaseLayer, list],
     activations = check_param(activations, n_layers)
     use_bias = check_param(use_bias, n_layers)
     normalizations = check_param(normalizations, n_layers)
-    self_loops = check_param(self_loops, n_layers)
+    self_embeddings = check_param(self_embeddings, n_layers)
     sample_sizes = check_param(sample_sizes, n_layers)
 
     layers = []
-    names_params = ['layer', 'out_channels', 'activation', 'use_bias', 'normalization', 'self_loops', 'sample_size']
+    names_params = ['layer', 'out_channels', 'activation', 'use_bias', 'normalization', 'self_embeddings',
+                    'sample_size']
     for i in range(n_layers):
-        params = [layer_types[i], dims[i], activations[i], use_bias[i], normalizations[i], self_loops[i],
+        params = [layer_types[i], dims[i], activations[i], use_bias[i], normalizations[i], self_embeddings[i],
                   sample_sizes[i]]
         if i == n_layers - 1:
             params.append(loss)

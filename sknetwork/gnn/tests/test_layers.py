@@ -43,9 +43,9 @@ class TestLayer(unittest.TestCase):
         emb = conv2.forward(self.adjacency, h)
         self.assertTrue(emb.shape == (self.adjacency.shape[0], 2))
 
-    def test_graph_conv_self_loops(self):
-        conv1 = Convolution('Conv', 4, self_loops=False)
-        conv2 = Convolution('Conv', 2, self_loops=False)
+    def test_graph_conv_self_embeddings(self):
+        conv1 = Convolution('Conv', 4, self_embeddings=False)
+        conv2 = Convolution('Conv', 2, self_embeddings=False)
         h = conv1.forward(self.adjacency, self.features)
         emb = conv2.forward(self.adjacency, h)
         self.assertTrue(emb.shape == (self.adjacency.shape[0], 2))
@@ -67,8 +67,8 @@ class TestLayer(unittest.TestCase):
             self.assertTrue(emb.shape == (self.adjacency.shape[0], 2))
 
     def test_graph_sage(self):
-        conv1 = Convolution('Sageconv', 4, normalization='left', self_loops=True)
-        conv2 = Convolution('Sageconv', 2, normalization='right', self_loops=True)
+        conv1 = Convolution('Sageconv', 4, normalization='left', self_embeddings=True)
+        conv2 = Convolution('Sageconv', 2, normalization='right', self_embeddings=True)
         h = conv1.forward(self.adjacency, self.features)
         emb = conv2.forward(self.adjacency, h)
         self.assertTrue(emb.shape == (self.adjacency.shape[0], 2))

@@ -140,6 +140,16 @@ class TestGNNClassifier(unittest.TestCase):
                             n_epochs=100, history=True)
         self.assertTrue(len(gnn.history_['val_accuracy']) == 100)
 
+    def test_gnn_classifier_reinit(self):
+        gnn = GNNClassifier([4, 2])
+        n_layers = len(gnn.layers)
+        gnn.fit(self.adjacency, self.features, self.labels, reinit=False)
+        weights = [layer.weight for layer in gnn.layers]
+        biases = [layer.bias for layer in gnn.layers]
+        gnn.fit(self.adjacency, self.features, self.labels, n_epochs=1, reinit=True)
+        self.assertTrue(all([(weights[i] != gnn.layers[i].weight).all() for i in range(n_layers)]))
+        self.assertTrue(all([(biases[i] != gnn.layers[i].bias).all() for i in range(n_layers)]))
+
     def test_gnn_classifier_sageconv(self):
         gnn = GNNClassifier([4, 2], ['SAGEConv', 'SAGEConv'], sample_sizes=[5, 3])
         _ = gnn.fit_predict(self.adjacency, self.features, self.labels, n_epochs=100)
@@ -169,7 +179,3 @@ class TestGNNClassifier(unittest.TestCase):
         new_n = [1] * self.features.shape[1]
         with self.assertRaises(TypeError):
             gnn.predict(new_n)
-
-        # test reinit weights
-        labels_pred = gnn.fit_predict(self.adjacency, self.features, self.labels, reinit=True)
-        self.assertTrue(all(labels_pred == gnn.labels_))
