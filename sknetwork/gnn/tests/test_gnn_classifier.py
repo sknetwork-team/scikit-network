@@ -157,25 +157,38 @@ class TestGNNClassifier(unittest.TestCase):
         self.assertTrue(gnn.layers[1].sample_size == 3 and gnn.layers[1].normalization == 'left')
 
     def test_gnn_classifier_predict(self):
-        gnn = GNNClassifier(2)
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2, random_state=42)
-
-        labels_pred = gnn.predict()
+        gnn = GNNClassifier([4, 2])
+        labels_pred = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2, random_state=42)
+        print()
+        print(labels_pred)
+        preds = gnn.predict()
         self.assertTrue(all(labels_pred == gnn.labels_))
+        self.assertTrue(all(labels_pred == preds))
 
-        # test result shape for one new node
+        # Predict same nodes
+        predictions = gnn.predict(self.adjacency, self.features)
+        self.assertTrue(all(predictions == gnn.labels_))
+
+        # Incorrect shapes
         new_n = sparse.csr_matrix(np.random.randint(2, size=self.features.shape[1]))
-        new_feat = new_n.copy()
-        labels_pred = gnn.predict(new_n, new_feat)
-        self.assertTrue(len(labels_pred) == 1)
+        new_feat = sparse.csr_matrix(np.random.randint(3, size=self.features.shape[1]))
+        with self.assertRaises(ValueError):
+            gnn.predict(new_n, self.features)
+        with self.assertRaises(ValueError):
+            gnn.predict(self.adjacency, new_feat)
 
-        # test result shape for several new nodes
-        new_n = sparse.csr_matrix(np.random.randint(2, size=(5, self.features.shape[1])))
-        new_feat = new_n.copy()
-        labels_pred = gnn.predict(new_n, new_feat)
-        self.assertTrue(labels_pred.shape == (5,))
+        new_feat = sparse.csr_matrix(np.random.rand(self.adjacency.shape[0], self.features.shape[1] - 1))
+        with self.assertRaises(ValueError):
+            gnn.predict(self.adjacency, new_feat)
 
-        # test invalid format for new nodes
-        new_n = [1] * self.features.shape[1]
-        with self.assertRaises(TypeError):
-            gnn.predict(new_n)
+        # Predict new graph
+        n = 4
+        n_feat = self.features.shape[1]
+        adjacency = sparse.csr_matrix(np.random.randint(2, size=(n, n)))
+        features = sparse.csr_matrix(np.random.randint(2, size=(n, n_feat)))
+        preds = gnn.predict(adjacency, features)
+        self.assertTrue(len(preds) == n)
+
+        # No adj matrix
+        preds = gnn.predict(None, features)
+        self.assertTrue(len(preds) == features.shape[0])

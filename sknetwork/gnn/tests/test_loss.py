@@ -15,6 +15,11 @@ class TestLoss(unittest.TestCase):
         with self.assertRaises(ValueError):
             get_loss('foo')
 
+        base_loss = BaseLoss()
+        self.assertTrue(base_loss == get_loss(base_loss))
+        with self.assertRaises(TypeError):
+            get_loss(0)
+
     def test_ce_loss(self):
         cross_entropy = CrossEntropy()
         signal = np.array([[0, 5]])

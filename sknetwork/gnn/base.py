@@ -74,7 +74,7 @@ class BaseGNN(VerboseMixin):
             Labels of the nodes.
         """
         self.fit(*args, **kwargs)
-        return self.predict(*args[:2])
+        return self.predict()
 
     def fit_transform(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to the data and return the embedding of the nodes. Same parameters as the ``fit`` method.

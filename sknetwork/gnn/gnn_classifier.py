@@ -17,7 +17,7 @@ from sknetwork.gnn.layer import get_layer
 from sknetwork.gnn.optimizer import BaseOptimizer
 from sknetwork.gnn.utils import filter_mask, check_existing_masks, check_output, check_early_stopping, check_loss, \
     get_layers
-from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, is_square
+from sknetwork.utils.check import check_format, check_nonnegative, check_square
 
 
 class GNNClassifier(BaseGNN):
@@ -271,6 +271,9 @@ class GNNClassifier(BaseGNN):
                         self.log.print('Early stopping.')
                         break
 
+        output = self.forward(adjacency, features)
+        labels_pred = self._compute_predictions(output)
+
         self.embedding_ = self.layers[-1].embedding
         self.output_ = self.layers[-1].output
         self.labels_ = labels_pred
@@ -311,9 +314,10 @@ class GNNClassifier(BaseGNN):
         Parameters
         ----------
         adjacency_vectors : np.ndarray
-            Adjacency row vectors. Array of shape (n_col,) (single vector) or (n_vectors, n_col).
+            Square adjacency matrix. Array of shape (n, n).
         feature_vectors : np.ndarray
-            Features row vectors. Array of shape (n_feat,) (single vector) or (n_vectors, n_feat).
+            Features row vectors. Array of shape (n, n_feat). The number of features n_feat must match with the one
+            used during training.
 
         Returns
         -------
@@ -322,23 +326,26 @@ class GNNClassifier(BaseGNN):
         """
         self._check_fitted()
 
-        n = len(self.output_)
-
         if adjacency_vectors is None and feature_vectors is None:
             return self.labels_
-        else:
-            adjacency_vectors = check_adjacency_vector(adjacency_vectors, n)
-            check_nonnegative(adjacency_vectors)
+        elif adjacency_vectors is None:
+            adjacency_vectors = sparse.identity(feature_vectors.shape[0], format='csr')
 
-            n_row, n_col = adjacency_vectors.shape
-            n_feat = feature_vectors.shape[1]
+        check_square(adjacency_vectors)
+        check_nonnegative(adjacency_vectors)
+        feature_vectors = check_format(feature_vectors)
 
-            if not is_square(adjacency_vectors):
-                max_n = max(n_row, n_col)
-                adjacency_vectors.resize(max_n, max_n)
-                feature_vectors.resize(max_n, n_feat)
+        n_row, n_col = adjacency_vectors.shape
+        feat_row, feat_col = feature_vectors.shape
 
-            h = self.forward(adjacency_vectors, feature_vectors)
-            labels = self._compute_predictions(h)
+        if n_col != feat_row:
+            raise ValueError(f'Dimension mismatch: dim0={n_col} != dim1={feat_row}.')
+        elif feat_col != self.layers[0].weight.shape[0]:
+            raise ValueError(f'Dimension mismatch: current number of features is {feat_col} whereas GNN has been '
+                             f'trained with '
+                             f'{self.layers[0].weight.shape[0]} features.')
 
-            return labels[:n_row]
+        h = self.forward(adjacency_vectors, feature_vectors)
+        labels = self._compute_predictions(h)
+
+        return labels

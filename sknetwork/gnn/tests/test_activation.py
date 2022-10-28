@@ -17,6 +17,11 @@ class TestActivation(unittest.TestCase):
         with self.assertRaises(ValueError):
             get_activation('foo')
 
+        base_act = BaseActivation()
+        self.assertTrue(base_act == get_activation(base_act))
+        with self.assertRaises(TypeError):
+            get_activation(0)
+
     def test_activation_identity(self):
         activation = get_activation('Identity')
         signal = np.arange(5)
