@@ -173,3 +173,18 @@ class TestChecks(unittest.TestCase):
             check_vector_format(np.arange(4), np.ones((4, 3)))
         with self.assertRaises(ValueError):
             check_vector_format(np.arange(4), np.ones(5))
+
+    def test_has_self_loops(self):
+        self.assertTrue(has_self_loops(sparse.csr_matrix(np.array([[1, 0], [1, 1]]))))
+        self.assertFalse(has_self_loops(sparse.csr_matrix(np.array([[0, 0], [1, 1]]))))
+
+    def test_add_self_loops(self):
+        # Square adjacency
+        adjacency = sparse.csr_matrix(np.array([[0, 0], [1, 1]]))
+        self.assertFalse(has_self_loops(adjacency))
+        adjacency = add_self_loops(adjacency)
+        self.assertTrue(has_self_loops(adjacency))
+        # Non square adjacency
+        adjacency = sparse.csr_matrix(np.array([[0, 0, 1], [1, 1, 1]]))
+        n_row, n_col = adjacency.shape
+        self.assertTrue(has_self_loops(add_self_loops(adjacency)[:, :n_row]))

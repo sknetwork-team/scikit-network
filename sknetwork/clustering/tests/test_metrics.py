@@ -34,13 +34,13 @@ class TestClusteringMetrics(unittest.TestCase):
     def test_modularity(self):
         adjacency = karate_club()
         labels = Louvain().fit_transform(adjacency)
-        self.assertAlmostEqual(get_modularity(adjacency, labels), 0.69, 2)
+        self.assertAlmostEqual(get_modularity(adjacency, labels), 0.42, 2)
 
     def test_bimodularity(self):
         biadjacency = star_wars()
         labels_row = np.array([0, 0, 1, 1])
         labels_col = np.array([0, 1, 0])
-        self.assertAlmostEqual(get_modularity(biadjacency, labels_row, labels_col), 0.49, 2)
+        self.assertAlmostEqual(get_modularity(biadjacency, labels_row, labels_col), 0.12, 2)
 
         with self.assertRaises(ValueError):
             get_modularity(biadjacency, labels_row)
