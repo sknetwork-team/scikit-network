@@ -65,7 +65,7 @@ def get_modularity(input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: n
     >>> adjacency = house()
     >>> labels = np.array([0, 0, 1, 1, 0])
     >>> np.round(get_modularity(adjacency, labels), 2)
-    0.44
+    0.11
     """
     adjacency, bipartite = get_adjacency(input_matrix.astype(float))
 
@@ -80,11 +80,11 @@ def get_modularity(input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: n
 
     probs_row = get_probs(weights, adjacency)
     probs_col = get_probs(weights, adjacency.T)
-    membership = get_membership(labels)
+    membership = get_membership(labels).astype(float)
 
-    fit: float = membership.T.dot(adjacency.dot(membership)).data.sum() / adjacency.data.sum()
-    div: float = membership.T.dot(probs_col).dot(membership.T.dot(probs_row))
-    mod: float = fit - resolution * div
+    fit = membership.T.dot(adjacency.dot(membership)).diagonal().sum() / adjacency.data.sum()
+    div = membership.T.dot(probs_col).dot(membership.T.dot(probs_row))
+    mod = fit - resolution * div
     if return_all:
         return mod, fit, div
     else:
