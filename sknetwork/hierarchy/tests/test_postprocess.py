@@ -17,8 +17,8 @@ class TestCuts(unittest.TestCase):
 
     def setUp(self):
         paris = Paris()
-        adjacency = karate_club()
-        self.dendrogram = paris.fit_transform(adjacency)
+        self.adjacency = karate_club()
+        self.dendrogram = paris.fit_transform(self.adjacency)
 
     def test_cuts(self):
         labels = cut_straight(self.dendrogram)
@@ -30,6 +30,10 @@ class TestCuts(unittest.TestCase):
         labels, new_dendrogram = cut_balanced(self.dendrogram, max_cluster_size=4, return_dendrogram=True)
         self.assertEqual(len(set(labels)), 12)
         self.assertTupleEqual(new_dendrogram.shape, (11, 4))
+        paris = Paris(reorder=False)
+        dendrogram = paris.fit_predict(self.adjacency)
+        labels = cut_balanced(dendrogram, 4)
+        self.assertEqual(len(set(labels)), 12)
 
     def test_options(self):
         labels = cut_straight(self.dendrogram, threshold=0.5)
