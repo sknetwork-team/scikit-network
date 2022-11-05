@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Tests for clustering post-processing"""
-
 import unittest
 
 import numpy as np
 
 from sknetwork.data import house, star_wars
-from sknetwork.clustering import reindex_labels, aggregate_graph
+from sknetwork.clustering.postprocess import reindex_labels, aggregate_graph
 
 
 class TestClusteringPostProcessing(unittest.TestCase):
