@@ -23,7 +23,7 @@ class TestClusteringPostProcessing(unittest.TestCase):
         output = reindex_labels(labels)
         self.assertTrue(np.array_equal(truth, output))
 
-    def aggregate_graph(self):
+    def test_aggregate_graph(self):
         adjacency = house()
         labels = np.array([0, 0, 1, 1, 2])
         aggregate = aggregate_graph(adjacency, labels)
@@ -38,4 +38,3 @@ class TestClusteringPostProcessing(unittest.TestCase):
         self.assertEqual(aggregate.shape, (3, 2))
         aggregate = aggregate_graph(biadjacency, labels_row=labels_row, labels_col=labels_col)
         self.assertEqual(aggregate.shape, (4, 2))
-

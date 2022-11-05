@@ -56,6 +56,14 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(all(val_mask == np.array([False, False, False])))
         self.assertTrue(all(test_mask == np.array([False, False, True])))
 
+        mask_exists, train_mask, val_mask, test_mask = check_existing_masks(labels, np.array([True, False, False]),
+                                                                            np.array([False, False, True]),
+                                                                            np.array([False, True, False]))
+        self.assertTrue(mask_exists)
+        self.assertTrue(all(train_mask == np.array([True, False, False])))
+        self.assertTrue(all(val_mask == np.array([False, False, True])))
+        self.assertTrue(all(test_mask == np.array([False, True, False])))
+
         # Check negative labels
         labels = np.array([1, -1, 0])
         mask_exists, train_mask, val_mask, test_mask = check_existing_masks(labels, np.array([True, True, False]))

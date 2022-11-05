@@ -217,6 +217,10 @@ class TestParser(unittest.TestCase):
         adjacency = graph.adjacency
         self.assertTrue((adjacency.data == [1, 1]).all())
 
+        edge_list = np.array([[0, 1, 1], [1, 2, 2]])
+        adjacency = parse.from_edge_list(edge_list, weighted=True, matrix_only=True)
+        self.assertTrue((adjacency.data == np.array([1, 1, 2, 2])).all())
+
     def test_adjacency_list(self):
         edge_list_4 = {'Alice': ['Bob', 'Carol'], 'Bob': ['Carol']}
         graph = parse.from_adjacency_list(edge_list_4, directed=True)
