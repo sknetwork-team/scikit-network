@@ -33,8 +33,9 @@ class TestClusteringPostProcessing(unittest.TestCase):
         labels = np.array([0, 0, 1, 2])
         labels_row = np.array([0, 1, 3, -1])
         labels_col = np.array([0, 0, 1])
-        aggregate = aggregate_graph(biadjacency, labels, labels_col)
+        aggregate = aggregate_graph(biadjacency, labels=labels, labels_col=labels_col)
         self.assertEqual(aggregate.shape, (3, 2))
-        aggregate = aggregate_graph(biadjacency, labels_row, labels_col)
+        self.assertEqual(aggregate.shape, (3, 2))
+        aggregate = aggregate_graph(biadjacency, labels_row=labels_row, labels_col=labels_col)
         self.assertEqual(aggregate.shape, (4, 2))
 
