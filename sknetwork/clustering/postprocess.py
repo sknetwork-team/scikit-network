@@ -13,16 +13,13 @@ from scipy import sparse
 from sknetwork.utils.membership import get_membership
 
 
-def reindex_labels(labels: np.ndarray, consecutive: bool = True) -> np.ndarray:
+def reindex_labels(labels: np.ndarray) -> np.ndarray:
     """Reindex clusters in decreasing order of size.
 
     Parameters
     ----------
     labels :
-        label of each node.
-    consecutive :
-        If ``True``, the set of labels must be from 0 to :math:`k - 1`, where :math:`k` is the number of labels.
-        Lead to faster computation.
+        Label of each node.
     Returns
     -------
     new_labels : np.ndarray
@@ -35,13 +32,9 @@ def reindex_labels(labels: np.ndarray, consecutive: bool = True) -> np.ndarray:
     >>> reindex_labels(labels)
     array([1, 0, 0])
     """
-    if not consecutive:
-        _, labels = np.unique(labels, return_inverse=True)
-    labels_unique, counts = np.unique(labels, return_counts=True)
-    sorted_values = labels_unique[np.argsort(-counts)]
-    _, index = np.unique(sorted_values, return_index=True)
-    labels_ = index[labels.astype(int)]
-    return labels_
+    _, index, counts = np.unique(labels, return_inverse=True, return_counts=True)
+    _, new_index = np.unique(np.argsort(-counts), return_index=True)
+    return new_index[index]
 
 
 def aggregate_graph(input_matrix: sparse.csr_matrix, labels: Optional[np.ndarray] = None,

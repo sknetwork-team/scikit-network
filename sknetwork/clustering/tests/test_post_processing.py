@@ -20,7 +20,7 @@ class TestClusteringPostProcessing(unittest.TestCase):
         self.assertTrue(np.array_equal(truth, output))
 
         labels = np.array([0, 0, 5, 2, 2, 2])
-        output = reindex_labels(labels, consecutive=False)
+        output = reindex_labels(labels)
         self.assertTrue(np.array_equal(truth, output))
 
     def aggregate_graph(self):
