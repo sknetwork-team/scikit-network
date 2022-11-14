@@ -9,7 +9,7 @@ import pickle
 import shutil
 import tarfile
 from os import environ, makedirs, remove, listdir, rmdir
-from os.path import exists, expanduser, join
+from os.path import abspath, commonprefix, exists, expanduser, join
 from pathlib import Path
 from typing import Optional, Union
 from urllib.error import HTTPError, URLError
@@ -24,6 +24,23 @@ from sknetwork.utils.check import is_square
 from sknetwork.utils.verbose import Log
 
 NETSET_URL = 'https://netset.telecom-paris.fr'
+
+
+def is_within_directory(directory, target):
+    """Utility function."""
+    abs_directory = abspath(directory)
+    abs_target = abspath(target)
+    prefix = commonprefix([abs_directory, abs_target])
+    return prefix == abs_directory
+
+
+def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+    """Safe extraction."""
+    for member in tar.getmembers():
+        member_path = join(path, member.name)
+        if not is_within_directory(path, member_path):
+            raise Exception("Attempted Path Traversal in Tar File")
+    tar.extractall(path, members, numeric_owner=numeric_owner)
 
 
 def get_data_home(data_home: Optional[Union[str, Path]] = None) -> Path:
@@ -104,7 +121,7 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
             raise RuntimeError("Could not reach Netset.")
         with tarfile.open(data_home / (name + '_npz.tar.gz'), 'r:gz') as tar_ref:
             logger.print('Unpacking archive...')
-            tar_ref.extractall(data_home)
+            safe_extract(tar_ref, data_home)
         remove(data_home / (name + '_npz.tar.gz'))
 
     files = [file for file in listdir(data_path)]
@@ -179,7 +196,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
                         data_home / (name + '.tar.bz2'))
             with tarfile.open(data_home / (name + '.tar.bz2'), 'r:bz2') as tar_ref:
                 logger.print('Unpacking archive...')
-                tar_ref.extractall(data_home)
+                safe_extract(tar_ref, data_home)
         except (HTTPError, tarfile.ReadError):
             rmdir(data_path)
             raise ValueError('Invalid dataset ' + name + '.'
