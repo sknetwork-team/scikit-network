@@ -40,8 +40,10 @@ EXTRA_LINK_ARGS = ['-fopenmp']
 # Check whether we're on OSX >= 10.10
 name = distutils.util.get_platform()
 if name.startswith("macosx"):
-    EXTRA_COMPILE_ARGS = ['-lomp']
-    EXTRA_LINK_ARGS = ['-lomp']
+    EXTRA_COMPILE_ARGS = []
+    EXTRA_LINK_ARGS = []
+    # EXTRA_COMPILE_ARGS = ['-lomp']
+    # EXTRA_LINK_ARGS = ['-lomp']
     version = name.split("-")[1].split(".")
     if int(version[0]) > 10 or (int(version[0]) == 10 and int(version[1]) >= 7):
         COMPILE_OPTIONS["other"].append("-stdlib=libc++")
