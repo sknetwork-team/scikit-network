@@ -133,11 +133,6 @@ setup(
         'Programming Language :: Python :: 3.10'
     ],
     description="Graph algorithms",
-    entry_points={
-        'console_scripts': [
-            'sknetwork=sknetwork.cli:main',
-        ],
-    },
     install_requires=requirements,
     license="BSD license",
     long_description=readme + '\n\n' + history,
