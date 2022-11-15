@@ -26,6 +26,10 @@ class TestVisualization(unittest.TestCase):
         self.assertEqual(image[1:4], 'svg')
         image = svg_graph(adjacency, position, height=None)
         self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position, height=300)
+        self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position, width=200)
+        self.assertEqual(image[1:4], 'svg')
         n = adjacency.shape[0]
         edge_labels = [(0, 1, 0), (1, 1, 1), (3, 10, 2)]
         image = svg_graph(adjacency, position=None, names=np.arange(n), labels=np.arange(n), scores=np.arange(n),
@@ -50,6 +54,8 @@ class TestVisualization(unittest.TestCase):
         image = svg_graph(adjacency, position, labels, label_colors=["red", "blue"])
         self.assertEqual(image[1:4], 'svg')
         image = svg_graph(adjacency, position, labels, node_weights=np.arange(adjacency.shape[0]))
+        self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position, scores=list(np.arange(n)))
         self.assertEqual(image[1:4], 'svg')
 
     def test_directed(self):
