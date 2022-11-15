@@ -9,7 +9,7 @@ from scipy import sparse
 
 from sknetwork.data.test_graphs import test_graph_disconnect, test_bigraph_disconnect
 from sknetwork.data.toy_graphs import karate_club, painters, movie_actor, bow_tie, star_wars
-from sknetwork.visualization.graphs import svg_graph, svg_bigraph
+from sknetwork.visualization.graphs import svg_graph, svg_bigraph, svg_text
 
 
 # noinspection DuplicatedCode
@@ -60,6 +60,8 @@ class TestVisualization(unittest.TestCase):
         image = svg_graph(adjacency, position, scores=list(np.arange(n)))
         self.assertEqual(image[1:4], 'svg')
         image = svg_graph(adjacency, position, seeds={0: 1, 2: 1})
+        self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position, labels=np.arange(n), name_position='left')
         self.assertEqual(image[1:4], 'svg')
 
     def test_directed(self):
@@ -132,3 +134,7 @@ class TestVisualization(unittest.TestCase):
         names = ["aa", "bb", "<>", "a&b", ""]
         image = svg_graph(adjacency, names=names)
         self.assertEqual(image[1:4], 'svg')
+
+    def test_text(self):
+        image = svg_text(np.array([0, 0]), 'foo', 0.1, 16, 'above')
+        self.assertEqual(image[1:5], 'text')
