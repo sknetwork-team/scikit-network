@@ -51,6 +51,10 @@ class TestLoader(unittest.TestCase):
         self.assertEqual(data.biadjacency.shape[0], 829)
         self.assertEqual(data.name.shape[0], 829)
 
+        # load from bundle
+        data = load_konect('moreno_crime', self.data_home)
+        self.assertEqual(data.biadjacency.shape[0], 829)
+
         try:
             with TimeOut(2):
                 data = load_konect('ego-facebook', self.data_home)
