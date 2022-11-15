@@ -63,6 +63,10 @@ class TestVisualization(unittest.TestCase):
         self.assertEqual(image[1:4], 'svg')
         image = svg_graph(adjacency, position, labels=np.arange(n), name_position='left')
         self.assertEqual(image[1:4], 'svg')
+        with self.assertRaises(ValueError):
+            svg_graph(adjacency, position, labels=[0, 1])
+        with self.assertRaises(ValueError):
+            svg_graph(adjacency, position, scores=[0, 1])
 
     def test_directed(self):
         graph = painters(True)
