@@ -110,7 +110,7 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
     """
     dataset = Bunch()
     dataset_folder = NETSET_URL + '/datasets/'
-    npz_folder = NETSET_URL + '/datasets_npz/'
+    folder_npz = NETSET_URL + '/datasets_npz/'
 
     logger = Log(verbose)
 
@@ -131,10 +131,10 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
             shutil.rmtree(data_path)
     if not data_path.exists():
         makedirs(data_path, exist_ok=True)
+        name_npz = name + '_npz.tar.gz'
         try:
             logger.print('Downloading', name, 'from NetSet...')
-            urlretrieve(npz_folder + name + '_npz.tar.gz',
-                        data_home / (name + '_npz.tar.gz'))
+            urlretrieve(folder_npz + name_npz, data_home / name_npz)
         except HTTPError:
             rmdir(data_path)
             raise ValueError('Invalid dataset: ' + name + '.'
@@ -143,10 +143,9 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
         except ConnectionResetError:  # pragma: no cover
             rmdir(data_path)
             raise RuntimeError("Could not reach Netset.")
-        with tarfile.open(data_home / (name + '_npz.tar.gz'), 'r:gz') as tar_ref:
+        with tarfile.open(data_home / name_npz, 'r:gz') as tar_ref:
             logger.print('Unpacking archive...')
-            safe_extract(tar_ref, data_home)
-        remove(data_home / (name + '_npz.tar.gz'))
+            safe_extract(tar_ref, data_path)
 
     files = [file for file in listdir(data_path)]
     logger.print('Parsing files...')
