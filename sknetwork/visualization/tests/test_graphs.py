@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """tests for visualization/graphs.py"""
 
+import tempfile
 import unittest
 
 import numpy as np
@@ -69,6 +70,7 @@ class TestVisualization(unittest.TestCase):
             svg_graph(adjacency, position, labels=[0, 1])
         with self.assertRaises(ValueError):
             svg_graph(adjacency, position, scores=[0, 1])
+        svg_graph(adjacency, position, scale=2, labels=np.arange(n), name_position='left')
 
     def test_directed(self):
         graph = painters(True)
@@ -149,3 +151,17 @@ class TestVisualization(unittest.TestCase):
         output = rescale(np.array([[0, 0]]), width=4, height=6, margin=2, node_size=10, node_size_max=20,
                          display_node_weight=True, names=np.array(['foo']), name_position='left')
         self.assertEqual(len(output), 3)
+
+    def test_write(self):
+        filename = tempfile.gettempdir() + '/image'
+        graph = karate_club(True)
+        adjacency = graph.adjacency
+        position = graph.position
+        _ = svg_graph(adjacency, position, filename=filename)
+        with open(filename + '.svg', 'r') as f:
+            row = f.readline()
+            self.assertEqual(row[1:4], 'svg')
+        _ = svg_bigraph(adjacency, position, filename=filename)
+        with open(filename + '.svg', 'r') as f:
+            row = f.readline()
+            self.assertEqual(row[1:4], 'svg')
