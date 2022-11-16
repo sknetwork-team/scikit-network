@@ -9,7 +9,7 @@ from scipy import sparse
 
 from sknetwork.data.test_graphs import test_graph_disconnect, test_bigraph_disconnect
 from sknetwork.data.toy_graphs import karate_club, painters, movie_actor, bow_tie, star_wars
-from sknetwork.visualization.graphs import svg_graph, svg_bigraph, svg_text
+from sknetwork.visualization.graphs import svg_graph, svg_bigraph, svg_text, rescale
 
 
 # noinspection DuplicatedCode
@@ -144,3 +144,8 @@ class TestVisualization(unittest.TestCase):
     def test_text(self):
         image = svg_text(np.array([0, 0]), 'foo', 0.1, 16, 'above')
         self.assertEqual(image[1:5], 'text')
+
+    def test_rescale(self):
+        output = rescale(np.array([[0, 0]]), width=4, height=6, margin=2, node_size=10, node_size_max=20,
+                         display_node_weight=True, names=np.array(['foo']), name_position='left')
+        self.assertEqual(len(output), 3)
