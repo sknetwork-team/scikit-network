@@ -2,6 +2,18 @@
 History
 =======
 
+0.28.0 (2022-11-16)
+-------------------
+
+* Update Graph neural networks (e.g., add GraphSAGE), by Simon Delarue
+* Clean data home folder (set one folder per dataset collection, NetSet, Konect, ...), by Thomas Bonald
+* Improve classification by diffusion, setting -1 to unreached nodes, by Thomas Bonald
+* Fix bug on modularity, raised by Alessandro (#543)
+* Clean up source distribution, by Nicholas Bollweg (#544)
+* Safe file extraction, by TrellixVulnTeam
+* Fix bug on dendrogram cut, raised by Nina Sachdev (#546)
+* Add a function to aggregate a graph per label, by Thomas Bonald
+
 0.27.1 (2022-07-29)
 -------------------
 
