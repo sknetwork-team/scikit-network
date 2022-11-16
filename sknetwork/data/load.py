@@ -8,8 +8,8 @@ Created on November 15, 2019
 import pickle
 import shutil
 import tarfile
-from os import environ, makedirs, remove, listdir, rmdir
-from os.path import exists, expanduser, join
+from os import environ, makedirs, remove, listdir
+from os.path import abspath, commonprefix, exists, expanduser, isfile, join
 from pathlib import Path
 from typing import Optional, Union
 from urllib.error import HTTPError, URLError
@@ -26,6 +26,23 @@ from sknetwork.utils.verbose import Log
 NETSET_URL = 'https://netset.telecom-paris.fr'
 
 
+def is_within_directory(directory, target):
+    """Utility function."""
+    abs_directory = abspath(directory)
+    abs_target = abspath(target)
+    prefix = commonprefix([abs_directory, abs_target])
+    return prefix == abs_directory
+
+
+def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+    """Safe extraction."""
+    for member in tar.getmembers():
+        member_path = join(path, member.name)
+        if not is_within_directory(path, member_path):
+            raise Exception("Attempted path traversal in tar file.")
+    tar.extractall(path, members, numeric_owner=numeric_owner)
+
+
 def get_data_home(data_home: Optional[Union[str, Path]] = None) -> Path:
     """Return a path to a storage folder depending on the dedicated environment variable and user input.
 
@@ -35,8 +52,7 @@ def get_data_home(data_home: Optional[Union[str, Path]] = None) -> Path:
         The folder to be used for dataset storage
     """
     if data_home is None:
-        data_home = environ.get('SCIKIT_NETWORK_DATA',
-                                join('~', 'scikit_network_data'))
+        data_home = environ.get('SCIKIT_NETWORK_DATA', join('~', 'scikit_network_data'))
     data_home = expanduser(data_home)
     if not exists(data_home):
         makedirs(data_home)
@@ -44,7 +60,19 @@ def get_data_home(data_home: Optional[Union[str, Path]] = None) -> Path:
 
 
 def clear_data_home(data_home: Optional[Union[str, Path]] = None):
-    """Clear storage folder depending on the dedicated environment variable and user input.
+    """Clear storage folder.
+
+    Parameters
+    ----------
+    data_home: str or :class:`pathlib.Path`
+        The folder to be used for dataset storage.
+    """
+    data_home = get_data_home(data_home)
+    shutil.rmtree(data_home)
+
+
+def clean_data_home(data_home: Optional[Union[str, Path]] = None):
+    """Clean storage folder so that it contains folders only.
 
     Parameters
     ----------
@@ -52,7 +80,9 @@ def clear_data_home(data_home: Optional[Union[str, Path]] = None):
         The folder to be used for dataset storage
     """
     data_home = get_data_home(data_home)
-    shutil.rmtree(data_home)
+    for file in listdir(data_home):
+        if isfile(join(data_home, file)):
+            remove(join(data_home, file))
 
 
 def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]] = None,
@@ -66,6 +96,7 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
         Name of the dataset (all low-case). Examples include 'openflights', 'cinema' and 'wikivitals'.
     data_home : str or :class:`pathlib.Path`
         Folder to be used for dataset storage.
+        This folder must be empty or contain other folders (datasets); files will be removed.
     verbose : bool
         Enable verbosity.
 
@@ -76,7 +107,7 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
     """
     dataset = Bunch()
     dataset_folder = NETSET_URL + '/datasets/'
-    npz_folder = NETSET_URL + '/datasets_npz/'
+    folder_npz = NETSET_URL + '/datasets_npz/'
 
     logger = Log(verbose)
 
@@ -87,25 +118,31 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
     else:
         name = name.lower()
     data_home = get_data_home(data_home)
-    data_path = data_home / name
+    data_netset = data_home / 'netset'
+    if not data_netset.exists():
+        clean_data_home(data_home)
+        makedirs(data_netset)
+
+    # remove previous dataset if not in the netset folder
+    direct_path = data_home / name
+    if direct_path.exists():
+        shutil.rmtree(direct_path)
+
+    data_path = data_netset / name
     if not data_path.exists():
-        makedirs(data_path, exist_ok=True)
+        name_npz = name + '_npz.tar.gz'
         try:
             logger.print('Downloading', name, 'from NetSet...')
-            urlretrieve(npz_folder + name + '_npz.tar.gz',
-                        data_home / (name + '_npz.tar.gz'))
+            urlretrieve(folder_npz + name_npz, data_netset / name_npz)
         except HTTPError:
-            rmdir(data_path)
             raise ValueError('Invalid dataset: ' + name + '.'
                              + "\nAvailable datasets include 'openflights' and 'wikivitals'."
                              + f"\nSee <{NETSET_URL}>")
         except ConnectionResetError:  # pragma: no cover
-            rmdir(data_path)
             raise RuntimeError("Could not reach Netset.")
-        with tarfile.open(data_home / (name + '_npz.tar.gz'), 'r:gz') as tar_ref:
+        with tarfile.open(data_netset / name_npz, 'r:gz') as tar_ref:
             logger.print('Unpacking archive...')
-            tar_ref.extractall(data_home)
-        remove(data_home / (name + '_npz.tar.gz'))
+            safe_extract(tar_ref, data_path)
 
     files = [file for file in listdir(data_path)]
     logger.print('Parsing files...')
@@ -121,6 +158,7 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
                 with open(data_path / file, 'rb') as f:
                     dataset[file_name] = pickle.load(f)
 
+    clean_data_home(data_netset)
     logger.print('Done.')
     return dataset
 
@@ -170,51 +208,57 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
                          + "\nExamples include 'actor-movie' and 'ego-facebook'."
                          + "\n See 'http://konect.cc/networks/' for the full list.")
     data_home = get_data_home(data_home)
-    data_path = data_home / name
+    data_konect = data_home / 'konect'
+    if not data_konect.exists():
+        clean_data_home(data_home)
+        makedirs(data_konect)
+
+    # remove previous dataset if not in the konect folder
+    direct_path = data_home / name
+    if direct_path.exists():
+        shutil.rmtree(direct_path)
+
+    data_path = data_konect / name
+    name_tar = name + '.tar.bz2'
     if not data_path.exists():
         logger.print('Downloading', name, 'from Konect...')
-        makedirs(data_path, exist_ok=True)
         try:
-            urlretrieve('http://konect.cc/files/download.tsv.' + name + '.tar.bz2',
-                        data_home / (name + '.tar.bz2'))
-            with tarfile.open(data_home / (name + '.tar.bz2'), 'r:bz2') as tar_ref:
+            urlretrieve('http://konect.cc/files/download.tsv.' + name_tar, data_konect / name_tar)
+            with tarfile.open(data_konect / name_tar, 'r:bz2') as tar_ref:
                 logger.print('Unpacking archive...')
-                tar_ref.extractall(data_home)
+                safe_extract(tar_ref, data_path)
         except (HTTPError, tarfile.ReadError):
-            rmdir(data_path)
             raise ValueError('Invalid dataset ' + name + '.'
                              + "\nExamples include 'actor-movie' and 'ego-facebook'."
                              + "\n See 'http://konect.cc/networks/' for the full list.")
         except (URLError, ConnectionResetError):  # pragma: no cover
-            rmdir(data_path)
             raise RuntimeError("Could not reach Konect.")
-        finally:
-            if exists(data_home / (name + '.tar.bz2')):
-                remove(data_home / (name + '.tar.bz2'))
     elif exists(data_path / (name + '_bundle')):
         logger.print('Loading from local bundle...')
         return load_from_numpy_bundle(name + '_bundle', data_path)
 
     dataset = Bunch()
-
-    files = [file for file in listdir(data_path) if name in file]
+    path = data_konect / name / name
+    if not path.exists() or len(listdir(path)) == 0:
+        raise Exception("No data downloaded.")
+    files = [file for file in listdir(path) if name in file]
     logger.print('Parsing files...')
     matrix = [file for file in files if 'out.' in file]
     if matrix:
         file = matrix[0]
-        directed, bipartite, weighted = load_header(data_path / file)
-        dataset = from_csv(data_path / file, directed=directed, bipartite=bipartite, weighted=weighted)
+        directed, bipartite, weighted = load_header(path / file)
+        dataset = from_csv(path / file, directed=directed, bipartite=bipartite, weighted=weighted)
 
     metadata = [file for file in files if 'meta.' in file]
     if metadata:
         file = metadata[0]
-        dataset.meta = load_metadata(data_path / file)
+        dataset.meta = load_metadata(path / file)
 
     attributes = [file for file in files if 'ent.' + name in file]
     if attributes:
         for file in attributes:
             attribute_name = file.split('.')[-1]
-            dataset[attribute_name] = load_labels(data_path / file)
+            dataset[attribute_name] = load_labels(path / file)
 
     if hasattr(dataset, 'meta'):
         if hasattr(dataset.meta, 'name'):
@@ -227,6 +271,8 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
 
     if auto_numpy_bundle:
         save_to_numpy_bundle(dataset, name + '_bundle', data_path)
+
+    clean_data_home(data_konect)
 
     return dataset
 

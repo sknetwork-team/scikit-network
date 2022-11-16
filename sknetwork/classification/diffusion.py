@@ -13,6 +13,7 @@ from sknetwork.classification.base import BaseClassifier
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.format import get_adjacency_seeds
 from sknetwork.utils.membership import get_membership
+from sknetwork.utils.neighbors import get_degrees
 
 
 class DiffusionClassifier(BaseClassifier):
@@ -114,6 +115,8 @@ class DiffusionClassifier(BaseClassifier):
             temperatures -= temperatures.mean(axis=0)
 
         labels = temperatures.argmax(axis=1)
+        # set label -1 to nodes without temperature (no diffusion to them)
+        labels[get_degrees(self.membership_) == 0] = -1
 
         if self.threshold >= 0:
             if n_labels > 2:

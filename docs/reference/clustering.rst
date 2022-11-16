@@ -60,6 +60,12 @@ K-Means
 -------
 .. autoclass:: sknetwork.clustering.KMeans
 
+Post-processing
+---------------
+.. autofunction:: sknetwork.clustering.reindex_labels
+
+.. autofunction:: sknetwork.clustering.aggregate_graph
+
 Metrics
 -------
 .. autofunction:: sknetwork.clustering.get_modularity

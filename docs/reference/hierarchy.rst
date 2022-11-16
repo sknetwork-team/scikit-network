@@ -40,3 +40,8 @@ Cuts
 
 .. autofunction:: sknetwork.hierarchy.cut_balanced
 
+Dendrograms
+-----------
+.. autofunction:: sknetwork.hierarchy.aggregate_dendrogram
+
+.. autofunction:: sknetwork.hierarchy.reorder_dendrogram

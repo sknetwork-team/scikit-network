@@ -11,11 +11,13 @@ Development Lead
 
 * Thomas Bonald <thomas.bonald@telecom-paris.fr>
 * Simon Delarue <simon.delarue@telecom-paris.fr>
-* Quentin Lutz <quentin.lutz@telecom-paris-alumni.fr>
+* Marc Jeanmougin <marc.jeanmougin@telecom-paris.fr>
+
 
 Former lead
 -----------
 
+* Quentin Lutz <quentin.lutz@telecom-paris-alumni.fr>
 * Nathan de Lara <nathan.de-lara@polytechnique.org>
 
 Contributors
@@ -34,7 +36,6 @@ Contributors
 * Pierre Pébereau
 * Armand Boschin
 * Tiphaine Viard
-* Marc Jeanmougin
 * Flávio Juvenal
 * Wenzhuo Zhao
 * Henry Carscadden

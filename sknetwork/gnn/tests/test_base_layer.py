@@ -18,7 +18,7 @@ class TestBaseLayer(unittest.TestCase):
         self.n = self.adjacency.shape[0]
         self.features = self.adjacency
         self.labels = np.array([0]*5 + [1]*5)
-        self.base_layer = BaseLayer(len(self.labels))
+        self.base_layer = BaseLayer('Conv', len(self.labels))
 
     def test_base_layer_init(self):
         with self.assertRaises(NotImplementedError):
@@ -31,5 +31,7 @@ class TestBaseLayer(unittest.TestCase):
         self.assertTrue(self.base_layer.weights_initialized)
 
     def test_base_layer_repr(self):
-        base_layers_str = "  BaseLayer(out_channels: 10, activation: relu, use_bias: True, self_loops: True)"
-        self.assertTrue(self.base_layer.__repr__() == base_layers_str)
+        self.assertTrue(self.base_layer.__repr__().startswith("  BaseLayer(layer_type: Conv, out_channels: 10"))
+        sagelayer = BaseLayer(layer_type='sageconv', out_channels=len(self.labels))
+        self.assertTrue('sample_size' in sagelayer.__repr__())
+        self.assertTrue('sageconv' in sagelayer.__repr__())

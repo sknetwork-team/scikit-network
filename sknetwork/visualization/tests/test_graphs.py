@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """tests for visualization/graphs.py"""
 
+import tempfile
 import unittest
 
 import numpy as np
@@ -9,7 +10,7 @@ from scipy import sparse
 
 from sknetwork.data.test_graphs import test_graph_disconnect, test_bigraph_disconnect
 from sknetwork.data.toy_graphs import karate_club, painters, movie_actor, bow_tie, star_wars
-from sknetwork.visualization.graphs import svg_graph, svg_bigraph
+from sknetwork.visualization.graphs import svg_graph, svg_bigraph, svg_text, rescale
 
 
 # noinspection DuplicatedCode
@@ -22,9 +23,15 @@ class TestVisualization(unittest.TestCase):
         labels = graph.labels
         image = svg_graph(adjacency, position, labels=labels)
         self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position, labels=list(labels))
+        self.assertEqual(image[1:4], 'svg')
         image = svg_graph(adjacency, position, display_edges=False)
         self.assertEqual(image[1:4], 'svg')
         image = svg_graph(adjacency, position, height=None)
+        self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position, height=300, width=None)
+        self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position, height=None, width=200)
         self.assertEqual(image[1:4], 'svg')
         n = adjacency.shape[0]
         edge_labels = [(0, 1, 0), (1, 1, 1), (3, 10, 2)]
@@ -51,6 +58,19 @@ class TestVisualization(unittest.TestCase):
         self.assertEqual(image[1:4], 'svg')
         image = svg_graph(adjacency, position, labels, node_weights=np.arange(adjacency.shape[0]))
         self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position, scores=list(np.arange(n)))
+        self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position, seeds={0: 1, 2: 1})
+        self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position, labels=np.arange(n), name_position='left')
+        self.assertEqual(image[1:4], 'svg')
+        image = svg_graph(adjacency, position, scale=2, labels=np.arange(n), name_position='left')
+        self.assertEqual(image[1:4], 'svg')
+        with self.assertRaises(ValueError):
+            svg_graph(adjacency, position, labels=[0, 1])
+        with self.assertRaises(ValueError):
+            svg_graph(adjacency, position, scores=[0, 1])
+        svg_graph(adjacency, position, scale=2, labels=np.arange(n), name_position='left')
 
     def test_directed(self):
         graph = painters(True)
@@ -122,3 +142,26 @@ class TestVisualization(unittest.TestCase):
         names = ["aa", "bb", "<>", "a&b", ""]
         image = svg_graph(adjacency, names=names)
         self.assertEqual(image[1:4], 'svg')
+
+    def test_text(self):
+        image = svg_text(np.array([0, 0]), 'foo', 0.1, 16, 'above')
+        self.assertEqual(image[1:5], 'text')
+
+    def test_rescale(self):
+        output = rescale(np.array([[0, 0]]), width=4, height=6, margin=2, node_size=10, node_size_max=20,
+                         display_node_weight=True, names=np.array(['foo']), name_position='left')
+        self.assertEqual(len(output), 3)
+
+    def test_write(self):
+        filename = tempfile.gettempdir() + '/image'
+        graph = karate_club(True)
+        adjacency = graph.adjacency
+        position = graph.position
+        _ = svg_graph(adjacency, position, filename=filename)
+        with open(filename + '.svg', 'r') as f:
+            row = f.readline()
+            self.assertEqual(row[1:4], 'svg')
+        _ = svg_bigraph(adjacency, position, filename=filename)
+        with open(filename + '.svg', 'r') as f:
+            row = f.readline()
+            self.assertEqual(row[1:4], 'svg')

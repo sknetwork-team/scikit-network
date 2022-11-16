@@ -322,3 +322,33 @@ def check_vector_format(vector_1: np.ndarray, vector_2: np.ndarray):
         raise ValueError('The arrays must be 1-dimensional.')
     if vector_1.shape[0] != vector_2.shape[0]:
         raise ValueError('The arrays do not have the same length.')
+
+
+def has_self_loops(input_matrix: sparse.csr_matrix) -> bool:
+    """True if each node has a self loop."""
+    return all(input_matrix.diagonal().astype(bool))
+
+
+def add_self_loops(adjacency: sparse.csr_matrix) -> sparse.csr_matrix:
+    """Add self loops to adjacency matrix.
+
+    Parameters
+    ----------
+    adjacency : sparse.csr_matrix
+        Adjacency matrix of the graph.
+
+    Returns
+    -------
+    sparse.csr_matrix
+        Adjacency matrix of the graph with self loops.
+    """
+    n_row, n_col = adjacency.shape
+
+    if is_square(adjacency):
+        adjacency = sparse.diags(np.ones(n_col), format='csr') + adjacency
+    else:
+        tmp = sparse.eye(n_row)
+        tmp.resize(n_row, n_col)
+        adjacency += tmp
+
+    return adjacency

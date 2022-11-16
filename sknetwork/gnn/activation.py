@@ -3,132 +3,115 @@
 """
 Created in April 2022
 @author: Simon Delarue <sdelarue@enst.fr>
+@author: Thomas Bonald <bonald@enst.fr>
 """
 
-from typing import Callable
+from typing import Union
 
 import numpy as np
 from scipy import special
 
+from sknetwork.gnn.base_activation import BaseActivation
 
-def identity(signal: np.ndarray) -> np.ndarray:
-    """Apply the identity activation function.
+
+class ReLu(BaseActivation):
+    """ReLu (Rectified Linear Unit) activation function:
+
+    :math:`\\sigma(x) = \\max(0, x)`
     """
+    def __init__(self):
+        super(ReLu, self).__init__('ReLu')
 
-    return signal
+    @staticmethod
+    def output(signal: np.ndarray) -> np.ndarray:
+        """Output of the ReLu function."""
+        return np.maximum(signal, 0)
+
+    @staticmethod
+    def gradient(signal: np.ndarray, direction: np.ndarray) -> np.ndarray:
+        """Gradient of the ReLu function."""
+        return direction * (signal > 0)
 
 
-def relu(signal: np.ndarray) -> np.ndarray:
-    """Apply the Rectified Linear Unit function point-wise:
+class Sigmoid(BaseActivation):
+    """Sigmoid activation function:
 
-    :math:`\text{ReLU}(x) = (x)^+ = max(0, x)`
+    :math:`\\sigma(x) = \\frac{1}{1+e^{-x}}`
+    Also known as the logistic function.
     """
+    def __init__(self):
+        super(Sigmoid, self).__init__('Sigmoid')
 
-    return np.maximum(signal, 0)
+    @staticmethod
+    def output(signal: np.ndarray) -> np.ndarray:
+        """Output of the sigmoid function."""
+        return special.expit(signal)
+
+    @staticmethod
+    def gradient(signal: np.ndarray, direction: np.ndarray) -> np.ndarray:
+        """Gradient of the sigmoid function."""
+        output = Sigmoid.output(signal)
+        return output * (1 - output) * direction
 
 
-def sigmoid(signal: np.ndarray) -> np.ndarray:
-    """Apply the logistic function point-wise:
+class Softmax(BaseActivation):
+    """Softmax activation function:
 
-    :math:`\text{sigmoid}(x) = \frac{1}{(1+e^{-x})}`
+    :math:`\\sigma(x) =
+    (\\frac{e^{x_1}}{\\sum_{i=1}^N e^{x_i})},\\ldots,\\frac{e^{x_N}}{\\sum_{i=1}^N e^{x_i})})`
 
-    Note: We use the `expit` function from `scipy.special`.
+    where :math:`N` is the number of channels.
     """
+    def __init__(self):
+        super(Softmax, self).__init__('Softmax')
 
-    return special.expit(signal)
+    @staticmethod
+    def output(signal: np.ndarray) -> np.ndarray:
+        """Output of the softmax function (rows sum to 1)."""
+        return special.softmax(signal, axis=1)
 
-
-def softmax(signal: np.ndarray) -> np.ndarray:
-    """Apply the softmax function on each row.
-
-    Note: We use `softmax` function from `scipy.special`.
-
-    Returns
-    -------
-    np.ndarray
-        Output array with same shape as `signal`. Rows will sum to 1.
-    """
-
-    return special.softmax(signal, axis=1)
+    @staticmethod
+    def gradient(signal: np.ndarray, direction: np.ndarray) -> np.ndarray:
+        """Gradient of the softmax function."""
+        output = Softmax.output(signal)
+        return output * (direction.T - (output * direction).sum(axis=1)).T
 
 
-def get_activation_function(activation_name: str) -> Callable[..., np.ndarray]:
-    """Returns activation function according to `activation_name`.
+def get_activation(activation: Union[BaseActivation, str] = 'identity') -> BaseActivation:
+    """Get the activation function.
 
     Parameters
     ----------
-    activation_name : str
-        Which activation function to use. Can be either ``'Identity'``, ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
+    activation : Union[BaseActivation, str]
+        Activation function.
+        If a name is given, can be either ``'Identity'``, ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
+        If a custom activation function is given, must be of class BaseActivation.
 
     Returns
     -------
-    Callable[..., np.ndarray]
-        Activation function
+    activation : BaseActivation
+        Activation function.
 
     Raises
     ------
+    TypeError
+        Error raised if the input not a string or an object of class BaseActivation.
     ValueError
-        Error raised if activation function does not exist.
+        Error raised if the name of the activation function is unknown.
     """
-    activation_name = activation_name.lower()
-    if activation_name == 'identity':
-        return identity
-    elif activation_name == 'relu':
-        return relu
-    elif activation_name == 'sigmoid':
-        return sigmoid
-    elif activation_name == 'softmax':
-        return softmax
+    if issubclass(type(activation), BaseActivation):
+        return activation
+    elif type(activation) == str:
+        activation = activation.lower()
+        if activation in ['identity', '']:
+            return BaseActivation()
+        elif activation == 'relu':
+            return ReLu()
+        elif activation == 'sigmoid':
+            return Sigmoid()
+        elif activation == 'softmax':
+            return Softmax()
+        else:
+            raise ValueError("Activation must be either \"Identity\", \"ReLu\", \"Sigmoid\" or \"Softmax\".")
     else:
-        raise ValueError("Activation must be either \"Identity\", \"Relu\", \"Sigmoid\" or \"Softmax\"")
-
-
-def identity_prime(signal: np.ndarray) -> np.ndarray:
-    """Derivative of the identity function."""
-    return np.ones_like(signal)
-
-
-def relu_prime(signal: np.ndarray) -> np.ndarray:
-    """Derivative of the Rectified Linear Unit function."""
-    return 1 * (signal > 0)
-
-
-def sigmoid_prime(signal: np.ndarray) -> np.ndarray:
-    """Derivative of the sigmoid (a.k.a. logistic) function."""
-    return sigmoid(signal) * (1 - sigmoid(signal))
-
-
-def softmax_prime(signal: np.ndarray) -> np.ndarray:
-    """Derivative of the softmax function."""
-    return np.einsum('ij,jk->ijk', signal, np.eye(signal.shape[-1])) - np.einsum('ij,ik->ijk', signal, signal)
-
-
-def get_prime_activation_function(activation_name: str) -> Callable[..., np.ndarray]:
-    """Returns activation function derivative according to `activation_name`.
-
-    Parameters
-    ----------
-    activation_name : str
-        Which activation function derivative to use. Can be ``'Relu'``, ``'Sigmoid'`` or ``'Softmax'``.
-
-    Returns
-    -------
-    Callable[..., np.ndarray]
-        Activation function
-
-    Raises
-    ------
-    ValueError
-        Error raised if activation function does not exist.
-    """
-    activation_name = activation_name.lower()
-    if activation_name == 'identity':
-        return identity_prime
-    elif activation_name == 'relu':
-        return relu_prime
-    elif activation_name == 'sigmoid':
-        return sigmoid_prime
-    elif activation_name == 'softmax':
-        return softmax_prime
-    else:
-        raise ValueError("Activation must be either \"Identity\", \"Relu\", \"Sigmoid\" or \"Softmax\"")
+        raise TypeError("Activation must be a string or an object of type \"BaseActivation\".")

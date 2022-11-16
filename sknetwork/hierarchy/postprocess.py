@@ -34,9 +34,7 @@ def reorder_dendrogram(dendrogram: np.ndarray) -> np.ndarray:
 def get_labels(dendrogram: np.ndarray, cluster: dict, sort_clusters: bool, return_dendrogram: bool):
     """Returns the labels from clusters."""
     n = len(dendrogram) + 1
-    n_clusters = len(cluster)
     clusters = list(cluster.values())
-    index = None
     if sort_clusters:
         sizes = np.array([len(nodes) for nodes in clusters])
         index = np.argsort(-sizes)
@@ -106,8 +104,10 @@ def cut_straight(dendrogram: np.ndarray, n_clusters: Optional[int] = None, thres
     check_dendrogram(dendrogram)
     n = dendrogram.shape[0] + 1
 
-    if return_dendrogram and not np.all(np.diff(dendrogram[:, 2]) >= 0):
-        raise ValueError("The third column of the dendrogram must be non-decreasing.")
+    if return_dendrogram:
+        height = dendrogram[:, 2]
+        if not np.any(height[1:] < height[:-1]):
+            dendrogram = reorder_dendrogram(dendrogram)
 
     cluster = {i: [i] for i in range(n)}
     if n_clusters is None:
@@ -348,4 +348,3 @@ def split_dendrogram(dendrogram: np.ndarray, shape: tuple):
             id_col[n1 + n2 + t] = id_col.pop(j)
 
     return np.array(dendrogram_row), np.array(dendrogram_col)
-

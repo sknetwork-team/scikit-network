@@ -4,20 +4,16 @@
 
 import unittest
 
-import numpy as np
-from scipy import sparse
-
-from sknetwork.gnn.utils import check_existing_masks, check_normalizations, check_layers, get_layers_parameters, \
-    has_self_loops, add_self_loops, check_mask_similarity, check_early_stopping
+from sknetwork.gnn.utils import *
 
 
 class TestUtils(unittest.TestCase):
 
     def test_check_norm(self):
         with self.assertRaises(ValueError):
-            check_normalizations('toto')
+            check_normalizations('foo')
         with self.assertRaises(ValueError):
-            check_normalizations(['toto', 'toto'])
+            check_normalizations(['foo', 'bar'])
 
     def test_mask_similarity(self):
         m1 = np.array([True, True, False])
@@ -60,6 +56,14 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(all(val_mask == np.array([False, False, False])))
         self.assertTrue(all(test_mask == np.array([False, False, True])))
 
+        mask_exists, train_mask, val_mask, test_mask = check_existing_masks(labels, np.array([True, False, False]),
+                                                                            np.array([False, False, True]),
+                                                                            np.array([False, True, False]))
+        self.assertTrue(mask_exists)
+        self.assertTrue(all(train_mask == np.array([True, False, False])))
+        self.assertTrue(all(val_mask == np.array([False, False, True])))
+        self.assertTrue(all(test_mask == np.array([False, True, False])))
+
         # Check negative labels
         labels = np.array([1, -1, 0])
         mask_exists, train_mask, val_mask, test_mask = check_existing_masks(labels, np.array([True, True, False]))
@@ -69,36 +73,21 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(all(val_mask == np.array([False, False, False])))
         self.assertTrue(all(test_mask == np.array([False, True, True])))
 
-    def test_check_layer(self):
+    def test_get_layers(self):
         with self.assertRaises(ValueError):
-            check_layers('toto')
-        with self.assertRaises(ValueError):
-            check_layers(['toto', 'toto'])
-
-    def test_check_layers_parameters(self):
-        with self.assertRaises(ValueError):
-            get_layers_parameters([4, 2], 'GCNConv',  activations=['Relu', 'Sigmoid', 'Relu'], use_bias=True,
-                                  normalizations='Both', self_loops=True)
+            get_layers([4, 2], 'Conv',  activations=['Relu', 'Sigmoid', 'Relu'], use_bias=True, normalizations='Both',
+                       self_embeddings=True, sample_sizes=5, loss=None)
         # Type compatibility
-        params = get_layers_parameters([4], 'GCNConv', activations=['Relu'],
-                                       use_bias=[True], normalizations=['Both'], self_loops=[True])
-        self.assertTrue(len(np.ravel(params)) == 6)
+        layers = get_layers([4], 'Conv', activations=['Relu'], use_bias=[True], normalizations=['Both'],
+                            self_embeddings=[True], sample_sizes=[5], loss='Cross entropy')
+        self.assertTrue(len(np.ravel(layers)) == 1)
         # Broadcasting parameters
-        params = get_layers_parameters([4, 2], ['GCNConv', 'GCNConv'], activations='Relu',
-                                       use_bias=True, normalizations='Both', self_loops=True)
-        self.assertTrue(len(np.ravel(params)) == 12)
+        layers = get_layers([4, 2], ['Conv', 'Conv'], activations='Relu', use_bias=True, normalizations='Both',
+                            self_embeddings=True, sample_sizes=5, loss='Cross entropy')
+        self.assertTrue(len(layers) == 2)
 
-    def test_has_self_loops(self):
-        self.assertTrue(has_self_loops(sparse.csr_matrix(np.array([[1, 0], [1, 1]]))))
-        self.assertFalse(has_self_loops(sparse.csr_matrix(np.array([[0, 0], [1, 1]]))))
-
-    def test_add_self_loops(self):
-        # Square adjacency
-        adjacency = sparse.csr_matrix(np.array([[0, 0], [1, 1]]))
-        self.assertFalse(has_self_loops(adjacency))
-        adjacency = add_self_loops(adjacency)
-        self.assertTrue(has_self_loops(adjacency))
-        # Non square adjacency
-        adjacency = sparse.csr_matrix(np.array([[0, 0, 1], [1, 1, 1]]))
-        n_row, n_col = adjacency.shape
-        self.assertTrue(has_self_loops(add_self_loops(adjacency)[:, :n_row]))
+    def test_check_loss(self):
+        layer = get_layers([4], 'Conv', activations=['Relu'], use_bias=[True], normalizations=['Both'],
+                            self_embeddings=[True], sample_sizes=[5], loss=None)
+        with self.assertRaises(ValueError):
+            check_loss(layer[0])

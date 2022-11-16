@@ -19,40 +19,25 @@ class TestOptimizer(unittest.TestCase):
         self.labels = np.array([0] * 5 + [1] * 5)
 
     def test_get_optimizer(self):
-        gnn = GNNClassifier(2)
         with self.assertRaises(ValueError):
-            get_optimizer(gnn, 'toto')
+            get_optimizer('foo')
+        with self.assertRaises(TypeError):
+            get_optimizer(GNNClassifier())
 
-    def test_optimizer_adam(self):
-        gnn = GNNClassifier([4, 2], 'GCNConv',  ['Relu', 'Softmax'], optimizer='Adam')
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, n_epochs=1, val_size=0.2)
-        conv1_weight, conv2_weight = gnn.conv1.weight.copy(), gnn.conv2.weight.copy()
-        conv1_b, conv2_b = gnn.conv1.bias.copy(), gnn.conv2.bias.copy()
-        gnn.opt.step()
-        # Test weight matrix
-        self.assertTrue(gnn.conv1.weight.shape == conv1_weight.shape)
-        self.assertTrue(gnn.conv2.weight.shape == conv2_weight.shape)
-        self.assertTrue((gnn.conv1.weight != conv1_weight).any())
-        self.assertTrue((gnn.conv2.weight != conv2_weight).any())
-        # Test bias vector
-        self.assertTrue(gnn.conv1.bias.shape == conv1_b.shape)
-        self.assertTrue(gnn.conv2.bias.shape == conv2_b.shape)
-        self.assertTrue((gnn.conv1.bias != conv1_b).any())
-        self.assertTrue((gnn.conv2.bias != conv2_b).any())
-
-    def test_optimizer_gd(self):
-        gnn = GNNClassifier([4, 2], ['GCNConv', 'GCNConv'], ['Relu', 'Softmax'], optimizer='None')
-        _ = gnn.fit_predict(self.adjacency, self.features, self.labels, n_epochs=1, val_size=0.2)
-        conv1_weight, conv2_weight = gnn.conv1.weight.copy(), gnn.conv2.weight.copy()
-        conv1_b, conv2_b = gnn.conv1.bias.copy(), gnn.conv2.bias.copy()
-        gnn.opt.step()
-        # Test weight matrix
-        self.assertTrue(gnn.conv1.weight.shape == conv1_weight.shape)
-        self.assertTrue(gnn.conv2.weight.shape == conv2_weight.shape)
-        self.assertTrue((gnn.conv1.weight != conv1_weight).any())
-        self.assertTrue((gnn.conv2.weight != conv2_weight).any())
-        # Test bias vector
-        self.assertTrue(gnn.conv1.bias.shape == conv1_b.shape)
-        self.assertTrue(gnn.conv2.bias.shape == conv2_b.shape)
-        self.assertTrue((gnn.conv1.bias != conv1_b).any())
-        self.assertTrue((gnn.conv2.bias != conv2_b).any())
+    def test_optimizer(self):
+        for optimizer in ['Adam', 'GD']:
+            gnn = GNNClassifier([4, 2], 'Conv',  ['Relu', 'Softmax'], optimizer=optimizer)
+            _ = gnn.fit_predict(self.adjacency, self.features, self.labels, n_epochs=1, val_size=0.2)
+            conv0_weight, conv1_weight = gnn.layers[0].weight.copy(), gnn.layers[1].weight.copy()
+            conv0_b, conv1_b = gnn.layers[0].bias.copy(), gnn.layers[1].bias.copy()
+            gnn.optimizer.step(gnn)
+            # Test weight matrix
+            self.assertTrue(gnn.layers[0].weight.shape == conv0_weight.shape)
+            self.assertTrue(gnn.layers[1].weight.shape == conv1_weight.shape)
+            self.assertTrue((gnn.layers[0].weight != conv0_weight).any())
+            self.assertTrue((gnn.layers[1].weight != conv1_weight).any())
+            # Test bias vector
+            self.assertTrue(gnn.layers[0].bias.shape == conv0_b.shape)
+            self.assertTrue(gnn.layers[1].bias.shape == conv1_b.shape)
+            self.assertTrue((gnn.layers[0].bias != conv0_b).any())
+            self.assertTrue((gnn.layers[1].bias != conv1_b).any())
