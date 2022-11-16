@@ -132,7 +132,7 @@ def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], dire
             for j in neighbors:
                 edge_list.append((i, j))
     else:
-        raise TypeError('The edge list must be given as a list of lists or a dict of lists.')
+        raise TypeError('The adjacency list must be given as a list of lists or a dict of lists.')
     return from_edge_list(edge_list=edge_list, directed=directed, bipartite=bipartite, weighted=weighted,
                           reindex=reindex, sum_duplicates=sum_duplicates, matrix_only=matrix_only)
 

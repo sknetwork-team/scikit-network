@@ -239,6 +239,8 @@ class TestParser(unittest.TestCase):
         self.assertTupleEqual(adjacency.shape, (4, 4))
         self.assertTrue((adjacency.data == [1, 1, 1, 1, 1]).all())
 
+        self.assertRaises(TypeError, parse.from_adjacency_list, {2, 3})
+
     def test_bad_format_edge_list(self):
         edge_list_2 = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
         self.assertRaises(ValueError, parse.from_edge_list, edge_list_2)
