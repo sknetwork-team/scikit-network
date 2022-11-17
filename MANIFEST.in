@@ -4,7 +4,7 @@ include HISTORY.rst
 include LICENSE
 include README.rst
 
-recursive-include sknetwork *.pyx
+recursive-include sknetwork *.pyx *.pxd
 recursive-include tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
