@@ -159,8 +159,6 @@ class TestGNNClassifier(unittest.TestCase):
     def test_gnn_classifier_predict(self):
         gnn = GNNClassifier([4, 2])
         labels_pred = gnn.fit_predict(self.adjacency, self.features, self.labels, val_size=0.2, random_state=42)
-        print()
-        print(labels_pred)
         preds = gnn.predict()
         self.assertTrue(all(labels_pred == gnn.labels_))
         self.assertTrue(all(labels_pred == preds))

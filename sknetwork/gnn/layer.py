@@ -12,7 +12,6 @@ from scipy import sparse
 from sknetwork.gnn.activation import BaseActivation
 from sknetwork.gnn.loss import BaseLoss
 from sknetwork.gnn.base_layer import BaseLayer
-from sknetwork.gnn.neighbor_sampler import UniformNeighborSampler
 from sknetwork.utils.check import add_self_loops
 from sknetwork.linalg import diag_pinv
 
@@ -97,11 +96,6 @@ class Convolution(BaseLayer):
             self._initialize_weights(features.shape[1])
 
         n_row, n_col = adjacency.shape
-
-        # Neighbor sampling
-        if self.layer_type == 'sage' and self.sample_size is not None:
-            sampler = UniformNeighborSampler(sample_size=self.sample_size)
-            adjacency = sampler(adjacency)
 
         weights = adjacency.dot(np.ones(n_col))
         if self.normalization == 'left':
