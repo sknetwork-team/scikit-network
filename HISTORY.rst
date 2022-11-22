@@ -2,6 +2,13 @@
 History
 =======
 
+0.28.1 (2022-11-22)
+-------------------
+
+* Fix sampling for GraphSage, by Simon Delarue
+* Fix leakage on GNNs, by Thomas Bonald and Simon Delarue
+* Update tutorial on GNNs with node inference, by Thomas Bonald and Simon Delarue
+
 0.28.0 (2022-11-16)
 -------------------
 
