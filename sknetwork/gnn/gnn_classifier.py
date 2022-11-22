@@ -91,7 +91,7 @@ class GNNClassifier(BaseGNN):
     >>> gnn = GNNClassifier(dims=1, early_stopping=False)
     >>> labels_pred = gnn.fit_predict(adjacency, features, labels, random_state=42)
     >>> np.round(np.mean(labels_pred == labels), 2)
-    0.94
+    0.91
     """
 
     def __init__(self, dims: Optional[Union[int, list]] = None, layer_types: Union[str, list] = 'Conv',
@@ -112,14 +112,14 @@ class GNNClassifier(BaseGNN):
         self.patience = patience
         self.history_ = defaultdict(list)
 
-    def forward(self, adjacency: Union[list, sparse.csr_matrix],
-                features: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
+    def forward(self, adjacency: Union[list, sparse.csr_matrix], features: Union[sparse.csr_matrix, np.ndarray]) \
+            -> np.ndarray:
         """Perform a forward pass on the graph and return the output.
 
         Parameters
         ----------
-        adjacency : list, sparse.csr_matrix
-            Adjacency matrix or list of adjacency matrices.
+        adjacency : Union[list, sparse.csr_matrix]
+            Adjacency matrix or list of sampled adjacency matrices.
         features : sparse.csr_matrix, np.ndarray
             Features, array of shape (n_nodes, n_features).
 
@@ -129,12 +129,11 @@ class GNNClassifier(BaseGNN):
             Output of the GNN.
         """
         h = features.copy()
-        if not isinstance(adjacency, list):
-            adjacency = [adjacency] * len(self.layers)
-
         for i, layer in enumerate(self.layers):
-            h = layer(adjacency[i], h)
-
+            if isinstance(adjacency, list):
+                h = layer(adjacency[i], h)
+            else:
+                h = layer(adjacency, h)
         return h
 
     @staticmethod
@@ -195,8 +194,6 @@ class GNNClassifier(BaseGNN):
         history : bool (default = ``False``)
             If ``True``, save training history.
         """
-        labels_pred = None
-
         if reinit:
             for layer in self.layers:
                 layer.weights_initialized = False
@@ -214,7 +211,7 @@ class GNNClassifier(BaseGNN):
 
         early_stopping = check_early_stopping(self.early_stopping, self.val_mask, self.patience)
 
-        # Neighbors sampling
+        # List of sampled adjacencies (one per layer)
         adjacencies = self._sample_nodes(adjacency)
 
         best_val_acc = 0
@@ -239,7 +236,7 @@ class GNNClassifier(BaseGNN):
                 val_acc = None
 
             # Backpropagation
-            self.backward(features, labels)
+            self.backward(features, labels, self.train_mask)
 
             # Update weights using optimizer
             self.optimizer.step(self)
@@ -317,8 +314,8 @@ class GNNClassifier(BaseGNN):
         self.test_mask = np.logical_and(~self.train_mask, ~self.val_mask)
 
     def _sample_nodes(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> list:
-        """Perform parametrized node sampling on adjacency matrix for GraphSAGE layers. For other layers, the
-            adjacency matrix stays unchanged.
+        """Perform node sampling on adjacency matrix for GraphSAGE layers. For other layers, the
+        adjacency matrix remains unchanged.
 
         Parameters
         ----------

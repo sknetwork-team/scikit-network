@@ -18,10 +18,10 @@ class UniformNeighborSampler:
 
     Parameters
     ----------
-    sample_size : int (default = 25)
+    sample_size : int
         Size of neighborhood sampled for each node.
     """
-    def __init__(self, sample_size: int = 25):
+    def __init__(self, sample_size: int):
         self.sample_size = sample_size
 
     def _sample_indexes(self, size: int) -> np.ndarray:

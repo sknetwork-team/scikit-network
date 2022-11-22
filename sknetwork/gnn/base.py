@@ -9,6 +9,7 @@ from typing import Union
 
 import numpy as np
 from collections import defaultdict
+from scipy import sparse
 
 from sknetwork.gnn.loss import BaseLoss, get_loss
 from sknetwork.gnn.optimizer import BaseOptimizer, get_optimizer
@@ -87,21 +88,23 @@ class BaseGNN(VerboseMixin):
         self.fit(*args, **kwargs)
         return self.embedding_
 
-    def backward(self, features: np.ndarray, labels: np.ndarray):
+    def backward(self, features: sparse.csr_matrix, labels: np.ndarray, mask: np.ndarray):
         """Compute backpropagation.
 
         Parameters
         ----------
-        features : np.ndarray
+        features : sparse.csr_matrix
             Features, array of shape (n_nodes, n_features).
         labels : np.ndarray
             Labels, array of shape (n_nodes,).
+        mask: np.ndarray
+            Boolean mask, array of shape (n_nodes,).
         """
         derivative_weight = []
         derivative_bias = []
 
         # discard missing labels
-        mask = labels >= 0
+        mask = mask & (labels >= 0)
         labels = labels[mask]
 
         # backpropagation
