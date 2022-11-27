@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -113,7 +114,7 @@ class KMeans(BaseClustering):
         self._init_vars()
 
         # input
-        check_format(input_matrix)
+        input_matrix = check_format(input_matrix)
         if self.co_cluster:
             check_n_clusters(self.n_clusters, np.sum(input_matrix.shape))
         else:
