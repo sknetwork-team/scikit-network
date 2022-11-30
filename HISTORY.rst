@@ -2,6 +2,12 @@
 History
 =======
 
+0.28.2 (2022-11-30)
+-------------------
+
+* Allow Python 3.7, by Thomas Bonald
+* Fix input format for KMeans, issue #548 raised by @sgerbe
+
 0.28.1 (2022-11-22)
 -------------------
 
