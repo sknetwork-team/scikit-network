@@ -19,7 +19,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['numpy>=1.21.0', 'scipy>=1.7.3']
+requirements = ['numpy>=1.22.0', 'scipy>=1.7.3']
 
 setup_requirements = ['pytest-runner']
 
@@ -128,7 +128,6 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
         'Programming Language :: Cython',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10'
