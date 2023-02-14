@@ -40,6 +40,11 @@ Membership matrix
 
 .. autofunction:: sknetwork.utils.from_membership
 
+TF-IDF
+------
+
+.. autofunction:: sknetwork.utils.get_tfidf
+
 
 Nearest-neighbors
 -----------------
