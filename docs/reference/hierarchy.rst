@@ -22,10 +22,6 @@ Louvain
 
 .. autoclass:: sknetwork.hierarchy.LouvainIteration
 
-Ward
-----
-.. autoclass:: sknetwork.hierarchy.Ward
-
 Metrics
 -------
 .. autofunction:: sknetwork.hierarchy.dasgupta_cost

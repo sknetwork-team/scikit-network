@@ -6,5 +6,4 @@ Clustering
 
    louvain
    propagation
-   kmeans
 
