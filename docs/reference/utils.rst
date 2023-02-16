@@ -26,13 +26,6 @@ Neighborhood
 .. autofunction:: sknetwork.utils.get_neighbors
 
 
-Clustering
-----------
-
-.. autoclass:: sknetwork.utils.KMeansDense
-
-.. autoclass:: sknetwork.utils.WardDense
-
 Membership matrix
 -----------------
 
