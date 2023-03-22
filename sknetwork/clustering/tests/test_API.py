@@ -13,20 +13,22 @@ class TestClusteringAPI(unittest.TestCase):
         for algo in [Louvain(return_aggregate=True), PropagationClustering(return_aggregate=True)]:
             for adjacency in [test_graph(), test_digraph(), test_graph_disconnect()]:
                 n = adjacency.shape[0]
-                labels = algo.fit_transform(adjacency)
+                labels = algo.fit_predict(adjacency)
                 n_labels = len(set(labels))
                 self.assertEqual(labels.shape, (n,))
                 self.assertEqual(algo.aggregate_.shape, (n_labels, n_labels))
                 adjacency_bool = adjacency.astype(bool)
-                labels = algo.fit_transform(adjacency_bool)
+                labels = algo.fit_predict(adjacency_bool)
                 n_labels = len(set(labels))
                 self.assertEqual(labels.shape, (n,))
                 self.assertEqual(algo.aggregate_.shape, (n_labels, n_labels))
+                membership = algo.fit_transform(adjacency)
+                self.assertEqual(membership.shape, (n, n_labels))
 
     def test_bipartite(self):
         biadjacency = test_bigraph()
         n_row, n_col = biadjacency.shape
         for algo in [Louvain(return_aggregate=True), PropagationClustering(return_aggregate=True)]:
-            algo.fit_transform(biadjacency)
+            algo.fit(biadjacency)
             self.assertEqual(algo.labels_row_.shape, (n_row,))
             self.assertEqual(algo.labels_col_.shape, (n_col,))

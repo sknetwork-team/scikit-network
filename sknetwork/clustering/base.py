@@ -40,7 +40,7 @@ class BaseClustering(Algorithm, ABC):
         self.return_aggregate = return_aggregate
         self._init_vars()
 
-    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+    def fit_predict(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
 
         Returns
@@ -50,6 +50,16 @@ class BaseClustering(Algorithm, ABC):
         """
         self.fit(*args, **kwargs)
         return self.labels_
+
+    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to the data and return the membership matrix. Same parameters as the ``fit`` method.
+        Returns
+        -------
+        membership : np.ndarray
+            Membership matrix (distribution over clusters).
+        """
+        self.fit(*args, **kwargs)
+        return self.membership_
 
     def _init_vars(self):
         """Init variables."""

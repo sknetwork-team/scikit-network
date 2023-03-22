@@ -74,7 +74,7 @@ class Louvain(BaseClustering, VerboseMixin):
     >>> from sknetwork.data import karate_club
     >>> louvain = Louvain()
     >>> adjacency = karate_club()
-    >>> labels = louvain.fit_transform(adjacency)
+    >>> labels = louvain.fit_predict(adjacency)
     >>> len(set(labels))
     4
 
