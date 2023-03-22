@@ -31,5 +31,5 @@ class Algorithm:
             return output + ')'
 
     def fit(self, *args, **kwargs):
-        """Fit Algorithm to the data."""
+        """Fit algorithm to data."""
         raise NotImplementedError

@@ -56,23 +56,6 @@ class BaseClassifier(Algorithm, ABC):
         self.fit(*args, **kwargs)
         return self.membership_
 
-    def score(self, label: int):
-        """Classification scores for a given label.
-
-        Parameters
-        ----------
-        label : int
-            The label index of the class.
-
-        Returns
-        -------
-        scores : np.ndarray
-            Classification scores of shape (number of nodes,).
-        """
-        if self.membership_ is None:
-            raise ValueError("The fit method should be called first.")
-        return self.membership_[:, label].toarray().ravel()
-
     def _split_vars(self, shape: tuple):
         n_row = shape[0]
         self.labels_row_ = self.labels_[:n_row]

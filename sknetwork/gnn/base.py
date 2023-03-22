@@ -5,6 +5,8 @@ Created on July 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 @author: Thomas Bonald <bonald@enst.fr>
 """
+from abc import ABC
+
 from typing import Union
 
 import numpy as np
@@ -14,9 +16,10 @@ from scipy import sparse
 from sknetwork.gnn.loss import BaseLoss, get_loss
 from sknetwork.gnn.optimizer import BaseOptimizer, get_optimizer
 from sknetwork.utils.verbose import VerboseMixin
+from sknetwork.utils.base import Algorithm
 
 
-class BaseGNN(VerboseMixin):
+class BaseGNN(Algorithm, ABC, VerboseMixin):
     """Base class for GNNs.
 
     Parameters
