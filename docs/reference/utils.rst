@@ -39,20 +39,6 @@ TF-IDF
 .. autofunction:: sknetwork.utils.get_tfidf
 
 
-Nearest-neighbors
------------------
-
-.. autoclass:: sknetwork.utils.KNNDense
-
-.. autoclass:: sknetwork.utils.CNNDense
-
-
-Co-Neighborhood
----------------
-
-.. autofunction:: sknetwork.utils.co_neighbor_graph
-
-
 Projection
 ----------
 

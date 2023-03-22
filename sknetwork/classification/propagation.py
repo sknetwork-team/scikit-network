@@ -13,7 +13,7 @@ from scipy import sparse
 from sknetwork.classification.base import BaseClassifier
 from sknetwork.classification.vote import vote_update
 from sknetwork.linalg.normalization import normalize
-from sknetwork.utils.format import get_adjacency_seeds
+from sknetwork.utils.format import get_adjacency_values
 from sknetwork.utils.membership import get_membership
 
 
@@ -56,8 +56,8 @@ class Propagation(BaseClassifier):
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
-    >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = propagation.fit_predict(adjacency, seeds)
+    >>> labels = {0: labels_true[0], 33: labels_true[33]}
+    >>> labels_pred = propagation.fit_predict(adjacency, labels)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.94
 
@@ -80,37 +80,36 @@ class Propagation(BaseClassifier):
         self.bipartite = None
 
     @staticmethod
-    def _instantiate_vars(seeds: np.ndarray):
+    def _instantiate_vars(labels: np.ndarray):
         """Instantiate variables for label propagation."""
-        n = len(seeds)
-        if len(set(seeds)) == n:
+        n = len(labels)
+        if len(set(labels)) == n:
             index_seed = np.arange(n)
             index_remain = np.arange(n)
-            labels = seeds
         else:
-            index_seed = np.argwhere(seeds >= 0).ravel()
-            index_remain = np.argwhere(seeds < 0).ravel()
-            labels = seeds[index_seed]
+            index_seed = np.argwhere(labels >= 0).ravel()
+            index_remain = np.argwhere(labels < 0).ravel()
+            labels = labels[index_seed]
         return index_seed.astype(np.int32), index_remain.astype(np.int32), labels.astype(np.int32)
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict] = None,
-            seeds_row: Union[np.ndarray, dict] = None, seeds_col: Union[np.ndarray, dict] = None) -> 'Propagation':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: Union[np.ndarray, dict] = None,
+            labels_row: Union[np.ndarray, dict] = None, labels_col: Union[np.ndarray, dict] = None) -> 'Propagation':
         """Node classification by label propagation.
 
         Parameters
         ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
-        seeds :
-            Seed nodes. Can be a dict {node: label} or an array where "-1" means no label.
-        seeds_row, seeds_col :
-            Seeds of rows and columns (for bipartite graphs).
+        labels :
+            Known labels (dictionary or array). Negative values ignored.
+        labels_row, labels_col :
+            Labels of rows and columns (for bipartite graphs).
         Returns
         -------
         self: :class:`Propagation`
         """
-        adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, seeds=seeds, seeds_row=seeds_row,
-                                                               seeds_col=seeds_col, which='labels')
+        adjacency, seeds, self.bipartite = get_adjacency_values(input_matrix, values=labels, values_row=labels_row,
+                                                                values_col=labels_col, which='labels')
         n = adjacency.shape[0]
         index_seed, index_remain, labels_seed = self._instantiate_vars(seeds)
 

@@ -15,7 +15,7 @@ from sknetwork.classification.base import BaseClassifier
 from sknetwork.linalg.normalization import normalize
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.check import check_labels, check_n_jobs
-from sknetwork.utils.format import get_adjacency_seeds
+from sknetwork.utils.format import get_adjacency_values
 from sknetwork.utils.verbose import VerboseMixin
 
 
@@ -56,25 +56,25 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         self.verbose = verbose
 
     @staticmethod
-    def _process_seeds(labels_seeds: np.ndarray) -> list:
-        """Make one-vs-all seed labels from seeds.
+    def _process_labels(labels: np.ndarray) -> list:
+        """Make one-vs-all binary labels from labels.
 
         Parameters
         ----------
-        labels_seeds
+        labels
 
         Returns
         -------
-        List of seeds vectors.
+        List of binary labels.
         """
-        seeds_all = []
-        classes, _ = check_labels(labels_seeds)
+        labels_all = []
+        labels_unique, _ = check_labels(labels)
 
-        for label in classes:
-            seeds = np.array(labels_seeds == label).astype(int)
-            seeds_all.append(seeds)
+        for label in labels_unique:
+            labels_binary = np.array(labels == label).astype(int)
+            labels_all.append(labels_binary)
 
-        return seeds_all
+        return labels_all
 
     @staticmethod
     def _process_scores(scores: np.ndarray) -> np.ndarray:
@@ -101,27 +101,27 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         self.membership_col_ = self.membership_[n_row:]
         self.membership_ = self.membership_row_
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict] = None,
-            seeds_row: Union[np.ndarray, dict] = None, seeds_col: Union[np.ndarray, dict] = None) -> 'RankClassifier':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: Union[np.ndarray, dict] = None,
+            labels_row: Union[np.ndarray, dict] = None, labels_col: Union[np.ndarray, dict] = None) -> 'RankClassifier':
         """Fit algorithm to data.
 
         Parameters
         ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
-        seeds :
-            Seed nodes (labels as dictionary or array; negative values ignored).
-        seeds_row, seeds_col :
-            Seed rows and columns (for bipartite graphs).
+        labels :
+            Known labels (dictionary or array; negative values ignored).
+        labels_row, labels_col :
+            Known labels on rows and columns (for bipartite graphs).
         Returns
         -------
         self: :class:`RankClassifier`
         """
-        adjacency, seeds_labels, bipartite = get_adjacency_seeds(input_matrix, seeds=seeds, seeds_row=seeds_row,
-                                                                 seeds_col=seeds_col)
+        adjacency, seeds_labels, bipartite = get_adjacency_values(input_matrix, values=labels, values_row=labels_row,
+                                                                  values_col=labels_col)
         seeds_labels = seeds_labels.astype(int)
-        classes, n_classes = check_labels(seeds_labels)
-        seeds_all = self._process_seeds(seeds_labels)
+        labels_unique, n_classes = check_labels(seeds_labels)
+        seeds_all = self._process_labels(seeds_labels)
         local_function = partial(self.algorithm.fit_transform, adjacency)
         with Pool(self.n_jobs) as pool:
             scores = np.array(pool.map(local_function, seeds_all))
@@ -131,10 +131,10 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         scores = normalize(scores)
 
         membership = sparse.coo_matrix(scores)
-        membership.col = classes[membership.col]
+        membership.col = labels_unique[membership.col]
 
         labels = np.argmax(scores, axis=1)
-        self.labels_ = classes[labels]
+        self.labels_ = labels_unique[labels]
         self.membership_ = sparse.csr_matrix(membership, shape=(adjacency.shape[0], np.max(seeds_labels) + 1))
 
         if bipartite:

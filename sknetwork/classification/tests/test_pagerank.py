@@ -12,9 +12,9 @@ class TestPageRankClassifier(unittest.TestCase):
 
     def test_solvers(self):
         adjacency = test_graph()
-        seeds = {0: 0, 1: 1}
+        labels = {0: 0, 1: 1}
 
-        ref = PageRankClassifier(solver='piteration').fit_predict(adjacency, seeds)
+        ref = PageRankClassifier(solver='piteration').fit_predict(adjacency, labels)
         for solver in ['lanczos', 'bicgstab']:
-            labels = PageRankClassifier(solver=solver).fit_predict(adjacency, seeds)
-            self.assertTrue((ref == labels).all())
+            labels_pred = PageRankClassifier(solver=solver).fit_predict(adjacency, labels)
+            self.assertTrue((ref == labels_pred).all())

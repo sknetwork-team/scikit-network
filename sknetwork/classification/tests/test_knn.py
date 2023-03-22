@@ -12,13 +12,13 @@ class TestDiffusionClassifier(unittest.TestCase):
 
     def test_parallel(self):
         for adjacency in [test_graph(), test_digraph(), test_bigraph()]:
-            seeds = {0: 0, 1: 1}
+            labels = {0: 0, 1: 1}
 
             algo1 = KNN(n_neighbors=1, n_jobs=None, embedding_method=LouvainEmbedding())
             algo2 = KNN(n_neighbors=1, n_jobs=-1, embedding_method=LouvainEmbedding())
 
-            labels1 = algo1.fit_predict(adjacency, seeds)
-            labels2 = algo2.fit_predict(adjacency, seeds)
+            labels1 = algo1.fit_predict(adjacency, labels)
+            labels2 = algo2.fit_predict(adjacency, labels)
 
             self.assertTrue(np.allclose(labels1, labels2))
 

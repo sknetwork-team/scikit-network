@@ -49,8 +49,8 @@ class PageRankClassifier(RankClassifier):
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
-    >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = pagerank.fit_predict(adjacency, seeds)
+    >>> labels = {0: labels_true[0], 33: labels_true[33]}
+    >>> labels_pred = pagerank.fit_predict(adjacency, labels)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.97
 

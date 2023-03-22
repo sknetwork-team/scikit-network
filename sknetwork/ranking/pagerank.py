@@ -14,7 +14,7 @@ from scipy.sparse.linalg import LinearOperator
 from sknetwork.linalg.ppr_solver import get_pagerank
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.check import check_damping_factor
-from sknetwork.utils.format import get_adjacency_seeds
+from sknetwork.utils.format import get_adjacency_values
 from sknetwork.utils.verbose import VerboseMixin
 
 
@@ -55,8 +55,8 @@ class PageRank(BaseRanking, VerboseMixin):
     >>> from sknetwork.data import house
     >>> pagerank = PageRank()
     >>> adjacency = house()
-    >>> seeds = {0: 1}
-    >>> scores = pagerank.fit_predict(adjacency, seeds)
+    >>> weights = {0: 1}
+    >>> scores = pagerank.fit_predict(adjacency, weights)
     >>> np.round(scores, 2)
     array([0.29, 0.24, 0.12, 0.12, 0.24])
 
@@ -75,32 +75,35 @@ class PageRank(BaseRanking, VerboseMixin):
         self.bipartite = None
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator],
-            seeds: Optional[Union[dict, np.ndarray]] = None, seeds_row: Optional[Union[dict, np.ndarray]] = None,
-            seeds_col: Optional[Union[dict, np.ndarray]] = None, force_bipartite: bool = False) -> 'PageRank':
+            weights: Optional[Union[dict, np.ndarray]] = None, weights_row: Optional[Union[dict, np.ndarray]] = None,
+            weights_col: Optional[Union[dict, np.ndarray]] = None, force_bipartite: bool = False) -> 'PageRank':
         """Fit algorithm to data.
 
         Parameters
         ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
-        seeds :
+        weights :
             Parameter to be used for Personalized PageRank.
             Restart distribution as a vector or a dict (node: weight).
             If ``None``, the uniform distribution is used (no personalization, default).
-        seeds_row, seeds_col :
+        weights_row, weights_col :
             Parameter to be used for Personalized PageRank on bipartite graphs.
             Restart distribution as vectors or dicts on rows, columns (node: weight).
-            If both seeds_row and seeds_col are ``None`` (default), the uniform distribution on rows is used.
+            If both weights_row and weights_col are ``None`` (default), the uniform distribution on rows is used.
         force_bipartite :
             If ``True``, consider the input matrix as the biadjacency matrix of a bipartite graph.
         Returns
         -------
         self: :class:`PageRank`
         """
-        adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, force_bipartite=force_bipartite,
-                                                               seeds=seeds, seeds_row=seeds_row,
-                                                               seeds_col=seeds_col, default_value=0, which='probs')
-        self.scores_ = get_pagerank(adjacency, seeds, damping_factor=self.damping_factor, n_iter=self.n_iter,
+        adjacency, values, self.bipartite = get_adjacency_values(input_matrix, force_bipartite=force_bipartite,
+                                                                 values=weights,
+                                                                 values_row=weights_row,
+                                                                 values_col=weights_col,
+                                                                 default_value=0,
+                                                                 which='probs')
+        self.scores_ = get_pagerank(adjacency, values, damping_factor=self.damping_factor, n_iter=self.n_iter,
                                     solver=self.solver, tol=self.tol)
         if self.bipartite:
             self._split_vars(input_matrix.shape)

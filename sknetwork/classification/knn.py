@@ -13,10 +13,10 @@ from scipy.spatial import cKDTree
 
 from sknetwork.classification.base import BaseClassifier
 from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.embedding.svd import GSVD
+from sknetwork.embedding.spectral import Spectral
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.check import check_n_neighbors, check_n_jobs
-from sknetwork.utils.format import get_adjacency_seeds
+from sknetwork.utils.format import get_adjacency_values
 
 
 class KNN(BaseClassifier):
@@ -27,7 +27,7 @@ class KNN(BaseClassifier):
     Parameters
     ----------
     embedding_method :
-        Which algorithm to use to project the nodes in vector space. Default is ``GSVD``.
+        Which algorithm to use to project the nodes in vector space. Default is ``Spectral``.
     n_neighbors :
         Number of nearest neighbors to consider.
     factor_distance :
@@ -66,12 +66,12 @@ class KNN(BaseClassifier):
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
-    >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = knn.fit_predict(adjacency, seeds)
+    >>> labels = {0: labels_true[0], 33: labels_true[33]}
+    >>> labels_pred = knn.fit_predict(adjacency, labels)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.97
     """
-    def __init__(self, embedding_method: BaseEmbedding = GSVD(10), n_neighbors: int = 5,
+    def __init__(self, embedding_method: BaseEmbedding = Spectral(10), n_neighbors: int = 5,
                  factor_distance: float = 2, leaf_size: int = 16, p: float = 2, tol_nn: float = 0.01,
                  n_jobs: Optional[int] = None):
         super(KNN, self).__init__()
@@ -88,8 +88,8 @@ class KNN(BaseClassifier):
         self.bipartite = None
 
     @staticmethod
-    def _instantiate_vars(seeds: Union[np.ndarray, dict]):
-        labels = seeds.astype(int)
+    def _instantiate_vars(labels: Union[np.ndarray, dict]):
+        labels = labels.astype(int)
         index_seed = np.argwhere(labels >= 0).ravel()
         index_remain = np.argwhere(labels < 0).ravel()
         labels_seed = labels[index_seed]
@@ -130,26 +130,26 @@ class KNN(BaseClassifier):
 
         return membership, labels
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], seeds: Union[np.ndarray, dict] = None,
-            seeds_row: Union[np.ndarray, dict] = None, seeds_col: Union[np.ndarray, dict] = None) -> 'KNN':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: Union[np.ndarray, dict] = None,
+            labels_row: Union[np.ndarray, dict] = None, labels_col: Union[np.ndarray, dict] = None) -> 'KNN':
         """Node classification by k-nearest neighbors in the embedding space.
 
         Parameters
         ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
-        seeds :
-            Seed nodes. Can be a dict {node: label} or an array where "-1" means no label.
-        seeds_row, seeds_col :
-            Seeds of rows and columns (for bipartite graphs).
+        labels :
+            Known labels (dictionary or array). Negative values ignored.
+        labels_row, labels_col :
+            Labels of rows and columns (for bipartite graphs).
 
         Returns
         -------
         self: :class:`KNN`
         """
-        adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, seeds=seeds, seeds_row=seeds_row,
-                                                               seeds_col=seeds_col)
-        index_seed, index_remain, labels_seed = self._instantiate_vars(seeds)
+        adjacency, labels, self.bipartite = get_adjacency_values(input_matrix, values=labels, values_row=labels_row,
+                                                                 values_col=labels_col)
+        index_seed, index_remain, labels_seed = self._instantiate_vars(labels)
         embedding = self.embedding_method.fit_transform(adjacency)
         membership, labels = self._fit_core(adjacency.shape[0], labels_seed, embedding, index_seed, index_remain)
 

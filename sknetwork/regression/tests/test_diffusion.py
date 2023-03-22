@@ -31,9 +31,9 @@ class TestDiffusion(unittest.TestCase):
 
         biadjacency = test_bigraph()
         for algo in [Diffusion(), Dirichlet()]:
-            values = algo.fit_predict(biadjacency, seeds_row={0: 1})
+            values = algo.fit_predict(biadjacency, values_row={0: 1})
             self.assertTrue(np.all(values <= 1) and np.all(values >= 0))
-            values = algo.fit_predict(biadjacency, seeds_row={0: 0.1}, seeds_col={1: 2}, init=0.3)
+            values = algo.fit_predict(biadjacency, values_row={0: 0.1}, values_col={1: 2}, init=0.3)
             self.assertTrue(np.all(values <= 2) and np.all(values >= 0.1))
 
     def test_initial_state(self):

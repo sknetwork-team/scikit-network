@@ -11,7 +11,7 @@ from scipy import sparse
 
 from sknetwork.classification.base import BaseClassifier
 from sknetwork.linalg.normalization import normalize
-from sknetwork.utils.format import get_adjacency_seeds
+from sknetwork.utils.format import get_adjacency_values
 from sknetwork.utils.membership import get_membership
 from sknetwork.utils.neighbors import get_degrees
 
@@ -53,8 +53,8 @@ class DiffusionClassifier(BaseClassifier):
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
-    >>> seeds = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = diffusion.fit_predict(adjacency, seeds)
+    >>> labels = {0: labels_true[0], 33: labels_true[33]}
+    >>> labels_pred = diffusion.fit_predict(adjacency, labels)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.97
 
@@ -75,8 +75,8 @@ class DiffusionClassifier(BaseClassifier):
         self.bipartite = None
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
-            seeds: Optional[Union[dict, np.ndarray]] = None, seeds_row: Optional[Union[dict, np.ndarray]] = None,
-            seeds_col: Optional[Union[dict, np.ndarray]] = None, force_bipartite: bool = False) \
+            labels: Optional[Union[dict, np.ndarray]] = None, labels_row: Optional[Union[dict, np.ndarray]] = None,
+            labels_col: Optional[Union[dict, np.ndarray]] = None, force_bipartite: bool = False) \
             -> 'DiffusionClassifier':
         """Compute the solution to the Dirichlet problem (temperatures at equilibrium).
 
@@ -84,9 +84,9 @@ class DiffusionClassifier(BaseClassifier):
         ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
-        seeds :
-            Labels of seed nodes (dictionary or vector of int). Negative values ignored.
-        seeds_row, seeds_col :
+        labels :
+            Known labels (dictionary or vector of int). Negative values ignored.
+        labels_row, labels_col :
             Labels of rows and columns for bipartite graphs. Negative values ignored.
         force_bipartite :
             If ``True``, consider the input matrix as a biadjacency matrix (default = ``False``).
@@ -95,28 +95,30 @@ class DiffusionClassifier(BaseClassifier):
         -------
         self: :class:`DiffusionClassifier`
         """
-        adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, force_bipartite=force_bipartite,
-                                                               seeds=seeds, seeds_row=seeds_row, seeds_col=seeds_col)
-        seeds = seeds.astype(int)
-        if (seeds < 0).all():
-            raise ValueError('At least one node must be given a label in ``seeds``.')
-        temperatures = get_membership(seeds).toarray()
-        temperatures_seeds = temperatures[seeds >= 0]
+        adjacency, values, self.bipartite = get_adjacency_values(input_matrix, force_bipartite=force_bipartite,
+                                                                 values=labels,
+                                                                 values_row=labels_row,
+                                                                 values_col=labels_col)
+        labels = values.astype(int)
+        if (labels < 0).all():
+            raise ValueError('At least one node must be given a non-negative label.')
+        temperatures = get_membership(labels).toarray()
+        temperatures_seeds = temperatures[labels >= 0]
         n_labels = temperatures.shape[1]
-        temperatures[seeds < 0] = 1 / n_labels
+        temperatures[labels < 0] = 1 / n_labels
         diffusion = normalize(adjacency)
         for i in range(self.n_iter):
             temperatures = diffusion.dot(temperatures)
-            temperatures[seeds >= 0] = temperatures_seeds
+            temperatures[labels >= 0] = temperatures_seeds
 
         self.membership_ = sparse.csr_matrix(temperatures)
 
         if self.centering:
             temperatures -= temperatures.mean(axis=0)
 
-        labels = temperatures.argmax(axis=1)
+        labels_ = temperatures.argmax(axis=1)
         # set label -1 to nodes without temperature (no diffusion to them)
-        labels[get_degrees(self.membership_) == 0] = -1
+        labels_[get_degrees(self.membership_) == 0] = -1
 
         if self.threshold >= 0:
             if n_labels > 2:
@@ -124,9 +126,9 @@ class DiffusionClassifier(BaseClassifier):
             else:
                 top_temperatures = temperatures
             differences = np.abs(top_temperatures[:, 0] - top_temperatures[:, 1])
-            labels[differences <= self.threshold] = -1
+            labels_[differences <= self.threshold] = -1
 
-        self.labels_ = labels
+        self.labels_ = labels_
 
         if self.bipartite:
             self._split_vars(input_matrix.shape)

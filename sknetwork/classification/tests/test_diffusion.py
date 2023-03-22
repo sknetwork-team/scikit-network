@@ -12,26 +12,26 @@ class TestDiffusionClassifier(unittest.TestCase):
 
     def test_graph(self):
         adjacency = test_graph()
-        seeds = {0: 0, 1: 1}
+        labels = {0: 0, 1: 1}
         algo = DiffusionClassifier()
-        algo.fit(adjacency, seeds=seeds)
+        algo.fit(adjacency, labels=labels)
         self.assertTrue(len(algo.labels_) == adjacency.shape[0])
         adjacency = test_digraph()
         algo = DiffusionClassifier(centering=False)
-        algo.fit(adjacency, seeds=seeds)
+        algo.fit(adjacency, labels=labels)
         self.assertTrue(len(algo.labels_) == adjacency.shape[0])
         with self.assertRaises(ValueError):
             DiffusionClassifier(n_iter=0)
         algo = DiffusionClassifier(centering=False, threshold=1)
-        algo.fit(adjacency, seeds=seeds)
+        algo.fit(adjacency, labels=labels)
         self.assertTrue(max(algo.labels_) == -1)
 
     def test_bipartite(self):
         biadjacency = test_bigraph()
         n_row, n_col = biadjacency.shape
-        seeds_row = {0: 0, 1: 1}
-        seeds_col = {5: 1}
+        labels_row = {0: 0, 1: 1}
+        labels_col = {5: 1}
         algo = DiffusionClassifier()
-        algo.fit(biadjacency, seeds_row=seeds_row, seeds_col=seeds_col)
+        algo.fit(biadjacency, labels_row=labels_row, labels_col=labels_col)
         self.assertTrue(len(algo.labels_row_) == n_row)
         self.assertTrue(len(algo.labels_col_) == n_col)

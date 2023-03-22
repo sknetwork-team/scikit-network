@@ -12,7 +12,7 @@ from scipy import sparse
 
 from sknetwork.linalg.normalization import normalize
 from sknetwork.regression.base import BaseRegressor
-from sknetwork.utils.format import get_adjacency_seeds
+from sknetwork.utils.format import get_adjacency_values
 
 
 def init_temperatures(seeds: np.ndarray, init: Optional[float]) -> Tuple[np.ndarray, np.ndarray]:
@@ -51,9 +51,9 @@ class Diffusion(BaseRegressor):
     >>> from sknetwork.data import house
     >>> diffusion = Diffusion(n_iter=2)
     >>> adjacency = house()
-    >>> seeds = {0: 1, 2: 0}
-    >>> values = diffusion.fit_predict(adjacency, seeds)
-    >>> np.round(values, 2)
+    >>> values = {0: 1, 2: 0}
+    >>> values_pred = diffusion.fit_predict(adjacency, values)
+    >>> np.round(values_pred, 2)
     array([0.58, 0.56, 0.38, 0.58, 0.42])
 
     References
@@ -70,8 +70,8 @@ class Diffusion(BaseRegressor):
         self.bipartite = None
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
-            seeds: Optional[Union[dict, np.ndarray]] = None, seeds_row: Optional[Union[dict, np.ndarray]] = None,
-            seeds_col: Optional[Union[dict, np.ndarray]] = None, init: Optional[float] = None,
+            values: Optional[Union[dict, np.ndarray]] = None, values_row: Optional[Union[dict, np.ndarray]] = None,
+            values_col: Optional[Union[dict, np.ndarray]] = None, init: Optional[float] = None,
             force_bipartite: bool = False) -> 'Diffusion':
         """Compute the diffusion (temperatures at equilibrium).
 
@@ -79,12 +79,12 @@ class Diffusion(BaseRegressor):
         ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
-        seeds :
-            Temperatures of seed nodes in initial state (dictionary or vector). Negative temperatures ignored.
-        seeds_row, seeds_col :
+        values :
+            Temperatures of nodes in initial state (dictionary or vector). Negative temperatures ignored.
+        values_row, values_col :
             Temperatures of rows and columns for bipartite graphs. Negative temperatures ignored.
         init :
-            Temperature of non-seed nodes in initial state.
+            Temperature of nodes in initial state.
             If ``None``, use the average temperature of seed nodes (default).
         force_bipartite :
             If ``True``, consider the input matrix as a biadjacency matrix (default = ``False``).
@@ -93,9 +93,11 @@ class Diffusion(BaseRegressor):
         -------
         self: :class:`Diffusion`
         """
-        adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, force_bipartite=force_bipartite,
-                                                               seeds=seeds, seeds_row=seeds_row, seeds_col=seeds_col)
-        values, _ = init_temperatures(seeds, init)
+        adjacency, values, self.bipartite = get_adjacency_values(input_matrix, force_bipartite=force_bipartite,
+                                                                 values=values,
+                                                                 values_row=values_row,
+                                                                 values_col=values_col)
+        values, _ = init_temperatures(values, init)
         diffusion = normalize(adjacency)
         for i in range(self.n_iter):
             values = diffusion.dot(values)
@@ -132,9 +134,9 @@ class Dirichlet(BaseRegressor):
     >>> from sknetwork.data import house
     >>> dirichlet = Dirichlet()
     >>> adjacency = house()
-    >>> seeds = {0: 1, 2: 0}
-    >>> values = dirichlet.fit_predict(adjacency, seeds)
-    >>> np.round(values, 2)
+    >>> values = {0: 1, 2: 0}
+    >>> values_pred = dirichlet.fit_predict(adjacency, values)
+    >>> np.round(values_pred, 2)
     array([1.  , 0.54, 0.  , 0.31, 0.62])
 
     References
@@ -151,8 +153,8 @@ class Dirichlet(BaseRegressor):
         self.bipartite = None
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
-            seeds: Optional[Union[dict, np.ndarray]] = None, seeds_row: Optional[Union[dict, np.ndarray]] = None,
-            seeds_col: Optional[Union[dict, np.ndarray]] = None, init: Optional[float] = None,
+            values: Optional[Union[dict, np.ndarray]] = None, values_row: Optional[Union[dict, np.ndarray]] = None,
+            values_col: Optional[Union[dict, np.ndarray]] = None, init: Optional[float] = None,
             force_bipartite: bool = False) -> 'Dirichlet':
         """Compute the solution to the Dirichlet problem (temperatures at equilibrium).
 
@@ -160,12 +162,12 @@ class Dirichlet(BaseRegressor):
         ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
-        seeds :
-            Temperatures of seed nodes (dictionary or vector). Negative temperatures ignored.
-        seeds_row, seeds_col :
+        values :
+            Temperatures of nodes (dictionary or vector). Negative temperatures ignored.
+        values_row, values_col :
             Temperatures of rows and columns for bipartite graphs. Negative temperatures ignored.
         init :
-            Temperature of non-seed nodes in initial state.
+            Temperature of nodes in initial state.
             If ``None``, use the average temperature of seed nodes (default).
         force_bipartite :
             If ``True``, consider the input matrix as a biadjacency matrix (default = ``False``).
@@ -174,9 +176,11 @@ class Dirichlet(BaseRegressor):
         -------
         self: :class:`Dirichlet`
         """
-        adjacency, seeds, self.bipartite = get_adjacency_seeds(input_matrix, force_bipartite=force_bipartite,
-                                                               seeds=seeds, seeds_row=seeds_row, seeds_col=seeds_col)
-        temperatures, border = init_temperatures(seeds, init)
+        adjacency, values, self.bipartite = get_adjacency_values(input_matrix, force_bipartite=force_bipartite,
+                                                                 values=values,
+                                                                 values_row=values_row,
+                                                                 values_col=values_col)
+        temperatures, border = init_temperatures(values, init)
         values = temperatures.copy()
         diffusion = normalize(adjacency)
         for i in range(self.n_iter):
