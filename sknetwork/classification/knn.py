@@ -22,7 +22,7 @@ from sknetwork.utils.format import get_adjacency_seeds
 class KNN(BaseClassifier):
     """Node classification by K-nearest neighbors in the embedding space.
 
-    For bigraphs, classify rows only (see ``BiKNN`` for joint classification of rows and columns).
+    For bipartite graphs, classify rows only (see ``BiKNN`` for joint classification of rows and columns).
 
     Parameters
     ----------

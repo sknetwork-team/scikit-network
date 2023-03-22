@@ -73,11 +73,6 @@ class KNNDense(BaseTransformer):
     ----------
     adjacency_ :
         Adjacency matrix of the graph.
-
-    References
-    ----------
-    Maneewongvatana, S., & Mount, D. M. (1999, December). It’s okay to be skinny, if your friends are fat.
-    In Center for Geometric Computing 4th Annual Workshop on Computational Geometry (Vol. 2, pp. 1-8).
     """
     def __init__(self, n_neighbors: int = 5, undirected: bool = False, leaf_size: int = 16, p=2, eps: float = 0.01,
                  n_jobs=1):
@@ -112,55 +107,5 @@ class KNNDense(BaseTransformer):
         self.adjacency_ = sparse.csr_matrix((data, indices, indptr))
         self.make_undirected()
         self.adjacency_.setdiag(0)
-
-        return self
-
-
-class CNNDense(BaseTransformer):
-    """Extract adjacency from vector data through component-wise k-nearest-neighbor search.
-    KNN is applied independently on each column of the input matrix.
-
-    Parameters
-    ----------
-    n_neighbors :
-        Number of neighbors per dimension.
-    undirected :
-        As the nearest neighbor relationship is not symmetric, the graph is directed by default.
-        Setting this parameter to ``True`` forces the algorithm to return undirected graphs.
-
-    Attributes
-    ----------
-    adjacency_ :
-        Adjacency matrix of the  graph.
-    """
-    def __init__(self, n_neighbors: int = 1, undirected: bool = False):
-        super(CNNDense, self).__init__(undirected)
-
-        self.n_neighbors = n_neighbors
-
-    def fit(self, x: np.ndarray) -> 'CNNDense':
-        """Fit algorithm to the data.
-
-        Parameters
-        ----------
-        x:
-            Data to transform into adjacency.
-
-        Returns
-        -------
-        self: :class:`CNNDense`
-        """
-        rows, cols = [], []
-        for j in range(x.shape[1]):
-            row, col = knn1d(x[:, j].astype(np.float32), self.n_neighbors)
-            rows += row
-            cols += col
-
-        rows = np.array(rows)
-        cols = np.array(cols)
-        data = np.ones(cols.shape[0], dtype=bool)
-
-        self.adjacency_ = sparse.csr_matrix((data, (rows, cols)))
-        self.make_undirected()
 
         return self

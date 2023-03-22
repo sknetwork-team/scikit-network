@@ -10,7 +10,7 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import norm
 
-from sknetwork.utils import KNNDense, CNNDense
+from sknetwork.utils import KNNDense
 
 
 class TestKNN(unittest.TestCase):
@@ -25,8 +25,3 @@ class TestKNN(unittest.TestCase):
         truth = sparse.csr_matrix(truth + truth.T)
         self.assertAlmostEqual(norm(truth - knn.adjacency_), 0)
 
-    def test_pknn(self):
-        x = np.array([(0, 4), (1, 0), (2, 1), (3, 2), (4, 3)])
-        pknn = CNNDense(n_neighbors=1)
-        adj = pknn.fit_transform(x)
-        self.assertEqual(adj.shape, (5, 5))

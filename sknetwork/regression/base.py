@@ -37,18 +37,6 @@ class BaseRegressor(Algorithm, ABC):
         self.fit(*args, **kwargs)
         return self.values_
 
-    def fit_transform(self, *args, **kwargs) -> np.ndarray:
-        """Fit algorithm to data and return the scores. Alias for ``fit_transform``.
-        Same parameters as the ``fit`` method.
-
-        Returns
-        -------
-        values : np.ndarray
-            Values.
-        """
-        self.fit(*args, **kwargs)
-        return self.values_
-
     def _split_vars(self, shape):
         n_row = shape[0]
         self.values_row_ = self.values_[:n_row]
