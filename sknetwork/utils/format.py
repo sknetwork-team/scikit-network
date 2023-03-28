@@ -173,7 +173,7 @@ def get_adjacency_values(input_matrix: Union[sparse.csr_matrix, np.ndarray], all
                          default_value: float = -1,
                          which: Optional[str] = None) \
         -> Tuple[sparse.csr_matrix, np.ndarray, bool]:
-    """Check the input matrix and return a proper adjacency matrix with values.
+    """Check the input matrix and return a proper adjacency matrix and vector of values.
     Parameters
     ----------
     input_matrix :
@@ -196,7 +196,7 @@ def get_adjacency_values(input_matrix: Union[sparse.csr_matrix, np.ndarray], all
     which :
         Which values.
         If ``'probs'``, return a probability distribution.
-        If ``'labels'``, return the values, or distinct integer values if all are equal.
+        If ``'labels'``, return the values, or distinct integer values if all are the same.
     """
     input_matrix = check_format(input_matrix)
     if values_row is not None or values_col is not None:
