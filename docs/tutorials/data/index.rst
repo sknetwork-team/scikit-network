@@ -9,5 +9,4 @@ Data
     load_collection
     models
     toy_graphs
-    knn
     save

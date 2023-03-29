@@ -1,3 +1,5 @@
+.. _ClusteringTag:
+
 Clustering
 **********
 
@@ -6,5 +8,4 @@ Clustering
 
    louvain
    propagation
-   kmeans
 

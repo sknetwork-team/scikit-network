@@ -1,6 +1,6 @@
 .. image:: https://perso.telecom-paristech.fr/bonald/logo_sknetwork.png
     :align: right
-    :width: 100px
+    :width: 150px
     :alt: logo sknetwork
 
 
@@ -21,7 +21,7 @@
 .. image:: https://img.shields.io/pypi/pyversions/scikit-network.svg
         :target: https://pypi.python.org/pypi/scikit-network
 
-Python package for the analysis of large graphs:
+Free software library in Python for the analysis of large graphs:
 
 * Memory-efficient representation of graphs as sparse matrices in scipy_ format
 * Fast algorithms
@@ -37,7 +37,6 @@ Resources
 * GitHub: https://github.com/sknetwork-team/scikit-network
 * Documentation: https://scikit-network.readthedocs.io
 
-
 Quick Start
 -----------
 
@@ -51,10 +50,17 @@ Import scikit-network::
 
     import sknetwork
 
-See our `tutorials <https://scikit-network.readthedocs.io/en/latest/tutorials/data/index.html>`_;
-the notebooks are available `here <https://github.com/sknetwork-team/scikit-network/tree/master/docs/tutorials>`_.
 
-You can also have a look at some `use cases <https://scikit-network.readthedocs.io/en/latest/use_cases/text.html>`_.
+Documentation
+-------------
+
+The documentation is structured as follows:
+
+* `Getting started <https://scikit-network.readthedocs.io/en/latest/first_steps.html>`_: First steps to install, import and use scikit-network.
+* `Reference <https://scikit-network.readthedocs.io/en/latest/reference/data.html>`_: Description of each function and object of scikit-network.
+* `Tutorials <https://scikit-network.readthedocs.io/en/latest/tutorials/data/index.html>`_: Application of the main tools to toy examples.
+* `Use cases <https://scikit-network.readthedocs.io/en/latest/use_cases/text.html>`_: More advanced examples combining several tools on specific use cases.
+* `About <https://scikit-network.readthedocs.io/en/latest/authors.html>`_: Authors, history of the library, how to contribute, index of functions and objects.
 
 Citing
 ------

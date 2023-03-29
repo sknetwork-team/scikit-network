@@ -15,14 +15,14 @@ from sknetwork.utils.check import check_format, check_square
 
 
 class Polynome(LinearOperator):
-    """Polynome of an adjacency matrix as a linear operator
+    """Polynome of a matrix as a linear operator
 
     :math:`P(A) = \\alpha_k A^k + ... + \\alpha_1 A + \\alpha_0`.
 
     Parameters
     ----------
-    adjacency :
-        Adjacency matrix of the graph
+    matrix :
+        Square matrix
     coeffs : np.ndarray
         Coefficients of the polynome by increasing order of power.
 
@@ -30,8 +30,8 @@ class Polynome(LinearOperator):
     --------
     >>> from scipy import sparse
     >>> from sknetwork.linalg import Polynome
-    >>> adjacency = sparse.eye(2, format='csr')
-    >>> polynome = Polynome(adjacency, np.arange(3))
+    >>> matrix = sparse.eye(2, format='csr')
+    >>> polynome = Polynome(matrix, np.arange(3))
     >>> x = np.ones(2)
     >>> polynome.dot(x)
     array([3., 3.])
@@ -44,33 +44,33 @@ class Polynome(LinearOperator):
     <https://en.wikipedia.org/wiki/Horner%27s_method>`_.
     """
 
-    def __init__(self, adjacency: Union[sparse.csr_matrix, np.ndarray], coeffs: np.ndarray):
+    def __init__(self, matrix: Union[sparse.csr_matrix, np.ndarray], coeffs: np.ndarray):
         if coeffs.shape[0] == 0:
             raise ValueError('A polynome requires at least one coefficient.')
-        if not isinstance(adjacency, LinearOperator):
-            adjacency = check_format(adjacency)
-        check_square(adjacency)
-        shape = adjacency.shape
-        dtype = adjacency.dtype
+        if not isinstance(matrix, LinearOperator):
+            matrix = check_format(matrix)
+        check_square(matrix)
+        shape = matrix.shape
+        dtype = matrix.dtype
         super(Polynome, self).__init__(dtype=dtype, shape=shape)
 
-        self.adjacency = adjacency
+        self.matrix = matrix
         self.coeffs = coeffs
 
     def __neg__(self):
-        return Polynome(self.adjacency, -self.coeffs)
+        return Polynome(self.matrix, -self.coeffs)
 
     def __mul__(self, other):
-        return Polynome(self.adjacency, other * self.coeffs)
+        return Polynome(self.matrix, other * self.coeffs)
 
     def _matvec(self, matrix: np.ndarray):
         """Right dot product with a dense matrix.
         """
         y = self.coeffs[-1] * matrix
         for a in self.coeffs[::-1][1:]:
-            y = self.adjacency.dot(y) + a * matrix
+            y = self.matrix.dot(y) + a * matrix
         return y
 
     def _transpose(self):
         """Transposed operator."""
-        return Polynome(self.adjacency.T.tocsr(), self.coeffs)
+        return Polynome(self.matrix.T.tocsr(), self.coeffs)

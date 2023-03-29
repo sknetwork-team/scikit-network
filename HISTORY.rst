@@ -2,6 +2,19 @@
 History
 =======
 
+0.29.0 (2023-03-29)
+-------------------
+
+* Change API for clustering (predict / transform)
+* Change API for classification (seeds -> labels)
+* Change API for ranking (seeds -> weights)
+* Change API for GNN (same as classifiers)
+* Remove first order methods for link prediction
+* Add nearest neighbor methods for link prediction
+* Add KNN classifier without embedding
+* Add TF-IDF
+* Solve security issues by upgrade of wheels and ipython
+
 0.28.3 (2023-01-06)
 -------------------
 

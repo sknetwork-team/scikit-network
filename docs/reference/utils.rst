@@ -26,13 +26,6 @@ Neighborhood
 .. autofunction:: sknetwork.utils.get_neighbors
 
 
-Clustering
-----------
-
-.. autoclass:: sknetwork.utils.KMeansDense
-
-.. autoclass:: sknetwork.utils.WardDense
-
 Membership matrix
 -----------------
 
@@ -40,19 +33,10 @@ Membership matrix
 
 .. autofunction:: sknetwork.utils.from_membership
 
+TF-IDF
+------
 
-Nearest-neighbors
------------------
-
-.. autoclass:: sknetwork.utils.KNNDense
-
-.. autoclass:: sknetwork.utils.CNNDense
-
-
-Co-Neighborhood
----------------
-
-.. autofunction:: sknetwork.utils.co_neighbor_graph
+.. autofunction:: sknetwork.utils.get_tfidf
 
 
 Projection

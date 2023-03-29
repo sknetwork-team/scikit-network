@@ -211,10 +211,11 @@ def check_random_state(random_state: Optional[Union[np.random.RandomState, int]]
 
 
 def check_n_neighbors(n_neighbors: int, n_seeds: int):
-    """Set the number of neighbors so that it does not exceed the number of labeled samples."""
-    if n_neighbors > n_seeds:
-        warnings.warn(Warning("The number of neighbors cannot exceed the number of seeds. Changed accordingly."))
-        n_neighbors = n_seeds
+    """Set the number of neighbors so that it is less than the number of labeled samples."""
+    if n_neighbors >= n_seeds:
+        warnings.warn(Warning("The number of neighbors must be lower than the number of nodes with known labels. "
+                              "Changed accordingly."))
+        n_neighbors = n_seeds - 1
     return n_neighbors
 
 

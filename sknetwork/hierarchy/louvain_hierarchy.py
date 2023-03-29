@@ -107,7 +107,7 @@ class LouvainIteration(BaseHierarchy):
             nodes = np.arange(n)
 
         if adjacency.nnz and depth:
-            labels = self._clustering_method.fit_transform(adjacency)
+            labels = self._clustering_method.fit_predict(adjacency)
         else:
             labels = np.zeros(n)
 
@@ -226,13 +226,13 @@ class LouvainHierarchy(BaseHierarchy):
         tree: recursive list of list of nodes
         """
         tree = [[node] for node in range(adjacency.shape[0])]
-        labels = self._clustering_method.fit_transform(adjacency)
+        labels = self._clustering_method.fit_predict(adjacency)
         labels_unique = np.unique(labels)
         while 1:
             tree = [[tree[node] for node in np.flatnonzero(labels == label)] for label in labels_unique]
             tree = [cluster[0] if len(cluster) == 1 else cluster for cluster in tree]
             aggregate = self._clustering_method.aggregate_
-            labels = self._clustering_method.fit_transform(aggregate)
+            labels = self._clustering_method.fit_predict(aggregate)
             if len(labels_unique) == len(np.unique(labels)):
                 break
             else:

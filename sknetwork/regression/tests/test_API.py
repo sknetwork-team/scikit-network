@@ -17,8 +17,6 @@ class TestAPI(unittest.TestCase):
                 score = method.fit_predict(adjacency)
                 self.assertEqual(score.shape, (n, ))
                 self.assertTrue(min(score) >= 0)
-                score = method.fit_transform(adjacency)
-                self.assertEqual(score.shape, (n,))
 
     def test_bipartite(self):
         biadjacency = test_bigraph()

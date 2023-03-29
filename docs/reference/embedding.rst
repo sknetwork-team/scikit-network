@@ -51,8 +51,3 @@ Spring
 ------
 
 .. autoclass:: sknetwork.embedding.Spring
-
-Metrics
--------
-.. autofunction:: sknetwork.embedding.get_cosine_similarity
-

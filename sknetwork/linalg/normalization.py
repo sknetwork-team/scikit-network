@@ -31,6 +31,37 @@ def diag_pinv(weights: np.ndarray) -> sparse.csr_matrix:
     return diag
 
 
+def get_norms(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1):
+    """Get the norms of rows of a matrix.
+
+    Parameters
+    ----------
+    matrix : numpy array, sparse CSR matrix or linear operator, shape (n_rows, n_cols)
+        Input matrix.
+    p :
+        Order of the norm.
+    Returns
+    -------
+    norms : np.array, shape (n_rows,)
+        Vector norms
+    """
+    if p == 1:
+        norms = matrix.dot(np.ones(matrix.shape[1]))
+    elif p == 2:
+        if isinstance(matrix, np.ndarray):
+            norms = np.linalg.norm(matrix, axis=1)
+        elif isinstance(matrix, sparse.csr_matrix):
+            data = matrix.data.copy()
+            matrix.data = data ** 2
+            norms = np.sqrt(matrix.dot(np.ones(matrix.shape[1])))
+            matrix.data = data
+        else:
+            raise NotImplementedError('Norm 2 is not available for a LinearOperator.')
+    else:
+        raise NotImplementedError('Only norms 1 and 2 are available at the moment.')
+    return norms
+
+
 def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1):
     """Normalize rows of a matrix. Null rows remain null.
 
@@ -43,24 +74,11 @@ def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
 
     Returns
     -------
-    normalized matrix : same as input
+    normalized matrix :
+        Normalized matrix.
     """
-    if p == 1:
-        norm = matrix.dot(np.ones(matrix.shape[1]))
-    elif p == 2:
-        if isinstance(matrix, np.ndarray):
-            norm = np.linalg.norm(matrix, axis=1)
-        elif isinstance(matrix, sparse.csr_matrix):
-            data = matrix.data.copy()
-            matrix.data = data ** 2
-            norm = np.sqrt(matrix.dot(np.ones(matrix.shape[1])))
-            matrix.data = data
-        else:
-            raise NotImplementedError('Norm 2 is not available for LinearOperator.')
-    else:
-        raise NotImplementedError('Only norms 1 and 2 are available at the moment.')
-
-    diag = diag_pinv(norm)
+    norms = get_norms(matrix, p)
+    diag = diag_pinv(norms)
     if hasattr(matrix, 'left_sparse_dot') and callable(matrix.left_sparse_dot):
         return matrix.left_sparse_dot(diag)
     return diag.dot(matrix)

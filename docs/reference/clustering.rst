@@ -56,10 +56,6 @@ Propagation
 -----------
 .. autoclass:: sknetwork.clustering.PropagationClustering
 
-K-Means
--------
-.. autoclass:: sknetwork.clustering.KMeans
-
 Post-processing
 ---------------
 .. autofunction:: sknetwork.clustering.reindex_labels

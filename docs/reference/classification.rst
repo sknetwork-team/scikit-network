@@ -5,23 +5,23 @@ Classification
 
 Node classification algorithms.
 
-The attribute ``labels_``  assigns a label to each node of the graph.
-
-PageRank
---------
-.. autoclass:: sknetwork.classification.PageRankClassifier
+The attribute ``labels_``  gives the label of each node of the graph.
 
 Diffusion
 ---------
 .. autoclass:: sknetwork.classification.DiffusionClassifier
 
+Nearest neighbors
+-----------------
+.. autoclass:: sknetwork.classification.KNN
+
 Propagation
 -----------
 .. autoclass:: sknetwork.classification.Propagation
 
-Nearest neighbors
------------------
-.. autoclass:: sknetwork.classification.KNN
+PageRank
+--------
+.. autoclass:: sknetwork.classification.PageRankClassifier
 
 Metrics
 -------

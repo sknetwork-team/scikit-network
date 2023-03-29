@@ -21,15 +21,10 @@ class TestClassificationAPI(unittest.TestCase):
             classifiers = [PageRankClassifier(), DiffusionClassifier(),
                            KNN(embedding_method=LouvainEmbedding(), n_neighbors=1), Propagation()]
 
-            with self.assertRaises(ValueError):
-                classifiers[0].score(0)
-
             for algo in classifiers:
                 labels1 = algo.fit_predict(adjacency, seeds_array)
                 labels2 = algo.fit_predict(adjacency, seeds_dict)
-                scores = algo.score(0)
                 self.assertTrue((labels1 == labels2).all())
                 self.assertEqual(labels2.shape, (n,))
                 membership = algo.fit_transform(adjacency, seeds_array)
                 self.assertTupleEqual(membership.shape, (n, 2))
-                self.assertEqual(scores.shape, (n,))

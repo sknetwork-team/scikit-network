@@ -9,7 +9,6 @@ import numpy as np
 from sknetwork.data.models import cyclic_digraph
 from sknetwork.data.test_graphs import test_bigraph
 from sknetwork.ranking.pagerank import PageRank
-from sknetwork.utils import co_neighbor_graph
 
 
 class TestPageRank(unittest.TestCase):
@@ -55,15 +54,3 @@ class TestPageRank(unittest.TestCase):
         pagerank = PageRank(damping_factor=0.01)
         scores = pagerank.fit_transform(self.adjacency)
         self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
-
-    def test_copagerank(self):
-        seeds = {0: 1}
-        biadjacency = test_bigraph()
-
-        adjacency = co_neighbor_graph(biadjacency, method='exact', normalized=True)
-        pagerank = PageRank(damping_factor=0.85, solver='lanczos')
-        pagerank.fit(biadjacency, seeds_row=seeds)
-        scores1 = pagerank.scores_row_
-        scores1 /= scores1.sum()
-        scores2 = PageRank(damping_factor=0.85**2, solver='lanczos').fit_transform(adjacency, seeds)
-        self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0., places=6)

@@ -33,7 +33,7 @@ class TestClusteringMetrics(unittest.TestCase):
 
     def test_modularity(self):
         adjacency = karate_club()
-        labels = Louvain().fit_transform(adjacency)
+        labels = Louvain().fit_predict(adjacency)
         self.assertAlmostEqual(get_modularity(adjacency, labels), 0.42, 2)
 
     def test_bimodularity(self):

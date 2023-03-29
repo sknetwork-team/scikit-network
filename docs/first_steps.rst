@@ -1,13 +1,13 @@
 .. _getting_started:
 
-:mod:`scikit-network` is an open-source python package for the analysis of large graphs.
+Scikit-network is an open-source python package for the analysis of large graphs.
 
 Each graph is represented by a sparse matrix in ``scipy`` format (CSR).
 
 Installation
 ------------
 
-To install :mod:`scikit-network`, run this command in your terminal:
+To install scikit-network, run this command in your terminal:
 
 .. code-block:: console
 
@@ -16,7 +16,7 @@ To install :mod:`scikit-network`, run this command in your terminal:
 If you don't have `pip`_ installed, this `Python installation guide`_ can guide
 you through the process.
 
-Alternately, you can download the sources from the `Github repo`_ and run:
+Alternately, you can download the sources from `Github`_ and run:
 
 .. code-block:: console
 
@@ -26,12 +26,12 @@ Alternately, you can download the sources from the `Github repo`_ and run:
 
 .. _pip: https://pip.pypa.io
 .. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
-.. _Github repo: https://github.com/sknetwork-team/scikit-network
+.. _Github: https://github.com/sknetwork-team/scikit-network
 
 Import
 ------
 
-Import :mod:`scikit-network` in Python:
+Import scikit-network in Python:
 
 .. code-block:: python
 
@@ -41,6 +41,7 @@ Graph loading
 -------------
 
 A graph is represented by its :term:`adjacency` matrix (square matrix).
+
 When the graph is bipartite, it can be represented by its :term:`biadjacency` matrix (rectangular matrix).
 
 Check our :ref:`tutorial<DataTag>` for various ways of loading a graph
@@ -61,7 +62,9 @@ Here is an example to cluster the `Karate club graph`_ with the `Louvain algorit
     adjacency = karate_club()
     algo = Louvain()
     algo.fit(adjacency)
-    labels = algo.labels_
+
+
+Please look at this :ref:`tutorial<ClusteringTag>` for a visualization of the result.
 
 .. _Karate club graph: https://en.wikipedia.org/wiki/Zachary%27s_karate_club
 .. _Louvain algorithm: https://en.wikipedia.org/wiki/Louvain_method

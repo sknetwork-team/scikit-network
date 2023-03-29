@@ -11,7 +11,7 @@ from scipy import sparse
 
 from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.utils.check import check_format, is_square, is_symmetric
-from sknetwork.utils.seeds import stack_seeds, get_seeds
+from sknetwork.utils.values import stack_values, get_values
 
 
 def check_csr_or_slr(adjacency):
@@ -165,15 +165,15 @@ def get_adjacency(input_matrix: Union[sparse.csr_matrix, np.ndarray], allow_dire
     return adjacency, bipartite
 
 
-def get_adjacency_seeds(input_matrix: Union[sparse.csr_matrix, np.ndarray], allow_directed: bool = True,
-                        force_bipartite: bool = False, force_directed: bool = False,
-                        seeds: Optional[Union[dict, np.ndarray]] = None,
-                        seeds_row: Optional[Union[dict, np.ndarray]] = None,
-                        seeds_col: Optional[Union[dict, np.ndarray]] = None,
-                        default_value: float = -1,
-                        which: Optional[str] = None) \
+def get_adjacency_values(input_matrix: Union[sparse.csr_matrix, np.ndarray], allow_directed: bool = True,
+                         force_bipartite: bool = False, force_directed: bool = False,
+                         values: Optional[Union[dict, np.ndarray]] = None,
+                         values_row: Optional[Union[dict, np.ndarray]] = None,
+                         values_col: Optional[Union[dict, np.ndarray]] = None,
+                         default_value: float = -1,
+                         which: Optional[str] = None) \
         -> Tuple[sparse.csr_matrix, np.ndarray, bool]:
-    """Check the input matrix and return a proper adjacency matrix with seeds.
+    """Check the input matrix and return a proper adjacency matrix and vector of values.
     Parameters
     ----------
     input_matrix :
@@ -187,33 +187,33 @@ def get_adjacency_seeds(input_matrix: Union[sparse.csr_matrix, np.ndarray], allo
     force_directed :
         If ``True`` return :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}`.
         Otherwise (default), return :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`.
-    seeds :
-        Values of seed nodes in initial state (dictionary or vector). Negative values ignored.
-    seeds_row, seeds_col :
+    values :
+        Values of nodes (dictionary or vector). Negative values ignored.
+    values_row, values_col :
         Values of rows and columns for bipartite graphs. Negative values ignored.
     default_value :
-        Value of non-seed nodes (default = -1).
+        Default value of nodes (default = -1).
     which :
-        Which seed values.
+        Which values.
         If ``'probs'``, return a probability distribution.
-        If ``'labels'``, return distinct integer values if all are equal.
+        If ``'labels'``, return the values, or distinct integer values if all are the same.
     """
     input_matrix = check_format(input_matrix)
-    if seeds_row is not None or seeds_col is not None:
+    if values_row is not None or values_col is not None:
         force_bipartite = True
     adjacency, bipartite = get_adjacency(input_matrix, allow_directed=allow_directed,
                                          force_bipartite=force_bipartite, force_directed=force_directed)
     if bipartite:
-        if seeds is None:
-            seeds = stack_seeds(input_matrix.shape, seeds_row, seeds_col, default_value=default_value)
+        if values is None:
+            values = stack_values(input_matrix.shape, values_row, values_col, default_value=default_value)
         else:
-            seeds = stack_seeds(input_matrix.shape, seeds, default_value=default_value)
+            values = stack_values(input_matrix.shape, values, default_value=default_value)
     else:
-        seeds = get_seeds(input_matrix.shape, seeds, default_value=default_value)
+        values = get_values(input_matrix.shape, values, default_value=default_value)
     if which == 'probs':
-        if seeds.sum() > 0:
-            seeds /= seeds.sum()
+        if values.sum() > 0:
+            values /= values.sum()
     elif which == 'labels':
-        if len(set(seeds[seeds >= 0])) == 1:
-            seeds = np.arange(len(seeds))
-    return adjacency, seeds, bipartite
+        if len(set(values[values >= 0])) == 1:
+            values = np.arange(len(values))
+    return adjacency, values, bipartite

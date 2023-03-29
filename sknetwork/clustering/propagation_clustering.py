@@ -60,7 +60,7 @@ class PropagationClustering(BaseClustering, Propagation):
     >>> propagation = PropagationClustering()
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
-    >>> labels = propagation.fit_transform(adjacency)
+    >>> labels = propagation.fit_predict(adjacency)
     >>> len(set(labels))
     2
 

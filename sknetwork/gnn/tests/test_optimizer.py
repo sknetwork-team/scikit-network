@@ -16,7 +16,7 @@ class TestOptimizer(unittest.TestCase):
     def setUp(self) -> None:
         self.adjacency = test_graph()
         self.features = self.adjacency
-        self.labels = np.array([0] * 5 + [1] * 5)
+        self.labels = np.array(4 * [0, 1] + 2 * [-1])
 
     def test_get_optimizer(self):
         with self.assertRaises(ValueError):
@@ -27,7 +27,7 @@ class TestOptimizer(unittest.TestCase):
     def test_optimizer(self):
         for optimizer in ['Adam', 'GD']:
             gnn = GNNClassifier([4, 2], 'Conv',  ['Relu', 'Softmax'], optimizer=optimizer)
-            _ = gnn.fit_predict(self.adjacency, self.features, self.labels, n_epochs=1, val_size=0.2)
+            _ = gnn.fit_predict(self.adjacency, self.features, self.labels, n_epochs=1)
             conv0_weight, conv1_weight = gnn.layers[0].weight.copy(), gnn.layers[1].weight.copy()
             conv0_b, conv1_b = gnn.layers[0].bias.copy(), gnn.layers[1].bias.copy()
             gnn.optimizer.step(gnn)

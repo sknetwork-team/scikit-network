@@ -26,20 +26,20 @@ class TestDiffusion(unittest.TestCase):
     def test_range(self):
         for adjacency in [test_graph(), test_digraph()]:
             for algo in self.algos:
-                values = algo.fit_transform(adjacency, {0: 0, 1: 1, 2: 0.5})
+                values = algo.fit_predict(adjacency, {0: 0, 1: 1, 2: 0.5})
                 self.assertTrue(np.all(values <= 1) and np.all(values >= 0))
 
         biadjacency = test_bigraph()
         for algo in [Diffusion(), Dirichlet()]:
-            values = algo.fit_predict(biadjacency, seeds_row={0: 1})
+            values = algo.fit_predict(biadjacency, values_row={0: 1})
             self.assertTrue(np.all(values <= 1) and np.all(values >= 0))
-            values = algo.fit_predict(biadjacency, seeds_row={0: 0.1}, seeds_col={1: 2}, init=0.3)
+            values = algo.fit_predict(biadjacency, values_row={0: 0.1}, values_col={1: 2}, init=0.3)
             self.assertTrue(np.all(values <= 2) and np.all(values >= 0.1))
 
     def test_initial_state(self):
         for adjacency in [test_graph(), test_digraph()]:
             for algo in self.algos:
-                values = algo.fit_transform(adjacency, {0: 0, 1: 1, 2: 0.5}, 0.3)
+                values = algo.fit_predict(adjacency, {0: 0, 1: 1, 2: 0.5}, 0.3)
                 self.assertTrue(np.all(values <= 1) and np.all(values >= 0))
 
     def test_n_iter(self):
