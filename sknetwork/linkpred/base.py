@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on May, 2020
+Created in May 2020
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from abc import ABC

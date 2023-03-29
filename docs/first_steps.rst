@@ -64,7 +64,7 @@ Here is an example to cluster the `Karate club graph`_ with the `Louvain algorit
     algo.fit(adjacency)
 
 
-Check our :ref:`tutorials<ClusteringTag>` for a visualization of the result.
+Please look at this :ref:`tutorial<ClusteringTag>` for a visualization of the result.
 
 .. _Karate club graph: https://en.wikipedia.org/wiki/Zachary%27s_karate_club
 .. _Louvain algorithm: https://en.wikipedia.org/wiki/Louvain_method

@@ -8,17 +8,12 @@ from sknetwork.data.test_graphs import *
 from sknetwork.embedding import LouvainEmbedding
 
 
-class TestDiffusionClassifier(unittest.TestCase):
+class TestKNNClassifier(unittest.TestCase):
 
-    def test_parallel(self):
+    def test_classification(self):
         for adjacency in [test_graph(), test_digraph(), test_bigraph()]:
             labels = {0: 0, 1: 1}
 
-            algo1 = KNN(n_neighbors=1, n_jobs=None, embedding_method=LouvainEmbedding())
-            algo2 = KNN(n_neighbors=1, n_jobs=-1, embedding_method=LouvainEmbedding())
-
-            labels1 = algo1.fit_predict(adjacency, labels)
-            labels2 = algo2.fit_predict(adjacency, labels)
-
-            self.assertTrue(np.allclose(labels1, labels2))
-
+            algo = KNN(n_neighbors=1)
+            labels_pred = algo.fit_predict(adjacency, labels)
+            self.assertTrue(len(set(labels_pred)) == 2)
