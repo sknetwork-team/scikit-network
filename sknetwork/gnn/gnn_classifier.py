@@ -16,9 +16,9 @@ from sknetwork.gnn.loss import BaseLoss
 from sknetwork.gnn.layer import get_layer
 from sknetwork.gnn.neighbor_sampler import UniformNeighborSampler
 from sknetwork.gnn.optimizer import BaseOptimizer
-from sknetwork.gnn.utils import filter_mask, check_existing_masks, check_output, check_early_stopping, check_loss, \
-    get_layers
+from sknetwork.gnn.utils import check_output, check_early_stopping, check_loss, get_layers
 from sknetwork.utils.check import check_format, check_nonnegative, check_square
+from sknetwork.utils.values import get_values
 
 
 class GNNClassifier(BaseGNN):
@@ -86,12 +86,13 @@ class GNNClassifier(BaseGNN):
     >>> from numpy.random import randint
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
-    >>> labels = graph.labels
+    >>> labels_true = graph.labels
+    >>> labels = {i: labels_true[i] for i in [0, 1, 33]}
     >>> features = adjacency.copy()
     >>> gnn = GNNClassifier(dims=1, early_stopping=False)
     >>> labels_pred = gnn.fit_predict(adjacency, features, labels, random_state=42)
-    >>> np.round(np.mean(labels_pred == labels), 2)
-    0.91
+    >>> np.round(np.mean(labels_pred == labels_true), 2)
+    0.88
     """
 
     def __init__(self, dims: Optional[Union[int, list]] = None, layer_types: Union[str, list] = 'Conv',
@@ -157,11 +158,8 @@ class GNNClassifier(BaseGNN):
         return labels
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], features: Union[sparse.csr_matrix, np.ndarray],
-            labels: np.ndarray, n_epochs: int = 100, train_mask: Optional[np.ndarray] = None,
-            val_mask: Optional[np.ndarray] = None,
-            test_mask: Optional[np.ndarray] = None, train_size: Optional[float] = 0.8,
-            val_size: Optional[float] = 0.1, test_size: Optional[float] = 0.1, resample: bool = False,
-            reinit: bool = False, random_state: Optional[int] = None, history: bool = False) -> 'GNNClassifier':
+            labels: np.ndarray, n_epochs: int = 100, validation: float = 0, reinit: bool = False,
+            random_state: Optional[int] = None, history: bool = False) -> 'GNNClassifier':
         """ Fit model to data and store trained parameters.
 
         Parameters
@@ -171,26 +169,16 @@ class GNNClassifier(BaseGNN):
         features : sparse.csr_matrix, np.ndarray
             Input feature of shape :math:`(n, d)` with :math:`n` the number of nodes in the graph and :math:`d`
             the size of feature space.
-        labels : np.ndarray
-            Label vectors of length :math:`n`, with :math:`n` the number of nodes in `adjacency`. A value of `labels`
-            equals `-1` means no label. The associated nodes are not considered in training steps.
+        labels :
+            Known labels (dictionary or vector of int). Negative values ignored.
         n_epochs : int (default = 100)
             Number of epochs (iterations over the whole graph).
-        train_mask, val_mask, test_mask : np.ndarray
-            Boolean array indicating whether nodes are in training/validation/test set.
-        train_size, test_size : float
-            Proportion of the nodes in the training/test set (between 0 and 1).
-            Only used if the corresponding masks are ``None``.
-        val_size : float
+        validation : float
             Proportion of the training set used for validation (between 0 and 1).
-            Only used if the corresponding mask is ``None``.
-        resample : bool (default = ``False``)
-            If ``True``, resample the train/test/validation sets before fitting.
-            Otherwise, the train/test/validation sets remain the same after the first fit.
         reinit: bool  (default = ``False``)
             If ``True``, reinit the trainable parameters of the GNN (weights and biases).
         random_state : int
-            Pass an int for reproducible results across multiple runs.
+            Random seed, used for reproducible results across multiple runs.
         history : bool (default = ``False``)
             If ``True``, save training history.
         """
@@ -198,24 +186,31 @@ class GNNClassifier(BaseGNN):
             for layer in self.layers:
                 layer.weights_initialized = False
 
-        if resample or self.output_ is None:
-            exists_mask, self.train_mask, self.val_mask, self.test_mask = \
-                check_existing_masks(labels, train_mask, val_mask, test_mask, train_size, val_size, test_size)
-            if not exists_mask:
-                self._generate_masks(train_size, val_size, test_size, random_state)
+        if random_state is not None:
+            np.random.seed(random_state)
 
         check_format(adjacency)
         check_format(features)
 
+        labels = get_values(adjacency.shape, labels)
+        labels = labels.astype(int)
+        if (labels < 0).all():
+            raise ValueError('At least one node must have a non-negative label.')
         check_output(self.layers[-1].out_channels, labels)
+
+        self.train_mask = labels >= 0
+        if 0 < validation < 1:
+            mask = np.random.random(size=len(labels)) < validation
+            self.val_mask = self.train_mask & mask
+            self.train_mask &= ~mask
 
         early_stopping = check_early_stopping(self.early_stopping, self.val_mask, self.patience)
 
         # List of sampled adjacencies (one per layer)
         adjacencies = self._sample_nodes(adjacency)
 
-        best_val_acc = 0
-        trigger_times = 0
+        best_val_accuracy = 0
+        count = 0
 
         for epoch in range(n_epochs):
 
@@ -229,11 +224,11 @@ class GNNClassifier(BaseGNN):
             loss_value = self.loss.loss(output[self.train_mask], labels[self.train_mask])
 
             # Accuracy
-            train_acc = get_accuracy_score(labels[self.train_mask], labels_pred[self.train_mask])
+            train_accuracy = get_accuracy_score(labels[self.train_mask], labels_pred[self.train_mask])
             if self.val_mask is not None and any(self.val_mask):
-                val_acc = get_accuracy_score(labels[self.val_mask], labels_pred[self.val_mask])
+                val_accuracy = get_accuracy_score(labels[self.val_mask], labels_pred[self.val_mask])
             else:
-                val_acc = None
+                val_accuracy = None
 
             # Backpropagation
             self.backward(features, labels, self.train_mask)
@@ -245,35 +240,35 @@ class GNNClassifier(BaseGNN):
             if history:
                 self.history_['embedding'].append(self.layers[-1].embedding)
                 self.history_['loss'].append(loss_value)
-                self.history_['train_accuracy'].append(train_acc)
-                if val_acc is not None:
-                    self.history_['val_accuracy'].append(val_acc)
+                self.history_['train_accuracy'].append(train_accuracy)
+                if val_accuracy is not None:
+                    self.history_['val_accuracy'].append(val_accuracy)
 
             if n_epochs > 10 and epoch % int(n_epochs / 10) == 0:
-                if val_acc is not None:
+                if val_accuracy is not None:
                     self.log.print(
-                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_acc:.3f}, '
-                        f'val accuracy: {val_acc:.3f}')
+                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_accuracy:.3f}, '
+                        f'val accuracy: {val_accuracy:.3f}')
                 else:
                     self.log.print(
-                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_acc:.3f}')
+                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_accuracy:.3f}')
             elif n_epochs <= 10:
-                if val_acc is not None:
+                if val_accuracy is not None:
                     self.log.print(
-                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_acc:.3f}, '
-                        f'val accuracy: {val_acc:.3f}')
+                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_accuracy:.3f}, '
+                        f'val accuracy: {val_accuracy:.3f}')
                 else:
                     self.log.print(
-                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_acc:.3f}')
+                        f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_accuracy:.3f}')
 
             # Early stopping
             if early_stopping:
-                if val_acc > best_val_acc:
-                    trigger_times = 0
-                    best_val_acc = val_acc
+                if val_accuracy > best_val_accuracy:
+                    count = 0
+                    best_val_accuracy = val_accuracy
                 else:
-                    trigger_times += 1
-                    if trigger_times >= self.patience:
+                    count += 1
+                    if count >= self.patience:
                         self.log.print('Early stopping.')
                         break
 
@@ -285,33 +280,6 @@ class GNNClassifier(BaseGNN):
         self.labels_ = labels_pred
 
         return self
-
-    def _generate_masks(self, train_size: Optional[float] = None, val_size: Optional[float] = None,
-                        test_size: Optional[float] = None, random_state: int = None):
-        """ Create training, validation and test masks.
-
-        Parameters
-        ----------
-        train_size : float
-            Proportion of nodes in the training set (between 0 and 1).
-        val_size : float
-            Proportion of nodes in the validation set (between 0 and 1).
-        test_size : float
-            Proportion of nodes in the test set (between 0 and 1).
-        random_state : int
-            Pass an int for reproducible results across multiple runs.
-        """
-        is_negative_labels = self.test_mask
-
-        if random_state is not None:
-            np.random.seed(random_state)
-
-        if train_size is None:
-            train_size = 1 - test_size
-
-        self.train_mask = filter_mask(~is_negative_labels, train_size)
-        self.val_mask = filter_mask(np.logical_and(~self.train_mask, ~is_negative_labels), val_size)
-        self.test_mask = np.logical_and(~self.train_mask, ~self.val_mask)
 
     def _sample_nodes(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> list:
         """Perform node sampling on adjacency matrix for GraphSAGE layers. For other layers, the
