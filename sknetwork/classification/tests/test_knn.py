@@ -5,7 +5,7 @@ import unittest
 
 from sknetwork.classification import KNN
 from sknetwork.data.test_graphs import *
-from sknetwork.embedding import LouvainEmbedding
+from sknetwork.embedding import Spectral
 
 
 class TestKNNClassifier(unittest.TestCase):
@@ -15,5 +15,9 @@ class TestKNNClassifier(unittest.TestCase):
             labels = {0: 0, 1: 1}
 
             algo = KNN(n_neighbors=1)
+            labels_pred = algo.fit_predict(adjacency, labels)
+            self.assertTrue(len(set(labels_pred)) == 2)
+
+            algo = KNN(n_neighbors=1, embedding_method=Spectral(2), normalize=False)
             labels_pred = algo.fit_predict(adjacency, labels)
             self.assertTrue(len(set(labels_pred)) == 2)

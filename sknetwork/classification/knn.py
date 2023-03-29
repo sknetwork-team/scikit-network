@@ -20,15 +20,15 @@ from sknetwork.utils.format import get_adjacency_values
 class KNN(BaseClassifier):
     """Node classification by K-nearest neighbors in the embedding space.
 
-    For bipartite graphs, classify rows only (see ``BiKNN`` for joint classification of rows and columns).
-
     Parameters
     ----------
-    embedding_method :
-        Embedding method used to represent nodes in vector space.
-        If ``None`` (default), use cosine similarity.
     n_neighbors :
         Number of nearest neighbors .
+    embedding_method :
+        Embedding method used to represent nodes in vector space.
+        If ``None`` (default), use identity.
+    normalize :
+        If ``True``, apply normalization so that all vectors have norm 1 in the embedding space.
 
     Attributes
     ----------
@@ -47,52 +47,50 @@ class KNN(BaseClassifier):
     Example
     -------
     >>> from sknetwork.classification import KNN
-    >>> from sknetwork.embedding import Spectral
     >>> from sknetwork.data import karate_club
-    >>> knn = KNN(Spectral(2), n_neighbors=1)
+    >>> knn = KNN(n_neighbors=1)
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
     >>> labels = {0: labels_true[0], 33: labels_true[33]}
     >>> labels_pred = knn.fit_predict(adjacency, labels)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
-    0.97
+    0.82
     """
-    def __init__(self, embedding_method: Optional[BaseEmbedding] = None, n_neighbors: int = 3):
+    def __init__(self, n_neighbors: int = 3, embedding_method: Optional[BaseEmbedding] = None, normalize: bool = True):
         super(KNN, self).__init__()
-        self.embedding_method = embedding_method
         self.n_neighbors = n_neighbors
+        self.embedding_method = embedding_method
+        self.normalize = normalize
         self.bipartite = None
 
     @staticmethod
     def _instantiate_vars(labels: np.ndarray):
-        index_seed = np.flatnonzero(labels >= 0)
-        index_remain = np.flatnonzero(labels < 0)
-        return index_seed, index_remain
+        index_train = np.flatnonzero(labels >= 0)
+        index_test = np.flatnonzero(labels < 0)
+        return index_train, index_test
 
-    def _fit_core(self, embedding, labels, index_seed, index_remain):
-        embedding_seed = embedding[index_seed]
-        embedding_remain = embedding[index_remain]
-        n_neighbors = check_n_neighbors(self.n_neighbors, len(index_seed))
+    def _fit_core(self, embedding, labels, index_train, index_test):
+        n_neighbors = check_n_neighbors(self.n_neighbors, len(index_train))
 
-        norms_seed = get_norms(embedding_seed, p=2)
+        norms_train = get_norms(embedding[index_train], p=2)
         neighbors = []
-        for i in range(len(index_remain)):
-            vector = embedding_remain[i]
+        for i in index_test:
+            vector = embedding[i]
             if sparse.issparse(vector):
                 vector = vector.toarray().ravel()
-            distances = norms_seed**2 - 2 * embedding_seed.dot(vector) + np.sum(vector**2)
-            neighbors += list(index_seed[np.argpartition(distances, n_neighbors)[:n_neighbors]])
+            distances = norms_train**2 - 2 * embedding[index_train].dot(vector) + np.sum(vector**2)
+            neighbors += list(index_train[np.argpartition(distances, n_neighbors)[:n_neighbors]])
         labels_neighbor = labels[neighbors]
 
         # membership matrix
-        row = list(np.repeat(index_remain, n_neighbors))
+        row = list(np.repeat(index_test, n_neighbors))
         col = list(labels_neighbor)
         data = list(np.ones_like(labels_neighbor))
 
-        row += list(index_seed)
-        col += list(labels[index_seed])
-        data += list(np.ones_like(index_seed))
+        row += list(index_train)
+        col += list(labels[index_train])
+        data += list(np.ones_like(index_train))
 
         membership = normalize(sparse.csr_matrix((data, (row, col)), shape=(len(labels), np.max(labels) + 1)))
         labels = np.argmax(membership.toarray(), axis=1)
@@ -120,10 +118,15 @@ class KNN(BaseClassifier):
                                                                  values_col=labels_col)
         labels = labels.astype(int)
         index_seed, index_remain = self._instantiate_vars(labels)
+
         if self.embedding_method is None:
-            embedding = normalize(adjacency, p=2)
+            embedding = adjacency
         else:
             embedding = self.embedding_method.fit_transform(adjacency)
+
+        if self.normalize:
+            embedding = normalize(embedding, p=2)
+
         membership, labels = self._fit_core(embedding, labels, index_seed, index_remain)
 
         self.membership_ = membership

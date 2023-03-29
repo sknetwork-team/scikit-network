@@ -5,7 +5,7 @@ Classification
 
 Node classification algorithms.
 
-The attribute ``labels_``  assigns a label to each node of the graph.
+The attribute ``labels_``  gives the label of each node of the graph.
 
 Diffusion
 ---------
