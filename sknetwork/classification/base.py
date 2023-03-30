@@ -7,6 +7,7 @@ Created in November 2019
 from abc import ABC
 
 import numpy as np
+from scipy import sparse
 
 from sknetwork.utils.base import Algorithm
 
@@ -45,13 +46,13 @@ class BaseClassifier(Algorithm, ABC):
         self.fit(*args, **kwargs)
         return self.labels_
 
-    def fit_transform(self, *args, **kwargs) -> np.ndarray:
+    def fit_transform(self, *args, **kwargs) -> sparse.csr_matrix:
         """Fit algorithm to the data and return the membership matrix. Same parameters as the ``fit`` method.
 
         Returns
         -------
-        labels : np.ndarray
-            Labels.
+        membership : sparse.csr_matrix
+            Membership matrix (distribution over labels).
         """
         self.fit(*args, **kwargs)
         return self.membership_
