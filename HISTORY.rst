@@ -2,7 +2,7 @@
 History
 =======
 
-0.29.0 (2023-03-29)
+0.29.0 (2023-03-30)
 -------------------
 
 * Change API for clustering (predict / transform)
