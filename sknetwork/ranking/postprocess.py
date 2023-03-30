@@ -22,4 +22,7 @@ def top_k(scores: np.ndarray, k: int = 1):
     >>> top_k([1, 3, 2], k=2)
     array([1, 2])
     """
-    return np.argpartition(-np.array(scores), k)[:k]
+    if k >= len(scores):
+        return np.arange(len(scores))
+    else:
+        return np.argpartition(-np.array(scores), k)[:k]
