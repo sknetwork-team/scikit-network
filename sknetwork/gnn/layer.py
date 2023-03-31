@@ -141,13 +141,13 @@ def get_layer(layer: Union[BaseLayer, str] = 'conv', **kwargs) -> BaseLayer:
         return layer
     elif type(layer) == str:
         layer = layer.lower()
-        if layer in ['conv', 'gcnconv', 'graphconv']:
-            return Convolution('conv', **kwargs)
-        elif layer in ['sage', 'sageconv', 'graphsage']:
+        if 'sage' in layer:
             kwargs['normalization'] = 'left'
             kwargs['self_embeddings'] = True
             return Convolution('sage', **kwargs)
+        elif 'conv' in layer:
+            return Convolution('conv', **kwargs)
         else:
-            raise ValueError("Layer name must be \"Conv\" or \"SAGEConv\".")
+            raise ValueError("Layer name must be \"Conv\" or \"Sage\".")
     else:
         raise TypeError("Layer must be a string or a \"BaseLayer\" object.")

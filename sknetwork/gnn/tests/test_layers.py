@@ -67,8 +67,8 @@ class TestLayer(unittest.TestCase):
             self.assertTrue(emb.shape == (self.adjacency.shape[0], 2))
 
     def test_graph_sage(self):
-        conv1 = Convolution('Sageconv', 4, normalization='left', self_embeddings=True)
-        conv2 = Convolution('Sageconv', 2, normalization='right', self_embeddings=True)
+        conv1 = Convolution('Sage', 4, normalization='left', self_embeddings=True)
+        conv2 = Convolution('Sage', 2, normalization='right', self_embeddings=True)
         h = conv1.forward(self.adjacency, self.features)
         emb = conv2.forward(self.adjacency, h)
         self.assertTrue(emb.shape == (self.adjacency.shape[0], 2))
