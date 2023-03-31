@@ -146,3 +146,8 @@ class TestGNNClassifier(unittest.TestCase):
         # No adj matrix
         labels_pred = gnn.predict(None, features)
         self.assertTrue(len(labels_pred) == features.shape[0])
+
+    def test_gnn_classifier_predict_proba(self):
+        gnn = GNNClassifier([4, 2])
+        probs = gnn.fit_predict_proba(self.adjacency, self.features, self.labels)
+        self.assertTrue(probs.shape[1] == 2)
