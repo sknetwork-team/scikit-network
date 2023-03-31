@@ -62,7 +62,6 @@ class KNN(BaseClassifier):
         self.n_neighbors = n_neighbors
         self.embedding_method = embedding_method
         self.normalize = normalize
-        self.bipartite = None
 
     @staticmethod
     def _instantiate_vars(labels: np.ndarray):
@@ -129,10 +128,8 @@ class KNN(BaseClassifier):
 
         membership, labels = self._fit_core(embedding, labels, index_seed, index_remain)
 
-        self.membership_ = membership
         self.labels_ = labels
-
-        if self.bipartite:
-            self._split_vars(input_matrix.shape)
+        self.membership_ = membership
+        self._split_vars(input_matrix.shape)
 
         return self

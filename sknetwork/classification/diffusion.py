@@ -72,7 +72,6 @@ class DiffusionClassifier(BaseClassifier):
             self.n_iter = n_iter
         self.centering = centering
         self.threshold = threshold
-        self.bipartite = None
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
             labels: Optional[Union[dict, np.ndarray]] = None, labels_row: Optional[Union[dict, np.ndarray]] = None,
@@ -129,8 +128,6 @@ class DiffusionClassifier(BaseClassifier):
             labels_[differences <= self.threshold] = -1
 
         self.labels_ = labels_
-
-        if self.bipartite:
-            self._split_vars(input_matrix.shape)
+        self._split_vars(input_matrix.shape)
 
         return self

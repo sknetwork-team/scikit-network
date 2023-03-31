@@ -17,6 +17,8 @@ class BaseClassifier(Algorithm, ABC):
 
     Attributes
     ----------
+    bipartite : bool
+        If ``True``, the fitted graph is bipartite.
     labels_ : np.ndarray, shape (n_labels,)
         Label of each node.
     membership_ : sparse.csr_matrix, shape (n_row, n_labels)
@@ -28,6 +30,7 @@ class BaseClassifier(Algorithm, ABC):
     """
 
     def __init__(self):
+        self.bipartite = None
         self.labels_ = None
         self.membership_ = None
         self.labels_row_ = None
@@ -44,25 +47,81 @@ class BaseClassifier(Algorithm, ABC):
             Labels.
         """
         self.fit(*args, **kwargs)
-        return self.labels_
+        return self.predict()
+
+    def fit_predict_proba(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to the data and return the probability distribution over labels.
+        Same parameters as the ``fit`` method.
+
+        Returns
+        -------
+        probs : np.ndarray
+            Probability of each label.
+        """
+        self.fit(*args, **kwargs)
+        return self.predict_proba()
 
     def fit_transform(self, *args, **kwargs) -> sparse.csr_matrix:
-        """Fit algorithm to the data and return the membership matrix. Same parameters as the ``fit`` method.
+        """Fit algorithm to the data and return the probability distribution over labels in sparse format.
+        Same parameters as the ``fit`` method.
 
         Returns
         -------
         membership : sparse.csr_matrix
-            Membership matrix (distribution over labels).
+            Probability of each label.
         """
         self.fit(*args, **kwargs)
+        return self.transform()
+
+    def predict(self, columns=False) -> np.ndarray:
+        """Return the labels predicted by the algorithm.
+
+        Parameters
+        ----------
+        columns : bool
+            If ``True``, return the prediction for columns.
+        """
+        if columns:
+            return self.labels_col_
+        return self.labels_
+
+    def predict_proba(self, columns=False) -> np.ndarray:
+        """Return the probability distribution over labels as predicted by the algorithm.
+
+        Parameters
+        ----------
+        columns : bool
+            If ``True``, return the prediction for columns.
+        """
+        if columns:
+            return self.membership_col_.toarray()
+        return self.membership_.toarray()
+
+    def transform(self, columns=False) -> sparse.csr_matrix:
+        """Return the probability distribution over labels in sparse format.
+
+        Parameters
+        ----------
+        columns : bool
+            If ``True``, return the prediction for columns.
+        """
+        if columns:
+            return self.membership_col_
         return self.membership_
 
     def _split_vars(self, shape: tuple):
-        n_row = shape[0]
-        self.labels_row_ = self.labels_[:n_row]
-        self.labels_col_ = self.labels_[n_row:]
-        self.labels_ = self.labels_row_
-        self.membership_row_ = self.membership_[:n_row]
-        self.membership_col_ = self.membership_[n_row:]
-        self.membership_ = self.membership_row_
+        """Split variables for bipartite graphs."""
+        if self.bipartite:
+            n_row = shape[0]
+            self.labels_row_ = self.labels_[:n_row]
+            self.labels_col_ = self.labels_[n_row:]
+            self.labels_ = self.labels_row_
+            self.membership_row_ = self.membership_[:n_row]
+            self.membership_col_ = self.membership_[n_row:]
+            self.membership_ = self.membership_row_
+        else:
+            self.labels_row_ = self.labels_
+            self.labels_col_ = self.labels_
+            self.membership_row_ = self.membership_
+            self.membership_col_ = self.membership_
         return self
