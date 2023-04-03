@@ -40,6 +40,23 @@ class BaseClustering(Algorithm, ABC):
         self.return_aggregate = return_aggregate
         self._init_vars()
 
+    def predict(self, columns=False) -> np.ndarray:
+        """Return the labels predicted by the algorithm.
+
+        Parameters
+        ----------
+        columns : bool
+            If ``True``, return the prediction for columns.
+
+        Returns
+        -------
+        labels : np.ndarray
+            Labels.
+        """
+        if columns:
+            return self.labels_col_
+        return self.labels_
+
     def fit_predict(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
 
@@ -49,17 +66,64 @@ class BaseClustering(Algorithm, ABC):
             Labels.
         """
         self.fit(*args, **kwargs)
-        return self.labels_
+        return self.predict()
+
+    def predict_proba(self, columns=False) -> np.ndarray:
+        """Return the probability distribution over labels as predicted by the algorithm.
+
+        Parameters
+        ----------
+        columns : bool
+            If ``True``, return the prediction for columns.
+
+        Returns
+        -------
+        probs : np.ndarray
+            Probability distribution over labels.
+        """
+        if columns:
+            return self.membership_col_.toarray()
+        return self.membership_.toarray()
+
+    def fit_predict_proba(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to the data and return the probability distribution over labels.
+        Same parameters as the ``fit`` method.
+
+        Returns
+        -------
+        probs : np.ndarray
+            Probability of each label.
+        """
+        self.fit(*args, **kwargs)
+        return self.predict_proba()
+
+    def transform(self, columns=False) -> sparse.csr_matrix:
+        """Return the probability distribution over labels in sparse format.
+
+        Parameters
+        ----------
+        columns : bool
+            If ``True``, return the prediction for columns.
+
+        Returns
+        -------
+        membership : sparse.csr_matrix
+            Probability distribution over labels (aka membership matrix).
+        """
+        if columns:
+            return self.membership_col_
+        return self.membership_
 
     def fit_transform(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to the data and return the membership matrix. Same parameters as the ``fit`` method.
+
         Returns
         -------
         membership : np.ndarray
             Membership matrix (distribution over clusters).
         """
         self.fit(*args, **kwargs)
-        return self.membership_
+        return self.transform()
 
     def _init_vars(self):
         """Init variables."""

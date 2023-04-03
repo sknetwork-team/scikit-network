@@ -38,6 +38,23 @@ class BaseClassifier(Algorithm, ABC):
         self.membership_row_ = None
         self.membership_col_ = None
 
+    def predict(self, columns=False) -> np.ndarray:
+        """Return the labels predicted by the algorithm.
+
+        Parameters
+        ----------
+        columns : bool
+            If ``True``, return the prediction for columns.
+
+        Returns
+        -------
+        labels : np.ndarray
+            Labels.
+        """
+        if columns:
+            return self.labels_col_
+        return self.labels_
+
     def fit_predict(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
 
@@ -48,6 +65,23 @@ class BaseClassifier(Algorithm, ABC):
         """
         self.fit(*args, **kwargs)
         return self.predict()
+
+    def predict_proba(self, columns=False) -> np.ndarray:
+        """Return the probability distribution over labels as predicted by the algorithm.
+
+        Parameters
+        ----------
+        columns : bool
+            If ``True``, return the prediction for columns.
+
+        Returns
+        -------
+        probs : np.ndarray
+            Probability distribution over labels.
+        """
+        if columns:
+            return self.membership_col_.toarray()
+        return self.membership_.toarray()
 
     def fit_predict_proba(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to the data and return the probability distribution over labels.
@@ -61,6 +95,23 @@ class BaseClassifier(Algorithm, ABC):
         self.fit(*args, **kwargs)
         return self.predict_proba()
 
+    def transform(self, columns=False) -> sparse.csr_matrix:
+        """Return the probability distribution over labels in sparse format.
+
+        Parameters
+        ----------
+        columns : bool
+            If ``True``, return the prediction for columns.
+
+        Returns
+        -------
+        membership : sparse.csr_matrix
+            Probability distribution over labels (aka membership matrix).
+        """
+        if columns:
+            return self.membership_col_
+        return self.membership_
+
     def fit_transform(self, *args, **kwargs) -> sparse.csr_matrix:
         """Fit algorithm to the data and return the probability distribution over labels in sparse format.
         Same parameters as the ``fit`` method.
@@ -72,42 +123,6 @@ class BaseClassifier(Algorithm, ABC):
         """
         self.fit(*args, **kwargs)
         return self.transform()
-
-    def predict(self, columns=False) -> np.ndarray:
-        """Return the labels predicted by the algorithm.
-
-        Parameters
-        ----------
-        columns : bool
-            If ``True``, return the prediction for columns.
-        """
-        if columns:
-            return self.labels_col_
-        return self.labels_
-
-    def predict_proba(self, columns=False) -> np.ndarray:
-        """Return the probability distribution over labels as predicted by the algorithm.
-
-        Parameters
-        ----------
-        columns : bool
-            If ``True``, return the prediction for columns.
-        """
-        if columns:
-            return self.membership_col_.toarray()
-        return self.membership_.toarray()
-
-    def transform(self, columns=False) -> sparse.csr_matrix:
-        """Return the probability distribution over labels in sparse format.
-
-        Parameters
-        ----------
-        columns : bool
-            If ``True``, return the prediction for columns.
-        """
-        if columns:
-            return self.membership_col_
-        return self.membership_
 
     def _split_vars(self, shape: tuple):
         """Split variables for bipartite graphs."""
