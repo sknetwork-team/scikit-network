@@ -37,7 +37,7 @@ Resources
 * GitHub: https://github.com/sknetwork-team/scikit-network
 * Documentation: https://scikit-network.readthedocs.io
 
-Quick Start
+Quick start
 -----------
 
 Install scikit-network:
@@ -50,6 +50,10 @@ Import scikit-network::
 
     import sknetwork
 
+Overview
+--------
+
+An overview of the package is presented in this :ref:`tutorial<OverviewTag>`.
 
 Documentation
 -------------
@@ -57,9 +61,9 @@ Documentation
 The documentation is structured as follows:
 
 * `Getting started <https://scikit-network.readthedocs.io/en/latest/first_steps.html>`_: First steps to install, import and use scikit-network.
-* `Reference <https://scikit-network.readthedocs.io/en/latest/reference/data.html>`_: Description of each function and object of scikit-network.
+* `User manual <https://scikit-network.readthedocs.io/en/latest/reference/data.html>`_: Description of each function and object of scikit-network.
 * `Tutorials <https://scikit-network.readthedocs.io/en/latest/tutorials/data/index.html>`_: Application of the main tools to toy examples.
-* `Use cases <https://scikit-network.readthedocs.io/en/latest/use_cases/text.html>`_: More advanced examples combining several tools on specific use cases.
+* `Examples <https://scikit-network.readthedocs.io/en/latest/use_cases/text.html>`_: Examples combining several tools on specific use cases.
 * `About <https://scikit-network.readthedocs.io/en/latest/authors.html>`_: Authors, history of the library, how to contribute, index of functions and objects.
 
 Citing

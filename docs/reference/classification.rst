@@ -13,7 +13,7 @@ Diffusion
 
 Nearest neighbors
 -----------------
-.. autoclass:: sknetwork.classification.KNN
+.. autoclass:: sknetwork.classification.NNClassifier
 
 Propagation
 -----------

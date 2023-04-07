@@ -11,18 +11,18 @@ Welcome to scikit-network's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Reference
+   :caption: User manual
 
    reference/data
    reference/topology
    reference/path
    reference/clustering
-   reference/hierarchy
-   reference/ranking
    reference/classification
-   reference/regression
-   reference/embedding
    reference/gnn
+   reference/regression
+   reference/hierarchy
+   reference/embedding
+   reference/ranking
    reference/linkpred
    reference/linalg
    reference/utils
@@ -32,22 +32,23 @@ Welcome to scikit-network's documentation!
    :maxdepth: 2
    :caption: Tutorials
 
+   tutorials/overview/index
    tutorials/data/index
    tutorials/topology/index
    tutorials/path/index
    tutorials/clustering/index
-   tutorials/hierarchy/index
-   tutorials/ranking/index
    tutorials/classification/index
-   tutorials/regression/index
-   tutorials/embedding/index
    tutorials/gnn/index
+   tutorials/regression/index
+   tutorials/hierarchy/index
+   tutorials/embedding/index
+   tutorials/ranking/index
    tutorials/linkpred/index
    tutorials/visualization/index
 
 .. toctree::
    :maxdepth: 1
-   :caption: Use cases
+   :caption: Examples
 
    use_cases/text
    use_cases/wikipedia

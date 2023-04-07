@@ -39,6 +39,6 @@ Solvers
 Miscellaneous
 -------------
 
-.. autofunction:: sknetwork.linalg.diag_pinv
-
 .. autofunction:: sknetwork.linalg.normalize
+
+.. autofunction:: sknetwork.linalg.diagonal_pseudo_inverse

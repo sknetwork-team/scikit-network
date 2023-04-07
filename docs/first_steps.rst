@@ -1,8 +1,13 @@
 .. _getting_started:
 
-Scikit-network is an open-source python package for the analysis of large graphs.
+Scikit-network is an open-source python package for machine learning on graphs.
 
-Each graph is represented by a sparse matrix in ``scipy`` format (CSR).
+Each graph is represented by its adjacency matrix in the sparse CSR format of ``scipy``.
+
+Overview
+--------
+
+An overview of the package is presented in this :ref:`notebook<OverviewTag>`.
 
 Installation
 ------------
@@ -37,18 +42,12 @@ Import scikit-network in Python:
 
     import sknetwork as skn
 
-Graph loading
--------------
+Usage
+-----
 
-A graph is represented by its :term:`adjacency` matrix (square matrix).
-
-When the graph is bipartite, it can be represented by its :term:`biadjacency` matrix (rectangular matrix).
-
+A graph is represented by its :term:`adjacency` matrix (square matrix). When the graph is bipartite, it can be represented by its :term:`biadjacency` matrix (rectangular matrix).
 Check our :ref:`tutorial<DataTag>` for various ways of loading a graph
 (from a list of edges, a dataframe or a CSV file, for instance).
-
-Graph analysis
---------------
 
 Each algorithm is represented as an object with a ``fit`` method.
 
@@ -60,11 +59,11 @@ Here is an example to cluster the `Karate club graph`_ with the `Louvain algorit
     from sknetwork.clustering import Louvain
 
     adjacency = karate_club()
-    algo = Louvain()
-    algo.fit(adjacency)
+    algorithm = Louvain()
+    algorithm.fit(adjacency)
 
 
-Please look at this :ref:`tutorial<ClusteringTag>` for a visualization of the result.
+More details are provided in this :ref:`tutorial<OverviewTag>`.
 
 .. _Karate club graph: https://en.wikipedia.org/wiki/Zachary%27s_karate_club
 .. _Louvain algorithm: https://en.wikipedia.org/wiki/Louvain_method

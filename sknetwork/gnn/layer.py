@@ -13,7 +13,7 @@ from sknetwork.gnn.activation import BaseActivation
 from sknetwork.gnn.loss import BaseLoss
 from sknetwork.gnn.base_layer import BaseLayer
 from sknetwork.utils.check import add_self_loops
-from sknetwork.linalg import diag_pinv
+from sknetwork.linalg import diagonal_pseudo_inverse
 
 
 class Convolution(BaseLayer):
@@ -99,13 +99,13 @@ class Convolution(BaseLayer):
 
         weights = adjacency.dot(np.ones(n_col))
         if self.normalization == 'left':
-            d_inv = diag_pinv(weights)
+            d_inv = diagonal_pseudo_inverse(weights)
             adjacency = d_inv.dot(adjacency)
         elif self.normalization == 'right':
-            d_inv = diag_pinv(weights)
+            d_inv = diagonal_pseudo_inverse(weights)
             adjacency = adjacency.dot(d_inv)
         elif self.normalization == 'both':
-            d_inv = diag_pinv(np.sqrt(weights))
+            d_inv = diagonal_pseudo_inverse(np.sqrt(weights))
             adjacency = d_inv.dot(adjacency).dot(d_inv)
 
         if self.self_embeddings:

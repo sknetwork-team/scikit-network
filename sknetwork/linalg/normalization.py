@@ -11,7 +11,7 @@ from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 
 
-def diag_pinv(weights: np.ndarray) -> sparse.csr_matrix:
+def diagonal_pseudo_inverse(weights: np.ndarray) -> sparse.csr_matrix:
     """Compute :math:`W^+ = \\text{diag}(w)^+`, the pseudo inverse of the diagonal matrix
     with diagonal the weights :math:`w`.
 
@@ -78,7 +78,7 @@ def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
         Normalized matrix.
     """
     norms = get_norms(matrix, p)
-    diag = diag_pinv(norms)
+    diag = diagonal_pseudo_inverse(norms)
     if hasattr(matrix, 'left_sparse_dot') and callable(matrix.left_sparse_dot):
         return matrix.left_sparse_dot(diag)
     return diag.dot(matrix)

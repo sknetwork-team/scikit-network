@@ -11,5 +11,5 @@ The attribute ``links_``  gives the predicted links of each node as a sparse mat
 Nearest neighbors
 -----------------
 
-.. autoclass:: sknetwork.linkpred.NN
+.. autoclass:: sknetwork.linkpred.NNLinker
 
