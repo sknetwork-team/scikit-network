@@ -1,11 +1,11 @@
 .. _getting_started:
 
+Overview
+--------
+
 Scikit-network is an open-source python package for machine learning on graphs.
 
 Each graph is represented by its adjacency matrix in the sparse CSR format of ``scipy``.
-
-Overview
---------
 
 An overview of the package is presented in this :ref:`notebook<OverviewTag>`.
 

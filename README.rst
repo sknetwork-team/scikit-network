@@ -21,7 +21,7 @@
 .. image:: https://img.shields.io/pypi/pyversions/scikit-network.svg
         :target: https://pypi.python.org/pypi/scikit-network
 
-Free software library in Python for the analysis of large graphs:
+Free software library in Python for machine learning on graphs:
 
 * Memory-efficient representation of graphs as sparse matrices in scipy_ format
 * Fast algorithms
