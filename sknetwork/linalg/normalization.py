@@ -12,8 +12,8 @@ from scipy.sparse.linalg import LinearOperator
 
 
 def diagonal_pseudo_inverse(weights: np.ndarray) -> sparse.csr_matrix:
-    """Compute :math:`W^+ = \\text{diag}(w)^+`, the pseudo inverse of the diagonal matrix
-    with diagonal the weights :math:`w`.
+    """Compute :math:`\\text{diag}(w)^+`, the pseudo-inverse of the diagonal matrix
+    with diagonal elements given by the weights :math:`w`.
 
     Parameters
     ----------
@@ -23,7 +23,6 @@ def diagonal_pseudo_inverse(weights: np.ndarray) -> sparse.csr_matrix:
     Returns
     -------
     sparse.csr_matrix
-        :math:`W^+`
 
     """
     diag: sparse.csr_matrix = sparse.diags(weights, format='csr')
@@ -63,7 +62,7 @@ def get_norms(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
 
 
 def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1):
-    """Normalize rows of a matrix. Null rows remain null.
+    """Normalize the rows of a matrix so that all have norm 1 (or 0; null rows remain null).
 
     Parameters
     ----------
