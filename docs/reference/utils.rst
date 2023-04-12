@@ -38,13 +38,3 @@ TF-IDF
 
 .. autofunction:: sknetwork.utils.get_tfidf
 
-
-Projection
-----------
-
-.. autofunction:: sknetwork.utils.projection_simplex
-
-.. autofunction:: sknetwork.utils.projection_simplex_array
-
-.. autofunction:: sknetwork.utils.projection_simplex_csr
-
