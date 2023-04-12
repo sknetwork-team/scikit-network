@@ -106,7 +106,7 @@ def cut_straight(dendrogram: np.ndarray, n_clusters: Optional[int] = None, thres
 
     if return_dendrogram:
         height = dendrogram[:, 2]
-        if not np.any(height[1:] < height[:-1]):
+        if not np.all(height[:-1] <= height[1:]):
             dendrogram = reorder_dendrogram(dendrogram)
 
     cluster = {i: [i] for i in range(n)}
