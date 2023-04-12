@@ -53,7 +53,7 @@ Import scikit-network::
 Overview
 --------
 
-An overview of the package is presented in this :ref:`tutorial<OverviewTag>`.
+An overview of the package is presented in this `notebook <https://scikit-network.readthedocs.io/en/latest/tutorials/overview/index.html>`_.
 
 Documentation
 -------------
