@@ -55,7 +55,7 @@ def get_membership(labels: np.ndarray, dtype=bool, n_labels: Optional[int] = Non
 
 
 def from_membership(membership: sparse.csr_matrix) -> np.ndarray:
-    """Get the labels from a membership matrix (n_samples x n_labels)
+    """Get the labels from a membership matrix (n_samples x n_labels).
     Samples without label get -1.
 
     Parameters

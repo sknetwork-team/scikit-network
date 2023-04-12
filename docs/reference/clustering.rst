@@ -11,7 +11,7 @@ The attribute ``labels_``  assigns a label (cluster index) to each node of the g
 Louvain
 -------
 
-Here are the available notions of modularity for the Louvain algorithm:
+The Louvain algorithm aims at maximizing the modularity. Several variants of modularity are available:
 
 +-------------------------+------------------------------------------------------------------------------------------------------+
 | Modularity              | Formula                                                                                              |
@@ -32,21 +32,18 @@ where
     * :math:`\delta` is the Kronecker symbol,
     * :math:`\gamma \ge 0` is the resolution parameter.
 
-For bipartite graphs, the considered adjacency matrix is
+Observe that for undirected graphs, the Newman and Dugué variants are equivalent.
+
+For bipartite graphs, the considered adjacency matrix :math:`A` depends on the modularity.
+For the Newman and Potts variants, the graph is considered as undirected so that:
 
 :math:`A = \begin{pmatrix} 0 & B\\B^T & 0\end{pmatrix}`
 
-for Newman modularity and Potts modularity (i.e., the graph is considered as undirected), and
+For the Dugué variant, the graph is considered as directed so that:
 
 :math:`A = \begin{pmatrix} 0 & B\\0 & 0\end{pmatrix}`
 
-for Dugué modularity (i.e., the graph is considered as directed).
-The latter is the default option and corresponds to Barber's modularity:
-
-:math:`Q = \frac{1}{w} \sum_{i,j}\left(B_{ij} - \gamma \frac{d_if_j}{w}\right)\delta_{c_i,c_j}`
-
-where :math:`i` in the row index, :math:`j` in the column index, :math:`d_i` is the degree of row :math:`i`,
-:math:`f_j` is the degree of column :math:`j` and :math:`w = 1^TB1` is the sum of degrees (either rows or columns).
+This is the default option and corresponds to Barber's modularity (see reference below).
 
 When the graph is weighted, the degree of a node is replaced by its weight (sum of edge weights).
 

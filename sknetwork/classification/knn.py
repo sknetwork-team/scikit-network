@@ -17,7 +17,7 @@ from sknetwork.utils.check import check_n_neighbors
 from sknetwork.utils.format import get_adjacency_values
 
 
-class KNN(BaseClassifier):
+class NNClassifier(BaseClassifier):
     """Node classification by K-nearest neighbors in the embedding space.
 
     Parameters
@@ -46,23 +46,22 @@ class KNN(BaseClassifier):
         Membership matrix of columns, for bipartite graphs.
     Example
     -------
-    >>> from sknetwork.classification import KNN
+    >>> from sknetwork.classification import NNClassifier
     >>> from sknetwork.data import karate_club
-    >>> knn = KNN(n_neighbors=1)
+    >>> classifier = NNClassifier(n_neighbors=1)
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
     >>> labels_true = graph.labels
     >>> labels = {0: labels_true[0], 33: labels_true[33]}
-    >>> labels_pred = knn.fit_predict(adjacency, labels)
+    >>> labels_pred = classifier.fit_predict(adjacency, labels)
     >>> np.round(np.mean(labels_pred == labels_true), 2)
     0.82
     """
     def __init__(self, n_neighbors: int = 3, embedding_method: Optional[BaseEmbedding] = None, normalize: bool = True):
-        super(KNN, self).__init__()
+        super(NNClassifier, self).__init__()
         self.n_neighbors = n_neighbors
         self.embedding_method = embedding_method
         self.normalize = normalize
-        self.bipartite = None
 
     @staticmethod
     def _instantiate_vars(labels: np.ndarray):
@@ -98,7 +97,7 @@ class KNN(BaseClassifier):
         return membership, labels
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: Union[np.ndarray, dict] = None,
-            labels_row: Union[np.ndarray, dict] = None, labels_col: Union[np.ndarray, dict] = None) -> 'KNN':
+            labels_row: Union[np.ndarray, dict] = None, labels_col: Union[np.ndarray, dict] = None) -> 'NNClassifier':
         """Node classification by k-nearest neighbors in the embedding space.
 
         Parameters
@@ -129,10 +128,8 @@ class KNN(BaseClassifier):
 
         membership, labels = self._fit_core(embedding, labels, index_seed, index_remain)
 
-        self.membership_ = membership
         self.labels_ = labels
-
-        if self.bipartite:
-            self._split_vars(input_matrix.shape)
+        self.membership_ = membership
+        self._split_vars(input_matrix.shape)
 
         return self

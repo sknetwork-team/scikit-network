@@ -136,8 +136,6 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         labels = np.argmax(scores, axis=1)
         self.labels_ = labels_unique[labels]
         self.membership_ = sparse.csr_matrix(membership, shape=(adjacency.shape[0], np.max(seeds_labels) + 1))
-
-        if bipartite:
-            self._split_vars(input_matrix.shape)
+        self._split_vars(input_matrix.shape)
 
         return self

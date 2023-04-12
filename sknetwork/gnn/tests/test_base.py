@@ -73,7 +73,3 @@ class TestBaseGNN(unittest.TestCase):
         gnn = GNNClassifier(dims=[8, 2], layer_types='conv', activations=['Relu', 'Softmax'], optimizer='Adam')
         self.assertTrue(gnn.__repr__().startswith("GNNClassifier"))
 
-    def test_gnn_predict(self):
-        gnn = BaseGNN()
-        with self.assertRaises(NotImplementedError):
-            gnn.predict()

@@ -16,7 +16,7 @@ from sknetwork.utils.check import check_n_neighbors
 from sknetwork.utils.format import get_adjacency
 
 
-class NN(BaseLinker):
+class NNLinker(BaseLinker):
     """Link prediction by nearest neighbors in the embedding space, using cosine similarity.
 
     For bipartite graphs, predict links between rows and columns only.
@@ -38,18 +38,18 @@ class NN(BaseLinker):
 
     Example
     -------
-    >>> from sknetwork.linkpred import NN
+    >>> from sknetwork.linkpred import NNLinker
     >>> from sknetwork.data import karate_club
-    >>> nn = NN(n_neighbors=5, threshold=0.5)
+    >>> linker = NNLinker(n_neighbors=5, threshold=0.5)
     >>> graph = karate_club(metadata=True)
     >>> adjacency = graph.adjacency
-    >>> links = nn.fit_predict(adjacency)
+    >>> links = linker.fit_predict(adjacency)
     >>> links.shape
     (34, 34)
     """
     def __init__(self, n_neighbors: Optional[int] = 10, threshold: float = 0,
                  embedding_method: Optional[BaseEmbedding] = None):
-        super(NN, self).__init__()
+        super(NNLinker, self).__init__()
         self.n_neighbors = n_neighbors
         self.threshold = threshold
         self.embedding_method = embedding_method
@@ -90,7 +90,7 @@ class NN(BaseLinker):
 
         return links
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], index: Optional[np.ndarray] = None) -> 'NN':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], index: Optional[np.ndarray] = None) -> 'NNLinker':
         """Link prediction by nearest neighbors in the embedding space, using cosine similarity
 
         Parameters

@@ -16,7 +16,7 @@ jobs:
         os: [ubuntu-20.04, windows-2019, macos-latest]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.12.0
@@ -30,7 +30,7 @@ jobs:
           CIBW_BEFORE_BUILD_MACOS: "pip install -r requirements_dev.txt && pip install ."
           CIBW_BUILD: cp38-* cp39-* cp310-*
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
 
@@ -38,9 +38,9 @@ jobs:
       name: Build source distribution
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v3
 
-        - uses: actions/setup-python@v2
+        - uses: actions/setup-python@v3
           name: Install Python
           with:
             python-version: '3.9'
@@ -51,7 +51,7 @@ jobs:
             python -m pip install -r requirements_dev.txt
             python setup.py sdist
 
-        - uses: actions/upload-artifact@v2
+        - uses: actions/upload-artifact@v3
           with:
             path: dist/*.tar.gz
 
@@ -59,7 +59,7 @@ jobs:
       needs: [ build_wheels, build_sdist ]
       runs-on: ubuntu-latest
       steps:
-          - uses: actions/download-artifact@v2
+          - uses: actions/download-artifact@v3
             with:
               name: artifact
               path: dist

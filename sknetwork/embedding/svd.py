@@ -11,7 +11,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.linalg import SVDSolver, LanczosSVD, safe_sparse_dot, diag_pinv, normalize, Regularizer, SparseLR
+from sknetwork.linalg import SVDSolver, LanczosSVD, safe_sparse_dot, diagonal_pseudo_inverse, normalize, Regularizer, SparseLR
 from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, check_n_components
 
 
@@ -130,8 +130,8 @@ class GSVD(BaseEmbedding):
 
         weights_row = adjacency_reg.dot(np.ones(n_col))
         weights_col = adjacency_reg.T.dot(np.ones(n_row))
-        diag_row = diag_pinv(np.power(weights_row, self.factor_row))
-        diag_col = diag_pinv(np.power(weights_col, self.factor_col))
+        diag_row = diagonal_pseudo_inverse(np.power(weights_row, self.factor_row))
+        diag_col = diagonal_pseudo_inverse(np.power(weights_col, self.factor_col))
         self.solver.fit(safe_sparse_dot(diag_row, safe_sparse_dot(adjacency_reg, diag_col)), n_components)
 
         singular_values = self.solver.singular_values_
@@ -195,8 +195,8 @@ class GSVD(BaseEmbedding):
 
         # weighting
         weights_row = adjacency_vectors.dot(np.ones(n_col))
-        diag_row = diag_pinv(np.power(weights_row, self.factor_row))
-        diag_col = diag_pinv(np.power(self.weights_col_, self.factor_col))
+        diag_row = diagonal_pseudo_inverse(np.power(weights_row, self.factor_row))
+        diag_col = diagonal_pseudo_inverse(np.power(self.weights_col_, self.factor_col))
         adjacency_vectors = safe_sparse_dot(diag_row, safe_sparse_dot(adjacency_vectors, diag_col))
 
         # projection in the embedding space

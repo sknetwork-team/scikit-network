@@ -13,7 +13,7 @@ from sknetwork.gnn.activation import BaseActivation
 from sknetwork.gnn.loss import BaseLoss
 from sknetwork.gnn.base_layer import BaseLayer
 from sknetwork.utils.check import add_self_loops
-from sknetwork.linalg import diag_pinv
+from sknetwork.linalg import diagonal_pseudo_inverse
 
 
 class Convolution(BaseLayer):
@@ -99,13 +99,13 @@ class Convolution(BaseLayer):
 
         weights = adjacency.dot(np.ones(n_col))
         if self.normalization == 'left':
-            d_inv = diag_pinv(weights)
+            d_inv = diagonal_pseudo_inverse(weights)
             adjacency = d_inv.dot(adjacency)
         elif self.normalization == 'right':
-            d_inv = diag_pinv(weights)
+            d_inv = diagonal_pseudo_inverse(weights)
             adjacency = adjacency.dot(d_inv)
         elif self.normalization == 'both':
-            d_inv = diag_pinv(np.sqrt(weights))
+            d_inv = diagonal_pseudo_inverse(np.sqrt(weights))
             adjacency = d_inv.dot(adjacency).dot(d_inv)
 
         if self.self_embeddings:
@@ -141,13 +141,13 @@ def get_layer(layer: Union[BaseLayer, str] = 'conv', **kwargs) -> BaseLayer:
         return layer
     elif type(layer) == str:
         layer = layer.lower()
-        if layer in ['conv', 'gcnconv', 'graphconv']:
-            return Convolution('conv', **kwargs)
-        elif layer in ['sage', 'sageconv', 'graphsage']:
+        if 'sage' in layer:
             kwargs['normalization'] = 'left'
             kwargs['self_embeddings'] = True
             return Convolution('sage', **kwargs)
+        elif 'conv' in layer:
+            return Convolution('conv', **kwargs)
         else:
-            raise ValueError("Layer name must be \"Conv\" or \"SAGEConv\".")
+            raise ValueError("Layer name must be \"Conv\" or \"Sage\".")
     else:
         raise TypeError("Layer must be a string or a \"BaseLayer\" object.")

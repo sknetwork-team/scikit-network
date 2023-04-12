@@ -19,14 +19,16 @@ from sknetwork.utils.format import get_adjacency
 class Katz(BaseRanking):
     """Katz centrality, defined by:
 
-    :math:`\\sum_{k=1}^K\\alpha^k(A^k)^T\\mathbf{1}`.
+    :math:`\\sum_{k=1}^K\\alpha^k(A^k)^T\\mathbf{1}`
+
+    where :math:`A` is the adjacency matrix, :math:`\\alpha` is the damping factor and :math:`K` is the path length.
 
     Parameters
     ----------
     damping_factor : float
-        Decay parameter for path contributions.
+        Damping factor for path contributions.
     path_length : int
-        Maximum length of the paths to take into account.
+        Maximum length of the paths.
 
     Attributes
     ----------

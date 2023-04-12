@@ -77,7 +77,6 @@ class Propagation(BaseClassifier):
             self.n_iter = n_iter
         self.node_order = node_order
         self.weighted = weighted
-        self.bipartite = None
 
     @staticmethod
     def _instantiate_vars(labels: np.ndarray):
@@ -144,8 +143,6 @@ class Propagation(BaseClassifier):
 
         self.labels_ = labels
         self.membership_ = membership
-
-        if self.bipartite:
-            self._split_vars(input_matrix.shape)
+        self._split_vars(input_matrix.shape)
 
         return self

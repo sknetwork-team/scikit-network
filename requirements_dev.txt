@@ -1,8 +1,8 @@
 # standard Python package manager
-pip>=21.3.1
+pip>=22.0.4
 
 # base dependencies
-numpy>=1.22.0
+numpy>=1.22.4
 scipy>=1.7.3
 
 # tool to automatically change version number in the package upon release

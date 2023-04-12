@@ -97,6 +97,32 @@ class TestLouvainClustering(unittest.TestCase):
         # check if labels are 64-bit
         self.assertEqual(labels.dtype, np.int64)
 
+    def test_predict(self):
+        adjacency = karate_club()
+        n_nodes = adjacency.shape[0]
+        louvain = Louvain()
+        labels = louvain.fit_predict(adjacency)
+        self.assertEqual(len(labels), n_nodes)
+        probs = louvain.fit_predict_proba(adjacency)
+        self.assertEqual(probs.shape[0], n_nodes)
+        membership = louvain.fit_transform(adjacency)
+        self.assertEqual(membership.shape[0], n_nodes)
+        biadjacency = star_wars()
+        n_row, n_col = biadjacency.shape
+        louvain.fit(biadjacency)
+        labels = louvain.predict()
+        self.assertEqual(len(labels), n_row)
+        labels = louvain.predict(columns=True)
+        self.assertEqual(len(labels), n_col)
+        probs = louvain.predict_proba()
+        self.assertEqual(probs.shape[0], n_row)
+        probs = louvain.predict(columns=True)
+        self.assertEqual(probs.shape[0], n_col)
+        membership = louvain.transform()
+        self.assertEqual(membership.shape[0], n_row)
+        membership = louvain.transform(columns=True)
+        self.assertEqual(membership.shape[0], n_col)
+
     def test_invalid(self):
         adjacency = karate_club()
         louvain = Louvain(modularity='toto')

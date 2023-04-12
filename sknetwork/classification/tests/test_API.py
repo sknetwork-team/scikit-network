@@ -19,7 +19,7 @@ class TestClassificationAPI(unittest.TestCase):
             seeds_dict = {0: 0, 1: 1}
 
             classifiers = [PageRankClassifier(), DiffusionClassifier(),
-                           KNN(embedding_method=LouvainEmbedding(), n_neighbors=1), Propagation()]
+                           NNClassifier(embedding_method=LouvainEmbedding(), n_neighbors=1), Propagation()]
 
             for algo in classifiers:
                 labels1 = algo.fit_predict(adjacency, seeds_array)

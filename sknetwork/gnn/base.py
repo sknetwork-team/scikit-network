@@ -65,9 +65,9 @@ class BaseGNN(Algorithm, ABC, VerboseMixin):
         """Fit Algorithm to the data."""
         raise NotImplementedError
 
-    def predict(self, *args, **kwargs):
-        """Predict labels."""
-        raise NotImplementedError
+    def predict(self):
+        """Return the predicted labels."""
+        return self.labels_
 
     def fit_predict(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to the data and return the labels. Same parameters as the ``fit`` method.
@@ -80,6 +80,29 @@ class BaseGNN(Algorithm, ABC, VerboseMixin):
         self.fit(*args, **kwargs)
         return self.predict()
 
+    def predict_proba(self):
+        """Return the probability distribution over labels."""
+        probs = self.output_
+        if probs is not None:
+            if probs.shape[1] == 1:
+                probs = np.vstack(1 - probs, probs)
+        return probs
+
+    def fit_predict_proba(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to the data and return the distribution over labels. Same parameters as the ``fit`` method.
+
+        Returns
+        -------
+        probs : np.ndarray
+            Probability distribution over labels.
+        """
+        self.fit(*args, **kwargs)
+        return self.predict_proba()
+
+    def transform(self):
+        """Return the embedding of nodes."""
+        return self.embedding_
+
     def fit_transform(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to the data and return the embedding of the nodes. Same parameters as the ``fit`` method.
 
@@ -89,7 +112,7 @@ class BaseGNN(Algorithm, ABC, VerboseMixin):
             Embedding of the nodes.
         """
         self.fit(*args, **kwargs)
-        return self.embedding_
+        return self.transform()
 
     def backward(self, features: sparse.csr_matrix, labels: np.ndarray, mask: np.ndarray):
         """Compute backpropagation.
