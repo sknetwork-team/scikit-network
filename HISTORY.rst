@@ -2,6 +2,12 @@
 History
 =======
 
+0.30.0 (2023-04-12)
+-------------------
+
+* Add overview
+* Add predict_proba method to classification and clustering
+
 0.29.0 (2023-03-30)
 -------------------
 
