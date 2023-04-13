@@ -326,6 +326,8 @@ class GNNClassifier(BaseGNN):
 
         if adjacency_vectors is None and feature_vectors is None:
             return self.labels_
+        elif adjacency_vectors is not None and feature_vectors is None:
+            raise ValueError('Missing value: feature matrix is missing.')
         elif adjacency_vectors is None:
             adjacency_vectors = sparse.identity(feature_vectors.shape[0], format='csr')
 

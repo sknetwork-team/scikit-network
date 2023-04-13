@@ -29,5 +29,4 @@ jobs:
       run: |
         py.test --doctest-modules --cov-report=xml --cov=sknetwork
     - name: Codecov
-      run: |
-        codecov
+      uses: codecov/codecov-action@v3

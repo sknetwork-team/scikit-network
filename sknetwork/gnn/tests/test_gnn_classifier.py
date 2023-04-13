@@ -147,6 +147,10 @@ class TestGNNClassifier(unittest.TestCase):
         labels_pred = gnn.predict(None, features)
         self.assertTrue(len(labels_pred) == features.shape[0])
 
+        # No feature matrix
+        with self.assertRaises(ValueError):
+            gnn.predict(new_n)
+
     def test_gnn_classifier_predict_proba(self):
         gnn = GNNClassifier([4, 2])
         probs = gnn.fit_predict_proba(self.adjacency, self.features, self.labels)
