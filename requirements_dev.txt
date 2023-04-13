@@ -14,9 +14,6 @@ wheel==0.38.4
 # standard package to produce coverage from test runs
 coverage>=6.2
 
-# visualization of reports from coverage
-codecov==2.1.12
-
 # used to upload wheels and sources to PyPI
 twine>=3.7.1
 
