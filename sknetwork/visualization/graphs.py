@@ -12,7 +12,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering.louvain import Louvain
-from sknetwork.utils.format import is_symmetric
+from sknetwork.utils.format import is_symmetric, check_format
 from sknetwork.embedding.spring import Spring
 from sknetwork.visualization.colors import STANDARD_COLORS, COOLWARM_RGB
 
@@ -291,22 +291,22 @@ def svg_node(pos_node: np.ndarray, size: float, color: str, stroke_width: float 
         .format(x, y, size, color, stroke_color, stroke_width)
 
 
-def svg_pie_chart_node(pos_node: np.ndarray, size: float, membership: np.ndarray, colors: np.ndarray,
+def svg_pie_chart_node(pos_node: np.ndarray, size: float, probs: np.ndarray, colors: np.ndarray,
                        stroke_width: float = 1, stroke_color: str = 'black') -> str:
     """Return svg code for a pie-chart node."""
     x, y = pos_node.astype(float)
     n_colors = len(colors)
     out = ""
-    cumsum = np.zeros(membership.shape[1] + 1)
-    cumsum[1:] = np.cumsum(membership)
+    cumsum = np.zeros(probs.shape[1] + 1)
+    cumsum[1:] = np.cumsum(probs)
     if cumsum[-1] == 0:
         return svg_node(pos_node, size, 'white', stroke_width=3)
-    sum_membership = cumsum[-1]
+    sum_probs = cumsum[-1]
     cumsum = np.multiply(cumsum, (2 * np.pi) / cumsum[-1])
     x_array = size * np.cos(cumsum) + x
     y_array = size * np.sin(cumsum) + y
-    large = np.array(membership > sum_membership / 2).ravel()
-    for index in range(membership.shape[1]):
+    large = np.array(probs > sum_probs / 2).ravel()
+    for index in range(probs.shape[1]):
         out += """<path d="M {} {} A {} {} 0 {} 1 {} {} L {} {}" style="fill:{};stroke:{};stroke-width:{}" />\n"""\
             .format(x_array[index], y_array[index], size, size, int(large[index]),
                     x_array[index + 1], y_array[index + 1], x, y, colors[index % n_colors], stroke_color, stroke_width)
@@ -360,7 +360,7 @@ def svg_text(pos, text, margin_text, font_size=12, position: str = 'right'):
 def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[np.ndarray] = None,
               names: Optional[np.ndarray] = None, labels: Optional[Iterable] = None,
               name_position: str = 'right', scores: Optional[Iterable] = None,
-              membership: Optional[sparse.csr_matrix] = None,
+              probs: Optional[Union[np.ndarray, sparse.csr_matrix]] = None,
               seeds: Union[list, dict] = None, width: Optional[float] = 400, height: Optional[float] = 300,
               margin: float = 20, margin_text: float = 3, scale: float = 1, node_order: Optional[np.ndarray] = None,
               node_size: float = 7, node_size_min: float = 1, node_size_max: float = 20,
@@ -387,8 +387,8 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
         Position of the names (left, right, above, below)
     scores :
         Scores of the nodes (measure of importance).
-    membership :
-        Membership of the nodes (label distribution).
+    probs :
+        Probability distribution over labels.
     seeds :
         Nodes to be highlighted (if dict, only keys are considered).
     width :
@@ -481,7 +481,7 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
         position = spring.fit_transform(adjacency)
 
     # node colors
-    node_colors = get_node_colors(n, labels, scores, membership, node_color, label_colors)
+    node_colors = get_node_colors(n, labels, scores, probs, node_color, label_colors)
 
     # node sizes
     if display_node_weight is None:
@@ -545,14 +545,15 @@ def svg_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Optional[
 
     # nodes
     for i in node_order:
-        if membership is None:
+        if probs is None:
             svg += svg_node(position[i], node_sizes[i], node_colors[i], node_widths[i])
         else:
-            if membership[i].nnz == 1:
-                index = membership[i].indices[0]
+            probs = check_format(probs)
+            if probs[i].nnz == 1:
+                index = probs[i].indices[0]
                 svg += svg_node(position[i], node_sizes[i], node_colors[index], node_widths[i])
             else:
-                svg += svg_pie_chart_node(position[i], node_sizes[i], membership[i].todense(),
+                svg += svg_pie_chart_node(position[i], node_sizes[i], probs[i].todense(),
                                           node_colors, node_widths[i])
 
     # text
@@ -574,8 +575,8 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
                 labels_col: Optional[Union[dict, np.ndarray]] = None,
                 scores_row: Optional[Union[dict, np.ndarray]] = None,
                 scores_col: Optional[Union[dict, np.ndarray]] = None,
-                membership_row: Optional[sparse.csr_matrix] = None,
-                membership_col: Optional[sparse.csr_matrix] = None,
+                probs_row: Optional[Union[np.ndarray, sparse.csr_matrix]] = None,
+                probs_col: Optional[Union[np.ndarray, sparse.csr_matrix]] = None,
                 seeds_row: Union[list, dict] = None, seeds_col: Union[list, dict] = None,
                 position_row: Optional[np.ndarray] = None, position_col: Optional[np.ndarray] = None,
                 reorder: bool = True, width: Optional[float] = 400,
@@ -607,10 +608,10 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
         Scores of the rows (measure of importance).
     scores_col :
         Scores of the columns (measure of importance).
-    membership_row :
-        Membership of the rows (label distribution).
-    membership_col :
-        Membership of the columns (label distribution).
+    probs_row :
+        Probability distribution over labels for rows.
+    probs_col :
+        Probability distribution over labels for columns.
     seeds_row :
         Rows to be highlighted (if dict, only keys are considered).
     seeds_col :
@@ -717,9 +718,9 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
         score_min = None
         score_max = None
 
-    colors_row = get_node_colors(n_row, labels_row, scores_row, membership_row, color_row, label_colors,
+    colors_row = get_node_colors(n_row, labels_row, scores_row, probs_row, color_row, label_colors,
                                  score_min, score_max)
-    colors_col = get_node_colors(n_col, labels_col, scores_col, membership_col, color_col, label_colors,
+    colors_col = get_node_colors(n_col, labels_col, scores_col, probs_col, color_col, label_colors,
                                  score_min, score_max)
 
     # node sizes
@@ -783,25 +784,27 @@ def svg_bigraph(biadjacency: sparse.csr_matrix,
 
     # nodes
     for i in range(n_row):
-        if membership_row is None:
+        if probs_row is None:
             svg += svg_node(position_row[i], node_sizes_row[i], colors_row[i], node_widths_row[i])
         else:
-            if membership_row[i].nnz == 1:
-                index = membership_row[i].indices[0]
+            probs_row = check_format(probs_row)
+            if probs_row[i].nnz == 1:
+                index = probs_row[i].indices[0]
                 svg += svg_node(position_row[i], node_sizes_row[i], colors_row[index], node_widths_row[i])
             else:
-                svg += svg_pie_chart_node(position_row[i], node_sizes_row[i], membership_row[i].todense(),
+                svg += svg_pie_chart_node(position_row[i], node_sizes_row[i], probs_row[i].todense(),
                                           colors_row, node_widths_row[i])
 
     for i in range(n_col):
-        if membership_col is None:
+        if probs_col is None:
             svg += svg_node(position_col[i], node_sizes_col[i], colors_col[i], node_widths_col[i])
         else:
-            if membership_col[i].nnz == 1:
-                index = membership_col[i].indices[0]
+            probs_col = check_format(probs_col)
+            if probs_col[i].nnz == 1:
+                index = probs_col[i].indices[0]
                 svg += svg_node(position_col[i], node_sizes_col[i], colors_col[index], node_widths_col[i])
             else:
-                svg += svg_pie_chart_node(position_col[i], node_sizes_col[i], membership_col[i].todense(),
+                svg += svg_pie_chart_node(position_col[i], node_sizes_col[i], probs_col[i].todense(),
                                           colors_col, node_widths_col[i])
     # text
     if names_row is not None:

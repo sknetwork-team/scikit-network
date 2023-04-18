@@ -121,7 +121,7 @@ class LouvainEmbedding(BaseEmbedding):
         louvain = Louvain(resolution=self.resolution, modularity=self.modularity,
                           tol_optimization=self.tol_optimization, tol_aggregation=self.tol_aggregation,
                           n_aggregations=self.n_aggregations, shuffle_nodes=self.shuffle_nodes, sort_clusters=False,
-                          return_membership=True, return_aggregate=True, random_state=self.random_state)
+                          return_probs=True, return_aggregate=True, random_state=self.random_state)
         louvain.fit(input_matrix, force_bipartite=force_bipartite)
 
         # isolated nodes

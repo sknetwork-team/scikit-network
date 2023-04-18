@@ -34,17 +34,13 @@ class DiffusionClassifier(BaseClassifier):
     Attributes
     ----------
     labels_ : np.ndarray, shape (n_labels,)
-        Label of each node.
-    membership_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Membership matrix.
-    labels_row_ : np.ndarray
-        Labels of rows, for bipartite graphs.
-    labels_col_ : np.ndarray
-        Labels of columns, for bipartite graphs.
-    membership_row_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Membership matrix of rows, for bipartite graphs.
-    membership_col_ : sparse.csr_matrix, shape (n_col, n_labels)
-        Membership matrix of columns, for bipartite graphs.
+        Labels of nodes.
+    probs_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distribution over labels.
+    labels_row_, labels_col_ : np.ndarray
+        Labels of rows and columns, for bipartite graphs.
+    probs_row_, probs_col_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distributions over labels for rows and columns (for bipartite graphs).
 
     Example
     -------
@@ -110,14 +106,14 @@ class DiffusionClassifier(BaseClassifier):
             temperatures = diffusion.dot(temperatures)
             temperatures[labels >= 0] = temperatures_seeds
 
-        self.membership_ = sparse.csr_matrix(temperatures)
+        self.probs_ = sparse.csr_matrix(temperatures)
 
         if self.centering:
             temperatures -= temperatures.mean(axis=0)
 
         labels_ = temperatures.argmax(axis=1)
         # set label -1 to nodes without temperature (no diffusion to them)
-        labels_[get_degrees(self.membership_) == 0] = -1
+        labels_[get_degrees(self.probs_) == 0] = -1
 
         if self.threshold >= 0:
             if n_labels > 2:

@@ -33,17 +33,14 @@ class NNClassifier(BaseClassifier):
     Attributes
     ----------
     labels_ : np.ndarray, shape (n_labels,)
-        Label of each node.
-    membership_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Membership matrix.
-    labels_row_ : np.ndarray
-        Labels of rows, for bipartite graphs.
-    labels_col_ : np.ndarray
-        Labels of columns, for bipartite graphs.
-    membership_row_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Membership matrix of rows, for bipartite graphs.
-    membership_col_ : sparse.csr_matrix, shape (n_col, n_labels)
-        Membership matrix of columns, for bipartite graphs.
+        Labels of nodes.
+    probs_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distribution over labels.
+    labels_row_, labels_col_ : np.ndarray
+        Labels of rows and columns, for bipartite graphs.
+    probs_row_, probs_col_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distributions over labels for rows and columns (for bipartite graphs).
+
     Example
     -------
     >>> from sknetwork.classification import NNClassifier
@@ -91,10 +88,10 @@ class NNClassifier(BaseClassifier):
         col += list(labels[index_train])
         data += list(np.ones_like(index_train))
 
-        membership = normalize(sparse.csr_matrix((data, (row, col)), shape=(len(labels), np.max(labels) + 1)))
-        labels = np.argmax(membership.toarray(), axis=1)
+        probs = normalize(sparse.csr_matrix((data, (row, col)), shape=(len(labels), np.max(labels) + 1)))
+        labels = np.argmax(probs.toarray(), axis=1)
 
-        return membership, labels
+        return probs, labels
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: Union[np.ndarray, dict] = None,
             labels_row: Union[np.ndarray, dict] = None, labels_col: Union[np.ndarray, dict] = None) -> 'NNClassifier':
@@ -107,7 +104,7 @@ class NNClassifier(BaseClassifier):
         labels :
             Known labels (dictionary or array). Negative values ignored.
         labels_row, labels_col :
-            Labels of rows and columns (for bipartite graphs).
+            Known labels of rows and columns (for bipartite graphs).
 
         Returns
         -------
@@ -126,10 +123,10 @@ class NNClassifier(BaseClassifier):
         if self.normalize:
             embedding = normalize(embedding, p=2)
 
-        membership, labels = self._fit_core(embedding, labels, index_seed, index_remain)
+        probs, labels = self._fit_core(embedding, labels, index_seed, index_remain)
 
         self.labels_ = labels
-        self.membership_ = membership
+        self.probs_ = probs
         self._split_vars(input_matrix.shape)
 
         return self

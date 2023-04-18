@@ -36,16 +36,12 @@ class RankClassifier(BaseClassifier, VerboseMixin):
     ----------
     labels_ : np.ndarray, shape (n_labels,)
         Label of each node.
-    membership_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Membership matrix.
-    labels_row_ : np.ndarray
-        Labels of rows, for bipartite graphs.
-    labels_col_ : np.ndarray
-        Labels of columns, for bipartite graphs.
-    membership_row_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Membership matrix of rows, for bipartite graphs.
-    membership_col_ : sparse.csr_matrix, shape (n_col, n_labels)
-        Membership matrix of columns, for bipartite graphs.
+    probs_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distribution over labels.
+    labels_row_, labels_col_ : np.ndarray
+        Labels of rows and columns, for bipartite graphs.
+    probs_row_, probs_col_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distributions over labels for rows and columns (for bipartite graphs).
     """
     def __init__(self, algorithm: BaseRanking, n_jobs: Optional[int] = None, verbose: bool = False):
         super(RankClassifier, self).__init__()
@@ -97,9 +93,9 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         self.labels_row_ = self.labels_[:n_row]
         self.labels_col_ = self.labels_[n_row:]
         self.labels_ = self.labels_row_
-        self.membership_row_ = self.membership_[:n_row]
-        self.membership_col_ = self.membership_[n_row:]
-        self.membership_ = self.membership_row_
+        self.probs_row_ = self.probs_[:n_row]
+        self.probs_col_ = self.probs_[n_row:]
+        self.probs_ = self.probs_row_
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: Union[np.ndarray, dict] = None,
             labels_row: Union[np.ndarray, dict] = None, labels_col: Union[np.ndarray, dict] = None) -> 'RankClassifier':
@@ -130,12 +126,12 @@ class RankClassifier(BaseClassifier, VerboseMixin):
         scores = self._process_scores(scores)
         scores = normalize(scores)
 
-        membership = sparse.coo_matrix(scores)
-        membership.col = labels_unique[membership.col]
+        probs = sparse.coo_matrix(scores)
+        probs.col = labels_unique[probs.col]
 
         labels = np.argmax(scores, axis=1)
         self.labels_ = labels_unique[labels]
-        self.membership_ = sparse.csr_matrix(membership, shape=(adjacency.shape[0], np.max(seeds_labels) + 1))
+        self.probs_ = sparse.csr_matrix(probs, shape=(adjacency.shape[0], np.max(seeds_labels) + 1))
         self._split_vars(input_matrix.shape)
 
         return self

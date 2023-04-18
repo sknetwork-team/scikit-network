@@ -126,15 +126,18 @@ class TestVisualization(unittest.TestCase):
         image = svg_bigraph(biadjacency)
         self.assertEqual(image[1:4], 'svg')
 
-    def test_membership(self):
+    def test_probs(self):
         adjacency = bow_tie()
-        membership = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0], [0, 1], [0, 1]])
-        image = svg_graph(adjacency, membership=membership)
+        probs = np.array([[.5, .5], [0, 0], [1, 0], [0, 1], [0, 1]])
+        image = svg_graph(adjacency, probs=probs)
+        self.assertEqual(image[1:4], 'svg')
+        probs = sparse.csr_matrix(probs)
+        image = svg_graph(adjacency, probs=probs)
         self.assertEqual(image[1:4], 'svg')
         biadjacency = star_wars()
-        membership_row = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0], [0, 1]])
-        membership_col = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0]])
-        image = svg_bigraph(biadjacency, membership_row=membership_row, membership_col=membership_col)
+        probs_row = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0], [0, 1]])
+        probs_col = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0]])
+        image = svg_bigraph(biadjacency, probs_row=probs_row, probs_col=probs_col)
         self.assertEqual(image[1:4], 'svg')
 
     def test_labels(self):

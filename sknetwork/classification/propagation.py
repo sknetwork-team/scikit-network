@@ -37,16 +37,12 @@ class Propagation(BaseClassifier):
     ----------
     labels_ : np.ndarray, shape (n_labels,)
         Label of each node.
-    membership_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Membership matrix.
-    labels_row_ : np.ndarray
-        Labels of rows, for bipartite graphs.
-    labels_col_ : np.ndarray
-        Labels of columns, for bipartite graphs.
-    membership_row_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Membership matrix of rows, for bipartite graphs.
-    membership_col_ : sparse.csr_matrix, shape (n_col, n_labels)
-        Membership matrix of columns, for bipartite graphs.
+    probs_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distribution over labels.
+    labels_row_, labels_col_ : np.ndarray
+        Labels of rows and columns, for bipartite graphs.
+    probs_row_, probs_col_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distributions over labels for rows and columns (for bipartite graphs).
 
     Example
     -------
@@ -102,7 +98,7 @@ class Propagation(BaseClassifier):
         labels :
             Known labels (dictionary or array). Negative values ignored.
         labels_row, labels_col :
-            Labels of rows and columns (for bipartite graphs).
+            Known labels of rows and columns (for bipartite graphs).
         Returns
         -------
         self: :class:`Propagation`
@@ -138,11 +134,11 @@ class Propagation(BaseClassifier):
             labels_remain = labels[index_remain].copy()
             labels = np.asarray(vote_update(indptr, indices, data, labels, index_remain))
 
-        membership = get_membership(labels)
-        membership = normalize(adjacency.dot(membership))
+        probs = get_membership(labels)
+        probs = normalize(adjacency.dot(probs))
 
         self.labels_ = labels
-        self.membership_ = membership
+        self.probs_ = probs
         self._split_vars(input_matrix.shape)
 
         return self
