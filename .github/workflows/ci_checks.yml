@@ -8,6 +8,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    env:
+      WITH_CYTHON_PROFILE: ON
     strategy:
       fail-fast: false
       matrix:

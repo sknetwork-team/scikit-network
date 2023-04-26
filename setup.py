@@ -95,6 +95,12 @@ if os.environ.get('SKNETWORK_DISABLE_CYTHONIZE') is None:
 else:
     HAVE_CYTHON = False
 
+if os.environ.get('WITH_CYTHON_PROFILE') is not None:
+    ext_define_macros = [('CYTHON_TRACE_NOGIL', '1')]
+    compiler_directives = {'linetrace': True}
+else:
+    ext_define_macros = []
+    compiler_directives = {}
 
 if HAVE_CYTHON:
     from Cython.Build import cythonize
@@ -110,7 +116,10 @@ if HAVE_CYTHON:
 
         ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()],
                                            extra_compile_args=EXTRA_COMPILE_ARGS,
-                                           extra_link_args=EXTRA_LINK_ARGS), annotate=True)
+                                           extra_link_args=EXTRA_LINK_ARGS,
+                                           define_macros=ext_define_macros),
+                                 annotate=True,
+                                 compiler_directives=compiler_directives)
 else:
     ext_modules = [Extension(modules[index], [c_paths[index]], include_dirs=[numpy.get_include()])
                    for index in range(len(modules))]

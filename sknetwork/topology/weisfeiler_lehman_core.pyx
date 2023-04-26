@@ -1,7 +1,5 @@
 # distutils: language = c++
 # cython: language_level=3
-# cython: linetrace=True
-# distutils: define_macros=CYTHON_TRACE_NOGIL=1
 """
 Created on July 1, 2020
 @author: Pierre Pebereau <pierre.pebereau@telecom-paris.fr>
