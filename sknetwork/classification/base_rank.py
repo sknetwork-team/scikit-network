@@ -74,7 +74,7 @@ class RankClassifier(BaseClassifier, VerboseMixin):
 
     @staticmethod
     def _process_scores(scores: np.ndarray) -> np.ndarray:
-        """Post-processing of the membership matrix.
+        """Post-processing of the scores.
 
         Parameters
         ----------
