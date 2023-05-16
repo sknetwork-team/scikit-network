@@ -8,7 +8,7 @@ import warnings
 
 from sknetwork.data.load import *
 from sknetwork.data.toy_graphs import *
-from sknetwork.utils import Bunch
+from sknetwork.data import Bunch
 
 
 class TestDataAPI(unittest.TestCase):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on November 15, 2019
+Created in November 2019
 @author: Quentin Lutz <qlutz@enst.fr>
 """
 
@@ -19,11 +19,14 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.data.parse import from_csv, load_labels, load_header, load_metadata
-from sknetwork.utils import Bunch
+from sknetwork.data.base import Bunch
 from sknetwork.utils.check import is_square
 from sknetwork.utils.verbose import Log
 
 NETSET_URL = 'https://netset.telecom-paris.fr'
+
+# former name of Dataset
+Bunch = Bunch
 
 
 def is_within_directory(directory, target):
@@ -192,7 +195,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
 
     Notes
     -----
-    An attribute `meta` of the `Bunch` class is used to store information about the dataset if present. In any case,
+    An attribute `meta` of the `Dataset` class is used to store information about the dataset if present. In any case,
     `meta` has the attribute `name` which, if not given, is equal to the name of the dataset as passed to this function.
 
     References
@@ -278,7 +281,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
 
 
 def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[Union[str, Path]] = None):
-    """Save a Bunch in the specified data home to a collection of Numpy and Pickle files for faster subsequent loads.
+    """Save a dataset in the specified data home to a collection of Numpy and Pickle files for faster subsequent loads.
 
     Parameters
     ----------
@@ -305,7 +308,7 @@ def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[Unio
 
 
 def load_from_numpy_bundle(bundle_name: str, data_home: Optional[Union[str, Path]] = None):
-    """Load a Bunch from a collection of Numpy and Pickle files (inverse function of ``save_to_numpy_bundle``).
+    """Load a dataset from a collection of Numpy and Pickle files (inverse function of ``save_to_numpy_bundle``).
 
     Parameters
     ----------
@@ -340,8 +343,8 @@ def load_from_numpy_bundle(bundle_name: str, data_home: Optional[Union[str, Path
 
 
 def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Bunch]):
-    """Save a Bunch or a CSR matrix in the current directory to a collection of Numpy and Pickle files for faster
-    subsequent loads. Supported attribute types include sparse matrices, NumPy arrays, strings and Bunch.
+    """Save a dataset or a CSR matrix in the current directory to a collection of Numpy and Pickle files for faster
+    subsequent loads. Supported attribute types include sparse matrices, NumPy arrays, strings and objects Dataset.
 
     Parameters
     ----------
@@ -353,11 +356,11 @@ def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Bunch]):
     Example
     -------
     >>> from sknetwork.data import save
-    >>> my_dataset = Bunch()
-    >>> my_dataset.adjacency = sparse.csr_matrix(np.random.random((3, 3)) < 0.5)
-    >>> my_dataset.names = np.array(['a', 'b', 'c'])
-    >>> save('my_dataset', my_dataset)
-    >>> 'my_dataset' in listdir('.')
+    >>> dataset = Bunch()
+    >>> dataset.adjacency = sparse.csr_matrix(np.random.random((3, 3)) < 0.5)
+    >>> dataset.names = np.array(['a', 'b', 'c'])
+    >>> save('dataset', dataset)
+    >>> 'dataset' in listdir('.')
     True
     """
     folder = Path(folder)
@@ -365,12 +368,12 @@ def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Bunch]):
     if folder.exists():
         shutil.rmtree(folder)
     if isinstance(data, sparse.csr_matrix):
-        bunch = Bunch()
+        dataset = Bunch()
         if is_square(data):
-            bunch.adjacency = data
+            dataset.adjacency = data
         else:
-            bunch.biadjacency = data
-        data = bunch
+            dataset.biadjacency = data
+        data = dataset
     if folder.is_absolute():
         save_to_numpy_bundle(data, folder, '/')
     else:
@@ -378,7 +381,7 @@ def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Bunch]):
 
 
 def load(folder: Union[str, Path]):
-    """Load a Bunch from a previously created bundle from the current directory (inverse function of ``save``).
+    """Load a dataset from a previously created bundle from the current directory (inverse function of ``save``).
 
     Parameters
     ----------
@@ -393,13 +396,13 @@ def load(folder: Union[str, Path]):
     Example
     -------
     >>> from sknetwork.data import save
-    >>> my_dataset = Bunch()
-    >>> my_dataset.adjacency = sparse.csr_matrix(np.random.random((3, 3)) < 0.5)
-    >>> my_dataset.names = np.array(['a', 'b', 'c'])
-    >>> save('my_dataset', my_dataset)
-    >>> loaded_graph = load('my_dataset')
-    >>> loaded_graph.names[0]
-    'a'
+    >>> dataset = Bunch()
+    >>> dataset.adjacency = sparse.csr_matrix(np.random.random((3, 3)) < 0.5)
+    >>> dataset.names = np.array(['a', 'b', 'c'])
+    >>> save('dataset', dataset)
+    >>> dataset = load('dataset')
+    >>> print(dataset.names)
+    ['a' 'b' 'c']
     """
     folder = Path(folder)
     if folder.is_absolute():

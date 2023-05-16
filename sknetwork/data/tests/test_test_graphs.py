@@ -5,7 +5,6 @@
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Thomas Bonald <tbonald@enst.fr>
 """
-
 import unittest
 
 from sknetwork.data.test_graphs import *
