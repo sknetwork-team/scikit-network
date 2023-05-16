@@ -15,7 +15,7 @@ from sknetwork.linalg.basics import safe_sparse_dot
 class TestOperators(unittest.TestCase):
 
     def test_laplacian(self):
-        for adjacency in [test_graph(), test_graph_disconnect()]:
+        for adjacency in [test_graph(), test_disconnected_graph()]:
             n = adjacency.shape[1]
             # regular Laplacian
             laplacian = Laplacian(adjacency)
@@ -35,7 +35,7 @@ class TestOperators(unittest.TestCase):
             self.assertEqual(safe_sparse_dot(laplacian, np.ones(shape)).shape, shape)
 
     def test_normalizer(self):
-        for adjacency in [test_graph(), test_graph_disconnect()]:
+        for adjacency in [test_graph(), test_disconnected_graph()]:
             n_row, n_col = adjacency.shape
             # square matrix
             normalizer = Normalizer(adjacency)

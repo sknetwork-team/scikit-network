@@ -19,11 +19,11 @@ class TestTriangleListing(unittest.TestCase):
         self.assertEqual(Triangles().fit_transform(adjacency), 0)
 
     def test_disconnected(self):
-        adjacency = test_graph_disconnect()
+        adjacency = test_disconnected_graph()
         self.assertEqual(Triangles().fit_transform(adjacency), 1)
 
     def test_cliques(self):
-        adjacency = test_graph_clique()
+        adjacency = test_clique()
         n = adjacency.shape[0]
         nb = Triangles().fit_transform(adjacency)
         self.assertEqual(nb, comb(n, 3, exact=True))

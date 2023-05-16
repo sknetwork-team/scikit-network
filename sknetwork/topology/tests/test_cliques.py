@@ -18,11 +18,11 @@ class TestCliqueListing(unittest.TestCase):
         self.assertRaises(ValueError, cliques.fit_transform, adjacency)
 
     def test_disconnected(self):
-        adjacency = test_graph_disconnect()
+        adjacency = test_disconnected_graph()
         self.assertEqual(Cliques(3).fit_transform(adjacency), 1)
 
     def test_cliques(self):
-        adjacency = test_graph_clique()
+        adjacency = test_clique()
         n = adjacency.shape[0]
         self.assertEqual(Cliques(3).fit_transform(adjacency), comb(n, 3, exact=True))
         self.assertEqual(Cliques(4).fit_transform(adjacency), comb(n, 4, exact=True))

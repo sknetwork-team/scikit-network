@@ -15,7 +15,7 @@ class TestCoreDecomposition(unittest.TestCase):
         self.assertEqual(kcore.core_value_, 0)
 
     def test_cliques(self):
-        adjacency = test_graph_clique()
+        adjacency = test_clique()
         n = adjacency.shape[0]
         kcore = CoreDecomposition().fit(adjacency)
         self.assertEqual(kcore.core_value_, n - 1)

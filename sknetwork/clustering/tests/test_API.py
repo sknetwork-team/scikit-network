@@ -11,7 +11,7 @@ class TestClusteringAPI(unittest.TestCase):
 
     def test_regular(self):
         for algo in [Louvain(return_aggregate=True), PropagationClustering(return_aggregate=True)]:
-            for adjacency in [test_graph(), test_digraph(), test_graph_disconnect()]:
+            for adjacency in [test_graph(), test_digraph(), test_disconnected_graph()]:
                 n = adjacency.shape[0]
                 labels = algo.fit_predict(adjacency)
                 n_labels = len(set(labels))

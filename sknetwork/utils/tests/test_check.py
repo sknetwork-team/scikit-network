@@ -4,7 +4,7 @@
 import unittest
 
 from sknetwork.data import cyclic_digraph
-from sknetwork.data.test_graphs import test_graph_disconnect
+from sknetwork.data.test_graphs import test_disconnected_graph
 from sknetwork.utils.check import *
 from sknetwork.utils.format import check_csr_or_slr
 
@@ -26,7 +26,7 @@ class TestChecks(unittest.TestCase):
 
     def test_check_connected(self):
         with self.assertRaises(ValueError):
-            check_connected(test_graph_disconnect())
+            check_connected(test_disconnected_graph())
 
     def test_check_symmetry(self):
         with self.assertRaises(ValueError):
@@ -153,7 +153,7 @@ class TestChecks(unittest.TestCase):
         adjacency = cyclic_digraph(3)
         with self.assertRaises(ValueError):
             check_scaling(-1, adjacency, regularize=True)
-        adjacency = test_graph_disconnect()
+        adjacency = test_disconnected_graph()
         with self.assertRaises(ValueError):
             check_scaling(-1, adjacency, regularize=False)
 

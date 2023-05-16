@@ -40,7 +40,7 @@ def test_bigraph():
     return sparse.csr_matrix((data, (row, col)), shape=(6, 8))
 
 
-def test_graph_disconnect():
+def test_disconnected_graph():
     """Simple disconnected undirected graph, used for testing.
     10 nodes, 10 edges.
     """
@@ -68,7 +68,7 @@ def test_graph_bool():
     return adjacency
 
 
-def test_graph_clique():
+def test_clique():
     """Clique graph, used for testing (10 nodes, 45 edges).
     """
     n = 10

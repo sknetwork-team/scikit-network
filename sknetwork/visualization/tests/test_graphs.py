@@ -8,7 +8,7 @@ import unittest
 import numpy as np
 from scipy import sparse
 
-from sknetwork.data.test_graphs import test_graph_disconnect, test_bigraph_disconnect
+from sknetwork.data.test_graphs import test_disconnected_graph, test_bigraph_disconnect
 from sknetwork.data.toy_graphs import karate_club, painters, movie_actor, bow_tie, star_wars
 from sknetwork.visualization.graphs import svg_graph, svg_bigraph, svg_text, rescale
 
@@ -118,7 +118,7 @@ class TestVisualization(unittest.TestCase):
         self.assertEqual(image[1:4], 'svg')
 
     def test_disconnect(self):
-        adjacency = test_graph_disconnect()
+        adjacency = test_disconnected_graph()
         position = np.random.random((adjacency.shape[0], 2))
         image = svg_graph(adjacency, position)
         self.assertEqual(image[1:4], 'svg')

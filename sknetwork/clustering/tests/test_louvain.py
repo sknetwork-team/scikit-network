@@ -12,7 +12,7 @@ from sknetwork.utils import bipartite2undirected
 class TestLouvainClustering(unittest.TestCase):
 
     def test_disconnected(self):
-        adjacency = test_graph_disconnect()
+        adjacency = test_disconnected_graph()
         n = adjacency.shape[0]
         labels = Louvain().fit_predict(adjacency)
         self.assertEqual(len(labels), n)

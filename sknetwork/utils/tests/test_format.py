@@ -58,4 +58,6 @@ class TestFormats(unittest.TestCase):
 
     def test_check(self):
         with self.assertRaises(ValueError):
-            check_format(sparse.csr_matrix((3, 4)))
+            check_format(sparse.csr_matrix((3, 4)), allow_empty=False)
+        adjacency = check_format(np.array([[0, 2], [2, 3]]))
+        self.assertTrue(adjacency.shape == (2, 2))

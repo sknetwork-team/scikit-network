@@ -16,7 +16,7 @@ class TestWLColoring(unittest.TestCase):
         self.assertTrue((labels == np.zeros(10)).all())
 
     def test_cliques(self):
-        adjacency = test_graph_clique()
+        adjacency = test_clique()
         labels = WeisfeilerLehman().fit_transform(adjacency)
         self.assertTrue((labels == np.zeros(10)).all())
 

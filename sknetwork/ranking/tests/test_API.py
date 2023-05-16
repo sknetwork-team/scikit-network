@@ -3,14 +3,14 @@
 """tests for ranking API"""
 import unittest
 
-from sknetwork.data.test_graphs import test_bigraph, test_graph, test_digraph
+from sknetwork.data.test_graphs import *
 from sknetwork.ranking import *
 
 
 class TestPageRank(unittest.TestCase):
 
     def test_basic(self):
-        methods = [PageRank(), Closeness(), HITS(), Harmonic(), Katz()]
+        methods = [PageRank(), Closeness(), HITS(), Katz()]
         for adjacency in [test_graph(), test_digraph()]:
             n = adjacency.shape[0]
             for method in methods:

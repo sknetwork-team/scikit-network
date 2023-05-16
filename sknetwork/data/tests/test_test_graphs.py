@@ -16,7 +16,7 @@ class TestTestGraphs(unittest.TestCase):
     def test_undirected(self):
         adjacency = test_graph()
         self.assertEqual(adjacency.shape, (10, 10))
-        adjacency = test_graph_disconnect()
+        adjacency = test_disconnected_graph()
         self.assertEqual(adjacency.shape, (10, 10))
 
     def test_directed(self):

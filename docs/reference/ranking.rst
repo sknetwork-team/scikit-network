@@ -27,10 +27,6 @@ Closeness centrality
 --------------------
 .. autoclass:: sknetwork.ranking.Closeness
 
-Harmonic centrality
--------------------
-.. autoclass:: sknetwork.ranking.Harmonic
-
 Post-processing
 ---------------
 .. autofunction:: sknetwork.ranking.top_k
