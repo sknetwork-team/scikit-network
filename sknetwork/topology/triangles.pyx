@@ -1,52 +1,51 @@
 # distutils: language = c++
 # cython: language_level=3
 """
-Created on Jun 3, 2020
+Created in June 2020
 @author: Julien Simonnet <julien.simonnet@etu.upmc.fr>
 @author: Yohann Robert <yohann.robert@etu.upmc.fr>
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
+@author: Thomas Bonald <bonald@enst.fr>
 """
 from libcpp.vector cimport vector
 from scipy import sparse
-from scipy.special import comb
 from cython.parallel import prange
 
-from sknetwork.topology.dag import DAG
-from sknetwork.utils.base import Algorithm
+from sknetwork.path.dag import get_dag
+from sknetwork.utils.neighbors import get_degrees
 
 cimport cython
 
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef long count_local_triangles(int source, vector[int] indptr, vector[int] indices) nogil:
-    """Counts the number of nodes in the intersection of a node and its neighbors in a DAG.
+cdef long count_local_triangles_from_dag(int node, vector[int] indptr, vector[int] indices) nogil:
+    """Count the number of triangles from a given node in a directed acyclic graph.
 
     Parameters
     ----------
-    source :
-        Index of the node to study.
+    node :
+        Node.
     indptr :
-        CSR format index pointer array of the normalized adjacency matrix of a DAG.
+        CSR format index pointer array of the adjacency matrix of the graph.
     indices :
-        CSR format index array of the normalized adjacency matrix of a DAG.
+        CSR format index array of the adjacency matrix of the graph.
 
     Returns
     -------
     n_triangles :
-        Number of nodes in the intersection
+        Number of triangles.
     """
     cdef int i, j, k
-    cdef int v
-    cdef long n_triangles = 0		# number of nodes in the intersection
+    cdef int neighbor
+    cdef long n_triangles = 0
 
-    for k in range(indptr[source], indptr[source+1]):
-        v = indices[k]
-        i = indptr[source]
-        j = indptr[v]
+    for k in range(indptr[node], indptr[node + 1]):
+        neighbor = indices[k]
+        i = indptr[node]
+        j = indptr[neighbor]
 
-        # calculates the intersection of the neighbors of u and v
-        while (i < indptr[source+1]) and (j < indptr[v+1]):
+        while (i < indptr[node + 1]) and (j < indptr[neighbor + 1]):
             if indices[i] == indices[j]:
                 i += 1
                 j += 1
@@ -59,18 +58,17 @@ cdef long count_local_triangles(int source, vector[int] indptr, vector[int] indi
 
     return n_triangles
 
-
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef long fit_core(vector[int] indptr, vector[int] indices, bint parallelize):
-    """Counts the number of triangles directly without exporting the graph.
+cdef long count_triangles_from_dag(vector[int] indptr, vector[int] indices, bint parallelize):
+    """Count the number of triangles in a directed acyclic graph.
 
     Parameters
     ----------
     indptr :
-        CSR format index pointer array of the normalized adjacency matrix of a DAG.
+        CSR format index pointer array of the adjacency matrix of the graph.
     indices :
-        CSR format index array of the normalized adjacency matrix of a DAG.
+        CSR format index array of the adjacency matrix of the graph.
     parallelize :
         If ``True``, use a parallel range to count triangles.
 
@@ -79,86 +77,72 @@ cdef long fit_core(vector[int] indptr, vector[int] indices, bint parallelize):
     n_triangles :
         Number of triangles in the graph
     """
-    cdef int n = indptr.size() - 1
-    cdef int u
+    cdef int n_nodes = indptr.size() - 1
+    cdef int node
     cdef long n_triangles = 0
 
     if parallelize:
-        for u in prange(n, nogil=True):
-            n_triangles += count_local_triangles(u, indptr, indices)
+        for node in prange(n_nodes, nogil=True):
+            n_triangles += count_local_triangles_from_dag(node, indptr, indices)
     else:
-        for u in range(n):
-            n_triangles += count_local_triangles(u, indptr, indices)
+        for node in range(n_nodes):
+            n_triangles += count_local_triangles_from_dag(node, indptr, indices)
 
     return n_triangles
 
-
-class Triangles(Algorithm):
-    """Count the number of triangles in a graph, and evaluate the clustering coefficient.
-
-    * Graphs
+def count_triangles(adjacency: sparse.csr_matrix, parallelize: bool = False) -> int:
+    """Count the number of triangles in a graph.
 
     Parameters
     ----------
+    adjacency :
+        Adjacency matrix of the graph.
     parallelize :
         If ``True``, use a parallel range while listing the triangles.
 
-    Attributes
-    ----------
-    n_triangles_ : int
+    Returns
+    -------
+    n_triangles : int
         Number of triangles.
-    clustering_coef_ : float
-        Global clustering coefficient of the graph.
 
     Example
     -------
     >>> from sknetwork.data import karate_club
-    >>> triangles = Triangles()
     >>> adjacency = karate_club()
-    >>> triangles.fit_transform(adjacency)
+    >>> count_triangles(adjacency)
     45
     """
-    def __init__(self, parallelize : bool = False):
-        super(Triangles, self).__init__()
-        self.parallelize = parallelize
-        self.n_triangles_ = None
-        self.clustering_coef_ = None
+    dag = get_dag(adjacency)
+    indptr = dag.indptr
+    indices = dag.indices
+    n_triangles = count_triangles_from_dag(indptr, indices, parallelize)
+    return n_triangles
 
-    def fit(self, adjacency: sparse.csr_matrix) -> 'Triangles':
-        """Count triangles.
+def get_clustering_coefficient(adjacency: sparse.csr_matrix, parallelize: bool = False) -> float:
+    """Get the clustering coefficient of a graph.
 
-        Parameters
-        ----------
-        adjacency :
-            Adjacency matrix of the graph.
+    Parameters
+    ----------
+    adjacency :
+        Adjacency matrix of the graph.
+    parallelize :
+        If ``True``, use a parallel range while listing the triangles.
 
-        Returns
-        -------
-         self: :class:`Triangles`
-        """
-        degrees = adjacency.indptr[1:] - adjacency.indptr[:-1]
-        edge_pairs = comb(degrees, 2).sum()
+    Returns
+    -------
+    coefficient : float
+        Clustering coefficient.
 
-        dag = DAG(ordering='degree')
-        dag.fit(adjacency)
-        indptr = dag.indptr_
-        indices = dag.indices_
-
-        self.n_triangles_ = fit_core(indptr, indices, self.parallelize)
-        if edge_pairs > 0:
-            self.clustering_coef_ = 3 * self.n_triangles_ / edge_pairs
-        else:
-            self.clustering_coef_ = 0.
-
-        return self
-
-    def fit_transform(self, adjacency: sparse.csr_matrix) -> int:
-        """ Fit algorithm to the data and return the number of triangles. Same parameters as the ``fit`` method.
-
-        Returns
-        -------
-        n_triangles_ : int
-            Number of triangles.
-        """
-        self.fit(adjacency)
-        return self.n_triangles_
+    Example
+    -------
+    >>> from sknetwork.data import karate_club
+    >>> adjacency = karate_club()
+    >>> np.round(get_clustering_coefficient(adjacency), 2)
+    0.26
+    """
+    n_triangles = count_triangles(adjacency, parallelize)
+    degrees = get_degrees(adjacency)
+    degrees = degrees[degrees > 1]
+    n_edge_pairs = (degrees * (degrees - 1)).sum() / 2
+    coefficient = 3  * n_triangles / n_edge_pairs
+    return coefficient

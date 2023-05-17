@@ -1,7 +1,7 @@
 # distutils: language = c++
 # cython: language_level=3
 """
-Created on April, 2020
+Created in April 2020
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from libcpp.set cimport set

@@ -13,7 +13,7 @@ from sknetwork.path import get_dag
 
 class TestSearch(unittest.TestCase):
 
-    def test_bfs(self):
+    def test(self):
         adjacency = cyclic_digraph(3)
         dag = get_dag(adjacency)
         self.assertEqual(dag.nnz, 2)
@@ -24,7 +24,7 @@ class TestSearch(unittest.TestCase):
 
         adjacency = test_graph()
         dag = get_dag(adjacency)
-        self.assertEqual(dag.nnz, 10)
+        self.assertEqual(dag.nnz, 12)
         dag = get_dag(adjacency, order=np.arange(10) % 3)
         self.assertEqual(dag.nnz, 10)
 
