@@ -10,6 +10,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.classification.base import BaseClassifier
+from sknetwork.path.distances import get_distances
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.format import get_adjacency_values
 from sknetwork.utils.membership import get_membership
@@ -99,31 +100,34 @@ class DiffusionClassifier(BaseClassifier):
             raise ValueError('At least one node must be given a non-negative label.')
         temperatures = get_membership(labels).toarray()
         temperatures_seeds = temperatures[labels >= 0]
-        n_labels = temperatures.shape[1]
-        temperatures[labels < 0] = 1 / n_labels
+        temperatures[labels < 0] = 0.5
         diffusion = normalize(adjacency)
         for i in range(self.n_iter):
             temperatures = diffusion.dot(temperatures)
             temperatures[labels >= 0] = temperatures_seeds
-
-        self.probs_ = sparse.csr_matrix(temperatures)
-
         if self.centering:
             temperatures -= temperatures.mean(axis=0)
+            temperatures = np.maximum(temperatures, 0)
 
         labels_ = temperatures.argmax(axis=1)
-        # set label -1 to nodes without temperature (no diffusion to them)
-        labels_[get_degrees(self.probs_) == 0] = -1
 
+        # set label -1 to nodes not reached by diffusion
+        distances = get_distances(adjacency, source=np.flatnonzero(labels >= 0))
+        labels_[distances < 0] = -1
+        temperatures[distances < 0] = 0
+
+        # set label -1 to nodes with low confidence
         if self.threshold >= 0:
+            n_labels = temperatures.shape[1]
             if n_labels > 2:
                 top_temperatures = np.partition(-temperatures, 2, axis=1)[:, :2]
             else:
                 top_temperatures = temperatures
-            differences = np.abs(top_temperatures[:, 0] - top_temperatures[:, 1])
-            labels_[differences <= self.threshold] = -1
+            gap = np.abs(top_temperatures[:, 0] - top_temperatures[:, 1])
+            labels_[gap <= self.threshold] = -1
 
         self.labels_ = labels_
+        self.probs_ = sparse.csr_matrix(normalize(temperatures))
         self._split_vars(input_matrix.shape)
 
         return self

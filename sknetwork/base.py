@@ -11,7 +11,13 @@ class Algorithm:
     """Base class for all algorithms.
     """
     def get_params(self):
-        """Get parameters as dictionary."""
+        """Get parameters as dictionary.
+
+        Returns
+        -------
+        params : dict
+            Parameters of the algorithm.
+        """
         signature = inspect.signature(self.__class__.__init__)
         params_exclude = ['self', 'random_state', 'verbose']
         params = dict()
@@ -25,8 +31,18 @@ class Algorithm:
                 params[name] = value
         return params
 
-    def set_params(self, params: dict):
-        """Set parameters of the algorithm."""
+    def set_params(self, params: dict) -> 'Algorithm':
+        """Set parameters of the algorithm.
+
+        Parameters
+        ----------
+        params : dict
+            Parameters of the algorithm.
+
+        Returns
+        -------
+        self : :class:`Algorithm`
+        """
         valid_params = self.get_params()
         if type(params) is not dict:
             raise ValueError('The parameters must be given as a dictionary.')

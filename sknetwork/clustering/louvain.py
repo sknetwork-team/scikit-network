@@ -177,7 +177,7 @@ class Louvain(BaseClustering, Log):
 
         Returns
         -------
-        self: :class:`Louvain`
+        self : :class:`Louvain`
         """
         self._init_vars()
         input_matrix = check_format(input_matrix)
