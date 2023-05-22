@@ -17,7 +17,7 @@ from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.utils.check import check_random_state, get_probs
 from sknetwork.utils.format import check_format, get_adjacency, directed2undirected
 from sknetwork.utils.membership import get_membership
-from sknetwork.utils.log import Log
+from sknetwork.log import Log
 
 
 class Louvain(BaseClustering, Log):

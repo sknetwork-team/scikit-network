@@ -3,8 +3,8 @@
 """
 Created in December 2018
 @author: Quentin Lutz <qlutz@enst.fr>
-Nathan de Lara <nathan.delara@polytechnique.org>
-Thomas Bonald <bonald@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
+@author: Thomas Bonald <bonald@enst.fr>
 """
 
 from csv import reader

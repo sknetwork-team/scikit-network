@@ -9,7 +9,7 @@ from abc import ABC
 import numpy as np
 from scipy import sparse
 
-from sknetwork.utils.base import Algorithm
+from sknetwork.base import Algorithm
 
 
 class BaseClassifier(Algorithm, ABC):

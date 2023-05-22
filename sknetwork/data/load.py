@@ -21,7 +21,7 @@ from scipy import sparse
 from sknetwork.data.parse import from_csv, load_labels, load_header, load_metadata
 from sknetwork.data.base import Bunch
 from sknetwork.utils.check import is_square
-from sknetwork.utils.log import Log
+from sknetwork.log import Log
 
 NETSET_URL = 'https://netset.telecom-paris.fr'
 

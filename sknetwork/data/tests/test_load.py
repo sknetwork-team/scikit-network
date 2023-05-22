@@ -10,7 +10,7 @@ import numpy as np
 
 from sknetwork.data.load import load_netset, load_konect, clear_data_home, save, load
 from sknetwork.data.toy_graphs import house, star_wars
-from sknetwork.utils.timeout import TimeOut
+from sknetwork.data.timeout import TimeOut
 
 
 class TestLoader(unittest.TestCase):

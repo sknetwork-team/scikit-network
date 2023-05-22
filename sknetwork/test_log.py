@@ -4,7 +4,7 @@
 
 import unittest
 
-from sknetwork.utils.log import Log
+from sknetwork.log import Log
 
 
 class TestVerbose(unittest.TestCase):

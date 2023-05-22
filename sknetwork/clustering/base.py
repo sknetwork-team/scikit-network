@@ -10,7 +10,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.linalg.normalization import normalize
-from sknetwork.utils.base import Algorithm
+from sknetwork.base import Algorithm
 from sknetwork.utils.membership import get_membership
 
 

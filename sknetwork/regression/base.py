@@ -8,7 +8,7 @@ from abc import ABC
 
 import numpy as np
 
-from sknetwork.utils.base import Algorithm
+from sknetwork.base import Algorithm
 
 
 class BaseRegressor(Algorithm, ABC):

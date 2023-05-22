@@ -14,7 +14,7 @@ cimport numpy as np
 from scipy import sparse
 
 from sknetwork.utils.check import check_format
-from sknetwork.utils.minheap cimport MinHeap
+from sknetwork.topology.minheap cimport MinHeap
 
 
 @cython.boundscheck(False)

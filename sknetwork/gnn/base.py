@@ -15,8 +15,8 @@ from scipy import sparse
 
 from sknetwork.gnn.loss import BaseLoss, get_loss
 from sknetwork.gnn.optimizer import BaseOptimizer, get_optimizer
-from sknetwork.utils.base import Algorithm
-from sknetwork.utils.log import Log
+from sknetwork.base import Algorithm
+from sknetwork.log import Log
 
 
 class BaseGNN(ABC, Algorithm, Log):
