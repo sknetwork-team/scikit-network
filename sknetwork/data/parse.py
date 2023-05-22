@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Dec 5, 2018
+Created in December 2018
 @author: Quentin Lutz <qlutz@enst.fr>
-Nathan de Lara <nathan.delara@polytechnique.org>
-Thomas Bonald <bonald@enst.fr>
+@author: Nathan de Lara <nathan.delara@polytechnique.org>
+@author: Thomas Bonald <bonald@enst.fr>
 """
 
 from csv import reader
@@ -14,7 +14,7 @@ from xml.etree import ElementTree
 import numpy as np
 from scipy import sparse
 
-from sknetwork.utils import Bunch
+from sknetwork.data.base import Bunch
 from sknetwork.utils.format import directed2undirected
 
 
@@ -42,11 +42,11 @@ def from_edge_list(edge_list: Union[np.ndarray, List[Tuple]], directed: bool = F
         Otherwise, the weight of each edge is that of the first occurrence of this edge.
     matrix_only : bool
         If ``True``, returns only the adjacency or biadjacency matrix.
-        Otherwise, returns a ``Bunch`` object with graph attributes (e.g., node names).
+        Otherwise, returns a ``Dataset`` object with graph attributes (e.g., node names).
         If not specified (default), selects the most appropriate format.
     Returns
     -------
-    graph : :class:`Bunch` (including node names) or sparse matrix
+    graph : :class:`Dataset` (including node names) or sparse matrix
 
     Examples
     --------
@@ -109,11 +109,11 @@ def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], dire
         Otherwise, the weight of each edge is that of the first occurrence of this edge.
     matrix_only : bool
         If ``True``, returns only the adjacency or biadjacency matrix.
-        Otherwise, returns a ``Bunch`` object with graph attributes (e.g., node names).
+        Otherwise, returns a ``Dataset`` object with graph attributes (e.g., node names).
         If not specified (default), selects the most appropriate format.
     Returns
     -------
-    graph : :class:`Bunch` or sparse matrix
+    graph : :class:`Dataset` or sparse matrix
 
     Example
     -------
@@ -162,12 +162,12 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
         Otherwise, the weight of each edge is that of the first occurrence of this edge.
     matrix_only : bool
         If ``True``, returns only the adjacency or biadjacency matrix.
-        Otherwise, returns a ``Bunch`` object with graph attributes (e.g., node names).
+        Otherwise, returns a ``Dataset`` object with graph attributes (e.g., node names).
         If not specified (default), selects the most appropriate format.
 
     Returns
     -------
-    graph : :class:`Bunch` or sparse matrix
+    graph : :class:`Dataset` or sparse matrix
     """
     try:
         edge_array = edge_array.astype(float)
@@ -268,12 +268,12 @@ def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: s
         Otherwise, the weight of each edge is that of the first occurrence of this edge.
     matrix_only : bool
         If ``True``, returns only the adjacency or biadjacency matrix.
-        Otherwise, returns a ``Bunch`` object with graph attributes (e.g., node names).
+        Otherwise, returns a ``Dataset`` object with graph attributes (e.g., node names).
         If not specified (default), selects the most appropriate format.
 
     Returns
     -------
-    graph: :class:`Bunch` or sparse matrix
+    graph: :class:`Dataset` or sparse matrix
     """
     header_length, delimiter_guess, comment_guess, data_structure_guess = scan_header(file_path, delimiters=delimiter,
                                                                                       comments=comments)
@@ -439,7 +439,7 @@ def from_graphml(file_path: str, weight_key: str = 'weight', max_string_size: in
     Returns
     -------
     data: :class:`Bunch`
-        The dataset in a bunch with the adjacency as a CSR matrix.
+        The dataset in a Dataset with the adjacency as a CSR matrix.
     """
     # see http://graphml.graphdrawing.org/primer/graphml-primer.html
     # and http://graphml.graphdrawing.org/specification/dtd.html#top

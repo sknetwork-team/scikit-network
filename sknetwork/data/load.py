@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on November 15, 2019
+Created in November 2019
 @author: Quentin Lutz <qlutz@enst.fr>
 """
 
@@ -19,11 +19,14 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.data.parse import from_csv, load_labels, load_header, load_metadata
-from sknetwork.utils import Bunch
+from sknetwork.data.base import Bunch
 from sknetwork.utils.check import is_square
-from sknetwork.utils.verbose import Log
+from sknetwork.log import Log
 
 NETSET_URL = 'https://netset.telecom-paris.fr'
+
+# former name of Dataset
+Bunch = Bunch
 
 
 def is_within_directory(directory, target):
@@ -132,7 +135,7 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
     if not data_path.exists():
         name_npz = name + '_npz.tar.gz'
         try:
-            logger.print('Downloading', name, 'from NetSet...')
+            logger.print_log('Downloading', name, 'from NetSet...')
             urlretrieve(folder_npz + name_npz, data_netset / name_npz)
         except HTTPError:
             raise ValueError('Invalid dataset: ' + name + '.'
@@ -141,11 +144,11 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
         except ConnectionResetError:  # pragma: no cover
             raise RuntimeError("Could not reach Netset.")
         with tarfile.open(data_netset / name_npz, 'r:gz') as tar_ref:
-            logger.print('Unpacking archive...')
+            logger.print_log('Unpacking archive...')
             safe_extract(tar_ref, data_path)
 
     files = [file for file in listdir(data_path)]
-    logger.print('Parsing files...')
+    logger.print_log('Parsing files...')
     for file in files:
         file_components = file.split('.')
         if len(file_components) == 2:
@@ -159,7 +162,7 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
                     dataset[file_name] = pickle.load(f)
 
     clean_data_home(data_netset)
-    logger.print('Done.')
+    logger.print_log('Done.')
     return dataset
 
 
@@ -192,7 +195,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
 
     Notes
     -----
-    An attribute `meta` of the `Bunch` class is used to store information about the dataset if present. In any case,
+    An attribute `meta` of the `Dataset` class is used to store information about the dataset if present. In any case,
     `meta` has the attribute `name` which, if not given, is equal to the name of the dataset as passed to this function.
 
     References
@@ -221,11 +224,11 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
     data_path = data_konect / name
     name_tar = name + '.tar.bz2'
     if not data_path.exists():
-        logger.print('Downloading', name, 'from Konect...')
+        logger.print_log('Downloading', name, 'from Konect...')
         try:
             urlretrieve('http://konect.cc/files/download.tsv.' + name_tar, data_konect / name_tar)
             with tarfile.open(data_konect / name_tar, 'r:bz2') as tar_ref:
-                logger.print('Unpacking archive...')
+                logger.print_log('Unpacking archive...')
                 safe_extract(tar_ref, data_path)
         except (HTTPError, tarfile.ReadError):
             raise ValueError('Invalid dataset ' + name + '.'
@@ -234,7 +237,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
         except (URLError, ConnectionResetError):  # pragma: no cover
             raise RuntimeError("Could not reach Konect.")
     elif exists(data_path / (name + '_bundle')):
-        logger.print('Loading from local bundle...')
+        logger.print_log('Loading from local bundle...')
         return load_from_numpy_bundle(name + '_bundle', data_path)
 
     dataset = Bunch()
@@ -242,7 +245,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
     if not path.exists() or len(listdir(path)) == 0:
         raise Exception("No data downloaded.")
     files = [file for file in listdir(path) if name in file]
-    logger.print('Parsing files...')
+    logger.print_log('Parsing files...')
     matrix = [file for file in files if 'out.' in file]
     if matrix:
         file = matrix[0]
@@ -278,7 +281,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
 
 
 def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[Union[str, Path]] = None):
-    """Save a Bunch in the specified data home to a collection of Numpy and Pickle files for faster subsequent loads.
+    """Save a dataset in the specified data home to a collection of Numpy and Pickle files for faster subsequent loads.
 
     Parameters
     ----------
@@ -305,7 +308,7 @@ def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[Unio
 
 
 def load_from_numpy_bundle(bundle_name: str, data_home: Optional[Union[str, Path]] = None):
-    """Load a Bunch from a collection of Numpy and Pickle files (inverse function of ``save_to_numpy_bundle``).
+    """Load a dataset from a collection of Numpy and Pickle files (inverse function of ``save_to_numpy_bundle``).
 
     Parameters
     ----------
@@ -340,8 +343,8 @@ def load_from_numpy_bundle(bundle_name: str, data_home: Optional[Union[str, Path
 
 
 def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Bunch]):
-    """Save a Bunch or a CSR matrix in the current directory to a collection of Numpy and Pickle files for faster
-    subsequent loads. Supported attribute types include sparse matrices, NumPy arrays, strings and Bunch.
+    """Save a dataset or a CSR matrix in the current directory to a collection of Numpy and Pickle files for faster
+    subsequent loads. Supported attribute types include sparse matrices, NumPy arrays, strings and objects Dataset.
 
     Parameters
     ----------
@@ -353,11 +356,11 @@ def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Bunch]):
     Example
     -------
     >>> from sknetwork.data import save
-    >>> my_dataset = Bunch()
-    >>> my_dataset.adjacency = sparse.csr_matrix(np.random.random((3, 3)) < 0.5)
-    >>> my_dataset.names = np.array(['a', 'b', 'c'])
-    >>> save('my_dataset', my_dataset)
-    >>> 'my_dataset' in listdir('.')
+    >>> dataset = Bunch()
+    >>> dataset.adjacency = sparse.csr_matrix(np.random.random((3, 3)) < 0.5)
+    >>> dataset.names = np.array(['a', 'b', 'c'])
+    >>> save('dataset', dataset)
+    >>> 'dataset' in listdir('.')
     True
     """
     folder = Path(folder)
@@ -365,12 +368,12 @@ def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Bunch]):
     if folder.exists():
         shutil.rmtree(folder)
     if isinstance(data, sparse.csr_matrix):
-        bunch = Bunch()
+        dataset = Bunch()
         if is_square(data):
-            bunch.adjacency = data
+            dataset.adjacency = data
         else:
-            bunch.biadjacency = data
-        data = bunch
+            dataset.biadjacency = data
+        data = dataset
     if folder.is_absolute():
         save_to_numpy_bundle(data, folder, '/')
     else:
@@ -378,7 +381,7 @@ def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Bunch]):
 
 
 def load(folder: Union[str, Path]):
-    """Load a Bunch from a previously created bundle from the current directory (inverse function of ``save``).
+    """Load a dataset from a previously created bundle from the current directory (inverse function of ``save``).
 
     Parameters
     ----------
@@ -393,13 +396,13 @@ def load(folder: Union[str, Path]):
     Example
     -------
     >>> from sknetwork.data import save
-    >>> my_dataset = Bunch()
-    >>> my_dataset.adjacency = sparse.csr_matrix(np.random.random((3, 3)) < 0.5)
-    >>> my_dataset.names = np.array(['a', 'b', 'c'])
-    >>> save('my_dataset', my_dataset)
-    >>> loaded_graph = load('my_dataset')
-    >>> loaded_graph.names[0]
-    'a'
+    >>> dataset = Bunch()
+    >>> dataset.adjacency = sparse.csr_matrix(np.random.random((3, 3)) < 0.5)
+    >>> dataset.names = np.array(['a', 'b', 'c'])
+    >>> save('dataset', dataset)
+    >>> dataset = load('dataset')
+    >>> print(dataset.names)
+    ['a' 'b' 'c']
     """
     folder = Path(folder)
     if folder.is_absolute():

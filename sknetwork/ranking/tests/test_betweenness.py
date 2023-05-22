@@ -6,7 +6,7 @@ import unittest
 import numpy as np
 
 from sknetwork.ranking.betweenness import Betweenness
-from sknetwork.data.test_graphs import test_graph, test_graph_disconnect
+from sknetwork.data.test_graphs import test_graph, test_disconnected_graph
 from sknetwork.data.toy_graphs import bow_tie, star_wars
 
 
@@ -25,7 +25,7 @@ class TestBetweenness(unittest.TestCase):
         self.assertEqual(np.sum(scores > 0), 1)
 
     def test_disconnected(self):
-        adjacency = test_graph_disconnect()
+        adjacency = test_disconnected_graph()
         betweenness = Betweenness()
         with self.assertRaises(ValueError):
             betweenness.fit(adjacency)

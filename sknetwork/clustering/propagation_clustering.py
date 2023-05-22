@@ -31,25 +31,21 @@ class PropagationClustering(BaseClustering, Propagation):
         Otherwise, all votes have weight 1.
     sort_clusters :
         If ``True``, sort labels in decreasing order of cluster size.
-    return_membership :
-        If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
+    return_probs :
+        If ``True``, return the probability distribution over clusters (soft clustering).
     return_aggregate :
         If ``True``, return the aggregate adjacency matrix or biadjacency matrix between clusters.
 
     Attributes
     ----------
-    labels_ : np.ndarray
-        Labels of the nodes.
-    labels_row_ : np.ndarray
-        Labels of the rows (for bipartite graphs).
-    labels_col_ : np.ndarray
-        Labels of the columns (for bipartite graphs).
-    membership_ : sparse.csr_matrix
-        Membership matrix of the nodes, shape (n_nodes, n_clusters).
-    membership_row_ : sparse.csr_matrix
-        Membership matrix of the rows (for bipartite graphs).
-    membership_col_ : sparse.csr_matrix
-        Membership matrix of the columns (for bipartite graphs).
+    labels_ : np.ndarray, shape (n_labels,)
+        Label of each node.
+    probs_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distribution over labels.
+    labels_row_, labels_col_ : np.ndarray
+        Labels of rows and columns, for bipartite graphs.
+    probs_row_, probs_col_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distributions over labels for rows and columns (for bipartite graphs).
     aggregate_ : sparse.csr_matrix
         Aggregate adjacency matrix or biadjacency matrix between clusters.
 
@@ -72,9 +68,9 @@ class PropagationClustering(BaseClustering, Propagation):
     Physical review E, 76(3), 036106.
     """
     def __init__(self, n_iter: int = 5, node_order: str = 'decreasing', weighted: bool = True,
-                 sort_clusters: bool = True, return_membership: bool = True, return_aggregate: bool = True):
+                 sort_clusters: bool = True, return_probs: bool = True, return_aggregate: bool = True):
         Propagation.__init__(self, n_iter, node_order, weighted)
-        BaseClustering.__init__(self, sort_clusters, return_membership, return_aggregate)
+        BaseClustering.__init__(self, sort_clusters, return_probs, return_aggregate)
         self.bipartite = None
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'PropagationClustering':

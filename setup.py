@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Setup script."""
 
-"""The setup script."""
 
-
-from setuptools import find_packages
-import distutils.util
-from distutils.core import setup, Extension
+from setuptools import find_packages, setup, Extension
+from sysconfig import get_platform
 from distutils.command.build_ext import build_ext
 import os
 from glob import glob
@@ -37,23 +35,23 @@ LINK_OPTIONS = {"other": []}
 EXTRA_COMPILE_ARGS = ['-fopenmp']
 EXTRA_LINK_ARGS = ['-fopenmp']
 
-# Check whether we're on OSX >= 10.10
-name = distutils.util.get_platform()
-if name.startswith("macosx"):
+# Check whether we're on MacOSX >= 10.7
+platform = get_platform()
+if platform.startswith("macosx"):
     EXTRA_COMPILE_ARGS = []
     EXTRA_LINK_ARGS = []
     # EXTRA_COMPILE_ARGS = ['-lomp']
     # EXTRA_LINK_ARGS = ['-lomp']
-    version = name.split("-")[1].split(".")
+    version = platform.split("-")[1].split(".")
     if int(version[0]) > 10 or (int(version[0]) == 10 and int(version[1]) >= 7):
         COMPILE_OPTIONS["other"].append("-stdlib=libc++")
         LINK_OPTIONS["other"].append("-lc++")
-        # g++ (used by unix compiler on mac) links to libstdc++ as a default lib.
+        # g++ (used by unix compiler on MacOSX) links to libstdc++ as a default lib.
         # See: https://stackoverflow.com/questions/1653047/avoid-linking-to-libstdc
         LINK_OPTIONS["other"].append("-nodefaultlibs")
 
 # Windows does not (yet) support OpenMP
-if name.startswith("win"):
+if platform.startswith("win"):
     EXTRA_COMPILE_ARGS = ['/d2FH4-']
     EXTRA_LINK_ARGS = []
 
@@ -95,6 +93,12 @@ if os.environ.get('SKNETWORK_DISABLE_CYTHONIZE') is None:
 else:
     HAVE_CYTHON = False
 
+if os.environ.get('WITH_CYTHON_PROFILE') is not None:
+    ext_define_macros = [('CYTHON_TRACE_NOGIL', '1')]
+    compiler_directives = {'linetrace': True}
+else:
+    ext_define_macros = []
+    compiler_directives = {}
 
 if HAVE_CYTHON:
     from Cython.Build import cythonize
@@ -110,7 +114,10 @@ if HAVE_CYTHON:
 
         ext_modules += cythonize(Extension(name=mod_name, sources=[pyx_path], include_dirs=[numpy.get_include()],
                                            extra_compile_args=EXTRA_COMPILE_ARGS,
-                                           extra_link_args=EXTRA_LINK_ARGS), annotate=True)
+                                           extra_link_args=EXTRA_LINK_ARGS,
+                                           define_macros=ext_define_macros),
+                                 annotate=True,
+                                 compiler_directives=compiler_directives)
 else:
     ext_modules = [Extension(modules[index], [c_paths[index]], include_dirs=[numpy.get_include()])
                    for index in range(len(modules))]
@@ -130,7 +137,8 @@ setup(
         'Programming Language :: Cython',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10'
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11'
     ],
     description="Graph algorithms",
     install_requires=requirements,
@@ -151,4 +159,3 @@ setup(
     include_dirs=[numpy.get_include()],
     cmdclass={"build_ext": BuildExtSubclass}
 )
-

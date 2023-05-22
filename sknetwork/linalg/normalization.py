@@ -74,7 +74,7 @@ def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
     Returns
     -------
     normalized matrix :
-        Normalized matrix.
+        Normalized matrix (same format as input matrix).
     """
     norms = get_norms(matrix, p)
     diag = diagonal_pseudo_inverse(norms)

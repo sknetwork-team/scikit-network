@@ -16,10 +16,8 @@ from sknetwork.utils.check import check_format, check_square, check_connected
 
 
 class Closeness(BaseRanking):
-    """Closeness centrality of each node in a connected graph, corresponding to the average length of the
+    """Ranking by closeness centrality of each node in a connected graph, corresponding to the average length of the
     shortest paths from that node to all the other ones.
-
-    For a directed graph, the closeness centrality is computed in terms of outgoing paths.
 
     Parameters
     ----------
@@ -27,9 +25,6 @@ class Closeness(BaseRanking):
         Denotes if the results should be exact or approximate.
     tol: float
         If ``method=='approximate'``, the allowed tolerance on each score entry.
-    n_jobs:
-        If an integer value is given, denotes the number of workers to use (-1 means the maximum number will be used).
-        If ``None``, no parallel computations are made.
 
     Attributes
     ----------
@@ -55,12 +50,11 @@ class Closeness(BaseRanking):
     Society for Industrial and Applied Mathematics.
     """
 
-    def __init__(self, method: str = 'exact', tol: float = 1e-1, n_jobs: Optional[int] = None):
+    def __init__(self, method: str = 'exact', tol: float = 1e-1):
         super(Closeness, self).__init__()
 
         self.method = method
         self.tol = tol
-        self.n_jobs = n_jobs
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray]) -> 'Closeness':
         """Closeness centrality for connected graphs.
@@ -88,8 +82,11 @@ class Closeness(BaseRanking):
         else:
             raise ValueError("Method should be either 'exact' or 'approximate'.")
 
-        dists = get_distances(adjacency, n_jobs=self.n_jobs, sources=sources)
+        distances = np.array([get_distances(adjacency, source=source) for source in sources])
 
-        self.scores_ = ((n - 1) * n_sources / n) / dists.T.dot(np.ones(n_sources))
+        distances_min = np.min(distances, axis=1)
+        scores = (n - 1) / n / np.mean(distances, axis=1)
+        scores[distances_min < 0] = 0
+        self.scores_ = scores
 
         return self

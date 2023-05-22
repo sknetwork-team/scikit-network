@@ -10,6 +10,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.classification.base import BaseClassifier
+from sknetwork.path.distances import get_distances
 from sknetwork.linalg.normalization import normalize
 from sknetwork.utils.format import get_adjacency_values
 from sknetwork.utils.membership import get_membership
@@ -27,24 +28,20 @@ class DiffusionClassifier(BaseClassifier):
         Number of iterations of the diffusion (discrete time).
     centering : bool
         If ``True``, center the temperature of each label to its mean before classification (default).
-    threshold : float
-        Minimum difference of temperatures between the 2 top labels to classify a node (default = 0).
-        If the difference of temperatures does not exceed this threshold, return -1 for this node (no label).
+    scale : float
+        Multiplicative factor applied to tempreatures before softmax (default = 5).
+        Used only when centering is ``True``.
 
     Attributes
     ----------
     labels_ : np.ndarray, shape (n_labels,)
-        Label of each node.
-    membership_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Membership matrix.
-    labels_row_ : np.ndarray
-        Labels of rows, for bipartite graphs.
-    labels_col_ : np.ndarray
-        Labels of columns, for bipartite graphs.
-    membership_row_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Membership matrix of rows, for bipartite graphs.
-    membership_col_ : sparse.csr_matrix, shape (n_col, n_labels)
-        Membership matrix of columns, for bipartite graphs.
+        Labels of nodes.
+    probs_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distribution over labels.
+    labels_row_, labels_col_ : np.ndarray
+        Labels of rows and columns, for bipartite graphs.
+    probs_row_, probs_col_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distributions over labels for rows and columns (for bipartite graphs).
 
     Example
     -------
@@ -63,7 +60,7 @@ class DiffusionClassifier(BaseClassifier):
     Zhu, X., Lafferty, J., & Rosenfeld, R. (2005). `Semi-supervised learning with graphs`
     (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
     """
-    def __init__(self, n_iter: int = 10, centering: bool = True, threshold: float = 0):
+    def __init__(self, n_iter: int = 10, centering: bool = True, scale: float = 5):
         super(DiffusionClassifier, self).__init__()
 
         if n_iter <= 0:
@@ -71,7 +68,7 @@ class DiffusionClassifier(BaseClassifier):
         else:
             self.n_iter = n_iter
         self.centering = centering
-        self.threshold = threshold
+        self.scale = scale
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
             labels: Optional[Union[dict, np.ndarray]] = None, labels_row: Optional[Union[dict, np.ndarray]] = None,
@@ -103,31 +100,26 @@ class DiffusionClassifier(BaseClassifier):
             raise ValueError('At least one node must be given a non-negative label.')
         temperatures = get_membership(labels).toarray()
         temperatures_seeds = temperatures[labels >= 0]
-        n_labels = temperatures.shape[1]
-        temperatures[labels < 0] = 1 / n_labels
+        temperatures[labels < 0] = 0.5
         diffusion = normalize(adjacency)
         for i in range(self.n_iter):
             temperatures = diffusion.dot(temperatures)
             temperatures[labels >= 0] = temperatures_seeds
-
-        self.membership_ = sparse.csr_matrix(temperatures)
-
         if self.centering:
             temperatures -= temperatures.mean(axis=0)
-
         labels_ = temperatures.argmax(axis=1)
-        # set label -1 to nodes without temperature (no diffusion to them)
-        labels_[get_degrees(self.membership_) == 0] = -1
 
-        if self.threshold >= 0:
-            if n_labels > 2:
-                top_temperatures = np.partition(-temperatures, 2, axis=1)[:, :2]
-            else:
-                top_temperatures = temperatures
-            differences = np.abs(top_temperatures[:, 0] - top_temperatures[:, 1])
-            labels_[differences <= self.threshold] = -1
+        # softmax
+        if self.centering:
+            temperatures = np.exp(self.scale * temperatures)
+
+        # set label -1 to nodes not reached by diffusion
+        distances = get_distances(adjacency, source=np.flatnonzero(labels >= 0))
+        labels_[distances < 0] = -1
+        temperatures[distances < 0] = 0
 
         self.labels_ = labels_
+        self.probs_ = sparse.csr_matrix(normalize(temperatures))
         self._split_vars(input_matrix.shape)
 
         return self

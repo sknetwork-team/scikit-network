@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on November 2019
+Created in November 2019
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from abc import ABC
 
 import numpy as np
 
-from sknetwork.utils.base import Algorithm
+from sknetwork.base import Algorithm
 
 
 class BaseRanking(Algorithm, ABC):

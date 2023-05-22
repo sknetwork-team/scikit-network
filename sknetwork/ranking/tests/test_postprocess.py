@@ -19,3 +19,8 @@ class TestPostprocessing(unittest.TestCase):
         self.assertTrue(len(index) == 10)
         index = top_k(scores, 20)
         self.assertTrue(len(index) == 10)
+        scores = [3, 1, 6, 2]
+        index = top_k(scores, 2)
+        self.assertTrue(set(index) == {0, 2})
+        index = top_k(scores, 2, sort=True)
+        self.assertTrue(list(index) == [2, 0])

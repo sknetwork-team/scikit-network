@@ -134,7 +134,7 @@ def bipartite2undirected(biadjacency: Union[sparse.csr_matrix, SparseLR]) -> Uni
 
 
 def get_adjacency(input_matrix: Union[sparse.csr_matrix, np.ndarray], allow_directed: bool = True,
-                  force_bipartite: bool = False, force_directed: bool = False)\
+                  force_bipartite: bool = False, force_directed: bool = False, allow_empty: bool = False)\
         -> Tuple[sparse.csr_matrix, bool]:
     """Check the input matrix and return a proper adjacency matrix.
     Parameters
@@ -150,8 +150,10 @@ def get_adjacency(input_matrix: Union[sparse.csr_matrix, np.ndarray], allow_dire
     force_directed :
         If ``True`` return :math:`A  = \\begin{bmatrix} 0 & B \\\\ 0 & 0 \\end{bmatrix}`.
         Otherwise (default), return :math:`A  = \\begin{bmatrix} 0 & B \\\\ B^T & 0 \\end{bmatrix}`.
+    allow_empty :
+        If ``True``, allow the input matrix to be empty.
     """
-    input_matrix = check_format(input_matrix)
+    input_matrix = check_format(input_matrix, allow_empty=allow_empty)
     bipartite = False
     if force_bipartite or not is_square(input_matrix) or not (allow_directed or is_symmetric(input_matrix)):
         bipartite = True

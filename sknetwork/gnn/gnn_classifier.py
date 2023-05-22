@@ -246,19 +246,19 @@ class GNNClassifier(BaseGNN):
 
             if n_epochs > 10 and epoch % int(n_epochs / 10) == 0:
                 if val_accuracy is not None:
-                    self.log.print(
+                    self.print_log(
                         f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_accuracy:.3f}, '
                         f'val accuracy: {val_accuracy:.3f}')
                 else:
-                    self.log.print(
+                    self.print_log(
                         f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_accuracy:.3f}')
             elif n_epochs <= 10:
                 if val_accuracy is not None:
-                    self.log.print(
+                    self.print_log(
                         f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_accuracy:.3f}, '
                         f'val accuracy: {val_accuracy:.3f}')
                 else:
-                    self.log.print(
+                    self.print_log(
                         f'In epoch {epoch:>3}, loss: {loss_value:.3f}, train accuracy: {train_accuracy:.3f}')
 
             # Early stopping
@@ -269,7 +269,7 @@ class GNNClassifier(BaseGNN):
                 else:
                     count += 1
                     if count >= self.patience:
-                        self.log.print('Early stopping.')
+                        self.print_log('Early stopping.')
                         break
 
         output = self.forward(adjacencies, features)
@@ -326,6 +326,8 @@ class GNNClassifier(BaseGNN):
 
         if adjacency_vectors is None and feature_vectors is None:
             return self.labels_
+        elif adjacency_vectors is not None and feature_vectors is None:
+            raise ValueError('Missing value: feature matrix is missing.')
         elif adjacency_vectors is None:
             adjacency_vectors = sparse.identity(feature_vectors.shape[0], format='csr')
 

@@ -12,10 +12,7 @@ bumpversion==0.6.0
 wheel==0.38.4
 
 # standard package to produce coverage from test runs
-coverage>=6.2
-
-# visualization of reports from coverage
-codecov==2.1.12
+# coverage>=6.2
 
 # used to upload wheels and sources to PyPI
 twine>=3.7.1
@@ -47,4 +44,4 @@ pytest==6.2.5
 pytest-cov==3.0.0
 
 # C++ code generator for performance speed-up
-cython==0.29.26
+cython==0.29.30

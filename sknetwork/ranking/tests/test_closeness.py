@@ -20,15 +20,11 @@ class TestDiffusion(unittest.TestCase):
         n = adjacency.shape[0]
 
         closeness = Closeness(method='approximate')
-        scores1 = closeness.fit_predict(adjacency)
-        closeness = Closeness(method='approximate', n_jobs=-1)
-        scores2 = closeness.fit_predict(adjacency)
-
-        self.assertEqual(scores1.shape, (n,))
-        self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0)
+        scores = closeness.fit_predict(adjacency)
+        self.assertEqual(scores.shape, (n,))
 
     def test_disconnected(self):
-        adjacency = test_graph_disconnect()
+        adjacency = test_disconnected_graph()
         closeness = Closeness()
         with self.assertRaises(ValueError):
             closeness.fit(adjacency)

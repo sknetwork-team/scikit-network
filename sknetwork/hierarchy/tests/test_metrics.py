@@ -46,7 +46,7 @@ class TestMetrics(unittest.TestCase):
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.313, 2)
 
     def test_disconnected(self):
-        adjacency = test_graph_disconnect()
+        adjacency = test_disconnected_graph()
         dendrogram = self.paris.fit_transform(adjacency)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.682, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.464, 2)

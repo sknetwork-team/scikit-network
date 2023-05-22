@@ -13,7 +13,7 @@ from sknetwork.utils.format import bipartite2undirected
 class TestEmbeddings(unittest.TestCase):
 
     def test_undirected(self):
-        for adjacency in [test_graph(), test_graph_disconnect()]:
+        for adjacency in [test_graph(), test_disconnected_graph()]:
             n = adjacency.shape[0]
             # random walk
             spectral = Spectral(3, normalized=False)
@@ -42,7 +42,7 @@ class TestEmbeddings(unittest.TestCase):
             self.assertAlmostEqual(np.linalg.norm(embedding[6:8] - spectral.predict(adjacency[6:8])), 0)
 
     def test_regularization(self):
-        for adjacency in [test_graph(), test_graph_disconnect()]:
+        for adjacency in [test_graph(), test_disconnected_graph()]:
             n = adjacency.shape[0]
             # random walk
             regularization = 0.1
@@ -78,7 +78,7 @@ class TestEmbeddings(unittest.TestCase):
             self.assertAlmostEqual(np.linalg.norm(embedding_full.sum(axis=0)), 0)
 
     def test_normalization(self):
-        for adjacency in [test_graph(), test_graph_disconnect()]:
+        for adjacency in [test_graph(), test_disconnected_graph()]:
             spectral = Spectral(3)
             embedding = spectral.fit_transform(adjacency)
             self.assertAlmostEqual(np.linalg.norm(np.linalg.norm(embedding, axis=1) - np.ones(adjacency.shape[0])), 0)

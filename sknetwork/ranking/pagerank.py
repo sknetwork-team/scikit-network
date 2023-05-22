@@ -15,10 +15,9 @@ from sknetwork.linalg.ppr_solver import get_pagerank
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.check import check_damping_factor
 from sknetwork.utils.format import get_adjacency_values
-from sknetwork.utils.verbose import VerboseMixin
 
 
-class PageRank(BaseRanking, VerboseMixin):
+class PageRank(BaseRanking):
     """PageRank of each node, corresponding to its frequency of visit by a random walk.
 
     The random walk restarts with some fixed probability. The restart distribution can be personalized by the user.

@@ -13,7 +13,7 @@ import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import svds
 
-from sknetwork.utils.base import Algorithm
+from sknetwork.base import Algorithm
 
 
 class SVDSolver(Algorithm, ABC):

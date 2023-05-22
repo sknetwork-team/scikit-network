@@ -10,7 +10,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 from scipy.sparse.linalg import eigsh
-from sknetwork.utils.base import Algorithm
+from sknetwork.base import Algorithm
 
 
 class EigSolver(Algorithm, ABC):

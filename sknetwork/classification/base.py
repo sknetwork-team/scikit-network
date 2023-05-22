@@ -9,7 +9,7 @@ from abc import ABC
 import numpy as np
 from scipy import sparse
 
-from sknetwork.utils.base import Algorithm
+from sknetwork.base import Algorithm
 
 
 class BaseClassifier(Algorithm, ABC):
@@ -20,23 +20,23 @@ class BaseClassifier(Algorithm, ABC):
     bipartite : bool
         If ``True``, the fitted graph is bipartite.
     labels_ : np.ndarray, shape (n_labels,)
-        Label of each node.
-    membership_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Membership matrix (soft classification).
+        Labels of nodes.
+    probs_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distribution over labels (soft classification).
     labels_row_ , labels_col_ : np.ndarray
-        Label of rows and columns (for bipartite graphs).
-    membership_row_, membership_col_ : sparse.csr_matrix, shapes (n_row, n_labels) and (n_col, n_labels)
-        Membership matrices of rows and columns (for bipartite graphs).
+        Labels of rows and columns (for bipartite graphs).
+    probs_row_, probs_col_ : sparse.csr_matrix, shapes (n_row, n_labels) and (n_col, n_labels)
+        Probability distributions over labels for rows and columns (for bipartite graphs).
     """
 
     def __init__(self):
         self.bipartite = None
         self.labels_ = None
-        self.membership_ = None
+        self.probs_ = None
         self.labels_row_ = None
         self.labels_col_ = None
-        self.membership_row_ = None
-        self.membership_col_ = None
+        self.probs_row_ = None
+        self.probs_col_ = None
 
     def predict(self, columns=False) -> np.ndarray:
         """Return the labels predicted by the algorithm.
@@ -80,8 +80,8 @@ class BaseClassifier(Algorithm, ABC):
             Probability distribution over labels.
         """
         if columns:
-            return self.membership_col_.toarray()
-        return self.membership_.toarray()
+            return self.probs_col_.toarray()
+        return self.probs_.toarray()
 
     def fit_predict_proba(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to the data and return the probability distribution over labels.
@@ -105,12 +105,12 @@ class BaseClassifier(Algorithm, ABC):
 
         Returns
         -------
-        membership : sparse.csr_matrix
-            Probability distribution over labels (aka membership matrix).
+        probs : sparse.csr_matrix
+            Probability distribution over labels.
         """
         if columns:
-            return self.membership_col_
-        return self.membership_
+            return self.probs_col_
+        return self.probs_
 
     def fit_transform(self, *args, **kwargs) -> sparse.csr_matrix:
         """Fit algorithm to the data and return the probability distribution over labels in sparse format.
@@ -118,8 +118,8 @@ class BaseClassifier(Algorithm, ABC):
 
         Returns
         -------
-        membership : sparse.csr_matrix
-            Probability of each label.
+        probs : sparse.csr_matrix
+            Probability distribution over labels.
         """
         self.fit(*args, **kwargs)
         return self.transform()
@@ -131,12 +131,12 @@ class BaseClassifier(Algorithm, ABC):
             self.labels_row_ = self.labels_[:n_row]
             self.labels_col_ = self.labels_[n_row:]
             self.labels_ = self.labels_row_
-            self.membership_row_ = self.membership_[:n_row]
-            self.membership_col_ = self.membership_[n_row:]
-            self.membership_ = self.membership_row_
+            self.probs_row_ = self.probs_[:n_row]
+            self.probs_col_ = self.probs_[n_row:]
+            self.probs_ = self.probs_row_
         else:
             self.labels_row_ = self.labels_
             self.labels_col_ = self.labels_
-            self.membership_row_ = self.membership_
-            self.membership_col_ = self.membership_
+            self.probs_row_ = self.probs_
+            self.probs_col_ = self.probs_
         return self

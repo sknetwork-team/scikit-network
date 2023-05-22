@@ -8,7 +8,7 @@ import unittest
 import numpy as np
 from scipy import sparse
 
-from sknetwork.data.test_graphs import test_graph_disconnect, test_bigraph_disconnect
+from sknetwork.data.test_graphs import test_disconnected_graph, test_bigraph_disconnect
 from sknetwork.data.toy_graphs import karate_club, painters, movie_actor, bow_tie, star_wars
 from sknetwork.visualization.graphs import svg_graph, svg_bigraph, svg_text, rescale
 
@@ -118,7 +118,7 @@ class TestVisualization(unittest.TestCase):
         self.assertEqual(image[1:4], 'svg')
 
     def test_disconnect(self):
-        adjacency = test_graph_disconnect()
+        adjacency = test_disconnected_graph()
         position = np.random.random((adjacency.shape[0], 2))
         image = svg_graph(adjacency, position)
         self.assertEqual(image[1:4], 'svg')
@@ -126,15 +126,18 @@ class TestVisualization(unittest.TestCase):
         image = svg_bigraph(biadjacency)
         self.assertEqual(image[1:4], 'svg')
 
-    def test_membership(self):
+    def test_probs(self):
         adjacency = bow_tie()
-        membership = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0], [0, 1], [0, 1]])
-        image = svg_graph(adjacency, membership=membership)
+        probs = np.array([[.5, .5], [0, 0], [1, 0], [0, 1], [0, 1]])
+        image = svg_graph(adjacency, probs=probs)
+        self.assertEqual(image[1:4], 'svg')
+        probs = sparse.csr_matrix(probs)
+        image = svg_graph(adjacency, probs=probs)
         self.assertEqual(image[1:4], 'svg')
         biadjacency = star_wars()
-        membership_row = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0], [0, 1]])
-        membership_col = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0]])
-        image = svg_bigraph(biadjacency, membership_row=membership_row, membership_col=membership_col)
+        probs_row = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0], [0, 1]])
+        probs_col = sparse.csr_matrix([[.5, .5], [0, 0], [1, 0]])
+        image = svg_bigraph(biadjacency, probs_row=probs_row, probs_col=probs_col)
         self.assertEqual(image[1:4], 'svg')
 
     def test_labels(self):

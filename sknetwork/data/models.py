@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Jul 1, 2019
+Created in July 2019
 @author: Thomas Bonald <bonald@enst.fr>
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
@@ -12,8 +12,8 @@ from typing import Union, Optional, Iterable
 import numpy as np
 from scipy import sparse
 
+from sknetwork.data.base import Bunch
 from sknetwork.data.parse import from_edge_list
-from sknetwork.utils import Bunch
 from sknetwork.utils.check import check_random_state
 from sknetwork.utils.format import directed2undirected
 
@@ -36,12 +36,12 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     self_loops :
          If ``True``, allow self-loops.
     metadata :
-        If ``True``, return a `Bunch` object with labels.
+        If ``True``, return a `Dataset` object with labels.
     seed :
         Seed of the random generator (optional).
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+    adjacency or graph : Union[sparse.csr_matrix, Dataset]
         Adjacency matrix or graph with metadata (labels).
 
     Example
@@ -137,11 +137,11 @@ def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
     n : int
         Number of nodes.
     metadata : bool
-        If ``True``, return a `Bunch` object with metadata.
+        If ``True``, return a `Dataset` object with metadata.
 
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+    adjacency or graph : Union[sparse.csr_matrix, Dataset]
         Adjacency matrix or graph with metadata (positions).
 
     Example
@@ -174,11 +174,11 @@ def linear_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix,
     n : int
         Number of nodes.
     metadata : bool
-        If ``True``, return a `Bunch` object with metadata.
+        If ``True``, return a `Dataset` object with metadata.
 
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+    adjacency or graph : Union[sparse.csr_matrix, Dataset]
         Adjacency matrix or graph with metadata (positions).
 
     Example
@@ -226,11 +226,11 @@ def cyclic_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
     n : int
         Number of nodes.
     metadata : bool
-        If ``True``, return a `Bunch` object with metadata.
+        If ``True``, return a `Dataset` object with metadata.
 
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+    adjacency or graph : Union[sparse.csr_matrix, Dataset]
         Adjacency matrix or graph with metadata (positions).
 
     Example
@@ -261,11 +261,11 @@ def cyclic_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix,
     n : int
         Number of nodes.
     metadata : bool
-        If ``True``, return a `Bunch` object with metadata.
+        If ``True``, return a `Dataset` object with metadata.
 
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+    adjacency or graph : Union[sparse.csr_matrix, Dataset]
         Adjacency matrix or graph with metadata (positions).
 
     Example
@@ -291,11 +291,11 @@ def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr
     n1, n2 : int
         Grid dimension.
     metadata : bool
-        If ``True``, return a `Bunch` object with metadata.
+        If ``True``, return a `Dataset` object with metadata.
 
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+    adjacency or graph : Union[sparse.csr_matrix, Dataset]
         Adjacency matrix or graph with metadata (positions).
 
     Example
@@ -328,11 +328,11 @@ def star(n_branches: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix
     n_branches : int
         Number of branches.
     metadata : bool
-        If ``True``, return a `Bunch` object with metadata (positions).
+        If ``True``, return a `Dataset` object with metadata (positions).
 
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+    adjacency or graph : Union[sparse.csr_matrix, Dataset]
         Adjacency matrix or graph with metadata (positions).
 
     Example
@@ -416,10 +416,10 @@ def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, seed: Opti
     seed :
         Seed of the random generator (optional).
     metadata :
-        If ``True``, return a `Bunch` object with metadata.
+        If ``True``, return a `Dataset` object with metadata.
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+    adjacency or graph : Union[sparse.csr_matrix, Dataset]
         Adjacency matrix or graph with metadata (positions).
 
     Example

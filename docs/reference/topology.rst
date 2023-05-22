@@ -3,7 +3,7 @@
 Topology
 ********
 
-Algorithms for the analysis of graph topology.
+Functions related to graph topology.
 
 Connectivity
 ------------
@@ -21,25 +21,30 @@ Structure
 
 .. autofunction:: sknetwork.topology.is_acyclic
 
-.. autoclass:: sknetwork.topology.DAG
 
 Core decomposition
 ------------------
 
-.. autoclass:: sknetwork.topology.CoreDecomposition
+.. autoclass:: sknetwork.topology.get_core_decomposition
+
+
+Triangles
+---------
+
+.. autoclass:: sknetwork.topology.count_triangles
+
+.. autoclass:: sknetwork.topology.get_clustering_coefficient
 
 
 Cliques
 -------
 
-.. autoclass:: sknetwork.topology.Triangles
-
-.. autoclass:: sknetwork.topology.Cliques
+.. autoclass:: sknetwork.topology.count_cliques
 
 
 Isomorphism
 -----------
 
-.. autoclass:: sknetwork.topology.WeisfeilerLehman
+.. autoclass:: sknetwork.topology.color_weisfeiler_lehman
 
 .. autofunction:: sknetwork.topology.are_isomorphic

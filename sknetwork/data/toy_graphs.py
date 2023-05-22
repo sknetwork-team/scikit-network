@@ -11,7 +11,7 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.utils import Bunch
+from sknetwork.data.base import Bunch
 
 
 def house(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
@@ -23,11 +23,11 @@ def house(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     Parameters
     ----------
     metadata :
-        If ``True``, return a `Bunch` object with metadata.
+        If ``True``, return a `Dataset` object with metadata.
 
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+    adjacency or graph : Union[sparse.csr_matrix, Dataset]
         Adjacency matrix or graph with metadata (positions).
 
     Example
@@ -64,11 +64,11 @@ def bow_tie(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     Parameters
     ----------
     metadata :
-        If ``True``, return a `Bunch` object with metadata.
+        If ``True``, return a `Dataset` object with metadata.
 
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+    adjacency or graph : Union[sparse.csr_matrix, Dataset]
         Adjacency matrix or graph with metadata (positions).
 
     Example
@@ -105,11 +105,11 @@ def karate_club(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     Parameters
     ----------
     metadata :
-        If ``True``, return a `Bunch` object with metadata.
+        If ``True``, return a `Dataset` object with metadata.
 
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+    adjacency or graph : Union[sparse.csr_matrix, Dataset]
         Adjacency matrix or graph with metadata (labels, positions).
 
     Example
@@ -170,11 +170,11 @@ def miserables(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     Parameters
     ----------
     metadata :
-        If ``True``, return a `Bunch` object with metadata.
+        If ``True``, return a `Dataset` object with metadata.
 
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+    adjacency or graph : Union[sparse.csr_matrix, Dataset]
         Adjacency matrix or graph with metadata (names, positions).
 
     Example
@@ -277,11 +277,11 @@ def painters(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     Parameters
     ----------
     metadata :
-        If ``True``, return a `Bunch` object with metadata.
+        If ``True``, return a `Dataset` object with metadata.
 
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+    adjacency or graph : Union[sparse.csr_matrix, Dataset]
         Adjacency matrix or graph with metadata (names, positions).
 
     Example
@@ -330,7 +330,7 @@ def hourglass(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
 
     Returns
     -------
-    biadjacency or graph : Union[sparse.csr_matrix, Bunch]
+    biadjacency or graph : Union[sparse.csr_matrix, Dataset]
         Biadjacency matrix or graph.
 
     Example
@@ -359,11 +359,11 @@ def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     Parameters
     ----------
     metadata :
-        If ``True``, return a `Bunch` object with metadata.
+        If ``True``, return a `Dataset` object with metadata.
 
     Returns
     -------
-    biadjacency or graph : Union[sparse.csr_matrix, Bunch]
+    biadjacency or graph : Union[sparse.csr_matrix, Dataset]
         Biadjacency matrix or graph with metadata (names).
 
     Example
@@ -403,11 +403,11 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     Parameters
     ----------
     metadata :
-        If ``True``, return a `Bunch` object with metadata.
+        If ``True``, return a `Dataset` object with metadata.
 
     Returns
     -------
-    biadjacency or graph : Union[sparse.csr_matrix, Bunch]
+    biadjacency or graph : Union[sparse.csr_matrix, Dataset]
         Biadjacency matrix or graph with metadata (names).
 
     Example
@@ -465,11 +465,11 @@ def art_philo_science(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]
     Parameters
     ----------
     metadata :
-        If ``True``, return a `Bunch` object with metadata.
+        If ``True``, return a `Dataset` object with metadata.
 
     Returns
     -------
-    adjacency or graph : Union[sparse.csr_matrix, Bunch]
+    adjacency or graph : Union[sparse.csr_matrix, Dataset]
         Adjacency matrix or graph with metadata (names, positions, labels, names_labels,
         biadjacency, names_col).
 

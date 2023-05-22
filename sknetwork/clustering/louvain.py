@@ -17,10 +17,10 @@ from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.utils.check import check_random_state, get_probs
 from sknetwork.utils.format import check_format, get_adjacency, directed2undirected
 from sknetwork.utils.membership import get_membership
-from sknetwork.utils.verbose import VerboseMixin
+from sknetwork.log import Log
 
 
-class Louvain(BaseClustering, VerboseMixin):
+class Louvain(BaseClustering, Log):
     """Louvain algorithm for clustering graphs by maximization of modularity.
 
     For bipartite graphs, the algorithm maximizes Barber's modularity by default.
@@ -42,8 +42,8 @@ class Louvain(BaseClustering, VerboseMixin):
         Enables node shuffling before optimization.
     sort_clusters :
         If ``True``, sort labels in decreasing order of cluster size.
-    return_membership :
-        If ``True``, return the membership matrix of nodes to each cluster (soft clustering).
+    return_probs :
+        If ``True``, return the probability distribution over clusters (soft clustering).
     return_aggregate :
         If ``True``, return the adjacency matrix of the graph between clusters.
     random_state :
@@ -53,18 +53,14 @@ class Louvain(BaseClustering, VerboseMixin):
 
     Attributes
     ----------
-    labels_ : np.ndarray
-        Labels of the nodes.
-    labels_row_ : np.ndarray
-        Labels of the rows (for bipartite graphs).
-    labels_col_ : np.ndarray
-        Labels of the columns (for bipartite graphs).
-    membership_ : sparse.csr_matrix
-        Membership matrix of the nodes, shape (n_nodes, n_clusters).
-    membership_row_ : sparse.csr_matrix
-        Membership matrix of the rows (for bipartite graphs).
-    membership_col_ : sparse.csr_matrix
-        Membership matrix of the columns (for bipartite graphs).
+    labels_ : np.ndarray, shape (n_labels,)
+        Label of each node.
+    probs_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distribution over labels.
+    labels_row_, labels_col_ : np.ndarray
+        Labels of rows and columns, for bipartite graphs.
+    probs_row_, probs_col_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distributions over labels for rows and columns (for bipartite graphs).
     aggregate_ : sparse.csr_matrix
         Aggregate adjacency matrix or biadjacency matrix between clusters.
 
@@ -97,11 +93,11 @@ class Louvain(BaseClustering, VerboseMixin):
     """
     def __init__(self, resolution: float = 1, modularity: str = 'dugue', tol_optimization: float = 1e-3,
                  tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
-                 sort_clusters: bool = True, return_membership: bool = True, return_aggregate: bool = True,
+                 sort_clusters: bool = True, return_probs: bool = True, return_aggregate: bool = True,
                  random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
-        super(Louvain, self).__init__(sort_clusters=sort_clusters, return_membership=return_membership,
+        super(Louvain, self).__init__(sort_clusters=sort_clusters, return_probs=return_probs,
                                       return_aggregate=return_aggregate)
-        VerboseMixin.__init__(self, verbose)
+        Log.__init__(self, verbose)
 
         self.labels_ = None
         self.resolution = resolution
@@ -181,7 +177,7 @@ class Louvain(BaseClustering, VerboseMixin):
 
         Returns
         -------
-        self: :class:`Louvain`
+        self : :class:`Louvain`
         """
         self._init_vars()
         input_matrix = check_format(input_matrix)
@@ -215,7 +211,7 @@ class Louvain(BaseClustering, VerboseMixin):
         membership = sparse.identity(n, format='csr')
         increase = True
         count_aggregations = 0
-        self.log.print("Starting with", n, "nodes.")
+        self.print_log("Starting with", n, "nodes.")
         while increase:
             count_aggregations += 1
 
@@ -233,7 +229,7 @@ class Louvain(BaseClustering, VerboseMixin):
                 n = adjacency_cluster.shape[0]
                 if n == 1:
                     break
-            self.log.print("Aggregation", count_aggregations, "completed with", n, "clusters and ",
+            self.print_log("Aggregation", count_aggregations, "completed with", n, "clusters and ",
                            pass_increase, "increment.")
             if count_aggregations == self.n_aggregations:
                 break
