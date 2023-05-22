@@ -17,10 +17,10 @@ from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.utils.check import check_random_state, get_probs
 from sknetwork.utils.format import check_format, get_adjacency, directed2undirected
 from sknetwork.utils.membership import get_membership
-from sknetwork.utils.verbose import VerboseMixin
+from sknetwork.utils.log import Log
 
 
-class Louvain(BaseClustering, VerboseMixin):
+class Louvain(BaseClustering, Log):
     """Louvain algorithm for clustering graphs by maximization of modularity.
 
     For bipartite graphs, the algorithm maximizes Barber's modularity by default.
@@ -97,7 +97,7 @@ class Louvain(BaseClustering, VerboseMixin):
                  random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
         super(Louvain, self).__init__(sort_clusters=sort_clusters, return_probs=return_probs,
                                       return_aggregate=return_aggregate)
-        VerboseMixin.__init__(self, verbose)
+        Log.__init__(self, verbose)
 
         self.labels_ = None
         self.resolution = resolution
@@ -211,7 +211,7 @@ class Louvain(BaseClustering, VerboseMixin):
         membership = sparse.identity(n, format='csr')
         increase = True
         count_aggregations = 0
-        self.log.print("Starting with", n, "nodes.")
+        self.print_log("Starting with", n, "nodes.")
         while increase:
             count_aggregations += 1
 
@@ -229,7 +229,7 @@ class Louvain(BaseClustering, VerboseMixin):
                 n = adjacency_cluster.shape[0]
                 if n == 1:
                     break
-            self.log.print("Aggregation", count_aggregations, "completed with", n, "clusters and ",
+            self.print_log("Aggregation", count_aggregations, "completed with", n, "clusters and ",
                            pass_increase, "increment.")
             if count_aggregations == self.n_aggregations:
                 break

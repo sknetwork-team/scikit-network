@@ -15,11 +15,11 @@ from scipy import sparse
 
 from sknetwork.gnn.loss import BaseLoss, get_loss
 from sknetwork.gnn.optimizer import BaseOptimizer, get_optimizer
-from sknetwork.utils.verbose import VerboseMixin
 from sknetwork.utils.base import Algorithm
+from sknetwork.utils.log import Log
 
 
-class BaseGNN(Algorithm, ABC, VerboseMixin):
+class BaseGNN(ABC, Algorithm, Log):
     """Base class for GNNs.
 
     Parameters
@@ -47,7 +47,7 @@ class BaseGNN(Algorithm, ABC, VerboseMixin):
     """
     def __init__(self, loss: Union[BaseLoss, str] = 'CrossEntropy', optimizer: Union[BaseOptimizer, str] = 'Adam',
                  learning_rate: float = 0.01, verbose: bool = False):
-        VerboseMixin.__init__(self, verbose)
+        Log.__init__(self, verbose)
         self.optimizer = get_optimizer(optimizer, learning_rate)
         self.loss = get_loss(loss)
         self.layers = []

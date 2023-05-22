@@ -4,12 +4,12 @@
 
 import unittest
 
-from sknetwork.utils.verbose import VerboseMixin
+from sknetwork.utils.log import Log
 
 
 class TestVerbose(unittest.TestCase):
 
     def test_prints(self):
-        verbose = VerboseMixin(verbose=True)
-        verbose.log.print('There are', 4, 'seasons in a year')
-        self.assertEqual(str(verbose.log), 'There are 4 seasons in a year\n')
+        logger = Log(verbose=True)
+        logger.print_log('Hello', 42)
+        self.assertEqual(str(logger.log), 'Hello 42\n')

@@ -16,10 +16,9 @@ from sknetwork.linalg.normalization import normalize
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.check import check_labels, check_n_jobs
 from sknetwork.utils.format import get_adjacency_values
-from sknetwork.utils.verbose import VerboseMixin
 
 
-class RankClassifier(BaseClassifier, VerboseMixin):
+class RankClassifier(BaseClassifier):
     """Generic class for ranking based classifiers.
 
     Parameters
@@ -29,8 +28,6 @@ class RankClassifier(BaseClassifier, VerboseMixin):
     n_jobs :
         If positive, number of parallel jobs allowed (-1 means maximum number).
         If ``None``, no parallel computations are made.
-    verbose :
-        Verbose mode.
 
     Attributes
     ----------
@@ -45,7 +42,6 @@ class RankClassifier(BaseClassifier, VerboseMixin):
     """
     def __init__(self, algorithm: BaseRanking, n_jobs: Optional[int] = None, verbose: bool = False):
         super(RankClassifier, self).__init__()
-        VerboseMixin.__init__(self, verbose)
 
         self.algorithm = algorithm
         self.n_jobs = check_n_jobs(n_jobs)

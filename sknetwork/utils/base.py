@@ -8,23 +8,23 @@ import inspect
 
 
 class Algorithm:
-    """Base class for all algorithms."""
+    """Base class for all algorithms.
+    """
     def __repr__(self):
-        # parameters not to display
-        arg_black_list = ['self', 'random_state', 'verbose']
+        params_exclude = ['self', 'random_state', 'verbose']
         output = self.__class__.__name__ + '('
         signature = inspect.signature(self.__class__.__init__)
-        arguments = [arg.name for arg in signature.parameters.values() if arg.name not in arg_black_list]
-        for p in arguments:
+        params = [param.name for param in signature.parameters.values() if param.name not in params_exclude]
+        for param in params:
             try:
-                val = self.__dict__[p]
+                value = self.__dict__[param]
             except KeyError:
                 continue
-            if type(val) == str:
-                val = "'" + val + "'"
+            if type(value) == str:
+                value = "'" + value + "'"
             else:
-                val = str(val)
-            output += p + '=' + val + ', '
+                value = str(value)
+            output += param + '=' + value + ', '
         if output[-1] != '(':
             return output[:-2] + ')'
         else:

@@ -21,7 +21,7 @@ from scipy import sparse
 from sknetwork.data.parse import from_csv, load_labels, load_header, load_metadata
 from sknetwork.data.base import Bunch
 from sknetwork.utils.check import is_square
-from sknetwork.utils.verbose import Log
+from sknetwork.utils.log import Log
 
 NETSET_URL = 'https://netset.telecom-paris.fr'
 
@@ -135,7 +135,7 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
     if not data_path.exists():
         name_npz = name + '_npz.tar.gz'
         try:
-            logger.print('Downloading', name, 'from NetSet...')
+            logger.print_log('Downloading', name, 'from NetSet...')
             urlretrieve(folder_npz + name_npz, data_netset / name_npz)
         except HTTPError:
             raise ValueError('Invalid dataset: ' + name + '.'
@@ -144,11 +144,11 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
         except ConnectionResetError:  # pragma: no cover
             raise RuntimeError("Could not reach Netset.")
         with tarfile.open(data_netset / name_npz, 'r:gz') as tar_ref:
-            logger.print('Unpacking archive...')
+            logger.print_log('Unpacking archive...')
             safe_extract(tar_ref, data_path)
 
     files = [file for file in listdir(data_path)]
-    logger.print('Parsing files...')
+    logger.print_log('Parsing files...')
     for file in files:
         file_components = file.split('.')
         if len(file_components) == 2:
@@ -162,7 +162,7 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
                     dataset[file_name] = pickle.load(f)
 
     clean_data_home(data_netset)
-    logger.print('Done.')
+    logger.print_log('Done.')
     return dataset
 
 
@@ -224,11 +224,11 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
     data_path = data_konect / name
     name_tar = name + '.tar.bz2'
     if not data_path.exists():
-        logger.print('Downloading', name, 'from Konect...')
+        logger.print_log('Downloading', name, 'from Konect...')
         try:
             urlretrieve('http://konect.cc/files/download.tsv.' + name_tar, data_konect / name_tar)
             with tarfile.open(data_konect / name_tar, 'r:bz2') as tar_ref:
-                logger.print('Unpacking archive...')
+                logger.print_log('Unpacking archive...')
                 safe_extract(tar_ref, data_path)
         except (HTTPError, tarfile.ReadError):
             raise ValueError('Invalid dataset ' + name + '.'
@@ -237,7 +237,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
         except (URLError, ConnectionResetError):  # pragma: no cover
             raise RuntimeError("Could not reach Konect.")
     elif exists(data_path / (name + '_bundle')):
-        logger.print('Loading from local bundle...')
+        logger.print_log('Loading from local bundle...')
         return load_from_numpy_bundle(name + '_bundle', data_path)
 
     dataset = Bunch()
@@ -245,7 +245,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
     if not path.exists() or len(listdir(path)) == 0:
         raise Exception("No data downloaded.")
     files = [file for file in listdir(path) if name in file]
-    logger.print('Parsing files...')
+    logger.print_log('Parsing files...')
     matrix = [file for file in files if 'out.' in file]
     if matrix:
         file = matrix[0]
