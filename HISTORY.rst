@@ -2,6 +2,17 @@
 History
 =======
 
+
+0.31.0 (2023-05-22)
+-------------------
+
+* Add Python 3.11
+* Add set_param / get_param to algorithms, suggested by Franz Kiraly (#557)
+* Compute shortest paths by matrix-vector multiplications
+* Make tools on topology (cliques, code-decomposition, etc.) as functions
+* Rename parameter membership -> probs for soft classification / clustering
+* Add softmax to classification by diffusion
+
 0.30.0 (2023-04-12)
 -------------------
 
