@@ -28,9 +28,9 @@ class DiffusionClassifier(BaseClassifier):
         Number of iterations of the diffusion (discrete time).
     centering : bool
         If ``True``, center the temperature of each label to its mean before classification (default).
-    threshold : float
-        Minimum difference of temperatures between the 2 top labels to classify a node (default = 0).
-        If the difference of temperatures does not exceed this threshold, return -1 for this node (no label).
+    scale : float
+        Multiplicative factor applied to tempreatures before softmax (default = 5).
+        Used only when centering is ``True``.
 
     Attributes
     ----------
@@ -60,7 +60,7 @@ class DiffusionClassifier(BaseClassifier):
     Zhu, X., Lafferty, J., & Rosenfeld, R. (2005). `Semi-supervised learning with graphs`
     (Doctoral dissertation, Carnegie Mellon University, language technologies institute, school of computer science).
     """
-    def __init__(self, n_iter: int = 10, centering: bool = True, threshold: float = 0):
+    def __init__(self, n_iter: int = 10, centering: bool = True, scale: float = 5):
         super(DiffusionClassifier, self).__init__()
 
         if n_iter <= 0:
@@ -68,7 +68,7 @@ class DiffusionClassifier(BaseClassifier):
         else:
             self.n_iter = n_iter
         self.centering = centering
-        self.threshold = threshold
+        self.scale = scale
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
             labels: Optional[Union[dict, np.ndarray]] = None, labels_row: Optional[Union[dict, np.ndarray]] = None,
@@ -107,24 +107,16 @@ class DiffusionClassifier(BaseClassifier):
             temperatures[labels >= 0] = temperatures_seeds
         if self.centering:
             temperatures -= temperatures.mean(axis=0)
-            temperatures = np.maximum(temperatures, 0)
-
         labels_ = temperatures.argmax(axis=1)
+
+        # softmax
+        if self.centering:
+            temperatures = np.exp(self.scale * temperatures)
 
         # set label -1 to nodes not reached by diffusion
         distances = get_distances(adjacency, source=np.flatnonzero(labels >= 0))
         labels_[distances < 0] = -1
         temperatures[distances < 0] = 0
-
-        # set label -1 to nodes with low confidence
-        if self.threshold >= 0:
-            n_labels = temperatures.shape[1]
-            if n_labels > 2:
-                top_temperatures = np.partition(-temperatures, 2, axis=1)[:, :2]
-            else:
-                top_temperatures = temperatures
-            gap = np.abs(top_temperatures[:, 0] - top_temperatures[:, 1])
-            labels_[gap <= self.threshold] = -1
 
         self.labels_ = labels_
         self.probs_ = sparse.csr_matrix(normalize(temperatures))

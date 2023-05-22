@@ -23,9 +23,9 @@ class TestDiffusionClassifier(unittest.TestCase):
         self.assertTrue(len(algo.labels_) == n_nodes)
         with self.assertRaises(ValueError):
             DiffusionClassifier(n_iter=0)
-        algo = DiffusionClassifier(centering=False, threshold=1)
-        algo.fit(adjacency, labels=labels)
-        self.assertTrue(max(algo.labels_) == -1)
+        algo = DiffusionClassifier(centering=True, scale=10)
+        probs = algo.fit_predict_proba(adjacency, labels=labels)[:, 1]
+        self.assertTrue(max(probs) > 0.99)
 
     def test_bipartite(self):
         biadjacency = test_bigraph()

@@ -5,6 +5,13 @@ Linear algebra
 
 Tools of linear algebra.
 
+Normalization
+-------------
+
+.. autofunction:: sknetwork.linalg.normalize
+
+.. autofunction:: sknetwork.linalg.diagonal_pseudo_inverse
+
 Sparse + Low Rank
 -----------------
 
@@ -17,10 +24,3 @@ Solvers
 
 .. _lanczossvd:
 .. autoclass:: sknetwork.linalg.LanczosSVD
-
-Normalization
--------------
-
-.. autofunction:: sknetwork.linalg.normalize
-
-.. autofunction:: sknetwork.linalg.diagonal_pseudo_inverse
