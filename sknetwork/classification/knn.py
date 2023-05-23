@@ -24,7 +24,7 @@ class NNClassifier(BaseClassifier):
     ----------
     n_neighbors : int
         Number of nearest neighbors .
-    embedding_method :
+    embedding_method : :class:`BaseEmbedding`
         Embedding method used to represent nodes in vector space.
         If ``None`` (default), use identity.
     normalize : bool
@@ -36,7 +36,7 @@ class NNClassifier(BaseClassifier):
         Labels of nodes.
     probs_ : sparse.csr_matrix, shape (n_row, n_labels)
         Probability distribution over labels.
-    labels_row_, labels_col_ : np.ndarray
+    labels_row_ : np.ndarray
         Labels of rows, for bipartite graphs.
     labels_col_ : np.ndarray
         Labels of columns, for bipartite graphs.
@@ -103,12 +103,14 @@ class NNClassifier(BaseClassifier):
 
         Parameters
         ----------
-        input_matrix :
+        input_matrix : sparse.csr_matrix, np.ndarray
             Adjacency matrix or biadjacency matrix of the graph.
-        labels :
-            Known labels (dictionary or array). Negative values ignored.
-        labels_row, labels_col :
-            Known labels of rows and columns (for bipartite graphs).
+        labels : np.ndarray, dict
+            Known labels. Negative values ignored.
+        labels_row : np.ndarray, dict
+            Known labels of rows, for bipartite graphs.
+        labels_col : np.ndarray, dict
+            Known labels of columns, for bipartite graphs.
 
         Returns
         -------

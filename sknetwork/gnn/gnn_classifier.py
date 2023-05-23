@@ -190,7 +190,7 @@ class GNNClassifier(BaseGNN):
         if random_state is not None:
             np.random.seed(random_state)
 
-        check_format(adjacency)
+        check_format(adjacency, allow_empty=True)
         check_format(features)
 
         labels = get_values(adjacency.shape, labels)

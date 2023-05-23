@@ -25,9 +25,9 @@ class Propagation(BaseClassifier):
     n_iter : float
         Maximum number of iterations (-1 for infinity).
     node_order : str
-        * `'random'`: node labels are updated in random order.
-        * `'increasing'`: node labels are updated by increasing order of (in-)weight.
-        * `'decreasing'`: node labels are updated by decreasing order of (in-)weight.
+        * ``'random'``: node labels are updated in random order.
+        * ``'increasing'``: node labels are updated by increasing order of (in-) weight.
+        * ``'decreasing'``: node labels are updated by decreasing order of (in-) weight.
         * Otherwise, node labels are updated by index order.
     weighted : bool
         If ``True``, the vote of each neighbor is proportional to the edge weight.
@@ -39,7 +39,7 @@ class Propagation(BaseClassifier):
         Labels of nodes.
     probs_ : sparse.csr_matrix, shape (n_row, n_labels)
         Probability distribution over labels.
-    labels_row_, labels_col_ : np.ndarray
+    labels_row_ : np.ndarray
         Labels of rows, for bipartite graphs.
     labels_col_ : np.ndarray
         Labels of columns, for bipartite graphs.
@@ -97,12 +97,15 @@ class Propagation(BaseClassifier):
 
         Parameters
         ----------
-        input_matrix :
+        input_matrix : sparse.csr_matrix, np.ndarray
             Adjacency matrix or biadjacency matrix of the graph.
-        labels :
-            Known labels (dictionary or array). Negative values ignored.
-        labels_row, labels_col :
-            Known labels of rows and columns (for bipartite graphs).
+        labels : np.ndarray, dict
+            Known labels. Negative values ignored.
+        labels_row : np.ndarray, dict
+            Known labels of rows, for bipartite graphs.
+        labels_col : np.ndarray, dict
+            Known labels of columns, for bipartite graphs.
+
         Returns
         -------
         self: :class:`Propagation`

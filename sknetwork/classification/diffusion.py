@@ -38,7 +38,7 @@ class DiffusionClassifier(BaseClassifier):
         Labels of nodes.
     probs_ : sparse.csr_matrix, shape (n_row, n_labels)
         Probability distribution over labels.
-    labels_row_, labels_col_ : np.ndarray
+    labels_row_ : np.ndarray
         Labels of rows, for bipartite graphs.
     labels_col_ : np.ndarray
         Labels of columns, for bipartite graphs.

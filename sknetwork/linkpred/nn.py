@@ -23,11 +23,11 @@ class NNLinker(BaseLinker):
 
     Parameters
     ----------
-    n_neighbors :
+    n_neighbors : int
         Number of nearest neighbors. If ``None``, all nodes are considered.
-    threshold :
+    threshold : float
         Threshold on cosine similarity. Only links above this threshold are kept.
-    embedding_method :
+    embedding_method : :class:`BaseEmbedding`
         Embedding method used to represent nodes in vector space.
         If ``None`` (default), use identity.
 
@@ -95,9 +95,9 @@ class NNLinker(BaseLinker):
 
         Parameters
         ----------
-        input_matrix :
+        input_matrix : sparse.csr_matrix, np.ndarray
             Adjacency matrix or biadjacency matrix of the graph.
-        index :
+        index : np.ndarray
             Index of source nodes to consider. If ``None``, the links are predicted for all nodes.
 
         Returns
