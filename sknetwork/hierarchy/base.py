@@ -46,6 +46,16 @@ class BaseHierarchy(Algorithm, ABC):
             return self.dendrogram_col_
         return self.dendrogram_
 
+    def transform(self) -> np.ndarray:
+        """Return the dendrogram predicted by the algorithm.
+
+        Returns
+        -------
+        dendrogram : np.ndarray
+            Dendrogram.
+        """
+        return self.dendrogram_
+
     def fit_predict(self, *args, **kwargs) -> np.ndarray:
         """Fit algorithm to data and return the dendrogram. Same parameters as the ``fit`` method.
 
