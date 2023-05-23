@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on March 2020
+Created in March 2020
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from functools import partial
@@ -114,7 +114,7 @@ class RankClassifier(BaseClassifier):
         seeds_labels = seeds_labels.astype(int)
         labels_unique, n_classes = check_labels(seeds_labels)
         seeds_all = self._process_labels(seeds_labels)
-        local_function = partial(self.algorithm.fit_transform, adjacency)
+        local_function = partial(self.algorithm.fit_predict, adjacency)
         with Pool(self.n_jobs) as pool:
             scores = np.array(pool.map(local_function, seeds_all))
         scores = scores.T

@@ -22,12 +22,12 @@ class NNClassifier(BaseClassifier):
 
     Parameters
     ----------
-    n_neighbors :
+    n_neighbors : int
         Number of nearest neighbors .
     embedding_method :
         Embedding method used to represent nodes in vector space.
         If ``None`` (default), use identity.
-    normalize :
+    normalize : bool
         If ``True``, apply normalization so that all vectors have norm 1 in the embedding space.
 
     Attributes
@@ -37,9 +37,13 @@ class NNClassifier(BaseClassifier):
     probs_ : sparse.csr_matrix, shape (n_row, n_labels)
         Probability distribution over labels.
     labels_row_, labels_col_ : np.ndarray
-        Labels of rows and columns, for bipartite graphs.
-    probs_row_, probs_col_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Probability distributions over labels for rows and columns (for bipartite graphs).
+        Labels of rows, for bipartite graphs.
+    labels_col_ : np.ndarray
+        Labels of columns, for bipartite graphs.
+    probs_row_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distributions over labels of rows, for bipartite graphs.
+    probs_col_ : sparse.csr_matrix, shape (n_col, n_labels)
+        Probability distributions over labels of columns, for bipartite graphs.
 
     Example
     -------

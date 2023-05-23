@@ -26,8 +26,25 @@ class BaseRegressor(Algorithm, ABC):
     def __init__(self):
         self.values_ = None
 
+    def predict(self, columns: bool = False) -> np.ndarray:
+        """Return the values predicted by the algorithm.
+
+        Parameters
+        ----------
+        columns : bool
+            If ``True``, return the prediction for columns.
+
+        Returns
+        -------
+        values : np.ndarray
+            Values.
+        """
+        if columns:
+            return self.values_col_
+        return self.values_
+
     def fit_predict(self, *args, **kwargs) -> np.ndarray:
-        """Fit algorithm to data and return the scores. Same parameters as the ``fit`` method.
+        """Fit algorithm to data and return the values. Same parameters as the ``fit`` method.
 
         Returns
         -------

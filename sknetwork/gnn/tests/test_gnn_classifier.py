@@ -88,12 +88,12 @@ class TestGNNClassifier(unittest.TestCase):
     def test_gnn_classifier_early_stopping(self):
         gnn = GNNClassifier(2, patience=2)
         labels = {0: 0, 1: 1}
-        _ = gnn.fit_predict(self.adjacency, self.features, labels, n_epochs=100, history=True, validation=0.5,
+        _ = gnn.fit_predict(self.adjacency, self.features, labels, n_epochs=100, validation=0.5,
                             random_state=42)
         self.assertTrue(len(gnn.history_['val_accuracy']) < 100)
 
         gnn = GNNClassifier(2, early_stopping=False)
-        _ = gnn.fit_predict(self.adjacency, self.features, labels, n_epochs=100, history=True, validation=0.5,
+        _ = gnn.fit_predict(self.adjacency, self.features, labels, n_epochs=100, validation=0.5,
                             random_state=42)
         self.assertTrue(len(gnn.history_['val_accuracy']) == 100)
 
@@ -118,38 +118,6 @@ class TestGNNClassifier(unittest.TestCase):
         labels_pred_ = gnn.predict()
         self.assertTrue(all(labels_pred == gnn.labels_))
         self.assertTrue(all(labels_pred == labels_pred_))
-
-        # Predict same nodes
-        labels_pred_ = gnn.predict(self.adjacency, self.features)
-        self.assertTrue(all(labels_pred_ == gnn.labels_))
-
-        # Incorrect shapes
-        new_n = sparse.csr_matrix(np.random.randint(2, size=self.features.shape[1]))
-        new_feat = sparse.csr_matrix(np.random.randint(3, size=self.features.shape[1]))
-        with self.assertRaises(ValueError):
-            gnn.predict(new_n, self.features)
-        with self.assertRaises(ValueError):
-            gnn.predict(self.adjacency, new_feat)
-
-        new_feat = sparse.csr_matrix(np.random.rand(self.adjacency.shape[0], self.features.shape[1] - 1))
-        with self.assertRaises(ValueError):
-            gnn.predict(self.adjacency, new_feat)
-
-        # Predict new graph
-        n = 4
-        n_feat = self.features.shape[1]
-        adjacency = sparse.csr_matrix(np.random.randint(2, size=(n, n)))
-        features = sparse.csr_matrix(np.random.randint(2, size=(n, n_feat)))
-        labels_pred = gnn.predict(adjacency, features)
-        self.assertTrue(len(labels_pred) == n)
-
-        # No adj matrix
-        labels_pred = gnn.predict(None, features)
-        self.assertTrue(len(labels_pred) == features.shape[0])
-
-        # No feature matrix
-        with self.assertRaises(ValueError):
-            gnn.predict(new_n)
 
     def test_gnn_classifier_predict_proba(self):
         gnn = GNNClassifier([4, 2])

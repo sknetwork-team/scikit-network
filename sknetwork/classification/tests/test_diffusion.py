@@ -36,6 +36,7 @@ class TestDiffusionClassifier(unittest.TestCase):
         algo.fit(biadjacency, labels_row=labels_row, labels_col=labels_col)
         self.assertTrue(len(algo.labels_row_) == n_row)
         self.assertTrue(len(algo.labels_col_) == n_col)
+        self.assertTrue(all(algo.labels_col_ == algo.predict(columns=True)))
 
     def test_predict(self):
         adjacency = test_graph()

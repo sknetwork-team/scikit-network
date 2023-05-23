@@ -38,7 +38,7 @@ class BaseClassifier(Algorithm, ABC):
         self.probs_row_ = None
         self.probs_col_ = None
 
-    def predict(self, columns=False) -> np.ndarray:
+    def predict(self, columns: bool = False) -> np.ndarray:
         """Return the labels predicted by the algorithm.
 
         Parameters

@@ -22,34 +22,34 @@ class LouvainIteration(BaseHierarchy):
 
     Parameters
     ----------
-    depth :
+    depth : int
         Depth of the tree.
         A negative value is interpreted as no limit (return a tree of maximum depth).
-    resolution :
+    resolution : float
         Resolution parameter.
-    tol_optimization :
+    tol_optimization : float
         Minimum increase in the objective function to enter a new optimization pass.
-    tol_aggregation :
+    tol_aggregation : float
         Minimum increase in the objective function to enter a new aggregation pass.
-    n_aggregations :
+    n_aggregations : int
         Maximum number of aggregations.
         A negative value is interpreted as no limit.
-    shuffle_nodes :
-        Enables node shuffling before optimization.
-    random_state :
+    shuffle_nodes : bool
+        If ``True``,  shuffle nodes before optimization.
+    random_state : int
         Random number generator or random seed. If ``None``, numpy.random is used.
-    verbose :
+    verbose : bool
         Verbose mode.
 
     Attributes
     ----------
-    dendrogram_ :
+    dendrogram_ : np.ndarray
         Dendrogram of the graph.
-    dendrogram_row_ :
+    dendrogram_row_ : np.ndarray
         Dendrogram for the rows, for bipartite graphs.
-    dendrogram_col_ :
+    dendrogram_col_ : np.ndarray
         Dendrogram for the columns, for bipartite graphs.
-    dendrogram_full_ :
+    dendrogram_full_ : np.ndarray
         Dendrogram for both rows and columns, indexed in this order, for bipartite graphs.
 
     Example
@@ -91,11 +91,11 @@ class LouvainIteration(BaseHierarchy):
 
         Parameters
         ----------
-        adjacency :
+        adjacency : sparse.csr_matrix, np.ndarray
             Adjacency matrix of the graph.
-        depth :
+        depth : int
             Depth of the recursion.
-        nodes :
+        nodes : np.ndarray
             The indices of the current nodes in the original graph.
 
         Returns
@@ -132,7 +132,7 @@ class LouvainIteration(BaseHierarchy):
 
         Parameters
         ----------
-        input_matrix :
+        input_matrix : sparse.csr_matrix, np.ndarray
             Adjacency matrix or biadjacency matrix of the graph.
 
         Returns
@@ -157,28 +157,28 @@ class LouvainHierarchy(BaseHierarchy):
 
     Parameters
     ----------
-    resolution :
+    resolution : float
         Resolution parameter.
-    tol_optimization :
+    tol_optimization : float
         Minimum increase in the objective function to enter a new optimization pass.
-    tol_aggregation :
+    tol_aggregation : float
         Minimum increase in the objective function to enter a new aggregation pass.
-    shuffle_nodes :
-        Enables node shuffling before optimization.
-    random_state :
+    shuffle_nodes : bool
+        If ``True``, shuffle nodes before optimization.
+    random_state : int
         Random number generator or random seed. If ``None``, numpy.random is used.
-    verbose :
+    verbose : bool
         Verbose mode.
 
     Attributes
     ----------
-    dendrogram_ :
+    dendrogram_ : np.ndarray
         Dendrogram of the graph.
-    dendrogram_row_ :
+    dendrogram_row_ : np.ndarray
         Dendrogram for the rows, for bipartite graphs.
-    dendrogram_col_ :
+    dendrogram_col_ : np.ndarray
         Dendrogram for the columns, for bipartite graphs.
-    dendrogram_full_ :
+    dendrogram_full_ : np.ndarray
         Dendrogram for both rows and columns, indexed in this order, for bipartite graphs.
 
     Example
@@ -218,7 +218,7 @@ class LouvainHierarchy(BaseHierarchy):
 
         Parameters
         ----------
-        adjacency :
+        adjacency : sparse.csr_matrix, np.ndarray
             Adjacency matrix of the graph.
 
         Returns
@@ -244,7 +244,7 @@ class LouvainHierarchy(BaseHierarchy):
 
         Parameters
         ----------
-        input_matrix :
+        input_matrix : sparse.csr_matrix, np.ndarray
             Adjacency matrix or biadjacency matrix of the graph.
 
         Returns

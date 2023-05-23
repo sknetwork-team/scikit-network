@@ -13,7 +13,6 @@ class TestEmbeddings(unittest.TestCase):
     def setUp(self):
         """Algorithms by input types."""
         self.methods = [Spectral(), GSVD(), SVD()]
-        self.bimethods = [GSVD(), SVD()]
 
     def test_undirected(self):
         adjacency = test_graph()
@@ -22,43 +21,20 @@ class TestEmbeddings(unittest.TestCase):
         method = Spring()
         embedding = method.fit_transform(adjacency)
         self.assertEqual(embedding.shape, (n, 2))
-        pred1 = method.predict(adjacency[0])
-        pred2 = method.predict(adjacency[0].toarray())
-        self.assertEqual(pred1.shape, (2,))
-        self.assertAlmostEqual(np.linalg.norm(pred1 - pred2), 0)
 
-        pred1 = method.predict(adjacency)
-        pred2 = method.predict(adjacency.toarray())
-        self.assertTupleEqual(pred1.shape, (n, 2))
-        self.assertAlmostEqual(np.linalg.norm(pred1 - pred2), 0)
+        embedding = method.transform()
+        self.assertEqual(embedding.shape, (n, 2))
 
-    def test_bimethods(self):
-
+    def test_bipartite(self):
         for adjacency in [test_digraph(), test_bigraph()]:
             n_row, n_col = adjacency.shape
 
-            for method in self.bimethods:
+            for method in self.methods:
                 method.fit(adjacency)
 
                 self.assertEqual(method.embedding_.shape, (n_row, 2))
                 self.assertEqual(method.embedding_row_.shape, (n_row, 2))
                 self.assertEqual(method.embedding_col_.shape, (n_col, 2))
-
-                ref = method.embedding_[0]
-                pred1 = method.predict(adjacency[0])
-                pred2 = method.predict(adjacency[0].toarray())
-
-                self.assertEqual(pred1.shape, (2,))
-                self.assertAlmostEqual(np.linalg.norm(pred1 - pred2), 0)
-                self.assertAlmostEqual(np.linalg.norm(pred1 - ref), 0)
-
-                ref = method.embedding_
-                pred1 = method.predict(adjacency)
-                pred2 = method.predict(adjacency.toarray())
-
-                self.assertTupleEqual(pred1.shape, (n_row, 2))
-                self.assertAlmostEqual(np.linalg.norm(pred1 - pred2), 0)
-                self.assertAlmostEqual(np.linalg.norm(pred1 - ref), 0)
 
     def test_disconnected(self):
         n = 10

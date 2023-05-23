@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-Created on April 2020
+Created in April 2020
 @author: Thomas Bonald <tbonald@enst.fr>
 """
 
@@ -36,13 +36,17 @@ class Propagation(BaseClassifier):
     Attributes
     ----------
     labels_ : np.ndarray, shape (n_labels,)
-        Label of each node.
+        Labels of nodes.
     probs_ : sparse.csr_matrix, shape (n_row, n_labels)
         Probability distribution over labels.
     labels_row_, labels_col_ : np.ndarray
-        Labels of rows and columns, for bipartite graphs.
-    probs_row_, probs_col_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Probability distributions over labels for rows and columns (for bipartite graphs).
+        Labels of rows, for bipartite graphs.
+    labels_col_ : np.ndarray
+        Labels of columns, for bipartite graphs.
+    probs_row_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distributions over labels of rows, for bipartite graphs.
+    probs_col_ : sparse.csr_matrix, shape (n_col, n_labels)
+        Probability distributions over labels of columns, for bipartite graphs.
 
     Example
     -------

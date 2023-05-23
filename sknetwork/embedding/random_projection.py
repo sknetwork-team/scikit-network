@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-Created on January, 15 2021
+Created in January 2021
 @author: Thomas Bonald <bonald@enst.fr>
 """
+from abc import ABC
 from typing import Union
 
 import numpy as np
@@ -15,7 +16,7 @@ from sknetwork.utils.check import check_format, check_random_state
 from sknetwork.utils.format import get_adjacency
 
 
-class RandomProjection(BaseEmbedding):
+class RandomProjection(BaseEmbedding, ABC):
     """Embedding of graphs based the random projection of the adjacency matrix:
 
     :math:`(I + \\alpha A +... + (\\alpha A)^K)G`
@@ -71,6 +72,7 @@ class RandomProjection(BaseEmbedding):
                  regularization: float = -1, normalized: bool = True, random_state: int = None):
         super(RandomProjection, self).__init__()
 
+        self.embedding_ = None
         self.n_components = n_components
         self.alpha = alpha
         self.n_iter = n_iter
@@ -87,7 +89,7 @@ class RandomProjection(BaseEmbedding):
 
         Parameters
         ----------
-        input_matrix :
+        input_matrix : sparse.csr_matrix, np.ndarray
               Adjacency matrix or biadjacency matrix of the graph.
         force_bipartite : bool (default = ``False``)
             If ``True``, force the input matrix to be considered as a biadjacency matrix.

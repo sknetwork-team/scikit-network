@@ -39,10 +39,13 @@ class DiffusionClassifier(BaseClassifier):
     probs_ : sparse.csr_matrix, shape (n_row, n_labels)
         Probability distribution over labels.
     labels_row_, labels_col_ : np.ndarray
-        Labels of rows and columns, for bipartite graphs.
-    probs_row_, probs_col_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Probability distributions over labels for rows and columns (for bipartite graphs).
-
+        Labels of rows, for bipartite graphs.
+    labels_col_ : np.ndarray
+        Labels of columns, for bipartite graphs.
+    probs_row_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distributions over labels of rows, for bipartite graphs.
+    probs_col_ : sparse.csr_matrix, shape (n_col, n_labels)
+        Probability distributions over labels of columns, for bipartite graphs.
     Example
     -------
     >>> from sknetwork.data import karate_club
@@ -78,13 +81,15 @@ class DiffusionClassifier(BaseClassifier):
 
         Parameters
         ----------
-        input_matrix :
+        input_matrix : sparse.csr_matrix, np.ndarray
             Adjacency matrix or biadjacency matrix of the graph.
-        labels :
+        labels : dict, np.ndarray
             Known labels (dictionary or vector of int). Negative values ignored.
-        labels_row, labels_col :
-            Labels of rows and columns for bipartite graphs. Negative values ignored.
-        force_bipartite :
+        labels_row : dict, np.ndarray
+            Labels of rows for bipartite graphs. Negative values ignored.
+        labels_col : dict, np.ndarray
+            Labels of columns for bipartite graphs. Negative values ignored.
+        force_bipartite : bool
             If ``True``, consider the input matrix as a biadjacency matrix (default = ``False``).
 
         Returns
