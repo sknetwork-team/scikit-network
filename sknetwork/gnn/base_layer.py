@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on July 2022
+Created in July 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
 from typing import Optional, Union
@@ -73,10 +73,9 @@ class BaseLayer:
         in_channels: int
             Number of input channels.
         """
-        # Trainable parameters with He initialization
-        self.weight = np.random.randn(in_channels, self.out_channels) * np.sqrt(2 / self.out_channels)
+        self.weight = np.random.normal(size=(in_channels, self.out_channels))
         if self.use_bias:
-            self.bias = np.zeros((self.out_channels, 1)).T
+            self.bias = np.random.normal(size=(1, self.out_channels))
         self.weights_initialized = True
 
     def forward(self, *args, **kwargs):

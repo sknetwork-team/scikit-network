@@ -191,7 +191,7 @@ class GNNClassifier(BaseGNN):
             np.random.seed(random_state)
 
         check_format(adjacency, allow_empty=True)
-        check_format(features)
+        check_format(features, allow_empty=True)
 
         labels = get_values(adjacency.shape, labels)
         labels = labels.astype(int)

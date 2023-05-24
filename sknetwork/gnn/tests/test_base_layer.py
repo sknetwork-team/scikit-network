@@ -27,11 +27,11 @@ class TestBaseLayer(unittest.TestCase):
     def test_base_layer_initialize_weights(self):
         self.base_layer._initialize_weights(10)
         self.assertTrue(self.base_layer.weight.shape == (10, len(self.labels)))
-        self.assertTrue(all(self.base_layer.bias[0] == np.zeros((len(self.labels), 1)).T[0]))
+        self.assertTrue(self.base_layer.bias.shape == (1, len(self.labels)))
         self.assertTrue(self.base_layer.weights_initialized)
 
     def test_base_layer_repr(self):
         self.assertTrue(self.base_layer.__repr__().startswith("  BaseLayer(layer_type: Conv, out_channels: 10"))
-        sagelayer = BaseLayer(layer_type='sageconv', out_channels=len(self.labels))
-        self.assertTrue('sample_size' in sagelayer.__repr__())
-        self.assertTrue('sageconv' in sagelayer.__repr__())
+        sage_layer = BaseLayer(layer_type='sageconv', out_channels=len(self.labels))
+        self.assertTrue('sample_size' in sage_layer.__repr__())
+        self.assertTrue('sageconv' in sage_layer.__repr__())

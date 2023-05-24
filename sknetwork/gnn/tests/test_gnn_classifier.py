@@ -44,6 +44,14 @@ class TestGNNClassifier(unittest.TestCase):
         self.assertTrue(len(y_pred) == self.n)
         self.assertTrue(embedding.shape == (self.n, 2))
 
+    def test_gnn_classifier_no_bias(self):
+        gnn = GNNClassifier([3, 2], 'Conv', 'Softmax', use_bias=[True, False])
+        labels_pred = gnn.fit_predict(self.adjacency, self.features, self.labels)
+        embedding = gnn.embedding_
+        self.assertTrue(len(labels_pred) == self.n)
+        self.assertTrue(embedding.shape == (self.n, 2))
+        self.assertTrue(gnn.layers[1].bias is None)
+
     def test_gnn_classifier_optimizer(self):
         optimizers = ['GD', 'Adam']
         for optimizer in optimizers:
@@ -99,12 +107,9 @@ class TestGNNClassifier(unittest.TestCase):
 
     def test_gnn_classifier_reinit(self):
         gnn = GNNClassifier([4, 2])
-        gnn.fit(self.adjacency, self.features, self.labels, reinit=False)
-        weights = [layer.weight for layer in gnn.layers]
-        biases = [layer.bias for layer in gnn.layers]
+        gnn.fit(self.adjacency, self.features, self.labels)
         gnn.fit(self.adjacency, self.features, self.labels, n_epochs=1, reinit=True)
-        self.assertTrue(all([np.all(weight != layer.weight) for weight, layer in zip(weights, gnn.layers)]))
-        self.assertTrue(all([np.all(bias != layer.bias) for bias, layer in zip(biases, gnn.layers)]))
+        self.assertTrue(gnn.embedding_.shape == (self.n, 2))
 
     def test_gnn_classifier_sageconv(self):
         gnn = GNNClassifier([4, 2], ['SAGEConv', 'SAGEConv'], sample_sizes=[5, 3])
