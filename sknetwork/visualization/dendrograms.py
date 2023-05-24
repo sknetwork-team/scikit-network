@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on April 2020
+Created in April 2020
 @author: Thomas Bonald <bonald@enst.fr>
 """
 from typing import Iterable, Optional
@@ -158,12 +158,12 @@ def svg_dendrogram_left(dendrogram, names, width, height, margin, margin_text, s
     return svg
 
 
-def svg_dendrogram(dendrogram: np.ndarray, names: Optional[np.ndarray] = None, rotate: bool = False, width: float = 400,
-                   height: float = 300, margin: float = 10, margin_text: float = 5, scale: float = 1,
-                   line_width: float = 2, n_clusters: int = 2, color: str = 'black', colors: Optional[Iterable] = None,
-                   font_size: int = 12, reorder: bool = False, rotate_names: bool = True,
-                   filename: Optional[str] = None):
-    """Return SVG image of a dendrogram.
+def visualize_dendrogram(dendrogram: np.ndarray, names: Optional[np.ndarray] = None, rotate: bool = False,
+                         width: float = 400, height: float = 300, margin: float = 10, margin_text: float = 5,
+                         scale: float = 1, line_width: float = 2, n_clusters: int = 2, color: str = 'black',
+                         colors: Optional[Iterable] = None, font_size: int = 12, reorder: bool = False,
+                         rotate_names: bool = True, filename: Optional[str] = None):
+    """Return the image of a dendrogram in SVG format.
 
     Parameters
     ----------
@@ -227,3 +227,51 @@ def svg_dendrogram(dendrogram: np.ndarray, names: Optional[np.ndarray] = None, r
             f.write(svg)
 
     return svg
+
+
+def svg_dendrogram(dendrogram: np.ndarray, names: Optional[np.ndarray] = None, rotate: bool = False, width: float = 400,
+                   height: float = 300, margin: float = 10, margin_text: float = 5, scale: float = 1,
+                   line_width: float = 2, n_clusters: int = 2, color: str = 'black', colors: Optional[Iterable] = None,
+                   font_size: int = 12, reorder: bool = False, rotate_names: bool = True,
+                   filename: Optional[str] = None):
+    """Return the image of a dendrogram in SVG format.
+
+    Alias for visualize_dendrogram.
+
+    Parameters
+    ----------
+    dendrogram :
+        Dendrogram to display.
+    names :
+        Names of leaves.
+    rotate :
+        If ``True``, rotate the tree so that the root is on the left.
+    width :
+        Width of the image (margins excluded).
+    height :
+        Height of the image (margins excluded).
+    margin :
+        Margin.
+    margin_text :
+        Margin between leaves and their names, if any.
+    scale :
+        Scaling factor.
+    line_width :
+        Line width.
+    n_clusters :
+        Number of coloured clusters to display.
+    color :
+        Default SVG color for the dendrogram.
+    colors :
+        SVG colors of the clusters of the dendrogram (optional).
+    font_size :
+        Font size.
+    reorder :
+        If ``True``, reorder leaves so that left subtree has more leaves than right subtree.
+    rotate_names :
+        If ``True``, rotate names of leaves (only valid if **rotate** is ``False``).
+    filename :
+        Filename for saving image (optional).
+    """
+    return visualize_dendrogram(dendrogram, names, rotate, width, height, margin, margin_text, scale, line_width,
+                                n_clusters, color, colors, font_size, reorder, rotate_names, filename)
