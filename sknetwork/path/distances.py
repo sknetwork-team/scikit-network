@@ -24,7 +24,7 @@ def get_distances(input_matrix: sparse.csr_matrix, source: Optional[Union[int, I
         Adjacency matrix or biadjacency matrix of the graph.
     source :
         If an integer, index of the source node.
-        If a list, indices of source nodes (the shortest distances to one of these nodes in returned).
+        If a list or array, indices of source nodes (the shortest distances to one of these nodes is returned).
     source_row, source_col :
         For bipartite graphs, index of source nodes on rows and columns.
         The parameter source_row is an alias for source (at least one of them must be ``None``).
