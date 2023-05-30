@@ -71,6 +71,7 @@ class LouvainIteration(BaseHierarchy):
     See Also
     --------
     scipy.cluster.hierarchy.dendrogram
+    sknetwork.clustering.Louvain
     """
 
     def __init__(self, depth: int = 3, resolution: float = 1, tol_optimization: float = 1e-3,
@@ -155,6 +156,8 @@ class LouvainIteration(BaseHierarchy):
 class LouvainHierarchy(BaseHierarchy):
     """Hierarchical clustering by Louvain (bottom-up).
 
+    Each level corresponds to an aggregation step of the Louvain algorithm.
+
     Parameters
     ----------
     resolution : float
@@ -200,6 +203,7 @@ class LouvainHierarchy(BaseHierarchy):
     See Also
     --------
     scipy.cluster.hierarchy.dendrogram
+    sknetwork.clustering.Louvain
     """
 
     def __init__(self, resolution: float = 1, tol_optimization: float = 1e-3,
@@ -249,7 +253,7 @@ class LouvainHierarchy(BaseHierarchy):
 
         Returns
         -------
-        self: :class:`LouvainIteration`
+        self: :class:`LouvainHierarchy`
         """
         self._init_vars()
         input_matrix = check_format(input_matrix)
