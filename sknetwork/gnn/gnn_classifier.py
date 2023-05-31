@@ -200,7 +200,7 @@ class GNNClassifier(BaseGNN):
         check_output(self.layers[-1].out_channels, labels)
 
         self.train_mask = labels >= 0
-        if 0 < validation < 1:
+        if self.val_mask is None and 0 < validation < 1:
             mask = np.random.random(size=len(labels)) < validation
             self.val_mask = self.train_mask & mask
             self.train_mask &= ~mask
