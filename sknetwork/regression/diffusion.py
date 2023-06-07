@@ -110,10 +110,9 @@ class Diffusion(BaseRegressor):
 
 
 class Dirichlet(BaseRegressor):
-    """Regression by the Dirichlet problem, given the temperature of some seed nodes
-     (heat diffusion with boundary constraints).
+    """Regression by the Dirichlet problem (heat diffusion with boundary constraints).
 
-     Only values of non-seed nodes are updated. The temperatures of seed nodes are fixed.
+     The temperatures of some seed nodes are fixed. The temperatures of other nodes are computed.
 
     Parameters
     ----------

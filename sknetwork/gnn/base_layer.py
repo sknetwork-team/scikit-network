@@ -73,9 +73,10 @@ class BaseLayer:
         in_channels: int
             Number of input channels.
         """
-        self.weight = np.random.normal(size=(in_channels, self.out_channels))
+        # He initialization
+        self.weight = np.random.randn(in_channels, self.out_channels) * np.sqrt(2 / self.out_channels)
         if self.use_bias:
-            self.bias = np.random.normal(size=(1, self.out_channels))
+            self.bias = np.zeros((1, self.out_channels))
         self.weights_initialized = True
 
     def forward(self, *args, **kwargs):
