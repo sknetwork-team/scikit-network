@@ -11,7 +11,7 @@ from scipy import sparse
 
 from sknetwork.classification.base import BaseClassifier
 from sknetwork.path.distances import get_distances
-from sknetwork.linalg.normalization import normalize
+from sknetwork.linalg.normalizer import normalize
 from sknetwork.utils.format import get_adjacency_values
 from sknetwork.utils.membership import get_membership
 from sknetwork.utils.neighbors import get_degrees

@@ -12,7 +12,7 @@ from scipy import sparse
 
 from sknetwork.classification.base import BaseClassifier
 from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.linalg.normalization import get_norms, normalize
+from sknetwork.linalg.normalizer import get_norms, normalize
 from sknetwork.utils.check import check_n_neighbors
 from sknetwork.utils.format import get_adjacency_values
 

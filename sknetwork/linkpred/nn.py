@@ -11,7 +11,7 @@ from scipy import sparse
 
 from sknetwork.linkpred.base import BaseLinker
 from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.linalg.normalization import normalize
+from sknetwork.linalg.normalizer import normalize
 from sknetwork.utils.check import check_n_neighbors
 from sknetwork.utils.format import get_adjacency
 

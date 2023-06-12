@@ -10,9 +10,9 @@ from typing import Union, Optional, Tuple
 import numpy as np
 from scipy import sparse
 
-from sknetwork.linalg.normalization import normalize
+from sknetwork.linalg.normalizer import normalize
 from sknetwork.regression.base import BaseRegressor
-from sknetwork.utils.format import get_adjacency_values
+from sknetwork.utils import get_adjacency_values, get_degrees
 
 
 def init_temperatures(seeds: np.ndarray, init: Optional[float]) -> Tuple[np.ndarray, np.ndarray]:
@@ -30,6 +30,12 @@ def init_temperatures(seeds: np.ndarray, init: Optional[float]) -> Tuple[np.ndar
 class Diffusion(BaseRegressor):
     """Regression by diffusion along the edges, given the temperatures of some seed nodes (heat equation).
 
+    The row vector of tempreatures :math:`T` evolves like:
+
+    :math:`T \\gets (1-\\alpha) T + \\alpha  PT`
+
+    where :math:`\\alpha` is the damping factor and :math:`P` is the transition matrix of the random walk in the graph.
+
     All values are updated, including those of seed nodes (free diffusion).
     See ``Dirichlet`` for diffusion with boundary constraints.
 
@@ -37,6 +43,8 @@ class Diffusion(BaseRegressor):
     ----------
     n_iter : int
         Number of iterations of the diffusion (must be positive).
+    damping_factor : float
+        Damping factor.
 
     Attributes
     ----------
@@ -49,24 +57,25 @@ class Diffusion(BaseRegressor):
     Example
     -------
     >>> from sknetwork.data import house
-    >>> diffusion = Diffusion(n_iter=2)
+    >>> diffusion = Diffusion(n_iter=1)
     >>> adjacency = house()
     >>> values = {0: 1, 2: 0}
     >>> values_pred = diffusion.fit_predict(adjacency, values)
-    >>> np.round(values_pred, 2)
-    array([0.58, 0.56, 0.38, 0.58, 0.42])
+    >>> np.round(values_pred, 1)
+    array([0.8, 0.5, 0.2, 0.4, 0.6])
 
     References
     ----------
     Chung, F. (2007). The heat kernel as the pagerank of a graph. Proceedings of the National Academy of Sciences.
     """
-    def __init__(self, n_iter: int = 3):
+    def __init__(self, n_iter: int = 3, damping_factor: float = 0.5):
         super(Diffusion, self).__init__()
 
         if n_iter <= 0:
             raise ValueError('The number of iterations must be positive.')
         else:
             self.n_iter = n_iter
+        self.damping_factor = damping_factor
         self.bipartite = None
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
@@ -98,7 +107,13 @@ class Diffusion(BaseRegressor):
                                                                  values_row=values_row,
                                                                  values_col=values_col)
         values, _ = init_temperatures(values, init)
-        diffusion = normalize(adjacency)
+        diffusion = normalize(adjacency.T.tocsr())
+        degrees = get_degrees(diffusion)
+        diag = sparse.diags((degrees == 0).astype(int)).tocsr()
+        diffusion += diag
+
+        diffusion = (1 - self.damping_factor) * sparse.identity(len(degrees)).tocsr() + self.damping_factor * diffusion
+
         for i in range(self.n_iter):
             values = diffusion.dot(values)
 
@@ -112,7 +127,7 @@ class Diffusion(BaseRegressor):
 class Dirichlet(BaseRegressor):
     """Regression by the Dirichlet problem (heat diffusion with boundary constraints).
 
-     The temperatures of some seed nodes are fixed. The temperatures of other nodes are computed.
+    The temperatures of some seed nodes are fixed. The temperatures of other nodes are computed.
 
     Parameters
     ----------

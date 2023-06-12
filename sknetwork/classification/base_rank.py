@@ -12,7 +12,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.classification.base import BaseClassifier
-from sknetwork.linalg.normalization import normalize
+from sknetwork.linalg.normalizer import normalize
 from sknetwork.ranking.base import BaseRanking
 from sknetwork.utils.check import check_labels, check_n_jobs
 from sknetwork.utils.format import get_adjacency_values

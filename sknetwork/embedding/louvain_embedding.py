@@ -12,7 +12,7 @@ from scipy import sparse
 
 from sknetwork.clustering.louvain import Louvain
 from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.linalg.normalization import normalize
+from sknetwork.linalg.normalizer import normalize
 from sknetwork.utils.check import check_random_state, check_adjacency_vector, check_nonnegative, is_square
 from sknetwork.utils.membership import get_membership
 

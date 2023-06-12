@@ -12,7 +12,7 @@ from scipy import sparse
 
 from sknetwork.classification.base import BaseClassifier
 from sknetwork.classification.vote import vote_update
-from sknetwork.linalg.normalization import normalize
+from sknetwork.linalg.normalizer import normalize
 from sknetwork.utils.format import get_adjacency_values
 from sknetwork.utils.membership import get_membership
 
