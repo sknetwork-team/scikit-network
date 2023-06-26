@@ -249,9 +249,10 @@ def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: s
     comments : str
         Characters for comment lines.
     data_structure : str
-        If 'edge_list', considers each row of the file as an edge (tuple of size 2 or 3).
-        If 'adjacency_list', considers each row of the file as an adjacency list (list of neighbors).
-        If 'adjacency_dict', considers each row of the file as an adjacency dictionary with key
+        If 'edge_list', consider each row of the file as an edge (tuple of size 2 or 3).
+        If 'adjacency_list', consider each row of the file as an adjacency list (list of neighbors,
+        in the order of node indices; an empty line means no neighbor).
+        If 'adjacency_dict', consider each row of the file as an adjacency dictionary with key
         given by the first column (node: list of neighbors).
         If ``None`` (default), data_structure is guessed from the first rows of the file.
     directed : bool
