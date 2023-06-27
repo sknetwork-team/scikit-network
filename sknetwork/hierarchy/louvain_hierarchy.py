@@ -59,10 +59,10 @@ class LouvainIteration(BaseHierarchy):
     >>> louvain = LouvainIteration()
     >>> adjacency = house()
     >>> louvain.fit_predict(adjacency)
-    array([[3., 2., 0., 2.],
-           [4., 1., 0., 2.],
-           [6., 0., 0., 3.],
-           [5., 7., 1., 5.]])
+    array([[3., 2., 1., 2.],
+           [4., 1., 1., 2.],
+           [6., 0., 1., 3.],
+           [5., 7., 2., 5.]])
 
     Notes
     -----
@@ -146,7 +146,7 @@ class LouvainIteration(BaseHierarchy):
         tree = self._recursive_louvain(adjacency, self.depth)
         dendrogram, _ = get_dendrogram(tree)
         dendrogram = np.array(dendrogram)
-        dendrogram[:, 2] -= min(dendrogram[:, 2])
+        dendrogram[:, 2] += 1 - min(dendrogram[:, 2])
         self.dendrogram_ = reorder_dendrogram(dendrogram)
         if self.bipartite:
             self._split_vars(input_matrix.shape)
@@ -191,10 +191,10 @@ class LouvainHierarchy(BaseHierarchy):
     >>> louvain = LouvainHierarchy()
     >>> adjacency = house()
     >>> louvain.fit_predict(adjacency)
-    array([[3., 2., 0., 2.],
-           [4., 1., 0., 2.],
-           [6., 0., 0., 3.],
-           [5., 7., 1., 5.]])
+    array([[3., 2., 1., 2.],
+           [4., 1., 1., 2.],
+           [6., 0., 1., 3.],
+           [5., 7., 2., 5.]])
 
     Notes
     -----
@@ -261,7 +261,7 @@ class LouvainHierarchy(BaseHierarchy):
         tree = self._get_hierarchy(adjacency)
         dendrogram, _ = get_dendrogram(tree)
         dendrogram = np.array(dendrogram)
-        dendrogram[:, 2] -= min(dendrogram[:, 2])
+        dendrogram[:, 2] += 1 - min(dendrogram[:, 2])
         self.dendrogram_ = reorder_dendrogram(dendrogram)
         if self.bipartite:
             self._split_vars(input_matrix.shape)
