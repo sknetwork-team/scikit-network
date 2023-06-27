@@ -250,7 +250,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
     if matrix:
         file = matrix[0]
         directed, bipartite, weighted = load_header(path / file)
-        dataset = from_csv(path / file, directed=directed, bipartite=bipartite, weighted=weighted)
+        dataset = from_csv(path / file, directed=directed, bipartite=bipartite, weighted=weighted, reindex=True)
 
     metadata = [file for file in files if 'meta.' in file]
     if metadata:

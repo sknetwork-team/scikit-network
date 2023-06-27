@@ -8,7 +8,7 @@ Created in December 2018
 """
 
 from csv import reader
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, Optional
 from xml.etree import ElementTree
 
 import numpy as np
@@ -19,7 +19,7 @@ from sknetwork.utils.format import directed2undirected
 
 
 def from_edge_list(edge_list: Union[np.ndarray, List[Tuple]], directed: bool = False,
-                   bipartite: bool = False, weighted: bool = True, reindex: bool = True,
+                   bipartite: bool = False, weighted: bool = True, reindex: bool = False, shape: Optional[tuple] = None,
                    sum_duplicates: bool = True, matrix_only: bool = None) -> Union[Bunch, sparse.csr_matrix]:
     """Load a graph from an edge list.
 
@@ -37,6 +37,9 @@ def from_edge_list(edge_list: Union[np.ndarray, List[Tuple]], directed: bool = F
     reindex : bool
         If ``True``, reindex nodes and returns the original node indices as names.
         Reindexing is enforced if nodes are not integers.
+    shape : tuple
+        Shape of the adjacency or biadjacency matrix.
+        If not specified or if nodes are reindexed, the shape is the smallest compatible with node indices.
     sum_duplicates : bool
         If ``True`` (default), sums weights of duplicate edges.
         Otherwise, the weight of each edge is that of the first occurrence of this edge.
@@ -83,12 +86,14 @@ def from_edge_list(edge_list: Union[np.ndarray, List[Tuple]], directed: bool = F
     else:
         raise TypeError('The edge list must be given as a NumPy array or a list of tuples.')
     return from_edge_array(edge_array=edge_array, weights=weights, directed=directed, bipartite=bipartite,
-                           weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates, matrix_only=matrix_only)
+                           weighted=weighted, reindex=reindex, shape=shape, sum_duplicates=sum_duplicates,
+                           matrix_only=matrix_only)
 
 
 def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], directed: bool = False,
-                        bipartite: bool = False, weighted: bool = True, reindex: bool = True,
-                        sum_duplicates: bool = True, matrix_only: bool = None) -> Union[Bunch, sparse.csr_matrix]:
+                        bipartite: bool = False, weighted: bool = True, reindex: bool = False,
+                        shape: Optional[tuple] = None, sum_duplicates: bool = True, matrix_only: bool = None) \
+                        -> Union[Bunch, sparse.csr_matrix]:
     """Load a graph from an adjacency list.
 
     Parameters
@@ -104,6 +109,9 @@ def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], dire
     reindex : bool
         If ``True``, reindex nodes and returns the original node indices as names.
         Reindexing is enforced if nodes are not integers.
+    shape : tuple
+        Shape of the adjacency or biadjacency matrix.
+        If not specified or if nodes are reindexed, the shape is the smallest compatible with node indices.
     sum_duplicates : bool
         If ``True`` (default), sums weights of duplicate edges.
         Otherwise, the weight of each edge is that of the first occurrence of this edge.
@@ -134,12 +142,12 @@ def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], dire
     else:
         raise TypeError('The adjacency list must be given as a list of lists or a dict of lists.')
     return from_edge_list(edge_list=edge_list, directed=directed, bipartite=bipartite, weighted=weighted,
-                          reindex=reindex, sum_duplicates=sum_duplicates, matrix_only=matrix_only)
+                          reindex=reindex, shape=shape, sum_duplicates=sum_duplicates, matrix_only=matrix_only)
 
 
 def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed: bool = False, bipartite: bool = False,
-                    weighted: bool = True, reindex: bool = True, sum_duplicates: bool = True,
-                    matrix_only: bool = None) -> Union[Bunch, sparse.csr_matrix]:
+                    weighted: bool = True, reindex: bool = False, shape: Optional[tuple] = None,
+                    sum_duplicates: bool = True, matrix_only: bool = None) -> Union[Bunch, sparse.csr_matrix]:
     """Load a graph from an edge array of shape (n_edges, 2) and weights (optional).
 
     Parameters
@@ -157,6 +165,9 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
     reindex : bool
         If ``True``, reindex nodes and returns the original node indices as names.
         Reindexing is enforced if nodes are not integers.
+    shape : tuple
+        Shape of the adjacency or biadjacency matrix.
+        If not specified or if nodes are reindexed, the shape is the smallest compatible with node indices.
     sum_duplicates : bool
         If ``True`` (default), sums weights of duplicate edges.
         Otherwise, the weight of each edge is that of the first occurrence of this edge.
@@ -195,28 +206,34 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
     if bipartite:
         row = edge_array[:, 0]
         col = edge_array[:, 1]
-        if row.dtype != int or (reindex and len(set(row)) < max(row) + 1):
+        if row.dtype != int or reindex:
             names_row, row = np.unique(row, return_inverse=True)
             graph.names_row = names_row
             graph.names = names_row
             n_row = len(names_row)
+        elif shape is not None:
+            n_row = max(shape[0], max(row) + 1)
         else:
             n_row = max(row) + 1
-        if col.dtype != int or (reindex and len(set(col)) < max(col) + 1):
+        if col.dtype != int or reindex:
             names_col, col = np.unique(col, return_inverse=True)
             graph.names_col = names_col
             n_col = len(names_col)
+        elif shape is not None:
+            n_col = max(shape[1], max(col) + 1)
         else:
             n_col = max(col) + 1
         matrix = sparse.csr_matrix((weights, (row, col)), shape=(n_row, n_col))
         graph.biadjacency = matrix
     else:
         nodes = edge_array.ravel()
-        if nodes.dtype != int or (reindex and len(set(nodes)) < max(nodes) + 1):
+        if nodes.dtype != int or reindex:
             names, nodes = np.unique(nodes, return_inverse=True)
             graph.names = names
             n = len(names)
             edge_array = nodes.reshape(-1, 2)
+        elif shape is not None:
+            n = max(shape[0], max(nodes) + 1)
         else:
             n = max(nodes) + 1
         row = edge_array[:, 0]
@@ -233,8 +250,8 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
 
 def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: str = '#%',
              data_structure: str = None, directed: bool = False, bipartite: bool = False, weighted: bool = True,
-             reindex: bool = True, sum_duplicates: bool = True, matrix_only: bool = None) \
-        -> Union[Bunch, sparse.csr_matrix]:
+             reindex: bool = False, shape: Optional[tuple] = None, sum_duplicates: bool = True,
+             matrix_only: bool = None) -> Union[Bunch, sparse.csr_matrix]:
     """Load a graph from a CSV or TSV file.
     The delimiter can be specified (e.g., ' ' for space-separated values).
 
@@ -264,6 +281,9 @@ def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: s
     reindex : bool
         If ``True``, reindex nodes and returns the original node indices as names.
         Reindexing is enforced if nodes are not integers.
+    shape : tuple
+        Shape of the adjacency or biadjacency matrix.
+        If not specified or if nodes are reindexed, the shape is the smallest compatible with node indices.
     sum_duplicates : bool
         If ``True`` (default), sums weights of duplicate edges.
         Otherwise, the weight of each edge is that of the first occurrence of this edge.
@@ -296,7 +316,7 @@ def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: s
             else:
                 weights = None
             return from_edge_array(edge_array=edge_array, weights=weights, directed=directed, bipartite=bipartite,
-                                   weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates,
+                                   weighted=weighted, reindex=reindex, shape=shape, sum_duplicates=sum_duplicates,
                                    matrix_only=matrix_only)
         except TypeError:
             pass
@@ -307,17 +327,17 @@ def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: s
         if data_structure == 'edge_list':
             edge_list = [tuple(row) for row in csv_reader]
             return from_edge_list(edge_list=edge_list, directed=directed, bipartite=bipartite,
-                                  weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates,
+                                  weighted=weighted, reindex=reindex, shape=shape, sum_duplicates=sum_duplicates,
                                   matrix_only=matrix_only)
         elif data_structure == 'adjacency_list':
             adjacency_list = [row for row in csv_reader]
             return from_adjacency_list(adjacency_list=adjacency_list, directed=directed, bipartite=bipartite,
-                                       weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates,
+                                       weighted=weighted, reindex=reindex, shape=shape, sum_duplicates=sum_duplicates,
                                        matrix_only=matrix_only)
         elif data_structure == 'adjacency_dict':
             adjacency_list = {row[0]: row[1:] for row in csv_reader}
             return from_adjacency_list(adjacency_list=adjacency_list, directed=directed, bipartite=bipartite,
-                                       weighted=weighted, reindex=reindex, sum_duplicates=sum_duplicates,
+                                       weighted=weighted, reindex=reindex, shape=shape, sum_duplicates=sum_duplicates,
                                        matrix_only=matrix_only)
 
 
