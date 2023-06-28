@@ -103,7 +103,10 @@ class DiffusionClassifier(BaseClassifier):
         labels = values.astype(int)
         if (labels < 0).all():
             raise ValueError('At least one node must be given a non-negative label.')
-        temperatures = get_membership(labels).toarray()
+        labels_reindex = labels.copy()
+        labels_unique, inverse = np.unique(labels[labels >= 0], return_inverse=True)
+        labels_reindex[labels >= 0] = inverse
+        temperatures = get_membership(labels_reindex).toarray()
         temperatures_seeds = temperatures[labels >= 0]
         temperatures[labels < 0] = 0.5
         diffusion = normalize(adjacency)
@@ -112,7 +115,7 @@ class DiffusionClassifier(BaseClassifier):
             temperatures[labels >= 0] = temperatures_seeds
         if self.centering:
             temperatures -= temperatures.mean(axis=0)
-        labels_ = temperatures.argmax(axis=1)
+        labels_ = labels_unique[temperatures.argmax(axis=1)]
 
         # softmax
         if self.centering:
