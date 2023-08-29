@@ -158,7 +158,7 @@ def get_f1_scores(labels_true: np.ndarray, labels_pred: np.ndarray, return_preci
     mask = counts_pred > 0
     precisions[mask] = counts_correct[mask] / counts_pred[mask]
     f1_scores = np.zeros(n_labels)
-    mask = (counts_true > 0) & (counts_pred > 0)
+    mask = (precisions > 0) & (recalls > 0)
     f1_scores[mask] = 2 / (1 / precisions[mask] + 1 / recalls[mask])
     if return_precision_recall:
         return f1_scores, precisions, recalls
