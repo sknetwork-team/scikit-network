@@ -6,7 +6,7 @@ Created in July 2019
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Thomas Bonald <tbonald@enst.fr>
 """
-from typing import Tuple, Optional, Union
+from typing import Tuple, Optional, Union, List
 
 import numpy as np
 from scipy import sparse
@@ -232,3 +232,143 @@ def is_acyclic(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) ->
         else:
             n_edges = adjacency.nnz // 2
             return n_cc == n_nodes - n_edges
+
+
+def get_cycles(adjacency: sparse.csr_matrix, directed: bool = False) -> Tuple[int, List[List[int]]]:
+    """Get cycles (elementary circuits) of a directed graph.
+
+    Parameters
+    ----------
+    adjacency:
+        Adjacency matrix of the directed graph.
+    directed:
+        Whether to consider the graph as directed (default False).
+    
+    Returns
+    -------
+    n_cycles : int
+        Number of cycles in the graph.
+    node_cycles : list
+        List of cycles, each cycle represented as a list of nodes index.
+
+    Example
+    -------
+    >>> from sknetwork.topology import get_cycles
+    >>> from sknetwork.data import cyclic_digraph
+    >>> graph = cyclic_digraph(4, metadata=True)
+    >>> get_cycles(graph.adjacency, directed=True)
+    (1, [[0, 1, 2, 3]])
+    """
+
+    if directed is False:
+        raise ValueError("Not implemented for undirected graph. Please set directed argument as True.")
+    
+    if is_acyclic(adjacency, directed):
+        # raise an exception if the graph is acyclic
+        raise ValueError("No cycle found in the graph. The graph is acyclic.")
+   
+    num_nodes = adjacency.shape[0]
+    cycles = []
+
+    # finding cycles for each node (depth first traversal)
+    for start_node in range(num_nodes):
+        stack = [(start_node, [start_node])]
+        visited = np.full(num_nodes, False, dtype=bool)
+        
+        while stack:
+            current_node, path = stack.pop()
+            visited[current_node] = True
+
+            for neighbor in adjacency.indices[adjacency.indptr[current_node]:adjacency.indptr[current_node+1]]:
+                if neighbor == start_node:
+                    cycles.append(path[:])
+                    continue
+                if not visited[neighbor]:
+                    stack.append((neighbor, path + [neighbor]))
+        
+        # reset the visited array for the next start node.
+        visited.fill(False)
+
+    # remove duplicates and subcycles
+    unique_cycles = set(tuple(np.roll(cycle, -cycle.index(min(cycle)))) for cycle in cycles)
+    
+    return len(unique_cycles), [list(cycle) for cycle in unique_cycles]
+
+
+def break_cycles_from_root(adjacency: sparse.csr_matrix, root: Union[int, List[int]] = None, directed: bool = False) -> sparse.csr_matrix:
+    """Break cycles from given roots for a directed graph.
+
+    Parameters
+    ----------
+    adjacency:
+        Adjacency matrix of the directed graph.
+    root:
+        The root node or list of root nodes to break cycles from.
+    directed:
+        Whether to consider the graph as directed (default False).
+    
+    Returns
+    -------
+    adjacency : sparse.csr_matrix
+        Adjacency matrix of the directed acyclic graph.
+
+    Example
+    -------
+    >>> from sknetwork.topology import break_cycles_from_root, is_acyclic
+    >>> from sknetwork.data import cyclic_digraph
+    >>> graph = cyclic_digraph(4, metadata=True)
+    >>> graph.adjacency.toarray()
+    array([[0, 1, 0, 0],
+       [0, 0, 1, 0],
+       [0, 0, 0, 1],
+       [1, 0, 0, 0]])
+    >>> dag = break_cycles_from_root(graph.adjacency, root=0, directed=True)
+    >>> dag.toarray()
+    array([[0, 1, 0, 0],
+       [0, 0, 1, 0],
+       [0, 0, 0, 1],
+       [0, 0, 0, 0]])
+    >>> is_acyclic(dag, directed=True)
+    True
+    """
+
+    if directed is False:
+        raise ValueError("Not implemented for undirected graph. Please set directed argument as True.")
+    
+    if is_acyclic(adjacency, directed):
+        # raise an exception if the graph is acyclic
+        raise ValueError("No cycle found in the graph. The graph is acyclic.")
+    
+    if root is None:
+        raise ValueError("The parameter root must be specified.")
+    else:
+        out_degrees = adjacency[root, :].sum(axis=1)
+        if (out_degrees < 1).all():
+            raise ValueError("Unvalid root node. Root must have at least one outgoing edge.")
+        
+        if isinstance(root, int):
+            root = [root]
+    
+    # break cycles from top to bottom (depth first traversal)
+    num_nodes = adjacency.shape[0]
+    for start_node in root:
+        stack = [(start_node, [start_node])]
+        visited = np.full(num_nodes, False, dtype=bool)
+        
+        while stack:
+            current_node, path = stack.pop()
+            visited[current_node] = True
+
+            for neighbor in adjacency.indices[adjacency.indptr[current_node]:adjacency.indptr[current_node+1]]:
+                if neighbor in path:
+                    # break the cycled link
+                    adjacency[current_node, neighbor] = 0
+                    adjacency.eliminate_zeros()
+                    continue
+                if not visited[neighbor]:
+                    stack.append((neighbor, path + [neighbor]))
+        
+        # reset the visited array for the next start node.
+        visited.fill(False)
+    
+    return adjacency
