@@ -27,28 +27,28 @@ class Louvain(BaseClustering, Log):
 
     Parameters
     ----------
-    resolution :
+    resolution : float
         Resolution parameter.
     modularity : str
         Which objective function to maximize. Can be ``'Dugue'``, ``'Newman'`` or ``'Potts'`` (default = ``'dugue'``).
-    tol_optimization :
+    tol_optimization : float
         Minimum increase in the objective function to enter a new optimization pass.
-    tol_aggregation :
+    tol_aggregation : float
         Minimum increase in the objective function to enter a new aggregation pass.
-    n_aggregations :
+    n_aggregations : int
         Maximum number of aggregations.
         A negative value is interpreted as no limit.
-    shuffle_nodes :
-        Enables node shuffling before optimization.
-    sort_clusters :
+    shuffle_nodes : bool
+        If ``True``, shuffle nodes before optimization.
+    sort_clusters : bool
         If ``True``, sort labels in decreasing order of cluster size.
-    return_probs :
+    return_probs : bool
         If ``True``, return the probability distribution over clusters (soft clustering).
-    return_aggregate :
+    return_aggregate : bool
         If ``True``, return the adjacency matrix of the graph between clusters.
-    random_state :
-        Random number generator or random seed. If None, numpy.random is used.
-    verbose :
+    random_state : int
+        Random number generator or random seed. If ``None``, numpy.random is used.
+    verbose : bool
         Verbose mode.
 
     Attributes
@@ -170,9 +170,9 @@ class Louvain(BaseClustering, Log):
 
         Parameters
         ----------
-        input_matrix :
+        input_matrix : sparse.csr_matrix, np.ndarray
             Adjacency matrix or biadjacency matrix of the graph.
-        force_bipartite :
+        force_bipartite : bool
             If ``True``, force the input matrix to be considered as a biadjacency matrix even if square.
 
         Returns

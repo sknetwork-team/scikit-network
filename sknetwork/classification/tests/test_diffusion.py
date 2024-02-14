@@ -36,6 +36,7 @@ class TestDiffusionClassifier(unittest.TestCase):
         algo.fit(biadjacency, labels_row=labels_row, labels_col=labels_col)
         self.assertTrue(len(algo.labels_row_) == n_row)
         self.assertTrue(len(algo.labels_col_) == n_col)
+        self.assertTrue(all(algo.labels_col_ == algo.predict(columns=True)))
 
     def test_predict(self):
         adjacency = test_graph()
@@ -65,3 +66,12 @@ class TestDiffusionClassifier(unittest.TestCase):
         self.assertTrue(membership.shape == (n_row, 2))
         membership = algo.transform(columns=True)
         self.assertTrue(membership.shape == (n_col, 2))
+
+    def test_reindex_label(self):
+        adjacency = test_graph()
+        n_nodes = adjacency.shape[0]
+        labels = {0: 0, 1: 2, 2: 3}
+        algo = DiffusionClassifier()
+        labels_pred = algo.fit_predict(adjacency, labels=labels)
+        self.assertTrue(len(labels_pred) == n_nodes)
+        self.assertTrue(set(list(labels_pred)) == {0, 2, 3})

@@ -44,6 +44,14 @@ class TestGNNClassifier(unittest.TestCase):
         self.assertTrue(len(y_pred) == self.n)
         self.assertTrue(embedding.shape == (self.n, 2))
 
+    def test_gnn_classifier_no_bias(self):
+        gnn = GNNClassifier([3, 2], 'Conv', 'Softmax', use_bias=[True, False])
+        labels_pred = gnn.fit_predict(self.adjacency, self.features, self.labels)
+        embedding = gnn.embedding_
+        self.assertTrue(len(labels_pred) == self.n)
+        self.assertTrue(embedding.shape == (self.n, 2))
+        self.assertTrue(gnn.layers[1].bias is None)
+
     def test_gnn_classifier_optimizer(self):
         optimizers = ['GD', 'Adam']
         for optimizer in optimizers:
@@ -88,23 +96,20 @@ class TestGNNClassifier(unittest.TestCase):
     def test_gnn_classifier_early_stopping(self):
         gnn = GNNClassifier(2, patience=2)
         labels = {0: 0, 1: 1}
-        _ = gnn.fit_predict(self.adjacency, self.features, labels, n_epochs=100, history=True, validation=0.5,
+        _ = gnn.fit_predict(self.adjacency, self.features, labels, n_epochs=100, validation=0.5,
                             random_state=42)
         self.assertTrue(len(gnn.history_['val_accuracy']) < 100)
 
         gnn = GNNClassifier(2, early_stopping=False)
-        _ = gnn.fit_predict(self.adjacency, self.features, labels, n_epochs=100, history=True, validation=0.5,
+        _ = gnn.fit_predict(self.adjacency, self.features, labels, n_epochs=100, validation=0.5,
                             random_state=42)
         self.assertTrue(len(gnn.history_['val_accuracy']) == 100)
 
     def test_gnn_classifier_reinit(self):
         gnn = GNNClassifier([4, 2])
-        gnn.fit(self.adjacency, self.features, self.labels, reinit=False)
-        weights = [layer.weight for layer in gnn.layers]
-        biases = [layer.bias for layer in gnn.layers]
+        gnn.fit(self.adjacency, self.features, self.labels)
         gnn.fit(self.adjacency, self.features, self.labels, n_epochs=1, reinit=True)
-        self.assertTrue(all([np.all(weight != layer.weight) for weight, layer in zip(weights, gnn.layers)]))
-        self.assertTrue(all([np.all(bias != layer.bias) for bias, layer in zip(biases, gnn.layers)]))
+        self.assertTrue(gnn.embedding_.shape == (self.n, 2))
 
     def test_gnn_classifier_sageconv(self):
         gnn = GNNClassifier([4, 2], ['SAGEConv', 'SAGEConv'], sample_sizes=[5, 3])
@@ -118,38 +123,6 @@ class TestGNNClassifier(unittest.TestCase):
         labels_pred_ = gnn.predict()
         self.assertTrue(all(labels_pred == gnn.labels_))
         self.assertTrue(all(labels_pred == labels_pred_))
-
-        # Predict same nodes
-        labels_pred_ = gnn.predict(self.adjacency, self.features)
-        self.assertTrue(all(labels_pred_ == gnn.labels_))
-
-        # Incorrect shapes
-        new_n = sparse.csr_matrix(np.random.randint(2, size=self.features.shape[1]))
-        new_feat = sparse.csr_matrix(np.random.randint(3, size=self.features.shape[1]))
-        with self.assertRaises(ValueError):
-            gnn.predict(new_n, self.features)
-        with self.assertRaises(ValueError):
-            gnn.predict(self.adjacency, new_feat)
-
-        new_feat = sparse.csr_matrix(np.random.rand(self.adjacency.shape[0], self.features.shape[1] - 1))
-        with self.assertRaises(ValueError):
-            gnn.predict(self.adjacency, new_feat)
-
-        # Predict new graph
-        n = 4
-        n_feat = self.features.shape[1]
-        adjacency = sparse.csr_matrix(np.random.randint(2, size=(n, n)))
-        features = sparse.csr_matrix(np.random.randint(2, size=(n, n_feat)))
-        labels_pred = gnn.predict(adjacency, features)
-        self.assertTrue(len(labels_pred) == n)
-
-        # No adj matrix
-        labels_pred = gnn.predict(None, features)
-        self.assertTrue(len(labels_pred) == features.shape[0])
-
-        # No feature matrix
-        with self.assertRaises(ValueError):
-            gnn.predict(new_n)
 
     def test_gnn_classifier_predict_proba(self):
         gnn = GNNClassifier([4, 2])

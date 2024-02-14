@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on March 2020
+Created in March 2020
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from typing import Optional
@@ -17,9 +17,9 @@ class PageRankClassifier(RankClassifier):
 
     Parameters
     ----------
-    damping_factor:
+    damping_factor: float
         Probability to continue the random walk.
-    solver : :obj:`str`
+    solver : str
         Which solver to use: 'piteration', 'diteration', 'bicgstab', 'lanczos'.
     n_iter : int
         Number of iterations for some solvers such as ``'piteration'`` or ``'diteration'``.
@@ -29,13 +29,17 @@ class PageRankClassifier(RankClassifier):
     Attributes
     ----------
     labels_ : np.ndarray, shape (n_labels,)
-        Label of each node.
+        Labels of nodes.
     probs_ : sparse.csr_matrix, shape (n_row, n_labels)
         Probability distribution over labels.
-    labels_row_, labels_col_ : np.ndarray
-        Labels of rows and columns, for bipartite graphs.
-    probs_row_, probs_col_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Probability distributions over labels for rows and columns (for bipartite graphs).
+    labels_row_ : np.ndarray
+        Labels of rows, for bipartite graphs.
+    labels_col_ : np.ndarray
+        Labels of columns, for bipartite graphs.
+    probs_row_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distributions over labels of rows, for bipartite graphs.
+    probs_col_ : sparse.csr_matrix, shape (n_col, n_labels)
+        Probability distributions over labels of columns, for bipartite graphs.
 
     Example
     -------

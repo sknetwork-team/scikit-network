@@ -9,7 +9,7 @@ from abc import ABC
 import numpy as np
 from scipy import sparse
 
-from sknetwork.linalg.normalization import normalize
+from sknetwork.linalg.normalizer import normalize
 from sknetwork.base import Algorithm
 from sknetwork.utils.membership import get_membership
 

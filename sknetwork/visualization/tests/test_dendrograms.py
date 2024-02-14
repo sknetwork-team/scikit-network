@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""tests for visualization/dendrograms.py"""
+"""tests for visualization of dendrograms"""
 
 import tempfile
 import unittest
@@ -9,7 +9,7 @@ import numpy as np
 
 from sknetwork.data.toy_graphs import karate_club, painters
 from sknetwork.hierarchy import Paris
-from sknetwork.visualization.dendrograms import svg_dendrogram, svg_dendrogram_top
+from sknetwork.visualization.dendrograms import visualize_dendrogram, svg_dendrogram, svg_dendrogram_top
 
 
 # noinspection DuplicatedCode
@@ -22,9 +22,9 @@ class TestVisualization(unittest.TestCase):
         image = svg_dendrogram(dendrogram)
         self.assertEqual(image[1:4], 'svg')
         n = adjacency.shape[0]
-        image = svg_dendrogram(dendrogram, names=np.arange(n), width=200, height=200, margin=10, margin_text=5, scale=3,
-                               n_clusters=3, color='green', colors=['red', 'blue'], font_size=14, reorder=True,
-                               rotate=True)
+        image = visualize_dendrogram(dendrogram, names=np.arange(n), width=200, height=200, margin=10, margin_text=5,
+                                     scale=3, n_clusters=3, color='green', colors=['red', 'blue'], font_size=14,
+                                     reorder=True, rotate=True)
         self.assertEqual(image[1:4], 'svg')
         image = svg_dendrogram(dendrogram, names=np.arange(n), width=200, height=200, margin=10, margin_text=5, scale=3,
                                n_clusters=3, color='green', colors={0: 'red', 1: 'blue'}, font_size=14, reorder=False,
@@ -40,14 +40,14 @@ class TestVisualization(unittest.TestCase):
         names = graph.names
         paris = Paris()
         dendrogram = paris.fit_transform(adjacency)
-        image = svg_dendrogram(dendrogram)
+        image = visualize_dendrogram(dendrogram)
         self.assertEqual(image[1:4], 'svg')
-        image = svg_dendrogram(dendrogram, names=names, width=200, height=200, margin=10, margin_text=5, scale=3,
-                               n_clusters=3, color='green', font_size=14, reorder=True, rotate=True)
+        image = visualize_dendrogram(dendrogram, names=names, width=200, height=200, margin=10, margin_text=5, scale=3,
+                                     n_clusters=3, color='green', font_size=14, reorder=True, rotate=True)
         self.assertEqual(image[1:4], 'svg')
 
         filename = tempfile.gettempdir() + '/image'
-        _ = svg_dendrogram(dendrogram, filename=filename)
+        _ = visualize_dendrogram(dendrogram, filename=filename)
         with open(filename + '.svg', 'r') as f:
             row = f.readline()
             self.assertEqual(row[1:4], 'svg')

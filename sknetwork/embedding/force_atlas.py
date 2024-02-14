@@ -77,6 +77,7 @@ class ForceAtlas(BaseEmbedding):
         self.tolerance = tolerance
         self.speed = speed
         self.speed_max = speed_max
+        self.embedding_ = None
 
     def fit(self, adjacency: Union[sparse.csr_matrix, np.ndarray], pos_init: Optional[np.ndarray] = None,
             n_iter: Optional[int] = None) -> 'ForceAtlas':
@@ -155,7 +156,7 @@ class ForceAtlas(BaseEmbedding):
                 if tree is None:
                     neighbors = np.arange(n)
                 else:
-                    neighbors = tree.query_ball_point(position[i], self.approx_radius)
+                    neighbors = tree.query_ball_point(position[i], self.approx_radius, p=2)
 
                 grad: np.ndarray = (position[i] - position[neighbors])  # shape (n_neigh, n_components)
                 distance: np.ndarray = np.linalg.norm(grad, axis=1)  # shape (n_neigh,)
@@ -191,7 +192,7 @@ class ForceAtlas(BaseEmbedding):
 
             position += delta  # calculating displacement and final position of points after iteration
             if (swing_vector < 1).all():
-                break  # if the swing of all nodes is zero, then convergence is reached and we break.
+                break  # if the swing of all nodes is zero, then convergence is reached.
 
         self.embedding_ = position
         return self

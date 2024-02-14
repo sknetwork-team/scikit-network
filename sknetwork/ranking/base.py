@@ -26,20 +26,25 @@ class BaseRanking(Algorithm, ABC):
     def __init__(self):
         self.scores_ = None
 
-    def fit_predict(self, *args, **kwargs) -> np.ndarray:
-        """Fit algorithm to data and return the scores. Same parameters as the ``fit`` method.
+    def predict(self, columns: bool = False) -> np.ndarray:
+        """Return the scores predicted by the algorithm.
+
+        Parameters
+        ----------
+        columns : bool
+            If ``True``, return the prediction for columns.
 
         Returns
         -------
         scores : np.ndarray
             Scores.
         """
-        self.fit(*args, **kwargs)
+        if columns:
+            return self.scores_col_
         return self.scores_
 
-    def fit_transform(self, *args, **kwargs) -> np.ndarray:
-        """Fit algorithm to data and return the scores. Alias for ``fit_predict``.
-        Same parameters as the ``fit`` method.
+    def fit_predict(self, *args, **kwargs) -> np.ndarray:
+        """Fit algorithm to data and return the scores. Same parameters as the ``fit`` method.
 
         Returns
         -------

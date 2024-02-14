@@ -12,6 +12,8 @@ from scipy import sparse
 from cython.parallel import prange
 
 from sknetwork.path.dag import get_dag
+from sknetwork.utils.check import check_square
+from sknetwork.utils.format import directed2undirected
 from sknetwork.utils.neighbors import get_degrees
 
 cimport cython
@@ -91,7 +93,7 @@ cdef long count_triangles_from_dag(vector[int] indptr, vector[int] indices, bint
     return n_triangles
 
 def count_triangles(adjacency: sparse.csr_matrix, parallelize: bool = False) -> int:
-    """Count the number of triangles in a graph.
+    """Count the number of triangles in a graph. The graph is considered undirected.
 
     Parameters
     ----------
@@ -112,7 +114,8 @@ def count_triangles(adjacency: sparse.csr_matrix, parallelize: bool = False) -> 
     >>> count_triangles(adjacency)
     45
     """
-    dag = get_dag(adjacency)
+    check_square(adjacency)
+    dag = get_dag(directed2undirected(adjacency))
     indptr = dag.indptr
     indices = dag.indices
     n_triangles = count_triangles_from_dag(indptr, indices, parallelize)
@@ -141,7 +144,7 @@ def get_clustering_coefficient(adjacency: sparse.csr_matrix, parallelize: bool =
     0.26
     """
     n_triangles = count_triangles(adjacency, parallelize)
-    degrees = get_degrees(adjacency)
+    degrees = get_degrees(directed2undirected(adjacency))
     degrees = degrees[degrees > 1]
     n_edge_pairs = (degrees * (degrees - 1)).sum() / 2
     coefficient = 3  * n_triangles / n_edge_pairs
