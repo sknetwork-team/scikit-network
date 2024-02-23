@@ -98,7 +98,7 @@ class TestStructure(unittest.TestCase):
         self.assertFalse(is_acyclic(undirected_line, directed=True))
         acyclic_graph = linear_digraph(2)
         self.assertTrue(is_acyclic(acyclic_graph))
-    
+
     def test_get_cycles(self):
         adjacency_with_self_loops = sparse.identity(2, format='csr')
         node_cycles = get_cycles(adjacency_with_self_loops, directed=True)

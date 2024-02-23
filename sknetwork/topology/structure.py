@@ -244,7 +244,7 @@ def get_cycles(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) ->
         Adjacency matrix of the directed graph.
     directed :
         Whether to consider the graph as directed (inferred if not specified).
-    
+
     Returns
     -------
     node_cycles : list
@@ -274,7 +274,7 @@ def get_cycles(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) ->
         # add self-loops as cycles
         for node in self_loops:
             cycles.append([node])
-    
+
     # check if the graph is acyclic
     n_cc, cc_labels = sparse.csgraph.connected_components(adjacency, directed, connection='strong', return_labels=True)
     if directed and n_cc == num_nodes:
@@ -284,20 +284,20 @@ def get_cycles(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) ->
         n_edges = adjacency.nnz // 2
         if n_cc == num_nodes - n_edges:
             return cycles
-    
+
     # locate possible cycles position
     labels, counts = np.unique(cc_labels, return_counts=True)
     if directed:
         labels = labels[counts > 1]
     cycle_starts = [np.argwhere(cc_labels == label).ravel()[0] for label in labels]
-    
+
     # find cycles for indicated nodes (depth-first traversal)
     for start_node in cycle_starts:
         stack = [(start_node, [start_node])]
         while stack:
             current_node, path = stack.pop()
             for neighbor in adjacency.indices[adjacency.indptr[current_node]:adjacency.indptr[current_node+1]]:
-                if not directed and len(path) > 1 and neighbor == path[-2]: 
+                if not directed and len(path) > 1 and neighbor == path[-2]:
                     # ignore the inverse edge (back move) in undirected graph
                     continue
                 if neighbor in path:
@@ -315,11 +315,12 @@ def get_cycles(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) ->
         if cur_cycle not in visited_cycles:
             unique_cycles.append(list(candidate))
         visited_cycles.add(cur_cycle)
-        
+
     return unique_cycles
 
 
-def break_cycles_from_root(adjacency: sparse.csr_matrix, root: Union[int, List[int]], directed: Optional[bool] = None) -> sparse.csr_matrix:
+def break_cycles_from_root(adjacency: sparse.csr_matrix, root: Union[int, List[int]],
+                           directed: Optional[bool] = None) -> sparse.csr_matrix:
     """Break cycles from given roots.
 
     Parameters
@@ -330,7 +331,7 @@ def break_cycles_from_root(adjacency: sparse.csr_matrix, root: Union[int, List[i
         The root node or list of root nodes to break cycles from.
     directed :
         Whether to consider the graph as directed.
-    
+
     Returns
     -------
     adjacency : sparse.csr_matrix
@@ -359,7 +360,7 @@ def break_cycles_from_root(adjacency: sparse.csr_matrix, root: Union[int, List[i
     if is_acyclic(adjacency, directed):
         # raise an exception if the graph is acyclic
         raise ValueError("No cycle found in the graph. The graph is acyclic.")
-    
+
     if root is None:
         raise ValueError("The parameter root must be specified.")
     else:
@@ -368,21 +369,21 @@ def break_cycles_from_root(adjacency: sparse.csr_matrix, root: Union[int, List[i
             raise ValueError("Unvalid root node. Root must have at least one outgoing edge.")
         if isinstance(root, int):
             root = [root]
-    
+
     if directed is None:
         # if not specified, infer from the graph
         directed = not is_symmetric(adjacency)
-    
+
     # break self-loops
     adjacency = (adjacency - sparse.diags(adjacency.diagonal().astype(int), format='csr')).astype(int)
 
     if directed:
-        # break cycles from the cycle node closest to the root 
+        # break cycles from the cycle node closest to the root
         _, cc_labels = sparse.csgraph.connected_components(adjacency, directed, connection='strong', return_labels=True)
         labels, counts = np.unique(cc_labels, return_counts=True)
         cycle_labels = labels[counts > 1]
         distances = get_distances(adjacency, source=root)
-        
+
         for label in cycle_labels:
             cycle_nodes = np.argwhere(cc_labels == label).ravel()
             roots_ix = np.argwhere(distances[cycle_nodes] == min(distances[cycle_nodes])).ravel()
@@ -422,5 +423,5 @@ def break_cycles_from_root(adjacency: sparse.csr_matrix, root: Union[int, List[i
                         adjacency.eliminate_zeros()
                     else:
                         stack.append((neighbor, path + [neighbor]))
-    
+
     return adjacency
