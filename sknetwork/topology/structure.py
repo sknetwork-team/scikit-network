@@ -13,6 +13,7 @@ from scipy import sparse
 
 from sknetwork.utils.check import is_symmetric, check_format
 from sknetwork.utils.format import get_adjacency
+from sknetwork.path import get_distances
 
 
 def get_connected_components(input_matrix: sparse.csr_matrix, connection: str = 'weak', force_bipartite: bool = False) \
@@ -234,20 +235,18 @@ def is_acyclic(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) ->
             return n_cc == n_nodes - n_edges
 
 
-def get_cycles(adjacency: sparse.csr_matrix, directed: bool = False) -> Tuple[int, List[List[int]]]:
-    """Get cycles (elementary circuits) of a directed graph.
+def get_cycles(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) -> List[List[int]]:
+    """Get all possible cycles of a graph.
 
     Parameters
     ----------
-    adjacency:
+    adjacency :
         Adjacency matrix of the directed graph.
-    directed:
-        Whether to consider the graph as directed (default False).
+    directed :
+        Whether to consider the graph as directed (inferred if not specified).
     
     Returns
     -------
-    n_cycles : int
-        Number of cycles in the graph.
     node_cycles : list
         List of cycles, each cycle represented as a list of nodes index.
 
@@ -257,55 +256,80 @@ def get_cycles(adjacency: sparse.csr_matrix, directed: bool = False) -> Tuple[in
     >>> from sknetwork.data import cyclic_digraph
     >>> graph = cyclic_digraph(4, metadata=True)
     >>> get_cycles(graph.adjacency, directed=True)
-    (1, [[0, 1, 2, 3]])
+    [[0, 1, 2, 3]]
     """
 
     if directed is False:
-        raise ValueError("Not implemented for undirected graph. Please set directed argument as True.")
-    
-    if is_acyclic(adjacency, directed):
-        # raise an exception if the graph is acyclic
-        raise ValueError("No cycle found in the graph. The graph is acyclic.")
-   
-    num_nodes = adjacency.shape[0]
-    cycles = []
+        # the graph must be undirected
+        if not is_symmetric(adjacency):
+            raise ValueError("The adjacency matrix is not symmetric. The parameter 'directed' must be True.")
+    elif directed is None:
+        # if not specified, infer from the graph
+        directed = not is_symmetric(adjacency)
 
-    # finding cycles for each node (depth first traversal)
-    for start_node in range(num_nodes):
+    cycles = []
+    num_nodes = adjacency.shape[0]
+    self_loops = np.argwhere(adjacency.diagonal() > 0).ravel()
+    if len(self_loops) > 0:
+        # add self-loops as cycles
+        for node in self_loops:
+            cycles.append([node])
+    
+    # check if the graph is acyclic
+    n_cc, cc_labels = sparse.csgraph.connected_components(adjacency, directed, connection='strong', return_labels=True)
+    if directed and n_cc == num_nodes:
+        return cycles
+    elif not directed:
+        # acyclic undirected graph
+        n_edges = adjacency.nnz // 2
+        if n_cc == num_nodes - n_edges:
+            return cycles
+    
+    # locate possible cycles position
+    labels, counts = np.unique(cc_labels, return_counts=True)
+    if directed:
+        labels = labels[counts > 1]
+    cycle_starts = [np.argwhere(cc_labels == label).ravel()[0] for label in labels]
+    
+    # find cycles for indicated nodes (depth-first traversal)
+    for start_node in cycle_starts:
         stack = [(start_node, [start_node])]
-        visited = np.full(num_nodes, False, dtype=bool)
-        
         while stack:
             current_node, path = stack.pop()
-            visited[current_node] = True
-
             for neighbor in adjacency.indices[adjacency.indptr[current_node]:adjacency.indptr[current_node+1]]:
-                if neighbor == start_node:
-                    cycles.append(path[:])
+                if not directed and len(path) > 1 and neighbor == path[-2]: 
+                    # ignore the inverse edge (back move) in undirected graph
                     continue
-                if not visited[neighbor]:
+                if neighbor in path:
+                    cycles.append(path[path.index(neighbor):])
+                else:
                     stack.append((neighbor, path + [neighbor]))
+
+    # post-processing: remove duplicates
+    visited_cycles, unique_cycles = set(), []
+    for cycle in cycles:
+        candidate = np.roll(cycle, -cycle.index(min(cycle)))
+        cur_cycle = tuple(candidate)
+        if not directed:
+            cur_cycle = tuple(np.sort(candidate))
+        if cur_cycle not in visited_cycles:
+            unique_cycles.append(list(candidate))
+        visited_cycles.add(cur_cycle)
         
-        # reset the visited array for the next start node.
-        visited.fill(False)
-
-    # remove duplicates and subcycles
-    unique_cycles = set(tuple(np.roll(cycle, -cycle.index(min(cycle)))) for cycle in cycles)
-    
-    return len(unique_cycles), [list(cycle) for cycle in unique_cycles]
+    return unique_cycles
 
 
-def break_cycles_from_root(adjacency: sparse.csr_matrix, root: Union[int, List[int]] = None, directed: bool = False) -> sparse.csr_matrix:
-    """Break cycles from given roots for a directed graph.
+def break_cycles_from_root(adjacency: sparse.csr_matrix, root: Union[int, List[int]], directed: Optional[bool] = None) -> sparse.csr_matrix:
+    """Break cycles from given roots.
 
     Parameters
     ----------
-    adjacency:
+    adjacency :
         Adjacency matrix of the directed graph.
-    root:
+    root :
         The root node or list of root nodes to break cycles from.
-    directed:
-        Whether to consider the graph as directed (default False).
+    directed :
+        Whether to consider the graph as directed.
     
     Returns
     -------
@@ -319,22 +343,19 @@ def break_cycles_from_root(adjacency: sparse.csr_matrix, root: Union[int, List[i
     >>> graph = cyclic_digraph(4, metadata=True)
     >>> graph.adjacency.toarray()
     array([[0, 1, 0, 0],
-       [0, 0, 1, 0],
-       [0, 0, 0, 1],
-       [1, 0, 0, 0]])
+           [0, 0, 1, 0],
+           [0, 0, 0, 1],
+           [1, 0, 0, 0]])
     >>> dag = break_cycles_from_root(graph.adjacency, root=0, directed=True)
     >>> dag.toarray()
     array([[0, 1, 0, 0],
-       [0, 0, 1, 0],
-       [0, 0, 0, 1],
-       [0, 0, 0, 0]])
+           [0, 0, 1, 0],
+           [0, 0, 0, 1],
+           [0, 0, 0, 0]])
     >>> is_acyclic(dag, directed=True)
     True
     """
 
-    if directed is False:
-        raise ValueError("Not implemented for undirected graph. Please set directed argument as True.")
-    
     if is_acyclic(adjacency, directed):
         # raise an exception if the graph is acyclic
         raise ValueError("No cycle found in the graph. The graph is acyclic.")
@@ -345,30 +366,61 @@ def break_cycles_from_root(adjacency: sparse.csr_matrix, root: Union[int, List[i
         out_degrees = adjacency[root, :].sum(axis=1)
         if (out_degrees < 1).all():
             raise ValueError("Unvalid root node. Root must have at least one outgoing edge.")
-        
         if isinstance(root, int):
             root = [root]
     
-    # break cycles from top to bottom (depth first traversal)
-    num_nodes = adjacency.shape[0]
-    for start_node in root:
-        stack = [(start_node, [start_node])]
-        visited = np.full(num_nodes, False, dtype=bool)
-        
-        while stack:
-            current_node, path = stack.pop()
-            visited[current_node] = True
+    if directed is None:
+        # if not specified, infer from the graph
+        directed = not is_symmetric(adjacency)
+    
+    # break self-loops
+    adjacency = (adjacency - sparse.diags(adjacency.diagonal().astype(int), format='csr')).astype(int)
 
-            for neighbor in adjacency.indices[adjacency.indptr[current_node]:adjacency.indptr[current_node+1]]:
-                if neighbor in path:
-                    # break the cycled link
-                    adjacency[current_node, neighbor] = 0
-                    adjacency.eliminate_zeros()
-                    continue
-                if not visited[neighbor]:
-                    stack.append((neighbor, path + [neighbor]))
+    if directed:
+        # break cycles from the cycle node closest to the root 
+        _, cc_labels = sparse.csgraph.connected_components(adjacency, directed, connection='strong', return_labels=True)
+        labels, counts = np.unique(cc_labels, return_counts=True)
+        cycle_labels = labels[counts > 1]
+        distances = get_distances(adjacency, source=root)
         
-        # reset the visited array for the next start node.
-        visited.fill(False)
+        for label in cycle_labels:
+            cycle_nodes = np.argwhere(cc_labels == label).ravel()
+            roots_ix = np.argwhere(distances[cycle_nodes] == min(distances[cycle_nodes])).ravel()
+            subroots = set(cycle_nodes[roots_ix])
+            stack = [(subroot, [subroot]) for subroot in subroots]
+            # break cycles using depth-first traversal
+            while stack:
+                current_node, path = stack.pop()
+                # check if the edge still exists
+                if len(path) > 1 and adjacency[path[-2], path[-1]] <= 0:
+                    continue
+                neighbors = adjacency.indices[adjacency.indptr[current_node]:adjacency.indptr[current_node+1]]
+                cycle_neighbors = set(neighbors) & set(cycle_nodes)
+                for neighbor in cycle_neighbors:
+                    if neighbor in path:
+                        adjacency[current_node, neighbor] = 0
+                        adjacency.eliminate_zeros()
+                    else:
+                        stack.append((neighbor, path + [neighbor]))
+    else:
+        # break cycles from given roots for undirected graphs
+        for start_node in root:
+            stack = [(start_node, [start_node])]
+            # break cycles using depth-first traversal
+            while stack:
+                current_node, path = stack.pop()
+                # check if the edge still exists
+                if len(path) > 1 and adjacency[path[-2], path[-1]] <= 0:
+                    continue
+                neighbors = list(adjacency.indices[adjacency.indptr[current_node]:adjacency.indptr[current_node+1]])
+                for neighbor in neighbors:
+                    if len(path) > 1 and neighbor == path[-2]:
+                        continue
+                    if neighbor in path:
+                        adjacency[current_node, neighbor] = 0
+                        adjacency[neighbor, current_node] = 0
+                        adjacency.eliminate_zeros()
+                    else:
+                        stack.append((neighbor, path + [neighbor]))
     
     return adjacency
