@@ -305,16 +305,16 @@ def get_cycles(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) ->
                 else:
                     stack.append((neighbor, path + [neighbor]))
 
-    # post-processing: remove duplicates
+    # remove duplicates
     visited_cycles, unique_cycles = set(), []
     for cycle in cycles:
         candidate = np.roll(cycle, -cycle.index(min(cycle)))
-        cur_cycle = tuple(candidate)
+        current_cycle = tuple(candidate)
         if not directed:
-            cur_cycle = tuple(np.sort(candidate))
-        if cur_cycle not in visited_cycles:
+            current_cycle = tuple(np.sort(candidate))
+        if current_cycle not in visited_cycles:
             unique_cycles.append(list(candidate))
-        visited_cycles.add(cur_cycle)
+        visited_cycles.add(current_cycle)
 
     return unique_cycles
 
@@ -341,32 +341,21 @@ def break_cycles_from_root(adjacency: sparse.csr_matrix, root: Union[int, List[i
     -------
     >>> from sknetwork.topology import break_cycles_from_root, is_acyclic
     >>> from sknetwork.data import cyclic_digraph
-    >>> graph = cyclic_digraph(4, metadata=True)
-    >>> graph.adjacency.toarray()
-    array([[0, 1, 0, 0],
-           [0, 0, 1, 0],
-           [0, 0, 0, 1],
-           [1, 0, 0, 0]])
-    >>> dag = break_cycles_from_root(graph.adjacency, root=0, directed=True)
-    >>> dag.toarray()
-    array([[0, 1, 0, 0],
-           [0, 0, 1, 0],
-           [0, 0, 0, 1],
-           [0, 0, 0, 0]])
+    >>> adjacency = cyclic_digraph(4)
+    >>> dag = break_cycles_from_root(adjacency, root=0, directed=True)
     >>> is_acyclic(dag, directed=True)
     True
     """
 
     if is_acyclic(adjacency, directed):
-        # raise an exception if the graph is acyclic
-        raise ValueError("No cycle found in the graph. The graph is acyclic.")
+        return adjacency
 
     if root is None:
         raise ValueError("The parameter root must be specified.")
     else:
-        out_degrees = adjacency[root, :].sum(axis=1)
-        if (out_degrees < 1).all():
-            raise ValueError("Unvalid root node. Root must have at least one outgoing edge.")
+        out_degree = len(adjacency[root].indices)
+        if out_degree == 0:
+            raise ValueError("Invalid root node. The root must have at least one outgoing edge.")
         if isinstance(root, int):
             root = [root]
 
