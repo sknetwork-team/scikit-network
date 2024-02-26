@@ -247,8 +247,8 @@ def get_cycles(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) ->
 
     Returns
     -------
-    node_cycles : list
-        List of cycles, each cycle represented as a list of nodes index.
+    cycles : list
+        List of cycles, each cycle represented as a list of nodes.
 
     Example
     -------
