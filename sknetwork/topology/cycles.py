@@ -153,7 +153,7 @@ def break_cycles(adjacency: sparse.csr_matrix, root: Union[int, List[int]],
     root :
         The root node or list of root nodes to break cycles from.
     directed :
-        Whether to consider the graph as directed.
+        Whether to consider the graph as directed (inferred if not specified).
 
     Returns
     -------
@@ -182,7 +182,11 @@ def break_cycles(adjacency: sparse.csr_matrix, root: Union[int, List[int]],
         if isinstance(root, int):
             root = [root]
 
-    if directed is None:
+    if directed is False:
+        # the graph must be undirected
+        if not is_symmetric(adjacency):
+            raise ValueError("The adjacency matrix is not symmetric. The parameter 'directed' must be True.")
+    elif directed is None:
         # if not specified, infer from the graph
         directed = not is_symmetric(adjacency)
 
