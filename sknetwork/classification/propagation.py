@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-Created on April 2020
+Created in April 2020
 @author: Thomas Bonald <tbonald@enst.fr>
 """
 
@@ -12,7 +12,7 @@ from scipy import sparse
 
 from sknetwork.classification.base import BaseClassifier
 from sknetwork.classification.vote import vote_update
-from sknetwork.linalg.normalization import normalize
+from sknetwork.linalg.normalizer import normalize
 from sknetwork.utils.format import get_adjacency_values
 from sknetwork.utils.membership import get_membership
 
@@ -25,9 +25,9 @@ class Propagation(BaseClassifier):
     n_iter : float
         Maximum number of iterations (-1 for infinity).
     node_order : str
-        * `'random'`: node labels are updated in random order.
-        * `'increasing'`: node labels are updated by increasing order of (in-)weight.
-        * `'decreasing'`: node labels are updated by decreasing order of (in-)weight.
+        * ``'random'``: node labels are updated in random order.
+        * ``'increasing'``: node labels are updated by increasing order of (in-) weight.
+        * ``'decreasing'``: node labels are updated by decreasing order of (in-) weight.
         * Otherwise, node labels are updated by index order.
     weighted : bool
         If ``True``, the vote of each neighbor is proportional to the edge weight.
@@ -36,13 +36,17 @@ class Propagation(BaseClassifier):
     Attributes
     ----------
     labels_ : np.ndarray, shape (n_labels,)
-        Label of each node.
+        Labels of nodes.
     probs_ : sparse.csr_matrix, shape (n_row, n_labels)
         Probability distribution over labels.
-    labels_row_, labels_col_ : np.ndarray
-        Labels of rows and columns, for bipartite graphs.
-    probs_row_, probs_col_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Probability distributions over labels for rows and columns (for bipartite graphs).
+    labels_row_ : np.ndarray
+        Labels of rows, for bipartite graphs.
+    labels_col_ : np.ndarray
+        Labels of columns, for bipartite graphs.
+    probs_row_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distributions over labels of rows, for bipartite graphs.
+    probs_col_ : sparse.csr_matrix, shape (n_col, n_labels)
+        Probability distributions over labels of columns, for bipartite graphs.
 
     Example
     -------
@@ -93,12 +97,15 @@ class Propagation(BaseClassifier):
 
         Parameters
         ----------
-        input_matrix :
+        input_matrix : sparse.csr_matrix, np.ndarray
             Adjacency matrix or biadjacency matrix of the graph.
-        labels :
-            Known labels (dictionary or array). Negative values ignored.
-        labels_row, labels_col :
-            Known labels of rows and columns (for bipartite graphs).
+        labels : np.ndarray, dict
+            Known labels. Negative values ignored.
+        labels_row : np.ndarray, dict
+            Known labels of rows, for bipartite graphs.
+        labels_col : np.ndarray, dict
+            Known labels of columns, for bipartite graphs.
+
         Returns
         -------
         self: :class:`Propagation`

@@ -7,7 +7,7 @@ import unittest
 import numpy as np
 
 from sknetwork.data.models import cyclic_digraph
-from sknetwork.data.test_graphs import test_bigraph
+from sknetwork.data.test_graphs import test_graph, test_digraph, test_bigraph
 from sknetwork.ranking.pagerank import PageRank
 
 
@@ -37,8 +37,8 @@ class TestPageRank(unittest.TestCase):
         seeds_array[0] = 1.
         seeds_dict = {0: 1}
 
-        scores1 = pagerank.fit_transform(self.adjacency, seeds_array)
-        scores2 = pagerank.fit_transform(self.adjacency, seeds_dict)
+        scores1 = pagerank.fit_predict(self.adjacency, seeds_array)
+        scores2 = pagerank.fit_predict(self.adjacency, seeds_dict)
         self.assertAlmostEqual(np.linalg.norm(scores1 - scores2), 0.)
 
     def test_input(self):
@@ -48,9 +48,15 @@ class TestPageRank(unittest.TestCase):
 
     def test_damping(self):
         pagerank = PageRank(damping_factor=0.99)
-        scores = pagerank.fit_transform(self.adjacency)
+        scores = pagerank.fit_predict(self.adjacency)
         self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
 
         pagerank = PageRank(damping_factor=0.01)
-        scores = pagerank.fit_transform(self.adjacency)
+        scores = pagerank.fit_predict(self.adjacency)
         self.assertAlmostEqual(np.linalg.norm(scores - self.truth), 0.)
+
+    def test_bigraph(self):
+        pagerank = PageRank()
+        for adjacency in [test_graph(), test_digraph(), test_bigraph()]:
+            pagerank.fit(adjacency, weights_col={0: 1})
+            self.assertAlmostEqual(np.linalg.norm(pagerank.scores_col_ - pagerank.predict(columns=True)), 0.)

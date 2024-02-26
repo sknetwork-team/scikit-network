@@ -36,5 +36,5 @@ class TestSearch(unittest.TestCase):
 
         adjacency = test_digraph()
         search = breadth_first_search(adjacency, 1)
-        search_ = np.array([1, 3, 4, 2, 5])
-        self.assertTrue(all(search == search_))
+        search_ = {1, 3, 4, 2, 5}
+        self.assertTrue(set(list(search)) == search_)

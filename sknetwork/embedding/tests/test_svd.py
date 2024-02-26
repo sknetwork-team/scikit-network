@@ -26,7 +26,7 @@ class TestSVD(unittest.TestCase):
 
         gsvd = GSVD(n_components=1, regularization=0.1, solver='lanczos')
         gsvd.fit(biadjacency)
-        gsvd.predict(np.random.rand(n_col))
+        self.assertEqual(gsvd.embedding_row_.shape, (n_row, 1))
 
         pca = PCA(n_components=min_dim, solver='lanczos')
         pca.fit(biadjacency)

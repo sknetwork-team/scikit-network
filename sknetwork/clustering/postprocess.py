@@ -41,7 +41,7 @@ def aggregate_graph(input_matrix: sparse.csr_matrix, labels: Optional[np.ndarray
                     labels_row: Optional[np.ndarray] = None, labels_col: Optional[np.ndarray] = None) \
         -> sparse.csr_matrix:
     """Aggregate graph per label. All nodes with the same label become a single node.
-    Negative labels are ignored (corresponding nodes are not discarded).
+    Negative labels are ignored (corresponding nodes are discarded).
 
     Parameters
     ----------
@@ -63,4 +63,4 @@ def aggregate_graph(input_matrix: sparse.csr_matrix, labels: Optional[np.ndarray
     else:
         membership_col = membership_row
     aggregate_matrix = membership_row.T.dot(input_matrix).dot(membership_col)
-    return aggregate_matrix
+    return aggregate_matrix.tocsr()

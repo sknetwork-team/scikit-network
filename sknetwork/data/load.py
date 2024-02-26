@@ -250,7 +250,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
     if matrix:
         file = matrix[0]
         directed, bipartite, weighted = load_header(path / file)
-        dataset = from_csv(path / file, directed=directed, bipartite=bipartite, weighted=weighted)
+        dataset = from_csv(path / file, directed=directed, bipartite=bipartite, weighted=weighted, reindex=True)
 
     metadata = [file for file in files if 'meta.' in file]
     if metadata:
@@ -300,11 +300,9 @@ def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[Unio
             sparse.save_npz(data_path / attribute, data[attribute])
         elif type(data[attribute]) == np.ndarray:
             np.save(data_path / attribute, data[attribute])
-        elif type(data[attribute]) == Bunch or type(data[attribute]) == str:
+        else:
             with open(data_path / (attribute + '.p'), 'wb') as file:
                 pickle.dump(data[attribute], file)
-        else:
-            raise TypeError('Unsupported data attribute type '+str(type(data[attribute])) + '.')
 
 
 def load_from_numpy_bundle(bundle_name: str, data_home: Optional[Union[str, Path]] = None):

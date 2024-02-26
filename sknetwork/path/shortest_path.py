@@ -37,7 +37,7 @@ def get_shortest_path(input_matrix: sparse.csr_matrix, source: Optional[Union[in
     Returns
     -------
     path : sparse.csr_matrix
-        Adjacency matrix of the graph of the shortest paths to the source node (or the set of source nodes).
+        Adjacency matrix of the graph of the shortest paths from the source node (or the set of source nodes).
         If the input graph is a bipartite graph, the shape of the matrix is (n_row + n_col, n_row + n_col) with the new
         index corresponding to the rows then the columns of the original graph.
 

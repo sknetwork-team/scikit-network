@@ -29,11 +29,11 @@ class PropagationClustering(BaseClustering, Propagation):
     weighted : bool
         If ``True``, the vote of each neighbor is proportional to the edge weight.
         Otherwise, all votes have weight 1.
-    sort_clusters :
+    sort_clusters : bool
         If ``True``, sort labels in decreasing order of cluster size.
-    return_probs :
+    return_probs : bool
         If ``True``, return the probability distribution over clusters (soft clustering).
-    return_aggregate :
+    return_aggregate : bool
         If ``True``, return the aggregate adjacency matrix or biadjacency matrix between clusters.
 
     Attributes
@@ -78,7 +78,7 @@ class PropagationClustering(BaseClustering, Propagation):
 
         Parameters
         ----------
-        input_matrix :
+        input_matrix : sparse.csr_matrix, np.ndarray
             Adjacency matrix or biadjacency matrix of the graph.
 
         Returns

@@ -12,7 +12,7 @@ from scipy import sparse
 from scipy.sparse.linalg import LinearOperator
 
 from sknetwork.linalg import diagonal_pseudo_inverse
-from sknetwork.linalg.normalization import normalize
+from sknetwork.linalg.normalizer import normalize
 from sknetwork.linalg.sparse_lowrank import SparseLR
 from sknetwork.utils.check import check_format
 

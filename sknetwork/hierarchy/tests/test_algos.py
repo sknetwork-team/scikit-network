@@ -27,3 +27,8 @@ class TestLouvainHierarchy(unittest.TestCase):
                 self.assertEqual(dendrogram.shape, (input_matrix.shape[0] - 1, 4))
                 if algo.bipartite:
                     self.assertEqual(algo.dendrogram_full_.shape, (sum(input_matrix.shape) - 1, 4))
+        adjacency = test_graph()
+        algo = Paris()
+        dendrogram = algo.fit_predict(adjacency)
+        dendrogram_ = algo.predict()
+        self.assertAlmostEqual(np.linalg.norm(dendrogram - dendrogram_), 0)

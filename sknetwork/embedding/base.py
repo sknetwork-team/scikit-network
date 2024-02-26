@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Nov, 2019
+Created in November 2019
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 from abc import ABC
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 from scipy import sparse
@@ -26,9 +26,18 @@ class BaseEmbedding(Algorithm, ABC):
     embedding_col_ : array, shape = (n_col, n_components)
         Embedding of the columns, for bipartite graphs.
     """
-
     def __init__(self):
         self._init_vars()
+
+    def transform(self) -> np.ndarray:
+        """Return the embedding.
+
+        Returns
+        -------
+        embedding : np.ndarray
+            Embedding.
+        """
+        return self.embedding_
 
     def fit_transform(self, *args, **kwargs) -> np.ndarray:
         """Fit to data and return the embedding. Same parameters as the ``fit`` method.
@@ -41,30 +50,22 @@ class BaseEmbedding(Algorithm, ABC):
         self.fit(*args, **kwargs)
         return self.embedding_
 
-    def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
-        """Predict the embedding of new nodes.
-
-        Each new node is defined by its adjacency row vector.
+    def predict(self, columns: bool = False) -> np.ndarray:
+        """Return the embedding of nodes.
 
         Parameters
         ----------
-        adjacency_vectors :
-            Adjacency vectors of nodes.
-            Array of shape (n_col,) (single vector) or (n_vectors, n_col)
+        columns : bool
+            If ``True``, return the prediction for columns.
 
         Returns
         -------
-        embedding_vectors : np.ndarray
+        embedding_ : np.ndarray
             Embedding of the nodes.
         """
-        raise NotImplementedError
-
-    def _check_fitted(self):
-        if self.embedding_ is None:
-            raise ValueError("This embedding instance is not fitted yet."
-                             " Call 'fit' with appropriate arguments before using this method.")
-        else:
-            return self
+        if columns:
+            return self.embedding_col_
+        return self.embedding_
 
     @staticmethod
     def _get_regularization(regularization: float, adjacency: sparse.csr_matrix) -> float:

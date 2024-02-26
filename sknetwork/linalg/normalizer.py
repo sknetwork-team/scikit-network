@@ -35,30 +35,33 @@ def get_norms(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
 
     Parameters
     ----------
-    matrix : numpy array, sparse CSR matrix or linear operator, shape (n_rows, n_cols)
+    matrix : numpy array or sparse CSR matrix or LinearOperator, shape (n_rows, n_cols)
         Input matrix.
     p :
-        Order of the norm.
+        Order of the norm (1 or 2).
     Returns
     -------
     norms : np.array, shape (n_rows,)
         Vector norms
     """
-    if p == 1:
-        norms = matrix.dot(np.ones(matrix.shape[1]))
-    elif p == 2:
-        if isinstance(matrix, np.ndarray):
-            norms = np.linalg.norm(matrix, axis=1)
-        elif isinstance(matrix, sparse.csr_matrix):
-            data = matrix.data.copy()
-            matrix.data = data ** 2
-            norms = np.sqrt(matrix.dot(np.ones(matrix.shape[1])))
-            matrix.data = data
-        else:
-            raise NotImplementedError('Norm 2 is not available for a LinearOperator.')
+    n_row, n_col = matrix.shape
+    if isinstance(matrix, np.ndarray):
+        input_matrix = sparse.csr_matrix(matrix)
+    elif isinstance(matrix, sparse.csr_matrix):
+        input_matrix = matrix.copy()
     else:
-        raise NotImplementedError('Only norms 1 and 2 are available at the moment.')
-    return norms
+        input_matrix = matrix
+    if p == 1:
+        if not isinstance(matrix, LinearOperator):
+            input_matrix.data = np.abs(input_matrix.data)
+        return input_matrix.dot(np.ones(n_col))
+    elif p == 2:
+        if isinstance(matrix, LinearOperator):
+            raise ValueError('Only norm 1 is available for linear operators.')
+        input_matrix.data = input_matrix.data**2
+        return np.sqrt(input_matrix.dot(np.ones(n_col)))
+    else:
+        raise ValueError('Only norms 1 and 2 are available.')
 
 
 def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1):

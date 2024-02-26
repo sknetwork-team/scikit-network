@@ -157,21 +157,21 @@ class Paris(BaseHierarchy):
 
     Parameters
     ----------
-    weights :
+    weights : str
         Weights of nodes.
         ``'degree'`` (default) or ``'uniform'``.
-    reorder :
+    reorder : bool
         If ``True`` (default), reorder the dendrogram in non-decreasing order of height.
 
     Attributes
     ----------
-    dendrogram_ :
+    dendrogram_ : np.ndarray
         Dendrogram of the graph.
-    dendrogram_row_ :
+    dendrogram_row_ : np.ndarray
         Dendrogram for the rows, for bipartite graphs.
-    dendrogram_col_ :
+    dendrogram_col_ : np.ndarray
         Dendrogram for the columns, for bipartite graphs.
-    dendrogram_full_ :
+    dendrogram_full_ : np.ndarray
         Dendrogram for both rows and columns, indexed in this order, for bipartite graphs.
 
     Examples
@@ -217,7 +217,7 @@ class Paris(BaseHierarchy):
 
         Parameters
         ----------
-        input_matrix :
+        input_matrix : sparse.csr_matrix, np.ndarray
             Adjacency matrix or biadjacency matrix of the graph.
 
         Returns

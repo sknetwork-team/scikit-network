@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-Created on Thu Apr 21 2022
+Created in April 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
-from typing import Union
+from typing import Iterable, Union
 
 import numpy as np
 
@@ -22,7 +22,7 @@ def check_early_stopping(early_stopping: bool, val_mask: np.ndarray, patience: i
         return early_stopping
 
 
-def check_normalizations(normalizations: Union[str, list]):
+def check_normalizations(normalizations: Union[str, Iterable]):
     """Check if normalization is known."""
     available_norms = ['left', 'right', 'both']
     if isinstance(normalizations, list):
@@ -69,10 +69,10 @@ def check_loss(layer: BaseLayer):
     return layer.activation
 
 
-def get_layers(dims: Union[int, list], layer_types: Union[str, BaseLayer, list],
-               activations: Union[str, BaseActivation, list], use_bias: Union[bool, list],
-               normalizations: Union[str, list], self_embeddings: Union[bool, list], sample_sizes: Union[int, list],
-               loss: Union[str, BaseLoss]) -> list:
+def get_layers(dims: Union[int, Iterable], layer_types: Union[str, BaseLayer, Iterable],
+               activations: Union[str, BaseActivation, list], use_bias: Union[bool, Iterable],
+               normalizations: Union[str, Iterable], self_embeddings: Union[bool, Iterable],
+               sample_sizes: Union[int, Iterable], loss: Union[str, BaseLoss]) -> list:
     """Get the list of layers.
 
     Parameters
@@ -101,7 +101,7 @@ def get_layers(dims: Union[int, list], layer_types: Union[str, BaseLayer, list],
     """
     check_normalizations(normalizations)
 
-    if not isinstance(dims, list):
+    if isinstance(dims, int):
         dims = [dims]
     n_layers = len(dims)
 
