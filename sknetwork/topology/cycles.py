@@ -64,7 +64,7 @@ def get_cycles(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) ->
     Parameters
     ----------
     adjacency :
-        Adjacency matrix of the directed graph.
+        Adjacency matrix of the graph.
     directed :
         Whether to consider the graph as directed (inferred if not specified).
 
@@ -91,7 +91,7 @@ def get_cycles(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) ->
         directed = not is_symmetric(adjacency)
 
     cycles = []
-    num_nodes = adjacency.shape[0]
+    n_nodes = adjacency.shape[0]
     self_loops = np.argwhere(adjacency.diagonal() > 0).ravel()
     if len(self_loops) > 0:
         # add self-loops as cycles
@@ -100,15 +100,15 @@ def get_cycles(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) ->
 
     # check if the graph is acyclic
     n_cc, cc_labels = sparse.csgraph.connected_components(adjacency, directed, connection='strong', return_labels=True)
-    if directed and n_cc == num_nodes:
+    if directed and n_cc == n_nodes:
         return cycles
     elif not directed:
         # acyclic undirected graph
         n_edges = adjacency.nnz // 2
-        if n_cc == num_nodes - n_edges:
+        if n_cc == n_nodes - n_edges:
             return cycles
 
-    # locate possible cycles position
+    # locate possible cycles
     labels, counts = np.unique(cc_labels, return_counts=True)
     if directed:
         labels = labels[counts > 1]
@@ -144,12 +144,12 @@ def get_cycles(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) ->
 
 def break_cycles(adjacency: sparse.csr_matrix, root: Union[int, List[int]],
                  directed: Optional[bool] = None) -> sparse.csr_matrix:
-    """Break cycles from given roots.
+    """Break cycles of a graph from given roots.
 
     Parameters
     ----------
     adjacency :
-        Adjacency matrix of the directed graph.
+        Adjacency matrix of the graph.
     root :
         The root node or list of root nodes to break cycles from.
     directed :
@@ -158,7 +158,7 @@ def break_cycles(adjacency: sparse.csr_matrix, root: Union[int, List[int]],
     Returns
     -------
     adjacency : sparse.csr_matrix
-        Adjacency matrix of the directed acyclic graph.
+        Adjacency matrix of the acyclic graph.
 
     Example
     -------
