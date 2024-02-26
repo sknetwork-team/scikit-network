@@ -19,8 +19,14 @@ Structure
 
 .. autofunction:: sknetwork.topology.is_bipartite
 
+Cycles
+------
+
 .. autofunction:: sknetwork.topology.is_acyclic
 
+.. autofunction:: sknetwork.topology.get_cycles
+
+.. autofunction:: sknetwork.topology.break_cycles
 
 Core decomposition
 ------------------
