@@ -20,9 +20,9 @@ def get_membership(labels: np.ndarray, dtype=bool, n_labels: Optional[int] = Non
     Parameters
     ----------
     labels :
-        Label of each node.
+        Label of each node (integers).
     dtype :
-        Type of the entries. Boolean by default.
+        Type of the output. Boolean by default.
     n_labels : int
         Number of labels.
 
