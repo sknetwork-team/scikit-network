@@ -27,28 +27,27 @@ class Louvain(BaseClustering, Log):
 
     Parameters
     ----------
-    resolution : float
+    resolution :
         Resolution parameter.
-    modularity : str
-        Which objective function to maximize. Can be ``'Dugue'``, ``'Newman'`` or ``'Potts'`` (default = ``'dugue'``).
-    tol_optimization : float
+    modularity : stction to maximize. Can be ``'Dugue'``, ``'Newman'`` or ``'Potts'`` (default = ``'dugue'``).
+    tol_optimization :
         Minimum increase in the objective function to enter a new optimization pass.
-    tol_aggregation : float
+    tol_aggregation :
         Minimum increase in the objective function to enter a new aggregation pass.
-    n_aggregations : int
+    n_aggregations :
         Maximum number of aggregations.
         A negative value is interpreted as no limit.
-    shuffle_nodes : bool
-        If ``True``, shuffle nodes before optimization.
-    sort_clusters : bool
+    shuffle_nodes :
+        Enables node shuffling before optimization.
+    sort_clusters :
         If ``True``, sort labels in decreasing order of cluster size.
-    return_probs : bool
+    return_probs :
         If ``True``, return the probability distribution over clusters (soft clustering).
-    return_aggregate : bool
+    return_aggregate :
         If ``True``, return the adjacency matrix of the graph between clusters.
-    random_state : int
-        Random number generator or random seed. If ``None``, numpy.random is used.
-    verbose : bool
+    random_state :
+        Random number generator or random seed. If None, numpy.random is used.
+    verbose :
         Verbose mode.
 
     Attributes
@@ -91,6 +90,7 @@ class Louvain(BaseClustering, Log):
       <https://arxiv.org/pdf/0707.1616>`_
       Physical Review E, 76(6).
     """
+
     def __init__(self, resolution: float = 1, modularity: str = 'dugue', tol_optimization: float = 1e-3,
                  tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
                  sort_clusters: bool = True, return_probs: bool = True, return_aggregate: bool = True,
@@ -109,70 +109,69 @@ class Louvain(BaseClustering, Log):
         self.random_state = check_random_state(random_state)
         self.bipartite = None
 
-    def _optimize(self, adjacency_norm, probs_ou, probs_in):
-        """One local optimization pass of the Louvain algorithm
+    def _optimize(self, adjacency, probs_out, probs_in):
+        """One optimization pass of the Louvain algorithm.
 
         Parameters
         ----------
-        adjacency_norm :
-            the norm of the adjacency
-        probs_ou :
-            the array of degrees of the adjacency
+        adjacency :
+            Adjacency matrix.
+        probs_out :
+            Out-probabilities of nodes.
         probs_in :
-            the array of degrees of the transpose of the adjacency
+            In-probabilities of nodes
 
         Returns
         -------
         labels :
-            the communities of each node after optimization
+            Labels of the nodes after optimization.
         pass_increase :
-            the increase in modularity gained after optimization
+            Gain in modularity after optimization.
         """
-        node_probs_in = probs_in.astype(np.float32)
-        node_probs_ou = probs_ou.astype(np.float32)
+        probs_out_ = probs_out.astype(np.float32)
+        probs_in_ = probs_in.astype(np.float32)
 
-        adjacency = 0.5 * directed2undirected(adjacency_norm)
-
+        adjacency_ = 0.5 * directed2undirected(adjacency)
         self_loops = adjacency.diagonal().astype(np.float32)
 
-        indptr: np.ndarray = adjacency.indptr
-        indices: np.ndarray = adjacency.indices
-        data: np.ndarray = adjacency.data.astype(np.float32)
+        indptr: np.ndarray = adjacency_.indptr
+        indices: np.ndarray = adjacency_.indices
+        data: np.ndarray = adjacency_.data.astype(np.float32)
 
-        return fit_core(self.resolution, self.tol, node_probs_ou, node_probs_in, self_loops, data, indices, indptr)
+        return fit_core(self.resolution, self.tol, probs_out_, probs_in_, self_loops, data, indices, indptr)
 
     @staticmethod
-    def _aggregate(adjacency_norm, probs_out, probs_in, membership: Union[sparse.csr_matrix, np.ndarray]):
+    def _aggregate(adjacency, probs_out, probs_in, membership):
         """Aggregate nodes belonging to the same cluster.
 
         Parameters
         ----------
-        adjacency_norm :
-            the norm of the adjacency
+        adjacency :
+            Adjacency matrix.
         probs_out :
-            the array of degrees of the adjacency
+            Out-probabilities of nodes.
         probs_in :
-            the array of degrees of the transpose of the adjacency
+            In-probabilities of nodes
         membership :
-            membership matrix (rows).
+            Membership matrix.
 
         Returns
         -------
-        Aggregate graph.
+        Aggregate graph (adjacency matrix, probs_out, probs_in).
         """
-        adjacency_norm = (membership.T.dot(adjacency_norm.dot(membership))).tocsr()
-        probs_in = np.array(membership.T.dot(probs_in).T)
-        probs_out = np.array(membership.T.dot(probs_out).T)
-        return adjacency_norm, probs_out, probs_in
+        adjacency_ = (membership.T.dot(adjacency.dot(membership))).tocsr()
+        probs_in_ = np.array(membership.T.dot(probs_in).T)
+        probs_out_ = np.array(membership.T.dot(probs_out).T)
+        return adjacency_, probs_out_, probs_in_
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], force_bipartite: bool = False) -> 'Louvain':
         """Fit algorithm to data.
 
         Parameters
         ----------
-        input_matrix : sparse.csr_matrix, np.ndarray
+        input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
-        force_bipartite : bool
+        force_bipartite :
             If ``True``, force the input matrix to be considered as a biadjacency matrix even if square.
 
         Returns
@@ -188,7 +187,6 @@ class Louvain(BaseClustering, Log):
             adjacency, self.bipartite = get_adjacency(input_matrix, force_bipartite=force_bipartite)
 
         n = adjacency.shape[0]
-
         index = np.arange(n)
         if self.shuffle_nodes:
             index = self.random_state.permutation(index)
@@ -206,28 +204,26 @@ class Louvain(BaseClustering, Log):
         else:
             raise ValueError('Unknown modularity function.')
 
-        adjacency_cluster = adjacency / adjacency.data.sum()
-
+        # aggregate adjacency matrix (sums to 1)
+        adjacency_ = adjacency / adjacency.data.sum()
+        # cluster membership
         membership = sparse.identity(n, format='csr')
         increase = True
         count_aggregations = 0
         self.print_log("Starting with", n, "nodes.")
         while increase:
             count_aggregations += 1
-
-            labels_cluster, pass_increase = self._optimize(adjacency_cluster, probs_out, probs_in)
-            _, labels_cluster = np.unique(labels_cluster, return_inverse=True)
+            labels, pass_increase = self._optimize(adjacency_, probs_out, probs_in)
+            _, labels = np.unique(labels, return_inverse=True)
 
             if pass_increase <= self.tol_aggregation:
                 increase = False
             else:
-                membership_cluster = get_membership(labels_cluster)
-                membership = membership.dot(membership_cluster)
-                adjacency_cluster, probs_out, probs_in = self._aggregate(adjacency_cluster, probs_out, probs_in,
-                                                                         membership_cluster)
+                membership_ = get_membership(labels)
+                membership = membership.dot(membership_)
+                adjacency_, probs_out, probs_in = self._aggregate(adjacency_, probs_out, probs_in, membership_)
 
-                n = adjacency_cluster.shape[0]
-                if n == 1:
+                if adjacency_.shape[0] == 1:
                     break
             self.print_log("Aggregation", count_aggregations, "completed with", n, "clusters and ",
                            pass_increase, "increment.")
