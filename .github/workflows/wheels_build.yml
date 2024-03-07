@@ -29,7 +29,8 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          path: ./wheelhouse/*.whl
+          name: dist-${{ matrix.os }}-${{ matrix.python-version }}
+          path: wheelhouse
 
   build_sdist:
       name: Build source distribution
