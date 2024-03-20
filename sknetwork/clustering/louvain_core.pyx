@@ -10,7 +10,7 @@ ctypedef fused int_or_long:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def fit_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_node_probs, float[:] self_loops,
+def optimize_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_node_probs, float[:] self_loops,
              float[:] data, int_or_long[:] indices, int_or_long[:] indptr):  # pragma: no cover
     """Fit the clusters to the objective function.
 

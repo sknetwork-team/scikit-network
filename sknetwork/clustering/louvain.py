@@ -12,7 +12,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering.base import BaseClustering
-from sknetwork.clustering.louvain_core import fit_core
+from sknetwork.clustering.louvain_core import optimize_core
 from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.utils.check import check_random_state, get_probs
 from sknetwork.utils.format import check_format, get_adjacency, directed2undirected
@@ -138,7 +138,7 @@ class Louvain(BaseClustering, Log):
         indices: np.ndarray = adjacency_.indices
         data: np.ndarray = adjacency_.data.astype(np.float32)
 
-        return fit_core(self.resolution, self.tol, probs_out_, probs_in_, self_loops, data, indices, indptr)
+        return optimize_core(self.resolution, self.tol, probs_out_, probs_in_, self_loops, data, indices, indptr)
 
     @staticmethod
     def _aggregate(adjacency, probs_out, probs_in, membership):
