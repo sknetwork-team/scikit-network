@@ -31,9 +31,9 @@ class Louvain(BaseClustering, Log):
         Resolution parameter.
     modularity : stction to maximize. Can be ``'Dugue'``, ``'Newman'`` or ``'Potts'`` (default = ``'dugue'``).
     tol_optimization :
-        Minimum increase in the objective function to enter a new optimization pass.
+        Minimum increase in modularity to enter a new optimization pass in the local search.
     tol_aggregation :
-        Minimum increase in the objective function to enter a new aggregation pass.
+        Minimum increase in modularity to enter a new aggregation pass.
     n_aggregations :
         Maximum number of aggregations.
         A negative value is interpreted as no limit.
@@ -102,24 +102,24 @@ class Louvain(BaseClustering, Log):
         self.labels_ = None
         self.resolution = resolution
         self.modularity = modularity.lower()
-        self.tol = tol_optimization
+        self.tol_optimization = tol_optimization
         self.tol_aggregation = tol_aggregation
         self.n_aggregations = n_aggregations
         self.shuffle_nodes = shuffle_nodes
         self.random_state = check_random_state(random_state)
         self.bipartite = None
 
-    def _optimize(self, adjacency, out_probs, in_probs):
+    def _optimize(self, adjacency, out_weights, in_weights):
         """One optimization pass of the Louvain algorithm.
 
         Parameters
         ----------
         adjacency :
             Adjacency matrix.
-        out_probs :
-            Out-probabilities of nodes.
-        in_probs :
-            In-probabilities of nodes
+        out_weights :
+            Out-weights of nodes.
+        in_weights :
+            In-weights of nodes
 
         Returns
         -------
@@ -128,8 +128,8 @@ class Louvain(BaseClustering, Log):
         increase :
             Gain in modularity after optimization.
         """
-        out_weights = out_probs.astype(np.float32)
-        in_weights = in_probs.astype(np.float32)
+        out_weights_ = out_weights.astype(np.float32)
+        in_weights_ = in_weights.astype(np.float32)
 
         adjacency_ = 0.5 * directed2undirected(adjacency)
         self_loops = adjacency.diagonal().astype(np.float32)
@@ -138,31 +138,32 @@ class Louvain(BaseClustering, Log):
         indices: np.ndarray = adjacency_.indices
         data: np.ndarray = adjacency_.data.astype(np.float32)
 
-        return optimize_core(self.resolution, self.tol, out_weights, in_weights, self_loops, data, indices, indptr)
+        return optimize_core(self.resolution, self.tol_optimization, out_weights_, in_weights_, self_loops, data,
+                             indices, indptr)
 
     @staticmethod
-    def _aggregate(adjacency, out_probs, in_probs, membership):
+    def _aggregate(adjacency, out_weights, in_weights, membership):
         """Aggregate nodes belonging to the same cluster.
 
         Parameters
         ----------
         adjacency :
             Adjacency matrix.
-        out_probs :
-            Out-probabilities of nodes.
-        in_probs :
-            In-probabilities of nodes
+        out_weights :
+            Out-weights of nodes.
+        in_weights :
+            In-weights of nodes
         membership :
             Membership matrix.
 
         Returns
         -------
-        Aggregate graph (adjacency matrix, probs_out, probs_in).
+        Aggregate graph (adjacency matrix, out-weights, in-weights).
         """
         adjacency_ = (membership.T.dot(adjacency.dot(membership))).tocsr()
-        out_probs_ = np.array(membership.T.dot(out_probs).T)
-        in_probs_ = np.array(membership.T.dot(in_probs).T)
-        return adjacency_, out_probs_, in_probs_
+        out_weights_ = np.array(membership.T.dot(out_weights).T)
+        in_weights_ = np.array(membership.T.dot(in_weights).T)
+        return adjacency_, out_weights_, in_weights_
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], force_bipartite: bool = False) -> 'Louvain':
         """Fit algorithm to data.
@@ -180,11 +181,9 @@ class Louvain(BaseClustering, Log):
         """
         self._init_vars()
         input_matrix = check_format(input_matrix)
-        if self.modularity == 'dugue':
-            adjacency, self.bipartite = get_adjacency(input_matrix, force_directed=True,
-                                                      force_bipartite=force_bipartite)
-        else:
-            adjacency, self.bipartite = get_adjacency(input_matrix, force_bipartite=force_bipartite)
+        force_directed = self.modularity == 'dugue'
+        adjacency, self.bipartite = get_adjacency(input_matrix, force_directed=force_directed,
+                                                  force_bipartite=force_bipartite)
 
         n = adjacency.shape[0]
         index = np.arange(n)
@@ -193,14 +192,14 @@ class Louvain(BaseClustering, Log):
             adjacency = adjacency[index][:, index]
 
         if self.modularity == 'potts':
-            out_probs = get_probs('uniform', adjacency)
-            in_probs = out_probs.copy()
+            out_weights = get_probs('uniform', adjacency)
+            in_weights = out_weights.copy()
         elif self.modularity == 'newman':
-            out_probs = get_probs('degree', adjacency)
-            in_probs = out_probs.copy()
+            out_weights = get_probs('degree', adjacency)
+            in_weights = out_weights.copy()
         elif self.modularity == 'dugue':
-            out_probs = get_probs('degree', adjacency)
-            in_probs = get_probs('degree', adjacency.T)
+            out_weights = get_probs('degree', adjacency)
+            in_weights = get_probs('degree', adjacency.T)
         else:
             raise ValueError('Unknown modularity function.')
 
@@ -213,7 +212,7 @@ class Louvain(BaseClustering, Log):
         self.print_log("Starting with", n, "nodes.")
         while not stop:
             count_aggregations += 1
-            labels, increase = self._optimize(adjacency_, out_probs, in_probs)
+            labels, increase = self._optimize(adjacency_, out_weights, in_weights)
             _, labels = np.unique(labels, return_inverse=True)
 
             if increase <= self.tol_aggregation:
@@ -221,7 +220,7 @@ class Louvain(BaseClustering, Log):
             else:
                 membership_ = get_membership(labels)
                 membership = membership.dot(membership_)
-                adjacency_, out_probs, in_probs = self._aggregate(adjacency_, out_probs, in_probs, membership_)
+                adjacency_, out_weights, in_weights = self._aggregate(adjacency_, out_weights, in_weights, membership_)
 
                 if adjacency_.shape[0] == 1:
                     break
