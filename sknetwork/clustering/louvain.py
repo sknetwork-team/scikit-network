@@ -109,27 +109,27 @@ class Louvain(BaseClustering, Log):
         self.random_state = check_random_state(random_state)
         self.bipartite = None
 
-    def _optimize(self, adjacency, probs_out, probs_in):
+    def _optimize(self, adjacency, out_probs, in_probs):
         """One optimization pass of the Louvain algorithm.
 
         Parameters
         ----------
         adjacency :
             Adjacency matrix.
-        probs_out :
+        out_probs :
             Out-probabilities of nodes.
-        probs_in :
+        in_probs :
             In-probabilities of nodes
 
         Returns
         -------
         labels :
             Labels of the nodes after optimization.
-        pass_increase :
+        increase :
             Gain in modularity after optimization.
         """
-        probs_out_ = probs_out.astype(np.float32)
-        probs_in_ = probs_in.astype(np.float32)
+        out_weights = out_probs.astype(np.float32)
+        in_weights = in_probs.astype(np.float32)
 
         adjacency_ = 0.5 * directed2undirected(adjacency)
         self_loops = adjacency.diagonal().astype(np.float32)
@@ -138,19 +138,19 @@ class Louvain(BaseClustering, Log):
         indices: np.ndarray = adjacency_.indices
         data: np.ndarray = adjacency_.data.astype(np.float32)
 
-        return optimize_core(self.resolution, self.tol, probs_out_, probs_in_, self_loops, data, indices, indptr)
+        return optimize_core(self.resolution, self.tol, out_weights, in_weights, self_loops, data, indices, indptr)
 
     @staticmethod
-    def _aggregate(adjacency, probs_out, probs_in, membership):
+    def _aggregate(adjacency, out_probs, in_probs, membership):
         """Aggregate nodes belonging to the same cluster.
 
         Parameters
         ----------
         adjacency :
             Adjacency matrix.
-        probs_out :
+        out_probs :
             Out-probabilities of nodes.
-        probs_in :
+        in_probs :
             In-probabilities of nodes
         membership :
             Membership matrix.
@@ -160,9 +160,9 @@ class Louvain(BaseClustering, Log):
         Aggregate graph (adjacency matrix, probs_out, probs_in).
         """
         adjacency_ = (membership.T.dot(adjacency.dot(membership))).tocsr()
-        probs_in_ = np.array(membership.T.dot(probs_in).T)
-        probs_out_ = np.array(membership.T.dot(probs_out).T)
-        return adjacency_, probs_out_, probs_in_
+        out_probs_ = np.array(membership.T.dot(out_probs).T)
+        in_probs_ = np.array(membership.T.dot(in_probs).T)
+        return adjacency_, out_probs_, in_probs_
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], force_bipartite: bool = False) -> 'Louvain':
         """Fit algorithm to data.
@@ -193,14 +193,14 @@ class Louvain(BaseClustering, Log):
             adjacency = adjacency[index][:, index]
 
         if self.modularity == 'potts':
-            probs_out = get_probs('uniform', adjacency)
-            probs_in = probs_out.copy()
+            out_probs = get_probs('uniform', adjacency)
+            in_probs = out_probs.copy()
         elif self.modularity == 'newman':
-            probs_out = get_probs('degree', adjacency)
-            probs_in = probs_out.copy()
+            out_probs = get_probs('degree', adjacency)
+            in_probs = out_probs.copy()
         elif self.modularity == 'dugue':
-            probs_out = get_probs('degree', adjacency)
-            probs_in = get_probs('degree', adjacency.T)
+            out_probs = get_probs('degree', adjacency)
+            in_probs = get_probs('degree', adjacency.T)
         else:
             raise ValueError('Unknown modularity function.')
 
@@ -208,25 +208,24 @@ class Louvain(BaseClustering, Log):
         adjacency_ = adjacency / adjacency.data.sum()
         # cluster membership
         membership = sparse.identity(n, format='csr')
-        increase = True
+        stop = False
         count_aggregations = 0
         self.print_log("Starting with", n, "nodes.")
-        while increase:
+        while not stop:
             count_aggregations += 1
-            labels, pass_increase = self._optimize(adjacency_, probs_out, probs_in)
+            labels, increase = self._optimize(adjacency_, out_probs, in_probs)
             _, labels = np.unique(labels, return_inverse=True)
 
-            if pass_increase <= self.tol_aggregation:
-                increase = False
+            if increase <= self.tol_aggregation:
+                stop = True
             else:
                 membership_ = get_membership(labels)
                 membership = membership.dot(membership_)
-                adjacency_, probs_out, probs_in = self._aggregate(adjacency_, probs_out, probs_in, membership_)
+                adjacency_, out_probs, in_probs = self._aggregate(adjacency_, out_probs, in_probs, membership_)
 
                 if adjacency_.shape[0] == 1:
                     break
-            self.print_log("Aggregation", count_aggregations, "completed with", n, "clusters and ",
-                           pass_increase, "increment.")
+            self.print_log("Aggregation:", count_aggregations, " Clusters:", n, " Increase:", increase)
             if count_aggregations == self.n_aggregations:
                 break
 

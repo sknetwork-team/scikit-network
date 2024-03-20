@@ -10,7 +10,7 @@ ctypedef fused int_or_long:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def optimize_core(float resolution, float tol, float[:] ou_node_probs, float[:] in_node_probs, float[:] self_loops,
+def optimize_core(float resolution, float tol, float[:] out_weights, float[:] in_weights, float[:] self_loops,
              float[:] data, int_or_long[:] indices, int_or_long[:] indptr):  # pragma: no cover
     """Fit the clusters to the objective function.
 
@@ -20,9 +20,9 @@ def optimize_core(float resolution, float tol, float[:] ou_node_probs, float[:] 
         Resolution parameter (positive).
     tol :
         Minimum increase in modularity to enter a new optimization pass.
-    ou_node_probs :
+    out_weights :
         Distribution of node weights based on their out-edges (sums to 1).
-    in_node_probs :
+    in_weights :
         Distribution of node weights based on their in-edges (sums to 1).
     self_loops :
         Weights of self loops.
@@ -71,8 +71,8 @@ def optimize_core(float resolution, float tol, float[:] ou_node_probs, float[:] 
     for i in range(n):
         labels.push_back(i)
         neighbor_clusters_weights.push_back(0.)
-        ou_clusters_weights.push_back(ou_node_probs[i])
-        in_clusters_weights.push_back(in_node_probs[i])
+        ou_clusters_weights.push_back(out_weights[i])
+        in_clusters_weights.push_back(in_weights[i])
 
     while increase == 1:
         increase = 0
@@ -92,8 +92,8 @@ def optimize_core(float resolution, float tol, float[:] ou_node_probs, float[:] 
             unique_clusters.erase(cluster_node)
 
             if not unique_clusters.empty():
-                node_prob_ou = ou_node_probs[i]
-                node_prob_in = in_node_probs[i]
+                node_prob_ou = out_weights[i]
+                node_prob_in = in_weights[i]
                 ratio_ou = resolution * node_prob_ou
                 ratio_in = resolution * node_prob_in
 
