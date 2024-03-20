@@ -10,20 +10,20 @@ ctypedef fused int_or_long:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def optimize_core(float resolution, float tol, float[:] out_weights, float[:] in_weights, float[:] self_loops,
-             float[:] data, int_or_long[:] indices, int_or_long[:] indptr):  # pragma: no cover
+def optimize_core(float resolution, float tol_optimization, float[:] out_weights, float[:] in_weights,
+    float[:] self_loops, float[:] data, int_or_long[:] indices, int_or_long[:] indptr):  # pragma: no cover
     """Fit the clusters to the objective function.
 
     Parameters
     ----------
     resolution :
         Resolution parameter (positive).
-    tol :
+    tol_optimization :
         Minimum increase in modularity to enter a new optimization pass.
     out_weights :
-        Distribution of node weights based on their out-edges (sums to 1).
+        Out-weights of nodes (sum to 1).
     in_weights :
-        Distribution of node weights based on their in-edges (sums to 1).
+        In-weights of nodes (sum to 1).
     self_loops :
         Weights of self loops.
     data :
@@ -36,97 +36,94 @@ def optimize_core(float resolution, float tol, float[:] out_weights, float[:] in
     Returns
     -------
     labels :
-        Cluster index of each node.
-    total_increase :
-        Score of the clustering (total increase in modularity).
+        Labels of nodes.
+    increase :
+        Increase in modularity.
     """
     cdef int_or_long n = indptr.shape[0] - 1
-    cdef int_or_long increase = 1
-    cdef int_or_long cluster
-    cdef int_or_long cluster_best
-    cdef int_or_long cluster_node
+    cdef int_or_long stop = 0
+    cdef int_or_long label
+    cdef int_or_long label_target
+    cdef int_or_long label_best
     cdef int_or_long i
     cdef int_or_long j
-    cdef int_or_long j1
-    cdef int_or_long j2
-    cdef int_or_long label
+    cdef int_or_long start
+    cdef int_or_long end
 
-    cdef float increase_total = 0
+    cdef float increase = 0
     cdef float increase_pass
     cdef float delta
     cdef float delta_best
     cdef float delta_exit
     cdef float delta_local
-    cdef float node_prob_in
-    cdef float node_prob_ou
-    cdef float ratio_in
-    cdef float ratio_ou
+    cdef float in_weight
+    cdef float out_weight
 
     cdef vector[int_or_long] labels
-    cdef vector[float] neighbor_clusters_weights
-    cdef vector[float] ou_clusters_weights
-    cdef vector[float] in_clusters_weights
-    cdef set[int_or_long] unique_clusters = ()
+    cdef vector[float] cluster_weights
+    cdef vector[float] out_cluster_weights
+    cdef vector[float] in_cluster_weights
+    cdef set[int_or_long] label_set = ()
 
     for i in range(n):
         labels.push_back(i)
-        neighbor_clusters_weights.push_back(0.)
-        ou_clusters_weights.push_back(out_weights[i])
-        in_clusters_weights.push_back(in_weights[i])
+        cluster_weights.push_back(0.)
+        out_cluster_weights.push_back(out_weights[i])
+        in_cluster_weights.push_back(in_weights[i])
 
-    while increase == 1:
-        increase = 0
+    while not stop:
         increase_pass = 0
 
         for i in range(n):
-            unique_clusters.clear()
-            cluster_node = labels[i]
-            j1 = indptr[i]
-            j2 = indptr[i + 1]
+            label_set.clear()
+            label = labels[i]
+            start = indptr[i]
+            end = indptr[i + 1]
 
-            for j in range(j1, j2):
-                label = labels[indices[j]]
-                neighbor_clusters_weights[label] += data[j]
-                unique_clusters.insert(label)
+            # neighboring clusters
+            for j in range(start, end):
+                label_target = labels[indices[j]]
+                cluster_weights[label_target] += data[j]
+                label_set.insert(label_target)
 
-            unique_clusters.erase(cluster_node)
+            label_set.erase(label)
 
-            if not unique_clusters.empty():
-                node_prob_ou = out_weights[i]
-                node_prob_in = in_weights[i]
-                ratio_ou = resolution * node_prob_ou
-                ratio_in = resolution * node_prob_in
+            if not label_set.empty():
+                out_weight = out_weights[i]
+                in_weight = in_weights[i]
 
-                delta_exit = 2 * (neighbor_clusters_weights[cluster_node] - self_loops[i])
-                delta_exit -= ratio_ou * (in_clusters_weights[cluster_node] - node_prob_in)
-                delta_exit -= ratio_in * (ou_clusters_weights[cluster_node] - node_prob_ou)
+                # node leaving the current cluster
+                delta_exit = 2 * (cluster_weights[label] - self_loops[i])
+                delta_exit -= resolution * out_weight * (in_cluster_weights[label] - in_weight)
+                delta_exit -= resolution * in_weight * (out_cluster_weights[label] - out_weight)
 
                 delta_best = 0
-                cluster_best = cluster_node
+                label_best = label
 
-                for cluster in unique_clusters:
-                    delta = 2 * neighbor_clusters_weights[cluster]
-                    delta -= ratio_ou * in_clusters_weights[cluster]
-                    delta -= ratio_in * ou_clusters_weights[cluster]
+                for label_target in label_set:
+                    delta = 2 * cluster_weights[label_target]
+                    delta -= resolution * out_weight * in_cluster_weights[label_target]
+                    delta -= resolution * in_weight * out_cluster_weights[label_target]
 
                     delta_local = delta - delta_exit
                     if delta_local > delta_best:
                         delta_best = delta_local
-                        cluster_best = cluster
+                        label_best = label_target
 
-                    neighbor_clusters_weights[cluster] = 0
+                    cluster_weights[label_target] = 0
 
                 if delta_best > 0:
                     increase_pass += delta_best
-                    ou_clusters_weights[cluster_node] -= node_prob_ou
-                    in_clusters_weights[cluster_node] -= node_prob_in
-                    ou_clusters_weights[cluster_best] += node_prob_ou
-                    in_clusters_weights[cluster_best] += node_prob_in
-                    labels[i] = cluster_best
+                    labels[i] = label_best
+                    # update weights
+                    out_cluster_weights[label] -= out_weight
+                    in_cluster_weights[label] -= in_weight
+                    out_cluster_weights[label_best] += out_weight
+                    in_cluster_weights[label_best] += in_weight
 
-            neighbor_clusters_weights[cluster_node] = 0
+            cluster_weights[label] = 0
 
-        increase_total += increase_pass
-        if increase_pass > tol:
-            increase = 1
-    return labels, increase_total
+        increase += increase_pass
+        stop = increase_pass <= tol_optimization
+
+    return labels, increase
