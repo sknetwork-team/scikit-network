@@ -1,4 +1,4 @@
-# distutils: language = c++
+# distutils: language=c++
 # cython: language_level=3
 from libcpp.set cimport set
 from libcpp.vector cimport vector
@@ -10,28 +10,28 @@ ctypedef fused int_or_long:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def optimize_core(float resolution, float tol_optimization, float[:] out_weights, float[:] in_weights,
-    float[:] self_loops, float[:] data, int_or_long[:] indices, int_or_long[:] indptr):  # pragma: no cover
+def optimize_core(int_or_long[:] indices, int_or_long[:] indptr, float[:] data, float[:] out_weights,
+    float[:] in_weights, float[:] self_loops, float resolution, float tol_optimization):  # pragma: no cover
     """Fit the clusters to the objective function.
 
     Parameters
     ----------
-    resolution :
-        Resolution parameter (positive).
-    tol_optimization :
-        Minimum increase in modularity to enter a new optimization pass.
+    indices :
+        CSR format index array of the normalized adjacency matrix.
+    indptr :
+        CSR format index pointer array of the normalized adjacency matrix.
+    data :
+        CSR format data array of the normalized adjacency matrix.
     out_weights :
         Out-weights of nodes (sum to 1).
     in_weights :
         In-weights of nodes (sum to 1).
     self_loops :
         Weights of self loops.
-    data :
-        CSR format data array of the normalized adjacency matrix.
-    indices :
-        CSR format index array of the normalized adjacency matrix.
-    indptr :
-        CSR format index pointer array of the normalized adjacency matrix.
+    resolution :
+        Resolution parameter (positive).
+    tol_optimization :
+        Minimum increase in modularity to enter a new optimization pass.
 
     Returns
     -------
@@ -53,9 +53,8 @@ def optimize_core(float resolution, float tol_optimization, float[:] out_weights
     cdef float increase = 0
     cdef float increase_pass
     cdef float delta
-    cdef float delta_best
-    cdef float delta_exit
     cdef float delta_local
+    cdef float delta_best
     cdef float in_weight
     cdef float out_weight
 
@@ -93,19 +92,18 @@ def optimize_core(float resolution, float tol_optimization, float[:] out_weights
                 in_weight = in_weights[i]
 
                 # node leaving the current cluster
-                delta_exit = 2 * (cluster_weights[label] - self_loops[i])
-                delta_exit -= resolution * out_weight * (in_cluster_weights[label] - in_weight)
-                delta_exit -= resolution * in_weight * (out_cluster_weights[label] - out_weight)
+                delta = 2 * (cluster_weights[label] - self_loops[i])
+                delta -= resolution * out_weight * (in_cluster_weights[label] - in_weight)
+                delta -= resolution * in_weight * (out_cluster_weights[label] - out_weight)
 
                 delta_best = 0
                 label_best = label
 
                 for label_target in label_set:
-                    delta = 2 * cluster_weights[label_target]
-                    delta -= resolution * out_weight * in_cluster_weights[label_target]
-                    delta -= resolution * in_weight * out_cluster_weights[label_target]
-
-                    delta_local = delta - delta_exit
+                    delta_local = 2 * cluster_weights[label_target]
+                    delta_local -= resolution * out_weight * in_cluster_weights[label_target]
+                    delta_local -= resolution * in_weight * out_cluster_weights[label_target]
+                    delta_local -= delta
                     if delta_local > delta_best:
                         delta_best = delta_local
                         label_best = label_target
