@@ -12,7 +12,7 @@ ctypedef fused int_or_long:
 @cython.wraparound(False)
 def optimize_core(int_or_long[:] indices, int_or_long[:] indptr, float[:] data, float[:] out_weights,
     float[:] in_weights, float[:] self_loops, float resolution, float tol_optimization):  # pragma: no cover
-    """Fit the clusters to the objective function.
+    """Find clusters maximizing modularity.
 
     Parameters
     ----------
@@ -40,7 +40,7 @@ def optimize_core(int_or_long[:] indices, int_or_long[:] indptr, float[:] data, 
     increase :
         Increase in modularity.
     """
-    cdef int_or_long n = indptr.shape[0] - 1
+    cdef int_or_long n
     cdef int_or_long stop = 0
     cdef int_or_long label
     cdef int_or_long label_target
@@ -64,6 +64,7 @@ def optimize_core(int_or_long[:] indices, int_or_long[:] indptr, float[:] data, 
     cdef vector[float] in_cluster_weights
     cdef set[int_or_long] label_set = ()
 
+    n = indptr.shape[0] - 1
     for i in range(n):
         labels.push_back(i)
         cluster_weights.push_back(0.)

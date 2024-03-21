@@ -253,25 +253,19 @@ class Louvain(BaseClustering, Log):
         self : :class:`Louvain`
         """
         adjacency, out_weights, in_weights, membership, index = self._pre_processing(input_matrix, force_bipartite)
-
+        count = 0
         stop = False
-        count_aggregations = 0
         while not stop:
-            count_aggregations += 1
+            count += 1
             labels, increase = self._optimize(adjacency, out_weights, in_weights)
             _, labels = np.unique(labels, return_inverse=True)
-
-            if increase <= self.tol_aggregation:
-                stop = True
-            else:
-                membership_ = get_membership(labels)
-                adjacency, out_weights, in_weights = self._aggregate(adjacency, out_weights, in_weights, membership_)
-                membership = membership.dot(membership_)
-                if adjacency.shape[0] == 1:
-                    break
-            self.print_log("Aggregation:", count_aggregations, " Clusters:", adjacency.shape[0], " Increase:", increase)
-            if count_aggregations == self.n_aggregations:
-                break
-
+            membership_ = get_membership(labels)
+            adjacency, out_weights, in_weights = self._aggregate(adjacency, out_weights, in_weights, membership_)
+            membership = membership.dot(membership_)
+            n_clusters = adjacency.shape[0]
+            stop = n_clusters == 1
+            stop |= increase <= self.tol_aggregation
+            stop |= count == self.n_aggregations
+            self.print_log("Aggregation:", count, " Clusters:", n_clusters, " Increase:", increase)
         self._post_processing(input_matrix, membership, index)
         return self
