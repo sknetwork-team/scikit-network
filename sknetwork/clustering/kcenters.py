@@ -41,7 +41,7 @@ class KCenters(BaseClustering):
         Labels of rows and columns, for bipartite graphs.
     centers_: np.ndarray or dict
         cluster centers. If bipartite graph and center_position is "both", centers is a dict.
-    centers_row_, centers_col_, np.ndarray
+    centers_row_, centers_col_: np.ndarray
         Cluster centers of rows and columns, for bipartite graphs.
 
     Example
