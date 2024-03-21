@@ -10,12 +10,15 @@ ctypedef fused int_or_long:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def optimize_core(int_or_long[:] indices, int_or_long[:] indptr, float[:] data, float[:] out_weights,
-    float[:] in_weights, float[:] self_loops, float resolution, float tol_optimization):  # pragma: no cover
+def optimize_core(int_or_long[:] labels, int_or_long[:] indices, int_or_long[:] indptr, float[:] data,
+    float[:] out_weights, float[:] in_weights, float[:] out_cluster_weights, float[:] in_cluster_weights,
+    float[:] cluster_weights, float[:] self_loops, float resolution, float tol_optimization):  # pragma: no cover
     """Find clusters maximizing modularity.
 
     Parameters
     ----------
+    labels :
+        Initial labels.
     indices :
         CSR format index array of the normalized adjacency matrix.
     indptr :
@@ -26,6 +29,12 @@ def optimize_core(int_or_long[:] indices, int_or_long[:] indptr, float[:] data, 
         Out-weights of nodes (sum to 1).
     in_weights :
         In-weights of nodes (sum to 1).
+    out_cluster_weights :
+        Out-weights of clusters (sum to 1).
+    in_cluster_weights :
+        In-weights of clusters (sum to 1).
+    cluster_weights :
+        Weights of clusters (initialized to 0).
     self_loops :
         Weights of self loops.
     resolution :
@@ -58,19 +67,9 @@ def optimize_core(int_or_long[:] indices, int_or_long[:] indptr, float[:] data, 
     cdef float in_weight
     cdef float out_weight
 
-    cdef vector[int_or_long] labels
-    cdef vector[float] cluster_weights
-    cdef vector[float] out_cluster_weights
-    cdef vector[float] in_cluster_weights
     cdef set[int_or_long] label_set = ()
 
-    n = indptr.shape[0] - 1
-    for i in range(n):
-        labels.push_back(i)
-        cluster_weights.push_back(0.)
-        out_cluster_weights.push_back(out_weights[i])
-        in_cluster_weights.push_back(in_weights[i])
-
+    n = labels.shape[0]
     while not stop:
         increase_pass = 0
 
@@ -78,14 +77,13 @@ def optimize_core(int_or_long[:] indices, int_or_long[:] indptr, float[:] data, 
             label_set.clear()
             label = labels[i]
             start = indptr[i]
-            end = indptr[i + 1]
+            end = indptr[i+1]
 
             # neighboring clusters
             for j in range(start, end):
                 label_target = labels[indices[j]]
-                cluster_weights[label_target] += data[j]
                 label_set.insert(label_target)
-
+                cluster_weights[label_target] += data[j]
             label_set.erase(label)
 
             if not label_set.empty():

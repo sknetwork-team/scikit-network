@@ -129,14 +129,19 @@ class Louvain(BaseClustering, Log):
         increase :
             Gain in modularity after optimization.
         """
+        n = adjacency.shape[0]
+        labels = np.arange(n).astype(np.int32)
         indices = adjacency.indices
         indptr = adjacency.indptr
         data = adjacency.data.astype(np.float32)
         out_weights = out_weights.astype(np.float32)
         in_weights = in_weights.astype(np.float32)
+        out_cluster_weights = out_weights.copy()
+        in_cluster_weights = in_weights.copy()
+        cluster_weights = np.zeros(n).astype(np.float32)
         self_loops = adjacency.diagonal().astype(np.float32)
-        return optimize_core(indices, indptr, data, out_weights, in_weights, self_loops,
-                             self.resolution, self.tol_optimization)
+        return optimize_core(labels, indices, indptr, data, out_weights, in_weights, out_cluster_weights,
+                             in_cluster_weights, cluster_weights, self_loops, self.resolution, self.tol_optimization)
 
     @staticmethod
     def _aggregate(adjacency, out_weights, in_weights, membership):
@@ -184,10 +189,14 @@ class Louvain(BaseClustering, Log):
             Index of nodes.
         """
         self._init_vars()
+
+        # adjacency matrix
         input_matrix = check_format(input_matrix)
         force_directed = self.modularity == 'dugue'
         adjacency, self.bipartite = get_adjacency(input_matrix, force_directed=force_directed,
                                                   force_bipartite=force_bipartite)
+
+        # shuffling
         n = adjacency.shape[0]
         index = np.arange(n)
         if self.shuffle_nodes:
@@ -206,11 +215,14 @@ class Louvain(BaseClustering, Log):
             in_weights = get_probs('degree', adjacency.T)
         else:
             raise ValueError('Unknown modularity function.')
+
         # normalized, symmetric adjacency matrix (sums to 1)
         adjacency = directed2undirected(adjacency)
         adjacency = adjacency / adjacency.data.sum()
+
         # cluster membership
         membership = sparse.identity(n, format='csr')
+
         return adjacency, out_weights, in_weights, membership, index
 
     def _post_processing(self, input_matrix, membership, index):
