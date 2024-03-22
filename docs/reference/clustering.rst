@@ -49,6 +49,12 @@ When the graph is weighted, the degree of a node is replaced by its weight (sum 
 
 .. autoclass:: sknetwork.clustering.Louvain
 
+Leiden
+------
+
+.. autoclass:: sknetwork.clustering.Leiden
+
+
 Propagation
 -----------
 .. autoclass:: sknetwork.clustering.PropagationClustering

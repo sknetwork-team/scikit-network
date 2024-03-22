@@ -10,7 +10,8 @@ from sknetwork.data.test_graphs import *
 class TestClusteringAPI(unittest.TestCase):
 
     def setUp(self):
-        self.algos = [Louvain(return_aggregate=True), PropagationClustering(return_aggregate=True)]
+        self.algos = [Louvain(return_aggregate=True), Leiden(return_aggregate=True),
+                      PropagationClustering(return_aggregate=True)]
 
     def test_regular(self):
         for algo in self.algos:
