@@ -6,10 +6,10 @@ numpy>=1.22.4
 scipy>=1.7.3
 
 # tool to automatically change version number in the package upon release
-bumpversion==0.6.0
+bumpversion>=0.6.0
 
 # build wheels for the package
-wheel==0.38.4
+wheel>=0.42.0
 
 # standard package to produce coverage from test runs
 # coverage>=6.2
@@ -18,30 +18,30 @@ wheel==0.38.4
 twine>=3.7.1
 
 # main doc tool
-Sphinx==4.3.2
+Sphinx>=4.3.2
 
 # base theme for the documentation website
-sphinx-rtd-theme==1.0.0
+sphinx-rtd-theme>=1.0.0
 
 # pinned in order to fix this issue: https://readthedocs.org/projects/scikit-network/builds/11876754/
-Pygments==2.11.2
+Pygments>=2.15.0
 
 # used to produce doc from Jupyter notebooks (aka. tutorials)
-nbsphinx==0.8.8
+nbsphinx>=0.8.8
 
 # used to run Jupyter notebooks (necessary for nbsphinx)
-ipython==8.10.0
-jupyter_client==7.1.0
-ipykernel==6.6.1
-pandas==1.3.5
+ipython>=8.10.0
+jupyter_client>=7.1.0
+ipykernel>=6.6.1
+pandas>=1.3.5
 
 # tests on Linux images (upon release)
-nose==1.3.7
+nose>=1.3.7
 
 # main test packages
-pytest-runner==5.3.1
-pytest==6.2.5
-pytest-cov==3.0.0
+pytest-runner>=5.3.1
+pytest>=6.2.5
+pytest-cov>=3.0.0
 
 # C++ code generator for performance speed-up
-cython==0.29.30
+cython>=3.0.8

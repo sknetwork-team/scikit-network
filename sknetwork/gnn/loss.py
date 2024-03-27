@@ -53,7 +53,7 @@ class CrossEntropy(BaseLoss, Softmax):
         probs = Softmax.output(signal)
 
         # for numerical stability
-        eps = 1e-15
+        eps = 1e-10
         probs = np.clip(probs, eps, 1 - eps)
 
         value = -np.log(probs[np.arange(n), labels]).sum()

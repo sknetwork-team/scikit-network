@@ -35,4 +35,4 @@ class TestBetweenness(unittest.TestCase):
         betweenness = Betweenness()
 
         with self.assertRaises(ValueError):
-            betweenness.fit_transform(adjacency)
+            betweenness.fit_predict(adjacency)

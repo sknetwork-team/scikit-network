@@ -7,6 +7,7 @@ Created in March 2022
 from abc import ABC
 
 import numpy as np
+from scipy import sparse
 
 from sknetwork.base import Algorithm
 
@@ -23,7 +24,17 @@ class BaseLinker(Algorithm, ABC):
     def __init__(self):
         self.links_ = None
 
-    def fit_predict(self, *args, **kwargs) -> np.ndarray:
+    def predict(self) -> sparse.csr_matrix:
+        """Return the predicted links.
+
+        Returns
+        -------
+        links_ : sparse.csr_matrix
+            Link matrix.
+        """
+        return self.links_
+
+    def fit_predict(self, *args, **kwargs) -> sparse.csr_matrix:
         """Fit algorithm to data and return the links. Same parameters as the ``fit`` method.
 
         Returns

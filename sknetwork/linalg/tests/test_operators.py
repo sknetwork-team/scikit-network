@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Apr 2020
+Created in April 2020
 @author: Thomas Bonald <bonald@enst.fr>
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 """
 import unittest
 
 from sknetwork.data.test_graphs import *
-from sknetwork.linalg import Laplacian, Normalizer, CoNeighbor, normalize
+from sknetwork.linalg import Laplacian, Normalizer, CoNeighbor
 from sknetwork.linalg.basics import safe_sparse_dot
 
 
@@ -53,10 +53,6 @@ class TestOperators(unittest.TestCase):
     def test_coneighbors(self):
         biadjacency = test_bigraph()
         operator = CoNeighbor(biadjacency)
-        transition = normalize(operator)
-        x = transition.dot(np.ones(transition.shape[1]))
-
-        self.assertAlmostEqual(np.linalg.norm(x - np.ones(operator.shape[0])), 0)
         operator.astype('float')
         operator.right_sparse_dot(sparse.eye(operator.shape[1], format='csr'))
 

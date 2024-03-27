@@ -12,7 +12,7 @@ from scipy import sparse
 
 from sknetwork.classification.base import BaseClassifier
 from sknetwork.embedding.base import BaseEmbedding
-from sknetwork.linalg.normalization import get_norms, normalize
+from sknetwork.linalg.normalizer import get_norms, normalize
 from sknetwork.utils.check import check_n_neighbors
 from sknetwork.utils.format import get_adjacency_values
 
@@ -22,12 +22,12 @@ class NNClassifier(BaseClassifier):
 
     Parameters
     ----------
-    n_neighbors :
+    n_neighbors : int
         Number of nearest neighbors .
-    embedding_method :
+    embedding_method : :class:`BaseEmbedding`
         Embedding method used to represent nodes in vector space.
         If ``None`` (default), use identity.
-    normalize :
+    normalize : bool
         If ``True``, apply normalization so that all vectors have norm 1 in the embedding space.
 
     Attributes
@@ -36,10 +36,14 @@ class NNClassifier(BaseClassifier):
         Labels of nodes.
     probs_ : sparse.csr_matrix, shape (n_row, n_labels)
         Probability distribution over labels.
-    labels_row_, labels_col_ : np.ndarray
-        Labels of rows and columns, for bipartite graphs.
-    probs_row_, probs_col_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Probability distributions over labels for rows and columns (for bipartite graphs).
+    labels_row_ : np.ndarray
+        Labels of rows, for bipartite graphs.
+    labels_col_ : np.ndarray
+        Labels of columns, for bipartite graphs.
+    probs_row_ : sparse.csr_matrix, shape (n_row, n_labels)
+        Probability distributions over labels of rows, for bipartite graphs.
+    probs_col_ : sparse.csr_matrix, shape (n_col, n_labels)
+        Probability distributions over labels of columns, for bipartite graphs.
 
     Example
     -------
@@ -99,12 +103,14 @@ class NNClassifier(BaseClassifier):
 
         Parameters
         ----------
-        input_matrix :
+        input_matrix : sparse.csr_matrix, np.ndarray
             Adjacency matrix or biadjacency matrix of the graph.
-        labels :
-            Known labels (dictionary or array). Negative values ignored.
-        labels_row, labels_col :
-            Known labels of rows and columns (for bipartite graphs).
+        labels : np.ndarray, dict
+            Known labels. Negative values ignored.
+        labels_row : np.ndarray, dict
+            Known labels of rows, for bipartite graphs.
+        labels_col : np.ndarray, dict
+            Known labels of columns, for bipartite graphs.
 
         Returns
         -------
