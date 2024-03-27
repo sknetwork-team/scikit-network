@@ -24,7 +24,6 @@ class TestLouvainClustering(unittest.TestCase):
         labels_d = louvain_d.fit_predict(adjacency)
         labels_n = louvain_n.fit_predict(adjacency)
         self.assertTrue((labels_d == labels_n).all())
-
         louvain_p = Louvain(modularity='potts')
         louvain_p.fit_predict(adjacency)
 
@@ -48,7 +47,7 @@ class TestLouvainClustering(unittest.TestCase):
         # tolerance
         louvain = Louvain(resolution=2, tol_aggregation=0.1)
         labels = louvain.fit_predict(adjacency)
-        self.assertEqual(len(set(labels)), 12)
+        self.assertEqual(len(set(labels)), 7)
 
         # shuffling
         louvain = Louvain(resolution=2, shuffle_nodes=True, random_state=42)
@@ -78,7 +77,7 @@ class TestLouvainClustering(unittest.TestCase):
         # tolerance
         louvain = Louvain(resolution=2, tol_aggregation=0.1)
         labels = louvain.fit_predict(adjacency)
-        self.assertEqual(len(set(labels)), 12)
+        self.assertEqual(len(set(labels)), 7)
 
         # shuffling
         louvain = Louvain(resolution=2, shuffle_nodes=True, random_state=42)
