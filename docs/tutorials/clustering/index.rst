@@ -8,5 +8,5 @@ Clustering
 
    louvain
    leiden
+   kcenters
    propagation
-

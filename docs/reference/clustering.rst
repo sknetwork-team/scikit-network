@@ -54,6 +54,11 @@ Leiden
 
 .. autoclass:: sknetwork.clustering.Leiden
 
+K-centers
+---------
+
+.. autoclass:: sknetwork.clustering.KCenters
+
 
 Propagation
 -----------
