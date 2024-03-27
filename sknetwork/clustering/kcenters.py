@@ -1,6 +1,7 @@
 """
 Created in March 2024
 @author: Laurène David <laurene.david@ip-paris.fr>
+@author: Thomas Bonald <bonald@enst.fr>
 """
 
 from typing import Union
@@ -20,28 +21,28 @@ class KCenters(BaseClustering):
 
     Parameters
     ----------
-    n_clusters: int
+    n_clusters : int
         Number of clusters.
-    directed: bool, default False
+    directed : bool, default False
         If ``True``, the graph is considered directed.
-    center_position: str, default "row"
+    center_position : str, default "row"
         Force centers to correspond to the nodes on the rows or columns of the biadjacency matrix.
         Can be ``row``, ``col`` or ``both``. Only considered for bipartite graphs.
-    n_init: int, default 5
+    n_init : int, default 5
         Number of reruns of the k-centers algorithm with different centers.
         The run that produce the best modularity is chosen as the final result.
-    max_iter: int, default 20
+    max_iter : int, default 20
         Maximum number of iterations of the k-centers algorithm for a single run.
 
     Attributes
     ----------
-    labels_: np.ndarray, shape (n_labels,)
+    labels_ : np.ndarray, shape (n_nodes,)
         Label of each node.
     labels_row_, labels_col_ : np.ndarray
         Labels of rows and columns, for bipartite graphs.
-    centers_: np.ndarray or dict
-        Cluster centers. If bipartite graph and center_position is "both", centers is a dict.
-    centers_row_, centers_col_: np.ndarray
+    centers_ : np.ndarray, shape (n_nodes,)
+        Cluster centers.
+    centers_row_, centers_col_ : np.ndarray
         Cluster centers of rows and columns, for bipartite graphs.
 
     Example
@@ -55,11 +56,12 @@ class KCenters(BaseClustering):
     2
 
     """
-    def __init__(self, n_clusters: int, directed: bool = False, center_position: str = "row",
-                 n_init: int = 5, max_iter: int = 20):
+    def __init__(self, n_clusters: int, directed: bool = False, center_position: str = "row", n_init: int = 5,
+                 max_iter: int = 20):
         super(BaseClustering, self).__init__()
         self.n_clusters = n_clusters
         self.directed = directed
+        self.bipartite = None
         self.center_position = center_position
         self.n_init = n_init
         self.max_iter = max_iter
@@ -67,95 +69,97 @@ class KCenters(BaseClustering):
         self.centers_ = None
         self.centers_row_ = None
         self.centers_col_ = None
-        self.mask_centers = None
-        self.bipartite = None
 
     def _compute_mask_centers(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]):
-        """Generate mask to filter nodes that can be cluster centers
+        """Generate mask to filter nodes that can be cluster centers.
 
         Parameters
         ----------
-        input_matrix:
-            Adjacency matrix or biadjacency matrix of the graph
+        input_matrix :
+            Adjacency matrix or biadjacency matrix of the graph.
 
         Return
-        ----------
-        mask: np.array, shape (nb_nodes,)
-            Mask for possible cluster centers
+        ------
+        mask : np.array, shape (n_nodes,)
+            Mask for possible cluster centers.
 
         """
-        nrow_input = input_matrix.shape[0]
-        nrow_adjacency = self.adjacency.shape[0]
-
-        mask = np.zeros(nrow_adjacency, dtype=bool)
-
+        n_row, n_col = input_matrix.shape
         if self.bipartite:
+            n_nodes = n_row + n_col
+            mask = np.zeros(n_nodes, dtype=bool)
             if self.center_position == "row":
-                mask[:nrow_input] = True
+                mask[:n_row] = True
             elif self.center_position == "col":
-                mask[nrow_input:] = True
+                mask[n_row:] = True
             elif self.center_position == "both":
                 mask[:] = True
             else:
                 raise ValueError('Unknown center position')
         else:
-            mask[:] = True
+            mask = np.ones(n_row, dtype=bool)
 
         return mask
 
-    def _init_centers(self, adjacency: Union[sparse.csr_matrix, np.ndarray], n_clusters: int):
+    @staticmethod
+    def _init_centers(adjacency: Union[sparse.csr_matrix, np.ndarray], mask: np.ndarray, n_clusters: int):
         """
-        Kcenters ++ initialization to select cluster centers.
-        This algorithm is an adaptation of "kmeans ++" for graphs.
+        Kcenters++ initialization to select cluster centers.
+        This algorithm is an adaptation of the Kmeans++ algorithm to graphs.
 
         Parameters
         ----------
-        adjacency:
-            Adjacency matrix of the graph
-        n_clusters: int, >0
-            Number of centers to initialize
+        adjacency :
+            Adjacency matrix of the graph.
+        mask :
+            Initial mask for allowed positions of centers.
+        n_clusters : int
+            Number of centers to initialize.
 
         Returns
         ---------
-        centers: np.array, shape (nb_clusters,)
-            Initial cluster centers
-
+        centers : np.array, shape (n_clusters,)
+            Initial cluster centers.
         """
-
-        nodes = np.arange(adjacency.shape[0])
+        mask = mask.copy()
+        n_nodes = adjacency.shape[0]
+        nodes = np.arange(n_nodes)
         centers = []
 
-        # Choose randomly first centers
-        center = np.random.choice(nodes, 1)[0]
+        # Choose the first center uniformly at random
+        center = np.random.choice(nodes[mask])
+        mask[center] = 0
         centers.append(center)
 
-        for k in range(n_clusters - 1):
-            # select nodes that aren't already centers
-            mask = np.all(nodes[:, None] != centers, axis=-1)
-            mask &= self.mask_centers
+        pagerank = PageRank()
+        weights = {center: 1}
 
-            weights = {center: 1}
-            ppr_scores = PageRank().fit_predict(adjacency, weights)
+        for k in range(n_clusters - 1):
+            # select nodes that are far from existing centers
+            ppr_scores = pagerank.fit_predict(adjacency, weights)
             ppr_scores = ppr_scores[mask]
 
-            proba = 1 / (1 + ppr_scores)  # fix division by zero
-            proba = proba / np.sum(proba)
+            if min(ppr_scores) == 0:
+                center = np.random.choice(nodes[mask][ppr_scores == 0])
+            else:
+                probs = 1 / ppr_scores
+                probs = probs / np.sum(probs)
+                center = np.random.choice(nodes[mask], p=probs)
 
-            center = np.random.choice(nodes[mask], 1, p=proba)[0]
+            mask[center] = 0
             centers.append(center)
+            weights.update({center: 1})
 
         centers = np.array(centers)
         return centers
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
-            force_bipartite: bool = False) -> "KCenters":
-        """Fit algorithm to data
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], force_bipartite: bool = False) -> "KCenters":
+        """Compute the clustering of the graph by k-centers.
 
         Parameters
-        ---------
+        ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
-
         force_bipartite :
             If ``True``, force the input matrix to be considered as a biadjacency matrix even if square.
 
@@ -170,14 +174,21 @@ class KCenters(BaseClustering):
         if self.n_init < 1:
             raise ValueError("The n_init parameter must be at least 1.")
 
-        if self.directed:  # directed case
+        if self.directed:
             input_matrix = directed2undirected(input_matrix)
 
-        nrow = input_matrix.shape[0]
-        self.adjacency, self.bipartite = get_adjacency(input_matrix, force_bipartite=force_bipartite)
-        self.mask_centers = self._compute_mask_centers(input_matrix)
+        adjacency, self.bipartite = get_adjacency(input_matrix, force_bipartite=force_bipartite)
+        n_row = input_matrix.shape[0]
+        n_nodes = adjacency.shape[0]
+        nodes = np.arange(n_nodes)
 
-        nodes = np.arange(self.adjacency.shape[0])
+        mask = self._compute_mask_centers(input_matrix)
+        if self.n_clusters > np.sum(mask):
+            raise ValueError("The number of clusters is to high. This might be due to the center_position parameter.")
+
+        pagerank_clf = PageRankClassifier()
+        pagerank = PageRank()
+
         labels_ = []
         centers_ = []
         modularity_ = []
@@ -186,41 +197,37 @@ class KCenters(BaseClustering):
         for i in range(self.n_init):
 
             # Initialization
-            centers = self._init_centers(self.adjacency, self.n_clusters)
+            centers = self._init_centers(adjacency, mask, self.n_clusters)
             prev_centers = None
+            labels = None
             n_iter = 0
 
-            while np.not_equal(prev_centers, centers).any() and (n_iter < self.max_iter):
+            while not np.equal(prev_centers, centers).all() and (n_iter < self.max_iter):
 
                 # Assign nodes to centers
-                pagerank_c = PageRankClassifier()
-                labels_pr = {center: label for label, center in enumerate(centers)}
-                labels = pagerank_c.fit_predict(self.adjacency, labels_pr)
+                labels_center = {center: label for label, center in enumerate(centers)}
+                labels = pagerank_clf.fit_predict(adjacency, labels_center)
 
                 # Find new centers
-                ppr = PageRank()
                 prev_centers = centers.copy()
-                centers__ = []
+                new_centers = []
 
                 for label in np.unique(labels):
-                    mask = labels == label
-                    mask &= self.mask_centers
+                    mask_cluster = labels == label
+                    mask_cluster &= mask
+                    scores = pagerank.fit_predict(adjacency, weights=mask_cluster)
+                    scores[~mask_cluster] = 0
+                    new_centers.append(nodes[np.argmax(scores)])
 
-                    score = ppr.fit_predict(self.adjacency, weights=mask)
-                    score[~mask] = 0
-                    centers__.append(nodes[np.argmax(score)])
-
-                centers = centers__.copy()
                 n_iter += 1
 
-            # Store results of restarts (labels, modularity and centers)
+            # Store results
             if self.bipartite:
-                labels_row = labels[:input_matrix.shape[0]]
-                labels_col = labels[input_matrix.shape[0]:]
+                labels_row = labels[:n_row]
+                labels_col = labels[n_row:]
                 modularity = get_modularity(input_matrix, labels_row, labels_col)
-
             else:
-                modularity = get_modularity(self.adjacency, labels)
+                modularity = get_modularity(adjacency, labels)
 
             labels_.append(labels)
             centers_.append(centers)
@@ -238,11 +245,9 @@ class KCenters(BaseClustering):
             if self.center_position == "row":
                 self.centers_row_ = self.centers_
             elif self.center_position == "col":
-                self.centers_col_ = self.centers_ - nrow
-                self.centers_ = self.centers_col_
+                self.centers_col_ = self.centers_ - n_row
             else:
-                self.centers_row_ = self.centers_[self.centers_ < nrow]
-                self.centers_col_ = self.centers_[~np.isin(self.centers_, self.centers_row_)] - nrow
-                self.centers_ = {"row": self.centers_row_, "col": self.centers_col_}
+                self.centers_row_ = self.centers_[self.centers_ < n_row]
+                self.centers_col_ = self.centers_[~np.isin(self.centers_, self.centers_row_)] - n_row
 
         return self

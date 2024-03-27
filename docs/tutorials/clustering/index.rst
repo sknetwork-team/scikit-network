@@ -7,5 +7,5 @@ Clustering
 .. toctree::
 
    louvain
+   kcenters
    propagation
-
