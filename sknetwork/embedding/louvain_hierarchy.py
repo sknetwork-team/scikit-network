@@ -68,6 +68,7 @@ class LouvainNE(BaseEmbedding):
                  random_state: Optional[Union[np.random.RandomState, int]] = None, verbose: bool = False):
         super(LouvainNE, self).__init__()
 
+        self.embedding_ = None
         self.n_components = n_components
         self.scale = scale
         self._clustering_method = Louvain(resolution=resolution, tol_optimization=tol_optimization,
@@ -93,11 +94,10 @@ class LouvainNE(BaseEmbedding):
         if nodes is None:
             nodes = np.arange(n)
 
-        if adjacency.nnz:
+        if depth and adjacency.nnz:
             labels = self._clustering_method.fit_transform(adjacency)
         else:
-            labels = np.zeros(n)
-
+            labels = np.zeros(n, dtype=int)
         clusters = np.unique(labels)
 
         if len(clusters) != 1:
@@ -135,7 +135,7 @@ class LouvainNE(BaseEmbedding):
 
         # embedding
         self.embedding_ = np.zeros((n, self.n_components))
-        self._recursive_louvain(adjacency, 0)
+        self._recursive_louvain(adjacency, self.n_components)
 
         if self.bipartite:
             self._split_vars(input_matrix.shape)
