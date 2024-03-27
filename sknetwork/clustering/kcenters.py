@@ -16,7 +16,7 @@ from sknetwork.utils.format import get_adjacency, directed2undirected
 
 
 class KCenters(BaseClustering):
-    """Adaptation of the kmeans clustering algorithm to graphs
+    """K-center clustering algorithm. The center of each cluster is obtained by the PageRank algorithm.
 
     Parameters
     ----------
@@ -25,10 +25,10 @@ class KCenters(BaseClustering):
     directed: bool, default False
         If ``True``, the graph is considered directed.
     center_position: str, default "row"
-        Force centers to correspond to the nodes on the rows, cols of the biadjacency matrix.
+        Force centers to correspond to the nodes on the rows or columns of the biadjacency matrix.
         Can be ``row``, ``col`` or ``both``. Only considered for bipartite graphs.
     n_init: int, default 5
-        Number of reruns of the kcenters algorithm with different centers.
+        Number of reruns of the k-centers algorithm with different centers.
         The run that produce the best modularity is chosen as the final result.
     max_iter: int, default 20
         Maximum number of iterations of the k-centers algorithm for a single run.
@@ -40,7 +40,7 @@ class KCenters(BaseClustering):
     labels_row_, labels_col_ : np.ndarray
         Labels of rows and columns, for bipartite graphs.
     centers_: np.ndarray or dict
-        cluster centers. If bipartite graph and center_position is "both", centers is a dict.
+        Cluster centers. If bipartite graph and center_position is "both", centers is a dict.
     centers_row_, centers_col_: np.ndarray
         Cluster centers of rows and columns, for bipartite graphs.
 
@@ -226,7 +226,7 @@ class KCenters(BaseClustering):
             centers_.append(centers)
             modularity_.append(modularity)
 
-        # Select restart with highest modularity
+        # Select restart with the highest modularity
         idx_max = np.argmax(modularity_)
         self.labels_ = np.array(labels_[idx_max])
         self.centers_ = np.array(centers_[idx_max])
