@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 Created in March 2024
-@author: Ahmed Zaiou <ahmed.zaiou@capgemini.com>
 @author: Thomas Bonald <bonald@enst.fr>
+@author: Ahmed Zaiou <ahmed.zaiou@capgemini.com>
 """
 from typing import Union, Optional
 
