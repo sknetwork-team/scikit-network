@@ -2,6 +2,8 @@
 # cython: language_level=3
 from libcpp.set cimport set
 from libcpp.vector cimport vector
+from libc.stdlib cimport rand
+
 cimport cython
 
 ctypedef fused int_or_long:
@@ -64,14 +66,15 @@ def optimize_refine_core(int_or_long[:] labels, int_or_long[:] labels_refined, i
     cdef float in_weight
     cdef float out_weight
 
-    cdef set[int_or_long] label_set = ()
+    cdef set[int_or_long] label_set
+    cdef set[int_or_long] label_target_set
 
     n = labels.shape[0]
     while increase:
         increase = 0
 
         for i in range(n):
-            label_set.clear()
+            label_set = ()
             label = labels[i]
             label_refined = labels_refined[i]
             start = indptr[i]
@@ -94,28 +97,29 @@ def optimize_refine_core(int_or_long[:] labels, int_or_long[:] labels_refined, i
                 delta -= resolution * out_weight * (in_cluster_weights[label_refined] - in_weight)
                 delta -= resolution * in_weight * (out_cluster_weights[label_refined] - out_weight)
 
-                label_best = label_refined
-                delta_best = 0
-
+                label_target_set = ()
                 for label_target in label_set:
                     delta_local = 2 * cluster_weights[label_target]
                     delta_local -= resolution * out_weight * in_cluster_weights[label_target]
                     delta_local -= resolution * in_weight * out_cluster_weights[label_target]
                     delta_local -= delta
                     if delta_local > 0:
-                        # select any label increasing modularity
-                        label_best = label_target
-                        delta_best = delta_local
+                        label_target_set.insert(label_target)
                     cluster_weights[label_target] = 0
 
-                if label_best != label_refined:
-                    increase += delta_best
-                    labels_refined[i] = label_best
+                if not label_target_set.empty():
+                    increase = 1
+                    k = rand() % label_target_set.size()
+                    for label_target in label_target_set:
+                        k -= 1
+                        if k == 0:
+                            break
+                    labels_refined[i] = label_target
                     # update weights
                     out_cluster_weights[label_refined] -= out_weight
                     in_cluster_weights[label_refined] -= in_weight
-                    out_cluster_weights[label_best] += out_weight
-                    in_cluster_weights[label_best] += in_weight
+                    out_cluster_weights[label_target] += out_weight
+                    in_cluster_weights[label_target] += in_weight
             cluster_weights[label_refined] = 0
 
     return labels_refined
