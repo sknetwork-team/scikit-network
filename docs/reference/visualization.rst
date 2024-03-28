@@ -10,9 +10,9 @@ Graphs
 
 .. autofunction:: sknetwork.visualization.graphs.svg_graph
 
-.. autofunction:: sknetwork.visualization.graphs.svg_bigraph
+.. autofunction:: sknetwork.visualization.graphs.visualize_bigraph
 
 Dendrograms
 -----------
 
-.. autofunction:: sknetwork.visualization.dendrograms.svg_dendrogram
+.. autofunction:: sknetwork.visualization.dendrograms.visualize_dendrogram

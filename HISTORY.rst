@@ -2,6 +2,16 @@
 History
 =======
 
+0.32.0 (2024-03-28)
+-------------------
+
+* Add Leiden clustering algorithm
+* Add k-center clustering algorithm
+* Add functions to detect and break cycles
+* Add damping factor in diffusion
+* Fix F1 scores
+* Remove hierarchical Louvain embedding
+* Get clustering coefficient for directed graphs
 
 0.31.0 (2023-05-22)
 -------------------

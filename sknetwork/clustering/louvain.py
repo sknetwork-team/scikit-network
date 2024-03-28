@@ -12,7 +12,7 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.clustering.base import BaseClustering
-from sknetwork.clustering.louvain_core import fit_core
+from sknetwork.clustering.louvain_core import optimize_core
 from sknetwork.clustering.postprocess import reindex_labels
 from sknetwork.utils.check import check_random_state, get_probs
 from sknetwork.utils.format import check_format, get_adjacency, directed2undirected
@@ -30,11 +30,11 @@ class Louvain(BaseClustering, Log):
     resolution :
         Resolution parameter.
     modularity : str
-        Which objective function to maximize. Can be ``'Dugue'``, ``'Newman'`` or ``'Potts'`` (default = ``'dugue'``).
+        Type of modularity to maximize. Can be ``'Dugue'``, ``'Newman'`` or ``'Potts'`` (default = ``'dugue'``).
     tol_optimization :
-        Minimum increase in the objective function to enter a new optimization pass.
+        Minimum increase in modularity to enter a new optimization pass in the local search.
     tol_aggregation :
-        Minimum increase in the objective function to enter a new aggregation pass.
+        Minimum increase in modularity to enter a new aggregation pass.
     n_aggregations :
         Maximum number of aggregations.
         A negative value is interpreted as no limit.
@@ -91,6 +91,7 @@ class Louvain(BaseClustering, Log):
       <https://arxiv.org/pdf/0707.1616>`_
       Physical Review E, 76(6).
     """
+
     def __init__(self, resolution: float = 1, modularity: str = 'dugue', tol_optimization: float = 1e-3,
                  tol_aggregation: float = 1e-3, n_aggregations: int = -1, shuffle_nodes: bool = False,
                  sort_clusters: bool = True, return_probs: bool = True, return_aggregate: bool = True,
@@ -102,68 +103,154 @@ class Louvain(BaseClustering, Log):
         self.labels_ = None
         self.resolution = resolution
         self.modularity = modularity.lower()
-        self.tol = tol_optimization
+        self.tol_optimization = tol_optimization
         self.tol_aggregation = tol_aggregation
         self.n_aggregations = n_aggregations
         self.shuffle_nodes = shuffle_nodes
         self.random_state = check_random_state(random_state)
         self.bipartite = None
 
-    def _optimize(self, adjacency_norm, probs_ou, probs_in):
-        """One local optimization pass of the Louvain algorithm
+    def _optimize(self, labels, adjacency, out_weights, in_weights):
+        """One optimization pass of the Louvain algorithm.
 
         Parameters
         ----------
-        adjacency_norm :
-            the norm of the adjacency
-        probs_ou :
-            the array of degrees of the adjacency
-        probs_in :
-            the array of degrees of the transpose of the adjacency
+        labels :
+            Labels of nodes.
+        adjacency :
+            Adjacency matrix.
+        out_weights :
+            Out-weights of nodes.
+        in_weights :
+            In-weights of nodes
 
         Returns
         -------
         labels :
-            the communities of each node after optimization
-        pass_increase :
-            the increase in modularity gained after optimization
+            Labels of nodes after optimization.
+        increase :
+            Gain in modularity after optimization.
         """
-        node_probs_in = probs_in.astype(np.float32)
-        node_probs_ou = probs_ou.astype(np.float32)
-
-        adjacency = 0.5 * directed2undirected(adjacency_norm)
-
+        labels = labels.astype(np.int32)
+        indices = adjacency.indices
+        indptr = adjacency.indptr
+        data = adjacency.data.astype(np.float32)
+        out_weights = out_weights.astype(np.float32)
+        in_weights = in_weights.astype(np.float32)
+        out_cluster_weights = out_weights.copy()
+        in_cluster_weights = in_weights.copy()
+        cluster_weights = np.zeros_like(out_cluster_weights).astype(np.float32)
         self_loops = adjacency.diagonal().astype(np.float32)
-
-        indptr: np.ndarray = adjacency.indptr
-        indices: np.ndarray = adjacency.indices
-        data: np.ndarray = adjacency.data.astype(np.float32)
-
-        return fit_core(self.resolution, self.tol, node_probs_ou, node_probs_in, self_loops, data, indices, indptr)
+        return optimize_core(labels, indices, indptr, data, out_weights, in_weights, out_cluster_weights,
+                             in_cluster_weights, cluster_weights, self_loops, self.resolution, self.tol_optimization)
 
     @staticmethod
-    def _aggregate(adjacency_norm, probs_out, probs_in, membership: Union[sparse.csr_matrix, np.ndarray]):
+    def _aggregate(labels, adjacency, out_weights, in_weights):
         """Aggregate nodes belonging to the same cluster.
 
         Parameters
         ----------
-        adjacency_norm :
-            the norm of the adjacency
-        probs_out :
-            the array of degrees of the adjacency
-        probs_in :
-            the array of degrees of the transpose of the adjacency
-        membership :
-            membership matrix (rows).
+        labels :
+            Labels of nodes.
+        adjacency :
+            Adjacency matrix.
+        out_weights :
+            Out-weights of nodes.
+        in_weights :
+            In-weights of nodes.
 
         Returns
         -------
-        Aggregate graph.
+        Aggregate graph (adjacency matrix, out-weights, in-weights).
         """
-        adjacency_norm = (membership.T.dot(adjacency_norm.dot(membership))).tocsr()
-        probs_in = np.array(membership.T.dot(probs_in).T)
-        probs_out = np.array(membership.T.dot(probs_out).T)
-        return adjacency_norm, probs_out, probs_in
+        membership = get_membership(labels)
+        adjacency_ = membership.T.tocsr().dot(adjacency.dot(membership))
+        out_weights_ = membership.T.dot(out_weights)
+        in_weights_ = membership.T.dot(in_weights)
+        return adjacency_, out_weights_, in_weights_
+
+    def _pre_processing(self, input_matrix, force_bipartite):
+        """Pre-processing for Louvain.
+
+         Parameters
+        ----------
+        input_matrix :
+            Adjacency matrix or biadjacency matrix of the graph.
+        force_bipartite :
+            If ``True``, force the input matrix to be considered as a biadjacency matrix even if square.
+
+        Returns
+        -------
+        adjacency :
+            Adjacency matrix.
+        out_weights, in_weights :
+            Node weights.
+        membership :
+            Membership matrix (labels).
+        index :
+            Index of nodes.
+        """
+        self._init_vars()
+
+        # adjacency matrix
+        input_matrix = check_format(input_matrix)
+        force_directed = self.modularity == 'dugue'
+        adjacency, self.bipartite = get_adjacency(input_matrix, force_directed=force_directed,
+                                                  force_bipartite=force_bipartite)
+
+        # shuffling
+        n = adjacency.shape[0]
+        index = np.arange(n)
+        if self.shuffle_nodes:
+            index = self.random_state.permutation(index)
+            adjacency = adjacency[index][:, index]
+
+        # node weights
+        if self.modularity == 'potts':
+            out_weights = get_probs('uniform', adjacency)
+            in_weights = out_weights.copy()
+        elif self.modularity == 'newman':
+            out_weights = get_probs('degree', adjacency)
+            in_weights = out_weights.copy()
+        elif self.modularity == 'dugue':
+            out_weights = get_probs('degree', adjacency)
+            in_weights = get_probs('degree', adjacency.T)
+        else:
+            raise ValueError('Unknown modularity function.')
+
+        # normalized, symmetric adjacency matrix (sums to 1)
+        adjacency = directed2undirected(adjacency)
+        adjacency = adjacency / adjacency.data.sum()
+
+        # cluster membership
+        membership = sparse.identity(n, format='csr')
+
+        return adjacency, out_weights, in_weights, membership, index
+
+    def _post_processing(self, input_matrix, membership, index):
+        """Post-processing for Louvain.
+
+         Parameters
+        ----------
+        input_matrix :
+            Adjacency matrix or biadjacency matrix of the graph.
+        membership :
+            Membership matrix (labels).
+        index :
+            Index of nodes.
+        """
+        if self.sort_clusters:
+            labels = reindex_labels(membership.indices)
+        else:
+            labels = membership.indices
+        if self.shuffle_nodes:
+            reverse = np.empty(index.size, index.dtype)
+            reverse[index] = np.arange(index.size)
+            labels = labels[reverse]
+        self.labels_ = labels
+        if self.bipartite:
+            self._split_vars(input_matrix.shape)
+        self._secondary_outputs(input_matrix)
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], force_bipartite: bool = False) -> 'Louvain':
         """Fit algorithm to data.
@@ -179,73 +266,21 @@ class Louvain(BaseClustering, Log):
         -------
         self : :class:`Louvain`
         """
-        self._init_vars()
-        input_matrix = check_format(input_matrix)
-        if self.modularity == 'dugue':
-            adjacency, self.bipartite = get_adjacency(input_matrix, force_directed=True,
-                                                      force_bipartite=force_bipartite)
-        else:
-            adjacency, self.bipartite = get_adjacency(input_matrix, force_bipartite=force_bipartite)
-
+        adjacency, out_weights, in_weights, membership, index = self._pre_processing(input_matrix, force_bipartite)
         n = adjacency.shape[0]
-
-        index = np.arange(n)
-        if self.shuffle_nodes:
-            index = self.random_state.permutation(index)
-            adjacency = adjacency[index][:, index]
-
-        if self.modularity == 'potts':
-            probs_out = get_probs('uniform', adjacency)
-            probs_in = probs_out.copy()
-        elif self.modularity == 'newman':
-            probs_out = get_probs('degree', adjacency)
-            probs_in = probs_out.copy()
-        elif self.modularity == 'dugue':
-            probs_out = get_probs('degree', adjacency)
-            probs_in = get_probs('degree', adjacency.T)
-        else:
-            raise ValueError('Unknown modularity function.')
-
-        adjacency_cluster = adjacency / adjacency.data.sum()
-
-        membership = sparse.identity(n, format='csr')
-        increase = True
-        count_aggregations = 0
-        self.print_log("Starting with", n, "nodes.")
-        while increase:
-            count_aggregations += 1
-
-            labels_cluster, pass_increase = self._optimize(adjacency_cluster, probs_out, probs_in)
-            _, labels_cluster = np.unique(labels_cluster, return_inverse=True)
-
-            if pass_increase <= self.tol_aggregation:
-                increase = False
-            else:
-                membership_cluster = get_membership(labels_cluster)
-                membership = membership.dot(membership_cluster)
-                adjacency_cluster, probs_out, probs_in = self._aggregate(adjacency_cluster, probs_out, probs_in,
-                                                                         membership_cluster)
-
-                n = adjacency_cluster.shape[0]
-                if n == 1:
-                    break
-            self.print_log("Aggregation", count_aggregations, "completed with", n, "clusters and ",
-                           pass_increase, "increment.")
-            if count_aggregations == self.n_aggregations:
-                break
-
-        if self.sort_clusters:
-            labels = reindex_labels(membership.indices)
-        else:
-            labels = membership.indices
-        if self.shuffle_nodes:
-            reverse = np.empty(index.size, index.dtype)
-            reverse[index] = np.arange(index.size)
-            labels = labels[reverse]
-
-        self.labels_ = labels
-        if self.bipartite:
-            self._split_vars(input_matrix.shape)
-        self._secondary_outputs(input_matrix)
-
+        count = 0
+        stop = False
+        while not stop:
+            count += 1
+            labels = np.arange(n)
+            labels, increase = self._optimize(labels, adjacency, out_weights, in_weights)
+            _, labels = np.unique(labels, return_inverse=True)
+            adjacency, out_weights, in_weights = self._aggregate(labels, adjacency, out_weights, in_weights)
+            membership = membership.dot(get_membership(labels))
+            n = adjacency.shape[0]
+            stop = n == 1
+            stop |= increase <= self.tol_aggregation
+            stop |= count == self.n_aggregations
+            self.print_log("Aggregation:", count, " Clusters:", n, " Increase:", increase)
+        self._post_processing(input_matrix, membership, index)
         return self

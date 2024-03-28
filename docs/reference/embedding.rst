@@ -37,10 +37,6 @@ Louvain
 
 .. autoclass:: sknetwork.embedding.LouvainEmbedding
 
-Hierarchical Louvain
---------------------
-
-.. autoclass:: sknetwork.embedding.LouvainNE
 
 Force Atlas
 -----------

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-Created on Thu Apr 21 2022
+Created in April 2022
 @author: Simon Delarue <sdelarue@enst.fr>
 """
 from typing import Optional, Union

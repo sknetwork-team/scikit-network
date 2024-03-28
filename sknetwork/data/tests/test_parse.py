@@ -20,6 +20,10 @@ class TestParser(unittest.TestCase):
         self.assertTrue((adjacency.indices == [2, 3, 0, 1, 5, 4]).all())
         self.assertTrue((adjacency.indptr == [0, 1, 2, 3, 4, 5, 6]).all())
         self.assertTrue((adjacency.data == [1, 1, 1, 1, 1, 1]).all())
+        adjacency = parse.from_csv(self.stub_data_1, shape=(7, 7))
+        self.assertTrue((adjacency.shape == (7, 7)))
+        biadjacency = parse.from_csv(self.stub_data_1, bipartite=True, shape=(7, 9))
+        self.assertTrue((biadjacency.shape == (7, 9)))
         remove(self.stub_data_1)
 
     def test_labeled_weighted(self):
@@ -33,13 +37,14 @@ class TestParser(unittest.TestCase):
         self.assertTrue((adjacency.indptr == [0, 1, 2, 3, 4, 5, 6]).all())
         self.assertTrue((adjacency.data == [1, 6, 5, 6, 1, 5]).all())
         self.assertTrue((names == [' b', ' d', ' e', 'a', 'c', 'f']).all())
+
         remove(self.stub_data_2)
 
     def test_auto_reindex(self):
         self.stub_data_4 = 'stub_4.txt'
         with open(self.stub_data_4, "w") as text_file:
             text_file.write('%stub\n14 31\n42 50\n0 12')
-        graph = parse.from_csv(self.stub_data_4)
+        graph = parse.from_csv(self.stub_data_4, reindex=True)
         adjacency = graph.adjacency
         names = graph.names
         self.assertTrue((adjacency.data == [1, 1, 1, 1, 1, 1]).all())
@@ -164,22 +169,14 @@ class TestParser(unittest.TestCase):
         self.stub_data_9 = 'stub_9.txt'
         with open(self.stub_data_9, "w") as text_file:
             text_file.write('#stub\n1 3\n4 5\n0 3')
-        graph = parse.from_csv(self.stub_data_9, bipartite=True)
+        graph = parse.from_csv(self.stub_data_9, bipartite=True, reindex=True)
         biadjacency = graph.biadjacency
         self.assertTrue((biadjacency.indices == [0, 0, 1]).all())
         self.assertTrue((biadjacency.indptr == [0, 1, 2, 3]).all())
         self.assertTrue((biadjacency.data == [1, 1, 1]).all())
+        biadjacency = parse.from_csv(self.stub_data_9, bipartite=True)
+        self.assertTrue(biadjacency.shape == (5, 6))
         remove(self.stub_data_9)
-
-    def test_csv_adjacency_bipartite(self):
-        self.stub_data_10 = 'stub_10.txt'
-        with open(self.stub_data_10, "w") as text_file:
-            text_file.write('%stub\n3\n3\n0')
-        graph = parse.from_csv(self.stub_data_10, bipartite=True)
-        biadjacency = graph.biadjacency
-        self.assertTupleEqual(biadjacency.shape, (3, 2))
-        self.assertTrue((biadjacency.data == [1, 1, 1]).all())
-        remove(self.stub_data_10)
 
     def test_edge_list(self):
         edge_list_1 = [('Alice', 'Bob'), ('Carol', 'Alice')]

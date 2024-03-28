@@ -75,17 +75,17 @@ def cut_straight(dendrogram: np.ndarray, n_clusters: Optional[int] = None, thres
 
     Parameters
     ----------
-    dendrogram:
+    dendrogram : np.ndarray
         Dendrogram.
-    n_clusters :
+    n_clusters : int
         Number of clusters (optional).
         The number of clusters can be larger than n_clusters in case of equal heights in the dendrogram.
-    threshold :
+    threshold : float
         Threshold on height (optional).
         If both n_clusters and threshold are ``None``, n_clusters is set to 2.
-    sort_clusters :
+    sort_clusters : bool
         If ``True``,  sorts clusters in decreasing order of size.
-    return_dendrogram :
+    return_dendrogram : bool
         If ``True``, returns the dendrogram formed by the clusters up to the root.
     Returns
     -------
@@ -135,13 +135,13 @@ def cut_balanced(dendrogram: np.ndarray, max_cluster_size: int = 20, sort_cluste
 
     Parameters
     ----------
-    dendrogram:
+    dendrogram : np.ndarray
         Dendrogram
-    max_cluster_size :
+    max_cluster_size : int
         Maximum size of each cluster.
-    sort_clusters :
+    sort_clusters : bool
         If ``True``, sort labels in decreasing order of cluster size.
-    return_dendrogram :
+    return_dendrogram : bool
         If ``True``, returns the dendrogram formed by the clusters up to the root.
     Returns
     -------
@@ -179,19 +179,19 @@ def aggregate_dendrogram(dendrogram: np.ndarray, n_clusters: int = 2, return_cou
 
     Parameters
     ----------
-    dendrogram:
+    dendrogram : np.ndarray
         The input to aggregate.
-    n_clusters:
+    n_clusters : int
         Number of clusters (or leaves) to keep.
-    return_counts
+    return_counts :  bool
         If ``True``, returns an array of counts corresponding to the sizes of the merged subtrees.
         The sum of the counts is equal to the number of samples in the input dendrogram.
 
     Returns
     -------
-    new_dendrogram:
+    new_dendrogram : np.ndarray
         Aggregated dendrogram. The nodes are reindexed from 0.
-    counts:
+    counts : np.ndarray
         Size of the subtrees corresponding to each leaf in new_dendrogram.
     """
     n_nodes: int = dendrogram.shape[0] + 1
@@ -220,12 +220,12 @@ def get_index(tree):
 
     Parameters
     ----------
-    tree:
+    tree :
         The tree to be indexed
 
     Returns
     -------
-    index:
+    index :
         The index of the root of the given tree
     """
     if type(tree) != list:

@@ -130,9 +130,10 @@ class ADAM(BaseOptimizer):
             layer.weight = \
                 layer.weight - (self.learning_rate * m_derivative_weight_corr) / (np.sqrt(v_derivative_weight_corr)
                                                                                   + self.eps)
-            layer.bias = \
-                layer.bias - (self.learning_rate * m_derivative_bias_corr) / (np.sqrt(v_derivative_bias_corr)
-                                                                              + self.eps)
+            if layer.use_bias:
+                layer.bias = \
+                    layer.bias - (self.learning_rate * m_derivative_bias_corr) / (np.sqrt(v_derivative_bias_corr)
+                                                                                  + self.eps)
 
 
 def get_optimizer(optimizer: Union[BaseOptimizer, str] = 'Adam', learning_rate: float = 0.01) -> BaseOptimizer:

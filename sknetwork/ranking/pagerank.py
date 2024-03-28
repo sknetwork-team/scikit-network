@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on May 2019
+Created in May 2019
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Thomas Bonald <bonald@enst.fr>
 """
@@ -9,7 +9,6 @@ from typing import Union, Optional
 
 import numpy as np
 from scipy import sparse
-from scipy.sparse.linalg import LinearOperator
 
 from sknetwork.linalg.ppr_solver import get_pagerank
 from sknetwork.ranking.base import BaseRanking
@@ -73,24 +72,26 @@ class PageRank(BaseRanking):
         self.tol = tol
         self.bipartite = None
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator],
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
             weights: Optional[Union[dict, np.ndarray]] = None, weights_row: Optional[Union[dict, np.ndarray]] = None,
             weights_col: Optional[Union[dict, np.ndarray]] = None, force_bipartite: bool = False) -> 'PageRank':
-        """Fit algorithm to data.
+        """Compute the pagerank of each node.
 
         Parameters
         ----------
-        input_matrix :
+        input_matrix : sparse.csr_matrix, np.ndarray
             Adjacency matrix or biadjacency matrix of the graph.
-        weights :
-            Parameter to be used for Personalized PageRank.
-            Restart distribution as a vector or a dict (node: weight).
+        weights : np.ndarray, dict
+            Weights of the restart distribution for Personalized PageRank.
             If ``None``, the uniform distribution is used (no personalization, default).
-        weights_row, weights_col :
-            Parameter to be used for Personalized PageRank on bipartite graphs.
-            Restart distribution as vectors or dicts on rows, columns (node: weight).
+        weights_row : np.ndarray, dict
+            Weights on rows of the restart distribution for Personalized PageRank.
+            Used for bipartite graphs.
             If both weights_row and weights_col are ``None`` (default), the uniform distribution on rows is used.
-        force_bipartite :
+        weights_col : np.ndarray, dict
+            Weights on columns of the restart distribution for Personalized PageRank.
+            Used for bipartite graphs.
+        force_bipartite : bool
             If ``True``, consider the input matrix as the biadjacency matrix of a bipartite graph.
         Returns
         -------

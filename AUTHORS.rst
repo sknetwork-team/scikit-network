@@ -39,3 +39,6 @@ Contributors
 * Flávio Juvenal
 * Wenzhuo Zhao
 * Henry Carscadden
+* Yiwen Peng
+* Ahmed Zaiou
+* Laurène David

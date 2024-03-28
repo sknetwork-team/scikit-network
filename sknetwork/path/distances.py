@@ -14,7 +14,8 @@ from sknetwork.utils.format import get_adjacency
 
 def get_distances(input_matrix: sparse.csr_matrix, source: Optional[Union[int, Iterable]] = None,
                   source_row: Optional[Union[int, Iterable]] = None,
-                  source_col: Optional[Union[int, Iterable]] = None, force_bipartite: bool = False) \
+                  source_col: Optional[Union[int, Iterable]] = None, transpose: bool = False,
+                  force_bipartite: bool = False) \
         -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]:
     """Get the distances from a source (or a set of sources) in number of hops.
 
@@ -24,10 +25,12 @@ def get_distances(input_matrix: sparse.csr_matrix, source: Optional[Union[int, I
         Adjacency matrix or biadjacency matrix of the graph.
     source :
         If an integer, index of the source node.
-        If a list, indices of source nodes (the shortest distances to one of these nodes in returned).
+        If a list or array, indices of source nodes (the shortest distances to one of these nodes is returned).
     source_row, source_col :
         For bipartite graphs, index of source nodes on rows and columns.
         The parameter source_row is an alias for source (at least one of them must be ``None``).
+    transpose :
+        If ``True``, transpose the input matrix.
     force_bipartite :
         If ``True``, consider the input matrix as the biadjacency matrix of a bipartite graph.
         Set to ``True`` is the parameters source_row or source_col re specified.
@@ -47,11 +50,15 @@ def get_distances(input_matrix: sparse.csr_matrix, source: Optional[Union[int, I
     >>> get_distances(adjacency, source=[0, 2])
     array([0, 1, 0])
     """
+    if transpose:
+        matrix = sparse.csr_matrix(input_matrix.T)
+    else:
+        matrix = input_matrix
     if source_row is not None or source_col is not None:
         force_bipartite = True
-    adjacency, bipartite = get_adjacency(input_matrix, force_bipartite=force_bipartite, allow_empty=True)
+    adjacency, bipartite = get_adjacency(matrix, force_bipartite=force_bipartite, allow_empty=True)
     adjacency_transpose = adjacency.astype(bool).T.tocsr()
-    n_row, n_col = input_matrix.shape
+    n_row, n_col = matrix.shape
     n_nodes = adjacency.shape[0]
 
     mask = np.zeros(n_nodes, dtype=bool)

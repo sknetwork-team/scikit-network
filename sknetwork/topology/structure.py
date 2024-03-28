@@ -6,13 +6,14 @@ Created in July 2019
 @author: Quentin Lutz <qlutz@enst.fr>
 @author: Thomas Bonald <tbonald@enst.fr>
 """
-from typing import Tuple, Optional, Union
+from typing import Tuple, Optional, Union, List
 
 import numpy as np
 from scipy import sparse
 
 from sknetwork.utils.check import is_symmetric, check_format
 from sknetwork.utils.format import get_adjacency
+from sknetwork.path import get_distances
 
 
 def get_connected_components(input_matrix: sparse.csr_matrix, connection: str = 'weak', force_bipartite: bool = False) \
@@ -191,44 +192,3 @@ def is_bipartite(adjacency: sparse.csr_matrix, return_biadjacency: bool = False)
         return True
 
 
-def is_acyclic(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) -> bool:
-    """Check whether a graph has no cycle.
-
-    Parameters
-    ----------
-    adjacency:
-        Adjacency matrix of the graph.
-    directed:
-        Whether to consider the graph as directed (inferred if not specified).
-    Returns
-    -------
-    is_acyclic : bool
-        A boolean with value True if the graph has no cycle and False otherwise.
-
-    Example
-    -------
-    >>> from sknetwork.topology import is_acyclic
-    >>> from sknetwork.data import star, grid
-    >>> is_acyclic(star())
-    True
-    >>> is_acyclic(grid())
-    False
-    """
-    if directed is False:
-        # the graph must be undirected
-        if not is_symmetric(adjacency):
-            raise ValueError("The adjacency matrix is not symmetric. The parameter 'directed' must be True.")
-    elif directed is None:
-        # if not specified, infer from the graph
-        directed = not is_symmetric(adjacency)
-    has_loops = (adjacency.diagonal() > 0).any()
-    if has_loops:
-        return False
-    else:
-        n_cc = sparse.csgraph.connected_components(adjacency, directed, connection='strong', return_labels=False)
-        n_nodes = adjacency.shape[0]
-        if directed:
-            return n_cc == n_nodes
-        else:
-            n_edges = adjacency.nnz // 2
-            return n_cc == n_nodes - n_edges

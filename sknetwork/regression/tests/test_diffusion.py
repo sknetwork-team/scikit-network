@@ -14,6 +14,13 @@ class TestDiffusion(unittest.TestCase):
     def setUp(self):
         self.algos = [Diffusion(), Dirichlet()]
 
+    def test_predict(self):
+        adjacency = test_graph()
+        for algo in self.algos:
+            values = algo.fit_predict(adjacency, {0: 0, 1: 1, 2: 0.5})
+            values_ = algo.predict()
+            self.assertAlmostEqual(np.linalg.norm(values - values_), 0)
+
     def test_no_iter(self):
         with self.assertRaises(ValueError):
             Diffusion(n_iter=-1)
@@ -35,6 +42,7 @@ class TestDiffusion(unittest.TestCase):
             self.assertTrue(np.all(values <= 1) and np.all(values >= 0))
             values = algo.fit_predict(biadjacency, values_row={0: 0.1}, values_col={1: 2}, init=0.3)
             self.assertTrue(np.all(values <= 2) and np.all(values >= 0.1))
+            self.assertAlmostEqual(np.linalg.norm(algo.values_col_ - algo.predict(columns=True)), 0)
 
     def test_initial_state(self):
         for adjacency in [test_graph(), test_digraph()]:
