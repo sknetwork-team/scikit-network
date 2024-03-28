@@ -1,4 +1,4 @@
-# distutils: language = c++
+# distutils: language=c++
 # cython: language_level=3
 """
 Created in June 2020

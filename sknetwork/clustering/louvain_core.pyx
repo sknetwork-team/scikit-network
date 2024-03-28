@@ -1,7 +1,6 @@
 # distutils: language=c++
 # cython: language_level=3
 from libcpp.set cimport set
-from libcpp.vector cimport vector
 cimport cython
 
 ctypedef fused int_or_long:
