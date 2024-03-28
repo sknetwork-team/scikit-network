@@ -41,4 +41,4 @@ Contributors
 * Henry Carscadden
 * Yiwen Peng
 * Ahmed Zaiou
-
+* Laurène David
