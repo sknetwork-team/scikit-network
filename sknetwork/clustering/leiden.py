@@ -76,8 +76,8 @@ class Leiden(Louvain):
     References
     ----------
     * Traag, V. A., Waltman, L., & Van Eck, N. J. (2019).
-      `From Louvain to Leiden: guaranteeing well-connected communities`
-       Scientific reports, 9(1).
+        `From Louvain to Leiden: guaranteeing well-connected communities`
+        Scientific reports, 9(1).
     """
 
     def __init__(self, resolution: float = 1, modularity: str = 'dugue', tol_optimization: float = 1e-3,

@@ -10,6 +10,7 @@ History
 * Add functions to detect and break cycles
 * Add damping factor in diffusion
 * Fix F1 scores
+* Remove hierarchical Louvain embedding
 * Get clustering coefficient for directed graphs
 
 0.31.0 (2023-05-22)
