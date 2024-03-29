@@ -2,7 +2,7 @@
 History
 =======
 
-0.32.0 (2024-03-28)
+0.32.0 (2024-03-29)
 -------------------
 
 * Add Leiden clustering algorithm
