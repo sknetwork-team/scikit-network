@@ -6,9 +6,6 @@ on:
   push:
     tags:
       - "v*"
-
-permissions:
-  id-token: write 
   
 jobs:
   build_wheels:
@@ -62,6 +59,12 @@ jobs:
   upload_pypi:
       needs: [ build_wheels, build_sdist ]
       runs-on: ubuntu-latest
+      environment:
+        name: pypi
+        url: https://pypi.org/p/scikit-network
+      permissions:
+        id-token: write 
+
       steps:
           - uses: actions/download-artifact@v4
             with:
@@ -69,4 +72,4 @@ jobs:
               merge-multiple: true
               path: dist
 
-          - uses: pypa/gh-action-pypi-publish@v1.8.14
+          - uses: pypa/gh-action-pypi-publish@release/v1
