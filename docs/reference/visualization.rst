@@ -8,7 +8,7 @@ Visualization tools.
 Graphs
 ------
 
-.. autofunction:: sknetwork.visualization.graphs.svg_graph
+.. autofunction:: sknetwork.visualization.graphs.visualize_graph
 
 .. autofunction:: sknetwork.visualization.graphs.visualize_bigraph
 
