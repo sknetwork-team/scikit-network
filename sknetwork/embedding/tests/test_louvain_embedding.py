@@ -14,10 +14,14 @@ class TestLouvainEmbedding(unittest.TestCase):
     def test_predict(self):
         adjacency = test_graph()
         louvain = LouvainEmbedding()
-        louvain.fit(test_graph())
+        louvain.fit(adjacency)
         self.assertEqual(louvain.embedding_.shape[0], 10)
         louvain.fit(adjacency, force_bipartite=True)
         self.assertEqual(louvain.embedding_.shape[0], 10)
+        biadjacency = test_bigraph()
+        louvain.fit(biadjacency)
+        self.assertEqual(louvain.embedding_row_.shape[0], 6)
+        self.assertEqual(louvain.embedding_col_.shape[0], 8)
 
         for method in ['remove', 'merge', 'keep']:
             louvain = LouvainEmbedding(isolated_nodes=method)
