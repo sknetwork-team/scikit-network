@@ -32,3 +32,7 @@ jobs:
         py.test --doctest-modules --cov-report=xml --cov=sknetwork
     - name: Codecov
       uses: codecov/codecov-action@v4
+      env: 
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      
