@@ -2,7 +2,13 @@
 History
 =======
 
-0.32.0 (2024-03-28)
+0.32.1 (2024-04-02)
+-------------------
+
+* Fix documentation
+* Fix wheel upload
+
+0.32.0 (2024-03-29)
 -------------------
 
 * Add Leiden clustering algorithm
