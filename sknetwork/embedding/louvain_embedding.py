@@ -146,29 +146,3 @@ class LouvainEmbedding(BaseEmbedding):
             self.embedding_col_ = embedding_col.toarray()
 
         return self
-
-    def predict(self, adjacency_vectors: Union[sparse.csr_matrix, np.ndarray]) -> np.ndarray:
-        """Predict the embedding of new rows, defined by their adjacency vectors.
-
-        Parameters
-        ----------
-        adjacency_vectors :
-            Adjacency row vectors.
-            Array of shape (n_col,) (single vector) or (n_vectors, n_col)
-
-        Returns
-        -------
-        embedding_vectors : np.ndarray
-            Embedding of the nodes.
-        """
-        self._check_fitted()
-        if self.embedding_col_ is not None:
-            n = len(self.embedding_col_)
-        else:
-            n = len(self.embedding_)
-
-        adjacency_vectors = check_adjacency_vector(adjacency_vectors, n)
-        check_nonnegative(adjacency_vectors)
-        membership = get_membership(self.labels_)
-
-        return normalize(adjacency_vectors).dot(membership)

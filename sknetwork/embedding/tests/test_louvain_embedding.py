@@ -13,11 +13,15 @@ class TestLouvainEmbedding(unittest.TestCase):
 
     def test_predict(self):
         adjacency = test_graph()
+        adjacency_vector = np.zeros(10, dtype=int)
+        adjacency_vector[:5] = 1
         louvain = LouvainEmbedding()
         louvain.fit(adjacency)
         self.assertEqual(louvain.embedding_.shape[0], 10)
         louvain.fit(adjacency, force_bipartite=True)
         self.assertEqual(louvain.embedding_.shape[0], 10)
+
+        # bipartite
         biadjacency = test_bigraph()
         louvain.fit(biadjacency)
         self.assertEqual(louvain.embedding_row_.shape[0], 6)
@@ -27,6 +31,3 @@ class TestLouvainEmbedding(unittest.TestCase):
             louvain = LouvainEmbedding(isolated_nodes=method)
             embedding = louvain.fit_transform(adjacency)
             self.assertEqual(embedding.shape[0], adjacency.shape[0])
-
-
-
