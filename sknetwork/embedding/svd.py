@@ -277,10 +277,6 @@ class SVD(GSVD):
                                   factor_singular=factor_singular, factor_row=0., factor_col=0., normalized=normalized,
                                   solver=solver)
 
-    @staticmethod
-    def _check_adj_vector(adjacency_vectors: np.ndarray):
-        return
-
 
 class PCA(SVD):
     """Graph embedding by Principal Component Analysis of the adjacency or biadjacency matrix.
