@@ -82,6 +82,9 @@ class BaseEmbedding(Algorithm, ABC):
         self.embedding_row_ = None
         self.embedding_col_ = None
 
+    def _check_fitted(self):
+        return self.embedding_ is not None
+
     def _split_vars(self, shape):
         """Split labels_ into labels_row_ and labels_col_"""
         n_row = shape[0]

@@ -224,6 +224,7 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
         else:
             n_col = max(col) + 1
         matrix = sparse.csr_matrix((weights, (row, col)), shape=(n_row, n_col))
+        matrix.sum_duplicates()
         graph.biadjacency = matrix
     else:
         nodes = edge_array.ravel()
@@ -241,6 +242,7 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
         matrix = sparse.csr_matrix((weights, (row, col)), shape=(n, n))
         if not directed:
             matrix = directed2undirected(matrix)
+        matrix.sum_duplicates()
         graph.adjacency = matrix
     if matrix_only or (matrix_only is None and len(graph) == 1):
         return matrix
