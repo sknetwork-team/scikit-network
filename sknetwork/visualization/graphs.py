@@ -368,7 +368,7 @@ def visualize_graph(adjacency: Optional[sparse.csr_matrix] = None, position: Opt
                     node_width: float = 1, node_width_max: float = 3, node_color: str = 'gray',
                     display_edges: bool = True, edge_labels: Optional[list] = None,
                     edge_width: float = 1, edge_width_min: float = 0.5,
-                    edge_width_max: float = 20, display_edge_weight: bool = True,
+                    edge_width_max: float = 20, display_edge_weight: bool = False,
                     edge_color: Optional[str] = None, label_colors: Optional[Iterable] = None,
                     font_size: int = 12, directed: Optional[bool] = None, filename: Optional[str] = None) -> str:
     """Return the image of a graph in SVG format.
