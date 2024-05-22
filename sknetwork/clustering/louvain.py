@@ -132,8 +132,8 @@ class Louvain(BaseClustering, Log):
             Gain in modularity after optimization.
         """
         labels = labels.astype(np.int32)
-        indices = adjacency.indices
-        indptr = adjacency.indptr
+        indices = adjacency.indices.astype(np.int32)
+        indptr = adjacency.indptr.astype(np.int32)
         data = adjacency.data.astype(np.float32)
         out_weights = out_weights.astype(np.float32)
         in_weights = in_weights.astype(np.float32)
