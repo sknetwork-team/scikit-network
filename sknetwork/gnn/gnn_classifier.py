@@ -93,7 +93,7 @@ class GNNClassifier(BaseGNN):
     >>> features = adjacency.copy()
     >>> gnn = GNNClassifier(dims=1, early_stopping=False)
     >>> labels_pred = gnn.fit_predict(adjacency, features, labels, random_state=42)
-    >>> np.round(np.mean(labels_pred == labels_true), 2)
+    >>> round(np.mean(labels_pred == labels_true), 2)
     0.88
     """
 
