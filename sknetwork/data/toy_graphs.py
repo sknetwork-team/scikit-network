@@ -11,10 +11,10 @@ from typing import Union
 import numpy as np
 from scipy import sparse
 
-from sknetwork.data.base import Bunch
+from sknetwork.data.base import Dataset
 
 
-def house(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def house(metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """House graph.
 
     * Undirected graph
@@ -46,7 +46,7 @@ def house(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     if metadata:
         x = np.array([0, -1, -1, 1, 1])
         y = np.array([2, 1, -1, -1, 1])
-        graph = Bunch()
+        graph = Dataset()
         graph.adjacency = adjacency
         graph.position = np.vstack((x, y)).T
         graph.name = 'house'
@@ -55,7 +55,7 @@ def house(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         return adjacency
 
 
-def bow_tie(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def bow_tie(metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Bow tie graph.
 
     * Undirected graph
@@ -86,7 +86,7 @@ def bow_tie(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     if metadata:
         x = np.array([0, -1, 1, -1, 1])
         y = np.array([0, 1, 1, -1, -1])
-        graph = Bunch()
+        graph = Dataset()
         graph.adjacency = adjacency
         graph.position = np.vstack((x, y)).T
         graph.name = 'bow_tie'
@@ -95,7 +95,7 @@ def bow_tie(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         return adjacency
 
 
-def karate_club(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def karate_club(metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Karate club graph.
 
     * Undirected graph
@@ -150,7 +150,7 @@ def karate_club(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
             [-0.33, -0.15, -0.01, -0.28, -0.64, -0.75, -0.76, -0.25,  0.09, 0.23, -0.62, -0.4, -0.53, -0.07,
              0.55,  0.64, -1., -0.42, 0.6, -0.01,  0.45, -0.34,  0.61,  0.41,  0.14,  0.28,  0.68, 0.21,
              0.12,  0.54,  0.19,  0.09,  0.38,  0.33])
-        graph = Bunch()
+        graph = Dataset()
         graph.adjacency = adjacency
         graph.labels = labels
         graph.position = np.vstack((x, y)).T
@@ -160,7 +160,7 @@ def karate_club(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         return adjacency
 
 
-def miserables(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def miserables(metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Co-occurrence graph of the characters in the novel Les miserables by Victor Hugo.
 
     * Undirected graph
@@ -257,7 +257,7 @@ def miserables(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
              0.05, 0.12,  0.82,  0.44,  0.06, -0.2, -0.4, -0.28, -0.68, -0.79, -0.4, -0.07, -0.51, -0.17, -0.03,
              -0.09, -0.14, -0.04, -0.04, -0.07, -0.06, -0.11, -0.06, -0.35,  0.24,  0.19,  0.22,  0.29, -0.2,
              0.06,  0.14,  0.3, -0.1])
-        graph = Bunch()
+        graph = Dataset()
         graph.adjacency = adjacency
         graph.names = np.array(names)
         graph.position = np.vstack((x, y)).T
@@ -267,7 +267,7 @@ def miserables(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         return adjacency
 
 
-def painters(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def painters(metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Graph of links between some famous painters on Wikipedia.
 
     * Directed graph
@@ -312,7 +312,7 @@ def painters(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         y = np.array(
             [0.53, 0.19, -0.71, 0.44, -0.48, -0.65, 0.69, -0.11, 0.01,
              -1., 0.49, 0.28, 0.06, 0.27])
-        graph = Bunch()
+        graph = Dataset()
         graph.adjacency = adjacency
         graph.names = names
         graph.position = np.stack((x, y)).T
@@ -322,7 +322,7 @@ def painters(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         return adjacency
 
 
-def hourglass(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def hourglass(metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Hourglass graph.
 
     * Bipartite graph
@@ -342,14 +342,14 @@ def hourglass(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     """
     biadjacency = sparse.csr_matrix(np.ones((2, 2), dtype=bool))
     if metadata:
-        graph = Bunch()
+        graph = Dataset()
         graph.biadjacency = biadjacency
         return graph
     else:
         return biadjacency
 
 
-def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Bipartite graph connecting some Star Wars villains to the movies in which they appear.
 
     * Bipartite graph
@@ -380,7 +380,7 @@ def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
     if metadata:
         villains = np.array(['Jabba', 'Greedo', 'Vader', 'Boba'])
         movies = np.array(['A New Hope', 'The Empire Strikes Back', 'Return Of The Jedi'])
-        graph = Bunch()
+        graph = Dataset()
         graph.biadjacency = biadjacency
         graph.names = villains
         graph.names_row = villains
@@ -391,14 +391,12 @@ def star_wars(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
         return biadjacency
 
 
-def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Bipartite graph connecting movies to some actors starring in them.
 
     * Bipartite graph
-    * 31 nodes (15 movies, 16 actors), 42 edges
-    * 9 labels (rows)
+    * 32 nodes (15 movies, 17 actors), 43 edges
     * Names of movies (rows) and actors (columns)
-    * Names of movies production company (rows)
 
     Parameters
     ----------
@@ -407,53 +405,47 @@ def movie_actor(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
 
     Returns
     -------
-    biadjacency or graph : Union[sparse.csr_matrix, Dataset]
-        Biadjacency matrix or graph with metadata (names).
+    biadjacency or dataset : Union[sparse.csr_matrix, Dataset]
+        Biadjacency matrix or dataset with metadata (names of movies and actors).
 
     Example
     -------
     >>> from sknetwork.data import movie_actor
     >>> biadjacency = movie_actor()
     >>> biadjacency.shape
-    (15, 16)
+    (15, 17)
     """
     row = np.array(
         [0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 4, 4, 5, 5, 6,
-         6, 6, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11,
+         6, 6, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 10, 10, 10, 10, 11, 11, 11,
          12, 12, 12, 13, 13, 14, 14])
     col = np.array(
         [0, 1, 2, 1, 2, 3, 3, 4, 5, 8, 4, 6, 0, 6, 4, 7, 4,
-         7, 8, 3, 8, 9, 10, 11, 12, 15, 0, 11, 12, 9, 10, 13, 5, 9, 13,
-         1, 9, 15, 12, 14, 11, 14])
-    biadjacency = sparse.csr_matrix((np.ones(len(row), dtype=bool), (row, col)), shape=(15, 16))
+         7, 8, 3, 8, 9, 10, 11, 12, 15, 0, 11, 12, 9, 10, 13, 16, 5, 9, 13,
+         1, 9, 15, 12, 14, 14, 16])
+    biadjacency = sparse.csr_matrix((np.ones(len(row), dtype=bool), (row, col)), shape=(15, 17))
 
     if metadata:
         movies = np.array(
             ['Inception', 'The Dark Knight Rises', 'The Big Short', 'Drive', 'The Great Gatsby', 'La La Land',
              'Crazy Stupid Love', 'Vice', 'The Grand Budapest Hotel', 'Aviator', '007 Spectre', 'Inglourious Basterds',
-             'Midnight In Paris', 'Murder on the Orient Express', 'Fantastic Beasts 2'])
+             'Midnight In Paris', 'Murder on the Orient Express', "Pirates of the Caribbean: At World's End"])
         actors = np.array(
             ['Leonardo DiCaprio', 'Marion Cotillard', 'Joseph Gordon Lewitt', 'Christian Bale', 'Ryan Gosling',
              'Brad Pitt', 'Carey Mulligan', 'Emma Stone', 'Steve Carell', 'Lea Seydoux', 'Ralph Fiennes', 'Jude Law',
-             'Willem Dafoe', 'Christophe Waltz', 'Johnny Depp', 'Owen Wilson'])
-        graph = Bunch()
-        graph.biadjacency = biadjacency
-        graph.names = movies
-        graph.names_row = movies
-        graph.names_col = actors
-        graph.labels = np.array([0, 0, 1, 2, 3, 2, 4, 1, 5, 0, 6, 5, 7, 8, 0])
-        graph.labels_name = np.array(['Warner Bros', 'Plan B Entertainment', 'Marc Platt Productions', 'Bazmark Films',
-                                      'Carousel Productions', 'Babelsberg Studios', 'MGM', 'Gravier Productions',
-                                      'Genre Films'])
-        graph.labels_row = graph.labels
-        graph.labels_row_name = graph.labels_name
-        graph.name = 'movie_actor'
-        return graph
+             'Willem Dafoe', 'Christophe Waltz', 'Johnny Depp', 'Owen Wilson', 'Naomie Harris'])
+        dataset = Dataset()
+        dataset.biadjacency = biadjacency
+        dataset.names = movies
+        dataset.names_row = movies
+        dataset.names_col = actors
+        dataset.name = 'movie_actor'
+        return dataset
     else:
         return biadjacency
 
 
-def art_philo_science(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def art_philo_science(metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Wikipedia links between 30 articles (10 artists, 10 philosophers, 10 scientists).
 
     * Directed graph
@@ -605,7 +597,7 @@ def art_philo_science(metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]
         words = np.array(
             ['contribution', 'theory', 'invention', 'time', 'modern',
              'century', 'study', 'logic', 'school', 'author', 'compose'])
-        graph = Bunch()
+        graph = Dataset()
         graph.adjacency = adjacency
         graph.names = names
         graph.position = position

@@ -34,7 +34,7 @@ def get_accuracy_score(labels_true: np.ndarray, labels_pred: np.ndarray) -> floa
     >>> import numpy as np
     >>> labels_true = np.array([0, 0, 1, 1])
     >>> labels_pred = np.array([0, 0, 0, 1])
-    >>> get_accuracy_score(labels_true, labels_pred)
+    >>> round(get_accuracy_score(labels_true, labels_pred), 2)
     0.75
     """
     check_vector_format(labels_true, labels_pred)
@@ -105,7 +105,7 @@ def get_f1_score(labels_true: np.ndarray, labels_pred: np.ndarray, return_precis
     >>> import numpy as np
     >>> labels_true = np.array([0, 0, 1, 1])
     >>> labels_pred = np.array([0, 0, 0, 1])
-    >>> np.round(get_f1_score(labels_true, labels_pred), 2)
+    >>> round(get_f1_score(labels_true, labels_pred), 2)
     0.67
     """
     values = set(labels_true[labels_true >= 0]) | set(labels_pred[labels_pred >= 0])
@@ -188,7 +188,7 @@ def get_average_f1_score(labels_true: np.ndarray, labels_pred: np.ndarray, avera
     >>> import numpy as np
     >>> labels_true = np.array([0, 0, 1, 1])
     >>> labels_pred = np.array([0, 0, 0, 1])
-    >>> np.round(get_average_f1_score(labels_true, labels_pred), 2)
+    >>> round(get_average_f1_score(labels_true, labels_pred), 2)
     0.73
     """
     if average == 'micro':

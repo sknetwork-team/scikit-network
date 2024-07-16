@@ -6,10 +6,10 @@ Created in May 2023
 """
 
 
-class Bunch(dict):
+class Dataset(dict):
     """Container object for datasets.
     Dictionary-like object that exposes its keys as attributes.
-    >>> dataset = Bunch(name='dataset')
+    >>> dataset = Dataset(name='dataset')
     >>> dataset['name']
     'dataset'
     >>> dataset.name
@@ -26,3 +26,8 @@ class Bunch(dict):
             return self[key]
         except KeyError:
             raise AttributeError(key)
+
+
+# alias for Dataset
+Bunch = Dataset
+

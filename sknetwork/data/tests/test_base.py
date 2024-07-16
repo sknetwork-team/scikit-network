@@ -3,12 +3,12 @@
 
 import unittest
 
-from sknetwork.data.base import Bunch
+from sknetwork.data.base import Dataset
 
 
 class TestDataset(unittest.TestCase):
 
     def test(self):
-        dataset = Bunch(name='dataset')
+        dataset = Dataset(name='dataset')
         self.assertEqual(dataset.name, 'dataset')
         self.assertEqual(dataset['name'], 'dataset')

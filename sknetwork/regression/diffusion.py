@@ -79,8 +79,9 @@ class Diffusion(BaseRegressor):
         self.bipartite = None
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
-            values: Optional[Union[dict, np.ndarray]] = None, values_row: Optional[Union[dict, np.ndarray]] = None,
-            values_col: Optional[Union[dict, np.ndarray]] = None, init: Optional[float] = None,
+            values: Optional[Union[dict, list, np.ndarray]] = None,
+            values_row: Optional[Union[dict, list, np.ndarray]] = None,
+            values_col: Optional[Union[dict, list, np.ndarray]] = None, init: Optional[float] = None,
             force_bipartite: bool = False) -> 'Diffusion':
         """Compute the diffusion (temperatures at equilibrium).
 
@@ -167,8 +168,9 @@ class Dirichlet(BaseRegressor):
         self.bipartite = None
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
-            values: Optional[Union[dict, np.ndarray]] = None, values_row: Optional[Union[dict, np.ndarray]] = None,
-            values_col: Optional[Union[dict, np.ndarray]] = None, init: Optional[float] = None,
+            values: Optional[Union[dict, list, np.ndarray]] = None,
+            values_row: Optional[Union[dict, list, np.ndarray]] = None,
+            values_col: Optional[Union[dict, list, np.ndarray]] = None, init: Optional[float] = None,
             force_bipartite: bool = False) -> 'Dirichlet':
         """Compute the solution to the Dirichlet problem (temperatures at equilibrium).
 

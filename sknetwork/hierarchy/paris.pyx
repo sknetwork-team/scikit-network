@@ -212,13 +212,15 @@ class Paris(BaseHierarchy):
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'Paris':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], force_bipartite: bool = False) -> 'Paris':
         """Agglomerative clustering using the nearest neighbor chain.
 
         Parameters
         ----------
         input_matrix : sparse.csr_matrix, np.ndarray
             Adjacency matrix or biadjacency matrix of the graph.
+        force_bipartite :
+            If ``True``, force the input matrix to be considered as a biadjacency matrix.
 
         Returns
         -------
@@ -227,8 +229,7 @@ class Paris(BaseHierarchy):
         self._init_vars()
 
         # input
-        input_matrix = check_format(input_matrix)
-        adjacency, self.bipartite = get_adjacency(input_matrix)
+        adjacency, self.bipartite = get_adjacency(input_matrix, force_bipartite=force_bipartite)
 
         weights = self.weights
         out_weights = get_probs(weights, adjacency)

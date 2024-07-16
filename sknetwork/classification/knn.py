@@ -55,7 +55,7 @@ class NNClassifier(BaseClassifier):
     >>> labels_true = graph.labels
     >>> labels = {0: labels_true[0], 33: labels_true[33]}
     >>> labels_pred = classifier.fit_predict(adjacency, labels)
-    >>> np.round(np.mean(labels_pred == labels_true), 2)
+    >>> round(np.mean(labels_pred == labels_true), 2)
     0.82
     """
     def __init__(self, n_neighbors: int = 3, embedding_method: Optional[BaseEmbedding] = None, normalize: bool = True):
@@ -97,8 +97,9 @@ class NNClassifier(BaseClassifier):
 
         return probs, labels
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: Union[np.ndarray, dict] = None,
-            labels_row: Union[np.ndarray, dict] = None, labels_col: Union[np.ndarray, dict] = None) -> 'NNClassifier':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: Union[np.ndarray, list, dict] = None,
+            labels_row: Union[np.ndarray, list, dict] = None,
+            labels_col: Union[np.ndarray, list, dict] = None) -> 'NNClassifier':
         """Node classification by k-nearest neighbors in the embedding space.
 
         Parameters

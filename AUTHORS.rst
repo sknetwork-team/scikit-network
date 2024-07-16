@@ -13,7 +13,6 @@ Development Lead
 * Simon Delarue <simon.delarue@telecom-paris.fr>
 * Marc Jeanmougin <marc.jeanmougin@telecom-paris.fr>
 
-
 Former lead
 -----------
 
