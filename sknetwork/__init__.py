@@ -4,7 +4,7 @@
 
 __author__ = """scikit-network team"""
 __email__ = "thomas.bonald@telecom-paris.fr"
-__version__ = '0.32.1'
+__version__ = '0.33.0'
 
 import sknetwork.topology
 import sknetwork.path
