@@ -17,7 +17,7 @@ class TestMetrics(unittest.TestCase):
 
     def setUp(self):
         self.paris = Paris()
-        self.louvain_hierarchy = LouvainIteration()
+        self.louvain_iteration = LouvainIteration()
 
     def test_undirected(self):
         adjacency = cyclic_graph(3)
@@ -31,7 +31,7 @@ class TestMetrics(unittest.TestCase):
         self.assertAlmostEqual(dasgupta_cost(adjacency, dendrogram), 4.26, 2)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.573, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.304, 2)
-        dendrogram = self.louvain_hierarchy.fit_transform(adjacency)
+        dendrogram = self.louvain_iteration.fit_transform(adjacency)
         self.assertAlmostEqual(dasgupta_cost(adjacency, dendrogram), 4.43, 2)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.555, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.286, 2)
@@ -41,7 +41,7 @@ class TestMetrics(unittest.TestCase):
         dendrogram = self.paris.fit_transform(adjacency)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.566, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.318, 2)
-        dendrogram = self.louvain_hierarchy.fit_transform(adjacency)
+        dendrogram = self.louvain_iteration.fit_transform(adjacency)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.55, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.313, 2)
 
@@ -50,7 +50,7 @@ class TestMetrics(unittest.TestCase):
         dendrogram = self.paris.fit_transform(adjacency)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.682, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.464, 2)
-        dendrogram = self.louvain_hierarchy.fit_transform(adjacency)
+        dendrogram = self.louvain_iteration.fit_transform(adjacency)
         self.assertAlmostEqual(dasgupta_score(adjacency, dendrogram), 0.670, 2)
         self.assertAlmostEqual(tree_sampling_divergence(adjacency, dendrogram), 0.594, 2)
 
