@@ -18,7 +18,7 @@ wheel>=0.42.0
 twine>=3.7.1
 
 # main doc tool
-Sphinx==7.1.2
+Sphinx>=7.1.2
 
 # base theme for the documentation website
 sphinx-rtd-theme>=1.0.0
