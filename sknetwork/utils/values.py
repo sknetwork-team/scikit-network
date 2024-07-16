@@ -10,9 +10,11 @@ from typing import Optional, Union
 import numpy as np
 
 
-def get_values(shape: tuple, values: Union[np.ndarray, dict], default_value: float = -1) -> np.ndarray:
+def get_values(shape: tuple, values: Union[np.ndarray, list, dict], default_value: float = -1) -> np.ndarray:
     """Get values as array."""
     n = shape[0]
+    if isinstance(values, list):
+        values = np.array(values)
     if isinstance(values, np.ndarray):
         if len(values) != n:
             raise ValueError('Dimensions mismatch between adjacency and values.')
@@ -29,8 +31,8 @@ def get_values(shape: tuple, values: Union[np.ndarray, dict], default_value: flo
     return values
 
 
-def stack_values(shape: tuple, values_row: Optional[Union[np.ndarray, dict]],
-                 values_col: Optional[Union[np.ndarray, dict]] = None, default_value: float = -1) -> np.ndarray:
+def stack_values(shape: tuple, values_row: Optional[Union[np.ndarray, list, dict]],
+                 values_col: Optional[Union[np.ndarray, list, dict]] = None, default_value: float = -1) -> np.ndarray:
     """Process values for rows and columns and stack the results into a single vector."""
     n_row, n_col = shape
     if values_row is None and values_col is None:
