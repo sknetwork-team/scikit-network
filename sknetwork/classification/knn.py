@@ -55,7 +55,7 @@ class NNClassifier(BaseClassifier):
     >>> labels_true = graph.labels
     >>> labels = {0: labels_true[0], 33: labels_true[33]}
     >>> labels_pred = classifier.fit_predict(adjacency, labels)
-    >>> np.round(np.mean(labels_pred == labels_true), 2)
+    >>> round(np.mean(labels_pred == labels_true), 2)
     0.82
     """
     def __init__(self, n_neighbors: int = 3, embedding_method: Optional[BaseEmbedding] = None, normalize: bool = True):
