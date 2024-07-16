@@ -14,13 +14,13 @@ from xml.etree import ElementTree
 import numpy as np
 from scipy import sparse
 
-from sknetwork.data.base import Bunch
+from sknetwork.data.base import Dataset
 from sknetwork.utils.format import directed2undirected
 
 
 def from_edge_list(edge_list: Union[np.ndarray, List[Tuple]], directed: bool = False,
                    bipartite: bool = False, weighted: bool = True, reindex: bool = False, shape: Optional[tuple] = None,
-                   sum_duplicates: bool = True, matrix_only: bool = None) -> Union[Bunch, sparse.csr_matrix]:
+                   sum_duplicates: bool = True, matrix_only: bool = None) -> Union[Dataset, sparse.csr_matrix]:
     """Load a graph from an edge list.
 
     Parameters
@@ -93,7 +93,7 @@ def from_edge_list(edge_list: Union[np.ndarray, List[Tuple]], directed: bool = F
 def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], directed: bool = False,
                         bipartite: bool = False, weighted: bool = True, reindex: bool = False,
                         shape: Optional[tuple] = None, sum_duplicates: bool = True, matrix_only: bool = None) \
-                        -> Union[Bunch, sparse.csr_matrix]:
+                        -> Union[Dataset, sparse.csr_matrix]:
     """Load a graph from an adjacency list.
 
     Parameters
@@ -147,7 +147,7 @@ def from_adjacency_list(adjacency_list: Union[List[List], Dict[str, List]], dire
 
 def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed: bool = False, bipartite: bool = False,
                     weighted: bool = True, reindex: bool = False, shape: Optional[tuple] = None,
-                    sum_duplicates: bool = True, matrix_only: bool = None) -> Union[Bunch, sparse.csr_matrix]:
+                    sum_duplicates: bool = True, matrix_only: bool = None) -> Union[Dataset, sparse.csr_matrix]:
     """Load a graph from an edge array of shape (n_edges, 2) and weights (optional).
 
     Parameters
@@ -202,7 +202,7 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
         _, index = np.unique(edge_array, axis=0, return_index=True)
         edge_array = edge_array[index]
         weights = weights[index]
-    graph = Bunch()
+    graph = Dataset()
     if bipartite:
         row = edge_array[:, 0]
         col = edge_array[:, 1]
@@ -253,7 +253,7 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
 def from_csv(file_path: str, delimiter: str = None, sep: str = None, comments: str = '#%',
              data_structure: str = None, directed: bool = False, bipartite: bool = False, weighted: bool = True,
              reindex: bool = False, shape: Optional[tuple] = None, sum_duplicates: bool = True,
-             matrix_only: bool = None) -> Union[Bunch, sparse.csr_matrix]:
+             matrix_only: bool = None) -> Union[Dataset, sparse.csr_matrix]:
     """Load a graph from a CSV or TSV file.
     The delimiter can be specified (e.g., ' ' for space-separated values).
 
@@ -434,9 +434,9 @@ def load_header(file: str):
     return directed, bipartite, weighted
 
 
-def load_metadata(file: str, delimiter: str = ': ') -> Bunch:
+def load_metadata(file: str, delimiter: str = ': ') -> Dataset:
     """Extract metadata from the file."""
-    metadata = Bunch()
+    metadata = Dataset()
     with open(file, 'r', encoding='utf-8') as f:
         for row in f:
             parts = row.split(delimiter)
@@ -445,7 +445,7 @@ def load_metadata(file: str, delimiter: str = ': ') -> Bunch:
     return metadata
 
 
-def from_graphml(file_path: str, weight_key: str = 'weight', max_string_size: int = 512) -> Bunch:
+def from_graphml(file_path: str, weight_key: str = 'weight', max_string_size: int = 512) -> Dataset:
     """Load graph from GraphML file.
 
     Hyperedges and nested graphs are not supported.
@@ -461,7 +461,7 @@ def from_graphml(file_path: str, weight_key: str = 'weight', max_string_size: in
 
     Returns
     -------
-    data: :class:`Bunch`
+    data: :class:`Dataset`
         The dataset in a Dataset with the adjacency as a CSR matrix.
     """
     # see http://graphml.graphdrawing.org/primer/graphml-primer.html
@@ -477,12 +477,12 @@ def from_graphml(file_path: str, weight_key: str = 'weight', max_string_size: in
     # indices in the graph tree
     node_indices = []
     edge_indices = []
-    data = Bunch()
+    data = Dataset()
     graph = None
     file_description = None
-    attribute_descriptions = Bunch()
-    attribute_descriptions.node = Bunch()
-    attribute_descriptions.edge = Bunch()
+    attribute_descriptions = Dataset()
+    attribute_descriptions.node = Dataset()
+    attribute_descriptions.edge = Dataset()
     keys = {}
     for file_element in tree.getroot():
         if file_element.tag.endswith('graph'):
@@ -520,7 +520,7 @@ def from_graphml(file_path: str, weight_key: str = 'weight', max_string_size: in
                 if file_element.attrib['for'] == 'node':
                     size = n_nodes
                     if 'node_attribute' not in data:
-                        data.node_attribute = Bunch()
+                        data.node_attribute = Dataset()
                     for key_element in file_element:
                         if key_element.tag.endswith('desc'):
                             attribute_descriptions.node[attribute_name] = key_element.text
@@ -537,7 +537,7 @@ def from_graphml(file_path: str, weight_key: str = 'weight', max_string_size: in
                 elif file_element.attrib['for'] == 'edge':
                     size = n_edges
                     if 'edge_attribute' not in data:
-                        data.edge_attribute = Bunch()
+                        data.edge_attribute = Dataset()
                     for key_element in file_element:
                         if key_element.tag.endswith('desc'):
                             attribute_descriptions.edge[attribute_name] = key_element.text
@@ -555,7 +555,7 @@ def from_graphml(file_path: str, weight_key: str = 'weight', max_string_size: in
         elif file_element.tag.endswith('desc'):
             file_description = file_element.text
     if file_description or attribute_descriptions.node or attribute_descriptions.edge:
-        data.meta = Bunch()
+        data.meta = Dataset()
         if file_description:
             data.meta['description'] = file_description
         if attribute_descriptions.node or attribute_descriptions.edge:

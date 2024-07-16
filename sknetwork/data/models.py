@@ -12,7 +12,7 @@ from typing import Union, Optional, Iterable
 import numpy as np
 from scipy import sparse
 
-from sknetwork.data.base import Bunch
+from sknetwork.data.base import Dataset
 from sknetwork.data.parse import from_edge_list
 from sknetwork.utils.check import check_random_state
 from sknetwork.utils.format import directed2undirected
@@ -20,7 +20,7 @@ from sknetwork.utils.format import directed2undirected
 
 def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_out: float = .05,
                 directed: bool = False, self_loops: bool = False, metadata: bool = False, seed: Optional[int] = None) \
-                -> Union[sparse.csr_matrix, Bunch]:
+                -> Union[sparse.csr_matrix, Dataset]:
     """Stochastic block model.
 
     Parameters
@@ -83,7 +83,7 @@ def block_model(sizes: Iterable, p_in: Union[float, list, np.ndarray] = .2, p_ou
     else:
         adjacency = directed2undirected(sparse.csr_matrix(sparse.triu(adjacency)), weighted=False)
     if metadata:
-        graph = Bunch()
+        graph = Dataset()
         graph.adjacency = adjacency
         labels = np.repeat(np.arange(len(sizes)), sizes)
         graph.labels = labels
@@ -129,7 +129,7 @@ def erdos_renyi(n: int = 20, p: float = .3, directed: bool = False, self_loops: 
     return block_model([n], p, 0., directed=directed, self_loops=self_loops, metadata=False, seed=seed)
 
 
-def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Linear graph (directed).
 
     Parameters
@@ -158,7 +158,7 @@ def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
     if metadata:
         x = np.arange(n)
         y = np.zeros(n)
-        graph = Bunch()
+        graph = Dataset()
         graph.adjacency = adjacency
         graph.position = np.array((x, y)).T
         return graph
@@ -166,7 +166,7 @@ def linear_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
         return adjacency
 
 
-def linear_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def linear_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Linear graph (undirected).
 
     Parameters
@@ -218,7 +218,7 @@ def cyclic_position(n: int) -> np.ndarray:
     return position
 
 
-def cyclic_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def cyclic_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Cyclic graph (directed).
 
     Parameters
@@ -245,7 +245,7 @@ def cyclic_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
     adjacency = sparse.csr_matrix((np.ones(len(row), dtype=int), (row, col)), shape=(n, n))
 
     if metadata:
-        graph = Bunch()
+        graph = Dataset()
         graph.adjacency = adjacency
         graph.position = cyclic_position(n)
         return graph
@@ -253,7 +253,7 @@ def cyclic_digraph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matri
         return adjacency
 
 
-def cyclic_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def cyclic_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Cyclic graph (undirected).
 
     Parameters
@@ -283,7 +283,7 @@ def cyclic_graph(n: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix,
         return graph.adjacency
 
 
-def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Grid (undirected).
 
     Parameters
@@ -312,7 +312,7 @@ def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr
     edges = list(map(lambda edge: (node_id[edge[0]], node_id[edge[1]]), edges))
     adjacency = from_edge_list(edges, reindex=False, matrix_only=True)
     if metadata:
-        graph = Bunch()
+        graph = Dataset()
         graph.adjacency = adjacency
         graph.position = np.array(nodes)
         return graph
@@ -320,7 +320,7 @@ def grid(n1: int = 10, n2: int = 10, metadata: bool = False) -> Union[sparse.csr
         return adjacency
 
 
-def star(n_branches: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+def star(n_branches: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Star (undirected).
 
     Parameters
@@ -345,7 +345,7 @@ def star(n_branches: int = 3, metadata: bool = False) -> Union[sparse.csr_matrix
     edges = [(0, i+1) for i in range(n_branches)]
     adjacency = from_edge_list(edges, reindex=False, matrix_only=True)
     if metadata:
-        graph = Bunch()
+        graph = Dataset()
         graph.adjacency = adjacency
         angles = 2 * np.pi * np.arange(n_branches) / n_branches
         x = [0] + list(np.cos(angles))
@@ -402,7 +402,7 @@ def albert_barabasi(n: int = 100, degree: int = 3, directed: bool = False, seed:
 
 
 def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, seed: Optional[int] = None,
-                   metadata: bool = False) -> Union[sparse.csr_matrix, Bunch]:
+                   metadata: bool = False) -> Union[sparse.csr_matrix, Dataset]:
     """Watts-Strogatz model.
 
     Parameters
@@ -451,7 +451,7 @@ def watts_strogatz(n: int = 100, degree: int = 6, prob: float = 0.05, seed: Opti
                 adjacency[j, i] = 0
     adjacency = sparse.csr_matrix(adjacency, shape=adjacency.shape)
     if metadata:
-        graph = Bunch()
+        graph = Dataset()
         graph.adjacency = adjacency
         graph.position = cyclic_position(n)
         return graph

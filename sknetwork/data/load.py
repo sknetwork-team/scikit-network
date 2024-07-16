@@ -19,14 +19,11 @@ import numpy as np
 from scipy import sparse
 
 from sknetwork.data.parse import from_csv, load_labels, load_header, load_metadata
-from sknetwork.data.base import Bunch
+from sknetwork.data.base import Dataset
 from sknetwork.utils.check import is_square
 from sknetwork.log import Log
 
 NETSET_URL = 'https://netset.telecom-paris.fr'
-
-# former name of Dataset
-Bunch = Bunch
 
 
 def is_within_directory(directory, target):
@@ -89,7 +86,7 @@ def clean_data_home(data_home: Optional[Union[str, Path]] = None):
 
 
 def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]] = None,
-                verbose: bool = True) -> Optional[Bunch]:
+                verbose: bool = True) -> Optional[Dataset]:
     """Load a dataset from the `NetSet collection
     <https://netset.telecom-paris.fr/>`_.
 
@@ -105,10 +102,10 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
 
     Returns
     -------
-    dataset : :class:`Bunch`
+    dataset : :class:`Dataset`
         Returned dataset.
     """
-    dataset = Bunch()
+    dataset = Dataset()
     dataset_folder = NETSET_URL + '/datasets/'
     folder_npz = NETSET_URL + '/datasets_npz/'
 
@@ -167,7 +164,7 @@ def load_netset(name: Optional[str] = None, data_home: Optional[Union[str, Path]
 
 
 def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_numpy_bundle: bool = True,
-                verbose: bool = True) -> Bunch:
+                verbose: bool = True) -> Dataset:
     """Load a dataset from the `Konect database
     <http://konect.cc/networks/>`_.
 
@@ -186,7 +183,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
 
     Returns
     -------
-    dataset : :class:`Bunch`
+    dataset : :class:`Dataset`
         Object with the following attributes:
 
              * `adjacency` or `biadjacency`: the adjacency/biadjacency matrix for the dataset
@@ -240,7 +237,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
         logger.print_log('Loading from local bundle...')
         return load_from_numpy_bundle(name + '_bundle', data_path)
 
-    dataset = Bunch()
+    dataset = Dataset()
     path = data_konect / name / name
     if not path.exists() or len(listdir(path)) == 0:
         raise Exception("No data downloaded.")
@@ -269,7 +266,7 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
         else:
             dataset.meta.name = name
     else:
-        dataset.meta = Bunch()
+        dataset.meta = Dataset()
         dataset.meta.name = name
 
     if auto_numpy_bundle:
@@ -280,12 +277,12 @@ def load_konect(name: str, data_home: Optional[Union[str, Path]] = None, auto_nu
     return dataset
 
 
-def save_to_numpy_bundle(data: Bunch, bundle_name: str, data_home: Optional[Union[str, Path]] = None):
+def save_to_numpy_bundle(data: Dataset, bundle_name: str, data_home: Optional[Union[str, Path]] = None):
     """Save a dataset in the specified data home to a collection of Numpy and Pickle files for faster subsequent loads.
 
     Parameters
     ----------
-    data: Bunch
+    data: Dataset
         Data to save.
     bundle_name: str
         Name to be used for the bundle folder.
@@ -317,7 +314,7 @@ def load_from_numpy_bundle(bundle_name: str, data_home: Optional[Union[str, Path
 
     Returns
     -------
-    data: Bunch
+    data: Dataset
         Data.
     """
     data_home = get_data_home(data_home)
@@ -326,7 +323,7 @@ def load_from_numpy_bundle(bundle_name: str, data_home: Optional[Union[str, Path
         raise FileNotFoundError('No bundle at ' + str(data_path))
     else:
         files = listdir(data_path)
-        data = Bunch()
+        data = Dataset()
         for file in files:
             if len(file.split('.')) == 2:
                 file_name, file_extension = file.split('.')
@@ -340,7 +337,7 @@ def load_from_numpy_bundle(bundle_name: str, data_home: Optional[Union[str, Path
         return data
 
 
-def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Bunch]):
+def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Dataset]):
     """Save a dataset or a CSR matrix in the current directory to a collection of Numpy and Pickle files for faster
     subsequent loads. Supported attribute types include sparse matrices, NumPy arrays, strings and objects Dataset.
 
@@ -348,13 +345,13 @@ def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Bunch]):
     ----------
     folder : str or :class:`pathlib.Path`
         Name of the bundle folder.
-    data : Union[sparse.csr_matrix, Bunch]
+    data : Union[sparse.csr_matrix, Dataset]
         Data to save.
 
     Example
     -------
     >>> from sknetwork.data import save
-    >>> dataset = Bunch()
+    >>> dataset = Dataset()
     >>> dataset.adjacency = sparse.csr_matrix(np.random.random((3, 3)) < 0.5)
     >>> dataset.names = np.array(['a', 'b', 'c'])
     >>> save('dataset', dataset)
@@ -366,7 +363,7 @@ def save(folder: Union[str, Path], data: Union[sparse.csr_matrix, Bunch]):
     if folder.exists():
         shutil.rmtree(folder)
     if isinstance(data, sparse.csr_matrix):
-        dataset = Bunch()
+        dataset = Dataset()
         if is_square(data):
             dataset.adjacency = data
         else:
@@ -388,13 +385,13 @@ def load(folder: Union[str, Path]):
 
     Returns
     -------
-    data: Bunch
+    data: Dataset
         Data.
 
     Example
     -------
     >>> from sknetwork.data import save
-    >>> dataset = Bunch()
+    >>> dataset = Dataset()
     >>> dataset.adjacency = sparse.csr_matrix(np.random.random((3, 3)) < 0.5)
     >>> dataset.names = np.array(['a', 'b', 'c'])
     >>> save('dataset', dataset)

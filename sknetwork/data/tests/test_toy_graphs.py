@@ -16,22 +16,22 @@ class TestToys(unittest.TestCase):
         adjacency = house()
         self.assertEqual(adjacency.shape, (5, 5))
 
-        graph = house(metadata=True)
-        self.assertEqual(graph.position.shape, (5, 2))
+        dataset = house(metadata=True)
+        self.assertEqual(dataset.position.shape, (5, 2))
 
         adjacency = bow_tie()
         self.assertEqual(adjacency.shape, (5, 5))
 
-        graph = bow_tie(metadata=True)
-        self.assertEqual(graph.position.shape, (5, 2))
+        dataset = bow_tie(metadata=True)
+        self.assertEqual(dataset.position.shape, (5, 2))
 
-        graph = karate_club(True)
-        self.assertEqual(graph.adjacency.shape, (34, 34))
-        self.assertEqual(len(graph.labels), 34)
+        dataset = karate_club(True)
+        self.assertEqual(dataset.adjacency.shape, (34, 34))
+        self.assertEqual(len(dataset.labels), 34)
 
-        graph = miserables(True)
-        self.assertEqual(graph.adjacency.shape, (77, 77))
-        self.assertEqual(len(graph.names), 77)
+        dataset = miserables(True)
+        self.assertEqual(dataset.adjacency.shape, (77, 77))
+        self.assertEqual(len(dataset.names), 77)
 
     def test_directed(self):
         adjacency = painters()
@@ -40,29 +40,29 @@ class TestToys(unittest.TestCase):
         adjacency = art_philo_science()
         self.assertEqual(adjacency.shape, (30, 30))
 
-        graph = painters(True)
-        self.assertEqual(graph.adjacency.shape, (14, 14))
-        self.assertEqual(len(graph.names), 14)
+        dataset = painters(True)
+        self.assertEqual(dataset.adjacency.shape, (14, 14))
+        self.assertEqual(len(dataset.names), 14)
 
-        graph = art_philo_science(True)
-        self.assertEqual(graph.adjacency.shape, (30, 30))
-        self.assertEqual(len(graph.names), 30)
+        dataset = art_philo_science(True)
+        self.assertEqual(dataset.adjacency.shape, (30, 30))
+        self.assertEqual(len(dataset.names), 30)
 
     def test_bipartite(self):
-        graph = star_wars(True)
-        self.assertEqual(graph.biadjacency.shape, (4, 3))
-        self.assertEqual(len(graph.names), 4)
-        self.assertEqual(len(graph.names_col), 3)
+        dataset = star_wars(True)
+        self.assertEqual(dataset.biadjacency.shape, (4, 3))
+        self.assertEqual(len(dataset.names), 4)
+        self.assertEqual(len(dataset.names_col), 3)
 
-        graph = movie_actor(True)
-        self.assertEqual(graph.biadjacency.shape, (15, 16))
-        self.assertEqual(len(graph.names), 15)
-        self.assertEqual(len(graph.names_col), 16)
+        dataset = movie_actor(True)
+        self.assertEqual(dataset.biadjacency.shape, (15, 17))
+        self.assertEqual(len(dataset.names), 15)
+        self.assertEqual(len(dataset.names_col), 17)
 
-        graph = hourglass(True)
-        self.assertEqual(graph.biadjacency.shape, (2, 2))
+        dataset = hourglass(True)
+        self.assertEqual(dataset.biadjacency.shape, (2, 2))
 
-        graph = art_philo_science(True)
-        self.assertEqual(graph.biadjacency.shape, (30, 11))
-        self.assertEqual(len(graph.names), 30)
-        self.assertEqual(len(graph.names_col), 11)
+        dataset = art_philo_science(True)
+        self.assertEqual(dataset.biadjacency.shape, (30, 11))
+        self.assertEqual(len(dataset.names), 30)
+        self.assertEqual(len(dataset.names_col), 11)
