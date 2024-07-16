@@ -91,19 +91,20 @@ class Propagation(BaseClassifier):
             labels = labels[index_seed]
         return index_seed.astype(np.int32), index_remain.astype(np.int32), labels.astype(np.int32)
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: Union[np.ndarray, dict] = None,
-            labels_row: Union[np.ndarray, dict] = None, labels_col: Union[np.ndarray, dict] = None) -> 'Propagation':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: Union[np.ndarray, list, dict] = None,
+            labels_row: Union[np.ndarray, list, dict] = None,
+            labels_col: Union[np.ndarray, list, dict] = None) -> 'Propagation':
         """Node classification by label propagation.
 
         Parameters
         ----------
         input_matrix : sparse.csr_matrix, np.ndarray
             Adjacency matrix or biadjacency matrix of the graph.
-        labels : np.ndarray, dict
+        labels : array, list or dict
             Known labels. Negative values ignored.
-        labels_row : np.ndarray, dict
+        labels_row : array, list or dict
             Known labels of rows, for bipartite graphs.
-        labels_col : np.ndarray, dict
+        labels_col : array, list or dict
             Known labels of columns, for bipartite graphs.
 
         Returns

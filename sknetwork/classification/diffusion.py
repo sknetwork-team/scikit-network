@@ -74,8 +74,9 @@ class DiffusionClassifier(BaseClassifier):
         self.scale = scale
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
-            labels: Optional[Union[dict, np.ndarray]] = None, labels_row: Optional[Union[dict, np.ndarray]] = None,
-            labels_col: Optional[Union[dict, np.ndarray]] = None, force_bipartite: bool = False) \
+            labels: Optional[Union[dict, list, np.ndarray]] = None,
+            labels_row: Optional[Union[dict, list, np.ndarray]] = None,
+            labels_col: Optional[Union[dict, list, np.ndarray]] = None, force_bipartite: bool = False) \
             -> 'DiffusionClassifier':
         """Compute the solution to the Dirichlet problem (temperatures at equilibrium).
 

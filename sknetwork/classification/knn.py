@@ -97,8 +97,9 @@ class NNClassifier(BaseClassifier):
 
         return probs, labels
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: Union[np.ndarray, dict] = None,
-            labels_row: Union[np.ndarray, dict] = None, labels_col: Union[np.ndarray, dict] = None) -> 'NNClassifier':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: Union[np.ndarray, list, dict] = None,
+            labels_row: Union[np.ndarray, list, dict] = None,
+            labels_col: Union[np.ndarray, list, dict] = None) -> 'NNClassifier':
         """Node classification by k-nearest neighbors in the embedding space.
 
         Parameters
