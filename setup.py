@@ -7,6 +7,7 @@ from setuptools import find_packages, setup, Extension
 from sysconfig import get_platform
 from distutils.command.build_ext import build_ext
 import os
+import builtins
 from glob import glob
 
 import numpy
@@ -55,7 +56,6 @@ if platform.startswith("win"):
     EXTRA_COMPILE_ARGS = ['/d2FH4-']
     EXTRA_LINK_ARGS = []
 
-
 class BuildExtSubclass(build_ext):
     def build_options(self):
         for e in self.extensions:
@@ -74,7 +74,7 @@ class BuildExtSubclass(build_ext):
     def finalize_options(self):
         build_ext.finalize_options(self)
         # Prevent numpy from thinking it is still in its setup process:
-        __builtins__.__NUMPY_SETUP__ = False
+        builtins.__NUMPY_SETUP__ = False
         import numpy
         self.include_dirs.append(numpy.get_include())
 
