@@ -17,6 +17,12 @@ class TestLouvainClustering(unittest.TestCase):
         labels = Louvain().fit_predict(adjacency)
         self.assertEqual(len(labels), n)
 
+    def test_format(self):
+        adjacency = test_graph()
+        n = adjacency.shape[0]
+        labels = Louvain().fit_predict(adjacency.toarray())
+        self.assertEqual(len(labels), n)
+
     def test_modularity(self):
         adjacency = karate_club()
         louvain_d = Louvain(modularity='dugue')

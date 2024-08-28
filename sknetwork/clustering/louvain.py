@@ -14,8 +14,8 @@ from scipy import sparse
 from sknetwork.clustering.base import BaseClustering
 from sknetwork.clustering.louvain_core import optimize_core
 from sknetwork.clustering.postprocess import reindex_labels
-from sknetwork.utils.check import check_random_state, get_probs
-from sknetwork.utils.format import check_format, get_adjacency, directed2undirected
+from sknetwork.utils.check import check_format, check_random_state, get_probs
+from sknetwork.utils.format import get_adjacency, directed2undirected
 from sknetwork.utils.membership import get_membership
 from sknetwork.log import Log
 
@@ -193,7 +193,6 @@ class Louvain(BaseClustering, Log):
         self._init_vars()
 
         # adjacency matrix
-        input_matrix = check_format(input_matrix)
         force_directed = self.modularity == 'dugue'
         adjacency, self.bipartite = get_adjacency(input_matrix, force_directed=force_directed,
                                                   force_bipartite=force_bipartite)
@@ -266,6 +265,7 @@ class Louvain(BaseClustering, Log):
         -------
         self : :class:`Louvain`
         """
+        input_matrix = check_format(input_matrix)
         adjacency, out_weights, in_weights, membership, index = self._pre_processing(input_matrix, force_bipartite)
         n = adjacency.shape[0]
         count = 0
