@@ -38,7 +38,7 @@ class SparseLR(LinearOperator):
     array([3., 3.])
     >>> slr.sum(axis=1)
     array([3., 3.])
-    >>> slr.sum()
+    >>> float(slr.sum())
     6.0
 
     References

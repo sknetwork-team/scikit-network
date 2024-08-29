@@ -64,7 +64,7 @@ def get_modularity(input_matrix: Union[sparse.csr_matrix, np.ndarray], labels: n
     >>> from sknetwork.data import house
     >>> adjacency = house()
     >>> labels = np.array([0, 0, 1, 1, 0])
-    >>> np.round(get_modularity(adjacency, labels), 2)
+    >>> float(np.round(get_modularity(adjacency, labels), 2))
     0.11
     """
     adjacency, bipartite = get_adjacency(input_matrix.astype(float))
