@@ -79,7 +79,7 @@ def get_cycles(adjacency: sparse.csr_matrix, directed: Optional[bool] = None) ->
     >>> from sknetwork.data import cyclic_digraph
     >>> graph = cyclic_digraph(4, metadata=True)
     >>> get_cycles(graph.adjacency, directed=True)
-    [[0, 1, 2, 3]]
+    [[np.int64(0), np.int64(1), np.int64(2), np.int64(3)]]
     """
 
     if directed is False:

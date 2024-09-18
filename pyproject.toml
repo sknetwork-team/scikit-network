@@ -1,0 +1,45 @@
+[build-system]
+requires = [
+    "numpy",
+    "setuptools",
+    "scipy",
+    "pytest-runner",
+    "cython"
+]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "scikit-network"
+version = "0.33.1"
+dependencies = ['numpy>=1.22.4', 'scipy>=1.7.3']
+authors = [{name = "Scikit-network team"}]
+maintainers = [{name = "Thomas Bonald", email = "bonald@enst.fr"}]
+description = "Graph algorithms"
+readme = "README.rst"
+license = {text = "BSD License"}
+keywords = ["sknetwork"]
+classifiers=[
+    'Development Status :: 3 - Alpha',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Information Technology',
+    'Intended Audience :: Education',
+    'Intended Audience :: Science/Research',
+    'License :: OSI Approved :: BSD License',
+    'Natural Language :: English',
+    'Programming Language :: Cython',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12'
+]
+requires-python = ">= 3.9"
+
+[project.optional-dependencies]
+test = ["pytest", "note", "pluggy>=0.7.1"]
+
+[project.urls]
+Repository = "https://github.com/sknetwork-team/scikit-network"
+Documentation = "https://scikit-network.readthedocs.io/"
+Changelog = "https://github.com/sknetwork-team/scikit-network/blob/master/HISTORY.rst"
+

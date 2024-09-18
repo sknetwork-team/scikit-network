@@ -55,7 +55,7 @@ class DiffusionClassifier(BaseClassifier):
     >>> labels_true = graph.labels
     >>> labels = {0: labels_true[0], 33: labels_true[33]}
     >>> labels_pred = diffusion.fit_predict(adjacency, labels)
-    >>> round(np.mean(labels_pred == labels_true), 2)
+    >>> float(round(np.mean(labels_pred == labels_true), 2))
     0.97
 
     References

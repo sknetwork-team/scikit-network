@@ -2,24 +2,14 @@
 # -*- coding: utf-8 -*-
 """Setup script."""
 
+import numpy
 
 from setuptools import find_packages, setup, Extension
 from sysconfig import get_platform
 from distutils.command.build_ext import build_ext
 import os
+import builtins
 from glob import glob
-
-import numpy
-
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
-
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
-
-requirements = ['numpy>=1.22.4', 'scipy>=1.7.3']
-
-setup_requirements = ['pytest-runner']
 
 test_requirements = ['pytest', 'nose', 'pluggy>=0.7.1']
 
@@ -55,7 +45,6 @@ if platform.startswith("win"):
     EXTRA_COMPILE_ARGS = ['/d2FH4-']
     EXTRA_LINK_ARGS = []
 
-
 class BuildExtSubclass(build_ext):
     def build_options(self):
         for e in self.extensions:
@@ -74,8 +63,7 @@ class BuildExtSubclass(build_ext):
     def finalize_options(self):
         build_ext.finalize_options(self)
         # Prevent numpy from thinking it is still in its setup process:
-        __builtins__.__NUMPY_SETUP__ = False
-        import numpy
+        builtins.__NUMPY_SETUP__ = False
         self.include_dirs.append(numpy.get_include())
 
 
@@ -124,36 +112,9 @@ else:
 
 
 setup(
-    author="Scikit-network team",
-    author_email='bonald@enst.fr',
-    classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Information Technology',
-        'Intended Audience :: Education',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: BSD License',
-        'Natural Language :: English',
-        'Programming Language :: Cython',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'Programming Language :: Python :: 3.11',
-        'Programming Language :: Python :: 3.12'
-    ],
-    description="Graph algorithms",
-    install_requires=requirements,
-    license="BSD license",
-    long_description=readme + '\n\n' + history,
-    long_description_content_type='text/x-rst',
-    include_package_data=True,
-    keywords='sknetwork',
-    name='scikit-network',
     packages=find_packages(),
-    setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/sknetwork-team/scikit-network',
-    version='0.33.0',
     zip_safe=False,
     ext_modules=ext_modules,
     include_dirs=[numpy.get_include()],

@@ -100,7 +100,7 @@ def dasgupta_cost(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights:
     >>> adjacency = house()
     >>> dendrogram = paris.fit_transform(adjacency)
     >>> cost = dasgupta_cost(adjacency, dendrogram)
-    >>> np.round(cost, 2)
+    >>> float(np.round(cost, 2))
     3.33
 
     References
@@ -154,7 +154,7 @@ def dasgupta_score(adjacency: sparse.csr_matrix, dendrogram: np.ndarray, weights
     >>> adjacency = house()
     >>> dendrogram = paris.fit_transform(adjacency)
     >>> score = dasgupta_score(adjacency, dendrogram)
-    >>> np.round(score, 2)
+    >>> float(np.round(score, 2))
     0.33
 
     References
@@ -194,7 +194,7 @@ def tree_sampling_divergence(adjacency: sparse.csr_matrix, dendrogram: np.ndarra
     >>> adjacency = house()
     >>> dendrogram = paris.fit_transform(adjacency)
     >>> score = tree_sampling_divergence(adjacency, dendrogram)
-    >>> np.round(score, 2)
+    >>> float(np.round(score, 2))
     0.05
 
     References
