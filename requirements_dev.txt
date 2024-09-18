@@ -18,7 +18,7 @@ wheel>=0.42.0
 twine>=3.7.1
 
 # main doc tool
-Sphinx>=4.3.2
+Sphinx>=7.2.6
 
 # base theme for the documentation website
 sphinx-rtd-theme>=1.0.0
@@ -27,7 +27,7 @@ sphinx-rtd-theme>=1.0.0
 Pygments>=2.15.0
 
 # used to produce doc from Jupyter notebooks (aka. tutorials)
-nbsphinx>=0.8.8
+nbsphinx>=0.9.3
 
 # used to run Jupyter notebooks (necessary for nbsphinx)
 ipython>=8.10.0
