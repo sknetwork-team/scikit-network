@@ -6,7 +6,7 @@ on:
   push:
     tags:
       - "v*"
-  
+
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
@@ -54,7 +54,7 @@ jobs:
 
         - uses: actions/upload-artifact@v4
           with:
-            path: dist/*.tar.gz
+            path: dist/
 
   upload_pypi:
       needs: [ build_wheels, build_sdist ]
@@ -63,13 +63,10 @@ jobs:
         name: pypi
         url: https://pypi.org/p/scikit-network
       permissions:
-        id-token: write 
+        id-token: write
 
       steps:
           - uses: actions/download-artifact@v4
             with:
-              pattern: dist-*
-              merge-multiple: true
-              path: dist
-
+              path: dist/
           - uses: pypa/gh-action-pypi-publish@release/v1
