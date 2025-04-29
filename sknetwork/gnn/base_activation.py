@@ -9,6 +9,7 @@ import numpy as np
 
 class BaseActivation:
     """Base class for activation functions.
+
     Parameters
     ----------
     name : str
