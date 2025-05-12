@@ -166,7 +166,7 @@ def get_node_colors(n: int, labels: Optional[Iterable], scores: Optional[Iterabl
     elif scores is not None:
         colors_score = COOLWARM_RGB.copy()
         n_colors = colors_score.shape[0]
-        colors_score_svg = np.array(['rgb' + str(tuple(colors_score[i])) for i in range(n_colors)])
+        colors_score_svg = np.array(['rgb' + str(tuple([int(c) for c in colors_score[i]])) for i in range(n_colors)])
         if isinstance(scores, dict):
             keys = np.array(list(scores.keys()))
             values = np.array(list(scores.values()))
