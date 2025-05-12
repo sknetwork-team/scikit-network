@@ -5,6 +5,7 @@ History
 0.33.2 (2025-05-12)
 -------------------
 
+* Add Python 3.13
 * Add wheel for aarch64
 * Fix bug on color display
 
