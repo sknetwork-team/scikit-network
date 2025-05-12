@@ -1,6 +1,9 @@
 # standard Python package manager
 pip>=22.0.4
 
+# build
+build>=1.2.2
+
 # base dependencies
 numpy>=1.26.4
 scipy>=1.7.3

@@ -4,7 +4,7 @@ requires = [
     "setuptools",
     "scipy",
     "pytest-runner",
-    "cython"
+    "cython <= 3.0.12",
 ]
 build-backend = "setuptools.build_meta"
 
