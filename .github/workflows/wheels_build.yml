@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.5
+        uses: pypa/cibuildwheel@v2.23.3
         env:
           CIBW_PLATFORM: auto
           CIBW_ARCHS: auto64
@@ -51,4 +51,4 @@ jobs:
 
           -   uses: actions/upload-artifact@v4
               with:
-                  path: dist/
+                  path: dist/*.tar.gz
