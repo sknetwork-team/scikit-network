@@ -11,7 +11,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "scikit-network"
-version = "0.33.1"
+version = "0.33.2"
 dependencies = ['numpy>=1.22.4', 'scipy>=1.7.3']
 authors = [{name = "Scikit-network team"}]
 maintainers = [{name = "Thomas Bonald", email = "bonald@enst.fr"}]
