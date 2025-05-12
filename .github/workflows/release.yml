@@ -33,7 +33,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           path: wheelhouse
-          name: dist
+          name: dist-{{matrix.os}}
 
   build_sdist:
       name: Build source distribution
