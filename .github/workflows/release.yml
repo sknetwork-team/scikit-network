@@ -33,7 +33,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           path: wheelhouse
-          name: dist-${{ matrix.os }}-${{ matrix.python-version }}
+          name: dist
 
   build_sdist:
       name: Build source distribution
@@ -69,4 +69,5 @@ jobs:
           - uses: actions/download-artifact@v4
             with:
               path: dist/
+              merge-multiple: true
           - uses: pypa/gh-action-pypi-publish@release/v1
