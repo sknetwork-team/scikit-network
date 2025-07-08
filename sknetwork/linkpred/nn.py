@@ -33,7 +33,7 @@ class NNLinker(BaseLinker):
 
     Attributes
     ----------
-    links_ : sparse.csr_matrix
+    links\_ : sparse.csr_matrix
         Link matrix.
 
     Example

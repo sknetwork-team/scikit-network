@@ -19,15 +19,11 @@ class BaseClustering(Algorithm, ABC):
 
     Attributes
     ----------
-    labels_ : np.ndarray, shape (n_labels,)
+    labels\_ : np.ndarray, shape (n_nodes,)
         Label of each node.
-    probs_ : sparse.csr_matrix, shape (n_row, n_labels)
+    probs\_ : sparse.csr_matrix, shape (n_nodes, n_labels)
         Probability distribution over labels.
-    labels_row_, labels_col_ : np.ndarray
-        Labels of rows and columns, for bipartite graphs.
-    probs_row_, probs_col_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Probability distributions over labels for rows and columns (for bipartite graphs).
-    aggregate_ : sparse.csr_matrix
+    aggregate\_ : sparse.csr_matrix
         Aggregate adjacency matrix or biadjacency matrix between clusters.
     """
     def __init__(self, sort_clusters: bool = True, return_probs: bool = False, return_aggregate: bool = False):

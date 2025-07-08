@@ -34,10 +34,6 @@ class Katz(BaseRanking):
     ----------
     scores_ : np.ndarray
         Score of each node.
-    scores_row_: np.ndarray
-        Scores of rows, for bipartite graphs.
-    scores_col_: np.ndarray
-        Scores of columns, for bipartite graphs.
 
     Examples
     --------

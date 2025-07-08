@@ -46,12 +46,8 @@ class RandomProjection(BaseEmbedding, ABC):
 
     Attributes
     ----------
-    embedding_ : array, shape = (n, n_components)
+    embedding\_ : array, shape = (n_nodes, n_components)
         Embedding of the nodes.
-    embedding_row_ : array, shape = (n_row, n_components)
-        Embedding of the rows, for bipartite graphs.
-    embedding_col_ : array, shape = (n_col, n_components)
-        Embedding of the columns, for bipartite graphs.
 
     Example
     -------

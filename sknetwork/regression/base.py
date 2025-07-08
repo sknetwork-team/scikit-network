@@ -16,12 +16,8 @@ class BaseRegressor(Algorithm, ABC):
 
     Attributes
     ----------
-    values_ : np.ndarray
+    values\_ : np.ndarray
         Value of each node.
-    values_row_: np.ndarray
-        Values of rows, for bipartite graphs.
-    values_col_: np.ndarray
-        Values of columns, for bipartite graphs.
     """
     def __init__(self):
         self.values_ = None

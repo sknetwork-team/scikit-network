@@ -28,10 +28,6 @@ class HITS(BaseRanking):
     ----------
     scores_ : np.ndarray
         Hub score of each node.
-    scores_row_ : np.ndarray
-        Hub score of each row, for bipartite graphs.
-    scores_col_ : np.ndarray
-        Authority score of each column, for bipartite graphs.
 
     Example
     -------

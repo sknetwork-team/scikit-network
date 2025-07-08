@@ -36,14 +36,12 @@ class KCenters(BaseClustering):
 
     Attributes
     ----------
-    labels_ : np.ndarray, shape (n_nodes,)
+    labels\_ : np.ndarray, shape (n_nodes,)
         Label of each node.
-    labels_row_, labels_col_ : np.ndarray
-        Labels of rows and columns, for bipartite graphs.
-    centers_ : np.ndarray, shape (n_nodes,)
-        Cluster centers.
-    centers_row_, centers_col_ : np.ndarray
-        Cluster centers of rows and columns, for bipartite graphs.
+    probs\_ : sparse.csr_matrix, shape (n_nodes, n_labels)
+        Probability distribution over labels.
+    aggregate\_ : sparse.csr_matrix
+        Aggregate adjacency matrix or biadjacency matrix between clusters.
 
     Example
     -------
