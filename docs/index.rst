@@ -5,7 +5,7 @@ Welcome to scikit-network's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Getting started
+   :caption: Introduction
 
    first_steps
 
@@ -48,7 +48,7 @@ Welcome to scikit-network's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Examples
+   :caption: Use cases
 
    use_cases/text
    use_cases/wikipedia

@@ -42,11 +42,11 @@ Import scikit-network in Python:
 
     import sknetwork as skn
 
-Usage
------
+Get started
+-----------
 
-A graph is represented by its :term:`adjacency` matrix (square matrix). When the graph is bipartite,
-it can be represented by its :term:`biadjacency` matrix (rectangular matrix). Check our :ref:`tutorial<DataTag>` for various ways of loading a graph
+A graph is represented by its :term:`adjacency` matrix. When the graph is bipartite,
+it can be represented by its :term:`biadjacency` matrix (most often, a rectangular matrix). Check our :ref:`tutorial<DataTag>` for various ways of loading a graph
 (from a list of edges, a dataframe or a CSV file, for instance).
 
 Each algorithm is represented as an object with a ``fit`` method.
@@ -64,8 +64,9 @@ Here is an example to cluster the `Karate club graph`_ with the `Louvain algorit
 
 
 If the graph is bipartite, the algorithm applies to
-nodes corresponding to the rows of the biadjacency matrix; specific outputs for nodes corresponding to
+nodes corresponding to the rows of the :term:`biadjacency` matrix; specific outputs for nodes corresponding to
 rows and columns of the biadjacency matrix can be obtained with the respective suffixes `_row_` and `_col_`.
+
 More details are provided in this :ref:`tutorial<OverviewTag>`.
 
 .. _Karate club graph: https://en.wikipedia.org/wiki/Zachary%27s_karate_club
