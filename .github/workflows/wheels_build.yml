@@ -20,12 +20,14 @@ jobs:
         env:
           CIBW_PLATFORM: auto
           CIBW_ARCHS: auto64
-          CIBW_SKIP: cp*-musllinux*
+          CIBW_SKIP: cp*-musllinux* *-win32
           CIBW_ARCHS_MACOS: x86_64 arm64
           CIBW_BUILD_VERBOSITY: 3
           CIBW_BEFORE_BUILD: "pip install -r requirements_dev.txt && pip install ."
           CIBW_BEFORE_BUILD_MACOS: "pip install -r requirements_dev.txt && pip install ."
           CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-*
+          CIBW_TEST_REQUIRES: pytest numpy scipy
+          CIBW_TEST_COMMAND: pytest -q
 
       - uses: actions/upload-artifact@v4
         with:
