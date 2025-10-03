@@ -27,7 +27,8 @@ jobs:
           CIBW_BEFORE_BUILD_MACOS: "pip install -r requirements_dev.txt && pip install ."
           CIBW_BUILD: cp39-* cp310-* cp311-* cp312-* cp313-*
           CIBW_TEST_REQUIRES: pytest numpy scipy
-          CIBW_TEST_COMMAND: pytest -q
+          CIBW_TEST_COMMAND: python -m pytest -q {project}/sknetwork
+          CIBW_TEST_COMMAND_MACOS: python -m pytest -q {project}/sknetwork
 
       - uses: actions/upload-artifact@v4
         with:
