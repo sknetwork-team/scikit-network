@@ -5,7 +5,7 @@ cimport cython
 
 ctypedef fused int_or_long:
     int
-    long
+    long long
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
