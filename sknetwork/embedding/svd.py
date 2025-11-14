@@ -48,19 +48,19 @@ class GSVD(BaseEmbedding):
 
     Attributes
     ----------
-    embedding_ : array, shape = (n, n_components)
+    embedding\_ : array, shape = (n, n_components)
         Embedding of the nodes.
-    embedding_row_ : array, shape = (n_row, n_components)
+    embedding_row\_ : array, shape = (n_row, n_components)
         Embedding of the rows, for bipartite graphs.
-    embedding_col_ : array, shape = (n_col, n_components)
+    embedding_col\_ : array, shape = (n_col, n_components)
         Embedding of the columns, for bipartite graphs.
-    singular_values_ : np.ndarray, shape = (n_components)
+    singular_values\_ : np.ndarray, shape = (n_components)
         Singular values.
-    singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
+    singular_vectors_left\_ : np.ndarray, shape = (n_row, n_components)
         Left singular vectors.
-    singular_vectors_right_ : np.ndarray, shape = (n_col, n_components)
+    singular_vectors_right\_ : np.ndarray, shape = (n_col, n_components)
         Right singular vectors.
-    weights_col_ : np.ndarray, shape = (n2)
+    weights_col\_ : np.ndarray, shape = (n2)
         Weights applied to columns.
 
     Example
@@ -241,17 +241,13 @@ class SVD(GSVD):
 
     Attributes
     ----------
-    embedding_ : array, shape = (n, n_components)
+    embedding\_ : np.ndarray, shape = (n_nodes, n_components)
         Embedding of the nodes.
-    embedding_row_ : array, shape = (n_row, n_components)
-        Embedding of the rows, for bipartite graphs.
-    embedding_col_ : array, shape = (n_col, n_components)
-        Embedding of the columns, for bipartite graphs.
-    singular_values_ : np.ndarray, shape = (n_components)
+    singular_values\_ : np.ndarray, shape = (n_components)
         Singular values.
-    singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
+    singular_vectors_left\_ : np.ndarray, shape = (n_row, n_components)
         Left singular vectors.
-    singular_vectors_right_ : np.ndarray, shape = (n_col, n_components)
+    singular_vectors_right\_ : np.ndarray, shape = (n_col, n_components)
         Right singular vectors.
 
     Example
@@ -293,17 +289,13 @@ class PCA(SVD):
 
     Attributes
     ----------
-    embedding_ : array, shape = (n, n_components)
+    embedding\_ : array, shape = (n_nodes, n_components)
         Embedding of the nodes.
-    embedding_row_ : array, shape = (n_row, n_components)
-        Embedding of the rows, for bipartite graphs.
-    embedding_col_ : array, shape = (n_col, n_components)
-        Embedding of the columns, for bipartite graphs.
-    singular_values_ : np.ndarray, shape = (n_components)
+    singular_values\_ : np.ndarray, shape = (n_components)
         Singular values.
-    singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
+    singular_vectors_left\_ : np.ndarray, shape = (n_row, n_components)
         Left singular vectors.
-    singular_vectors_right_ : np.ndarray, shape = (n_col, n_components)
+    singular_vectors_right\_ : np.ndarray, shape = (n_col, n_components)
         Right singular vectors.
 
     Example

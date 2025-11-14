@@ -43,9 +43,9 @@ class TestOperators(unittest.TestCase):
             self.assertAlmostEqual(np.linalg.norm(normalizer.dot(np.ones(n_col)) - non_zeros), 0)
             # single row
             normalizer = Normalizer(adjacency[1])
-            self.assertAlmostEqual(float(normalizer.dot(np.ones(n_col))), 1)
+            self.assertAlmostEqual(float(normalizer.dot(np.ones(n_col))[0]), 1)
             normalizer = Normalizer(adjacency[2].toarray().ravel())
-            self.assertAlmostEqual(float(normalizer.dot(np.ones(n_col))), 1)
+            self.assertAlmostEqual(float(normalizer.dot(np.ones(n_col))[0]), 1)
             # regularization
             normalizer = Normalizer(adjacency, 1)
             self.assertAlmostEqual(np.linalg.norm(normalizer.dot(np.ones(n_col)) - np.ones(n_row)), 0)

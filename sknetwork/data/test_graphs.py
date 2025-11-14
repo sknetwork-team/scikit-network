@@ -9,11 +9,13 @@ Created on Nov 29, 2018
 
 import numpy as np
 from scipy import sparse
+import pytest
 
 from sknetwork.utils import directed2undirected
 
 
-def test_digraph():
+@pytest.mark.skip
+def test_digraph() -> sparse.csr_matrix:
     """Simple directed graph, used for testing.
     10 nodes, 12 edges
     """
@@ -23,14 +25,16 @@ def test_digraph():
     return sparse.csr_matrix((data, (row, col)), shape=(10, 10))
 
 
-def test_graph():
+@pytest.mark.skip
+def test_graph() -> sparse.csr_matrix:
     """Simple undirected graph, used for testing.
     10 nodes, 12 edges.
     """
     return directed2undirected(test_digraph(), weighted=True)
 
 
-def test_bigraph():
+@pytest.mark.skip
+def test_bigraph() -> sparse.csr_matrix:
     """Simple bipartite graph, used for testing.
     6 + 8 nodes, 9 edges.
     """
@@ -40,7 +44,8 @@ def test_bigraph():
     return sparse.csr_matrix((data, (row, col)), shape=(6, 8))
 
 
-def test_disconnected_graph():
+@pytest.mark.skip
+def test_disconnected_graph() -> sparse.csr_matrix:
     """Simple disconnected undirected graph, used for testing.
     10 nodes, 10 edges.
     """
@@ -51,7 +56,8 @@ def test_disconnected_graph():
     return directed2undirected(adjacency)
 
 
-def test_bigraph_disconnect():
+@pytest.mark.skip
+def test_bigraph_disconnect() -> sparse.csr_matrix:
     """Simple disconnected bipartite graph, used for testing.
     6 + 8 nodes, 9 edges.
     """
@@ -61,14 +67,16 @@ def test_bigraph_disconnect():
     return sparse.csr_matrix((data, (row, col)), shape=(6, 8))
 
 
-def test_graph_bool():
+@pytest.mark.skip
+def test_graph_bool() -> sparse.csr_matrix:
     """Simple undirected graph with boolean entries, used for testing (10 nodes, 10 edges)."""
     adjacency = test_graph()
     adjacency.data = adjacency.data.astype(bool)
     return adjacency
 
 
-def test_clique():
+@pytest.mark.skip
+def test_clique() -> sparse.csr_matrix:
     """Clique graph, used for testing (10 nodes, 45 edges).
     """
     n = 10
@@ -78,7 +86,8 @@ def test_clique():
     return adjacency
 
 
-def test_graph_empty():
+@pytest.mark.skip
+def test_graph_empty() -> sparse.csr_matrix:
     """Empty graph, used for testing (10 nodes, 0 edges).
     """
     return sparse.csr_matrix((10, 10), dtype=bool)

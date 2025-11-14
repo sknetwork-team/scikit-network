@@ -32,18 +32,10 @@ class NNClassifier(BaseClassifier):
 
     Attributes
     ----------
-    labels_ : np.ndarray, shape (n_labels,)
+    labels\_ : np.ndarray, shape (n_nodes,)
         Labels of nodes.
-    probs_ : sparse.csr_matrix, shape (n_row, n_labels)
+    probs\_ : sparse.csr_matrix, shape (n_nodes, n_labels)
         Probability distribution over labels.
-    labels_row_ : np.ndarray
-        Labels of rows, for bipartite graphs.
-    labels_col_ : np.ndarray
-        Labels of columns, for bipartite graphs.
-    probs_row_ : sparse.csr_matrix, shape (n_row, n_labels)
-        Probability distributions over labels of rows, for bipartite graphs.
-    probs_col_ : sparse.csr_matrix, shape (n_col, n_labels)
-        Probability distributions over labels of columns, for bipartite graphs.
 
     Example
     -------

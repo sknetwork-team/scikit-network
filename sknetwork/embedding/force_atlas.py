@@ -44,8 +44,8 @@ class ForceAtlas(BaseEmbedding):
 
     Attributes
     ----------
-    embedding_ : np.ndarray
-        Layout in given dimension.
+    embedding\_ : np.ndarray, shape = (n_nodes, n_components)
+        Embedding of the nodes.
 
     Example
     -------

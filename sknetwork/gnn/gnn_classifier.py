@@ -72,13 +72,13 @@ class GNNClassifier(BaseGNN):
 
     Attributes
     ----------
-    conv2, ..., conv1: :class:'GCNConv'
+    layers : list
         Graph convolutional layers.
-    output_ : np.ndarray
+    output\_ : np.ndarray
         Output of the GNN.
-    labels_: np.ndarray
+    labels\_: np.ndarray
         Predicted node labels.
-    history_: dict
+    history\_: dict
         Training history per epoch: {``'embedding'``, ``'loss'``, ``'train_accuracy'``, ``'val_accuracy'``}.
 
     Example

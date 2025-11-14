@@ -39,15 +39,11 @@ class Spectral(BaseEmbedding):
         each vector lies on the unit sphere.
     Attributes
     ----------
-    embedding_ : array, shape = (n, n_components)
+    embedding\_ : np.ndarray, shape = (n_nodes, n_components)
         Embedding of the nodes.
-    embedding_row_ : array, shape = (n_row, n_components)
-        Embedding of the rows, for bipartite graphs.
-    embedding_col_ : array, shape = (n_col, n_components)
-        Embedding of the columns, for bipartite graphs.
-    eigenvalues_ : array, shape = (n_components)
+    eigenvalues\_ : np.ndarray, shape = (n_components)
         Eigenvalues.
-    eigenvectors_ : array, shape = (n, n_components)
+    eigenvectors\_ : np.ndarray, shape = (n_nodes, n_components)
         Eigenvectors.
 
     Example

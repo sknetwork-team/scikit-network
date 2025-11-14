@@ -39,8 +39,8 @@ class Spring(BaseEmbedding):
 
     Attributes
     ----------
-    embedding_ : np.ndarray
-        Layout.
+    embedding\_ : np.ndarray, shape = (n_nodes, n_components)
+        Embedding of the nodes.
 
     Example
     -------

@@ -389,7 +389,7 @@ def scan_header(file_path: str, delimiters: str = None, comments: str = '#%', n_
     stds = [np.std(count[delimiter]) for delimiter in delimiters]
     index = np.argwhere((np.array(means) > 0) * (np.array(stds) == 0)).ravel()
     if len(index) == 1:
-        delimiter_guess = delimiters[int(index)]
+        delimiter_guess = delimiters[int(index[0])]
     else:
         delimiter_guess = delimiters[int(np.argmax(means))]
     length = {len(row.split(delimiter_guess)) for row in rows}

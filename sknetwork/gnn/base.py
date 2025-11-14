@@ -38,11 +38,11 @@ class BaseGNN(ABC, Algorithm, Log):
 
     Attributes
     ----------
-    layers: list
+    layers : list
         List of layers.
-    labels_: np.ndarray
+    labels\_ : np.ndarray
         Predicted labels.
-    history_: dict
+    history\_ : dict
         Training history per epoch: {'embedding', 'loss', 'train_accuracy', 'test_accuracy'}.
     """
     def __init__(self, loss: Union[BaseLoss, str] = 'CrossEntropy', optimizer: Union[BaseOptimizer, str] = 'Adam',

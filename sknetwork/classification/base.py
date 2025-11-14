@@ -19,14 +19,10 @@ class BaseClassifier(Algorithm, ABC):
     ----------
     bipartite : bool
         If ``True``, the fitted graph is bipartite.
-    labels_ : np.ndarray, shape (n_labels,)
+    labels\_ : np.ndarray, shape (n_nodes,)
         Labels of nodes.
-    probs_ : sparse.csr_matrix, shape (n_row, n_labels)
+    probs\_ : sparse.csr_matrix, shape (n_nodes, n_labels)
         Probability distribution over labels (soft classification).
-    labels_row_ , labels_col_ : np.ndarray
-        Labels of rows and columns (for bipartite graphs).
-    probs_row_, probs_col_ : sparse.csr_matrix, shapes (n_row, n_labels) and (n_col, n_labels)
-        Probability distributions over labels for rows and columns (for bipartite graphs).
     """
 
     def __init__(self):

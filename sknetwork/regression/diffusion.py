@@ -48,12 +48,9 @@ class Diffusion(BaseRegressor):
 
     Attributes
     ----------
-    values_ : np.ndarray
+    values\_ : np.ndarray
         Value of each node (= temperature).
-    values_row_: np.ndarray
-        Values of rows, for bipartite graphs.
-    values_col_: np.ndarray
-        Values of columns, for bipartite graphs.
+
     Example
     -------
     >>> from sknetwork.data import house
@@ -137,12 +134,9 @@ class Dirichlet(BaseRegressor):
 
     Attributes
     ----------
-    values_ : np.ndarray
+    values\_ : np.ndarray
         Value of each node (= temperature).
-    values_row_: np.ndarray
-        Values of rows, for bipartite graphs.
-    values_col_: np.ndarray
-        Values of columns, for bipartite graphs.
+
     Example
     -------
     >>> from sknetwork.regression import Dirichlet
