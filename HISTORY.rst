@@ -2,10 +2,11 @@
 History
 =======
 
-0.33.4 (2025-09-26)
+0.33.4 (2025-11-14)
 -------------------
 
-* Fix Windows wheel build
+* Fix Windows wheel build #589
+* Fix MacOS wheel build #591
 
 0.33.3 (2025-05-15)
 -------------------
