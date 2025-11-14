@@ -65,7 +65,7 @@ class NNLinker(BaseLinker):
         else:
             index_col = np.arange(n)
             n_col = n
-        n_neighbors = check_n_neighbors(self.n_neighbors, len(index_col))
+        n_neighbors = check_n_neighbors(self.n_neighbors, n_col)
 
         row = []
         col = []
