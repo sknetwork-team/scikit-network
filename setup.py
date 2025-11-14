@@ -36,9 +36,6 @@ if platform.startswith("macosx"):
     if int(version[0]) > 10 or (int(version[0]) == 10 and int(version[1]) >= 7):
         COMPILE_OPTIONS["other"].append("-stdlib=libc++")
         LINK_OPTIONS["other"].append("-lc++")
-        # g++ (used by unix compiler on MacOSX) links to libstdc++ as a default lib.
-        # See: https://stackoverflow.com/questions/1653047/avoid-linking-to-libstdc
-        LINK_OPTIONS["other"].append("-nodefaultlibs")
 
 # Windows does not (yet) support OpenMP
 if platform.startswith("win"):
