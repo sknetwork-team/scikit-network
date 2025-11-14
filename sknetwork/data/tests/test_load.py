@@ -8,7 +8,7 @@ import warnings
 
 import numpy as np
 
-from sknetwork.data.load import load_netset, load_konect, clear_data_home, save, load
+from sknetwork.data.load import load_netset, clear_data_home, save, load
 from sknetwork.data.toy_graphs import house, star_wars
 from sknetwork.data.timeout import TimeOut
 
@@ -40,40 +40,6 @@ class TestLoader(unittest.TestCase):
                           RuntimeWarning)
             return
         load_netset()
-
-    def test_konect(self):
-        try:
-            with TimeOut(2):
-                data = load_konect('moreno_crime', self.data_home)
-        except (TimeoutError, RuntimeError):  # pragma: no cover
-            warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
-            return
-        self.assertEqual(data.biadjacency.shape[0], 829)
-        self.assertEqual(data.name.shape[0], 829)
-
-        # load from bundle
-        data = load_konect('moreno_crime', self.data_home)
-        self.assertEqual(data.biadjacency.shape[0], 829)
-
-        try:
-            with TimeOut(2):
-                data = load_konect('ego-facebook', self.data_home)
-        except (TimeoutError, RuntimeError):  # pragma: no cover
-            warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
-            return
-        self.assertEqual(data.adjacency.shape[0], 2888)
-        clear_data_home(self.data_home)
-
-    def test_invalid_konect(self):
-        try:
-            with TimeOut(4):
-                with self.assertRaises(ValueError):
-                    load_konect('junk', self.data_home)
-                with self.assertRaises(ValueError):
-                    load_konect('', self.data_home)
-        except (TimeoutError, RuntimeError):  # pragma: no cover
-            warnings.warn('Could not reach Konect. Corresponding test has not been performed.', RuntimeWarning)
-            return
 
     def test_save_load(self):
         data = house()
