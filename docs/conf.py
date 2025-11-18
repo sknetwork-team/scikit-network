@@ -189,7 +189,6 @@ collapse_navigation = True
 
 
 def setup(app):
-    """???"""
     app.add_css_file('css/custom.css')
 
 
