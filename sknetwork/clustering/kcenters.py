@@ -17,7 +17,7 @@ from sknetwork.utils.format import get_adjacency, directed2undirected
 
 
 class KCenters(BaseClustering):
-    """K-center clustering algorithm. The center of each cluster is obtained by the PageRank algorithm.
+    r"""K-center clustering algorithm. The center of each cluster is obtained by the PageRank algorithm.
 
     Parameters
     ----------
@@ -36,11 +36,11 @@ class KCenters(BaseClustering):
 
     Attributes
     ----------
-    labels\_ : np.ndarray, shape (n_nodes,)
+    labels_ : np.ndarray, shape (n_nodes,)
         Label of each node.
-    probs\_ : sparse.csr_matrix, shape (n_nodes, n_labels)
+    probs_ : sparse.csr_matrix, shape (n_nodes, n_labels)
         Probability distribution over labels.
-    aggregate\_ : sparse.csr_matrix
+    aggregate_ : sparse.csr_matrix
         Aggregate adjacency matrix or biadjacency matrix between clusters.
 
     Example

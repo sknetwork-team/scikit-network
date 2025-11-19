@@ -15,15 +15,15 @@ from sknetwork.utils.membership import get_membership
 
 
 class BaseClustering(Algorithm, ABC):
-    """Base class for clustering algorithms.
+    r"""Base class for clustering algorithms.
 
     Attributes
     ----------
-    labels\_ : np.ndarray, shape (n_nodes,)
+    labels_ : np.ndarray, shape (n_nodes,)
         Label of each node.
-    probs\_ : sparse.csr_matrix, shape (n_nodes, n_labels)
+    probs_ : sparse.csr_matrix, shape (n_nodes, n_labels)
         Probability distribution over labels.
-    aggregate\_ : sparse.csr_matrix
+    aggregate_ : sparse.csr_matrix
         Aggregate adjacency matrix or biadjacency matrix between clusters.
     """
     def __init__(self, sort_clusters: bool = True, return_probs: bool = False, return_aggregate: bool = False):

@@ -19,7 +19,7 @@ from sknetwork.utils.format import get_adjacency_values
 
 
 class RankClassifier(BaseClassifier):
-    """Generic class for ranking based classifiers.
+    r"""Generic class for ranking based classifiers.
 
     Parameters
     ----------
@@ -31,9 +31,9 @@ class RankClassifier(BaseClassifier):
 
     Attributes
     ----------
-    labels\_ : np.ndarray, shape (n_nodes,)
+    labels_ : np.ndarray, shape (n_nodes,)
         Label of each node.
-    probs\_ : sparse.csr_matrix, shape (n_nodes, n_labels)
+    probs_ : sparse.csr_matrix, shape (n_nodes, n_labels)
         Probability distribution over labels.
     """
     def __init__(self, algorithm: BaseRanking, n_jobs: Optional[int] = None, verbose: bool = False):
