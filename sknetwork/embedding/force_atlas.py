@@ -17,7 +17,7 @@ from sknetwork.utils.format import directed2undirected
 
 
 class ForceAtlas(BaseEmbedding):
-    """Force Atlas layout for displaying graphs.
+    r"""Force Atlas layout for displaying graphs.
 
     Parameters
     ----------
@@ -44,7 +44,7 @@ class ForceAtlas(BaseEmbedding):
 
     Attributes
     ----------
-    embedding\_ : np.ndarray, shape = (n_nodes, n_components)
+    embedding_ : np.ndarray, shape = (n_nodes, n_components)
         Embedding of the nodes.
 
     Example

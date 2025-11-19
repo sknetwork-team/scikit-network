@@ -20,7 +20,7 @@ from sknetwork.log import Log
 
 
 class BaseGNN(ABC, Algorithm, Log):
-    """Base class for GNNs.
+    r"""Base class for GNNs.
 
     Parameters
     ----------
@@ -40,9 +40,9 @@ class BaseGNN(ABC, Algorithm, Log):
     ----------
     layers : list
         List of layers.
-    labels\_ : np.ndarray
+    labels_ : np.ndarray
         Predicted labels.
-    history\_ : dict
+    history_ : dict
         Training history per epoch: {'embedding', 'loss', 'train_accuracy', 'test_accuracy'}.
     """
     def __init__(self, loss: Union[BaseLoss, str] = 'CrossEntropy', optimizer: Union[BaseOptimizer, str] = 'Adam',

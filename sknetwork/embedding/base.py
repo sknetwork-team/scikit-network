@@ -15,11 +15,11 @@ from sknetwork.base import Algorithm
 
 
 class BaseEmbedding(Algorithm, ABC):
-    """Base class for embedding algorithms.
+    r"""Base class for embedding algorithms.
 
     Attributes
     ----------
-    embedding\_ : np.ndarray, shape = (n_nodes, n_components)
+    embedding_ : np.ndarray, shape = (n_nodes, n_components)
         Embedding of the nodes.
     """
     def __init__(self):

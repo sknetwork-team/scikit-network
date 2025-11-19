@@ -12,11 +12,11 @@ from sknetwork.base import Algorithm
 
 
 class BaseRanking(Algorithm, ABC):
-    """Base class for ranking algorithms.
+    r"""Base class for ranking algorithms.
 
     Attributes
     ----------
-    scores\_ : np.ndarray
+    scores_ : np.ndarray
         Score of each node.
     """
     def __init__(self):

@@ -22,7 +22,7 @@ from sknetwork.utils.values import get_values
 
 
 class GNNClassifier(BaseGNN):
-    """Graph Neural Network for node classification.
+    r"""Graph Neural Network for node classification.
 
     Parameters
     ----------
@@ -74,11 +74,11 @@ class GNNClassifier(BaseGNN):
     ----------
     layers : list
         Graph convolutional layers.
-    output\_ : np.ndarray
+    output_ : np.ndarray
         Output of the GNN.
-    labels\_: np.ndarray
+    labels_: np.ndarray
         Predicted node labels.
-    history\_: dict
+    history_: dict
         Training history per epoch: {``'embedding'``, ``'loss'``, ``'train_accuracy'``, ``'val_accuracy'``}.
 
     Example

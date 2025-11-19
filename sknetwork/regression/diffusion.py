@@ -28,7 +28,7 @@ def init_temperatures(seeds: np.ndarray, init: Optional[float]) -> Tuple[np.ndar
 
 
 class Diffusion(BaseRegressor):
-    """Regression by diffusion along the edges, given the temperatures of some seed nodes (heat equation).
+    r"""Regression by diffusion along the edges, given the temperatures of some seed nodes (heat equation).
 
     The row vector of tempreatures :math:`T` evolves like:
 
@@ -48,7 +48,7 @@ class Diffusion(BaseRegressor):
 
     Attributes
     ----------
-    values\_ : np.ndarray
+    values_ : np.ndarray
         Value of each node (= temperature).
 
     Example

@@ -18,7 +18,7 @@ from sknetwork.utils.format import get_adjacency
 
 
 class LouvainIteration(BaseHierarchy):
-    """Hierarchical clustering by successive instances of Louvain (top-down).
+    r"""Hierarchical clustering by successive instances of Louvain (top-down).
 
     Parameters
     ----------
@@ -43,7 +43,7 @@ class LouvainIteration(BaseHierarchy):
 
     Attributes
     ----------
-    dendrogram\_ : np.ndarray
+    dendrogram_ : np.ndarray
         Dendrogram of the graph.
 
     Example
@@ -150,7 +150,7 @@ class LouvainIteration(BaseHierarchy):
 
 
 class LouvainHierarchy(BaseHierarchy):
-    """Hierarchical clustering by Louvain (bottom-up).
+    r"""Hierarchical clustering by Louvain (bottom-up).
 
     Each level corresponds to an aggregation step of the Louvain algorithm.
 
@@ -171,7 +171,7 @@ class LouvainHierarchy(BaseHierarchy):
 
     Attributes
     ----------
-    dendrogram\_ : np.ndarray
+    dendrogram_ : np.ndarray
         Dendrogram of the graph.
 
     Example

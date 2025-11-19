@@ -17,7 +17,7 @@ from sknetwork.utils.check import check_format, check_adjacency_vector, check_no
 
 
 class Spectral(BaseEmbedding):
-    """Spectral embedding of graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`
+    r"""Spectral embedding of graphs, based the spectral decomposition of the Laplacian matrix :math:`L = D - A`
     or the transition matrix of the random walk :math:`P = D^{-1}A` (default), where :math:`D` is the
     diagonal matrix of degrees.
 
@@ -39,11 +39,11 @@ class Spectral(BaseEmbedding):
         each vector lies on the unit sphere.
     Attributes
     ----------
-    embedding\_ : np.ndarray, shape = (n_nodes, n_components)
+    embedding_ : np.ndarray, shape = (n_nodes, n_components)
         Embedding of the nodes.
-    eigenvalues\_ : np.ndarray, shape = (n_components)
+    eigenvalues_ : np.ndarray, shape = (n_components)
         Eigenvalues.
-    eigenvectors\_ : np.ndarray, shape = (n_nodes, n_components)
+    eigenvectors_ : np.ndarray, shape = (n_nodes, n_components)
         Eigenvectors.
 
     Example
