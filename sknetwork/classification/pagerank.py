@@ -13,7 +13,7 @@ from sknetwork.ranking.pagerank import PageRank
 
 
 class PageRankClassifier(RankClassifier):
-    """Node classification by multiple personalized PageRanks.
+    r"""Node classification by multiple personalized PageRanks.
 
     Parameters
     ----------
@@ -28,9 +28,9 @@ class PageRankClassifier(RankClassifier):
 
     Attributes
     ----------
-    labels\_ : np.ndarray, shape (n_nodes,)
+    labels_ : np.ndarray, shape (n_nodes,)
         Labels of nodes.
-    probs\_ : sparse.csr_matrix, shape (n_nodes, n_labels)
+    probs_ : sparse.csr_matrix, shape (n_nodes, n_labels)
         Probability distribution over labels.
 
     Example

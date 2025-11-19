@@ -41,7 +41,7 @@ def reindex_labels(labels: np.ndarray, labels_secondary: Optional[np.ndarray] = 
 
 
 class LouvainEmbedding(BaseEmbedding):
-    """Embedding of graphs induced by Louvain clustering. Each component of the embedding corresponds
+    r"""Embedding of graphs induced by Louvain clustering. Each component of the embedding corresponds
     to a cluster obtained by Louvain.
 
     Parameters
@@ -66,9 +66,9 @@ class LouvainEmbedding(BaseEmbedding):
 
     Attributes
     ----------
-    embedding\_ : np.ndarray, shape = (n_nodes, n_components)
+    embedding_ : np.ndarray, shape = (n_nodes, n_components)
         Embedding of the nodes.
-    labels\_ : np.ndarray, shape = (n_nodes,)
+    labels_ : np.ndarray, shape = (n_nodes,)
         Labels of the nodes, used for the embedding.
 
     Example

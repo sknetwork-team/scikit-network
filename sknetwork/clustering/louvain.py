@@ -21,7 +21,7 @@ from sknetwork.log import Log
 
 
 class Louvain(BaseClustering, Log):
-    """Louvain algorithm for clustering graphs by maximization of modularity.
+    r"""Louvain algorithm for clustering graphs by maximization of modularity.
 
     For bipartite graphs, the algorithm maximizes Barber's modularity by default.
 
@@ -53,11 +53,11 @@ class Louvain(BaseClustering, Log):
 
     Attributes
     ----------
-    labels\_ : np.ndarray, shape (n_nodes,)
+    labels_ : np.ndarray, shape (n_nodes,)
         Label of each node.
-    probs\_ : sparse.csr_matrix, shape (n_nodes, n_labels)
+    probs_ : sparse.csr_matrix, shape (n_nodes, n_labels)
         Probability distribution over labels.
-    aggregate\_ : sparse.csr_matrix
+    aggregate_ : sparse.csr_matrix
         Aggregate adjacency matrix or biadjacency matrix between clusters.
 
     Example

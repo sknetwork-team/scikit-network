@@ -18,7 +18,7 @@ from sknetwork.utils.format import directed2undirected
 
 
 class Spring(BaseEmbedding):
-    """Spring layout for displaying small graphs.
+    r"""Spring layout for displaying small graphs.
 
     Parameters
     ----------
@@ -39,7 +39,7 @@ class Spring(BaseEmbedding):
 
     Attributes
     ----------
-    embedding\_ : np.ndarray, shape = (n_nodes, n_components)
+    embedding_ : np.ndarray, shape = (n_nodes, n_components)
         Embedding of the nodes.
 
     Example

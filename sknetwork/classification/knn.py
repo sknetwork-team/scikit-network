@@ -18,7 +18,7 @@ from sknetwork.utils.format import get_adjacency_values
 
 
 class NNClassifier(BaseClassifier):
-    """Node classification by K-nearest neighbors in the embedding space.
+    r"""Node classification by K-nearest neighbors in the embedding space.
 
     Parameters
     ----------
@@ -32,9 +32,9 @@ class NNClassifier(BaseClassifier):
 
     Attributes
     ----------
-    labels\_ : np.ndarray, shape (n_nodes,)
+    labels_ : np.ndarray, shape (n_nodes,)
         Labels of nodes.
-    probs\_ : sparse.csr_matrix, shape (n_nodes, n_labels)
+    probs_ : sparse.csr_matrix, shape (n_nodes, n_labels)
         Probability distribution over labels.
 
     Example

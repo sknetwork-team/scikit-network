@@ -13,15 +13,15 @@ from sknetwork.base import Algorithm
 
 
 class BaseClassifier(Algorithm, ABC):
-    """Base class for classifiers.
+    r"""Base class for classifiers.
 
     Attributes
     ----------
     bipartite : bool
         If ``True``, the fitted graph is bipartite.
-    labels\_ : np.ndarray, shape (n_nodes,)
+    labels_ : np.ndarray, shape (n_nodes,)
         Labels of nodes.
-    probs\_ : sparse.csr_matrix, shape (n_nodes, n_labels)
+    probs_ : sparse.csr_matrix, shape (n_nodes, n_labels)
         Probability distribution over labels (soft classification).
     """
 

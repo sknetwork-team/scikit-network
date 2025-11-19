@@ -13,10 +13,10 @@ from sknetwork.base import Algorithm
 
 
 class BaseHierarchy(Algorithm, ABC):
-    """Base class for hierarchical clustering algorithms.
+    r"""Base class for hierarchical clustering algorithms.
     Attributes
     ----------
-    dendrogram\_ :
+    dendrogram_ :
         Dendrogram of the graph.
     """
 

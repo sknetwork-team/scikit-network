@@ -17,7 +17,7 @@ from sknetwork.utils.format import get_adjacency
 
 
 class RandomProjection(BaseEmbedding, ABC):
-    """Embedding of graphs based the random projection of the adjacency matrix:
+    r"""Embedding of graphs based the random projection of the adjacency matrix:
 
     :math:`(I + \\alpha A +... + (\\alpha A)^K)G`
 
@@ -46,7 +46,7 @@ class RandomProjection(BaseEmbedding, ABC):
 
     Attributes
     ----------
-    embedding\_ : array, shape = (n_nodes, n_components)
+    embedding_ : array, shape = (n_nodes, n_components)
         Embedding of the nodes.
 
     Example

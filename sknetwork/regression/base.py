@@ -12,11 +12,11 @@ from sknetwork.base import Algorithm
 
 
 class BaseRegressor(Algorithm, ABC):
-    """Base class for regression algorithms.
+    r"""Base class for regression algorithms.
 
     Attributes
     ----------
-    values\_ : np.ndarray
+    values_ : np.ndarray
         Value of each node.
     """
     def __init__(self):

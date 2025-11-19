@@ -40,7 +40,7 @@ def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
         member_path = join(path, member.name)
         if not is_within_directory(path, member_path):
             raise Exception("Attempted path traversal in tar file.")
-    tar.extractall(path, members, numeric_owner=numeric_owner)
+    tar.extractall(path, members, numeric_owner=numeric_owner, filter="data")
 
 
 def get_data_home(data_home: Optional[Union[str, Path]] = None) -> Path:

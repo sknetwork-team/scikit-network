@@ -18,7 +18,7 @@ from sknetwork.utils.membership import get_membership
 
 
 class Propagation(BaseClassifier):
-    """Node classification by label propagation.
+    r"""Node classification by label propagation.
 
     Parameters
     ----------
@@ -35,9 +35,9 @@ class Propagation(BaseClassifier):
 
     Attributes
     ----------
-    labels\_ : np.ndarray, shape (n_nodes,)
+    labels_ : np.ndarray, shape (n_nodes,)
         Labels of nodes.
-    probs\_ : sparse.csr_matrix, shape (n_nodes, n_labels)
+    probs_ : sparse.csr_matrix, shape (n_nodes, n_labels)
         Probability distribution over labels.
 
     Example

@@ -19,7 +19,7 @@ from sknetwork.log import Log
 
 
 class Leiden(Louvain):
-    """Leiden algorithm for clustering graphs by maximization of modularity.
+    r"""Leiden algorithm for clustering graphs by maximization of modularity.
     Compared to the Louvain algorithm, the partition is refined before each aggregation.
 
     For bipartite graphs, the algorithm maximizes Barber's modularity by default.
@@ -52,11 +52,11 @@ class Leiden(Louvain):
 
     Attributes
     ----------
-    labels\_ : np.ndarray, shape (n_nodes,)
+    labels_ : np.ndarray, shape (n_nodes,)
         Label of each node.
-    probs\_ : sparse.csr_matrix, shape (n_nodes, n_labels)
+    probs_ : sparse.csr_matrix, shape (n_nodes, n_labels)
         Probability distribution over labels.
-    aggregate\_ : sparse.csr_matrix
+    aggregate_ : sparse.csr_matrix
         Aggregate adjacency matrix or biadjacency matrix between clusters.
 
     Example

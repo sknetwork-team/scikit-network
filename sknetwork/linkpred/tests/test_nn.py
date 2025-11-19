@@ -13,7 +13,7 @@ class TestNNLinker(unittest.TestCase):
 
     def test_link_prediction(self):
         for input_matrix in [test_graph(), test_digraph(), test_bigraph()]:
-            n_neighbors = 2
+            n_neighbors = 3
             threshold = 0.5
             algo = NNLinker(n_neighbors=n_neighbors, threshold=threshold)
             links = algo.fit_predict(input_matrix)
@@ -21,6 +21,6 @@ class TestNNLinker(unittest.TestCase):
             self.assertTrue(np.all(get_degrees(links) <= n_neighbors))
             self.assertTrue(np.all(links.data >= threshold))
 
-            algo = NNLinker(embedding_method=Spectral(2))
+            algo = NNLinker(n_neighbors=n_neighbors, embedding_method=Spectral(5))
             links = algo.fit_predict(input_matrix)
             self.assertTrue(links.shape == input_matrix.shape)

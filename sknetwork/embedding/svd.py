@@ -16,7 +16,7 @@ from sknetwork.utils.check import check_format, check_adjacency_vector, check_no
 
 
 class GSVD(BaseEmbedding):
-    """Graph embedding by Generalized Singular Value Decomposition of the adjacency or biadjacency matrix :math:`A`.
+    r"""Graph embedding by Generalized Singular Value Decomposition of the adjacency or biadjacency matrix :math:`A`.
     This is equivalent to the Singular Value Decomposition of the matrix :math:`D_1^{- \\alpha_1}AD_2^{- \\alpha_2}`
     where :math:`D_1, D_2` are the diagonal matrices of row weights and columns weights, respectively, and
     :math:`\\alpha_1, \\alpha_2` are parameters.
@@ -48,19 +48,19 @@ class GSVD(BaseEmbedding):
 
     Attributes
     ----------
-    embedding\_ : array, shape = (n, n_components)
+    embedding_ : array, shape = (n, n_components)
         Embedding of the nodes.
-    embedding_row\_ : array, shape = (n_row, n_components)
+    embedding_row_ : array, shape = (n_row, n_components)
         Embedding of the rows, for bipartite graphs.
-    embedding_col\_ : array, shape = (n_col, n_components)
+    embedding_col_ : array, shape = (n_col, n_components)
         Embedding of the columns, for bipartite graphs.
-    singular_values\_ : np.ndarray, shape = (n_components)
+    singular_values_ : np.ndarray, shape = (n_components)
         Singular values.
-    singular_vectors_left\_ : np.ndarray, shape = (n_row, n_components)
+    singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
         Left singular vectors.
-    singular_vectors_right\_ : np.ndarray, shape = (n_col, n_components)
+    singular_vectors_right_ : np.ndarray, shape = (n_col, n_components)
         Right singular vectors.
-    weights_col\_ : np.ndarray, shape = (n2)
+    weights_col_ : np.ndarray, shape = (n2)
         Weights applied to columns.
 
     Example
@@ -96,6 +96,9 @@ class GSVD(BaseEmbedding):
         self.normalized = normalized
         self.solver = solver
 
+        self.embedding_ = None
+        self.embedding_row_ = None
+        self.embedding_col_ = None
         self.singular_values_ = None
         self.singular_vectors_left_ = None
         self.singular_vectors_right_ = None
@@ -216,7 +219,7 @@ class GSVD(BaseEmbedding):
 
 
 class SVD(GSVD):
-    """Graph embedding by Singular Value Decomposition of the adjacency or biadjacency matrix of the graph.
+    r"""Graph embedding by Singular Value Decomposition of the adjacency or biadjacency matrix of the graph.
 
     Parameters
     ----------
@@ -241,13 +244,13 @@ class SVD(GSVD):
 
     Attributes
     ----------
-    embedding\_ : np.ndarray, shape = (n_nodes, n_components)
+    embedding_ : np.ndarray, shape = (n_nodes, n_components)
         Embedding of the nodes.
-    singular_values\_ : np.ndarray, shape = (n_components)
+    singular_values_ : np.ndarray, shape = (n_components)
         Singular values.
-    singular_vectors_left\_ : np.ndarray, shape = (n_row, n_components)
+    singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
         Left singular vectors.
-    singular_vectors_right\_ : np.ndarray, shape = (n_col, n_components)
+    singular_vectors_right_ : np.ndarray, shape = (n_col, n_components)
         Right singular vectors.
 
     Example
@@ -275,7 +278,7 @@ class SVD(GSVD):
 
 
 class PCA(SVD):
-    """Graph embedding by Principal Component Analysis of the adjacency or biadjacency matrix.
+    r"""Graph embedding by Principal Component Analysis of the adjacency or biadjacency matrix.
 
     Parameters
     ----------
@@ -289,13 +292,13 @@ class PCA(SVD):
 
     Attributes
     ----------
-    embedding\_ : array, shape = (n_nodes, n_components)
+    embedding_ : array, shape = (n_nodes, n_components)
         Embedding of the nodes.
-    singular_values\_ : np.ndarray, shape = (n_components)
+    singular_values_ : np.ndarray, shape = (n_components)
         Singular values.
-    singular_vectors_left\_ : np.ndarray, shape = (n_row, n_components)
+    singular_vectors_left_ : np.ndarray, shape = (n_row, n_components)
         Left singular vectors.
-    singular_vectors_right\_ : np.ndarray, shape = (n_col, n_components)
+    singular_vectors_right_ : np.ndarray, shape = (n_col, n_components)
         Right singular vectors.
 
     Example

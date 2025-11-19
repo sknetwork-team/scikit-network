@@ -18,7 +18,7 @@ from sknetwork.utils.neighbors import get_degrees
 
 
 class DiffusionClassifier(BaseClassifier):
-    """Node classification by heat diffusion.
+    r"""Node classification by heat diffusion.
 
     For each label, the temperature of a node corresponds to its probability to have this label.
 
@@ -34,9 +34,9 @@ class DiffusionClassifier(BaseClassifier):
 
     Attributes
     ----------
-    labels\_ : np.ndarray, shape (n_nodes,)
+    labels_ : np.ndarray, shape (n_nodes,)
         Labels of nodes.
-    probs\_ : sparse.csr_matrix, shape (n_nodes, n_labels)
+    probs_ : sparse.csr_matrix, shape (n_nodes, n_labels)
         Probability distribution over labels.
 
     Example

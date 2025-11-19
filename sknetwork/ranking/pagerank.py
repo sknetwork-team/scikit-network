@@ -17,7 +17,7 @@ from sknetwork.utils.format import get_adjacency_values
 
 
 class PageRank(BaseRanking):
-    """PageRank of each node, corresponding to its frequency of visit by a random walk.
+    r"""PageRank of each node, corresponding to its frequency of visit by a random walk.
 
     The random walk restarts with some fixed probability. The restart distribution can be personalized by the user.
     This variant is known as Personalized PageRank.
@@ -40,7 +40,7 @@ class PageRank(BaseRanking):
 
     Attributes
     ----------
-    scores\_ : np.ndarray
+    scores_ : np.ndarray
         PageRank score of each node.
 
     Example
