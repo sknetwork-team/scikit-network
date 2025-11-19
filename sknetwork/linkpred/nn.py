@@ -17,7 +17,7 @@ from sknetwork.utils.format import get_adjacency
 
 
 class NNLinker(BaseLinker):
-    """Link prediction by nearest neighbors in the embedding space, using cosine similarity.
+    r"""Link prediction by nearest neighbors in the embedding space, using cosine similarity.
 
     For bipartite graphs, predict links between rows and columns only.
 
@@ -26,15 +26,15 @@ class NNLinker(BaseLinker):
     n_neighbors : int
         Number of nearest neighbors. If ``None``, all nodes are considered.
     threshold : float
-        Threshold on cosine similarity. Only links above this threshold are kept.
+        Threshold on cosine similarity. Only links above this threshold are returned.
     embedding_method : :class:`BaseEmbedding`
         Embedding method used to represent nodes in vector space.
         If ``None`` (default), use identity.
 
     Attributes
     ----------
-    links\_ : sparse.csr_matrix
-        Link matrix.
+    links_ : sparse.csr_matrix
+        Matrix of links with cosine similarities as link weights.
 
     Example
     -------
@@ -56,6 +56,7 @@ class NNLinker(BaseLinker):
         self.bipartite = None
 
     def _fit_core(self, embedding, mask):
+        """Find links of nodes specified in the mask."""
         n = embedding.shape[0]
         n_row = len(mask)
         if n_row < n:
