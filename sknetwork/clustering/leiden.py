@@ -59,10 +59,11 @@ class Leiden(Louvain):
     aggregate_ : sparse.csr_matrix
         Aggregate adjacency matrix or biadjacency matrix between clusters.
 
-    Example
-    -------
+    Examples
+    --------
     >>> from sknetwork.clustering import Leiden
     >>> from sknetwork.data import karate_club
+    >>> import numpy as np
     >>> leiden = Leiden()
     >>> adjacency = karate_club()
     >>> labels = leiden.fit_predict(adjacency)
@@ -195,13 +196,32 @@ class Leiden(Louvain):
         labels_ = membership_refined.T.tocsr().dot(membership).indices
         return labels_, adjacency_, out_weights_, in_weights_
 
-    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray], force_bipartite: bool = False) -> 'Leiden':
+    def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
+            initial_labels: Union[np.ndarray, dict, None] = None,
+            initial_labels_row: Union[np.ndarray, dict, None] = None,
+            initial_labels_col: Union[np.ndarray, dict, None] = None,
+            force_bipartite: bool = False) -> 'Leiden':
         """Fit algorithm to data.
 
         Parameters
         ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
+        initial_labels : Union[np.ndarray, dict], optional
+            Initial cluster assignments for seeded clustering. If None (default), use identity initialization.
+            For bipartite graphs, this should contain labels for all nodes in the combined representation.
+            - np.ndarray: Array of cluster labels, one per node
+            - dict: Maps node indices to cluster labels (sparse specification)
+        initial_labels_row : Union[np.ndarray, dict], optional
+            Initial cluster assignments for row nodes in bipartite graphs. Only used for bipartite graphs.
+            Cannot be used together with initial_labels.
+            - np.ndarray: Array of cluster labels, one per row node
+            - dict: Maps row node indices to cluster labels
+        initial_labels_col : Union[np.ndarray, dict], optional
+            Initial cluster assignments for column nodes in bipartite graphs. Only used for bipartite graphs.
+            Cannot be used together with initial_labels.
+            - np.ndarray: Array of cluster labels, one per column node
+            - dict: Maps column node indices to cluster labels
         force_bipartite :
             If ``True``, force the input matrix to be considered as a biadjacency matrix even if square.
 
@@ -211,7 +231,10 @@ class Leiden(Louvain):
         """
         adjacency, out_weights, in_weights, membership, index = self._pre_processing(input_matrix, force_bipartite)
         n = adjacency.shape[0]
-        labels = np.arange(n)
+
+        # Initialize with custom or default labels
+        labels = self._validate_initial_labels(initial_labels, initial_labels_row, initial_labels_col, n, index,
+                                               input_matrix.shape)
         count = 0
         stop = False
         while not stop:

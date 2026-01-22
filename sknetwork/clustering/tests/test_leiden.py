@@ -4,6 +4,7 @@
 import unittest
 
 from sknetwork.clustering import Leiden
+from sknetwork.data import karate_club, star_wars
 from sknetwork.data.test_graphs import *
 from sknetwork.utils import bipartite2undirected
 
@@ -32,3 +33,150 @@ class TestLeidenClustering(unittest.TestCase):
         leiden.fit(biadjacency)
         labels2 = np.concatenate((leiden.labels_row_, leiden.labels_col_))
         self.assertTrue((labels1 == labels2).all())
+
+    def test_initial_labels_array(self):
+        """Test seeded initialization with array format for Leiden."""
+        adjacency = karate_club()
+        n_nodes = adjacency.shape[0]
+
+        # Create initial labels with 3 clusters
+        initial_labels = np.zeros(n_nodes, dtype=int)
+        initial_labels[10:20] = 1
+        initial_labels[25:] = 2
+
+        leiden = Leiden(random_state=42)
+        labels = leiden.fit_predict(adjacency, initial_labels=initial_labels)
+
+        # Check that we have a valid clustering
+        self.assertEqual(len(labels), n_nodes)
+        self.assertTrue(len(set(labels)) >= 1)
+
+    def test_initial_labels_dict(self):
+        """Test seeded initialization with dictionary format for Leiden."""
+        adjacency = karate_club()
+        n_nodes = adjacency.shape[0]
+
+        # Create initial labels with dict - sparse assignment
+        initial_labels = {0: 0, 10: 1, 20: 2, 30: 3}
+
+        leiden = Leiden(random_state=42)
+        labels = leiden.fit_predict(adjacency, initial_labels=initial_labels)
+
+        # Check that we have a valid clustering
+        self.assertEqual(len(labels), n_nodes)
+        self.assertTrue(len(set(labels)) >= 1)
+
+    def test_initial_labels_validation(self):
+        """Test input validation for initial_labels parameter in Leiden."""
+        adjacency = karate_club()
+        n_nodes = adjacency.shape[0]
+        leiden = Leiden()
+
+        # Test wrong length array
+        with self.assertRaises(ValueError):
+            initial_labels = np.array([0, 1])  # Too short
+            leiden.fit_predict(adjacency, initial_labels=initial_labels)
+
+        # Test negative labels
+        with self.assertRaises(ValueError):
+            initial_labels = np.array([-1] * n_nodes)
+            leiden.fit_predict(adjacency, initial_labels=initial_labels)
+
+        # Test invalid node index in dict
+        with self.assertRaises(ValueError):
+            initial_labels = {n_nodes: 0}  # Index out of range
+            leiden.fit_predict(adjacency, initial_labels=initial_labels)
+
+    def test_initial_labels_with_shuffle(self):
+        """Test interaction with shuffle_nodes parameter for Leiden."""
+        adjacency = karate_club()
+        n_nodes = adjacency.shape[0]
+
+        # Create initial labels
+        initial_labels = np.zeros(n_nodes, dtype=int)
+        initial_labels[10:20] = 1
+        initial_labels[25:] = 2
+
+        leiden = Leiden(shuffle_nodes=True, random_state=42)
+        labels = leiden.fit_predict(adjacency, initial_labels=initial_labels)
+
+        # Check that we have a valid clustering
+        self.assertEqual(len(labels), n_nodes)
+        self.assertTrue(len(set(labels)) >= 1)
+
+    def test_initial_labels_bipartite(self):
+        """Test seeded initialization with bipartite graphs for Leiden."""
+        biadjacency = star_wars()
+        n_row, n_col = biadjacency.shape
+        n_nodes = n_row + n_col
+
+        # Create initial labels for the full bipartite graph
+        initial_labels = np.zeros(n_nodes, dtype=int)
+        initial_labels[n_row//2:n_row] = 1  # Split rows
+        initial_labels[n_row + n_col//2:] = 2  # Split cols
+
+        leiden = Leiden(random_state=42)
+        leiden.fit(biadjacency, initial_labels=initial_labels)
+
+        # Check that we have valid clustering for both row and col labels
+        self.assertTrue(hasattr(leiden, 'labels_row_'))
+        self.assertTrue(hasattr(leiden, 'labels_col_'))
+        self.assertEqual(len(leiden.labels_row_), n_row)
+        self.assertEqual(len(leiden.labels_col_), n_col)
+
+    def test_initial_labels_bipartite_row_col(self):
+        """Test seeded initialization with separate row/col parameters for bipartite graphs (Leiden)."""
+        biadjacency = star_wars()
+        n_row, n_col = biadjacency.shape
+
+        # Create row and col labels separately
+        initial_labels_row = np.zeros(n_row, dtype=int)
+        initial_labels_row[n_row//2:] = 1
+
+        initial_labels_col = np.zeros(n_col, dtype=int)
+        initial_labels_col[n_col//2:] = 2
+
+        leiden = Leiden(random_state=42)
+        leiden.fit(biadjacency, initial_labels_row=initial_labels_row, initial_labels_col=initial_labels_col)
+
+        # Check that we have valid clustering for both row and col labels
+        self.assertTrue(hasattr(leiden, 'labels_row_'))
+        self.assertTrue(hasattr(leiden, 'labels_col_'))
+        self.assertEqual(len(leiden.labels_row_), n_row)
+        self.assertEqual(len(leiden.labels_col_), n_col)
+
+    def test_initial_labels_bipartite_row_col_dict(self):
+        """Test seeded initialization with dictionary format for row/col parameters (Leiden)."""
+        biadjacency = star_wars()
+        n_row, n_col = biadjacency.shape
+
+        # Create row and col labels as dictionaries
+        initial_labels_row = {0: 0, n_row//2: 1}
+        initial_labels_col = {0: 2, n_col//2: 3}
+
+        leiden = Leiden(random_state=42)
+        leiden.fit(biadjacency, initial_labels_row=initial_labels_row, initial_labels_col=initial_labels_col)
+
+        # Check that we have valid clustering for both row and col labels
+        self.assertTrue(hasattr(leiden, 'labels_row_'))
+        self.assertTrue(hasattr(leiden, 'labels_col_'))
+        self.assertEqual(len(leiden.labels_row_), n_row)
+        self.assertEqual(len(leiden.labels_col_), n_col)
+
+    def test_initial_labels_row_col_validation(self):
+        """Test validation for row/col parameters (Leiden)."""
+        adjacency = test_graph()
+        biadjacency = star_wars()
+        n_row, n_col = biadjacency.shape
+        leiden = Leiden()
+
+        # Test: cannot use both initial_labels and initial_labels_row/col together
+        with self.assertRaises(ValueError):
+            initial_labels = np.zeros(n_row + n_col)
+            initial_labels_row = np.zeros(n_row)
+            leiden.fit(biadjacency, initial_labels=initial_labels, initial_labels_row=initial_labels_row)
+
+        # Test: cannot use row/col parameters with non-bipartite graphs
+        with self.assertRaises(ValueError):
+            initial_labels_row = np.zeros(10)
+            leiden.fit(adjacency, initial_labels_row=initial_labels_row)
