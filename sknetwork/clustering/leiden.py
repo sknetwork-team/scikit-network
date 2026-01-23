@@ -239,7 +239,7 @@ class Leiden(Louvain):
         stop = False
         while not stop:
             count += 1
-            if len(np.unique(labels)) == n:
+            if len(np.unique(labels)) == n_nodes:
                 labels, increase = self._optimize(labels, adjacency, out_weights, in_weights)
             else:
                 increase = np.inf  # Force aggregation if initial labels are provided   
