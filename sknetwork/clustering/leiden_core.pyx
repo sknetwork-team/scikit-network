@@ -108,11 +108,8 @@ def optimize_refine_core(int_or_long[:] labels, int_or_long[:] labels_refined, i
 
                 if not label_target_set.empty():
                     increase = 1
-                    k = rand() % label_target_set.size()
                     for label_target in label_target_set:
-                        k -= 1
-                        if k == 0:
-                            break
+                        break
                     labels_refined[i] = label_target
                     # update weights
                     out_cluster_weights[label_refined] -= out_weight

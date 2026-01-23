@@ -104,6 +104,22 @@ class TestLeidenClustering(unittest.TestCase):
         self.assertEqual(len(labels), n_nodes)
         self.assertTrue(len(set(labels)) >= 1)
 
+    def test_initial_labels_reproducibility(self):
+        """Test that same initial_labels + random_state produces identical results."""
+        adjacency = karate_club()
+        n_nodes = adjacency.shape[0]
+
+        initial_labels = np.zeros(n_nodes, dtype=int)
+        initial_labels[10:20] = 1
+        initial_labels[25:] = 2
+
+        leiden1 = Leiden(random_state=42)
+        labels1 = leiden1.fit_predict(adjacency, initial_labels=initial_labels)
+
+        leiden2 = Leiden(random_state=42)
+        labels2 = leiden2.fit_predict(adjacency, initial_labels=initial_labels)
+        self.assertTrue((labels1 == labels2).all())
+
     def test_initial_labels_bipartite(self):
         """Test seeded initialization with bipartite graphs for Leiden."""
         biadjacency = star_wars()
