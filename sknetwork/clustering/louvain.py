@@ -390,7 +390,7 @@ class Louvain(BaseClustering, Log):
         """
         input_matrix = check_format(input_matrix)
         adjacency, out_weights, in_weights, membership, index = self._pre_processing(input_matrix, force_bipartite)
-        n = adjacency.shape[0]
+        n_nodes = adjacency.shape[0]
         count = 0
         stop = False
         while not stop:
@@ -399,15 +399,18 @@ class Louvain(BaseClustering, Log):
                 labels = self._validate_initial_labels(initial_labels, initial_labels_row, initial_labels_col, n,
                                                        index, input_matrix.shape)
             else:
-                labels = np.arange(n)  # Subsequent aggregations use identity
-            labels, increase = self._optimize(labels, adjacency, out_weights, in_weights)
+                labels = np.arange(n_nodes)  # Subsequent aggregations use identity
+            if len(np.unique(labels)) == n_nodes:
+                labels, increase = self._optimize(labels, adjacency, out_weights, in_weights)
+            else:
+                increase = np.inf  # Force aggregation if initial labels are provided
             _, labels = np.unique(labels, return_inverse=True)
             adjacency, out_weights, in_weights = self._aggregate(labels, adjacency, out_weights, in_weights)
             membership = membership.dot(get_membership(labels))
-            n = adjacency.shape[0]
-            stop = n == 1
+            n_nodes = adjacency.shape[0]
+            stop = n_nodes == 1
             stop |= increase <= self.tol_aggregation
             stop |= count == self.n_aggregations
-            self.print_log("Aggregation:", count, " Clusters:", n, " Increase:", increase)
+            self.print_log("Aggregation:", count, " Clusters:", n_nodes, " Increase:", increase)
         self._post_processing(input_matrix, membership, index)
         return self

@@ -230,16 +230,19 @@ class Leiden(Louvain):
         self : :class:`Leiden`
         """
         adjacency, out_weights, in_weights, membership, index = self._pre_processing(input_matrix, force_bipartite)
-        n = adjacency.shape[0]
+        n_nodes = adjacency.shape[0]
 
         # Initialize with custom or default labels
-        labels = self._validate_initial_labels(initial_labels, initial_labels_row, initial_labels_col, n, index,
+        labels = self._validate_initial_labels(initial_labels, initial_labels_row, initial_labels_col, n_nodes, index,
                                                input_matrix.shape)
         count = 0
         stop = False
         while not stop:
             count += 1
-            labels, increase = self._optimize(labels, adjacency, out_weights, in_weights)
+            if len(np.unique(labels)) == n:
+                labels, increase = self._optimize(labels, adjacency, out_weights, in_weights)
+            else:
+                increase = np.inf  # Force aggregation if initial labels are provided   
             _, labels = np.unique(labels, return_inverse=True)
             labels_original = labels.copy()
             labels_refined = np.arange(len(labels))
@@ -247,15 +250,15 @@ class Leiden(Louvain):
             _, labels_refined = np.unique(labels_refined, return_inverse=True)
             labels, adjacency, out_weights, in_weights = self._aggregate_refine(labels, labels_refined, adjacency,
                                                                                 out_weights, in_weights)
-            n = adjacency.shape[0]
-            stop = n == 1
+            n_nodes = adjacency.shape[0]
+            stop = n_nodes   == 1
             stop |= increase <= self.tol_aggregation
             stop |= count == self.n_aggregations
             if stop:
                 membership = membership.dot(get_membership(labels_original))
             else:
                 membership = membership.dot(get_membership(labels_refined))
-            self.print_log("Aggregation:", count, " Clusters:", n, " Increase:", increase)
+            self.print_log("Aggregation:", count, " Clusters:", n_nodes, " Increase:", increase)
 
         self._post_processing(input_matrix, membership, index)
         return self
