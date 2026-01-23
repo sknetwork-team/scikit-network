@@ -396,7 +396,7 @@ class Louvain(BaseClustering, Log):
         while not stop:
             count += 1
             if count == 1:  # First iteration only
-                labels = self._validate_initial_labels(initial_labels, initial_labels_row, initial_labels_col, n,
+                labels = self._validate_initial_labels(initial_labels, initial_labels_row, initial_labels_col, n_nodes,
                                                        index, input_matrix.shape)
             else:
                 labels = np.arange(n_nodes)  # Subsequent aggregations use identity
