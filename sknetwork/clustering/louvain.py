@@ -224,7 +224,7 @@ class Louvain(BaseClustering, Log):
         return adjacency, out_weights, in_weights, membership, index
 
     def _post_processing(self, input_matrix, membership, index):
-        """Post-processing for Louvain.
+        """Post-processing of labels
 
          Parameters
         ----------
@@ -254,12 +254,12 @@ class Louvain(BaseClustering, Log):
 
         Parameters
         ----------
-        initial_labels : Union[np.ndarray, dict, None]
-            Initial cluster assignments.
-        initial_labels_row : Union[np.ndarray, dict, None]
-            Initial cluster assignments for row nodes (bipartite graphs).
-        initial_labels_col : Union[np.ndarray, dict, None]
-            Initial cluster assignments for column nodes (bipartite graphs).
+        initial_labels : Optional[np.ndarray]
+            Initial cluster assignment.
+        initial_labels_row : Optional[np.ndarray]
+            Initial cluster assignment for row nodes (bipartite graphs).
+        initial_labels_col : Optional[np.ndarray]
+            Initial cluster assignment for column nodes (bipartite graphs).
         n_nodes : int
             Number of nodes in the graph.
         index : np.ndarray
@@ -279,86 +279,48 @@ class Louvain(BaseClustering, Log):
         if has_combined and has_separate:
             raise ValueError("Cannot use both initial_labels and initial_labels_row/initial_labels_col together")
 
-        # Handle row/col format for bipartite graphs
+        # Handle row / col format for bipartite graphs
         if has_separate:
             if not self.bipartite:
-                raise ValueError("initial_labels_row/initial_labels_col can only be used with bipartite graphs")
+                raise ValueError("initial_labels_row / initial_labels_col can only be used with bipartite graphs")
 
             n_row, n_col = input_matrix_shape
-            if n_row + n_col != n_nodes:
-                raise ValueError(f"Expected {n_row + n_col} total nodes for bipartite graph, got {n_nodes}")
 
             # Process row labels
             if initial_labels_row is None:
                 row_labels = np.arange(n_row)
             else:
-                row_labels = self._process_labels_component(initial_labels_row, n_row, "row")
+                row_labels = initial_labels_row
+                if len(row_labels) != n_row:
+                    raise ValueError(f"initial_labels_row length ({len(row_labels)}) must match number of row nodes ({n_row})")
 
             # Process col labels
             if initial_labels_col is None:
                 col_labels = np.arange(n_col)
             else:
-                col_labels = self._process_labels_component(initial_labels_col, n_col, "column")
-
+                col_labels = initial_labels_col
+                if len(col_labels) != n_col:
+                    raise ValueError(f"initial_labels_col length ({len(col_labels)}) must match number of column nodes ({n_col})")  
+                
             # Combine row and col labels
             labels = np.concatenate([row_labels, col_labels])
 
         # Handle combined format or default
         else:
-            if initial_labels is None:
-                return np.arange(n_nodes)
+            labels = initial_labels
+            if len(labels) != n_nodes:
+                raise ValueError(f"initial_labels length ({len(labels)}) must match number of nodes ({n_nodes})")  
 
-            # Convert dict to array format
-            if isinstance(initial_labels, dict):
-                labels = np.arange(n_nodes)  # Default to identity
-                for i, cluster_label in initial_labels.items():
-                    if not 0 <= i < n_nodes:
-                        raise ValueError(f"Node index {i} out of range [0, {n_nodes-1}]")
-                    labels[i] = cluster_label
-            else:
-                labels = np.asarray(initial_labels, dtype=np.int64)
-                if len(labels) != n_nodes:
-                    raise ValueError(f"initial_labels length ({len(labels)}) must match number of nodes ({n_nodes})")
-
-        # Validate non-negative labels
-        if np.any(labels < 0):
-            raise ValueError("All cluster labels must be non-negative")
-
-        # Apply node shuffling if enabled (BEFORE reindexing)
+        # Apply node shuffling if enabled (before reindexing)
         if self.shuffle_nodes:
             labels = labels[index]
 
-        # Reindex to consecutive labels starting from 0
-        unique_labels = np.unique(labels)
-        label_map = {old: new for new, old in enumerate(unique_labels)}
-        labels = np.array([label_map[label] for label in labels])
-
         return labels.astype(np.int64)
 
-    @staticmethod
-    def _process_labels_component(labels_component, n_component, component_name):
-        """Process labels for a single component (row or column) of bipartite graph."""
-        if isinstance(labels_component, dict):
-            labels = np.arange(n_component)  # Default to identity
-            for i, cluster_label in labels_component.items():
-                if not 0 <= i < n_component:
-                    raise ValueError(f"{component_name.capitalize()} node index {i} out of range [0, {n_component-1}]")
-                labels[i] = cluster_label
-        else:
-            labels = np.asarray(labels_component, dtype=np.int64)
-            if len(labels) != n_component:
-                raise ValueError(f"initial_labels_{component_name[:3]} length ({len(labels)}) must match number of {component_name} nodes ({n_component})")
-
-        # Validate non-negative labels
-        if np.any(labels < 0):
-            raise ValueError(f"All {component_name} cluster labels must be non-negative")
-
-        return labels
-
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray],
-            initial_labels: Union[np.ndarray, dict, None] = None,
-            initial_labels_row: Union[np.ndarray, dict, None] = None,
-            initial_labels_col: Union[np.ndarray, dict, None] = None,
+            initial_labels: Optional[np.ndarray] = None,
+            initial_labels_row: Optional[np.ndarray] = None,
+            initial_labels_col: Optional[np.ndarray] = None,
             force_bipartite: bool = False) -> 'Louvain':
         """Fit algorithm to data.
 
@@ -366,21 +328,12 @@ class Louvain(BaseClustering, Log):
         ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
-        initial_labels : Union[np.ndarray, dict], optional
-            Initial cluster assignments for seeded clustering. If None (default), use identity initialization.
-            For bipartite graphs, this should contain labels for all nodes in the combined representation.
-            - np.ndarray: Array of cluster labels, one per node
-            - dict: Maps node indices to cluster labels (sparse specification)
-        initial_labels_row : Union[np.ndarray, dict], optional
-            Initial cluster assignments for row nodes in bipartite graphs. Only used for bipartite graphs.
-            Cannot be used together with initial_labels.
-            - np.ndarray: Array of cluster labels, one per row node
-            - dict: Maps row node indices to cluster labels
-        initial_labels_col : Union[np.ndarray, dict], optional
-            Initial cluster assignments for column nodes in bipartite graphs. Only used for bipartite graphs.
-            Cannot be used together with initial_labels.
-            - np.ndarray: Array of cluster labels, one per column node
-            - dict: Maps column node indices to cluster labels
+        initial_labels : Optional[np.ndarray]
+            Initial cluster assignment (default = None).
+        initial_labels_row : Optional[np.ndarray]
+            Initial cluster assignment for row nodes (bipartite graphs, default = None).
+        initial_labels_col : Optional[np.ndarray]
+            Initial cluster assignment for column nodes (bipartite graphs, default = None).
         force_bipartite :
             If ``True``, force the input matrix to be considered as a biadjacency matrix even if square.
 
@@ -391,19 +344,20 @@ class Louvain(BaseClustering, Log):
         input_matrix = check_format(input_matrix)
         adjacency, out_weights, in_weights, membership, index = self._pre_processing(input_matrix, force_bipartite)
         n_nodes = adjacency.shape[0]
+        has_initial_labels = (initial_labels is not None or 
+                              initial_labels_row is not None or 
+                              initial_labels_col is not None)
         count = 0
         stop = False
         while not stop:
             count += 1
-            if count == 1:  # First iteration only
+            if count == 1 and has_initial_labels:  # First iteration only
                 labels = self._validate_initial_labels(initial_labels, initial_labels_row, initial_labels_col, n_nodes,
                                                        index, input_matrix.shape)
+                increase = np.inf  # Force aggregation if initial labels are provided
             else:
                 labels = np.arange(n_nodes)  # Subsequent aggregations use identity
-            if len(np.unique(labels)) == n_nodes:
                 labels, increase = self._optimize(labels, adjacency, out_weights, in_weights)
-            else:
-                increase = np.inf  # Force aggregation if initial labels are provided
             _, labels = np.unique(labels, return_inverse=True)
             adjacency, out_weights, in_weights = self._aggregate(labels, adjacency, out_weights, in_weights)
             membership = membership.dot(get_membership(labels))

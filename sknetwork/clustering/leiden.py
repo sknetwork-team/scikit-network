@@ -14,7 +14,7 @@ from sknetwork.clustering import Louvain
 from sknetwork.clustering.louvain_core import optimize_core
 from sknetwork.clustering.leiden_core import optimize_refine_core
 from sknetwork.utils.membership import get_membership
-from sknetwork.utils.check import check_random_state
+from sknetwork.utils.check import check_format, check_random_state
 from sknetwork.log import Log
 
 
@@ -130,15 +130,13 @@ class Leiden(Louvain):
         return optimize_core(labels, indices, indptr, data, out_weights, in_weights, out_cluster_weights,
                              in_cluster_weights, cluster_weights, self_loops, self.resolution, self.tol_optimization)
 
-    def _optimize_refine(self, labels, labels_refined, adjacency, out_weights, in_weights):
+    def _optimize_refine(self, labels, adjacency, out_weights, in_weights):
         """Get the refined partition optimizing modularity.
 
         Parameters
         ----------
         labels :
             Labels of nodes.
-        labels_refined :
-            Refined labels of nodes.
         adjacency :
             Adjacency matrix.
         out_weights :
@@ -156,13 +154,13 @@ class Leiden(Louvain):
         data = adjacency.data.astype(np.float32)
         out_weights = out_weights.astype(np.float32)
         in_weights = in_weights.astype(np.float32)
-        membership = get_membership(labels_refined)
+        membership = get_membership(np.arange(len(labels)))
         out_cluster_weights = membership.T.dot(out_weights)
         in_cluster_weights = membership.T.dot(in_weights)
         cluster_weights = np.zeros_like(out_cluster_weights).astype(np.float32)
         self_loops = adjacency.diagonal().astype(np.float32)
         labels = labels.astype(np.int32)
-        labels_refined = labels_refined.astype(np.int32)
+        labels_refined = np.arange(len(labels)).astype(np.int32)
         return optimize_refine_core(labels, labels_refined, indices, indptr, data, out_weights, in_weights,
                                     out_cluster_weights, in_cluster_weights, cluster_weights, self_loops,
                                     self.resolution)
@@ -186,7 +184,7 @@ class Leiden(Louvain):
 
         Returns
         -------
-        Aggregate graph (labels, adjacency matrix, out-weights, in-weights).
+        Aggregate graph (labels, adjacency matrix, out_weights, in_weights).
         """
         membership = get_membership(labels)
         membership_refined = get_membership(labels_refined)
@@ -207,21 +205,12 @@ class Leiden(Louvain):
         ----------
         input_matrix :
             Adjacency matrix or biadjacency matrix of the graph.
-        initial_labels : Union[np.ndarray, dict], optional
-            Initial cluster assignments for seeded clustering. If None (default), use identity initialization.
-            For bipartite graphs, this should contain labels for all nodes in the combined representation.
-            - np.ndarray: Array of cluster labels, one per node
-            - dict: Maps node indices to cluster labels (sparse specification)
-        initial_labels_row : Union[np.ndarray, dict], optional
-            Initial cluster assignments for row nodes in bipartite graphs. Only used for bipartite graphs.
-            Cannot be used together with initial_labels.
-            - np.ndarray: Array of cluster labels, one per row node
-            - dict: Maps row node indices to cluster labels
-        initial_labels_col : Union[np.ndarray, dict], optional
-            Initial cluster assignments for column nodes in bipartite graphs. Only used for bipartite graphs.
-            Cannot be used together with initial_labels.
-            - np.ndarray: Array of cluster labels, one per column node
-            - dict: Maps column node indices to cluster labels
+        initial_labels : Optional[np.ndarray]
+            Initial cluster assignment (default = None).
+        initial_labels_row : Optional[np.ndarray]
+            Initial cluster assignment for row nodes (bipartite graphs, default = None).
+        initial_labels_col : Optional[np.ndarray]
+            Initial cluster assignment for column nodes (bipartite graphs, default = None).
         force_bipartite :
             If ``True``, force the input matrix to be considered as a biadjacency matrix even if square.
 
@@ -229,25 +218,30 @@ class Leiden(Louvain):
         -------
         self : :class:`Leiden`
         """
+        input_matrix = check_format(input_matrix)
         adjacency, out_weights, in_weights, membership, index = self._pre_processing(input_matrix, force_bipartite)
         n_nodes = adjacency.shape[0]
-
-        # Initialize with custom or default labels
-        labels = self._validate_initial_labels(initial_labels, initial_labels_row, initial_labels_col, n_nodes, index,
-                                               input_matrix.shape)
+        has_initial_labels = (initial_labels is not None or 
+                              initial_labels_row is not None or 
+                              initial_labels_col is not None)
         count = 0
         stop = False
         while not stop:
             count += 1
-            if count > 1 or len(np.unique(labels)) == n_nodes:
-                labels, increase = self._optimize(labels, adjacency, out_weights, in_weights)
+            if count == 1 and has_initial_labels:  # First iteration only
+                labels = self._validate_initial_labels(initial_labels, initial_labels_row, initial_labels_col, n_nodes,
+                                                       index, input_matrix.shape)
+                _, labels = np.unique(labels, return_inverse=True)
+                labels_original = labels.copy()
+                labels_refined = labels.copy()
+                increase = np.inf  # Force aggregation if initial labels are provided
             else:
-                increase = np.inf  # Force aggregation if initial labels are provided   
-            _, labels = np.unique(labels, return_inverse=True)
-            labels_original = labels.copy()
-            labels_refined = np.arange(len(labels))
-            labels_refined = self._optimize_refine(labels, labels_refined, adjacency, out_weights, in_weights)
-            _, labels_refined = np.unique(labels_refined, return_inverse=True)
+                labels = np.arange(n_nodes)  # Subsequent aggregations use identity
+                labels, increase = self._optimize(labels, adjacency, out_weights, in_weights)
+                _, labels = np.unique(labels, return_inverse=True)
+                labels_original = labels.copy()
+                labels_refined = self._optimize_refine(labels, adjacency, out_weights, in_weights)
+                _, labels_refined = np.unique(labels_refined, return_inverse=True)
             labels, adjacency, out_weights, in_weights = self._aggregate_refine(labels, labels_refined, adjacency,
                                                                                 out_weights, in_weights)
             n_nodes = adjacency.shape[0]

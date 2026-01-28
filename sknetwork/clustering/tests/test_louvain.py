@@ -134,8 +134,8 @@ class TestLouvainClustering(unittest.TestCase):
         with self.assertRaises(ValueError):
             louvain.fit(adjacency)
 
-    def test_initial_labels_array(self):
-        """Test seeded initialization with array format."""
+    def test_initial_labels(self):
+        """Test seeded initialization."""
         adjacency = karate_club()
         n_nodes = adjacency.shape[0]
 
@@ -143,21 +143,6 @@ class TestLouvainClustering(unittest.TestCase):
         initial_labels = np.zeros(n_nodes, dtype=int)
         initial_labels[10:20] = 1
         initial_labels[25:] = 2
-
-        louvain = Louvain(random_state=42)
-        labels = louvain.fit_predict(adjacency, initial_labels=initial_labels)
-
-        # Check that we have a valid clustering
-        self.assertEqual(len(labels), n_nodes)
-        self.assertTrue(len(set(labels)) >= 1)
-
-    def test_initial_labels_dict(self):
-        """Test seeded initialization with dictionary format."""
-        adjacency = karate_club()
-        n_nodes = adjacency.shape[0]
-
-        # Create initial labels with dict - sparse assignment
-        initial_labels = {0: 0, 10: 1, 20: 2, 30: 3}
 
         louvain = Louvain(random_state=42)
         labels = louvain.fit_predict(adjacency, initial_labels=initial_labels)
@@ -175,16 +160,6 @@ class TestLouvainClustering(unittest.TestCase):
         # Test wrong length array
         with self.assertRaises(ValueError):
             initial_labels = np.array([0, 1])  # Too short
-            louvain.fit_predict(adjacency, initial_labels=initial_labels)
-
-        # Test negative labels
-        with self.assertRaises(ValueError):
-            initial_labels = np.array([-1] * n_nodes)
-            louvain.fit_predict(adjacency, initial_labels=initial_labels)
-
-        # Test invalid node index in dict
-        with self.assertRaises(ValueError):
-            initial_labels = {n_nodes: 0}  # Index out of range
             louvain.fit_predict(adjacency, initial_labels=initial_labels)
 
     def test_initial_labels_backward_compatibility(self):
@@ -295,24 +270,6 @@ class TestLouvainClustering(unittest.TestCase):
         self.assertEqual(len(louvain.labels_row_), n_row)
         self.assertEqual(len(louvain.labels_col_), n_col)
 
-    def test_initial_labels_bipartite_row_col_dict(self):
-        """Test seeded initialization with dictionary format for row/col parameters."""
-        biadjacency = star_wars()
-        n_row, n_col = biadjacency.shape
-
-        # Create row and col labels as dictionaries
-        initial_labels_row = {0: 0, n_row//2: 1}
-        initial_labels_col = {0: 2, n_col//2: 3}
-
-        louvain = Louvain(random_state=42)
-        louvain.fit(biadjacency, initial_labels_row=initial_labels_row, initial_labels_col=initial_labels_col)
-
-        # Check that we have valid clustering for both row and col labels
-        self.assertTrue(hasattr(louvain, 'labels_row_'))
-        self.assertTrue(hasattr(louvain, 'labels_col_'))
-        self.assertEqual(len(louvain.labels_row_), n_row)
-        self.assertEqual(len(louvain.labels_col_), n_col)
-
     def test_initial_labels_bipartite_row_only(self):
         """Test seeded initialization with only row labels for bipartite graphs."""
         biadjacency = star_wars()
@@ -375,22 +332,3 @@ class TestLouvainClustering(unittest.TestCase):
             initial_labels_col = np.array([0])  # Too short
             louvain.fit(biadjacency, initial_labels_col=initial_labels_col)
 
-        # Test: negative labels in row
-        with self.assertRaises(ValueError):
-            initial_labels_row = np.array([-1] * n_row)
-            louvain.fit(biadjacency, initial_labels_row=initial_labels_row)
-
-        # Test: negative labels in col
-        with self.assertRaises(ValueError):
-            initial_labels_col = np.array([-1] * n_col)
-            louvain.fit(biadjacency, initial_labels_col=initial_labels_col)
-
-        # Test: invalid node index in row dict
-        with self.assertRaises(ValueError):
-            initial_labels_row = {n_row: 0}  # Index out of range
-            louvain.fit(biadjacency, initial_labels_row=initial_labels_row)
-
-        # Test: invalid node index in col dict
-        with self.assertRaises(ValueError):
-            initial_labels_col = {n_col: 0}  # Index out of range
-            louvain.fit(biadjacency, initial_labels_col=initial_labels_col)
