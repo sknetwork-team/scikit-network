@@ -13,7 +13,8 @@ ctypedef fused int_or_long:
 @cython.wraparound(False)
 def optimize_refine_core(int_or_long[:] labels, int_or_long[:] labels_refined, int_or_long[:] indices,
     int_or_long[:] indptr, float[:] data, float[:] out_weights, float[:] in_weights, float[:] out_cluster_weights,
-    float[:] in_cluster_weights, float[:] cluster_weights, float[:] self_loops, float resolution):  # pragma: no cover
+    float[:] in_cluster_weights, float[:] cluster_weights, float[:] self_loops, float resolution,
+    float tol_optimization):  # pragma: no cover
     """Refine clusters while maximizing modularity.
 
     Parameters
@@ -42,6 +43,8 @@ def optimize_refine_core(int_or_long[:] labels, int_or_long[:] labels_refined, i
         Weights of self loops.
     resolution :
         Resolution parameter (positive).
+    tol_optimization :
+        Minimum increase in modularity to enter a new optimization pass.
 
     Returns
     -------
@@ -102,7 +105,7 @@ def optimize_refine_core(int_or_long[:] labels, int_or_long[:] labels_refined, i
                     delta_local -= resolution * out_weight * in_cluster_weights[label_target]
                     delta_local -= resolution * in_weight * out_cluster_weights[label_target]
                     delta_local -= delta
-                    if delta_local > 0:
+                    if delta_local > tol_optimization:
                         label_target_set.insert(label_target)
                     cluster_weights[label_target] = 0
 
