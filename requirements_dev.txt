@@ -1,5 +1,5 @@
 # standard Python package manager
-pip>=26.1.1
+# pip>=26.1.1
 
 # build
 build>=1.2.2
@@ -39,10 +39,10 @@ ipykernel>=6.6.1
 pandas>=1.3.5
 
 # tests on Linux images (upon release)
-nose>=1.3.7
+# nose>=1.3.7
 
 # python package tool
-setuptools>=69.5.1
+# setuptools>=69.5.1
 
 # main test packages
 pytest-runner>=5.3.1
