@@ -23,6 +23,7 @@ jobs:
           CIBW_SKIP: cp*-musllinux* *-win32
           CIBW_ARCHS_MACOS: x86_64 arm64
           CIBW_BUILD_VERBOSITY: 3
+          CIBW_BEFORE_ALL_LINUX: "yum install -y openblas-devel || apt-get install -y libopenblas-dev"
           CIBW_BEFORE_BUILD: "pip install -r requirements_dev.txt && pip install ."
           CIBW_BUILD: cp310-* cp311-* cp312-* cp313-* cp314-*
 
