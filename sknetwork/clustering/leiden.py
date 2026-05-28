@@ -163,7 +163,7 @@ class Leiden(Louvain):
         labels_refined = np.arange(len(labels)).astype(np.int32)
         return optimize_refine_core(labels, labels_refined, indices, indptr, data, out_weights, in_weights,
                                     out_cluster_weights, in_cluster_weights, cluster_weights, self_loops,
-                                    self.resolution)
+                                    self.resolution, self.tol_optimization)
 
     @staticmethod
     def _aggregate_refine(labels, labels_refined, adjacency, out_weights, in_weights):
