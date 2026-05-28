@@ -26,7 +26,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install flake8
         python -m pip install -r requirements_dev.txt
-        python setup.py develop
+        pip install -e .
     - name: Test with pytest
       run: |
         py.test --doctest-modules --cov-report=xml --cov=sknetwork
