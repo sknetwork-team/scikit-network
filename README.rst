@@ -36,6 +36,7 @@ Resources
 * Free software: BSD license
 * GitHub: https://github.com/sknetwork-team/scikit-network
 * Documentation: https://scikit-network.readthedocs.io
+* Rust port (experimental): https://github.com/sknetwork-team/scikit-network/tree/master/sknetwork-rs
 
 Quick start
 -----------

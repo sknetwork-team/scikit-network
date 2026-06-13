@@ -1,0 +1,30 @@
+name: Rust Checks
+
+on: [push, pull_request]
+
+defaults:
+  run:
+    working-directory: sknetwork-rs
+
+jobs:
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.88
+          components: rustfmt, clippy
+
+      - name: Run tests
+        run: cargo test --all-targets
+
+      - name: Build documentation
+        run: cargo doc --no-deps
+
+      - name: Publish documentation gate
+        run: ./scripts/check_publish_docs.sh
+
+      - name: Publish package gate
+        run: ./scripts/check_publish_package.sh

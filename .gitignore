@@ -134,3 +134,10 @@ docs/tutorials/data/mygraph/
 karate_club.svg
 /venv39/
 /my_dataset/
+
+**/__pycache__/
+*.pyc
+
+sknetwork-rs/.bench-venv/
+sknetwork-rs/benchmarking/.cache/
+sknetwork-rs/benchmarking/.venv/
