@@ -14,7 +14,7 @@ for f in README.md AGENTS.md docs/rustdoc_style.md docs/PUBLISHING.md; do
 done
 
 echo "==> Checking Cargo.toml publish metadata"
-for field in description readme license license-file repository authors rust-version; do
+for field in description readme license repository authors rust-version; do
   if ! grep -q "^${field}" Cargo.toml; then
     echo "MISSING Cargo.toml field: ${field}"
     exit 1

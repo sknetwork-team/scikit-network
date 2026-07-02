@@ -6,7 +6,6 @@ rust-version = "1.88"
 description = "Rust port of scikit-network graph learning and network analysis primitives"
 readme = "README.md"
 license = "BSD-3-Clause"
-license-file = "LICENSE"
 authors = ["Scikit-network team"]
 repository = "https://github.com/sknetwork-team/scikit-network"
 homepage = "https://github.com/sknetwork-team/scikit-network"
@@ -15,6 +14,8 @@ keywords = ["graph", "network", "sparse", "clustering", "pagerank"]
 categories = ["science", "algorithms"]
 include = [
     "/src/",
+    "/README.md",
+    "/LICENSE",
 ]
 
 [package.metadata.docs.rs]

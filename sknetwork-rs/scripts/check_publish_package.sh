@@ -5,7 +5,11 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 echo "==> Building publish package"
-list=$(cargo package --allow-dirty --list 2>/dev/null)
+if ! list=$(cargo package --allow-dirty --list 2>&1); then
+  echo "FAIL: cargo package --list failed"
+  echo "$list"
+  exit 1
+fi
 
 echo "==> Checking forbidden paths"
 forbidden=(
