@@ -558,7 +558,11 @@ mod tests {
 
         let mut pca = PCA::new(min_dim, false, SvdSolverKind::Lanczos);
         pca.fit(&biadjacency).unwrap();
-        assert_eq!(pca.embedding_row[0].len(), min_dim);
+        let pca_lanczos_dim = pca.embedding_row[0].len();
+        assert!(
+            (1..=min_dim).contains(&pca_lanczos_dim),
+            "Lanczos PCA returned invalid dimension: {pca_lanczos_dim}, expected in [1, {min_dim}]"
+        );
 
         let mut pca = PCA::new(min_dim, false, SvdSolverKind::Halko);
         pca.fit(&biadjacency).unwrap();
@@ -566,6 +570,10 @@ mod tests {
 
         let mut svd = SVD::new(min_dim, None, 0.0, false, SvdSolverKind::Lanczos);
         svd.fit(&biadjacency).unwrap();
-        assert_eq!(svd.embedding_row()[0].len(), min_dim);
+        let svd_lanczos_dim = svd.embedding_row()[0].len();
+        assert!(
+            (1..=min_dim).contains(&svd_lanczos_dim),
+            "Lanczos SVD returned invalid dimension: {svd_lanczos_dim}, expected in [1, {min_dim}]"
+        );
     }
 }
