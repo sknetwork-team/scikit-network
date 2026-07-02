@@ -31,10 +31,10 @@ status=$?
 set -e
 
 if [[ $status -ne 0 ]]; then
-  count=$(echo "$output" | rg -c "missing documentation" || true)
+  count=$(echo "$output" | grep -c "missing documentation" || true)
   echo "FAIL: ${count:-?} public items lack rustdoc documentation."
   echo "See docs/PUBLISHING.md for remediation plan."
-  echo "$output" | rg "missing documentation" | head -20
+  echo "$output" | grep "missing documentation" | head -20
   exit 1
 fi
 
