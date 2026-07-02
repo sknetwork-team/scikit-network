@@ -17,8 +17,16 @@ jobs:
           toolchain: 1.88
           components: rustfmt, clippy
 
+      - name: Clippy (bug-focused lints)
+        run: >
+          cargo clippy --all-targets --features bench --
+          -W clippy::unwrap_used
+          -W clippy::expect_used
+          -W clippy::panic
+          -W clippy::indexing_slicing
+
       - name: Run tests
-        run: cargo test --all-targets
+        run: cargo test --all-targets --features bench
 
       - name: Build documentation
         run: cargo doc --no-deps
