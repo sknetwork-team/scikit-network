@@ -65,13 +65,14 @@ class NNClassifier(BaseClassifier):
     def _fit_core(self, embedding, labels, index_train, index_test):
         n_neighbors = check_n_neighbors(self.n_neighbors, len(index_train))
 
-        norms_train = get_norms(embedding[index_train], p=2)
+        embedding_train = embedding[index_train]
+        norms_train = get_norms(embedding_train, p=2)
         neighbors = []
         for i in index_test:
             vector = embedding[i]
             if sparse.issparse(vector):
                 vector = vector.toarray().ravel()
-            distances = norms_train**2 - 2 * embedding[index_train].dot(vector) + np.sum(vector**2)
+            distances = norms_train**2 - 2 * embedding_train.dot(vector) + np.sum(vector**2)
             neighbors += list(index_train[np.argpartition(distances, n_neighbors)[:n_neighbors]])
         labels_neighbor = labels[neighbors]
 
