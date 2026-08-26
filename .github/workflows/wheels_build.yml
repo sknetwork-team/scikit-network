@@ -16,9 +16,17 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.23.3
+        uses: pypa/cibuildwheel@v4.2.0
         env:
           CIBW_PLATFORM: auto
+          # Pinned so this bump stays purely additive. cibuildwheel's default
+          # manylinux image changed from manylinux2014 to manylinux_2_28 in 3.0,
+          # which would raise the glibc floor of every published wheel from 2.17
+          # to 2.28 - unrelated to Python 3.14, and a breaking change for anyone
+          # on an older distro who currently gets a wheel. Moving to
+          # manylinux_2_28 is a reasonable thing to do, but as its own decision.
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+          CIBW_MANYLINUX_AARCH64_IMAGE: manylinux2014
           CIBW_ARCHS: auto64
           CIBW_SKIP: cp*-musllinux* *-win32
           CIBW_ARCHS_MACOS: x86_64 arm64
