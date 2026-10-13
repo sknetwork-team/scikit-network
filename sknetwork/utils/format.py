@@ -50,7 +50,7 @@ def directed2undirected(adjacency: Union[sparse.csr_matrix, SparseLR],
     check_csr_or_slr(adjacency)
     if type(adjacency) == sparse.csr_matrix:
         if weighted:
-            if adjacency.data.dtype == float:
+            if np.issubdtype(adjacency.dtype, np.floating):
                 data_type = float
             else:
                 data_type = int
