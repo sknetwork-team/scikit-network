@@ -8,6 +8,8 @@ History
 * Add UGAP
 * Fix Leiden refine tolerance
 * Add custom initialization in Louvain / Leiden
+* Preserve fixed labels when propagation orders nodes by degree.
+
 
 0.33.5 (2025-11-19)
 -------------------
