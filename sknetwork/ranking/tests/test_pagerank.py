@@ -7,6 +7,7 @@ import unittest
 import numpy as np
 
 from sknetwork.data.models import cyclic_digraph
+from sknetwork.data.parse import from_edge_list
 from sknetwork.data.test_graphs import test_graph, test_digraph, test_bigraph
 from sknetwork.ranking.pagerank import PageRank
 
@@ -30,6 +31,16 @@ class TestPageRank(unittest.TestCase):
             self.assertAlmostEqual(0, np.linalg.norm(scores - self.truth))
         with self.assertRaises(ValueError):
             PageRank(solver='toto').fit_predict(self.adjacency)
+
+    def test_dangling_nodes(self):
+        # node 2 has no out-neighbor, so the random walk restarts from the seeds
+        adjacency = from_edge_list([(0, 1), (0, 2), (1, 2)], directed=True)
+        scores = np.array([0.05, 0.07125, 0.1318125])
+        truth = scores / scores.sum()
+        for solver in ['piteration', 'lanczos', 'bicgstab', 'RH', 'diteration']:
+            pagerank = PageRank(solver=solver, n_iter=100, tol=1e-9)
+            scores = pagerank.fit_predict(adjacency)
+            self.assertAlmostEqual(0, np.linalg.norm(scores - truth))
 
     def test_seeding(self):
         pagerank = PageRank()
