@@ -2,6 +2,13 @@
 History
 =======
 
+0.34.0 (2026-10-XX)
+-------------------
+
+* Add UGAP
+* Fix Leiden refine tolerance
+* Add custom initialization in Louvain / Leiden
+
 0.33.5 (2025-11-19)
 -------------------
 

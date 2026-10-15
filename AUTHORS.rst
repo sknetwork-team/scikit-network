@@ -41,3 +41,5 @@ Contributors
 * Yiwen Peng
 * Ahmed Zaiou
 * Laurène David
+* Vinicius Alcantara Gomes Reis De Souza
+
