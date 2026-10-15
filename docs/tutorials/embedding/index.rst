@@ -10,6 +10,7 @@ Embedding
    pca
    random_projection
    louvain_embedding
+   ugap
    spring
    forceatlas
 

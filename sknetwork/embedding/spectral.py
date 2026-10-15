@@ -5,7 +5,7 @@ Created on September 2018
 @author: Nathan de Lara <nathan.delara@polytechnique.org>
 @author: Thomas Bonald <bonald@enst.fr>
 """
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 from scipy import sparse
@@ -13,7 +13,8 @@ from scipy import sparse
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg import LanczosEig, Laplacian, Normalizer, normalize
 from sknetwork.utils.format import get_adjacency
-from sknetwork.utils.check import check_format, check_adjacency_vector, check_nonnegative, check_n_components
+from sknetwork.utils.check import (check_format, check_adjacency_vector, check_nonnegative,
+                                   check_n_components, check_random_state)
 
 
 class Spectral(BaseEmbedding):
@@ -37,6 +38,9 @@ class Spectral(BaseEmbedding):
     normalized : bool (default = ``True``)
         If ``True``, normalized the embedding so that each vector has norm 1 in the embedding space, i.e.,
         each vector lies on the unit sphere.
+    random_state : int or np.random.RandomState, optional
+        Random state for the eigensolver initialization. If ``None``, use the
+        eigensolver's default initialization.
     Attributes
     ----------
     embedding_ : np.ndarray, shape = (n_nodes, n_components)
@@ -62,7 +66,7 @@ class Spectral(BaseEmbedding):
     Neural computation.
     """
     def __init__(self, n_components: int = 2, decomposition: str = 'rw', regularization: float = -1,
-                 normalized: bool = True):
+                 normalized: bool = True, random_state: Optional[Union[int, np.random.RandomState]] = None):
         super(Spectral, self).__init__()
 
         self.embedding_ = None
@@ -70,6 +74,7 @@ class Spectral(BaseEmbedding):
         self.decomposition = decomposition
         self.regularization = regularization
         self.normalized = normalized
+        self.random_state = random_state
         self.bipartite = None
         self.regularized = None
         self.eigenvalues_ = None
@@ -112,7 +117,10 @@ class Spectral(BaseEmbedding):
         # spectral decomposition
         n_components = check_n_components(self.n_components, n - 2) + 1
         solver = LanczosEig(which='SM')
-        solver.fit(matrix=laplacian, n_components=n_components)
+        v0 = None
+        if self.random_state is not None:
+            v0 = check_random_state(self.random_state).normal(size=n)
+        solver.fit(matrix=laplacian, n_components=n_components, v0=v0)
         index = np.argsort(solver.eigenvalues_)[1:]  # increasing order, skip first
 
         eigenvalues = solver.eigenvalues_[index]
