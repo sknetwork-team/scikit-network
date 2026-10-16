@@ -67,6 +67,7 @@ class NNLinker(BaseLinker):
             index_col = np.arange(n)
             n_col = n
         n_neighbors = check_n_neighbors(self.n_neighbors, n_col)
+        embedding_col = embedding[index_col]
 
         row = []
         col = []
@@ -76,7 +77,7 @@ class NNLinker(BaseLinker):
             vector = embedding[i]
             if sparse.issparse(vector):
                 vector = vector.toarray().ravel()
-            similarities = embedding[index_col].dot(vector)
+            similarities = embedding_col.dot(vector)
             nn = np.argpartition(-similarities, n_neighbors)[:n_neighbors]
             mask_nn = np.zeros(n_col, dtype=bool)
             mask_nn[nn] = 1
