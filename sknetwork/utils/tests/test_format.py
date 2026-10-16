@@ -3,11 +3,36 @@
 """Tests for format.py"""
 import unittest
 
+import numpy as np
+from scipy import sparse
+
 from sknetwork.data.test_graphs import *
 from sknetwork.utils.format import *
+from sknetwork.utils.format import directed2undirected, is_symmetric
 
 
 class TestFormats(unittest.TestCase):
+
+    def test_directed2undirected_floating_weights(self):
+        for dtype in [np.float32, np.float64]:
+            with self.subTest(dtype=dtype):
+                adjacency = sparse.csr_matrix(
+                    [[0, .25, 0], [.5, 0, .75], [0, .125, 0]], dtype=dtype)
+                original = adjacency.copy()
+                result = directed2undirected(adjacency)
+                expected = [[0, .75, 0], [.75, 0, .875], [0, .875, 0]]
+                np.testing.assert_array_equal(result.toarray(), expected)
+                np.testing.assert_array_equal(adjacency.toarray(),
+                                              original.toarray())
+                self.assertTrue(is_symmetric(result))
+
+    def test_directed2undirected_integer_weights(self):
+        for dtype in [bool, np.int32, np.int64]:
+            with self.subTest(dtype=dtype):
+                adjacency = sparse.csr_matrix([[0, 1], [1, 0]], dtype=dtype)
+                result = directed2undirected(adjacency)
+                np.testing.assert_array_equal(result.toarray(),
+                                              [[0, 2], [2, 0]])
 
     def setUp(self):
         """Basic biadjacency for tests."""

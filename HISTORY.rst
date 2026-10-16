@@ -8,6 +8,8 @@ History
 * Add UGAP
 * Fix Leiden refine tolerance
 * Add custom initialization in Louvain / Leiden
+* Preserve fractional weights when making floating-point graphs undirected.
+
 
 0.33.5 (2025-11-19)
 -------------------
