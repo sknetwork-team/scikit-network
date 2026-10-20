@@ -6,3 +6,4 @@ from sknetwork.embedding.random_projection import RandomProjection
 from sknetwork.embedding.spectral import Spectral
 from sknetwork.embedding.spring import Spring
 from sknetwork.embedding.svd import SVD, GSVD, PCA
+from sknetwork.embedding.ugap import UGAP

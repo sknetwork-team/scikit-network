@@ -37,6 +37,11 @@ Louvain
 
 .. autoclass:: sknetwork.embedding.LouvainEmbedding
 
+UGAP
+----
+
+.. autoclass:: sknetwork.embedding.UGAP
+
 
 Force Atlas
 -----------

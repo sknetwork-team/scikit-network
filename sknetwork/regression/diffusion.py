@@ -134,7 +134,7 @@ class Dirichlet(BaseRegressor):
 
     Attributes
     ----------
-    values\_ : np.ndarray
+    values_ : np.ndarray
         Value of each node (= temperature).
 
     Example

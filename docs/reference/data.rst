@@ -29,8 +29,6 @@ Datasets
 
 .. autofunction:: sknetwork.data.load_netset
 
-.. autofunction:: sknetwork.data.load_konect
-
 You can also find some datasets on NetRep_.
 
 .. _NetRep: http://networkrepository.com/

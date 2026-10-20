@@ -2,9 +2,12 @@
 History
 =======
 
-Unreleased
-----------
+0.34.0 (2026-10-XX)
+-------------------
 
+* Add UGAP
+* Fix Leiden refine tolerance
+* Add custom initialization in Louvain / Leiden
 * Avoid integer overflow when computing row norms and normalizing graph matrices.
 
 0.33.5 (2025-11-19)
