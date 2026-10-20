@@ -13,7 +13,7 @@ from scipy import sparse
 from sknetwork.clustering.louvain import Louvain
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg.normalizer import normalize
-from sknetwork.utils.check import check_random_state, check_adjacency_vector, check_nonnegative, is_square
+from sknetwork.utils.check import check_random_state
 from sknetwork.utils.membership import get_membership
 
 
@@ -108,10 +108,12 @@ class LouvainEmbedding(BaseEmbedding):
             Adjacency matrix or biadjacency matrix of the graph.
         force_bipartite : bool (default = ``False``)
             If ``True``, force the input matrix to be considered as a biadjacency matrix.
+            Rows and columns then represent distinct node sets, even for a square matrix.
         Returns
         -------
-        self: :class:`BiLouvainEmbedding`
+        self: :class:`LouvainEmbedding`
         """
+        self._init_vars()
         louvain = Louvain(resolution=self.resolution, modularity=self.modularity,
                           tol_optimization=self.tol_optimization, tol_aggregation=self.tol_aggregation,
                           n_aggregations=self.n_aggregations, shuffle_nodes=self.shuffle_nodes, sort_clusters=False,
@@ -119,7 +121,7 @@ class LouvainEmbedding(BaseEmbedding):
         louvain.fit(input_matrix, force_bipartite=force_bipartite)
 
         # isolated nodes
-        if is_square(input_matrix):
+        if not louvain.bipartite:
             labels = louvain.labels_
             labels_secondary = None
         else:
