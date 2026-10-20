@@ -216,14 +216,13 @@ class UGAP(BaseEmbedding):
                 or not 0 < damping_factor < 1:
             raise ValueError('damping_factor must be between 0 and 1.')
 
-
         if isinstance(n_jobs, (bool, np.bool_)) or not isinstance(n_jobs, (int, np.integer)) or (
                 n_jobs <= 0 and n_jobs != -1):
             raise ValueError('n_jobs must be -1 or a positive integer.')
 
         self.n_components = n_components
         self.n_neighbors = n_neighbors
-        self.damping_factor = damping_factor 
+        self.damping_factor = damping_factor
         self.ppr_n_iter = ppr_n_iter
         self.ppr_tol = ppr_tol
         self.n_jobs = n_jobs
@@ -238,8 +237,22 @@ class UGAP(BaseEmbedding):
         self.lr = lr
 
     def fit(self, input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> 'UGAP':
+        """Compute the graph embedding.
 
-        adjacency, _ = get_adjacency(input_matrix, allow_empty=True)
+        For a biadjacency matrix, store the row embedding in ``embedding_``
+        and ``embedding_row_``, and the column embedding in ``embedding_col_``.
+
+        Parameters
+        ----------
+        input_matrix :
+            Adjacency matrix or biadjacency matrix of the graph.
+
+        Returns
+        -------
+        self: :class:`UGAP`
+        """
+        self._init_vars()
+        adjacency, bipartite = get_adjacency(input_matrix, allow_empty=True)
 
         n = adjacency.shape[0]
 
@@ -248,7 +261,7 @@ class UGAP(BaseEmbedding):
             raise ValueError('The graph must contain at least one node.')
         if n == 1 or adjacency.nnz == 0:
             self.embedding_ = np.zeros((n, self.n_components))
-            return self
+            return self._split_vars(input_matrix.shape) if bipartite else self
 
         # creating pagerank similarity matrix
         pagerank = PageRank(damping_factor=self.damping_factor, solver='piteration',
@@ -258,7 +271,7 @@ class UGAP(BaseEmbedding):
 
         if graph.nnz == 0:
             self.embedding_ = np.zeros((n, self.n_components))
-            return self
+            return self._split_vars(input_matrix.shape) if bipartite else self
 
         seed = int(self.random_state) % (2 ** 32) if isinstance(
             self.random_state, (int, np.integer)) else 0
@@ -283,7 +296,7 @@ class UGAP(BaseEmbedding):
         except RuntimeError as e:
             raise ValueError(f'Failed to fit the membership curve. Check min_dist ({self.min_dist}) '
                              f'and spread ({self.spread}) parameters.') from e
-        a = params[0] 
+        a = params[0]
         b = params[1]
 
         # edge sampling rate
@@ -306,4 +319,4 @@ class UGAP(BaseEmbedding):
                                          self.epochs_per_sample, self.epoch_of_next_sample,
                                          seed, float(self.gamma)))
 
-        return self
+        return self._split_vars(input_matrix.shape) if bipartite else self
