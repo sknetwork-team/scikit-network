@@ -178,6 +178,8 @@ def get_average_f1_score(labels_true: np.ndarray, labels_pred: np.ndarray, avera
         Predicted labels
     average : str
         Averaging method. Can be either ``'macro'`` (default), ``'micro'`` or ``'weighted'``.
+        The weighted average uses true-label frequencies among samples with both
+        non-negative true and predicted labels.
 
     Returns
     -------
@@ -199,7 +201,8 @@ def get_average_f1_score(labels_true: np.ndarray, labels_pred: np.ndarray, avera
         if average == 'macro':
             return np.mean(f1_scores)
         elif average == 'weighted':
-            labels_unique, counts = np.unique(labels_true[labels_true >= 0], return_counts=True)
+            mask = (labels_true >= 0) & (labels_pred >= 0)
+            labels_unique, counts = np.unique(labels_true[mask], return_counts=True)
             return np.sum(f1_scores[labels_unique] * counts) / np.sum(counts)
         else:
             raise ValueError('Check the ``average`` parameter.')

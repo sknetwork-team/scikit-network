@@ -48,6 +48,6 @@ class TestMetrics(unittest.TestCase):
         f1_score = get_average_f1_score(self.labels_true, self.labels_pred1, average='micro')
         self.assertEqual(f1_score, 0.75)
         f1_score = get_average_f1_score(self.labels_true, self.labels_pred1, average='weighted')
-        self.assertEqual(f1_score, 0.80)
+        self.assertEqual(f1_score, 0.75)
         with self.assertRaises(ValueError):
             get_average_f1_score(self.labels_true, self.labels_pred2, 'toto')
