@@ -112,10 +112,10 @@ class Propagation(BaseClassifier):
             np.random.shuffle(index_remain)
         elif self.node_order == 'decreasing':
             index = np.argsort(-adjacency.T.dot(np.ones(n))).astype(np.int32)
-            index_remain = index[index_remain]
+            index_remain = index[np.isin(index, index_remain)]
         elif self.node_order == 'increasing':
             index = np.argsort(adjacency.T.dot(np.ones(n))).astype(np.int32)
-            index_remain = index[index_remain]
+            index_remain = index[np.isin(index, index_remain)]
 
         labels = -np.ones(n, dtype=np.int32)
         labels[index_seed] = labels_seed
