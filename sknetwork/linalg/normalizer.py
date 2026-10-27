@@ -51,6 +51,9 @@ def get_norms(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
         input_matrix = matrix.copy()
     else:
         input_matrix = matrix
+    if (isinstance(input_matrix, sparse.csr_matrix)
+            and np.issubdtype(input_matrix.dtype, np.integer)):
+        input_matrix = input_matrix.astype(float)
     if p == 1:
         if not isinstance(matrix, LinearOperator):
             input_matrix.data = np.abs(input_matrix.data)
