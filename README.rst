@@ -11,7 +11,7 @@
 .. image:: https://github.com/sknetwork-team/scikit-network/actions/workflows/ci_checks.yml/badge.svg
         :target: https://github.com/sknetwork-team/scikit-network/actions/workflows/ci_checks.yml
 
-.. image:: https://readthedocs.org/projects/scikit-network/badge/?version=latest
+.. image:: https://app.readthedocs.org/projects/scikit-network/badge/?version=latest
         :target: https://scikit-network.readthedocs.io/en/latest/
         :alt: Documentation Status
 
