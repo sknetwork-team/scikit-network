@@ -51,6 +51,77 @@ class TestParser(unittest.TestCase):
         self.assertTrue((names == [0, 12, 14, 31, 42, 50]).all())
         remove(self.stub_data_4)
 
+    def test_reindex_large_integer_nodes(self):
+        for dtype, start in [(np.int64, 2**53), (np.uint64, 2**53),
+                             (np.uint64, 2**63)]:
+            edges = np.array([[start, start + 1], [start + 1, start + 2]],
+                             dtype=dtype)
+            original = edges.copy()
+            weights = np.array([2, 3])
+            names = np.array([start, start + 1, start + 2], dtype=dtype)
+            for parser, arguments in [
+                (parse.from_edge_array, (edges, weights)),
+                (parse.from_edge_list, ([(start, start + 1, 2),
+                                        (start + 1, start + 2, 3)],))
+            ]:
+                with self.subTest(dtype=dtype, start=start,
+                                  parser=parser.__name__):
+                    graph = parser(*arguments, directed=True, reindex=True)
+                    np.testing.assert_array_equal(graph.names, names)
+                    np.testing.assert_array_equal(
+                        graph.adjacency.toarray(),
+                        [[0, 2, 0], [0, 0, 3], [0, 0, 0]])
+                    np.testing.assert_array_equal(edges, original)
+
+    def test_reindex_large_integer_bipartite_nodes(self):
+        for dtype, start in [(np.int64, 2**53), (np.uint64, 2**53),
+                             (np.uint64, 2**63)]:
+            with self.subTest(dtype=dtype, start=start):
+                edges = np.array([[start, start + 1], [start + 1, start + 2]],
+                                 dtype=dtype)
+                graph = parse.from_edge_array(
+                    edges, weights=np.array([2, 3]),
+                    bipartite=True, reindex=True)
+                np.testing.assert_array_equal(graph.names_row, edges[:, 0])
+                np.testing.assert_array_equal(graph.names_col, edges[:, 1])
+                np.testing.assert_array_equal(graph.biadjacency.toarray(),
+                                              [[2, 0], [0, 3]])
+
+    def test_small_integer_node_indexing(self):
+        for dtype in [np.int8, np.int16, np.int32, np.int64,
+                      np.uint8, np.uint16, np.uint32, np.uint64]:
+            for bipartite in [False, True]:
+                with self.subTest(dtype=dtype, bipartite=bipartite):
+                    edges = np.array([[0, 2], [2, 3]], dtype=dtype)
+                    graph = parse.from_edge_array(
+                        edges, directed=True, bipartite=bipartite,
+                        matrix_only=False)
+                    matrix = (graph.biadjacency if bipartite
+                              else graph.adjacency)
+                    self.assertNotIn('names', graph)
+                    self.assertEqual(matrix.shape,
+                                     (3, 4) if bipartite else (4, 4))
+                    self.assertEqual(matrix[0, 2], 1)
+                    self.assertEqual(matrix[2, 3], 1)
+                    self.assertEqual(matrix.nnz, 2)
+
+    def test_integer_node_indexing_at_dtype_limit(self):
+        for dtype in [np.int8, np.uint8]:
+            max_index = int(np.iinfo(dtype).max)
+            edges = np.array([[0, max_index], [max_index, 1]], dtype=dtype)
+            for bipartite in [False, True]:
+                for shape in [None, (2, 2)]:
+                    with self.subTest(dtype=dtype, bipartite=bipartite,
+                                      shape=shape):
+                        matrix = parse.from_edge_array(
+                            edges, directed=True, bipartite=bipartite,
+                            shape=shape, matrix_only=True)
+                        self.assertEqual(matrix.shape,
+                                         (max_index + 1, max_index + 1))
+                        self.assertEqual(matrix[0, max_index], 1)
+                        self.assertEqual(matrix[max_index, 1], 1)
+                        self.assertEqual(matrix.nnz, 2)
+
     def test_wrong_format(self):
         self.stub_data_3 = 'stub_3.txt'
         with open(self.stub_data_3, "w") as text_file:
