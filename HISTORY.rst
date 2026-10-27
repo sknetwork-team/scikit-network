@@ -9,6 +9,7 @@ History
 * Fix Leiden refine tolerance
 * Add custom initialization in Louvain / Leiden
 * Preserve fixed labels when propagation orders nodes by degree.
+* Preserve exact integer node identifiers when reindexing edge lists.
 
 
 0.33.5 (2025-11-19)

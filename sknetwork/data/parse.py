@@ -180,10 +180,12 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
     -------
     graph : :class:`Dataset` or sparse matrix
     """
-    try:
-        edge_array = edge_array.astype(float)
-    except ValueError:
-        pass
+    # Preserve exact integer identifiers before reindexing.
+    if not np.issubdtype(edge_array.dtype, np.integer):
+        try:
+            edge_array = edge_array.astype(float)
+        except ValueError:
+            pass
     if edge_array.dtype == float and (edge_array == edge_array.astype(int)).all():
         edge_array = edge_array.astype(int)
     if weights is None:
@@ -206,37 +208,37 @@ def from_edge_array(edge_array: np.ndarray, weights: np.ndarray = None, directed
     if bipartite:
         row = edge_array[:, 0]
         col = edge_array[:, 1]
-        if row.dtype != int or reindex:
+        if not np.issubdtype(row.dtype, np.integer) or reindex:
             names_row, row = np.unique(row, return_inverse=True)
             graph.names_row = names_row
             graph.names = names_row
             n_row = len(names_row)
         elif shape is not None:
-            n_row = max(shape[0], max(row) + 1)
+            n_row = max(shape[0], int(max(row)) + 1)
         else:
-            n_row = max(row) + 1
-        if col.dtype != int or reindex:
+            n_row = int(max(row)) + 1
+        if not np.issubdtype(col.dtype, np.integer) or reindex:
             names_col, col = np.unique(col, return_inverse=True)
             graph.names_col = names_col
             n_col = len(names_col)
         elif shape is not None:
-            n_col = max(shape[1], max(col) + 1)
+            n_col = max(shape[1], int(max(col)) + 1)
         else:
-            n_col = max(col) + 1
+            n_col = int(max(col)) + 1
         matrix = sparse.csr_matrix((weights, (row, col)), shape=(n_row, n_col))
         matrix.sum_duplicates()
         graph.biadjacency = matrix
     else:
         nodes = edge_array.ravel()
-        if nodes.dtype != int or reindex:
+        if not np.issubdtype(nodes.dtype, np.integer) or reindex:
             names, nodes = np.unique(nodes, return_inverse=True)
             graph.names = names
             n = len(names)
             edge_array = nodes.reshape(-1, 2)
         elif shape is not None:
-            n = max(shape[0], max(nodes) + 1)
+            n = max(shape[0], int(max(nodes)) + 1)
         else:
-            n = max(nodes) + 1
+            n = int(max(nodes)) + 1
         row = edge_array[:, 0]
         col = edge_array[:, 1]
         matrix = sparse.csr_matrix((weights, (row, col)), shape=(n, n))
