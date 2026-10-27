@@ -9,6 +9,7 @@ History
 * Fix Leiden refine tolerance
 * Add custom initialization in Louvain / Leiden
 * Avoid integer overflow when computing row norms and normalizing graph matrices.
+* Preserve fixed labels when propagation orders nodes by degree.
 
 0.33.5 (2025-11-19)
 -------------------
