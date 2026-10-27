@@ -12,7 +12,7 @@
         :target: https://github.com/sknetwork-team/scikit-network/actions/workflows/ci_checks.yml
 
 .. image:: https://readthedocs.org/projects/scikit-network/badge/?version=latest
-        :target: https://scikit-network.readthedocs.io/en/latest/?badge=latest
+        :target: https://scikit-network.readthedocs.io/en/latest/
         :alt: Documentation Status
 
 .. image:: https://codecov.io/gh/sknetwork-team/scikit-network/branch/master/graph/badge.svg
