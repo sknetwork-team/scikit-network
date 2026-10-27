@@ -13,12 +13,15 @@ from scipy import sparse
 from sknetwork.clustering.louvain import Louvain
 from sknetwork.embedding.base import BaseEmbedding
 from sknetwork.linalg.normalizer import normalize
-from sknetwork.utils.check import check_random_state, check_adjacency_vector, check_nonnegative, is_square
+from sknetwork.utils.check import check_random_state
 from sknetwork.utils.membership import get_membership
 
 
 def reindex_labels(labels: np.ndarray, labels_secondary: Optional[np.ndarray] = None, which: str = 'remove'):
-    """Reindex labels, removing or merging labels of count 1."""
+    """Reindex labels, removing or merging labels of count 1.
+
+    Apply the same mapping to secondary labels; labels absent from the primary set are ignored.
+    """
     labels_unique, counts = np.unique(labels, return_counts=True)
     n_labels = max(labels_unique) + 1
     labels_keep = labels_unique[counts > 1]
@@ -32,11 +35,11 @@ def reindex_labels(labels: np.ndarray, labels_secondary: Optional[np.ndarray] = 
         label_index = np.arange(n_labels)
     labels = label_index[labels]
     if labels_secondary is not None:
-        labels_unique = np.unique(labels_secondary)
-        n_labels = max(labels_unique) + 1
-        label_index = -np.ones(n_labels, dtype='int')
-        label_index[labels_keep] = np.arange(len(labels_keep))
-        labels_secondary = label_index[labels_secondary]
+        n_labels = max(labels_secondary) + 1
+        label_index_secondary = -np.ones(n_labels, dtype='int')
+        labels_shared = labels_unique[labels_unique < n_labels]
+        label_index_secondary[labels_shared] = label_index[labels_shared]
+        labels_secondary = label_index_secondary[labels_secondary]
     return labels, labels_secondary
 
 
@@ -63,6 +66,7 @@ class LouvainEmbedding(BaseEmbedding):
         Random number generator or random seed. If ``None``, numpy.random is used.
     isolated_nodes : str
         What to do with isolated column nodes. Can be ``'remove'`` (default), ``'merge'`` or ``'keep'``.
+        Row and column embeddings use the same cluster coordinates in each mode.
 
     Attributes
     ----------
@@ -108,10 +112,12 @@ class LouvainEmbedding(BaseEmbedding):
             Adjacency matrix or biadjacency matrix of the graph.
         force_bipartite : bool (default = ``False``)
             If ``True``, force the input matrix to be considered as a biadjacency matrix.
+            Rows and columns then represent distinct node sets, even for a square matrix.
         Returns
         -------
-        self: :class:`BiLouvainEmbedding`
+        self: :class:`LouvainEmbedding`
         """
+        self._init_vars()
         louvain = Louvain(resolution=self.resolution, modularity=self.modularity,
                           tol_optimization=self.tol_optimization, tol_aggregation=self.tol_aggregation,
                           n_aggregations=self.n_aggregations, shuffle_nodes=self.shuffle_nodes, sort_clusters=False,
@@ -119,7 +125,7 @@ class LouvainEmbedding(BaseEmbedding):
         louvain.fit(input_matrix, force_bipartite=force_bipartite)
 
         # isolated nodes
-        if is_square(input_matrix):
+        if not louvain.bipartite:
             labels = louvain.labels_
             labels_secondary = None
         else:
@@ -135,7 +141,7 @@ class LouvainEmbedding(BaseEmbedding):
 
         if labels_row is not None:
             probs = normalize(input_matrix.T)
-            embedding_col = probs.dot(get_membership(labels_row))
+            embedding_col = probs.dot(get_membership(labels_row, n_labels=self.embedding_.shape[1]))
             self.embedding_row_ = self.embedding_
             self.embedding_col_ = embedding_col.toarray()
 
