@@ -8,6 +8,7 @@ History
 * Add UGAP
 * Fix Leiden refine tolerance
 * Add custom initialization in Louvain / Leiden
+* Preserve fractional weights when making floating-point graphs undirected.
 * Avoid integer overflow when computing row norms and normalizing graph matrices.
 * Preserve fixed labels when propagation orders nodes by degree.
 * Preserve exact integer node identifiers when reindexing edge lists.
