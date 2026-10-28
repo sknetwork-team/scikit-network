@@ -35,7 +35,7 @@ def get_norms(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
 
     Parameters
     ----------
-    matrix : numpy array or sparse CSR matrix or LinearOperator, shape (n_rows, n_cols)
+    matrix : numpy array or Scipy sparse matrix/array or LinearOperator, shape (n_rows, n_cols)
         Input matrix.
     p :
         Order of the norm (1 or 2).
@@ -47,8 +47,8 @@ def get_norms(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
     n_row, n_col = matrix.shape
     if isinstance(matrix, np.ndarray):
         input_matrix = sparse.csr_matrix(matrix)
-    elif isinstance(matrix, sparse.csr_matrix):
-        input_matrix = matrix.copy()
+    elif sparse.issparse(matrix):
+        input_matrix = sparse.csr_matrix(matrix).copy()
     else:
         input_matrix = matrix
     if (isinstance(input_matrix, sparse.csr_matrix)
@@ -80,7 +80,7 @@ def normalize(matrix: Union[sparse.csr_matrix, np.ndarray, LinearOperator], p=1)
     Returns
     -------
     normalized matrix :
-        Normalized matrix (same format as input matrix).
+        Normalized matrix. Scipy sparse inputs return a CSR matrix.
     """
     norms = get_norms(matrix, p)
     diag = diagonal_pseudo_inverse(norms)
