@@ -12,6 +12,7 @@ History
 * Avoid integer overflow when computing row norms and normalizing graph matrices.
 * Preserve fixed labels when propagation orders nodes by degree.
 * Preserve exact integer node identifiers when reindexing edge lists.
+* Compute GNN training loss from logits instead of applying the output activation twice.
 
 0.33.5 (2025-11-19)
 -------------------
