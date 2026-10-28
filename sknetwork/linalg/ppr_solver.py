@@ -34,6 +34,8 @@ class RandomSurferOperator(LinearOperator):
         Scaled transposed transition matrix.
     b : np.ndarray
         Scaled restart probability vector.
+    restart : np.ndarray
+        Restart probability of each node (1 for nodes without out-neighbors).
     """
 
     def __init__(self, adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.ndarray, damping_factor):
@@ -46,10 +48,13 @@ class RandomSurferOperator(LinearOperator):
             self.a = damping_factor * normalize(adjacency).T
         else:
             self.a = (damping_factor * normalize(adjacency)).T.tocsr()
-        self.b = (np.ones(n) - damping_factor * out_degrees) * seeds
+        self.seeds = seeds
+        self.b = (1 - damping_factor) * seeds
+        # the walk restarts from the seeds with probability 1 at nodes without out-neighbors
+        self.restart = np.ones(n) - damping_factor * out_degrees
 
     def _matvec(self, x: np.ndarray):
-        return self.a.dot(x) + self.b * x.sum()
+        return self.a.dot(x) + self.seeds * self.restart.dot(x)
 
 
 def get_pagerank(adjacency: Union[sparse.csr_matrix, LinearOperator], seeds: np.ndarray, damping_factor: float,
