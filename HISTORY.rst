@@ -7,6 +7,7 @@ History
 
 * Add UGAP
 * Fix Leiden refine tolerance
+* Use one Adam bias-correction step for all GNN layers updated together.
 * Add custom initialization in Louvain / Leiden
 * Preserve fractional weights when making floating-point graphs undirected.
 * Avoid integer overflow when computing row norms and normalizing graph matrices.

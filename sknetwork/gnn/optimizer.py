@@ -62,6 +62,8 @@ class GD(BaseOptimizer):
 class ADAM(BaseOptimizer):
     """Adam optimizer.
 
+    Bias correction uses one optimization step for all layers updated in a call to ``step``.
+
     Parameters
     ----------
     learning_rate: float (default = 0.01)
@@ -103,8 +105,8 @@ class ADAM(BaseOptimizer):
             self.m_derivative_bias, self.v_derivative_bias = \
                 [np.zeros(x.shape) for x in gnn.derivative_bias], [np.zeros(x.shape) for x in gnn.derivative_bias]
 
+        self.t += 1
         for idx, layer in enumerate(gnn.layers):
-            self.t += 1
 
             # Moving averages
             self.m_derivative_weight[idx] = \
