@@ -13,6 +13,10 @@ from sknetwork.gnn.optimizer import ADAM
 
 class TestAdamSteps(unittest.TestCase):
 
+    def setUp(self):
+        random_state = np.random.get_state()
+        self.addCleanup(np.random.set_state, random_state)
+
     def test_first_training_step(self):
         """Every layer takes Adam's first update during the first training epoch."""
         graph = karate_club(metadata=True)
