@@ -13,8 +13,8 @@ from scipy import sparse
 
 def has_nonnegative_entries(input_matrix: Union[sparse.csr_matrix, np.ndarray]) -> bool:
     """True if the array has non-negative entries."""
-    if type(input_matrix) == sparse.csr_matrix:
-        return np.all(input_matrix.data >= 0)
+    if sparse.issparse(input_matrix):
+        return np.all(input_matrix.tocsr().data >= 0)
     else:
         return np.all(input_matrix >= 0)
 
@@ -122,13 +122,22 @@ def make_weights(distribution: str, adjacency: sparse.csr_matrix) -> np.ndarray:
 
 def check_format(input_matrix: Union[sparse.csr_matrix, sparse.csc_matrix, sparse.coo_matrix, sparse.lil_matrix,
                                      np.ndarray], allow_empty: bool = False) -> sparse.csr_matrix:
-    """Check whether the matrix is a NumPy array or a Scipy sparse matrix and return
-    the corresponding Scipy CSR matrix.
+    """Check a NumPy array or Scipy sparse matrix/array and return a Scipy CSR matrix.
+
+    Sparse arrays use the existing matrix backend, including its index dtype selection.
+    A one-dimensional sparse array is treated as a row, like a one-dimensional NumPy array.
     """
     formats = {sparse.csr_matrix, sparse.csc_matrix, sparse.coo_matrix, sparse.lil_matrix, np.ndarray}
-    if type(input_matrix) not in formats:
+    if type(input_matrix) in formats:
+        input_matrix = sparse.csr_matrix(input_matrix)
+    elif sparse.issparse(input_matrix):
+        if input_matrix.ndim == 1:
+            input_matrix = input_matrix.reshape((1, input_matrix.shape[0]))
+        input_matrix = input_matrix.tocsr()
+        input_matrix = sparse.csr_matrix((input_matrix.data, input_matrix.indices, input_matrix.indptr),
+                                         shape=input_matrix.shape)
+    else:
         raise TypeError('The input matrix must be in Scipy sparse format or Numpy ndarray format.')
-    input_matrix = sparse.csr_matrix(input_matrix)
     if not allow_empty and input_matrix.nnz == 0:
         raise ValueError('The input matrix is empty.')
     return input_matrix
