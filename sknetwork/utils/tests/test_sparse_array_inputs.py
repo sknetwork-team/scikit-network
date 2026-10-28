@@ -111,10 +111,7 @@ class TestSparseArrayInputs(unittest.TestCase):
     def test_sparse_array_adjacency_vector(self):
         """One-dimensional sparse vectors have the same row shape as dense prediction vectors."""
         vector = np.array([0., 1., 0.])
-        try:
-            array = sparse.csr_array(vector)
-        except ValueError:
-            self.skipTest('This SciPy version supports only two-dimensional sparse arrays.')
+        array = sparse.csr_array(vector)
         actual = check_adjacency_vector(array, n=3)
         np.testing.assert_array_equal(actual.toarray(), vector[None, :])
         self.assertEqual(actual.shape, (1, 3))
