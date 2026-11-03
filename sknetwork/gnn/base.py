@@ -81,11 +81,19 @@ class BaseGNN(ABC, Algorithm, Log):
         return self.predict()
 
     def predict_proba(self):
-        """Return the probability distribution over labels."""
+        """Return the probability distribution over labels.
+
+        Returns
+        -------
+        probs : np.ndarray or None
+            Array of shape (n_nodes, n_classes), with one column per label.
+            Binary classifiers with one output return columns for labels 0 and 1.
+            Returns ``None`` if the model has not been fitted.
+        """
         probs = self.output_
         if probs is not None:
             if probs.shape[1] == 1:
-                probs = np.vstack(1 - probs, probs)
+                probs = np.hstack((1 - probs, probs))
         return probs
 
     def fit_predict_proba(self, *args, **kwargs) -> np.ndarray:
@@ -94,7 +102,7 @@ class BaseGNN(ABC, Algorithm, Log):
         Returns
         -------
         probs : np.ndarray
-            Probability distribution over labels.
+            Array of shape (n_nodes, n_classes), with columns for labels 0 and 1 for binary classifiers.
         """
         self.fit(*args, **kwargs)
         return self.predict_proba()
