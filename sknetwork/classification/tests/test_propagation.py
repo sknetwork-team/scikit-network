@@ -13,6 +13,19 @@ from sknetwork.data.test_graphs import *
 
 class TestLabelPropagation(unittest.TestCase):
 
+    def test_weighted_neighbor_votes(self):
+        adjacency = sparse.csr_matrix([[0, 0, 0, 2, 8],
+                                       [0, 0, 0, 7, 1],
+                                       [0, 0, 0, 4, 6],
+                                       [2, 7, 4, 0, 0],
+                                       [8, 1, 6, 0, 0]])
+        for weighted, expected in [(True, [1, 0, 1, 0, 1]),
+                                   (False, [0, 0, 0, 0, 1])]:
+            with self.subTest(weighted=weighted):
+                model = Propagation(node_order='index', weighted=weighted)
+                labels = model.fit_predict(adjacency, {3: 0, 4: 1})
+                np.testing.assert_array_equal(labels, expected)
+
     def test_degree_order_fixed_labels(self):
         adjacency = sparse.csr_matrix([[0, 0, 1, 0, 0],
                                        [0, 0, 1, 0, 0],

@@ -34,10 +34,11 @@ def vote_update(int[:] indptr, int[:] indices, float[:] data, int[:] labels, int
     for ii in range(n_indices):
         i = index[ii]
         labels_neigh.clear()
+        votes_neigh.clear()
         for j in range(indptr[i], indptr[i + 1]):
             jj = indices[j]
             labels_neigh.push_back(labels[jj])
-            votes_neigh.push_back(data[jj])
+            votes_neigh.push_back(data[j])
 
         labels_unique.clear()
         label_neigh_size = labels_neigh.size()

@@ -126,7 +126,7 @@ class Propagation(BaseClassifier):
         if self.weighted:
             data = adjacency.data.astype(np.float32)
         else:
-            data = np.ones(n, dtype=np.float32)
+            data = np.ones(adjacency.nnz, dtype=np.float32)
 
         t = 0
         while t < self.n_iter and not np.array_equal(labels_remain, labels[index_remain]):
