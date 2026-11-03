@@ -80,6 +80,7 @@ class GNNClassifier(BaseGNN):
         Predicted node labels.
     history_: dict
         Training history per epoch: {``'embedding'``, ``'loss'``, ``'train_accuracy'``, ``'val_accuracy'``}.
+        Loss is computed from the training nodes' logits before each optimizer update.
 
     Example
     -------
@@ -221,8 +222,8 @@ class GNNClassifier(BaseGNN):
             # Compute predictions
             labels_pred = self._compute_predictions(output)
 
-            # Loss
-            loss_value = self.loss.loss(output[self.train_mask], labels[self.train_mask])
+            # Loss functions include the output activation and therefore take logits.
+            loss_value = self.loss.loss(self.layers[-1].embedding[self.train_mask], labels[self.train_mask])
 
             # Accuracy
             train_accuracy = get_accuracy_score(labels[self.train_mask], labels_pred[self.train_mask])
