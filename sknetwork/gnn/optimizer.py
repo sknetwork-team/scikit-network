@@ -37,6 +37,8 @@ class BaseOptimizer:
 class GD(BaseOptimizer):
     """Gradient Descent optimizer.
 
+    Layers configured with ``use_bias=False`` keep their bias unset.
+
     Parameters
     ----------
     learning_rate: float (default = 0.01)
@@ -56,7 +58,8 @@ class GD(BaseOptimizer):
         """
         for idx, layer in enumerate(gnn.layers):
             layer.weight = layer.weight - self.learning_rate * gnn.derivative_weight[idx]
-            layer.bias = layer.bias - self.learning_rate * gnn.derivative_bias[idx]
+            if layer.use_bias:
+                layer.bias = layer.bias - self.learning_rate * gnn.derivative_bias[idx]
 
 
 class ADAM(BaseOptimizer):
