@@ -14,6 +14,7 @@ History
 * Avoid integer overflow when computing row norms and normalizing graph matrices.
 * Preserve fixed labels when propagation orders nodes by degree.
 * Preserve exact integer node identifiers when reindexing edge lists.
+* Honor forced bipartite input when computing shortest paths.
 
 0.33.5 (2025-11-19)
 -------------------
