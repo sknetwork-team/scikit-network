@@ -51,7 +51,8 @@ def get_shortest_path(input_matrix: sparse.csr_matrix, source: Optional[Union[in
            [0, 0, 1],
            [0, 0, 0]])
     """
-    distances = get_distances(input_matrix, source, source_row, source_col, force_bipartite)
+    distances = get_distances(input_matrix, source, source_row, source_col,
+                              force_bipartite=force_bipartite)
     if type(distances) == tuple:
         adjacency = bipartite2undirected(input_matrix)
         distances = np.hstack(distances)
